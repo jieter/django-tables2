@@ -1,0 +1,17 @@
+===============
+Ordering Syntax
+===============
+
+Works exactly like in the Django database API. Order may be specified as
+a list (or tuple) of column names. If prefixed with a hypen, the ordering
+for that particular field will be in reverse order.
+
+Random ordering is currently not supported.
+
+====
+TODO
+====
+
+ - Support table filters
+ - Support grouping
+ - Support choices-like data
