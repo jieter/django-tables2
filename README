@@ -1,6 +1,12 @@
-===============
-Ordering Syntax
-===============
+Tables and Pagination
+---------------------
+
+    table = MyTable(queryset)
+    p = Paginator(table.rows, 10)  # paginator will need to be able to handle our modelproxy
+
+    table = MyTable(queryset)
+    table.pagination = Paginator(10, padding=2)
+    table.paginate(DiggPaginator, 10, padding=2)
 
 Works exactly like in the Django database API. Order may be specified as
 a list (or tuple) of column names. If prefixed with a hypen, the ordering
@@ -8,9 +14,37 @@ for that particular field will be in reverse order.
 
 Random ordering is currently not supported.
 
-====
+
+Ordering Syntax
+---------------
+
+Works exactly like in the Django database API. Order may be specified as
+a list (or tuple) of column names. If prefixed with a hypen, the ordering
+for that particular field will be in reverse order.
+
+Random ordering is currently not supported.
+
+
+Template Utilities
+------------------
+
+If you want the give your users the ability to interact with your table (e.g.
+change the ordering), you will need to create urls with the appropriate
+queries. To simplify that process, django-tables comes with helpful
+templatetag:
+
+    {% set_url_param "sort" "name" %}       # ?sort=name
+    {% set_url_param "sort" %}              # delete "sort" param
+
+The template library can be found in 'django_modules.app.templates.tables'.
+If you add ''django_modules.app' to your INSTALLED_APPS setting, you will
+be able to do:
+
+    {% load tables %}
+
+
 TODO
-====
+----
 
  - Support table filters
  - Support grouping
