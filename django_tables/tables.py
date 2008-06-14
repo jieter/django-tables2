@@ -29,16 +29,12 @@ class Row(object):
     def as_html(self):
         pass
 
-from smartinspect.auto import *
-si.enabled = True
-
 class DeclarativeColumnsMetaclass(type):
     """
     Metaclass that converts Column attributes to a dictionary called
     'base_columns', taking into account parent class 'base_columns'
     as well.
     """
-    @si_main.track
     def __new__(cls, name, bases, attrs, parent_cols_from=None):
         """
         The ``parent_cols_from`` argument determins from which attribute
@@ -90,6 +86,14 @@ class DeclarativeColumnsMetaclass(type):
 
         return type.__new__(cls, name, bases, attrs)
 
+class OrderByTuple(tuple, StrAndUnicode):
+        """Stores 'order by' instructions; Currently only used to render
+        to the output (especially in templates) in a format we understand
+        as input.
+        """
+        def __unicode__(self):
+            return ",".join(self)
+
 class BaseTable(object):
     def __init__(self, data, order_by=None):
         """Create a new table instance with the iterable ``data``.
@@ -133,12 +137,15 @@ class BaseTable(object):
     def _set_order_by(self, value):
         if self._data_cache is not None:
             self._data_cache = None
-        self._order_by = isinstance(value, (tuple, list)) and value or (value,)
+        # accept both string and tuple instructions
+        self._order_by = (isinstance(value, basestring) \
+            and [value.split(',')] \
+            or [value])[0]
         # validate, remove all invalid order instructions
         def can_be_used(o):
            c = (o[:1]=='-' and [o[1:]] or [o])[0]
            return c in self.columns and self.columns[c].sortable
-        self._order_by = [o for o in self._order_by if can_be_used(o)]
+        self._order_by = OrderByTuple([o for o in self._order_by if can_be_used(o)])
         # TODO: optionally, throw an exception
     order_by = property(lambda s: s._order_by, _set_order_by)
 
