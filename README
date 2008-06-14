@@ -1,3 +1,18 @@
+django-tables
+=============
+
+Installation
+------------
+
+Adding django-tables to your INSTALLED_APPS settings is optional, it'll get
+you the ability to load some template utilities via {% load tables %}, but
+apart from that, ``import django_tables as tables`` should get you going.
+
+Running the test suite
+----------------------
+
+The test suite uses py.test (from http://codespeak.net/py/dist/test.html).
+
 Tables and Pagination
 ---------------------
 

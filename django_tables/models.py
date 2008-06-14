@@ -1,4 +1,5 @@
-from tables import BaseTable, DeclarativeColumnsMetaclass
+from django.utils.datastructures import SortedDict
+from tables import BaseTable, DeclarativeColumnsMetaclass, Column
 
 __all__ = ('BaseModelTable', 'ModelTable')
 
@@ -23,7 +24,7 @@ def columns_for_model(model, columns=None, exclude=None):
     field_list = []
     opts = model._meta
     for f in opts.fields + opts.many_to_many:
-        if (fields and not f.name in fields) or \
+        if (columns and not f.name in columns) or \
            (exclude and f.name in exclude):
             continue
         column = Column()
@@ -45,7 +46,7 @@ class ModelTableMetaclass(DeclarativeColumnsMetaclass):
         # if a model is defined, then build a list of default columns and
         # let the declared columns override them.
         if opts.model:
-            columns = columns_for_model(opts.model, opts.fields, opts.exclude)
+            columns = columns_for_model(opts.model, opts.columns, opts.exclude)
             columns.update(self.declared_columns)
             self.base_columns = columns
         return self
