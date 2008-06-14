@@ -1,6 +1,7 @@
-from django.core.paginator import Paginator
-import os, sys
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+"""Test the base table functionality.
+
+This includes the core, as well as static data, non-model tables.
+"""
 
 import django_tables as tables
 
@@ -43,7 +44,6 @@ def test_declaration():
     assert 'motto' in StateTable1.base_columns
     assert 'motto' in StateTable2.base_columns
 
-    # test more with actual models
 
 def test_basic():
     class BookTable(tables.Table):
@@ -94,58 +94,3 @@ def test_sort():
     books.order_by = 'language'
     assert not books.order_by
     test_order(('language', 'pages'), [1,3,2,4])  # as if: 'pages'
-
-def test_for_templates():
-    class BookTable(tables.Table):
-        id = tables.Column()
-        name = tables.Column()
-    books = BookTable([
-        {'id': 1, 'name': 'Foo: Bar'},
-    ])
-
-    # cast to a string we get a value ready to be passed to the querystring
-    books.order_by = ('name',)
-    assert str(books.order_by) == 'name'
-    books.order_by = ('name', '-id')
-    assert str(books.order_by) == 'name,-id'
-
-test_declaration()
-test_basic()
-test_sort()
-test_for_templates()
-
-
-"""
-<table>
-<tr>
-    {% for column in book.columns %}
-        <th><a href="{{ column.name }}">{{ column }}</a></th
-        <th><a href="{% set_url_param "sort" column.name }}">{{ column }}</a></th
-    {% endfor %}
-</tr>
-{% for row in book %}
-    <tr>
-        {% for value in row %}
-            <td>{{ value }]</td>
-        {% endfor %}
-    </tr>
-{% endfor %}
-</table>
-
-OR:
-
-<table>
-{% for row in book %}
-    <tr>
-        {% if book.columns.name.visible %}
-            <td>{{ row.name }]</td>
-        {% endif %}
-        {% if book.columns.score.visible %}
-            <td>{{ row.score }]</td>
-        {% endif %}
-    </tr>
-{% endfor %}
-</table>
-
-
-"""

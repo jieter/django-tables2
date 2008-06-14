@@ -1,5 +1,5 @@
 __all__ = (
-    'Column',
+    'Column', 'TextColumn', 'NumberColumn',
 )
 
 class Column(object):
@@ -32,7 +32,7 @@ class Column(object):
         self.default = default
         self.visible = visible
         self.sortable = sortable
-        
+
         self.creation_counter = Column.creation_counter
         Column.creation_counter += 1
 
