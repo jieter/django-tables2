@@ -13,14 +13,27 @@ Running the test suite
 
 The test suite uses py.test (from http://codespeak.net/py/dist/test.html).
 
+Defining Tables
+---------------
+
+Using Tables
+------------
+
+Create
+
 Tables and Pagination
 ---------------------
 
     table = MyTable(queryset)
     p = Paginator(table.rows, 10)  # paginator will need to be able to handle our modelproxy
 
+    or
+
     table = MyTable(queryset)
     table.pagination = Paginator(10, padding=2)
+
+    or
+
     table.paginate(DiggPaginator, 10, padding=2)
 
 Works exactly like in the Django database API. Order may be specified as
@@ -60,7 +73,7 @@ be able to do:
 
 TODO
 ----
-
- - Support table filters
- - Support grouping
- - Support choices-like data
+    - Let columns change their default ordering (ascending/descending)
+    - Filters
+    - Grouping
+    - Choices-like data
