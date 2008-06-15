@@ -48,14 +48,35 @@ def test_declaration():
 def test_basic():
     class BookTable(tables.Table):
         name = tables.Column()
+        answer = tables.Column(default=42)
+        c = tables.Column(name="count", default=1)
     books = BookTable([
         {'id': 1, 'name': 'Foo: Bar'},
     ])
     # access without order_by works
     books.data
-    # unknown fields are removed
-    for d in books.data:
-        assert not 'id' in d
+
+    for r in books.rows:
+        # unknown fields are removed
+        assert 'name' in r
+        assert not 'id' in r
+        # missing data is available as default
+        assert 'answer' in r
+        assert r['answer'] == 42   # note: different from prev. line!
+
+        # all that still works when name overrides are used
+        assert not 'c' in r
+        assert 'count' in r
+        assert r['count'] == 1
+
+    # changing an instance's base_columns does not change the class
+    assert id(books.base_columns) != id(BookTable.base_columns)
+    books.base_columns['test'] = tables.Column()
+    assert not 'test' in BookTable.base_columns
+
+    # make sure the row and column caches work
+    id(list(books.rows)[0]) == id(list(books.rows)[0])
+    id(list(books.columns)[0]) == id(list(books.columns)[0])
 
 def test_sort():
     class BookTable(tables.Table):
@@ -90,7 +111,7 @@ def test_sort():
     # test invalid order instructions
     books.order_by = 'xyz'
     assert not books.order_by
-    books.columns['language'].sortable = False
+    books.base_columns['language'].sortable = False
     books.order_by = 'language'
     assert not books.order_by
     test_order(('language', 'pages'), [1,3,2,4])  # as if: 'pages'

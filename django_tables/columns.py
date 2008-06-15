@@ -17,7 +17,10 @@ class Column(object):
     does not provide None for a row, the default will be used instead. Note
     that this currently affects ordering.
 
-    You can use ``visible`` to flag the column as hidden.
+    You can use ``visible`` to flag the column as hidden by default.
+    However, this can be overridden by the ``visibility`` argument to the
+    table constructor. If you want to make the column completely unavailable
+    to the user, set ``inaccessible`` to True.
 
     Setting ``sortable`` to False will result in this column being unusable
     in ordering.
@@ -26,11 +29,12 @@ class Column(object):
     creation_counter = 0
 
     def __init__(self, verbose_name=None, name=None, default=None,
-                 visible=True, sortable=True):
+                 visible=True, inaccessible=False, sortable=True):
         self.verbose_name = verbose_name
         self.name = name
         self.default = default
         self.visible = visible
+        self.inaccessible = inaccessible
         self.sortable = sortable
 
         self.creation_counter = Column.creation_counter
