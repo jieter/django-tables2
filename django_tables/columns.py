@@ -15,7 +15,8 @@ class Column(object):
 
     ``default`` is the default value for this column. If the data source
     does not provide None for a row, the default will be used instead. Note
-    that this currently affects ordering.
+    that whether this effects ordering might depend on the table type (model
+    or normal).
 
     You can use ``visible`` to flag the column as hidden by default.
     However, this can be overridden by the ``visibility`` argument to the

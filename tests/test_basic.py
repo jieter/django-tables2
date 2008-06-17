@@ -44,7 +44,6 @@ def test_declaration():
     assert 'motto' in StateTable1.base_columns
     assert 'motto' in StateTable2.base_columns
 
-
 def test_basic():
     class BookTable(tables.Table):
         name = tables.Column()
@@ -55,9 +54,10 @@ def test_basic():
     ])
     # access without order_by works
     books.data
+    books.rows
 
     for r in books.rows:
-        # unknown fields are removed
+        # unknown fields are removed/not-accessible
         assert 'name' in r
         assert not 'id' in r
         # missing data is available as default
@@ -75,21 +75,22 @@ def test_basic():
     assert not 'test' in BookTable.base_columns
 
     # make sure the row and column caches work
-    id(list(books.rows)[0]) == id(list(books.rows)[0])
-    id(list(books.columns)[0]) == id(list(books.columns)[0])
+    assert id(list(books.columns)[0]) == id(list(books.columns)[0])
+    # TODO: row cache currently not used
+    #assert id(list(books.rows)[0]) == id(list(books.rows)[0])
 
 def test_sort():
     class BookTable(tables.Table):
         id = tables.Column()
         name = tables.Column()
-        pages = tables.Column()
+        pages = tables.Column(name='num_pages')  # test rewritten names
         language = tables.Column(default='en')  # default affects sorting
 
     books = BookTable([
-        {'id': 1, 'pages':  60, 'name': 'Z: The Book'},    # language: en
-        {'id': 2, 'pages': 100, 'language': 'de', 'name': 'A: The Book'},
-        {'id': 3, 'pages':  80, 'language': 'de', 'name': 'A: The Book, Vol. 2'},
-        {'id': 4, 'pages': 110, 'language': 'fr', 'name': 'A: The Book, French Edition'},
+        {'id': 1, 'num_pages':  60, 'name': 'Z: The Book'},    # language: en
+        {'id': 2, 'num_pages': 100, 'language': 'de', 'name': 'A: The Book'},
+        {'id': 3, 'num_pages':  80, 'language': 'de', 'name': 'A: The Book, Vol. 2'},
+        {'id': 4, 'num_pages': 110, 'language': 'fr', 'name': 'A: The Book, French Edition'},
     ])
 
     def test_order(order, result):
@@ -97,16 +98,16 @@ def test_sort():
         assert [b['id'] for b in books.data] == result
 
     # test various orderings
-    test_order(('pages',), [1,3,2,4])
-    test_order(('-pages',), [4,2,3,1])
+    test_order(('num_pages',), [1,3,2,4])
+    test_order(('-num_pages',), [4,2,3,1])
     test_order(('name',), [2,4,3,1])
-    test_order(('language', 'pages'), [3,2,1,4])
+    test_order(('language', 'num_pages'), [3,2,1,4])
     # using a simple string (for convinience as well as querystring passing
-    test_order('-pages', [4,2,3,1])
-    test_order('language,pages', [3,2,1,4])
+    test_order('-num_pages', [4,2,3,1])
+    test_order('language,num_pages', [3,2,1,4])
 
     # [bug] test alternative order formats if passed to constructor
-    BookTable([], 'language,-pages')
+    BookTable([], 'language,-num_pages')
 
     # test invalid order instructions
     books.order_by = 'xyz'
@@ -114,4 +115,4 @@ def test_sort():
     books.base_columns['language'].sortable = False
     books.order_by = 'language'
     assert not books.order_by
-    test_order(('language', 'pages'), [1,3,2,4])  # as if: 'pages'
+    test_order(('language', 'num_pages'), [1,3,2,4])  # as if: 'num_pages'
