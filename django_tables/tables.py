@@ -137,6 +137,19 @@ class BaseTable(object):
         return self._snapshot
     data = property(lambda s: s._get_data())
 
+    def _validate_column_name(self, name, purpose):
+        """Return True/False, depending on whether the column ``name`` is
+        valid for ``purpose``. Used to validate things like ``order_by``
+        instructions.
+
+        Can be overridden by subclasses to impose further restrictions.
+        """
+        if purpose == 'order_by':
+            return name in self.columns and\
+                   self.columns[name].column.sortable
+        else:
+            return True
+
     def _set_order_by(self, value):
         if self._snapshot is not None:
             self._snapshot = None
@@ -145,10 +158,8 @@ class BaseTable(object):
             and [value.split(',')] \
             or [value])[0]
         # validate, remove all invalid order instructions
-        def can_be_used(o):
-           c = (o[:1]=='-' and [o[1:]] or [o])[0]
-           return c in self.base_columns and self.base_columns[c].sortable
-        self._order_by = OrderByTuple([o for o in self._order_by if can_be_used(o)])
+        self._order_by = OrderByTuple([o for o in self._order_by
+            if self._validate_column_name((o[:1]=='-' and [o[1:]] or [o])[0], "order_by")])
         # TODO: optionally, throw an exception
     order_by = property(lambda s: s._order_by, _set_order_by)
 
@@ -171,7 +182,7 @@ class BaseTable(object):
     def _get_rows(self):
         for row in self.data:
             yield BoundRow(self, row)
-    rows = property(_get_rows)
+    rows = property(lambda s: s._get_rows())
 
     def as_html(self):
         pass
@@ -204,12 +215,13 @@ class Columns(object):
         # ``base_columns`` might have changed since last time); creating
         # BoundColumn instances can be costly, so we reuse existing ones.
         new_columns = SortedDict()
-        for name, column in self.table.base_columns.items():
-            name = column.name or name  # take into account name overrides
-            if name in self._columns:
-                new_columns[name] = self._columns[name]
+        for decl_name, column in self.table.base_columns.items():
+            # take into account name overrides
+            exposed_name = column.name or decl_name
+            if exposed_name in self._columns:
+                new_columns[exposed_name] = self._columns[exposed_name]
             else:
-                new_columns[name] = BoundColumn(self, column, name)
+                new_columns[exposed_name] = BoundColumn(self, column, decl_name)
         self._columns = new_columns
 
     def all(self):
@@ -253,14 +265,18 @@ class Columns(object):
 class BoundColumn(StrAndUnicode):
     """'Runtime' version of ``Column`` that is bound to a table instance,
     and thus knows about the table's data.
+
+    Note name... TODO
     """
     def __init__(self, table, column, name):
         self.table = table
         self.column = column
-        self.name = column.name or name
+        self.declared_name = name
         # expose some attributes of the column more directly
         self.sortable = column.sortable
         self.visible = column.visible
+
+    name = property(lambda s: s.column.name or s.declared_name)
 
     def _get_values(self):
         # TODO: build a list of values used
@@ -288,7 +304,8 @@ class BoundRow(object):
             yield value
 
     def __getitem__(self, name):
-        "Returns the value for the column with the given name."
+        """Returns this row's value for a column. All other access methods,
+        e.g. __iter__, lead ultimately to this."""
         return self.data[name]
 
     def __contains__(self, item):

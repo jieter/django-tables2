@@ -1,6 +1,8 @@
 django-tables
 =============
 
+A Django QuerySet renderer.
+
 Installation
 ------------
 
@@ -13,13 +15,185 @@ Running the test suite
 
 The test suite uses py.test (from http://codespeak.net/py/dist/test.html).
 
-Defining Tables
----------------
+Working with Tables
+-------------------
 
-Using Tables
-------------
+A table class looks very much like a form:
 
-Create
+    import django_tables as tables
+    class CountryTable(tables.Table):
+        name = tables.Column(verbose_name="Country Name")
+        population = tables.Column(sortable=False, visible=False)
+        time_zone = tables.Column(name="tz", default="UTC+1")
+
+Instead of fields, you declare a column for every piece of data you want to
+expose to the user.
+
+To use the table, create an instance:
+
+    countries = CountryTable([{'name': 'Germany', population: 80},
+                              {'name': 'France', population: 64}])
+
+Decide how you the table should be sorted:
+
+    countries.order_by = ('name',)
+    assert [row.name for row in countries.row] == ['France', 'Germany']
+
+    countries.order_by = ('-population',)
+    assert [row.name for row in countries.row] == ['Germany', 'France']
+
+If you pass the table object along into a template, you can do:
+
+    {% for column in countries.columns %}
+        {{column}}
+    {% endfor %}
+
+Which will give you:
+
+    Country Name
+    Time Zone
+
+Note that ``population`` is skipped (as it has ``visible=False``), that the
+declared verbose name for the ``name`` column is used, and that ``time_zone``
+is converted into a more beautiful string for output automatically.
+
+Common Workflow
+~~~~~~~~~~~~~~~
+
+Usually, you are going to use a table like this. Assuming ``CountryTable``
+is defined as above, your view will create an instance and pass it to the
+template:
+
+    def list_countries(request):
+        data = ...
+        countries = CountryTable(data, order_by=request.GET.get('sort'))
+        return render_to_response('list.html', {'table': countries})
+
+Note that we are giving the incoming "sort" query string value directly to
+the table, asking for a sort. All invalid column names will (by default) be
+ignored. In this example, only "name" and "tz" are allowed, since:
+
+    * "population" has sortable=False
+    * "time_zone" has it's name overwritten with "tz".
+
+Then, in the "list.html" template, write:
+
+    <table>
+    <tr>
+        {% for column in table.columns %}
+        <th><a href="?sort={{ column.name }}">{{ column }}</a></th>
+        {% endfor %}
+    </tr>
+    {% for row in table.rows %}
+        {% for value in row %}
+            <td>{{ value }}<td>
+        {% endfor %}
+    {% endfor %}
+    </table>
+
+This will output the data as an HTML table. Note how the table is now fully
+sortable, since our link passes along the column name via the querystring,
+which in turn will be used by the server for ordering. ``order_by`` accepts
+comma-separated strings as input, and "{{ table.order_by }}" will be rendered
+as a such a string.
+
+Instead of the iterator, you can use your knowledge of the table structure to
+access columns directly:
+
+        {% if table.columns.tz.visible %}
+            {{ table.columns.tz }}
+        {% endfor %}
+
+ModelTables
+-----------
+
+Like forms, tables can also be used with models:
+
+    class CountryTable(tables.ModelTable):
+        id = tables.Column(sortable=False, visible=False)
+        class Meta:
+            model = Country
+            exclude = ['clicks']
+
+The resulting table will have one column for each model field, with the
+exception of "clicks", which is excluded. The column for "id" is overwritten
+to both hide it and deny it sort capability.
+
+When instantiating a ModelTable, you usually pass it a queryset to provide
+the table data:
+
+    qs = Country.objects.filter(continent="europe")
+    countries = CountryTable(qs)
+
+However, you can also just do:
+
+    countries = CountryTable()
+
+and all rows exposed by the default manager of the model the table is based
+on will be used.
+
+If you are using model inheritance, then the following also works:
+
+    countries = CountryTable(CountrySubclass)
+
+Note that while you can pass any model, it really only makes sense if the
+model also provides fields for the columns you have defined.
+
+Custom Columns
+~~~~~~~~~~~~~~
+
+You an add custom columns to your ModelTable that are not based on actual
+model fields:
+
+    class CountryTable(tables.ModelTable):
+        custom = tables.Column(default="foo")
+        class Meta:
+            model = Country
+
+Just make sure your model objects do provide an attribute with that name.
+Functions are also supported, so ``Country.custom`` could be a callable.
+
+ModelTable Specialities
+~~~~~~~~~~~~~~~~~~~~~~~
+
+ModelTables currently have some restrictions with respect to ordering:
+
+    * Custom columns not based on a model field do not support ordering,
+      regardless of ``sortable`` property (it is ignored).
+
+    * A ModelTable column's ``default`` value does not affect ordering.
+      This differs from the non-model table behaviour.
+
+Columns
+-------
+
+verbose_name, default, visible, sortable
+    ``verbose_name`` defines a display name for this column used for output.
+
+    ``name`` is the internal name of the column. Normally you don't need to
+    specify this, as the attribute that you make the column available under
+    is used. However, in certain circumstances it can be useful to override
+    this default, e.g. when using ModelTables if you want a column to not
+    use the model field name.
+
+    ``default`` is the default value for this column. If the data source
+    does not provide None for a row, the default will be used instead. Note
+    that whether this effects ordering might depend on the table type (model
+    or normal).
+
+    You can use ``visible`` to flag the column as hidden by default.
+    However, this can be overridden by the ``visibility`` argument to the
+    table constructor. If you want to make the column completely unavailable
+    to the user, set ``inaccessible`` to True.
+
+    Setting ``sortable`` to False will result in this column being unusable
+    in ordering.
+
+``django_tables.columns`` currently defines three classes, ``Column``,
+``TextColumn`` and ``NumberColumn``. However, the two subclasses currently
+don't do anything special at all, so you can simply use the base class.
+While this will likely change in the future (e.g. when grouping is added),
+the base column class will continue to work by itself.
 
 Tables and Pagination
 ---------------------
@@ -73,7 +247,9 @@ be able to do:
 
 TODO
 ----
-    - Let columns change their default ordering (ascending/descending)
-    - Filters
-    - Grouping
-    - Choices-like data
+    - as_html methods are all empty right now
+    - table.column[].values is a stub
+    - let columns change their default ordering (ascending/descending)
+    - filters
+    - grouping
+    - choices support for columns (internal column value will be looked up for output)
