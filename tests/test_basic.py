@@ -52,9 +52,15 @@ def test_basic():
     books = BookTable([
         {'id': 1, 'name': 'Foo: Bar'},
     ])
+
     # access without order_by works
     books.data
     books.rows
+
+    # make sure BoundColumnn.name always gives us the right thing, whether
+    # the column explicitely defines a name or not.
+    books.columns['count'].name == 'count'
+    books.columns['answer'].name == 'answer'
 
     for r in books.rows:
         # unknown fields are removed/not-accessible
