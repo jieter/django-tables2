@@ -1,6 +1,7 @@
 import copy
 from django.utils.datastructures import SortedDict
 from django.utils.encoding import StrAndUnicode
+from django.utils.text import capfirst
 from columns import Column
 
 __all__ = ('BaseTable', 'Table')
@@ -334,7 +335,7 @@ class BoundColumn(StrAndUnicode):
     values = property(_get_values)
 
     def __unicode__(self):
-        return self.column.verbose_name or self.name
+        return capfirst(self.column.verbose_name or self.name.replace('_', ' '))
 
     def as_html(self):
         pass

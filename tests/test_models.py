@@ -160,5 +160,4 @@ def test_pagination():
 # TODO: support function column sources both for modeltables (methods on model) and static tables (functions in dict)
 # TODO: manual base columns change -> update() call (add as example in docstr here) -> rebuild snapshot: is row cache, column cache etc. reset?
 # TODO: test that boundcolumn.name works with name overrides and without
-# TODO: more beautiful auto column names
 # TODO: throw an exception on invalid order_by
