@@ -144,11 +144,11 @@ def test_sort():
     test_order('-population', [2,3,4,1])
     test_order('system,-population', [2,4,3,1])
 
-    # test invalid order instructions
+    # test invalid order instructions...
     countries.order_by = 'invalid_field,population'
     assert countries.order_by == ('population',)
-    # ...for modeltables, this primarily means that only model-based colunns
-    # are currently sortable at all.
+    # ...in case of ModelTables, this primarily means that only
+    # model-based colunns are currently sortable at all.
     countries.order_by = ('custom1', 'custom2')
     assert countries.order_by == ()
 
@@ -161,4 +161,4 @@ def test_pagination():
 # TODO: manual base columns change -> update() call (add as example in docstr here) -> rebuild snapshot: is row cache, column cache etc. reset?
 # TODO: test that boundcolumn.name works with name overrides and without
 # TODO: more beautiful auto column names
-# TODO: normal tables should handle name overrides differently; the backend data should still use declared_name
+# TODO: throw an exception on invalid order_by

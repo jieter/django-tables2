@@ -67,7 +67,6 @@ def test_columns_and_rows():
     assert countries.columns['name'].visible == True
     assert countries.columns['tld'].visible == False
 
-
 def test_render():
     """For good measure, render some actual templates."""
 
@@ -80,10 +79,10 @@ def test_render():
         calling_code = tables.NumberColumn(name="cc", verbose_name="Phone Ext.")
 
     countries = CountryTable(
-        [{'name': 'Germany', 'capital': 'Berlin', 'population': 83, 'currency': 'Euro (€)', 'tld': 'de', 'cc': 49},
-         {'name': 'France', 'population': 64, 'currency': 'Euro (€)', 'tld': 'fr', 'cc': 33},
-         {'name': 'Netherlands', 'capital': 'Amsterdam', 'cc': '31'},
-         {'name': 'Austria', 'cc': 43, 'currency': 'Euro (€)', 'population': 8}])
+        [{'name': 'Germany', 'capital': 'Berlin', 'population': 83, 'currency': 'Euro (€)', 'tld': 'de', 'calling_code': 49},
+         {'name': 'France', 'population': 64, 'currency': 'Euro (€)', 'tld': 'fr', 'calling_code': 33},
+         {'name': 'Netherlands', 'capital': 'Amsterdam', 'calling_code': '31'},
+         {'name': 'Austria', 'calling_code': 43, 'currency': 'Euro (€)', 'population': 8}])
 
     from django.template import Template, Context
 

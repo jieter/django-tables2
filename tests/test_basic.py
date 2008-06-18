@@ -87,10 +87,10 @@ def test_sort():
         language = tables.Column(default='en')  # default affects sorting
 
     books = BookTable([
-        {'id': 1, 'num_pages':  60, 'name': 'Z: The Book'},    # language: en
-        {'id': 2, 'num_pages': 100, 'language': 'de', 'name': 'A: The Book'},
-        {'id': 3, 'num_pages':  80, 'language': 'de', 'name': 'A: The Book, Vol. 2'},
-        {'id': 4, 'num_pages': 110, 'language': 'fr', 'name': 'A: The Book, French Edition'},
+        {'id': 1, 'pages':  60, 'name': 'Z: The Book'},    # language: en
+        {'id': 2, 'pages': 100, 'language': 'de', 'name': 'A: The Book'},
+        {'id': 3, 'pages':  80, 'language': 'de', 'name': 'A: The Book, Vol. 2'},
+        {'id': 4, 'pages': 110, 'language': 'fr', 'name': 'A: The Book, French Edition'},
     ])
 
     def test_order(order, result):

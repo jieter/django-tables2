@@ -117,18 +117,34 @@ class BaseTable(object):
         self.base_columns = copy.deepcopy(type(self).base_columns)
 
     def _build_snapshot(self):
+        """Rebuilds the table whenever it's options change.
+
+        Whenver the table options change, e.g. say a new sort order,
+        this method will be asked to regenerate the actual table from
+        the linked data source.
+
+        In the case of this base table implementation, a copy of the
+        source data is created, and then modified appropriately.
+        """
         snapshot = copy.copy(self._data)
         for row in snapshot:
-            # delete unknown columns and add missing ones; note that
-            # self.columns already accounts for column name overrides.
-            for column in row.keys():
-                if not column in self.columns:
-                    del row[column]
-            for colname, colobj in self.columns.items():
-                if not colname in row:
-                    row[colname] = colobj.column.default
+            # delete unknown columns that are in the source data, but that
+            # we don't know about.
+            # TODO: does this even make sense? we might in some cases save
+            # memory, but at what performance cost?
+            decl_colnames = [c.declared_name for c in self.columns.all()]
+            for key in row.keys():
+                if not key in decl_colnames:
+                    del row[key]
+            # add data for defined columns that is missing from the source.
+            # we do this so that colunn default values can affect sorting,
+            # which is the current design decision.
+            for column in self.columns.all():
+                if not column.declared_name in row:
+                    row[column.declared_name] = column.column.default
+
         if self.order_by:
-            sort_table(snapshot, self.order_by)
+            sort_table(snapshot, self._cols_to_fields(self.order_by))
         self._snapshot = snapshot
 
     def _get_data(self):
@@ -136,6 +152,28 @@ class BaseTable(object):
             self._build_snapshot()
         return self._snapshot
     data = property(lambda s: s._get_data())
+
+    def _cols_to_fields(self, names):
+        """Utility function. Given a list of column names (as exposed to
+        the user), converts column names to the names we have to use to
+        retrieve a column's data from the source.
+
+        Right now, the name used in the table declaration is used for
+        access, but a column can define it's own alias-like name that will
+        be used to refer to the column from outside.
+
+        Supports prefixed column names as used e.g. in order_by ("-field").
+        """
+        result = []
+        for ident in names:
+            if ident[:1] == '-':
+                name = ident[1:]
+                prefix = '-'
+            else:
+                name = ident
+                prefix = ''
+            result.append(prefix + self.columns[name].declared_name)
+        return result
 
     def _validate_column_name(self, name, purpose):
         """Return True/False, depending on whether the column ``name`` is
@@ -160,7 +198,6 @@ class BaseTable(object):
         # validate, remove all invalid order instructions
         self._order_by = OrderByTuple([o for o in self._order_by
             if self._validate_column_name((o[:1]=='-' and [o[1:]] or [o])[0], "order_by")])
-        # TODO: optionally, throw an exception
     order_by = property(lambda s: s._order_by, _set_order_by)
 
     def __unicode__(self):
@@ -225,6 +262,11 @@ class Columns(object):
         self._columns = new_columns
 
     def all(self):
+        """Iterate through all columns, regardless of visiblity (as
+        opposed to ``__iter__``.
+
+        This is used internally a lot.
+        """
         self._spawn_columns()
         for column in self._columns.values():
             yield column
@@ -234,7 +276,7 @@ class Columns(object):
         for r in self._columns.items():
             yield r
 
-    def keys(self):
+    def names(self):
         self._spawn_columns()
         for r in self._columns.keys():
             yield r
@@ -244,6 +286,10 @@ class Columns(object):
         return self._columns.keyOrder.index(name)
 
     def __iter__(self):
+        """Iterate through all *visible* bound columns.
+
+        This is primarily geared towards table rendering.
+        """
         for column in self.all():
             if column.column.visible:
                 yield column
@@ -252,7 +298,7 @@ class Columns(object):
         """Check by both column object and column name."""
         self._spawn_columns()
         if isinstance(item, basestring):
-            return item in self.keys()
+            return item in self.names()
         else:
             return item in self.all()
 
@@ -266,7 +312,11 @@ class BoundColumn(StrAndUnicode):
     """'Runtime' version of ``Column`` that is bound to a table instance,
     and thus knows about the table's data.
 
-    Note name... TODO
+    Note that the name that is passed in tells us how this field is
+    delared in the bound table. The column itself can overwrite this name.
+    While the overwritten name will be hat mostly counts, we need to
+    remember the one used for declaration as well, or we won't know how
+    to read a column's value from the source.
     """
     def __init__(self, table, column, name):
         self.table = table
@@ -306,7 +356,7 @@ class BoundRow(object):
     def __getitem__(self, name):
         """Returns this row's value for a column. All other access methods,
         e.g. __iter__, lead ultimately to this."""
-        return self.data[name]
+        return self.data[self.table.columns[name].declared_name]
 
     def __contains__(self, item):
         """Check by both row object and column name."""

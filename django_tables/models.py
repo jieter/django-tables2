@@ -79,24 +79,6 @@ class BaseModelTable(BaseTable):
 
         super(BaseModelTable, self).__init__(self.queryset, *args, **kwargs)
 
-    def _cols_to_fields(self, names):
-        """Utility function. Given a list of column names (as exposed to the
-        user), converts overwritten column names to their corresponding model
-        field name.
-
-        Supports prefixed field names as used e.g. in order_by ("-field").
-        """
-        result = []
-        for ident in names:
-            if ident[:1] == '-':
-                name = ident[1:]
-                prefix = '-'
-            else:
-                name = ident
-                prefix = ''
-            result.append(prefix + self.columns[name].declared_name)
-        return result
-
     def _validate_column_name(self, name, purpose):
         """Overridden. Only allow model-based fields to be sorted."""
         if purpose == 'order_by':
