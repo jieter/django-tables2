@@ -44,7 +44,7 @@ def test_columns_and_rows():
     # column name override, hidden columns
     assert [c.name for c in countries.columns] == ['name', 'capital', 'population', 'cc']
     # verbose_name, and fallback to field name
-    assert [unicode(c) for c in countries.columns] == ['name', 'capital', 'Population Size', 'Phone Ext.']
+    assert [unicode(c) for c in countries.columns] == ['Name', 'Capital', 'Population Size', 'Phone Ext.']
 
     # data yielded by each row matches the defined columns
     for row in countries.rows:
@@ -88,7 +88,7 @@ def test_render():
 
     assert Template("{% for column in countries.columns %}{{ column }}/{{ column.name }} {% endfor %}").\
         render(Context({'countries': countries})) == \
-        "name/name capital/capital Population Size/population Phone Ext./cc "
+        "Name/name Capital/capital Population Size/population Phone Ext./cc "
 
     assert Template("{% for row in countries %}{% for value in row %}{{ value }} {% endfor %}{% endfor %}").\
         render(Context({'countries': countries})) == \

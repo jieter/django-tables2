@@ -51,7 +51,7 @@ If you pass the table object along into a template, you can do:
 Which will give you:
 
     Country Name
-    Time Zone
+    Timezone
 
 Note that ``population`` is skipped (as it has ``visible=False``), that the
 declared verbose name for the ``name`` column is used, and that ``time_zone``
