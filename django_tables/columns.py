@@ -25,16 +25,12 @@ class Column(object):
 
     Setting ``sortable`` to False will result in this column being unusable
     in ordering.
-
-    The ``choices`` argument currently expects a boolean value (defaults to
-    False). If enabled, the column will be able to hold an id/value pair.
     """
     # Tracks each time a Column instance is created. Used to retain order.
     creation_counter = 0
 
     def __init__(self, verbose_name=None, name=None, default=None,
-                 visible=True, inaccessible=False, sortable=True,
-                 choices=None):
+                 visible=True, inaccessible=False, sortable=True):
         self.verbose_name = verbose_name
         self.name = name
         self.default = default
