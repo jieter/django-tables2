@@ -122,22 +122,3 @@ def test_sort():
     books.order_by = 'language'
     assert not books.order_by
     test_order(('language', 'num_pages'), [1,3,2,4])  # as if: 'num_pages'
-
-def test_choices():
-    # unrestricted choices
-    class BookTable(tables.Table):
-        id = tables.Column()
-        name = tables.Column()
-        author = tables.Column(choices=True)
-
-    books = BookTable([
-        {'id': 1, 'name': 'A'},
-        {'id': 2, 'author': (99, 'Mr. Vanderlay'), 'name': 'B'},
-        {'id': 3, 'author': 'Mr. Vanderlay', 'name': 'C'},
-        {'id': 4, 'author': {'id': 99, 'value': 'Mr. Vanderlay'}, 'name': 'D'},
-    ])
-
-    assert [r['author'].id for r in books.rows] == [None, 99, None, 99]
-    assert [r['author'].value for r in books.rows] == [None, 'Mr. Vanderlay', 'Mr. Vanderlay', 'Mr. Vanderlay']
-
-    # TODO: restricted choices (planned)

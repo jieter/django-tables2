@@ -152,9 +152,6 @@ def test_sort():
     countries.order_by = ('custom1', 'custom2')
     assert countries.order_by == ()
 
-def test_choices():
-    pass # TODO
-
 def test_pagination():
     pass
 

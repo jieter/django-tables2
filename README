@@ -190,11 +190,6 @@ verbose_name, default, visible, sortable
     Setting ``sortable`` to False will result in this column being unusable
     in ordering.
 
-    The ``choices`` argument currently expects a boolean value (defaults to
-    False). If enabled, the column will be able to hold an id/value pair.
-    more extensive choices support (mapping an id to predefined value) is
-    forthcoming.
-
 ``django_tables.columns`` currently defines three classes, ``Column``,
 ``TextColumn`` and ``NumberColumn``. However, the two subclasses currently
 don't do anything special at all, so you can simply use the base class.
