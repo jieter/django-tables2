@@ -232,6 +232,35 @@ for that particular field will be in reverse order.
 Random ordering is currently not supported.
 
 
+Error handling
+--------------
+
+Passing incoming query string values from the request directly to the
+table constructor is a common thing to do. However, such data can easily
+be invalid, be it that a user manually modified it, or someone put up a
+broken link. In those cases, you usually would not want to raise an
+exception (nor be notified by Django's error notification mechanism) -
+there is nothing you could do anyway.
+
+Because of this, such errors will by default be silently ignored. For
+example, if one out of three columns in an "order_by" is invalid, the other
+two will still be applied:
+
+    table.order_by = ('name', 'totallynotacolumn', '-date)
+    assert table.order_by = ('name', '-date)
+
+This ensures that the following table will be created regardless of the
+string in "sort.
+
+    table = MyTable(data, order_by=request.GET.get('sort'))
+
+However, if you want, you can disable this behaviour and have an exception
+raised instead, using:
+
+    import django_tables
+    django_tables.options.IGNORE_INVALID_OPTIONS = False
+
+
 Template Utilities
 ------------------
 

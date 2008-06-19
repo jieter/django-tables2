@@ -3,6 +3,7 @@
 This includes the core, as well as static data, non-model tables.
 """
 
+from py.test import raises
 import django_tables as tables
 
 def test_declaration():
@@ -85,6 +86,15 @@ def test_basic():
     # TODO: row cache currently not used
     #assert id(list(books.rows)[0]) == id(list(books.rows)[0])
 
+    # optionally, exceptions can be raised when input is invalid
+    tables.options.IGNORE_INVALID_OPTIONS = False
+    raises(Exception, "books.order_by = '-name,made-up-column'")
+    raises(Exception, "books.order_by = ('made-up-column',)")
+    # when a column name is overwritten, the original won't work anymore
+    raises(Exception, "books.order_by = 'c'")
+    # reset for future tests
+    tables.options.IGNORE_INVALID_OPTIONS = True
+
 def test_sort():
     class BookTable(tables.Table):
         id = tables.Column()
@@ -111,6 +121,7 @@ def test_sort():
     # using a simple string (for convinience as well as querystring passing
     test_order('-num_pages', [4,2,3,1])
     test_order('language,num_pages', [3,2,1,4])
+    # TODO: test that unrewritte name has no effect
 
     # [bug] test alternative order formats if passed to constructor
     BookTable([], 'language,-num_pages')
