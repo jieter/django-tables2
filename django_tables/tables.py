@@ -136,6 +136,11 @@ class BaseTable(object):
         In the case of this base table implementation, a copy of the
         source data is created, and then modified appropriately.
         """
+
+        # reset caches
+        self._columns._reset()
+        self._rows = None
+
         snapshot = copy.copy(self._data)
         for row in snapshot:
             # delete unknown columns that are in the source data, but that
@@ -239,6 +244,17 @@ class BaseTable(object):
     def as_html(self):
         pass
 
+    def update(self):
+        """Update the table based on it's current options.
+
+        Normally, you won't have to call this method, since the table
+        updates itself (it's caches) automatically whenever you change
+        any of the properties. However, in some rare cases those
+        changes might not be picked up, for example if you manually
+        change ``base_columns`` or any of the columns in it.
+        """
+        self._build_snapshot()
+
 class Table(BaseTable):
     "A collection of columns, plus their associated data rows."
     # This is a separate class from BaseTable in order to abstract the way
@@ -260,6 +276,10 @@ class Columns(object):
     """
     def __init__(self, table):
         self.table = table
+        self._columns = SortedDict()
+
+    def _reset(self):
+        """Used by parent table class."""
         self._columns = SortedDict()
 
     def _spawn_columns(self):

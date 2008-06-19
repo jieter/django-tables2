@@ -81,11 +81,6 @@ def test_basic():
     books.base_columns['test'] = tables.Column()
     assert not 'test' in BookTable.base_columns
 
-    # make sure the row and column caches work
-    assert id(list(books.columns)[0]) == id(list(books.columns)[0])
-    # TODO: row cache currently not used
-    #assert id(list(books.rows)[0]) == id(list(books.rows)[0])
-
     # optionally, exceptions can be raised when input is invalid
     tables.options.IGNORE_INVALID_OPTIONS = False
     raises(Exception, "books.order_by = '-name,made-up-column'")
@@ -94,6 +89,28 @@ def test_basic():
     raises(Exception, "books.order_by = 'c'")
     # reset for future tests
     tables.options.IGNORE_INVALID_OPTIONS = True
+
+def test_caches():
+    """Ensure the various caches are effective.
+    """
+
+    class BookTable(tables.Table):
+        name = tables.Column()
+        answer = tables.Column(default=42)
+    books = BookTable([
+        {'name': 'Foo: Bar'},
+    ])
+
+    assert id(list(books.columns)[0]) == id(list(books.columns)[0])
+    # TODO: row cache currently not used
+    #assert id(list(books.rows)[0]) == id(list(books.rows)[0])
+
+    # test that caches are reset after an update()
+    old_column_cache = id(list(books.columns)[0])
+    old_row_cache = id(list(books.rows)[0])
+    books.update()
+    assert id(list(books.columns)[0]) != old_column_cache
+    assert id(list(books.rows)[0]) != old_row_cache
 
 def test_sort():
     class BookTable(tables.Table):
