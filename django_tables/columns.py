@@ -37,7 +37,6 @@ class Column(object):
         self.visible = visible
         self.inaccessible = inaccessible
         self.sortable = sortable
-        self.choices = choices
 
         self.creation_counter = Column.creation_counter
         Column.creation_counter += 1
