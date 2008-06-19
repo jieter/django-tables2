@@ -140,6 +140,10 @@ If you are using model inheritance, then the following also works:
 Note that while you can pass any model, it really only makes sense if the
 model also provides fields for the columns you have defined.
 
+If you just want to use ModelTables, but without auto-generated columns,
+you do not have to list all model fields in the ``exclude`` Meta option.
+Instead, simply don't specify a model.
+
 Custom Columns
 ~~~~~~~~~~~~~~
 

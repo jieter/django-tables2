@@ -86,6 +86,7 @@ def test_declaration():
 def test_basic():
     """Some tests here are copied from ``test_basic.py`` but need to be
     rerun with a ModelTable, as the implementation is different."""
+
     class CountryTable(tables.ModelTable):
         null = tables.Column(default="foo")
         tld = tables.Column(name="domain")
@@ -94,21 +95,35 @@ def test_basic():
             exclude = ('id',)
     countries = CountryTable()
 
-    for r in countries.rows:
-        # "normal" fields exist
-        assert 'name' in r
-        # unknown fields are removed/not accessible
-        assert not 'does-not-exist' in r
-        # ...so are excluded fields
-        assert not 'id' in r
-        # missing data is available with default values
-        assert 'null' in r
-        assert r['null'] == "foo"   # note: different from prev. line!
+    def test_country_table(table):
+        for r in table.rows:
+            # "normal" fields exist
+            assert 'name' in r
+            # unknown fields are removed/not accessible
+            assert not 'does-not-exist' in r
+            # ...so are excluded fields
+            assert not 'id' in r
+            # missing data is available with default values
+            assert 'null' in r
+            assert r['null'] == "foo"   # note: different from prev. line!
 
-        # all that still works when name overrides are used
-        assert not 'tld' in r
-        assert 'domain' in r
-        assert len(r['domain']) == 2   # valid country tld
+            # all that still works when name overrides are used
+            assert not 'tld' in r
+            assert 'domain' in r
+            assert len(r['domain']) == 2   # valid country tld
+    test_country_table(countries)
+
+    # repeat the avove tests with a table that is not associated with a
+    # model, and all columns being created manually.
+    class CountryTable(tables.ModelTable):
+        name = tables.Column()
+        population = tables.Column()
+        capital = tables.Column()
+        system = tables.Column()
+        null = tables.Column(default="foo")
+        tld = tables.Column(name="domain")
+    countries = CountryTable(Country)
+    test_country_table(countries)
 
     # make sure the row and column caches work for model tables as well
     assert id(list(countries.columns)[0]) == id(list(countries.columns)[0])
@@ -159,4 +174,3 @@ def test_pagination():
 # TODO: support function column sources both for modeltables (methods on model) and static tables (functions in dict)
 # TODO: manual base columns change -> update() call (add as example in docstr here) -> rebuild snapshot: is row cache, column cache etc. reset?
 # TODO: throw an exception on invalid order_by
-# TODO: option to skip model table generation (leave off model option?)

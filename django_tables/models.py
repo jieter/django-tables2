@@ -71,8 +71,11 @@ class BaseModelTable(BaseTable):
     """
     def __init__(self, data=None, *args, **kwargs):
         if data == None:
+            if self._meta.model is None:
+                raise ValueError('Table without a model association needs '
+                    'to be initialized with data')
             self.queryset = self._meta.model._default_manager.all()
-        elif isinstance(data, models.Model):
+        elif hasattr(data, '_default_manager'): # saves us db.models import
             self.queryset = data._default_manager.all()
         else:
             self.queryset = data
