@@ -68,12 +68,12 @@ def test_basic():
         assert not 'id' in r
         # missing data is available as default
         assert 'answer' in r
-        assert r['answer'].value == 42   # note: different from prev. line!
+        assert r['answer'] == 42   # note: different from prev. line!
 
         # all that still works when name overrides are used
         assert not 'c' in r
         assert 'count' in r
-        assert r['count'].value == 1
+        assert r['count'] == 1
 
     # changing an instance's base_columns does not change the class
     assert id(books.base_columns) != id(BookTable.base_columns)
