@@ -34,7 +34,7 @@ To use the table, create an instance:
     countries = CountryTable([{'name': 'Germany', population: 80},
                               {'name': 'France', population: 64}])
 
-Decide how you the table should be sorted:
+Decide how the table should be sorted:
 
     countries.order_by = ('name',)
     assert [row.name for row in countries.row] == ['France', 'Germany']
@@ -103,6 +103,7 @@ access columns directly:
         {% if table.columns.tz.visible %}
             {{ table.columns.tz }}
         {% endfor %}
+
 
 ModelTables
 -----------
@@ -188,6 +189,11 @@ verbose_name, default, visible, sortable
 
     Setting ``sortable`` to False will result in this column being unusable
     in ordering.
+
+    The ``choices`` argument currently expects a boolean value (defaults to
+    False). If enabled, the column will be able to hold an id/value pair.
+    more extensive choices support (mapping an id to predefined value) is
+    forthcoming.
 
 ``django_tables.columns`` currently defines three classes, ``Column``,
 ``TextColumn`` and ``NumberColumn``. However, the two subclasses currently

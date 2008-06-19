@@ -68,12 +68,12 @@ def test_basic():
         assert not 'id' in r
         # missing data is available as default
         assert 'answer' in r
-        assert r['answer'] == 42   # note: different from prev. line!
+        assert r['answer'].value == 42   # note: different from prev. line!
 
         # all that still works when name overrides are used
         assert not 'c' in r
         assert 'count' in r
-        assert r['count'] == 1
+        assert r['count'].value == 1
 
     # changing an instance's base_columns does not change the class
     assert id(books.base_columns) != id(BookTable.base_columns)
@@ -122,3 +122,22 @@ def test_sort():
     books.order_by = 'language'
     assert not books.order_by
     test_order(('language', 'num_pages'), [1,3,2,4])  # as if: 'num_pages'
+
+def test_choices():
+    # unrestricted choices
+    class BookTable(tables.Table):
+        id = tables.Column()
+        name = tables.Column()
+        author = tables.Column(choices=True)
+
+    books = BookTable([
+        {'id': 1, 'name': 'A'},
+        {'id': 2, 'author': (99, 'Mr. Vanderlay'), 'name': 'B'},
+        {'id': 3, 'author': 'Mr. Vanderlay', 'name': 'C'},
+        {'id': 4, 'author': {'id': 99, 'value': 'Mr. Vanderlay'}, 'name': 'D'},
+    ])
+
+    assert [r['author'].id for r in books.rows] == [None, 99, None, 99]
+    assert [r['author'].value for r in books.rows] == [None, 'Mr. Vanderlay', 'Mr. Vanderlay', 'Mr. Vanderlay']
+
+    # TODO: restricted choices (planned)

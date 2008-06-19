@@ -152,11 +152,14 @@ def test_sort():
     countries.order_by = ('custom1', 'custom2')
     assert countries.order_by == ()
 
+def test_choices():
+    pass # TODO
+
 def test_pagination():
     pass
 
-# TODO: foreignkey columns: simply support foreignkeys, tuples and id, name dicts; support column choices attribute to validate id-only
 # TODO: pagination
 # TODO: support function column sources both for modeltables (methods on model) and static tables (functions in dict)
 # TODO: manual base columns change -> update() call (add as example in docstr here) -> rebuild snapshot: is row cache, column cache etc. reset?
 # TODO: throw an exception on invalid order_by
+# TODO: option to skip model table generation (leave off model option?)

@@ -357,7 +357,8 @@ class BoundRow(object):
     def __getitem__(self, name):
         """Returns this row's value for a column. All other access methods,
         e.g. __iter__, lead ultimately to this."""
-        return self.data[self.table.columns[name].declared_name]
+        column = self.table.columns[name]
+        return RowValue(self.data[column.declared_name], column)
 
     def __contains__(self, item):
         """Check by both row object and column name."""
@@ -373,3 +374,29 @@ class BoundRow(object):
 
     def as_html(self):
         pass
+
+class RowValue(StrAndUnicode):
+    """Very basic wrapper around a single row value of a column.
+
+    Instead of returning the row values directly, ``BoundRow`` spawns
+    instances of this class. That's necessary since the ``choices``
+    feature means that a single row value can consist of both the value
+    itself and an associated ID.
+    """
+    def __init__(self, value, column):
+        if column.column.choices == True:
+            if isinstance(value, dict):
+                self.id = value.get('id')
+                self.value = value.get('value')
+            elif isinstance(value, (tuple,list,)):
+                self.id = value[0]
+                self.value = value[1]
+            else:
+                self.id = None
+                self.value = value
+        else:
+            self.id = None
+            self.value = value
+
+    def __unicode__(self):
+        return unicode(self.value)
