@@ -96,6 +96,11 @@ class BaseModelTable(BaseTable):
         """Overridden. The snapshot in this case is simply a queryset
         with the necessary filters etc. attached.
         """
+
+        # reset caches
+        self._columns._reset()
+        self._rows = None
+
         queryset = self.queryset
         if self.order_by:
             queryset = queryset.order_by(*self._cols_to_fields(self.order_by))

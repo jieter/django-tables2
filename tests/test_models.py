@@ -125,10 +125,26 @@ def test_basic():
     countries = CountryTable(Country)
     test_country_table(countries)
 
-    # make sure the row and column caches work for model tables as well
+def test_caches():
+    """Make sure the caches work for model tables as well (parts are
+    reimplemented).
+    """
+    class CountryTable(tables.ModelTable):
+        class Meta:
+            model = Country
+            exclude = ('id',)
+    countries = CountryTable()
+
     assert id(list(countries.columns)[0]) == id(list(countries.columns)[0])
     # TODO: row cache currently not used
     #assert id(list(countries.rows)[0]) == id(list(countries.rows)[0])
+
+    # test that caches are reset after an update()
+    old_column_cache = id(list(countries.columns)[0])
+    old_row_cache = id(list(countries.rows)[0])
+    countries.update()
+    assert id(list(countries.columns)[0]) != old_column_cache
+    assert id(list(countries.rows)[0]) != old_row_cache
 
 def test_sort():
     class CountryTable(tables.ModelTable):
@@ -172,5 +188,4 @@ def test_pagination():
 
 # TODO: pagination
 # TODO: support function column sources both for modeltables (methods on model) and static tables (functions in dict)
-# TODO: manual base columns change -> update() call (add as example in docstr here) -> rebuild snapshot: is row cache, column cache etc. reset?
 # TODO: support relationship spanning columns (we could generate select_related() automatically)
