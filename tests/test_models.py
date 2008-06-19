@@ -148,9 +148,9 @@ def test_sort():
     test_order(('population',), [1,4,3,2])
     test_order(('-population',), [2,3,4,1])
     test_order(('name',), [1,3,2,4])
-    # test sorting by a "rewritten" column name
-    countries.order_by = 'domain,tld'
-    countries.order_by == ('domain',)
+    # test sorting with a "rewritten" column name
+    countries.order_by = 'domain,tld'      # "tld" would be invalid...
+    countries.order_by == ('domain',)      # ...and is therefore removed
     test_order(('-domain',), [4,3,2,1])
     # test multiple order instructions; note: one row is missing a "system"
     # value, but has a default set; however, that has no effect on sorting.
@@ -173,4 +173,4 @@ def test_pagination():
 # TODO: pagination
 # TODO: support function column sources both for modeltables (methods on model) and static tables (functions in dict)
 # TODO: manual base columns change -> update() call (add as example in docstr here) -> rebuild snapshot: is row cache, column cache etc. reset?
-# TODO: throw an exception on invalid order_by
+# TODO: support relationship spanning columns (we could generate select_related() automatically)

@@ -4,7 +4,7 @@ from django.utils.encoding import StrAndUnicode
 from django.utils.text import capfirst
 from columns import Column
 
-__all__ = ('BaseTable', 'Table')
+__all__ = ('BaseTable', 'Table', 'options')
 
 def sort_table(data, order_by):
     """Sort a list of dicts according to the fieldnames in the
@@ -88,6 +88,15 @@ class OrderByTuple(tuple, StrAndUnicode):
         """
         def __unicode__(self):
             return ",".join(self)
+
+# A common use case is passing incoming query values directly into the
+# table constructor - data that can easily be invalid, say if manually
+# modified by a user. So by default, such errors will be silently
+# ignored. Set the option below to False if you want an exceptions to be
+# raised instead.
+class DefaultOptions(object):
+    IGNORE_INVALID_OPTIONS = True
+options = DefaultOptions()
 
 class BaseTable(object):
     def __init__(self, data, order_by=None):
@@ -193,12 +202,17 @@ class BaseTable(object):
         if self._snapshot is not None:
             self._snapshot = None
         # accept both string and tuple instructions
-        self._order_by = (isinstance(value, basestring) \
+        order_by = (isinstance(value, basestring) \
             and [value.split(',')] \
             or [value])[0]
         # validate, remove all invalid order instructions
-        self._order_by = OrderByTuple([o for o in self._order_by
-            if self._validate_column_name((o[:1]=='-' and [o[1:]] or [o])[0], "order_by")])
+        validated_order_by = []
+        for o in order_by:
+            if self._validate_column_name((o[:1]=='-' and [o[1:]] or [o])[0], "order_by"):
+                validated_order_by.append(o)
+            elif not options.IGNORE_INVALID_OPTIONS:
+                raise ValueError('Column name %s is invalid.' % o)
+        self._order_by = OrderByTuple(validated_order_by)
     order_by = property(lambda s: s._order_by, _set_order_by)
 
     def __unicode__(self):
