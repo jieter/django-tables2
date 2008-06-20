@@ -9,10 +9,14 @@ __all__ = ('BaseTable', 'Table', 'options')
 def sort_table(data, order_by):
     """Sort a list of dicts according to the fieldnames in the
     ``order_by`` iterable. Prefix with hypen for reverse.
+
+    Dict values can be callables.
     """
     def _cmp(x, y):
         for name, reverse in instructions:
-            res = cmp(x.get(name), y.get(name))
+            lhs, rhs = x.get(name), y.get(name)
+            res = cmp((callable(lhs) and [lhs(x)] or [lhs])[0],
+                      (callable(rhs) and [rhs(y)] or [rhs])[0])
             if res != 0:
                 return reverse and -res or res
         return 0
@@ -135,6 +139,10 @@ class BaseTable(object):
 
         In the case of this base table implementation, a copy of the
         source data is created, and then modified appropriately.
+
+        # TODO: currently this is called whenever data changes; it is
+        # probably much better to do this on-demand instead, when the
+        # data is *needed* for the first time.
         """
 
         # reset caches
@@ -156,7 +164,9 @@ class BaseTable(object):
             # which is the current design decision.
             for column in self.columns.all():
                 if not column.declared_name in row:
-                    row[column.declared_name] = column.column.default
+                    # since rows are not really in the picture yet, create a
+                    # temporary row object for this call.
+                    row[column.declared_name] = column.get_default(BoundRow(self, row))
 
         if self.order_by:
             sort_table(snapshot, self._cols_to_fields(self.order_by))
@@ -363,6 +373,17 @@ class BoundColumn(StrAndUnicode):
 
     name = property(lambda s: s.column.name or s.declared_name)
 
+    def get_default(self, row):
+        """Since a column's ``default`` property may be a callable, we need
+        this function to resolve it when needed.
+
+        Make sure ``row`` is a ``BoundRow`` objects, since that is what
+        we promise the callable will get.
+        """
+        if callable(self.column.default):
+            return self.column.default(row)
+        return self.column.default
+
     def _get_values(self):
         # TODO: build a list of values used
         pass
@@ -391,7 +412,10 @@ class BoundRow(object):
     def __getitem__(self, name):
         """Returns this row's value for a column. All other access methods,
         e.g. __iter__, lead ultimately to this."""
-        return self.data[self.table.columns[name].declared_name]
+        result =  self.data[self.table.columns[name].declared_name]
+        if callable(result):
+            result = result(self)
+        return result
 
     def __contains__(self, item):
         """Check by both row object and column name."""

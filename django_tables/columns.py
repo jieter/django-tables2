@@ -14,9 +14,10 @@ class Column(object):
     use the model field name.
 
     ``default`` is the default value for this column. If the data source
-    does not provide None for a row, the default will be used instead. Note
+    does provide ``None`` for a row, the default will be used instead. Note
     that whether this effects ordering might depend on the table type (model
-    or normal).
+    or normal). Also, you can specify a callable, which will be passed a
+    ``BoundRow`` instance and is expected to return the default to be used.
 
     You can use ``visible`` to flag the column as hidden by default.
     However, this can be overridden by the ``visibility`` argument to the
@@ -26,6 +27,7 @@ class Column(object):
     Setting ``sortable`` to False will result in this column being unusable
     in ordering.
     """
+
     # Tracks each time a Column instance is created. Used to retain order.
     creation_counter = 0
 
