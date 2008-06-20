@@ -3,6 +3,7 @@
 Sets up a temporary Django project using a memory SQLite database.
 """
 
+from py.test import raises
 from django.conf import settings
 import django_tables as tables
 
@@ -29,7 +30,10 @@ def setup_module(module):
         capital = models.ForeignKey(City, blank=True, null=True)
         tld = models.TextField(verbose_name='Domain Extension', max_length=2)
         system = models.TextField(blank=True, null=True)
-        null = models.TextField(blank=True, null=True)  # tests expect this to be always null!
+        null = models.TextField(blank=True, null=True)   # tests expect this to be always null!
+        null2 = models.TextField(blank=True, null=True)  #  - " -
+        def example_domain(self):
+            return 'example.%s' % self.tld
         class Meta:
             app_label = 'testapp'
     module.Country = Country
@@ -51,7 +55,7 @@ def test_declaration():
         class Meta:
             model = Country
 
-    assert len(CountryTable.base_columns) == 7
+    assert len(CountryTable.base_columns) == 8
     assert 'name' in CountryTable.base_columns
     assert not hasattr(CountryTable, 'name')
 
@@ -63,7 +67,7 @@ def test_declaration():
             model = Country
             exclude = ['tld']
 
-    assert len(CountryTable.base_columns) == 7
+    assert len(CountryTable.base_columns) == 8
     assert 'projected' in CountryTable.base_columns
     assert 'capital' in CountryTable.base_columns
     assert not 'tld' in CountryTable.base_columns
@@ -103,9 +107,14 @@ def test_basic():
             assert not 'does-not-exist' in r
             # ...so are excluded fields
             assert not 'id' in r
+            # [bug] access to data that might be available, but does not
+            # have a corresponding column is denied.
+            raises(Exception, "r['id']")
             # missing data is available with default values
             assert 'null' in r
             assert r['null'] == "foo"   # note: different from prev. line!
+            # if everything else fails (no default), we get None back
+            assert r['null2'] is None
 
             # all that still works when name overrides are used
             assert not 'tld' in r
@@ -121,6 +130,7 @@ def test_basic():
         capital = tables.Column()
         system = tables.Column()
         null = tables.Column(default="foo")
+        null2 = tables.Column()
         tld = tables.Column(name="domain")
     countries = CountryTable(Country)
     test_country_table(countries)
@@ -186,6 +196,25 @@ def test_sort():
 def test_pagination():
     pass
 
+def test_callable():
+    """Some of the callable code is reimplemented for modeltables, so
+    test some specifics again.
+    """
+
+    class CountryTable(tables.ModelTable):
+        null = tables.Column(default=lambda s: s['example_domain'])
+        example_domain = tables.Column()
+        class Meta:
+            model = Country
+    countries = CountryTable(Country)
+
+    # model method is called
+    assert [row['example_domain'] for row in countries] == \
+                    ['example.'+row['tld'] for row in countries]
+
+    # column default method is called
+    assert [row['example_domain'] for row in countries] == \
+                    [row['null'] for row in countries]
+
 # TODO: pagination
-# TODO: support function column sources both for modeltables (methods on model) and static tables (functions in dict)
-# TODO: support relationship spanning columns (we could generate select_related() automatically)
+# TODO: support relationship spanning columns

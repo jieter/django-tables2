@@ -105,6 +105,23 @@ access columns directly:
         {% endfor %}
 
 
+Advanced Features
+~~~~~~~~~~~~~~~~~
+
+There are few requirements for the source data of a table. It should be an
+iterable with dict-like objects. Values found in the source data that are
+not associated with a column are ignored, missing values are replaced by
+the column default or None.
+
+If any value in the source data is a callable, it will be passed it's own row
+instance and is expected to return the actual value for this particular table
+cell.
+
+Similarily, the colunn default value may also be callable that will takes
+the row instance as an argument (representing the row that the default is
+needed for).
+
+
 ModelTables
 -----------
 
@@ -169,8 +186,12 @@ ModelTables currently have some restrictions with respect to ordering:
     * A ModelTable column's ``default`` value does not affect ordering.
       This differs from the non-model table behaviour.
 
-Columns
--------
+If a column is mapped to a method on the model, that method will be called
+without arguments. This behavior differs from non-model tables, where a
+row object will be passed.
+
+Columns (# TODO)
+----------------
 
 verbose_name, default, visible, sortable
     ``verbose_name`` defines a display name for this column used for output.
@@ -184,7 +205,7 @@ verbose_name, default, visible, sortable
     ``default`` is the default value for this column. If the data source
     does not provide None for a row, the default will be used instead. Note
     that whether this effects ordering might depend on the table type (model
-    or normal).
+    or normal). default might be a callable.
 
     You can use ``visible`` to flag the column as hidden by default.
     However, this can be overridden by the ``visibility`` argument to the
@@ -287,3 +308,4 @@ TODO
     - filters
     - grouping
     - choices support for columns (internal column value will be looked up for output)
+    - for columns that span model relationships, automatically generate select_related()

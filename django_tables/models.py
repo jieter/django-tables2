@@ -127,21 +127,20 @@ class BoundModelRow(BoundRow):
         """
 
         # find the column for the requested field, for reference
-        boundcol = (name in self.table._columns) \
-            and self.table._columns[name]\
-            or None
+        boundcol = self.table._columns[name]
 
         # If the column has a name override (we know then that is was also
         # used for access, e.g. if the condition is true, then
         # ``boundcol.column.name == name``), we need to make sure we use the
         # declaration name to access the model field.
         if boundcol.column.name:
-            name = boundcol.declared_name
+           name = boundcol.declared_name
 
         result = getattr(self.data, name, None)
-        if result is None:
-            if boundcol and boundcol.column.default is not None:
-                result = boundcol.column.default
-            else:
-                raise AttributeError()
+        if callable(result):
+            result = result()
+        elif result is None:
+            if boundcol.column.default is not None:
+                result = boundcol.get_default(self)
+
         return result

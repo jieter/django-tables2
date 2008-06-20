@@ -150,3 +150,33 @@ def test_sort():
     books.order_by = 'language'
     assert not books.order_by
     test_order(('language', 'num_pages'), [1,3,2,4])  # as if: 'num_pages'
+
+def test_callable():
+    """Data fields, ``default`` option can be callables.
+    """
+
+    class MathTable(tables.Table):
+        lhs = tables.Column()
+        rhs = tables.Column()
+        op = tables.Column(default='+')
+        sum = tables.Column(default=lambda d: calc(d['op'], d['lhs'], d['rhs']))
+
+    math = MathTable([
+        {'lhs': 1, 'rhs': lambda x: x['lhs']*3},              # 1+3
+        {'lhs': 9, 'rhs': lambda x: x['lhs'], 'op': '/'},     # 9/9
+        {'lhs': lambda x: x['rhs']+3, 'rhs': 4, 'op': '-'},   # 7-4
+    ])
+
+    # function is called when queried
+    def calc(op, lhs, rhs):
+        if op == '+': return lhs+rhs
+        elif op == '/': return lhs/rhs
+        elif op == '-': return lhs-rhs
+    assert [calc(row['op'], row['lhs'], row['rhs']) for row in math] == [4,1,3]
+
+    # function is called while sorting
+    math.order_by = ('-rhs',)
+    assert [row['rhs'] for row in math] == [9,4,3]
+
+    math.order_by = ('sum',)
+    assert [row['sum'] for row in math] == [1,3,4]
