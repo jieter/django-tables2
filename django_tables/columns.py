@@ -19,6 +19,15 @@ class Column(object):
     or normal). Also, you can specify a callable, which will be passed a
     ``BoundRow`` instance and is expected to return the default to be used.
 
+    Additionally, you may specify ``data``. It works very much like
+    ``default``, except it's effect does not depend on the actual cell
+    value. When given a function, it will always be called with a row object,
+    expected to return the cell value. If given a string, that name will be
+    used to read the data from the source (instead of the column's name).
+
+    Note the interaction with ``default``. If ``default`` is specified as
+    well, it will be used whenver ``data`` yields in a None value.
+
     You can use ``visible`` to flag the column as hidden by default.
     However, this can be overridden by the ``visibility`` argument to the
     table constructor. If you want to make the column completely unavailable
@@ -31,11 +40,12 @@ class Column(object):
     # Tracks each time a Column instance is created. Used to retain order.
     creation_counter = 0
 
-    def __init__(self, verbose_name=None, name=None, default=None,
+    def __init__(self, verbose_name=None, name=None, default=None, data=None,
                  visible=True, inaccessible=False, sortable=True):
         self.verbose_name = verbose_name
         self.name = name
         self.default = default
+        self.data = data
         self.visible = visible
         self.inaccessible = inaccessible
         self.sortable = sortable

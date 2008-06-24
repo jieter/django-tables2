@@ -1,3 +1,4 @@
+from django.core.exceptions import FieldError
 from django.utils.datastructures import SortedDict
 from tables import BaseTable, DeclarativeColumnsMetaclass, Column, BoundRow
 
@@ -27,7 +28,7 @@ def columns_for_model(model, columns=None, exclude=None):
         if (columns and not f.name in columns) or \
            (exclude and f.name in exclude):
             continue
-        column = Column() # TODO: chose the right column type
+        column = Column() # TODO: chose correct column type, with right options
         if column:
             field_list.append((f.name, column))
     return SortedDict(field_list)
@@ -83,14 +84,29 @@ class BaseModelTable(BaseTable):
         super(BaseModelTable, self).__init__(self.queryset, *args, **kwargs)
 
     def _validate_column_name(self, name, purpose):
-        """Overridden. Only allow model-based fields to be sorted."""
+        """Overridden. Only allow model-based fields and valid model
+        spanning relationships to be sorted."""
+
+        # let the base class sort out the easy ones
+        result = super(BaseModelTable, self)._validate_column_name(name, purpose)
+        if not result:
+            return False
+
         if purpose == 'order_by':
+            column = self.columns[name]
+            lookup = column.declared_name
+            if column.column.data and not callable(column.column.data):
+                lookup = column.column.data
+
             try:
-                decl_name = self.columns[name].declared_name
-                self._meta.model._meta.get_field(decl_name)
-            except Exception: #TODO: models.FieldDoesNotExist:
+                # let django validate the lookup
+                _temp = self.queryset.order_by(lookup)
+                _temp.query.as_sql()
+            except FieldError:
                 return False
-        return super(BaseModelTable, self)._validate_column_name(name, purpose)
+
+        # if we haven't failed by now, the column should be valid
+        return True
 
     def _build_snapshot(self):
         """Overridden. The snapshot in this case is simply a queryset
@@ -133,14 +149,44 @@ class BoundModelRow(BoundRow):
         # used for access, e.g. if the condition is true, then
         # ``boundcol.column.name == name``), we need to make sure we use the
         # declaration name to access the model field.
-        if boundcol.column.name:
-           name = boundcol.declared_name
+        if boundcol.column.data:
+            if callable(boundcol.column.data):
+                result = boundcol.column.data(self)
+                if not result:
+                    if boundcol.column.default is not None:
+                        return boundcol.get_default(self)
+                return result
+            else:
+                name = boundcol.column.data
+        else:
+            name = boundcol.declared_name
 
-        result = getattr(self.data, name, None)
-        if callable(result):
-            result = result()
-        elif result is None:
+
+        # try to resolve relationships spanning attributes
+        bits = name.split('__')
+        current = self.data
+        for bit in bits:
+            # note the difference between the attribute being None and not
+            # existing at all; assume "value doesn't exist" in the former
+            # (e.g. a relationship has no value), raise error in the latter.
+            # a more proper solution perhaps would look at the model meta
+            # data instead to find out whether a relationship is valid; see
+            # also ``_validate_column_name``, where such a mechanism is
+            # already implemented).
+            if not hasattr(current, bit):
+                raise ValueError("Could not resolve %s from %s" % (bit, name))
+
+            current = getattr(current, bit)
+            if callable(current):
+                current = current()
+            # important that we break in None case, or a relationship
+            # spanning across a null-key will raise an exception in the
+            # next iteration, instead of defaulting.
+            if current is None:
+                break
+
+        if current is None:
+            # ...the whole name (i.e. the last bit) resulted in None
             if boundcol.column.default is not None:
-                result = boundcol.get_default(self)
-
-        return result
+                return boundcol.get_default(self)
+        return current

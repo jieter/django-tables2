@@ -19,7 +19,7 @@ def setup_module(module):
 
     class City(models.Model):
         name = models.TextField()
-        population = models.IntegerField()
+        population = models.IntegerField(null=True)
         class Meta:
             app_label = 'testapp'
     module.City = City
@@ -42,10 +42,12 @@ def setup_module(module):
     call_command('syncdb', verbosity=1, interactive=False)
 
     # create a couple of objects
+    berlin=City(name="Berlin"); berlin.save()
+    amsterdam=City(name="Amsterdam"); amsterdam.save()
     Country(name="Austria", tld="au", population=8, system="republic").save()
-    Country(name="Germany", tld="de", population=81).save()
+    Country(name="Germany", tld="de", population=81, capital=berlin).save()
     Country(name="France", tld="fr", population=64, system="republic").save()
-    Country(name="Netherlands", tld="nl", population=16, system="monarchy").save()
+    Country(name="Netherlands", tld="nl", population=16, system="monarchy", capital=amsterdam).save()
 
 def test_declaration():
     """Test declaration, declared columns and default model field columns.
@@ -194,6 +196,7 @@ def test_sort():
     assert countries.order_by == ()
 
 def test_pagination():
+    # TODO: support pagination
     pass
 
 def test_callable():
@@ -216,5 +219,47 @@ def test_callable():
     assert [row['example_domain'] for row in countries] == \
                     [row['null'] for row in countries]
 
-# TODO: pagination
-# TODO: support relationship spanning columns
+def test_relationships():
+    """Test relationship spanning."""
+
+    class CountryTable(tables.ModelTable):
+        # add relationship spanning columns (using different approaches)
+        capital_name = tables.Column(data='capital__name')
+        capital__population = tables.Column(name="capital_population")
+        invalid = tables.Column(data="capital__invalid")
+        class Meta:
+            model = Country
+    countries = CountryTable(Country.objects.select_related('capital'))
+
+    # ordering and field access works
+    countries.order_by = 'capital_name'
+    assert [row['capital_name'] for row in countries.rows] == \
+        [None, None, 'Amsterdam', 'Berlin']
+
+    countries.order_by = 'capital_population'
+    assert [row['capital_population'] for row in countries.rows] == \
+        [None, None, None, None]
+
+    # ordering by a column with an invalid relationship fails silently
+    countries.order_by = 'invalid'
+    assert countries.order_by == ()
+
+def test_column_data():
+    """Further test the ``data`` column property in a ModelTable scenario.
+    Other tests already touched on this, for example ``test_realtionships``.
+    """
+
+    class CountryTable(tables.ModelTable):
+        name = tables.Column(data=lambda d: "hidden")
+        default_and_data = tables.Column(data=lambda d: None, default=4)
+        class Meta:
+            model = Country
+    countries = CountryTable(Country)
+
+    # callable data works, even with a default set
+    assert [row['default_and_data'] for row in countries] == [4,4,4,4]
+
+    # neato trick: a callable data= column is sortable, if otherwise refers
+    # to correct model column; can be used to rewrite what is displayed
+    countries.order_by = 'name'
+    assert countries.order_by == ('name',)
