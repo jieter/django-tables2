@@ -57,6 +57,11 @@ Note that ``population`` is skipped (as it has ``visible=False``), that the
 declared verbose name for the ``name`` column is used, and that ``time_zone``
 is converted into a more beautiful string for output automatically.
 
+There are few requirements for the source data of a table. It should be an
+iterable with dict-like objects. Values found in the source data that are
+not associated with a column are ignored, missing values are replaced by
+the column default or None.
+
 Common Workflow
 ~~~~~~~~~~~~~~~
 
@@ -105,17 +110,12 @@ access columns directly:
         {% endfor %}
 
 
-Advanced Features
-~~~~~~~~~~~~~~~~~
+Dynamic Data
+~~~~~~~~~~~~
 
-There are few requirements for the source data of a table. It should be an
-iterable with dict-like objects. Values found in the source data that are
-not associated with a column are ignored, missing values are replaced by
-the column default or None.
-
-If any value in the source data is a callable, it will be passed it's own row
-instance and is expected to return the actual value for this particular table
-cell.
+If any value in the source data is a callable, it will be passed it's own
+row instance and is expected to return the actual value for this particular
+table cell.
 
 Similarily, the colunn default value may also be callable that will takes
 the row instance as an argument (representing the row that the default is
@@ -161,6 +161,7 @@ If you just want to use ModelTables, but without auto-generated columns,
 you do not have to list all model fields in the ``exclude`` Meta option.
 Instead, simply don't specify a model.
 
+
 Custom Columns
 ~~~~~~~~~~~~~~
 
@@ -175,51 +176,137 @@ model fields:
 Just make sure your model objects do provide an attribute with that name.
 Functions are also supported, so ``Country.custom`` could be a callable.
 
+
+Spanning relationships
+~~~~~~~~~~~~~~~~~~~~~~
+
+Let's assume you have a ``Country`` model, with a foreignkey ``capital``
+pointing to the ``City`` model. While displaying a list of countries,
+you might want want to link to the capital's geographic location, which is
+stored in ``City.geo`` as a ``(lat, long)`` tuple, on Google Maps.
+
+ModelTables support relationship spanning syntax of Django's database api:
+
+    class CountryTable(tables.ModelTable):
+        city__geo = tables.Column(name="geo")
+
+This will add a column named "geo", based on the field by the same name
+from the "city" relationship. Note that the name used to define the column
+is what will be used to access the data, while the name-overwrite passed to
+the column constructor just defines a prettier name for us to work with.
+This is to be consistent with auto-generated columns based on model fields,
+where the field/column name naturally equals the source name.
+
+However, to make table defintions more visually appealing and easier to
+read, an alternative syntax is supported: setting the column ``data``
+property to the appropriate string.
+
+    class CountryTable(tables.ModelTable):
+        geo = tables.Column(data='city__geo')
+
+Note that you don't need to define a relationship's fields as columns
+simple to access them:
+
+    for country in countries.rows:
+        print country.city.id
+        print country.city.geo
+        print country.city.founder.name
+
+
 ModelTable Specialities
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 ModelTables currently have some restrictions with respect to ordering:
 
     * Custom columns not based on a model field do not support ordering,
-      regardless of ``sortable`` property (it is ignored).
+      regardless of the ``sortable`` property (it is ignored).
 
-    * A ModelTable column's ``default`` value does not affect ordering.
-      This differs from the non-model table behaviour.
+    * A ModelTable column's ``default`` or ``data`` value does not affect
+      ordering. This differs from the non-model table behaviour.
 
 If a column is mapped to a method on the model, that method will be called
 without arguments. This behavior differs from non-model tables, where a
 row object will be passed.
 
-Columns (# TODO)
-----------------
+If you are using callables (e.g. for the ``default`` or ``data`` column
+options), they will generally be run when a row is accessed, and
+possible repeatetly when accessed more than once. This behavior differs from
+non-model tables, where they would be called once, when the table is
+generated.
 
-verbose_name, default, visible, sortable
-    ``verbose_name`` defines a display name for this column used for output.
+Columns
+-------
 
-    ``name`` is the internal name of the column. Normally you don't need to
-    specify this, as the attribute that you make the column available under
-    is used. However, in certain circumstances it can be useful to override
-    this default, e.g. when using ModelTables if you want a column to not
-    use the model field name.
-
-    ``default`` is the default value for this column. If the data source
-    does not provide None for a row, the default will be used instead. Note
-    that whether this effects ordering might depend on the table type (model
-    or normal). default might be a callable.
-
-    You can use ``visible`` to flag the column as hidden by default.
-    However, this can be overridden by the ``visibility`` argument to the
-    table constructor. If you want to make the column completely unavailable
-    to the user, set ``inaccessible`` to True.
-
-    Setting ``sortable`` to False will result in this column being unusable
-    in ordering.
+Columns are what defines a table. Therefore, the way you configure your
+columns determines to a large extend how your table operates.
 
 ``django_tables.columns`` currently defines three classes, ``Column``,
 ``TextColumn`` and ``NumberColumn``. However, the two subclasses currently
 don't do anything special at all, so you can simply use the base class.
 While this will likely change in the future (e.g. when grouping is added),
 the base column class will continue to work by itself.
+
+There are no required arguments. The following is fine:
+
+    class MyTable(tables.Table):
+        c = tables.Column()
+
+It will result in a column named "c" in the table. You can specify the
+``name`` to override this:
+
+    c = tables.Column(name="count")
+
+The column is now called and accessed via "count", although the table will
+still use "c" to read it's values from the source. You can however modify
+that as well, by specifying ``data``:
+
+    c = tables.Column(name="count", data="count")
+
+For most practicual purposes, "c" is now meaningless. While in most cases
+you will just define your column using the name you want it to have, the
+above is useful when working with columns automatically generated from
+models:
+
+    class BookTable(tables.ModelTable):
+        book_name = tables.Column(name="name")
+        author = tables.Column(data="info__author__name")
+        class Meta:
+            model = Book
+
+The overwritten ``book_name`` field/column will now be exposed as the
+cleaner "name", and the new "author" column retrieves it's values from
+``Book.info.author.name``.
+
+Note: ``data`` may also be a callable which will be passed a row object.
+
+Apart from their internal name, you can define a string that will be used
+when for display via ``verbose_name``:
+
+    pubdate = tables.Column(verbose_name="Published")
+
+The verbose name will be used, for example, if you put in a template:
+
+    {{ column }}
+
+If you don't want a column to be sortable by the user:
+
+    pubdate = tables.Column(sortable=False)
+
+If you don't want to expose a column (but still require it to exist, for
+example because it should be sortable nonetheless):
+
+    pubdate = tables.Column(visible=False)
+
+The column and it's values will now be skipped when iterating through the
+table, although it can still be accessed manually.
+
+Finally, you can specify default values for your columns:
+
+    health_points = tables.Column(default=100)
+
+Note that how the default is used and when it is applied differs between
+static and ModelTables.
+
 
 Tables and Pagination
 ---------------------
@@ -235,12 +322,6 @@ Tables and Pagination
     or
 
     table.paginate(DiggPaginator, 10, padding=2)
-
-Works exactly like in the Django database API. Order may be specified as
-a list (or tuple) of column names. If prefixed with a hypen, the ordering
-for that particular field will be in reverse order.
-
-Random ordering is currently not supported.
 
 
 Ordering Syntax
@@ -307,5 +388,16 @@ TODO
     - let columns change their default ordering (ascending/descending)
     - filters
     - grouping
-    - choices support for columns (internal column value will be looked up for output)
-    - for columns that span model relationships, automatically generate select_related()
+    - choices support for columns (internal column value will be looked up
+      for output)
+    - for columns that span model relationships, automatically generate
+      select_related(); this is important, since right now such an e.g.
+      order_by would cause rows to be dropped (inner join).
+    - initialize auto-generated columns with the relevant properties of the
+      model fields (verbose_name, editable=visible?, ...)
+    - remove support for callable fields? this has become obsolete since we
+      Column.data property; also, it's easy to make the call manually, or let
+      the template engine handle it
+    - tests could use some refactoring, they are currently all over the place
+    - what happens if duplicate column names are used? we currently don't
+      check for that at all.

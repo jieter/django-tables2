@@ -151,22 +151,27 @@ class BaseTable(object):
 
         snapshot = copy.copy(self._data)
         for row in snapshot:
-            # delete unknown columns that are in the source data, but that
-            # we don't know about.
-            # TODO: does this even make sense? we might in some cases save
-            # memory, but at what performance cost?
-            decl_colnames = [c.declared_name for c in self.columns.all()]
-            for key in row.keys():
-                if not key in decl_colnames:
-                    del row[key]
-            # add data for defined columns that is missing from the source.
-            # we do this so that colunn default values can affect sorting,
-            # which is the current design decision.
+            # add data that is missing from the source. we do this now so
+            # that the colunn ``default`` and ``data`` values can affect
+            # sorting (even when callables are used)!
+            # This is a design decision - the alternative would be to
+            # resolve the values when they are accessed, and either do not
+            # support sorting them at all, or run the callables during
+            # sorting.
             for column in self.columns.all():
-                if not column.declared_name in row:
-                    # since rows are not really in the picture yet, create a
-                    # temporary row object for this call.
-                    row[column.declared_name] = column.get_default(BoundRow(self, row))
+                name_in_source = column.declared_name
+                if column.column.data:
+                    if callable(column.column.data):
+                        # if data is a callable, use it's return value
+                        row[name_in_source] = column.column.data(BoundRow(self, row))
+                    else:
+                        name_in_source = column.column.data
+
+                # the following will be True if:
+                #  * the source does not provide that column or provides None
+                #  * the column did provide a data callable that returned None
+                if row.get(name_in_source, None) is None:
+                    row[name_in_source] = column.get_default(BoundRow(self, row))
 
         if self.order_by:
             sort_table(snapshot, self._cols_to_fields(self.order_by))
@@ -183,21 +188,29 @@ class BaseTable(object):
         the user), converts column names to the names we have to use to
         retrieve a column's data from the source.
 
-        Right now, the name used in the table declaration is used for
-        access, but a column can define it's own alias-like name that will
-        be used to refer to the column from outside.
+        Usually, the name used in the table declaration is used for accessing
+        the source (while a column can define an alias-like name that will
+        be used to refer to it from the "outside"). However, a column can
+        override this by giving a specific source field name via ``data``.
 
         Supports prefixed column names as used e.g. in order_by ("-field").
         """
         result = []
         for ident in names:
+            # handle order prefix
             if ident[:1] == '-':
                 name = ident[1:]
                 prefix = '-'
             else:
                 name = ident
                 prefix = ''
-            result.append(prefix + self.columns[name].declared_name)
+            # find the field name
+            column = self.columns[name]
+            if column.column.data and not callable(column.column.data):
+                name_in_source = column.column.data
+            else:
+                name_in_source = column.declared_name
+            result.append(prefix + name_in_source)
         return result
 
     def _validate_column_name(self, name, purpose):
@@ -412,7 +425,12 @@ class BoundRow(object):
     def __getitem__(self, name):
         """Returns this row's value for a column. All other access methods,
         e.g. __iter__, lead ultimately to this."""
-        result =  self.data[self.table.columns[name].declared_name]
+
+        # We are supposed to return ``name``, but the column might be
+        # named differently in the source data.
+        result =  self.data[self.table._cols_to_fields([name])[0]]
+
+        # if the field we are pointing to is a callable, remove it
         if callable(result):
             result = result(self)
         return result

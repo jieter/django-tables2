@@ -3,6 +3,7 @@
 This includes the core, as well as static data, non-model tables.
 """
 
+from math import sqrt
 from py.test import raises
 import django_tables as tables
 
@@ -46,24 +47,25 @@ def test_declaration():
     assert 'motto' in StateTable2.base_columns
 
 def test_basic():
-    class BookTable(tables.Table):
+    class StuffTable(tables.Table):
         name = tables.Column()
         answer = tables.Column(default=42)
         c = tables.Column(name="count", default=1)
-    books = BookTable([
-        {'id': 1, 'name': 'Foo: Bar'},
+        email = tables.Column(data="@")
+    stuff = StuffTable([
+        {'id': 1, 'name': 'Foo Bar', '@': 'foo@bar.org'},
     ])
 
     # access without order_by works
-    books.data
-    books.rows
+    stuff.data
+    stuff.rows
 
     # make sure BoundColumnn.name always gives us the right thing, whether
     # the column explicitely defines a name or not.
-    books.columns['count'].name == 'count'
-    books.columns['answer'].name == 'answer'
+    stuff.columns['count'].name == 'count'
+    stuff.columns['answer'].name == 'answer'
 
-    for r in books.rows:
+    for r in stuff.rows:
         # unknown fields are removed/not-accessible
         assert 'name' in r
         assert not 'id' in r
@@ -76,17 +78,20 @@ def test_basic():
         assert 'count' in r
         assert r['count'] == 1
 
+        # columns with data= option work fine
+        assert r['email'] == 'foo@bar.org'
+
     # changing an instance's base_columns does not change the class
-    assert id(books.base_columns) != id(BookTable.base_columns)
-    books.base_columns['test'] = tables.Column()
-    assert not 'test' in BookTable.base_columns
+    assert id(stuff.base_columns) != id(StuffTable.base_columns)
+    stuff.base_columns['test'] = tables.Column()
+    assert not 'test' in StuffTable.base_columns
 
     # optionally, exceptions can be raised when input is invalid
     tables.options.IGNORE_INVALID_OPTIONS = False
-    raises(Exception, "books.order_by = '-name,made-up-column'")
-    raises(Exception, "books.order_by = ('made-up-column',)")
+    raises(Exception, "stuff.order_by = '-name,made-up-column'")
+    raises(Exception, "stuff.order_by = ('made-up-column',)")
     # when a column name is overwritten, the original won't work anymore
-    raises(Exception, "books.order_by = 'c'")
+    raises(Exception, "stuff.order_by = 'c'")
     # reset for future tests
     tables.options.IGNORE_INVALID_OPTIONS = True
 
@@ -117,18 +122,19 @@ def test_sort():
         id = tables.Column()
         name = tables.Column()
         pages = tables.Column(name='num_pages')  # test rewritten names
-        language = tables.Column(default='en')  # default affects sorting
+        language = tables.Column(default='en')   # default affects sorting
+        rating = tables.Column(data='*')         # test data field option
 
     books = BookTable([
-        {'id': 1, 'pages':  60, 'name': 'Z: The Book'},    # language: en
-        {'id': 2, 'pages': 100, 'language': 'de', 'name': 'A: The Book'},
-        {'id': 3, 'pages':  80, 'language': 'de', 'name': 'A: The Book, Vol. 2'},
-        {'id': 4, 'pages': 110, 'language': 'fr', 'name': 'A: The Book, French Edition'},
+        {'id': 1, 'pages':  60, 'name': 'Z: The Book', '*': 5},    # language: en
+        {'id': 2, 'pages': 100, 'language': 'de', 'name': 'A: The Book', '*': 2},
+        {'id': 3, 'pages':  80, 'language': 'de', 'name': 'A: The Book, Vol. 2', '*': 4},
+        {'id': 4, 'pages': 110, 'language': 'fr', 'name': 'A: The Book, French Edition'},   # rating (with data option) is missing
     ])
 
     def test_order(order, result):
         books.order_by = order
-        assert [b['id'] for b in books.data] == result
+        assert [b['id'] for b in books.rows] == result
 
     # test various orderings
     test_order(('num_pages',), [1,3,2,4])
@@ -138,7 +144,10 @@ def test_sort():
     # using a simple string (for convinience as well as querystring passing
     test_order('-num_pages', [4,2,3,1])
     test_order('language,num_pages', [3,2,1,4])
-    # TODO: test that unrewritte name has no effect
+    # if overwritten, the declared fieldname has no effect
+    test_order('pages,name', [2,4,3,1])   # == ('name',)
+    # sort by column with "data" option
+    test_order('rating', [4,2,3,1])
 
     # [bug] test alternative order formats if passed to constructor
     BookTable([], 'language,-num_pages')
@@ -152,7 +161,7 @@ def test_sort():
     test_order(('language', 'num_pages'), [1,3,2,4])  # as if: 'num_pages'
 
 def test_callable():
-    """Data fields, ``default`` option can be callables.
+    """Data fields, ``default`` and ``data`` options can be callables.
     """
 
     class MathTable(tables.Table):
@@ -160,6 +169,7 @@ def test_callable():
         rhs = tables.Column()
         op = tables.Column(default='+')
         sum = tables.Column(default=lambda d: calc(d['op'], d['lhs'], d['rhs']))
+        sqrt = tables.Column(data=lambda d: int(sqrt(d['sum'])))
 
     math = MathTable([
         {'lhs': 1, 'rhs': lambda x: x['lhs']*3},              # 1+3
@@ -174,9 +184,14 @@ def test_callable():
         elif op == '-': return lhs-rhs
     assert [calc(row['op'], row['lhs'], row['rhs']) for row in math] == [4,1,3]
 
-    # function is called while sorting
+    # field function is called while sorting
     math.order_by = ('-rhs',)
     assert [row['rhs'] for row in math] == [9,4,3]
 
+    # default function is called while sorting
     math.order_by = ('sum',)
     assert [row['sum'] for row in math] == [1,3,4]
+
+    # data function is called while sorting
+    math.order_by = ('sqrt',)
+    assert [row['sqrt'] for row in math] == [1,1,2]
