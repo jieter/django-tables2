@@ -122,7 +122,8 @@ class BaseTable(object):
         self._snapshot = None      # will store output dataset (ordered...)
         self._rows = Rows(self)
         self._columns = Columns(self)
-        self._order_by = order_by
+
+        self.order_by = order_by
 
         # Make a copy so that modifying this will not touch the class
         # definition. Note that this is different from forms, where the
@@ -233,14 +234,17 @@ class BaseTable(object):
         order_by = (isinstance(value, basestring) \
             and [value.split(',')] \
             or [value])[0]
-        # validate, remove all invalid order instructions
-        validated_order_by = []
-        for o in order_by:
-            if self._validate_column_name((o[:1]=='-' and [o[1:]] or [o])[0], "order_by"):
-                validated_order_by.append(o)
-            elif not options.IGNORE_INVALID_OPTIONS:
-                raise ValueError('Column name %s is invalid.' % o)
-        self._order_by = OrderByTuple(validated_order_by)
+        if order_by:
+            # validate, remove all invalid order instructions
+            validated_order_by = []
+            for o in order_by:
+                if self._validate_column_name((o[:1]=='-' and [o[1:]] or [o])[0], "order_by"):
+                    validated_order_by.append(o)
+                elif not options.IGNORE_INVALID_OPTIONS:
+                    raise ValueError('Column name %s is invalid.' % o)
+            self._order_by = OrderByTuple(validated_order_by)
+        else:
+            self._order_by = ()
     order_by = property(lambda s: s._order_by, _set_order_by)
 
     def __unicode__(self):

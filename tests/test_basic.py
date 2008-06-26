@@ -141,6 +141,14 @@ def test_sort():
         books.order_by = order
         assert [b['id'] for b in books.rows] == result
 
+    # None is normalized to an empty tuple, ensuring iterability; it's
+    # also the default value
+    assert books.order_by == ()
+    iter(books.order_by)
+    books.order_by = None
+    assert books.order_by == ()
+    iter(books.order_by)
+
     # test various orderings
     test_order(('num_pages',), [1,3,2,4])
     test_order(('-num_pages',), [4,2,3,1])
@@ -164,6 +172,10 @@ def test_sort():
     books.order_by = 'language'
     assert not books.order_by
     test_order(('language', 'num_pages'), [1,3,2,4])  # as if: 'num_pages'
+
+    # [bug] order_by did not run through setter when passed to init
+    books = BookTable([], order_by='name')
+    assert books.order_by == ('name',)
 
 def test_callable():
     """Data fields, ``default`` and ``data`` options can be callables.
