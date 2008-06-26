@@ -448,8 +448,10 @@ class Rows(object):
             for row in self.table.data[key]:
                 result.append(self.row_klass(self.table, row))
             return result
+        elif isinstance(key, int):
+            return self.row_klass(self.table, self.table.data[key])
         else:
-            return self.row_klass(self, table, self.table.data[key])
+            raise TypeError('Key must be a slice or integer.')
 
 class BoundRow(object):
     """Represents a single row of data, bound to a table.

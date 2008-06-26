@@ -82,6 +82,10 @@ def test_basic():
         # columns with data= option work fine
         assert r['email'] == 'foo@bar.org'
 
+    # try to splice rows by index
+    assert 'name' in stuff.rows[0]
+    assert isinstance(stuff.rows[0:], list)
+
     # changing an instance's base_columns does not change the class
     assert id(stuff.base_columns) != id(StuffTable.base_columns)
     stuff.base_columns['test'] = tables.Column()
