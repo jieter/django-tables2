@@ -311,18 +311,45 @@ static and ModelTables.
 Tables and Pagination
 ---------------------
 
+If your table has a large number of rows, you probably want to paginate
+the output. There are two distinct approaches.
+
+First, you can just paginate over ``rows`` as you would do with any other
+data:
+
     table = MyTable(queryset)
-    p = Paginator(table.rows, 10)  # paginator will need to be able to handle our modelproxy
+    paginator = Paginator(table.rows, 10)
+    page = paginator.page(1)
 
-    or
+You're not necessarily restricted to Django's own paginator (or subclasses) -
+any paginator should work with this approach, so long it only requires
+``rows`` to implement ``len()``, slicing, and, in the case of ModelTables, a
+``count()`` method. The latter means that the ``QuerySetPaginator`` also
+works as expected.
+
+Alternatively, you may use the ``paginate`` feature:
 
     table = MyTable(queryset)
-    table.pagination = Paginator(10, padding=2)
+    table.paginate(QuerySetPaginator, page=1, 10, padding=2)
+    for row in table.rows.page():
+        pass
+    table.paginator                # new attributes
+    table.page
 
-    or
+The table will automatically create an instance of ``QuerySetPaginator``,
+passing it's own data as the first argument and additionally any arguments
+you have specified, except for ``page``. You may use any paginator, as long
+as it follows the Django protocol:
 
-    table.paginate(DiggPaginator, 10, padding=2)
+    * Take data as first argument.
+    * Support a page() method returning an object with an ``object_list``
+      attribute, exposing the paginated data.
 
+Note that due to the abstraction layer that django-tables represents, it is
+not necessary to use Django's QuerySetPaginator with ModelTables. Since the
+table knows that it holds a queryset, it will automatically choose to use
+count() to determine the data length (which is exactly what
+QuerySetPaginator would do).
 
 Ordering Syntax
 ---------------
@@ -400,4 +427,4 @@ TODO
       the template engine handle it
     - tests could use some refactoring, they are currently all over the place
     - what happens if duplicate column names are used? we currently don't
-      check for that at all.
+      check for that at all

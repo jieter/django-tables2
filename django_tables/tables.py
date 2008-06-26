@@ -120,7 +120,7 @@ class BaseTable(object):
         """
         self._data = data
         self._snapshot = None      # will store output dataset (ordered...)
-        self._rows = None          # will store BoundRow objects
+        self._rows = Rows(self)
         self._columns = Columns(self)
         self._order_by = order_by
 
@@ -147,7 +147,7 @@ class BaseTable(object):
 
         # reset caches
         self._columns._reset()
-        self._rows = None
+        self._rows._reset()
 
         snapshot = copy.copy(self._data)
         for row in snapshot:
@@ -257,12 +257,9 @@ class BaseTable(object):
             raise KeyError('Key %r not found in Table' % name)
         return BoundColumn(self, column, name)
 
-    columns = property(lambda s: s._columns)  # just to make it readonly
-
-    def _get_rows(self):
-        for row in self.data:
-            yield BoundRow(self, row)
-    rows = property(lambda s: s._get_rows())
+    # just to make those readonly
+    columns = property(lambda s: s._columns)
+    rows = property(lambda s: s._rows)
 
     def as_html(self):
         pass
@@ -278,6 +275,12 @@ class BaseTable(object):
         """
         self._build_snapshot()
 
+    def paginate(self, klass, *args, **kwargs):
+        page = kwargs.pop('page', 1)
+        self.paginator = klass(self.rows, *args, **kwargs)
+        self.page = self.paginator.page(page)
+
+
 class Table(BaseTable):
     "A collection of columns, plus their associated data rows."
     # This is a separate class from BaseTable in order to abstract the way
@@ -291,7 +294,7 @@ class Columns(object):
     This is bound to a table and provides it's ``columns`` property. It
     provides access to those columns in different ways (iterator,
     item-based, filtered and unfiltered etc)., stuff that would not be
-    possible with a simple iterator on the table class.
+    possible with a simple iterator in the table class.
 
     Note that when you define your column using a name override, e.g.
     ``author_name = tables.Column(name="author")``, then the column will
@@ -407,6 +410,46 @@ class BoundColumn(StrAndUnicode):
 
     def as_html(self):
         pass
+
+class Rows(object):
+    """Container for spawning BoundRows.
+
+    This is bound to a table and provides it's ``rows`` property. It
+    provides functionality that would not be possible with a simple
+    iterator in the table class.
+    """
+    def __init__(self, table, row_klass=None):
+        self.table = table
+        self.row_klass = row_klass and row_klass or BoundRow
+
+    def _reset(self):
+        pass   # we currently don't use a cache
+
+    def all(self):
+        """Return all rows."""
+        for row in self.table.data:
+            yield self.row_klass(self.table, row)
+
+    def page(self):
+        """Return rows on current page (if paginated)."""
+        if not hasattr(self.table, 'page'):
+            return None
+        return iter(self.table.page.object_list)
+
+    def __iter__(self):
+        return iter(self.all())
+
+    def __len__(self):
+        return len(self.table.data)
+
+    def __getitem__(self, key):
+        if isinstance(key, slice):
+            result = list()
+            for row in self.table.data[key]:
+                result.append(self.row_klass(self.table, row))
+            return result
+        else:
+            return self.row_klass(self, table, self.table.data[key])
 
 class BoundRow(object):
     """Represents a single row of data, bound to a table.

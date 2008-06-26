@@ -1,6 +1,7 @@
 from django.core.exceptions import FieldError
 from django.utils.datastructures import SortedDict
-from tables import BaseTable, DeclarativeColumnsMetaclass, Column, BoundRow
+from tables import BaseTable, DeclarativeColumnsMetaclass, \
+    Column, BoundRow, Rows
 
 __all__ = ('BaseModelTable', 'ModelTable')
 
@@ -82,6 +83,7 @@ class BaseModelTable(BaseTable):
             self.queryset = data
 
         super(BaseModelTable, self).__init__(self.queryset, *args, **kwargs)
+        self._rows = ModelRows(self)
 
     def _validate_column_name(self, name, purpose):
         """Overridden. Only allow model-based fields and valid model
@@ -115,7 +117,7 @@ class BaseModelTable(BaseTable):
 
         # reset caches
         self._columns._reset()
-        self._rows = None
+        self._rows._reset()
 
         queryset = self.queryset
         if self.order_by:
@@ -128,6 +130,26 @@ class BaseModelTable(BaseTable):
 
 class ModelTable(BaseModelTable):
     __metaclass__ = ModelTableMetaclass
+
+class ModelRows(Rows):
+    def __init__(self, *args, **kwargs):
+        super(ModelRows, self).__init__(*args, **kwargs)
+        self.row_klass = BoundModelRow
+
+    def _reset(self):
+        self._length = None
+
+    def __len__(self):
+        """Use the queryset count() method to get the length, instead of
+        loading all results into memory. This allows, for example,
+        smart paginators that use len() to perform better.
+        """
+        if getattr(self, '_length', None) is None:
+            self._length = self.table.data.count()
+        return self._length
+
+    # for compatibility with QuerySetPaginator
+    count = __len__
 
 class BoundModelRow(BoundRow):
     """Special version of the BoundRow class that can handle model instances

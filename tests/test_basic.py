@@ -5,6 +5,7 @@ This includes the core, as well as static data, non-model tables.
 
 from math import sqrt
 from py.test import raises
+from django.core.paginator import Paginator
 import django_tables as tables
 
 def test_declaration():
@@ -195,3 +196,31 @@ def test_callable():
     # data function is called while sorting
     math.order_by = ('sqrt',)
     assert [row['sqrt'] for row in math] == [1,1,2]
+
+def test_pagination():
+    class BookTable(tables.Table):
+        name = tables.Column()
+
+    # create some sample data
+    data = []
+    for i in range(1,101):
+        data.append({'name': 'Book Nr. %d'%i})
+    books = BookTable(data)
+
+    # external paginator
+    paginator = Paginator(books.rows, 10)
+    assert paginator.num_pages == 10
+    page = paginator.page(1)
+    assert len(page.object_list) == 10
+    assert page.has_previous() == False
+    assert page.has_next() == True
+
+    # integrated paginator
+    books.paginate(Paginator, 10, page=1)
+    # rows is now paginated
+    assert len(list(books.rows.page())) == 10
+    assert len(list(books.rows.all())) == 100
+    # new attributes
+    assert books.paginator.num_pages == 10
+    assert books.page.has_previous() == False
+    assert books.page.has_next() == True

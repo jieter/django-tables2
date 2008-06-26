@@ -5,6 +5,7 @@ Sets up a temporary Django project using a memory SQLite database.
 
 from py.test import raises
 from django.conf import settings
+from django.core.paginator import *
 import django_tables as tables
 
 def setup_module(module):
@@ -195,10 +196,6 @@ def test_sort():
     countries.order_by = ('custom1', 'custom2')
     assert countries.order_by == ()
 
-def test_pagination():
-    # TODO: support pagination
-    pass
-
 def test_callable():
     """Some of the callable code is reimplemented for modeltables, so
     test some specifics again.
@@ -263,3 +260,58 @@ def test_column_data():
     # to correct model column; can be used to rewrite what is displayed
     countries.order_by = 'name'
     assert countries.order_by == ('name',)
+
+def test_pagination():
+    """Pretty much the same as static table pagination, but make sure we
+    provide the capability, at least for paginators that use it, to not
+    have the complete queryset loaded (by use of a count() query).
+
+    Note: This test changes the available cities, make sure it is last,
+    or that tests that follow are written appropriately.
+    """
+    from django.db import connection
+
+    class CityTable(tables.ModelTable):
+        class Meta:
+            model = City
+            columns = ['name']
+    cities = CityTable()
+
+    # add some sample data
+    City.objects.all().delete()
+    for i in range(1,101):
+        City.objects.create(name="City %d"%i)
+
+    # for query logging
+    settings.DEBUG = True
+
+    # external paginator
+    start_querycount = len(connection.queries)
+    paginator = Paginator(cities.rows, 10)
+    assert paginator.num_pages == 10
+    page = paginator.page(1)
+    assert len(page.object_list) == 10
+    assert page.has_previous() == False
+    assert page.has_next() == True
+    # Make sure the queryset is not loaded completely - there must be two
+    # queries, one a count(). This check is far from foolproof...
+    assert len(connection.queries)-start_querycount == 2
+
+    # using a queryset paginator is possible as well (although unnecessary)
+    paginator = QuerySetPaginator(cities.rows, 10)
+    assert paginator.num_pages == 10
+
+    # integrated paginator
+    start_querycount = len(connection.queries)
+    cities.paginate(Paginator, 10, page=1)
+    # rows is now paginated
+    assert len(list(cities.rows.page())) == 10
+    assert len(list(cities.rows.all())) == 100
+    # new attributes
+    assert cities.paginator.num_pages == 10
+    assert cities.page.has_previous() == False
+    assert cities.page.has_next() == True
+    assert len(connection.queries)-start_querycount == 2
+
+    # reset
+    settings.DEBUG = False
