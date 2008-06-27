@@ -254,12 +254,8 @@ class BaseTable(object):
         for row in self.rows:
             yield row
 
-    def __getitem__(self, name):
-        try:
-            column = self.columns[name]
-        except KeyError:
-            raise KeyError('Key %r not found in Table' % name)
-        return BoundColumn(self, column, name)
+    def __getitem__(self, key):
+        return self.rows[key]
 
     # just to make those readonly
     columns = property(lambda s: s._columns)
