@@ -86,6 +86,10 @@ def test_basic():
     assert 'name' in stuff.rows[0]
     assert isinstance(stuff.rows[0:], list)
 
+    # [bug] splicing the table gives as valid, working rows
+    assert list(stuff[0]) == list(stuff.rows[0])
+    assert stuff[0]['name'] == 'Foo Bar'
+
     # changing an instance's base_columns does not change the class
     assert id(stuff.base_columns) != id(StuffTable.base_columns)
     stuff.base_columns['test'] = tables.Column()
