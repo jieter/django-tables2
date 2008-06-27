@@ -244,7 +244,7 @@ class BaseTable(object):
                     raise ValueError('Column name %s is invalid.' % o)
             self._order_by = OrderByTuple(validated_order_by)
         else:
-            self._order_by = ()
+            self._order_by = OrderByTuple()
     order_by = property(lambda s: s._order_by, _set_order_by)
 
     def __unicode__(self):

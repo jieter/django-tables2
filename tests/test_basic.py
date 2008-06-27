@@ -141,13 +141,17 @@ def test_sort():
         books.order_by = order
         assert [b['id'] for b in books.rows] == result
 
-    # None is normalized to an empty tuple, ensuring iterability; it's
-    # also the default value
+    # None is normalized to an empty order by tuple, ensuring iterability;
+    # it also supports all the cool methods that we offer for order_by.
+    # This is true for the default case...
     assert books.order_by == ()
     iter(books.order_by)
+    assert hasattr(books.order_by, 'reverse')
+    # ...as well as when explicitly set to None.
     books.order_by = None
     assert books.order_by == ()
     iter(books.order_by)
+    assert hasattr(books.order_by, 'reverse')
 
     # test various orderings
     test_order(('num_pages',), [1,3,2,4])
