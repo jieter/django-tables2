@@ -34,7 +34,7 @@ class SetUrlParamNode(template.Node):
         for key, newvalue in self.changes.items():
             newvalue = newvalue.resolve(context)
             if newvalue=='' or newvalue is None: params.pop(key, False)
-            else: params[key] = newvalue
+            else: params[key] = unicode(newvalue)
         # ``urlencode`` chokes on unicode input, so convert everything to
         # utf8. Note that if some query arguments passed to the site have
         # their non-ascii characters screwed up when passed though this,

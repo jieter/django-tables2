@@ -7,6 +7,8 @@ via templates or otherwise. Whether a test belongs here or, say, in
 """
 
 from py.test import raises
+from django.template import Template, Context, add_to_builtins
+from django.http import HttpRequest
 import django_tables as tables
 
 def test_order_by():
@@ -84,8 +86,6 @@ def test_render():
          {'name': 'Netherlands', 'capital': 'Amsterdam', 'calling_code': '31'},
          {'name': 'Austria', 'calling_code': 43, 'currency': 'Euro (€)', 'population': 8}])
 
-    from django.template import Template, Context
-
     assert Template("{% for column in countries.columns %}{{ column }}/{{ column.name }} {% endfor %}").\
         render(Context({'countries': countries})) == \
         "Name/name Capital/capital Population Size/population Phone Ext./cc "
@@ -97,3 +97,14 @@ def test_render():
     print Template("{% for row in countries %}{% if countries.columns.name.visible %}{{ row.name }} {% endif %}{% if countries.columns.tld.visible %}{{ row.tld }} {% endif %}{% endfor %}").\
         render(Context({'countries': countries})) == \
         "Germany France Netherlands Austria"
+
+def test_templatetags():
+    add_to_builtins('django_tables.app.templatetags.tables')
+
+    # [bug] set url param tag handles an order_by tuple with multiple columns
+    class MyTable(tables.Table):
+        f1 = tables.Column()
+        f2 = tables.Column()
+    t = Template('{% set_url_param x=table.order_by %}')
+    table = MyTable([], order_by=('f1', 'f2'))
+    assert t.render({'request': HttpRequest(), 'table': table}) == '?x=f1%2Cf2'
