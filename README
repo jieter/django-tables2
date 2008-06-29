@@ -351,14 +351,79 @@ table knows that it holds a queryset, it will automatically choose to use
 count() to determine the data length (which is exactly what
 QuerySetPaginator would do).
 
-Ordering Syntax
----------------
+Ordering
+--------
 
-Works exactly like in the Django database API. Order may be specified as
-a list (or tuple) of column names. If prefixed with a hypen, the ordering
-for that particular field will be in reverse order.
+The syntax is similar to that of the Django database API. Order may be
+specified a list (or tuple) of column names. If prefixed with a hyphen, the
+ordering for that particular column will be in reverse order.
 
 Random ordering is currently not supported.
+
+Interacting with order
+~~~~~~~~~~~~~~~~~~~~~~
+
+Letting the user change the order of a table is a common scenario. With
+respect to Django, this means adding links to your table output that will
+send off the appropriate arguments to the server. django-tables attempts
+to help with you that.
+
+A bound column, that is a colum accessed through a table instance, provides
+the following attributes:
+
+    - ``name_reversed`` will simply return the column name prefixed with a
+      hyphen; this is useful in templates, where string concatenation can
+      at times be difficult.
+
+    - ``name_toggled`` checks the tables current order, and will then
+    return the column either prefixed with an hyphen (for reverse ordering)
+    or without, giving you the exact opposite order. If the column is
+    currently not ordered, it will start off in non-reversed order.
+
+It is easy to be confused about the difference between the ``reverse`` and
+``toggle`` terminology. django-tables tries to put normal/reverse-order
+abstraction on top of "ascending/descending", where as normal order could
+potentially mean either ascending or descending, depending on the column.
+
+Commonly, you see tables that indicate what columns they are currently
+ordered by using little arrows. To implement this:
+
+    - ``is_ordered``: Returns True if the column is in the current
+    ``order_by``, regardless of the polarity.
+
+    - ``is_ordered_reverse``, ``is_ordered_straight``: Returns True if the
+    column is ordered in reverse or non-reverse, respectively, otherwise
+    False.
+
+The above is usually enough for most simple cases, where tables are only
+ordered by a single column. For scenarios in which multi-column order is
+used, additional attributes are available:
+
+    - ``order_by``: Return the current order, but with the current column
+    set to normal ordering. If the current column is not already part of
+    the order, it is appended. Any existing columns in the order are
+    maintained as-is.
+
+    - ``order_by_reversed``, ``order_by_toggled``: Similarly, return the
+    table's current ``order_by`` with the column set to reversed or toggled,
+    respectively. Again, it is appended if not already ordered.
+
+Additionally, ``table.order_by.toggle()`` may also be useful in some cases:
+It will toggle all order columns and should thus give you the exact
+opposite order.
+
+The following is a simple example of single-column ordering. It shows a list
+of sortable columns, each clickable, and an up/down arrow next to the one
+that is currently used to sort the table.
+
+    Sort by:
+    {% for column in table.columns %}
+        {% if column.sortable %}
+            <a href="?sort={{ column.name_toggled }}">{{ column }}</a>
+            {% if column.is_ordered_straight %}<img src="down.png" />{% endif %}
+            {% if column.is_ordered_reverse %}<img src="up.png" />{% endif %}
+        {% endif %}
+    {% endfor %}
 
 
 Error handling

@@ -141,23 +141,22 @@ def test_sort():
         {'id': 4, 'pages': 110, 'language': 'fr', 'name': 'A: The Book, French Edition'},   # rating (with data option) is missing
     ])
 
-    def test_order(order, result):
-        books.order_by = order
-        assert [b['id'] for b in books.rows] == result
-
     # None is normalized to an empty order by tuple, ensuring iterability;
     # it also supports all the cool methods that we offer for order_by.
     # This is true for the default case...
     assert books.order_by == ()
     iter(books.order_by)
-    assert hasattr(books.order_by, 'reverse')
+    assert hasattr(books.order_by, 'toggle')
     # ...as well as when explicitly set to None.
     books.order_by = None
     assert books.order_by == ()
     iter(books.order_by)
-    assert hasattr(books.order_by, 'reverse')
+    assert hasattr(books.order_by, 'toggle')
 
     # test various orderings
+    def test_order(order, result):
+        books.order_by = order
+        assert [b['id'] for b in books.rows] == result
     test_order(('num_pages',), [1,3,2,4])
     test_order(('-num_pages',), [4,2,3,1])
     test_order(('name',), [2,4,3,1])
@@ -184,6 +183,25 @@ def test_sort():
     # [bug] order_by did not run through setter when passed to init
     books = BookTable([], order_by='name')
     assert books.order_by == ('name',)
+
+    # test table.order_by extensions
+    books.order_by = ''
+    assert books.order_by.polarize(False) == ()
+    assert books.order_by.polarize(True) == ()
+    assert books.order_by.toggle() == ()
+    assert books.order_by.polarize(False, ['id']) == ('id',)
+    assert books.order_by.polarize(True, ['id']) == ('-id',)
+    assert books.order_by.toggle(['id']) == ('id',)
+    books.order_by = 'id,-name'
+    assert books.order_by.polarize(False, ['name']) == ('id', 'name')
+    assert books.order_by.polarize(True, ['name']) == ('id', '-name')
+    assert books.order_by.toggle(['name']) == ('id', 'name')
+    # ``in`` operator works
+    books.order_by = 'name'
+    assert 'name' in books.order_by
+    books.order_by = '-name'
+    assert 'name' in books.order_by
+    assert not 'language' in books.order_by
 
 def test_callable():
     """Data fields, ``default`` and ``data`` options can be callables.
@@ -248,3 +266,66 @@ def test_pagination():
     assert books.paginator.num_pages == 10
     assert books.page.has_previous() == False
     assert books.page.has_next() == True
+
+def test_columns():
+    """Test specific column features.
+
+    Might warrant it's own test file."""
+
+    class BookTable(tables.Table):
+        id = tables.Column()
+        name = tables.Column()
+        pages = tables.Column()
+        language = tables.Column()
+    books = BookTable([])
+
+    # the basic name property is a no-brainer
+    books.order_by = ''
+    assert [c.name for c in books.columns] == ['id','name','pages','language']
+
+    # name_reversed will always reverse, no matter what
+    for test in ['', 'name', '-name']:
+        books.order_by = test
+        assert [c.name_reversed for c in books.columns] == ['-id','-name','-pages','-language']
+
+    # name_toggled will always toggle
+    books.order_by = ''
+    assert [c.name_toggled for c in books.columns] == ['id','name','pages','language']
+    books.order_by = 'id'
+    assert [c.name_toggled for c in books.columns] == ['-id','name','pages','language']
+    books.order_by = '-name'
+    assert [c.name_toggled for c in books.columns] == ['id','name','pages','language']
+    # other columns in an order_by will be dismissed
+    books.order_by = '-id,name'
+    assert [c.name_toggled for c in books.columns] == ['id','-name','pages','language']
+
+    # with multi-column order, this is slightly more complex
+    books.order_by =  ''
+    assert [str(c.order_by) for c in books.columns] == ['id','name','pages','language']
+    assert [str(c.order_by_reversed) for c in books.columns] == ['-id','-name','-pages','-language']
+    assert [str(c.order_by_toggled) for c in books.columns] == ['id','name','pages','language']
+    books.order_by =  'id'
+    assert [str(c.order_by) for c in books.columns] == ['id','id,name','id,pages','id,language']
+    assert [str(c.order_by_reversed) for c in books.columns] == ['-id','id,-name','id,-pages','id,-language']
+    assert [str(c.order_by_toggled) for c in books.columns] == ['-id','id,name','id,pages','id,language']
+    books.order_by =  '-pages,id'
+    assert [str(c.order_by) for c in books.columns] == ['-pages,id','-pages,id,name','pages,id','-pages,id,language']
+    assert [str(c.order_by_reversed) for c in books.columns] == ['-pages,-id','-pages,id,-name','-pages,id','-pages,id,-language']
+    assert [str(c.order_by_toggled) for c in books.columns] == ['-pages,-id','-pages,id,name','pages,id','-pages,id,language']
+
+    # querying whether a column is ordered is possible
+    books.order_by = ''
+    assert [c.is_ordered for c in books.columns] == [False, False, False, False]
+    books.order_by = 'name'
+    assert [c.is_ordered for c in books.columns] == [False, True, False, False]
+    assert [c.is_ordered_reverse for c in books.columns] == [False, False, False, False]
+    assert [c.is_ordered_straight for c in books.columns] == [False, True, False, False]
+    books.order_by = '-pages'
+    assert [c.is_ordered for c in books.columns] == [False, False, True, False]
+    assert [c.is_ordered_reverse for c in books.columns] == [False, False, True, False]
+    assert [c.is_ordered_straight for c in books.columns] == [False, False, False, False]
+    # and even works with multi-column ordering
+    books.order_by = 'id,-pages'
+    assert [c.is_ordered for c in books.columns] == [True, False, True, False]
+    assert [c.is_ordered_reverse for c in books.columns] == [False, False, True, False]
+    assert [c.is_ordered_straight for c in books.columns] == [True, False, False, False]
