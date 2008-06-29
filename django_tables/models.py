@@ -1,7 +1,7 @@
 from django.core.exceptions import FieldError
 from django.utils.datastructures import SortedDict
 from tables import BaseTable, DeclarativeColumnsMetaclass, \
-    Column, BoundRow, Rows, TableOptions
+    Column, BoundRow, Rows, TableOptions, rmprefix, toggleprefix
 
 __all__ = ('BaseModelTable', 'ModelTable')
 
@@ -122,7 +122,8 @@ class BaseModelTable(BaseTable):
 
         queryset = self.queryset
         if self.order_by:
-            queryset = queryset.order_by(*self._cols_to_fields(self.order_by))
+            actual_order_by = self._resolve_sort_directions(self.order_by)
+            queryset = queryset.order_by(*self._cols_to_fields(actual_order_by))
         self._snapshot = queryset
 
     def _get_rows(self):
