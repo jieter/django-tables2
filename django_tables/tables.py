@@ -85,13 +85,88 @@ class DeclarativeColumnsMetaclass(type):
 
         return type.__new__(cls, name, bases, attrs)
 
+def rmprefix(s):
+    """Normalize a column name by removing a potential sort prefix"""
+    return (s[:1]=='-' and [s[1:]] or [s])[0]
+
 class OrderByTuple(tuple, StrAndUnicode):
-        """Stores 'order by' instructions; Currently only used to render
-        to the output (especially in templates) in a format we understand
-        as input.
+        """Stores 'order by' instructions; Used to render output in a format
+        we understand as input (see __unicode__) - especially useful in
+        templates.
+
+        Also supports some functionality to interact with and modify
+        the order.
         """
         def __unicode__(self):
+            """Output in our input format."""
             return ",".join(self)
+
+        def __contains__(self, name):
+            """Determine whether a column is part of this order."""
+            for o in self:
+                if rmprefix(o) == name:
+                    return True
+            return False
+
+        def is_reversed(self, name):
+            """Returns a bool indicating whether the column is ordered
+            reversed, None if it is missing."""
+            for o in self:
+                if o == '-'+name:
+                    return True
+            return False
+        def is_straight(self, name):
+            """The opposite of is_reversed."""
+            for o in self:
+                if o == name:
+                    return True
+            return False
+
+        def polarize(self, reverse, names=()):
+            """Return a new tuple with the columns from ``names`` set to
+            "reversed" (e.g. prefixed with a '-'). Note that the name is
+            ambiguous - do not confuse this with ``toggle()``.
+
+            If names is not specified, all columns are reversed. If a
+            column name is given that is currently not part of the order,
+            it is added.
+            """
+            prefix = reverse and '-' or ''
+            return OrderByTuple(
+                    [
+                      (
+                        # add either untouched, or reversed
+                        (names and rmprefix(o) not in names)
+                            and [o]
+                            or [prefix+rmprefix(o)]
+                      )[0]
+                    for o in self]
+                    +
+                    [prefix+name for name in names if not name in self]
+            )
+
+        def toggle(self, names=()):
+            """Return a new tuple with the columns from ``names`` toggled
+            with respect to their "reversed" state. E.g. a '-' prefix will
+            be removed is existing, or added if lacking. Do not confuse
+            with ``reverse()``.
+
+            If names is not specified, all columns are toggled. If a
+            column name is given that is currently not part of the order,
+            it is added in non-reverse form."""
+            return OrderByTuple(
+                    [
+                      (
+                        # add either untouched, or toggled
+                        (names and rmprefix(o) not in names)
+                            and [o]
+                            or ((o[:1] == '-') and [o[1:]] or ["-"+o])
+                      )[0]
+                    for o in self]
+                    +  # !!!: test for addition
+                    [name for name in names if not name in self]
+            )
+
 
 # A common use case is passing incoming query values directly into the
 # table constructor - data that can easily be invalid, say if manually
@@ -238,7 +313,7 @@ class BaseTable(object):
             # validate, remove all invalid order instructions
             validated_order_by = []
             for o in order_by:
-                if self._validate_column_name((o[:1]=='-' and [o[1:]] or [o])[0], "order_by"):
+                if self._validate_column_name(rmprefix(o), "order_by"):
                     validated_order_by.append(o)
                 elif not options.IGNORE_INVALID_OPTIONS:
                     raise ValueError('Column name %s is invalid.' % o)
@@ -319,7 +394,7 @@ class Columns(object):
             if exposed_name in self._columns:
                 new_columns[exposed_name] = self._columns[exposed_name]
             else:
-                new_columns[exposed_name] = BoundColumn(self, column, decl_name)
+                new_columns[exposed_name] = BoundColumn(self.table, column, decl_name)
         self._columns = new_columns
 
     def all(self):
@@ -388,12 +463,25 @@ class BoundColumn(StrAndUnicode):
         self.visible = column.visible
 
     name = property(lambda s: s.column.name or s.declared_name)
+    name_reversed = property(lambda s: "-"+s.name)
+    def _get_name_toggled(self):
+        o = self.table.order_by
+        if (not self.name in o) or o.is_reversed(self.name): return self.name
+        else: return self.name_reversed
+    name_toggled = property(_get_name_toggled)
+
+    is_ordered = property(lambda s: s.name in s.table.order_by)
+    is_ordered_reverse = property(lambda s: s.table.order_by.is_reversed(s.name))
+    is_ordered_straight = property(lambda s: s.table.order_by.is_straight(s.name))
+    order_by = property(lambda s: s.table.order_by.polarize(False, [s.name]))
+    order_by_reversed = property(lambda s: s.table.order_by.polarize(True, [s.name]))
+    order_by_toggled = property(lambda s: s.table.order_by.toggle([s.name]))
 
     def get_default(self, row):
         """Since a column's ``default`` property may be a callable, we need
         this function to resolve it when needed.
 
-        Make sure ``row`` is a ``BoundRow`` objects, since that is what
+        Make sure ``row`` is a ``BoundRow`` object, since that is what
         we promise the callable will get.
         """
         if callable(self.column.default):
