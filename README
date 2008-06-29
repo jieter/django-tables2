@@ -307,6 +307,15 @@ If you don't want a column to be sortable by the user:
 
     pubdate = tables.Column(sortable=False)
 
+Sorting is also affected by ``direction``, which can be used to change the
+*default* sort direction to descending. Note that this option only indirectly
+translates to the actual direction. Normal und reverse order, the terms
+django-tables exposes, now simply mean different things.
+
+    pubdate = tables.Column(direction='desc')
+
+Both variants are possible.
+
 If you don't want to expose a column (but still require it to exist, for
 example because it should be sortable nonetheless):
 

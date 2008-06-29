@@ -95,6 +95,10 @@ def rmprefix(s):
     """Normalize a column name by removing a potential sort prefix"""
     return (s[:1]=='-' and [s[1:]] or [s])[0]
 
+def toggleprefix(s):
+    """Remove - prefix is existing, or add if missing."""
+    return ((s[:1] == '-') and [s[1:]] or ["-"+s])[0]
+
 class OrderByTuple(tuple, StrAndUnicode):
         """Stores 'order by' instructions; Used to render output in a format
         we understand as input (see __unicode__) - especially useful in
@@ -169,7 +173,7 @@ class OrderByTuple(tuple, StrAndUnicode):
                             or ((o[:1] == '-') and [o[1:]] or ["-"+o])
                       )[0]
                     for o in self]
-                    +  # !!!: test for addition
+                    +
                     [name for name in names if not name in self]
             )
 
@@ -256,7 +260,8 @@ class BaseTable(object):
                     row[name_in_source] = column.get_default(BoundRow(self, row))
 
         if self.order_by:
-            sort_table(snapshot, self._cols_to_fields(self.order_by))
+            actual_order_by = self._resolve_sort_directions(self.order_by)
+            sort_table(snapshot, self._cols_to_fields(actual_order_by))
         self._snapshot = snapshot
 
     def _get_data(self):
@@ -264,6 +269,18 @@ class BaseTable(object):
             self._build_snapshot()
         return self._snapshot
     data = property(lambda s: s._get_data())
+
+    def _resolve_sort_directions(self, order_by):
+        """Given an ``order_by`` tuple, this will toggle the hyphen-prefixes
+        according to each column's ``direction`` option, e.g. it translates
+        between the ascending/descending and the straight/reverse terminology.
+        """
+        result = []
+        for inst in order_by:
+            if self.columns[rmprefix(inst)].column.direction == Column.DESC:
+                inst = toggleprefix(inst)
+            result.append(inst)
+        return result
 
     def _cols_to_fields(self, names):
         """Utility function. Given a list of column names (as exposed to

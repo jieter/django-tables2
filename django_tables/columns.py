@@ -34,14 +34,21 @@ class Column(object):
     to the user, set ``inaccessible`` to True.
 
     Setting ``sortable`` to False will result in this column being unusable
-    in ordering.
+    in ordering. You can further change the *default* sort direction to
+    descending using ``direction``. Note that this option changes the actual
+    direction only indirectly. Normal und reverse order, the terms
+    django-tables exposes, now simply mean different things.
     """
+
+    ASC = 1
+    DESC = 2
 
     # Tracks each time a Column instance is created. Used to retain order.
     creation_counter = 0
 
     def __init__(self, verbose_name=None, name=None, default=None, data=None,
-                 visible=True, inaccessible=False, sortable=None):
+                 visible=True, inaccessible=False, sortable=None,
+                 direction=ASC):
         self.verbose_name = verbose_name
         self.name = name
         self.default = default
@@ -49,9 +56,21 @@ class Column(object):
         self.visible = visible
         self.inaccessible = inaccessible
         self.sortable = sortable
+        self.direction = direction
 
         self.creation_counter = Column.creation_counter
         Column.creation_counter += 1
+
+    def _set_direction(self, value):
+        if isinstance(value, basestring):
+            if value in ('asc', 'desc'):
+                self._direction = (value == 'asc') and Column.ASC or Column.DESC
+            else:
+                raise ValueError('Invalid direction value: %s' % value)
+        else:
+            self._direction = value
+
+    direction = property(lambda s: s._direction, _set_direction)
 
 class TextColumn(Column):
     pass

@@ -162,6 +162,7 @@ def test_caches():
 def test_sort():
     class CountryTable(tables.ModelTable):
         tld = tables.Column(name="domain")
+        population = tables.Column()
         system = tables.Column(default="republic")
         custom1 = tables.Column()
         custom2 = tables.Column(sortable=True)
@@ -169,9 +170,9 @@ def test_sort():
             model = Country
     countries = CountryTable()
 
-    def test_order(order, result):
-        countries.order_by = order
-        assert [r['id'] for r in countries.rows] == result
+    def test_order(order, result, table=countries):
+        table.order_by = order
+        assert [r['id'] for r in table.rows] == result
 
     # test various orderings
     test_order(('population',), [1,4,3,2])
@@ -184,9 +185,18 @@ def test_sort():
     # test multiple order instructions; note: one row is missing a "system"
     # value, but has a default set; however, that has no effect on sorting.
     test_order(('system', '-population'), [2,4,3,1])
-    # using a simple string (for convinience as well as querystring passing
+    # using a simple string (for convinience as well as querystring passing)
     test_order('-population', [2,3,4,1])
     test_order('system,-population', [2,4,3,1])
+
+    # test column with a default ``direction`` set to descending
+    class CityTable(tables.ModelTable):
+        name = tables.Column(direction='desc')
+        class Meta:
+            model = City
+    cities = CityTable()
+    test_order('name', [1,2], table=cities)   # Berlin to Amsterdam
+    test_order('-name', [2,1], table=cities)  # Amsterdam to Berlin
 
     # test invalid order instructions...
     countries.order_by = 'invalid_field,population'

@@ -154,7 +154,7 @@ def test_meta_sortable():
 
 def test_sort():
     class BookTable(tables.Table):
-        id = tables.Column()
+        id = tables.Column(direction='desc')
         name = tables.Column()
         pages = tables.Column(name='num_pages')  # test rewritten names
         language = tables.Column(default='en')   # default affects sorting
@@ -194,6 +194,16 @@ def test_sort():
     test_order('pages,name', [2,4,3,1])   # == ('name',)
     # sort by column with "data" option
     test_order('rating', [4,2,3,1])
+
+    # test the column with a default ``direction`` set to descending
+    test_order('id', [4,3,2,1])
+    test_order('-id', [1,2,3,4])
+    # changing the direction afterwards is fine too
+    books.base_columns['id'].direction = 'asc'
+    test_order('id', [1,2,3,4])
+    test_order('-id', [4,3,2,1])
+    # a invalid direction string raises an exception
+    raises(ValueError, "books.base_columns['id'].direction = 'blub'")
 
     # [bug] test alternative order formats if passed to constructor
     BookTable([], 'language,-num_pages')
