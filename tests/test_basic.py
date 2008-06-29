@@ -267,10 +267,24 @@ def test_pagination():
     assert books.page.has_previous() == False
     assert books.page.has_next() == True
 
+# TODO: all the column stuff might warrant it's own test file
 def test_columns():
-    """Test specific column features.
+    """Test Table.columns container functionality.
+    """
 
-    Might warrant it's own test file."""
+    class BookTable(tables.Table):
+        id = tables.Column(sortable=False)
+        name = tables.Column(sortable=True)
+        pages = tables.Column(sortable=True)
+        language = tables.Column(sortable=False)
+    books = BookTable([])
+
+    assert list(books.columns.sortable()) == [c for c in books.columns if c.sortable]
+
+
+def test_column_order():
+    """Test the order functionality of bound columns.
+    """
 
     class BookTable(tables.Table):
         id = tables.Column()

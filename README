@@ -308,6 +308,20 @@ Note that how the default is used and when it is applied differs between
 static and ModelTables.
 
 
+The table.columns container
+---------------------------
+
+While you can iterate through ``columns`` and get all the currently visible
+columns, it further provides features that go beyond a simple iterator.
+
+You can access all columns, regardless of their visibility, through
+``columns.all``.
+
+``columns.sortable`` is a handy shortcut that exposes all columns which's
+``sortable`` attribute is True. This can be very useful in templates, when
+doing {% if column.sortable %} can conflict with {{ forloop.last }}.
+
+
 Tables and Pagination
 ---------------------
 
