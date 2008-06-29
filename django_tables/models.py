@@ -1,12 +1,13 @@
 from django.core.exceptions import FieldError
 from django.utils.datastructures import SortedDict
 from tables import BaseTable, DeclarativeColumnsMetaclass, \
-    Column, BoundRow, Rows
+    Column, BoundRow, Rows, TableOptions
 
 __all__ = ('BaseModelTable', 'ModelTable')
 
-class ModelTableOptions(object):
+class ModelTableOptions(TableOptions):
     def __init__(self, options=None):
+        super(ModelTableOptions, self).__init__()
         self.model = getattr(options, 'model', None)
         self.columns = getattr(options, 'columns', None)
         self.exclude = getattr(options, 'exclude', None)

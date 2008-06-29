@@ -122,6 +122,21 @@ the row instance as an argument (representing the row that the default is
 needed for).
 
 
+Table Options
+-------------
+
+Table-specific options are implemented using the same inner ``Meta`` class
+concept as known from forms and models in Django:
+
+    class MyTable(tables.Table):
+        class Meta:
+            sortable = True
+
+Currently, for non-model tables, the only supported option is ``sortable``.
+Per default, all columns are sortable, unless a column specifies otherwise.
+This meta option allows you to overwrite the global default for the table.
+
+
 ModelTables
 -----------
 

@@ -28,6 +28,11 @@ def sort_table(data, order_by):
             instructions.append((o, False,))
     data.sort(cmp=_cmp)
 
+class TableOptions(object):
+    def __init__(self, options=None):
+        super(TableOptions, self).__init__()
+        self.sortable = getattr(options, 'sortable', None)
+
 class DeclarativeColumnsMetaclass(type):
     """
     Metaclass that converts Column attributes to a dictionary called
@@ -83,6 +88,7 @@ class DeclarativeColumnsMetaclass(type):
             attrs['base_columns'] = SortedDict()
         attrs['base_columns'].update(SortedDict(columns))
 
+        attrs['_meta'] = TableOptions(attrs.get('Meta', None))
         return type.__new__(cls, name, bases, attrs)
 
 def rmprefix(s):
@@ -298,7 +304,7 @@ class BaseTable(object):
         """
         if purpose == 'order_by':
             return name in self.columns and\
-                   self.columns[name].column.sortable
+                   self.columns[name].sortable
         else:
             return True
 
@@ -471,8 +477,16 @@ class BoundColumn(StrAndUnicode):
         self.column = column
         self.declared_name = name
         # expose some attributes of the column more directly
-        self.sortable = column.sortable
         self.visible = column.visible
+
+    def _get_sortable(self):
+        if self.column.sortable is not None:
+            return self.column.sortable
+        elif self.table._meta.sortable is not None:
+            return self.table._meta.sortable
+        else:
+            return True   # the default value
+    sortable = property(_get_sortable)
 
     name = property(lambda s: s.column.name or s.declared_name)
     name_reversed = property(lambda s: "-"+s.name)
