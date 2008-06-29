@@ -421,6 +421,18 @@ class Columns(object):
         self._spawn_columns()
         return self._columns.keyOrder.index(name)
 
+    def sortable(self):
+        """Iterate through all sortable columns.
+
+        This is primarily useful in templates, where iterating over the full
+        set and checking {% if column.sortable %} can be problematic in
+        conjunction with e.g. {{ forloop.last }} (the last column might not
+        be the actual last that is rendered).
+        """
+        for column in self.all():
+            if column.sortable:
+                yield column
+
     def __iter__(self):
         """Iterate through all *visible* bound columns.
 
