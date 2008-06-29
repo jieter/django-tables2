@@ -126,6 +126,32 @@ def test_caches():
     assert id(list(books.columns)[0]) != old_column_cache
     assert id(list(books.rows)[0]) != old_row_cache
 
+def test_meta_sortable():
+    """Specific tests for sortable table meta option."""
+
+    def mktable(default_sortable):
+        class BookTable(tables.Table):
+            id = tables.Column(sortable=True)
+            name = tables.Column(sortable=False)
+            author = tables.Column()
+            class Meta:
+                sortable = default_sortable
+        return BookTable([])
+
+    global_table = mktable(None)
+    for default_sortable, results in (
+        (None,      (True, False, True)),    # last bool is global default
+        (True,      (True, False, True)),    # last bool is table default
+        (False,     (True, False, False)),   # last bool is table default
+    ):
+        books = mktable(default_sortable)
+        assert [c.sortable for c in books.columns] == list(results)
+
+        # it also works if the meta option is manually changed after
+        # class and instance creation
+        global_table._meta.sortable = default_sortable
+        assert [c.sortable for c in global_table.columns] == list(results)
+
 def test_sort():
     class BookTable(tables.Table):
         id = tables.Column()

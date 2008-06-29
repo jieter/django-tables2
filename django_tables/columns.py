@@ -41,7 +41,7 @@ class Column(object):
     creation_counter = 0
 
     def __init__(self, verbose_name=None, name=None, default=None, data=None,
-                 visible=True, inaccessible=False, sortable=True):
+                 visible=True, inaccessible=False, sortable=None):
         self.verbose_name = verbose_name
         self.name = name
         self.default = default
