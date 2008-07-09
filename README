@@ -90,9 +90,11 @@ Then, in the "list.html" template, write:
         {% endfor %}
     </tr>
     {% for row in table.rows %}
+        <tr>
         {% for value in row %}
             <td>{{ value }}<td>
         {% endfor %}
+        </tr>
     {% endfor %}
     </table>
 
@@ -105,9 +107,9 @@ as a such a string.
 Instead of the iterator, you can use your knowledge of the table structure to
 access columns directly:
 
-        {% if table.columns.tz.visible %}
-            {{ table.columns.tz }}
-        {% endfor %}
+    {% if table.columns.tz.visible %}
+        {{ table.columns.tz }}
+    {% endfor %}
 
 
 Dynamic Data
@@ -515,7 +517,6 @@ TODO
 ----
     - as_html methods are all empty right now
     - table.column[].values is a stub
-    - let columns change their default ordering (ascending/descending)
     - filters
     - grouping
     - choices support for columns (internal column value will be looked up
