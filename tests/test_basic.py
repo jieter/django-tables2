@@ -86,7 +86,7 @@ def test_basic():
     assert 'name' in stuff.rows[0]
     assert isinstance(stuff.rows[0:], list)
 
-    # [bug] splicing the table gives as valid, working rows
+    # [bug] splicing the table gives us valid, working rows
     assert list(stuff[0]) == list(stuff.rows[0])
     assert stuff[0]['name'] == 'Foo Bar'
 
