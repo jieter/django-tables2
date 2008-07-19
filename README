@@ -316,8 +316,6 @@ django-tables exposes, now simply mean different things.
 
     pubdate = tables.Column(direction='desc')
 
-Both variants are possible.
-
 If you don't want to expose a column (but still require it to exist, for
 example because it should be sortable nonetheless):
 
