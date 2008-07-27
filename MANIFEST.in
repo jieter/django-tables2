@@ -1,3 +1,4 @@
 include README
 include LICENSE
 include MANIFEST.in
+recursive-include tests *.py
