@@ -4,7 +4,7 @@ This includes the core, as well as static data, non-model tables.
 """
 
 from math import sqrt
-from py.test import raises
+from nose.tools import assert_raises
 from django.core.paginator import Paginator
 import django_tables as tables
 
@@ -97,12 +97,14 @@ def test_basic():
 
     # optionally, exceptions can be raised when input is invalid
     tables.options.IGNORE_INVALID_OPTIONS = False
-    raises(Exception, "stuff.order_by = '-name,made-up-column'")
-    raises(Exception, "stuff.order_by = ('made-up-column',)")
-    # when a column name is overwritten, the original won't work anymore
-    raises(Exception, "stuff.order_by = 'c'")
-    # reset for future tests
-    tables.options.IGNORE_INVALID_OPTIONS = True
+    try:
+        assert_raises(ValueError, setattr, stuff, 'order_by', '-name,made-up-column')
+        assert_raises(ValueError, setattr, stuff, 'order_by', ('made-up-column',))
+        # when a column name is overwritten, the original won't work anymore
+        assert_raises(ValueError, setattr, stuff, 'order_by', 'c')
+        # reset for future tests
+    finally:
+        tables.options.IGNORE_INVALID_OPTIONS = True
 
 def test_caches():
     """Ensure the various caches are effective.
@@ -203,7 +205,7 @@ def test_sort():
     test_order('id', [1,2,3,4])
     test_order('-id', [4,3,2,1])
     # a invalid direction string raises an exception
-    raises(ValueError, "books.base_columns['id'].direction = 'blub'")
+    assert_raises(ValueError, setattr, books.base_columns['id'], 'direction', 'blub')
 
     # [bug] test alternative order formats if passed to constructor
     BookTable([], 'language,-num_pages')

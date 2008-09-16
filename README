@@ -13,7 +13,8 @@ apart from that, ``import django_tables as tables`` should get you going.
 Running the test suite
 ----------------------
 
-The test suite uses py.test (from http://codespeak.net/py/dist/test.html).
+The test suite uses nose:
+    http://somethingaboutorange.com/mrl/projects/nose/
 
 Working with Tables
 -------------------

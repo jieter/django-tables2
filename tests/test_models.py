@@ -3,7 +3,7 @@
 Sets up a temporary Django project using a memory SQLite database.
 """
 
-from py.test import raises
+from nose.tools import assert_raises
 from django.conf import settings
 from django.core.paginator import *
 import django_tables as tables
@@ -112,7 +112,7 @@ def test_basic():
             assert not 'id' in r
             # [bug] access to data that might be available, but does not
             # have a corresponding column is denied.
-            raises(Exception, "r['id']")
+            assert_raises(Exception, "r['id']")
             # missing data is available with default values
             assert 'null' in r
             assert r['null'] == "foo"   # note: different from prev. line!

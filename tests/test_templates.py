@@ -6,7 +6,6 @@ via templates or otherwise. Whether a test belongs here or, say, in
 ``test_basic``, is not always a clear-cut decision.
 """
 
-from py.test import raises
 from django.template import Template, Context, add_to_builtins
 from django.http import HttpRequest
 import django_tables as tables
