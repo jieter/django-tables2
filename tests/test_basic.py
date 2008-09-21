@@ -6,6 +6,7 @@ This includes the core, as well as static data, non-model tables.
 from math import sqrt
 from nose.tools import assert_raises
 from django.core.paginator import Paginator
+from django.http import Http404
 import django_tables as tables
 
 def test_declaration():
@@ -304,6 +305,10 @@ def test_pagination():
     assert books.paginator.num_pages == 10
     assert books.page.has_previous() == False
     assert books.page.has_next() == True
+    # exceptions are converted into 404s
+    assert_raises(Http404, books.paginate, Paginator, 10, page=9999)
+    assert_raises(Http404, books.paginate, Paginator, 10, page="abc")
+    
 
 # TODO: all the column stuff might warrant it's own test file
 def test_columns():

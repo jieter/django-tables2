@@ -1,4 +1,6 @@
 import copy
+from django.http import Http404
+from django.core import paginator
 from django.utils.datastructures import SortedDict
 from django.utils.encoding import StrAndUnicode
 from django.utils.text import capfirst
@@ -376,7 +378,10 @@ class BaseTable(object):
     def paginate(self, klass, *args, **kwargs):
         page = kwargs.pop('page', 1)
         self.paginator = klass(self.rows, *args, **kwargs)
-        self.page = self.paginator.page(page)
+        try:
+            self.page = self.paginator.page(page)
+        except paginator.InvalidPage, e:
+            raise Http404(str(e))
 
 
 class Table(BaseTable):
