@@ -369,7 +369,7 @@ works as expected.
 Alternatively, you may use the ``paginate`` feature:
 
     table = MyTable(queryset)
-    table.paginate(QuerySetPaginator, page=1, 10, padding=2)
+    table.paginate(QuerySetPaginator, 10, page=1, padding=2)
     for row in table.rows.page():
         pass
     table.paginator                # new attributes
