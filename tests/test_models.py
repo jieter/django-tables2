@@ -253,7 +253,7 @@ def test_relationships():
 
 def test_column_data():
     """Further test the ``data`` column property in a ModelTable scenario.
-    Other tests already touched on this, for example ``test_realtionships``.
+    Other tests already touched on this, for example ``test_relationships``.
     """
 
     class CountryTable(tables.ModelTable):
