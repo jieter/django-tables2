@@ -93,7 +93,7 @@ Then, in the "list.html" template, write:
     {% for row in table.rows %}
         <tr>
         {% for value in row %}
-            <td>{{ value }}<td>
+            <td>{{ value }}</td>
         {% endfor %}
         </tr>
     {% endfor %}
