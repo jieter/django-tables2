@@ -467,7 +467,7 @@ class Columns(object):
         This is primarily geared towards table rendering.
         """
         for column in self.all():
-            if column.column.visible:
+            if column.visible:
                 yield column
 
     def __contains__(self, item):

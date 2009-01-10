@@ -308,7 +308,7 @@ def test_pagination():
     # exceptions are converted into 404s
     assert_raises(Http404, books.paginate, Paginator, 10, page=9999)
     assert_raises(Http404, books.paginate, Paginator, 10, page="abc")
-    
+
 
 # TODO: all the column stuff might warrant it's own test file
 def test_columns():
@@ -316,13 +316,19 @@ def test_columns():
     """
 
     class BookTable(tables.Table):
-        id = tables.Column(sortable=False)
+        id = tables.Column(sortable=False, visible=False)
         name = tables.Column(sortable=True)
         pages = tables.Column(sortable=True)
         language = tables.Column(sortable=False)
     books = BookTable([])
 
     assert list(books.columns.sortable()) == [c for c in books.columns if c.sortable]
+
+    # .columns iterator only yields visible columns
+    assert len(list(books.columns)) == 3
+    # visiblity of columns can be changed at instance-time
+    books.columns['id'].visible = True
+    assert len(list(books.columns)) == 4
 
 
 def test_column_order():
