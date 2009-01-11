@@ -97,15 +97,36 @@ class BaseModelTable(BaseTable):
 
         if purpose == 'order_by':
             column = self.columns[name]
-            lookup = column.declared_name
-            if column.column.data and not callable(column.column.data):
-                lookup = column.column.data
 
-            try:
-                # let django validate the lookup
-                _temp = self.queryset.order_by(lookup)
-                _temp.query.as_sql()
-            except FieldError:
+            # "data" can really be used in two different ways. It is
+            # slightly confusing and potentially should be changed.
+            # It can either refer to an attribute/field which the table
+            # column should represent, or can be a callable (or a string
+            # pointing to a callable attribute) that is used to render to
+            # cell. The difference is that in the latter case, there may
+            # still be an actual source model field behind the column,
+            # stored in "declared_name". In other words, we want to filter
+            # out column names that are not oderable, and the column name
+            # we need to check may either be stored in "data" or in
+            # "declared_name", depending on if and what kind of value is
+            # in "data". This is the reason why we try twice.
+            #
+            # See also bug #282964.
+            #
+            # TODO: It might be faster to try to resolve the given name
+            # manually recursing the model metadata rather than
+            # constructing a queryset.
+            for lookup in (column.column.data, column.declared_name):
+                if not lookup or callable(lookup):
+                    continue
+                try:
+                    # let django validate the lookup
+                    _temp = self.queryset.order_by(lookup)
+                    _temp.query.as_sql()
+                    break
+                except FieldError:
+                    pass
+            else:
                 return False
 
         # if we haven't failed by now, the column should be valid

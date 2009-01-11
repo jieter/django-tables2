@@ -258,6 +258,7 @@ def test_column_data():
 
     class CountryTable(tables.ModelTable):
         name = tables.Column(data=lambda d: "hidden")
+        tld = tables.Column(data='example_domain', name="domain")
         default_and_data = tables.Column(data=lambda d: None, default=4)
         class Meta:
             model = Country
@@ -270,6 +271,10 @@ def test_column_data():
     # to correct model column; can be used to rewrite what is displayed
     countries.order_by = 'name'
     assert countries.order_by == ('name',)
+    # [bug 282964] this trick also works if the callable is an attribute
+    # and we refer to it per string, rather than giving a function object
+    countries.order_by = 'domain'
+    assert countries.order_by == ('domain',)
 
 def test_pagination():
     """Pretty much the same as static table pagination, but make sure we
