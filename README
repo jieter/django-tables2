@@ -222,9 +222,12 @@ property to the appropriate string.
     class CountryTable(tables.ModelTable):
         geo = tables.Column(data='city__geo')
 
-Note that you don't need to define a relationship's fields as columns
-simple to access them:
+Note that you don't need to define a relationship's fields as separate 
+columns if you already have a column for the relationship itself, i.e.:
 
+    class CountryTable(tables.ModelTable):
+        city = tables.Column()
+        
     for country in countries.rows:
         print country.city.id
         print country.city.geo
