@@ -521,6 +521,8 @@ processor).
 
 TODO
 ----
+    - "data", if used to format for display, affect sorting; this stuff needs
+      some serious redesign.
     - as_html methods are all empty right now
     - table.column[].values is a stub
     - filters
