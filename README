@@ -502,17 +502,21 @@ Template Utilities
 
 If you want the give your users the ability to interact with your table (e.g.
 change the ordering), you will need to create urls with the appropriate
-queries. To simplify that process, django-tables comes with helpful
+queries. To simplify that process, django-tables comes with a helpful
 templatetag:
 
-    {% set_url_param "sort" "name" %}       # ?sort=name
-    {% set_url_param "sort" %}              # delete "sort" param
+    {% set_url_param sort="name" %}       # ?sort=name
+    {% set_url_param sort="" %}           # delete "sort" param
 
 The template library can be found in 'django_modules.app.templates.tables'.
 If you add ''django_modules.app' to your INSTALLED_APPS setting, you will
 be able to do:
 
     {% load tables %}
+    
+Note: The tag requires the current request to be available as ``request`` 
+in the context (usually, this means activating the Django request context
+processor).
 
 
 TODO
