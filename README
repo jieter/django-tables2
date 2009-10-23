@@ -600,3 +600,15 @@ templates.
 
 Another feature that would be important is the ability to limit the valid
 values for a filter, e.g. in the date example only years from 2000 to 2008.
+
+Use django-filters:
+    - would support html output
+    - would not work at all with our planned QueryTable
+    - conflicts somewhat in that it also allows ordering
+    
+To autoamtically allow filtering a column with filter=True, we would need to
+have subclasses for each model class, even if it just redirects to use the 
+correct filter class; 
+
+If not using django-filter, we wouldn't have different filter types; filters 
+would just hold the data, and each column would know how to apply it.
