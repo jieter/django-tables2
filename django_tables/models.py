@@ -120,9 +120,15 @@ class BaseModelTable(BaseTable):
                 if not lookup or callable(lookup):
                     continue
                 try:
-                    # let django validate the lookup
+                    # Let Django validate the lookup by asking it to build
+                    # the final query; the way to do this has changed in 
+                    # Django 1.2, and we try to support both versions.
                     _temp = self.queryset.order_by(lookup)
-                    _temp.query.as_sql()
+                    if hasattr(_temp, 'as_sql'):
+                        _temp.query.as_sql()
+                    else:
+                        from django.db import DEFAULT_DB_ALIAS
+                        _temp.query.get_compiler(DEFAULT_DB_ALIAS).as_sql()
                     break
                 except FieldError:
                     pass
