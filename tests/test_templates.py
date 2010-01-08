@@ -106,4 +106,4 @@ def test_templatetags():
         f2 = tables.Column()
     t = Template('{% set_url_param x=table.order_by %}')
     table = MyTable([], order_by=('f1', 'f2'))
-    assert t.render({'request': HttpRequest(), 'table': table}) == '?x=f1%2Cf2'
+    assert t.render(Context({'request': HttpRequest(), 'table': table})) == '?x=f1%2Cf2'
