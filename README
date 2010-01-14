@@ -502,21 +502,27 @@ Template Utilities
 
 If you want the give your users the ability to interact with your table (e.g.
 change the ordering), you will need to create urls with the appropriate
-queries. To simplify that process, django-tables comes with helpful
+queries. To simplify that process, django-tables comes with a helpful
 templatetag:
 
-    {% set_url_param "sort" "name" %}       # ?sort=name
-    {% set_url_param "sort" %}              # delete "sort" param
+    {% set_url_param sort="name" %}       # ?sort=name
+    {% set_url_param sort="" %}           # delete "sort" param
 
 The template library can be found in 'django_modules.app.templates.tables'.
 If you add ''django_modules.app' to your INSTALLED_APPS setting, you will
 be able to do:
 
     {% load tables %}
+    
+Note: The tag requires the current request to be available as ``request`` 
+in the context (usually, this means activating the Django request context
+processor).
 
 
 TODO
 ----
+    - "data", if used to format for display, affect sorting; this stuff needs
+      some serious redesign.
     - as_html methods are all empty right now
     - table.column[].values is a stub
     - filters
@@ -596,3 +602,15 @@ templates.
 
 Another feature that would be important is the ability to limit the valid
 values for a filter, e.g. in the date example only years from 2000 to 2008.
+
+Use django-filters:
+    - would support html output
+    - would not work at all with our planned QueryTable
+    - conflicts somewhat in that it also allows ordering
+    
+To autoamtically allow filtering a column with filter=True, we would need to
+have subclasses for each model class, even if it just redirects to use the 
+correct filter class; 
+
+If not using django-filter, we wouldn't have different filter types; filters 
+would just hold the data, and each column would know how to apply it.
