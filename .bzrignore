@@ -1,2 +1,6 @@
 MANIFEST
 dist
+
+/.project
+/.pydevproject
+
