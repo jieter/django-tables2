@@ -222,12 +222,12 @@ property to the appropriate string.
     class CountryTable(tables.ModelTable):
         geo = tables.Column(data='city__geo')
 
-Note that you don't need to define a relationship's fields as separate 
+Note that you don't need to define a relationship's fields as separate
 columns if you already have a column for the relationship itself, i.e.:
 
     class CountryTable(tables.ModelTable):
         city = tables.Column()
-        
+
     for country in countries.rows:
         print country.city.id
         print country.city.geo
@@ -513,104 +513,8 @@ If you add ''django_modules.app' to your INSTALLED_APPS setting, you will
 be able to do:
 
     {% load tables %}
-    
-Note: The tag requires the current request to be available as ``request`` 
+
+Note: The tag requires the current request to be available as ``request``
 in the context (usually, this means activating the Django request context
 processor).
 
-
-TODO
-----
-    - "data", if used to format for display, affect sorting; this stuff needs
-      some serious redesign.
-    - as_html methods are all empty right now
-    - table.column[].values is a stub
-    - filters
-    - grouping
-    - choices support for columns (internal column value will be looked up
-      for output)
-    - for columns that span model relationships, automatically generate
-      select_related(); this is important, since right now such an e.g.
-      order_by would cause rows to be dropped (inner join).
-    - initialize auto-generated columns with the relevant properties of the
-      model fields (verbose_name, editable=visible?, ...)
-    - remove support for callable fields? this has become obsolete since we
-      Column.data property; also, it's easy to make the call manually, or let
-      the template engine handle it
-    - tests could use some refactoring, they are currently all over the place
-    - what happens if duplicate column names are used? we currently don't
-      check for that at all
-
-Filters
-~~~~~~~
-
-Filtering is already easy (just use the normal queryset methods), but
-filter support in django-tables would want to hide the Django ORM syntax
-from the user.
-
-    * For example, say a ``models.DateTimeField`` should be filtered
-      by year: the user would only see ``date=2008`` rather than maybe
-      ``published_at__year=2008``.
-
-    * Say you want to filter out ``UserProfile`` rows that do not have
-      an avatar image set. The user would only see ```no_avatar``, which
-      in Django ORM syntax might map to
-      ``Q(avatar__isnull=True) | Q(avatar='')``.
-
-Filters would probably always belong to a column, and be defined along
-side one.
-
-    class BookTable(tables.ModelTable):
-        date = tables.Column(filter='published_at__year')
-
-If a filter is needed that does not belong to a single colunn, a column
-would have to be defined for just that filter. A ``tables.Filter`` object
-could be provided that would basically be a column, but with default
-properties set so that the column functionality is disabled as far as
-possible (i.e. ``visible=False`` etc):
-
-    class BookTable(tables.ModelTable):
-        date = tables.Column(filter='published_at__year')
-        has_cover = tables.Filter('cover__isnull', value=True)
-
-Or, if Filter() gets a lot of additional functionality like ``value``,
-we could generally make it available to all filters like so:
-
-    class BookTable(tables.ModelTable):
-        date = tables.Column(filter=tables.Filter('published_at__year', default=2008))
-        has_cover = tables.Filter('cover__isnull', value=True)
-
-More complex filters should be supported to (e.g. combine multiple Q
-objects, support ``exclude`` as well as ``filter``). Allowing the user
-to somehow specify a callable probably is the easiest way to enable this.
-
-The filter querystring syntax, as exposed to the user, could look like this:
-
-    /view/?filter=name:value
-    /view/?filter=name
-
-It would also be cool if filters could be combined. However, in that case
-it would also make sense to make it possible to choose individual filters
-which cannot be combined with any others, or maybe even allow the user
-to specify complex dependencies. That may be pushing it though, and anyway
-won't make it into the first version.
-
-    /view/?filter=name:value,foo:bar
-
-We need to think about how we make the functionality available to
-templates.
-
-Another feature that would be important is the ability to limit the valid
-values for a filter, e.g. in the date example only years from 2000 to 2008.
-
-Use django-filters:
-    - would support html output
-    - would not work at all with our planned QueryTable
-    - conflicts somewhat in that it also allows ordering
-    
-To autoamtically allow filtering a column with filter=True, we would need to
-have subclasses for each model class, even if it just redirects to use the 
-correct filter class; 
-
-If not using django-filter, we wouldn't have different filter types; filters 
-would just hold the data, and each column would know how to apply it.

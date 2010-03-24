@@ -1,4 +1,0 @@
-It would be cool if for non-model tables, a custom compare function could
-be provided to modify the sort. This would require a minor refactor in
-which we have multiple different table types subclass a base table, and
-the subclass allowing it's columns to support additional kwargs.
