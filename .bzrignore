@@ -1,6 +1,8 @@
 MANIFEST
 dist
 
+/BRANCH_TODO
+
 /.project
 /.pydevproject
 /tables.wpr
