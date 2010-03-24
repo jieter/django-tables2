@@ -22,7 +22,7 @@ Working with Tables
 A table class looks very much like a form:
 
     import django_tables as tables
-    class CountryTable(tables.Table):
+    class CountryTable(tables.MemoryTable):
         name = tables.Column(verbose_name="Country Name")
         population = tables.Column(sortable=False, visible=False)
         time_zone = tables.Column(name="tz", default="UTC+1")
@@ -131,7 +131,7 @@ Table Options
 Table-specific options are implemented using the same inner ``Meta`` class
 concept as known from forms and models in Django:
 
-    class MyTable(tables.Table):
+    class MyTable(tables.MemoryTable):
         class Meta:
             sortable = True
 
@@ -269,7 +269,7 @@ the base column class will continue to work by itself.
 
 There are no required arguments. The following is fine:
 
-    class MyTable(tables.Table):
+    class MyTable(tables.MemoryTable):
         c = tables.Column()
 
 It will result in a column named "c" in the table. You can specify the

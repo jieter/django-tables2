@@ -11,7 +11,7 @@ from django.http import HttpRequest
 import django_tables as tables
 
 def test_order_by():
-    class BookTable(tables.Table):
+    class BookTable(tables.MemoryTable):
         id = tables.Column()
         name = tables.Column()
     books = BookTable([
@@ -25,7 +25,7 @@ def test_order_by():
     assert str(books.order_by) == 'name,-id'
 
 def test_columns_and_rows():
-    class CountryTable(tables.Table):
+    class CountryTable(tables.MemoryTable):
         name = tables.TextColumn()
         capital = tables.TextColumn(sortable=False)
         population = tables.NumberColumn(verbose_name="Population Size")
@@ -71,7 +71,7 @@ def test_columns_and_rows():
 def test_render():
     """For good measure, render some actual templates."""
 
-    class CountryTable(tables.Table):
+    class CountryTable(tables.MemoryTable):
         name = tables.TextColumn()
         capital = tables.TextColumn()
         population = tables.NumberColumn(verbose_name="Population Size")
@@ -101,7 +101,7 @@ def test_templatetags():
     add_to_builtins('django_tables.app.templatetags.tables')
 
     # [bug] set url param tag handles an order_by tuple with multiple columns
-    class MyTable(tables.Table):
+    class MyTable(tables.MemoryTable):
         f1 = tables.Column()
         f2 = tables.Column()
     t = Template('{% set_url_param x=table.order_by %}')

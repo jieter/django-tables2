@@ -1,9 +1,11 @@
 from django.core.exceptions import FieldError
 from django.utils.datastructures import SortedDict
-from tables import BaseTable, DeclarativeColumnsMetaclass, \
+from base import BaseTable, DeclarativeColumnsMetaclass, \
     Column, BoundRow, Rows, TableOptions, rmprefix, toggleprefix
 
-__all__ = ('BaseModelTable', 'ModelTable')
+
+__all__ = ('ModelTable',)
+
 
 class ModelTableOptions(TableOptions):
     def __init__(self, options=None):
@@ -11,6 +13,7 @@ class ModelTableOptions(TableOptions):
         self.model = getattr(options, 'model', None)
         self.columns = getattr(options, 'columns', None)
         self.exclude = getattr(options, 'exclude', None)
+
 
 def columns_for_model(model, columns=None, exclude=None):
     """
@@ -54,7 +57,8 @@ class ModelTableMetaclass(DeclarativeColumnsMetaclass):
             self.base_columns = columns
         return self
 
-class BaseModelTable(BaseTable):
+
+class ModelTable(BaseTable):
     """Table that is based on a model.
 
     Similar to ModelForm, a column will automatically be created for all
@@ -72,6 +76,9 @@ class BaseModelTable(BaseTable):
     just don't any data at all, the model the table is based on will
     provide it.
     """
+
+    __metaclass__ = ModelTableMetaclass
+
     def __init__(self, data=None, *args, **kwargs):
         if data == None:
             if self._meta.model is None:
@@ -83,7 +90,7 @@ class BaseModelTable(BaseTable):
         else:
             self.queryset = data
 
-        super(BaseModelTable, self).__init__(self.queryset, *args, **kwargs)
+        super(ModelTable, self).__init__(self.queryset, *args, **kwargs)
         self._rows = ModelRows(self)
 
     def _validate_column_name(self, name, purpose):
@@ -91,7 +98,7 @@ class BaseModelTable(BaseTable):
         spanning relationships to be sorted."""
 
         # let the base class sort out the easy ones
-        result = super(BaseModelTable, self)._validate_column_name(name, purpose)
+        result = super(ModelTable, self)._validate_column_name(name, purpose)
         if not result:
             return False
 
@@ -121,7 +128,7 @@ class BaseModelTable(BaseTable):
                     continue
                 try:
                     # Let Django validate the lookup by asking it to build
-                    # the final query; the way to do this has changed in 
+                    # the final query; the way to do this has changed in
                     # Django 1.2, and we try to support both versions.
                     _temp = self.queryset.order_by(lookup).query
                     if hasattr(_temp, 'as_sql'):
@@ -157,8 +164,6 @@ class BaseModelTable(BaseTable):
         for row in self.data:
             yield BoundModelRow(self, row)
 
-class ModelTable(BaseModelTable):
-    __metaclass__ = ModelTableMetaclass
 
 class ModelRows(Rows):
     def __init__(self, *args, **kwargs):
