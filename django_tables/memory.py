@@ -79,7 +79,7 @@ class MemoryTable(BaseTable):
         if self.order_by:
             actual_order_by = self._resolve_sort_directions(self.order_by)
             sort_table(snapshot, self._cols_to_fields(actual_order_by))
-        self._snapshot = snapshot
+        return snapshot
 
 
 class Table(MemoryTable):

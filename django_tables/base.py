@@ -443,6 +443,15 @@ class BaseTable(object):
         # ``Table`` class docstring for more information.
         self.base_columns = copy.deepcopy(type(self).base_columns)
 
+    def _reset_snapshot(self, reason):
+        """Called to reset the current snaptshot, for example when
+        options change that could affect it.
+
+        ``reason`` is given so that subclasses can decide that a
+        given change may not affect their snaptshot.
+        """
+        self._snapshot = None
+
     def _build_snapshot(self):
         """Rebuild the table for the current set of options.
 
@@ -452,11 +461,11 @@ class BaseTable(object):
 
         Subclasses should override this.
         """
-        self._snapshot = copy.copy(self._data)
+        return self._data
 
     def _get_data(self):
         if self._snapshot is None:
-            self._build_snapshot()
+            self._snapshot = self._build_snapshot()
         return self._snapshot
     data = property(lambda s: s._get_data())
 
@@ -516,8 +525,7 @@ class BaseTable(object):
             return True
 
     def _set_order_by(self, value):
-        if self._snapshot is not None:
-            self._snapshot = None
+        self._reset_snapshot('order_by')
         # accept both string and tuple instructions
         order_by = (isinstance(value, basestring) \
             and [value.split(',')] \

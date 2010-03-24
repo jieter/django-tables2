@@ -245,4 +245,4 @@ class ModelTable(BaseTable):
         if self.order_by:
             actual_order_by = self._resolve_sort_directions(self.order_by)
             queryset = queryset.order_by(*self._cols_to_fields(actual_order_by))
-        self._snapshot = queryset
+        return queryset
