@@ -5,6 +5,7 @@ from django.utils.datastructures import SortedDict
 from django.utils.encoding import StrAndUnicode
 from django.utils.text import capfirst
 from columns import Column
+from options import options
 
 
 __all__ = ('BaseTable', 'options')
@@ -159,16 +160,6 @@ class OrderByTuple(tuple, StrAndUnicode):
                     +
                     [name for name in names if not name in self]
             )
-
-
-# A common use case is passing incoming query values directly into the
-# table constructor - data that can easily be invalid, say if manually
-# modified by a user. So by default, such errors will be silently
-# ignored. Set the option below to False if you want an exceptions to be
-# raised instead.
-class DefaultOptions(object):
-    IGNORE_INVALID_OPTIONS = True
-options = DefaultOptions()
 
 
 class BaseTable(object):
