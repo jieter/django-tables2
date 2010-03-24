@@ -162,169 +162,6 @@ class OrderByTuple(tuple, StrAndUnicode):
             )
 
 
-class BaseTable(object):
-    """A collection of columns, plus their associated data rows.
-    """
-
-    __metaclass__ = DeclarativeColumnsMetaclass
-
-    def __init__(self, data, order_by=None):
-        """Create a new table instance with the iterable ``data``.
-
-        If ``order_by`` is specified, the data will be sorted accordingly.
-
-        Note that unlike a ``Form``, tables are always bound to data. Also
-        unlike a form, the ``columns`` attribute is read-only and returns
-        ``BoundColum`` wrappers, similar to the ``BoundField``'s you get
-        when iterating over a form. This is because the table iterator
-        already yields rows, and we need an attribute via which to expose
-        the (visible) set of (bound) columns - ``Table.columns`` is simply
-        the perfect fit for this. Instead, ``base_colums`` is copied to
-        table instances, so modifying that will not touch the class-wide
-        column list.
-        """
-        self._data = data
-        self._snapshot = None      # will store output dataset (ordered...)
-        self._rows = Rows(self)
-        self._columns = Columns(self)
-
-        self.order_by = order_by
-
-        # Make a copy so that modifying this will not touch the class
-        # definition. Note that this is different from forms, where the
-        # copy is made available in a ``fields`` attribute. See the
-        # ``Table`` class docstring for more information.
-        self.base_columns = copy.deepcopy(type(self).base_columns)
-
-    def _build_snapshot(self):
-        """Rebuild the table for the current set of options.
-
-        Whenver the table options change, e.g. say a new sort order,
-        this method will be asked to regenerate the actual table from
-        the linked data source.
-
-        Subclasses should override this.
-        """
-        self._snapshot = copy.copy(self._data)
-
-    def _get_data(self):
-        if self._snapshot is None:
-            self._build_snapshot()
-        return self._snapshot
-    data = property(lambda s: s._get_data())
-
-    def _resolve_sort_directions(self, order_by):
-        """Given an ``order_by`` tuple, this will toggle the hyphen-prefixes
-        according to each column's ``direction`` option, e.g. it translates
-        between the ascending/descending and the straight/reverse terminology.
-        """
-        result = []
-        for inst in order_by:
-            if self.columns[rmprefix(inst)].column.direction == Column.DESC:
-                inst = toggleprefix(inst)
-            result.append(inst)
-        return result
-
-    def _cols_to_fields(self, names):
-        """Utility function. Given a list of column names (as exposed to
-        the user), converts column names to the names we have to use to
-        retrieve a column's data from the source.
-
-        Usually, the name used in the table declaration is used for accessing
-        the source (while a column can define an alias-like name that will
-        be used to refer to it from the "outside"). However, a column can
-        override this by giving a specific source field name via ``data``.
-
-        Supports prefixed column names as used e.g. in order_by ("-field").
-        """
-        result = []
-        for ident in names:
-            # handle order prefix
-            if ident[:1] == '-':
-                name = ident[1:]
-                prefix = '-'
-            else:
-                name = ident
-                prefix = ''
-            # find the field name
-            column = self.columns[name]
-            if column.column.data and not callable(column.column.data):
-                name_in_source = column.column.data
-            else:
-                name_in_source = column.declared_name
-            result.append(prefix + name_in_source)
-        return result
-
-    def _validate_column_name(self, name, purpose):
-        """Return True/False, depending on whether the column ``name`` is
-        valid for ``purpose``. Used to validate things like ``order_by``
-        instructions.
-
-        Can be overridden by subclasses to impose further restrictions.
-        """
-        if purpose == 'order_by':
-            return name in self.columns and\
-                   self.columns[name].sortable
-        else:
-            return True
-
-    def _set_order_by(self, value):
-        if self._snapshot is not None:
-            self._snapshot = None
-        # accept both string and tuple instructions
-        order_by = (isinstance(value, basestring) \
-            and [value.split(',')] \
-            or [value])[0]
-        if order_by:
-            # validate, remove all invalid order instructions
-            validated_order_by = []
-            for o in order_by:
-                if self._validate_column_name(rmprefix(o), "order_by"):
-                    validated_order_by.append(o)
-                elif not options.IGNORE_INVALID_OPTIONS:
-                    raise ValueError('Column name %s is invalid.' % o)
-            self._order_by = OrderByTuple(validated_order_by)
-        else:
-            self._order_by = OrderByTuple()
-    order_by = property(lambda s: s._order_by, _set_order_by)
-
-    def __unicode__(self):
-        return self.as_html()
-
-    def __iter__(self):
-        for row in self.rows:
-            yield row
-
-    def __getitem__(self, key):
-        return self.rows[key]
-
-    # just to make those readonly
-    columns = property(lambda s: s._columns)
-    rows = property(lambda s: s._rows)
-
-    def as_html(self):
-        pass
-
-    def update(self):
-        """Update the table based on it's current options.
-
-        Normally, you won't have to call this method, since the table
-        updates itself (it's caches) automatically whenever you change
-        any of the properties. However, in some rare cases those
-        changes might not be picked up, for example if you manually
-        change ``base_columns`` or any of the columns in it.
-        """
-        self._build_snapshot()
-
-    def paginate(self, klass, *args, **kwargs):
-        page = kwargs.pop('page', 1)
-        self.paginator = klass(self.rows, *args, **kwargs)
-        try:
-            self.page = self.paginator.page(page)
-        except paginator.InvalidPage, e:
-            raise Http404(str(e))
-
-
 class Columns(object):
     """Container for spawning BoundColumns.
 
@@ -481,47 +318,6 @@ class BoundColumn(StrAndUnicode):
     def as_html(self):
         pass
 
-class Rows(object):
-    """Container for spawning BoundRows.
-
-    This is bound to a table and provides it's ``rows`` property. It
-    provides functionality that would not be possible with a simple
-    iterator in the table class.
-    """
-    def __init__(self, table, row_klass=None):
-        self.table = table
-        self.row_klass = row_klass and row_klass or BoundRow
-
-    def _reset(self):
-        pass   # we currently don't use a cache
-
-    def all(self):
-        """Return all rows."""
-        for row in self.table.data:
-            yield self.row_klass(self.table, row)
-
-    def page(self):
-        """Return rows on current page (if paginated)."""
-        if not hasattr(self.table, 'page'):
-            return None
-        return iter(self.table.page.object_list)
-
-    def __iter__(self):
-        return iter(self.all())
-
-    def __len__(self):
-        return len(self.table.data)
-
-    def __getitem__(self, key):
-        if isinstance(key, slice):
-            result = list()
-            for row in self.table.data[key]:
-                result.append(self.row_klass(self.table, row))
-            return result
-        elif isinstance(key, int):
-            return self.row_klass(self.table, self.table.data[key])
-        else:
-            raise TypeError('Key must be a slice or integer.')
 
 class BoundRow(object):
     """Represents a single row of data, bound to a table.
@@ -564,3 +360,213 @@ class BoundRow(object):
 
     def as_html(self):
         pass
+
+
+class Rows(object):
+    """Container for spawning BoundRows.
+
+    This is bound to a table and provides it's ``rows`` property. It
+    provides functionality that would not be possible with a simple
+    iterator in the table class.
+    """
+
+    row_class = BoundRow
+
+    def __init__(self, table):
+        self.table = table
+
+    def _reset(self):
+        pass   # we currently don't use a cache
+
+    def all(self):
+        """Return all rows."""
+        for row in self.table.data:
+            yield self.row_class(self.table, row)
+
+    def page(self):
+        """Return rows on current page (if paginated)."""
+        if not hasattr(self.table, 'page'):
+            return None
+        return iter(self.table.page.object_list)
+
+    def __iter__(self):
+        return iter(self.all())
+
+    def __len__(self):
+        return len(self.table.data)
+
+    def __getitem__(self, key):
+        if isinstance(key, slice):
+            result = list()
+            for row in self.table.data[key]:
+                result.append(self.row_class(self.table, row))
+            return result
+        elif isinstance(key, int):
+            return self.row_class(self.table, self.table.data[key])
+        else:
+            raise TypeError('Key must be a slice or integer.')
+
+
+class BaseTable(object):
+    """A collection of columns, plus their associated data rows.
+    """
+
+    __metaclass__ = DeclarativeColumnsMetaclass
+
+    rows_class = Rows
+
+    def __init__(self, data, order_by=None):
+        """Create a new table instance with the iterable ``data``.
+
+        If ``order_by`` is specified, the data will be sorted accordingly.
+
+        Note that unlike a ``Form``, tables are always bound to data. Also
+        unlike a form, the ``columns`` attribute is read-only and returns
+        ``BoundColum`` wrappers, similar to the ``BoundField``'s you get
+        when iterating over a form. This is because the table iterator
+        already yields rows, and we need an attribute via which to expose
+        the (visible) set of (bound) columns - ``Table.columns`` is simply
+        the perfect fit for this. Instead, ``base_colums`` is copied to
+        table instances, so modifying that will not touch the class-wide
+        column list.
+        """
+        self._data = data
+        self._snapshot = None      # will store output dataset (ordered...)
+        self._rows = self.rows_class(self)
+        self._columns = Columns(self)
+
+        self.order_by = order_by
+
+        # Make a copy so that modifying this will not touch the class
+        # definition. Note that this is different from forms, where the
+        # copy is made available in a ``fields`` attribute. See the
+        # ``Table`` class docstring for more information.
+        self.base_columns = copy.deepcopy(type(self).base_columns)
+
+    def _build_snapshot(self):
+        """Rebuild the table for the current set of options.
+
+        Whenver the table options change, e.g. say a new sort order,
+        this method will be asked to regenerate the actual table from
+        the linked data source.
+
+        Subclasses should override this.
+        """
+        self._snapshot = copy.copy(self._data)
+
+    def _get_data(self):
+        if self._snapshot is None:
+            self._build_snapshot()
+        return self._snapshot
+    data = property(lambda s: s._get_data())
+
+    def _resolve_sort_directions(self, order_by):
+        """Given an ``order_by`` tuple, this will toggle the hyphen-prefixes
+        according to each column's ``direction`` option, e.g. it translates
+        between the ascending/descending and the straight/reverse terminology.
+        """
+        result = []
+        for inst in order_by:
+            if self.columns[rmprefix(inst)].column.direction == Column.DESC:
+                inst = toggleprefix(inst)
+            result.append(inst)
+        return result
+
+    def _cols_to_fields(self, names):
+        """Utility function. Given a list of column names (as exposed to
+        the user), converts column names to the names we have to use to
+        retrieve a column's data from the source.
+
+        Usually, the name used in the table declaration is used for accessing
+        the source (while a column can define an alias-like name that will
+        be used to refer to it from the "outside"). However, a column can
+        override this by giving a specific source field name via ``data``.
+
+        Supports prefixed column names as used e.g. in order_by ("-field").
+        """
+        result = []
+        for ident in names:
+            # handle order prefix
+            if ident[:1] == '-':
+                name = ident[1:]
+                prefix = '-'
+            else:
+                name = ident
+                prefix = ''
+            # find the field name
+            column = self.columns[name]
+            if column.column.data and not callable(column.column.data):
+                name_in_source = column.column.data
+            else:
+                name_in_source = column.declared_name
+            result.append(prefix + name_in_source)
+        return result
+
+    def _validate_column_name(self, name, purpose):
+        """Return True/False, depending on whether the column ``name`` is
+        valid for ``purpose``. Used to validate things like ``order_by``
+        instructions.
+
+        Can be overridden by subclasses to impose further restrictions.
+        """
+        if purpose == 'order_by':
+            return name in self.columns and\
+                   self.columns[name].sortable
+        else:
+            return True
+
+    def _set_order_by(self, value):
+        if self._snapshot is not None:
+            self._snapshot = None
+        # accept both string and tuple instructions
+        order_by = (isinstance(value, basestring) \
+            and [value.split(',')] \
+            or [value])[0]
+        if order_by:
+            # validate, remove all invalid order instructions
+            validated_order_by = []
+            for o in order_by:
+                if self._validate_column_name(rmprefix(o), "order_by"):
+                    validated_order_by.append(o)
+                elif not options.IGNORE_INVALID_OPTIONS:
+                    raise ValueError('Column name %s is invalid.' % o)
+            self._order_by = OrderByTuple(validated_order_by)
+        else:
+            self._order_by = OrderByTuple()
+    order_by = property(lambda s: s._order_by, _set_order_by)
+
+    def __unicode__(self):
+        return self.as_html()
+
+    def __iter__(self):
+        for row in self.rows:
+            yield row
+
+    def __getitem__(self, key):
+        return self.rows[key]
+
+    # just to make those readonly
+    columns = property(lambda s: s._columns)
+    rows = property(lambda s: s._rows)
+
+    def as_html(self):
+        pass
+
+    def update(self):
+        """Update the table based on it's current options.
+
+        Normally, you won't have to call this method, since the table
+        updates itself (it's caches) automatically whenever you change
+        any of the properties. However, in some rare cases those
+        changes might not be picked up, for example if you manually
+        change ``base_columns`` or any of the columns in it.
+        """
+        self._build_snapshot()
+
+    def paginate(self, klass, *args, **kwargs):
+        page = kwargs.pop('page', 1)
+        self.paginator = klass(self.rows, *args, **kwargs)
+        try:
+            self.page = self.paginator.page(page)
+        except paginator.InvalidPage, e:
+            raise Http404(str(e))
