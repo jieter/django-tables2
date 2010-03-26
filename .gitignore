@@ -1,5 +1,7 @@
-MANIFEST
-dist
+*.pyc
+
+/MANIFEST
+/dist
 
 /BRANCH_TODO
 
