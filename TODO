@@ -1,3 +1,11 @@
+Document how the user can access the raw row data; and possible make this
+easier by falling back to the raw data directly if a column is accessed
+which doesn't exist.
+
+There's no particular reason why this should be Django-specific. Now with
+the base table better abstracted, we should be able to easily create a
+SQLAlchemyTable or a StormTable.
+
 It would be cool if for non-model tables, a custom compare function could
 be provided to modify the sort. This would require a minor refactor in
 which we have multiple different table types subclass a base table, and
