@@ -6,6 +6,11 @@ There's no particular reason why this should be Django-specific. Now with
 the base table better abstracted, we should be able to easily create a
 SQLAlchemyTable or a StormTable.
 
+If the table were passed a ``request`` object, it could generate columns
+proper sort links without requiring the set_url_param tag. However, that
+might introduce a Django dependency. Possibly rather than the request we
+could expect a dict of query string values.
+
 It would be cool if for non-model tables, a custom compare function could
 be provided to modify the sort. This would require a minor refactor in
 which we have multiple different table types subclass a base table, and
