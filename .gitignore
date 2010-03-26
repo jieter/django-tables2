@@ -2,9 +2,11 @@
 
 /MANIFEST
 /dist
+/docs/_build/*
 
 /BRANCH_TODO
 
+# Project files
 /.project
 /.pydevproject
 /*.wpr
