@@ -53,6 +53,15 @@ def test_declaration():
     assert 'motto' in StateTable2.base_columns
 
 
+def test_column_count():
+    class MyTable(TestTable):
+        visbible = tables.Column(visible=True)
+        hidden = tables.Column(visible=False)
+
+    # The columns container supports the len() builtin
+    assert len(MyTable([]).columns) == 1
+
+
 def test_pagination():
     class BookTable(TestTable):
         name = tables.Column()

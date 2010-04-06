@@ -249,6 +249,10 @@ class Columns(object):
         else:
             return item in self.all()
 
+    def __len__(self):
+        self._spawn_columns()
+        return len([1 for c in self._columns.values() if c.visible])
+
     def __getitem__(self, name):
         """Return a column by name."""
         self._spawn_columns()
