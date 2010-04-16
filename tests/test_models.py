@@ -212,6 +212,9 @@ def test_default_sort():
             model = Country
             order_by = '-name'
 
+    # the order_by option is provided by TableOptions
+    assert_equal('-name', SortedCountryTable()._meta.order_by)
+
     # the default order can be inherited from the table
     assert_equal(('-name',), SortedCountryTable().order_by)
     assert_equal(4, SortedCountryTable().rows[0]['id'])

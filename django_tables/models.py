@@ -9,7 +9,7 @@ __all__ = ('ModelTable',)
 
 class ModelTableOptions(TableOptions):
     def __init__(self, options=None):
-        super(ModelTableOptions, self).__init__()
+        super(ModelTableOptions, self).__init__(options)
         self.model = getattr(options, 'model', None)
         self.columns = getattr(options, 'columns', None)
         self.exclude = getattr(options, 'exclude', None)
