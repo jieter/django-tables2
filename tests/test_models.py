@@ -3,7 +3,7 @@
 Sets up a temporary Django project using a memory SQLite database.
 """
 
-from nose.tools import assert_raises
+from nose.tools import assert_raises, assert_equal
 from django.conf import settings
 from django.core.paginator import *
 import django_tables as tables
@@ -205,6 +205,20 @@ def test_sort():
     # model-based colunns are currently sortable at all.
     countries.order_by = ('custom1', 'custom2')
     assert countries.order_by == ()
+
+def test_default_sort():
+    class SortedCountryTable(tables.ModelTable):
+        class Meta:
+            model = Country
+            order_by = '-name'
+
+    # the default order can be inherited from the table
+    assert_equal(('-name',), SortedCountryTable().order_by)
+    assert_equal(4, SortedCountryTable().rows[0]['id'])
+
+    # and explicitly set (or reset) via __init__
+    assert_equal(2, SortedCountryTable(order_by='system').rows[0]['id'])
+    assert_equal(1, SortedCountryTable(order_by=None).rows[0]['id'])
 
 def test_callable():
     """Some of the callable code is reimplemented for modeltables, so

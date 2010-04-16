@@ -2,7 +2,7 @@
 """
 
 
-from nose.tools import assert_raises
+from nose.tools import assert_raises, assert_equal
 from django.http import Http404
 from django.core.paginator import Paginator
 import django_tables as tables
@@ -51,6 +51,64 @@ def test_declaration():
     assert len(StateTable1.base_columns) == len(StateTable2.base_columns) == 3
     assert 'motto' in StateTable1.base_columns
     assert 'motto' in StateTable2.base_columns
+
+
+def test_sort():
+    class MyUnsortedTable(TestTable):
+        alpha  = tables.Column()
+        beta   = tables.Column()
+        n      = tables.Column()
+
+    test_data = [
+        {'alpha': "mmm", 'beta': "mmm", 'n': 1 },
+        {'alpha': "aaa", 'beta': "zzz", 'n': 2 },
+        {'alpha': "zzz", 'beta': "aaa", 'n': 3 }]
+
+    # unsorted (default) preserves order
+    assert_equal(1, MyUnsortedTable(test_data               ).rows[0]['n'])
+    assert_equal(1, MyUnsortedTable(test_data, order_by=None).rows[0]['n'])
+    assert_equal(1, MyUnsortedTable(test_data, order_by=[]  ).rows[0]['n'])
+    assert_equal(1, MyUnsortedTable(test_data, order_by=()  ).rows[0]['n'])
+
+    # values of order_by are wrapped in tuples before being returned
+    assert_equal(('alpha',), MyUnsortedTable([], order_by='alpha').order_by)
+    assert_equal(('beta',),  MyUnsortedTable([], order_by=('beta',)).order_by)
+    assert_equal((),         MyUnsortedTable([]).order_by)
+
+    # a rewritten order_by is also wrapped
+    table = MyUnsortedTable([])
+    table.order_by = 'alpha'
+    assert_equal(('alpha',), table.order_by)
+
+    # data can be sorted by any column
+    assert_equal(2, MyUnsortedTable(test_data, order_by='alpha').rows[0]['n'])
+    assert_equal(3, MyUnsortedTable(test_data, order_by='beta' ).rows[0]['n'])
+
+    # default sort order can be specified in table options
+    class MySortedTable(MyUnsortedTable):
+        class Meta:
+            order_by = 'alpha'
+
+    # order_by is inherited from the options if not explitly set
+    table = MySortedTable(test_data)
+    assert_equal(('alpha',), table.order_by)
+    assert_equal(2, table.rows[0]['n'])
+
+    # ...but can be overloaded at __init___
+    table = MySortedTable(test_data, order_by='beta')
+    assert_equal(('beta',), table.order_by)
+    assert_equal(3, table.rows[0]['n'])
+
+    # ...or rewritten later
+    table = MySortedTable(test_data)
+    table.order_by = 'beta'
+    assert_equal(('beta',), table.order_by)
+    assert_equal(3, table.rows[0]['n'])
+
+    # ...or reset to None (unsorted), ignoring the table default
+    table = MySortedTable(test_data, order_by=None)
+    assert_equal((), table.order_by)
+    assert_equal(1, table.rows[0]['n'])
 
 
 def test_column_count():

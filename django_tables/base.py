@@ -15,6 +15,7 @@ class TableOptions(object):
     def __init__(self, options=None):
         super(TableOptions, self).__init__()
         self.sortable = getattr(options, 'sortable', None)
+        self.order_by = getattr(options, 'order_by', None)
 
 
 class DeclarativeColumnsMetaclass(type):
@@ -419,10 +420,16 @@ class BaseTable(object):
 
     rows_class = Rows
 
-    def __init__(self, data, order_by=None):
+    # this value is not the same as None. it means 'use the default sort
+    # order', which may (or may not) be inherited from the table options.
+    # None means 'do not sort the data', ignoring the default.
+    DefaultOrder = type('DefaultSortType', (), {})()
+
+    def __init__(self, data, order_by=DefaultOrder):
         """Create a new table instance with the iterable ``data``.
 
         If ``order_by`` is specified, the data will be sorted accordingly.
+        Otherwise, the sort order can be specified in the table options.
 
         Note that unlike a ``Form``, tables are always bound to data. Also
         unlike a form, the ``columns`` attribute is read-only and returns
@@ -439,7 +446,14 @@ class BaseTable(object):
         self._rows = self.rows_class(self)
         self._columns = Columns(self)
 
-        self.order_by = order_by
+        # None is a valid order, so we must use DefaultOrder as a flag
+        # to fall back to the table sort order. set the attr via the
+        # property, to wrap it in an OrderByTuple before being stored
+        if order_by != BaseTable.DefaultOrder:
+            self.order_by = order_by
+
+        else:
+            self.order_by = self._meta.order_by
 
         # Make a copy so that modifying this will not touch the class
         # definition. Note that this is different from forms, where the
@@ -545,6 +559,7 @@ class BaseTable(object):
             self._order_by = OrderByTuple(validated_order_by)
         else:
             self._order_by = OrderByTuple()
+
     order_by = property(lambda s: s._order_by, _set_order_by)
 
     def __unicode__(self):
