@@ -64,11 +64,11 @@ def test_sort():
         {'alpha': "aaa", 'beta': "zzz", 'n': 2 },
         {'alpha': "zzz", 'beta': "aaa", 'n': 3 }]
 
-    # unsorted (default) preserves order
-    assert_equal(1, MyUnsortedTable(test_data               ).rows[0]['n'])
-    assert_equal(1, MyUnsortedTable(test_data, order_by=None).rows[0]['n'])
-    assert_equal(1, MyUnsortedTable(test_data, order_by=[]  ).rows[0]['n'])
-    assert_equal(1, MyUnsortedTable(test_data, order_by=()  ).rows[0]['n'])
+    # various different ways to say the same thing: don't sort
+    assert_equal(MyUnsortedTable(test_data               ).order_by, ())
+    assert_equal(MyUnsortedTable(test_data, order_by=None).order_by, ())
+    assert_equal(MyUnsortedTable(test_data, order_by=[]  ).order_by, ())
+    assert_equal(MyUnsortedTable(test_data, order_by=()  ).order_by, ())
 
     # values of order_by are wrapped in tuples before being returned
     assert_equal(('alpha',), MyUnsortedTable([], order_by='alpha').order_by)
@@ -80,10 +80,6 @@ def test_sort():
     table.order_by = 'alpha'
     assert_equal(('alpha',), table.order_by)
 
-    # data can be sorted by any column
-    assert_equal(2, MyUnsortedTable(test_data, order_by='alpha').rows[0]['n'])
-    assert_equal(3, MyUnsortedTable(test_data, order_by='beta' ).rows[0]['n'])
-
     # default sort order can be specified in table options
     class MySortedTable(MyUnsortedTable):
         class Meta:
@@ -92,18 +88,15 @@ def test_sort():
     # order_by is inherited from the options if not explitly set
     table = MySortedTable(test_data)
     assert_equal(('alpha',), table.order_by)
-    assert_equal(2, table.rows[0]['n'])
 
     # ...but can be overloaded at __init___
     table = MySortedTable(test_data, order_by='beta')
     assert_equal(('beta',), table.order_by)
-    assert_equal(3, table.rows[0]['n'])
 
     # ...or rewritten later
     table = MySortedTable(test_data)
     table.order_by = 'beta'
     assert_equal(('beta',), table.order_by)
-    assert_equal(3, table.rows[0]['n'])
 
     # ...or reset to None (unsorted), ignoring the table default
     table = MySortedTable(test_data, order_by=None)
