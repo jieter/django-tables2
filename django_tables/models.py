@@ -155,7 +155,7 @@ class ModelTable(BaseTable):
             class Meta:
                 model = MyModel
                 exclude = ['fields', 'to', 'exclude']
-                fields = ['fields', 'to', 'include']
+                columns = ['fields', 'to', 'include']
 
     One difference to a normal table is the initial data argument. It can
     be a queryset or a model (it's default manager will be used). If you
