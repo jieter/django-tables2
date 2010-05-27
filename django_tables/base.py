@@ -2,7 +2,7 @@ import copy
 from django.http import Http404
 from django.core import paginator
 from django.utils.datastructures import SortedDict
-from django.utils.encoding import StrAndUnicode
+from django.utils.encoding import force_unicode, StrAndUnicode
 from django.utils.text import capfirst
 from columns import Column
 from options import options
@@ -318,7 +318,8 @@ class BoundColumn(StrAndUnicode):
     values = property(_get_values)
 
     def __unicode__(self):
-        return capfirst(self.column.verbose_name or self.name.replace('_', ' '))
+        s = self.column.verbose_name or self.name.replace('_', ' ')
+        return capfirst(force_unicode(s))
 
     def as_html(self):
         pass
