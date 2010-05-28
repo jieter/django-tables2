@@ -29,9 +29,9 @@ def sort_table(data, order_by):
 
 
 class MemoryTable(BaseTable):
-
-    # This is a separate class from BaseTable in order to abstract the way
-    # self.columns is specified.
+    """Table that is based on an in-memory dataset (a list of dict-like
+    objects).
+    """
 
     def _build_snapshot(self):
         """Rebuilds the table whenever it's options change.
