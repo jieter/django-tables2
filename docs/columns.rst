@@ -50,8 +50,6 @@ The overwritten ``book_name`` field/column will now be exposed as the
 cleaner ``name``, and the new ``author`` column retrieves it's values from
 ``Book.info.author.name``.
 
-Note: ``data`` may also be a callable which will be passed a row object.
-
 Apart from their internal name, you can define a string that will be used
 when for display via ``verbose_name``:
 
