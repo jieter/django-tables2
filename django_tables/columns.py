@@ -53,6 +53,11 @@ class Column(object):
         self.name = name
         self.default = default
         self.data = data
+        if callable(self.data):
+            raise DeprecationWarning(('The Column "data" argument may no '+
+                                      'longer be a callable. Add  a '+
+                                      '``render_%s`` method to your '+
+                                      'table instead.') % (name or 'FOO'))
         self.visible = visible
         self.inaccessible = inaccessible
         self.sortable = sortable
@@ -71,6 +76,7 @@ class Column(object):
             self._direction = value
 
     direction = property(lambda s: s._direction, _set_direction)
+
 
 class TextColumn(Column):
     pass

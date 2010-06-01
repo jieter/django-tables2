@@ -76,6 +76,7 @@ class DeclarativeColumnsMetaclass(type):
         attrs['_meta'] = TableOptions(attrs.get('Meta', None))
         return type.__new__(cls, name, bases, attrs)
 
+
 def rmprefix(s):
     """Normalize a column name by removing a potential sort prefix"""
     return (s[:1]=='-' and [s[1:]] or [s])[0]
@@ -277,6 +278,13 @@ class BoundColumn(StrAndUnicode):
         # expose some attributes of the column more directly
         self.visible = column.visible
 
+    @property
+    def accessor(self):
+        """The key to use when accessing this column's values in the
+        source data.
+        """
+        return self.column.data if self.column.data else self.declared_name
+
     def _get_sortable(self):
         if self.column.sortable is not None:
             return self.column.sortable
@@ -343,9 +351,19 @@ class BoundRow(object):
         """Returns this row's value for a column. All other access methods,
         e.g. __iter__, lead ultimately to this."""
 
-        # We are supposed to return ``name``, but the column might be
-        # named differently in the source data.
-        result =  self.data[self.table._cols_to_fields([name])[0]]
+        column = self.table.columns[name]
+
+        render_func = getattr(self.table, 'render_%s' % name, False)
+        if render_func:
+            return render_func(self.data)
+        else:
+            return self._default_render(column)
+
+    def _default_render(self, column):
+        """Returns a cell's content. This is used unless the user
+        provides a custom ``render_FOO`` method.
+        """
+        result = self.data[column.accessor]
 
         # if the field we are pointing to is a callable, remove it
         if callable(result):
@@ -523,11 +541,7 @@ class BaseTable(object):
                 prefix = ''
             # find the field name
             column = self.columns[name]
-            if column.column.data and not callable(column.column.data):
-                name_in_source = column.column.data
-            else:
-                name_in_source = column.declared_name
-            result.append(prefix + name_in_source)
+            result.append(prefix + column.accessor)
         return result
 
     def _validate_column_name(self, name, purpose):

@@ -69,6 +69,34 @@ def test_basic():
     finally:
         tables.options.IGNORE_INVALID_OPTIONS = True
 
+
+class TestRender:
+    """Test use of the render_* methods.
+    """
+
+    def test(self):
+        class TestTable(tables.MemoryTable):
+            private_name = tables.Column(name='public_name')
+            def render_public_name(self, data):
+                # We are given the actual data dict and have direct access
+                # to additional values for which no field is defined.
+                return "%s:%s" % (data['private_name'], data['additional'])
+
+        table = TestTable([{'private_name': 'FOO', 'additional': 'BAR'}])
+        assert table.rows[0]['public_name'] == 'FOO:BAR'
+
+    def test_not_sorted(self):
+        """The render methods are not considered when sorting.
+        """
+        class TestTable(tables.MemoryTable):
+            foo = tables.Column()
+            def render_foo(self, data):
+                return -data['foo']  # try to cause a reverse sort
+        table = TestTable([{'foo': 1}, {'foo': 2}], order_by='asc')
+        # Result is properly sorted, and the render function has never been called
+        assert [r['foo'] for r in table.rows] == [-1, -2]
+
+
 def test_caches():
     """Ensure the various caches are effective.
     """
@@ -116,6 +144,7 @@ def test_meta_sortable():
         # class and instance creation
         global_table._meta.sortable = default_sortable
         assert [c.sortable for c in global_table.columns] == list(results)
+
 
 def test_sort():
     class BookTable(tables.MemoryTable):
@@ -204,8 +233,9 @@ def test_sort():
     assert 'name' in books.order_by
     assert not 'language' in books.order_by
 
+
 def test_callable():
-    """Data fields, ``default`` and ``data`` options can be callables.
+    """Data fields and the ``default`` option can be callables.
     """
 
     class MathTable(tables.MemoryTable):
@@ -213,7 +243,6 @@ def test_callable():
         rhs = tables.Column()
         op = tables.Column(default='+')
         sum = tables.Column(default=lambda d: calc(d['op'], d['lhs'], d['rhs']))
-        sqrt = tables.Column(data=lambda d: int(sqrt(d['sum'])))
 
     math = MathTable([
         {'lhs': 1, 'rhs': lambda x: x['lhs']*3},              # 1+3
@@ -235,10 +264,6 @@ def test_callable():
     # default function is called while sorting
     math.order_by = ('sum',)
     assert [row['sum'] for row in math] == [1,3,4]
-
-    # data function is called while sorting
-    math.order_by = ('sqrt',)
-    assert [row['sqrt'] for row in math] == [1,1,2]
 
 
 # TODO: all the column stuff might warrant it's own test file

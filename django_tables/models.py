@@ -47,33 +47,13 @@ class BoundModelRow(BoundRow):
     with the instance converted to a dict instead. However, this way allows
     us to support non-field attributes and methods on the model as well.
     """
-    def __getitem__(self, name):
-        """Overridden. Return this row's data for a certain column, with
-        custom handling for model tables.
+
+    def _default_render(self, boundcol):
+        """In the case of a model table, the accessor may use ``__`` to
+        span instances. We need to resolve this.
         """
-
-        # find the column for the requested field, for reference
-        boundcol = self.table._columns[name]
-
-        # If the column has a name override (we know then that is was also
-        # used for access, e.g. if the condition is true, then
-        # ``boundcol.column.name == name``), we need to make sure we use the
-        # declaration name to access the model field.
-        if boundcol.column.data:
-            if callable(boundcol.column.data):
-                result = boundcol.column.data(self)
-                if not result:
-                    if boundcol.column.default is not None:
-                        return boundcol.get_default(self)
-                return result
-            else:
-                name = boundcol.column.data
-        else:
-            name = boundcol.declared_name
-
-
         # try to resolve relationships spanning attributes
-        bits = name.split('__')
+        bits = boundcol.accessor.split('__')
         current = self.data
         for bit in bits:
             # note the difference between the attribute being None and not

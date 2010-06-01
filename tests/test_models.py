@@ -8,6 +8,7 @@ from django.conf import settings
 from django.core.paginator import *
 import django_tables as tables
 
+
 def setup_module(module):
     settings.configure(**{
         'DATABASE_ENGINE': 'sqlite3',
@@ -50,6 +51,7 @@ def setup_module(module):
     Country(name="France", tld="fr", population=64, system="republic").save()
     Country(name="Netherlands", tld="nl", population=16, system="monarchy", capital=amsterdam).save()
 
+
 def test_declaration():
     """Test declaration, declared columns and default model field columns.
     """
@@ -89,6 +91,7 @@ def test_declaration():
     assert 'projected' in CityTable.base_columns # declared in parent
     assert not 'population' in CityTable.base_columns  # not in Meta:columns
     assert 'capital' in CityTable.base_columns  # in exclude, but only works on model fields (is that the right behaviour?)
+
 
 def test_basic():
     """Some tests here are copied from ``test_basic.py`` but need to be
@@ -268,30 +271,6 @@ def test_relationships():
     countries.order_by = 'invalid'
     assert countries.order_by == ()
 
-def test_column_data():
-    """Further test the ``data`` column property in a ModelTable scenario.
-    Other tests already touched on this, for example ``test_relationships``.
-    """
-
-    class CountryTable(tables.ModelTable):
-        name = tables.Column(data=lambda d: "hidden")
-        tld = tables.Column(data='example_domain', name="domain")
-        default_and_data = tables.Column(data=lambda d: None, default=4)
-        class Meta:
-            model = Country
-    countries = CountryTable(Country)
-
-    # callable data works, even with a default set
-    assert [row['default_and_data'] for row in countries] == [4,4,4,4]
-
-    # neato trick: a callable data= column is sortable, if otherwise refers
-    # to correct model column; can be used to rewrite what is displayed
-    countries.order_by = 'name'
-    assert countries.order_by == ('name',)
-    # [bug 282964] this trick also works if the callable is an attribute
-    # and we refer to it per string, rather than giving a function object
-    countries.order_by = 'domain'
-    assert countries.order_by == ('domain',)
 
 def test_pagination():
     """Pretty much the same as static table pagination, but make sure we
