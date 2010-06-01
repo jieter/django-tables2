@@ -111,7 +111,7 @@ Then, in the ``list.html`` template, write:
 This will output the data as an HTML table. Note how the table is now fully
 sortable, since our link passes along the column name via the querystring,
 which in turn will be used by the server for ordering. ``order_by`` accepts
-comma-separated strings as input, and "{{ column.name_toggled }}" will be
+comma-separated strings as input, and ``{{ column.name_toggled }}`` will be
 rendered as a such a string.
 
 Instead of the iterator, you can alos use your knowledge of the table
