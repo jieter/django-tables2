@@ -36,7 +36,13 @@ def columns_for_model(model, columns=None, exclude=None):
         column = Column() # TODO: chose correct column type, with right options
         if column:
             field_list.append((f.name, column))
-    return SortedDict(field_list)
+    field_dict = SortedDict(field_list)
+    if columns:
+        field_dict = SortedDict(
+            [(c, field_dict.get(c)) for c in columns
+                if ((not exclude) or (exclude and c not in exclude))]
+        )
+    return field_dict
 
 
 class BoundModelRow(BoundRow):
