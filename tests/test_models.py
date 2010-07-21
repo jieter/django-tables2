@@ -52,45 +52,57 @@ def setup_module(module):
     Country(name="Netherlands", tld="nl", population=16, system="monarchy", capital=amsterdam).save()
 
 
-def test_declaration():
+class TestDeclaration:
     """Test declaration, declared columns and default model field columns.
     """
 
-    class CountryTable(tables.ModelTable):
-        class Meta:
-            model = Country
+    def test_autogen_basic(self):
+        class CountryTable(tables.ModelTable):
+            class Meta:
+                model = Country
 
-    assert len(CountryTable.base_columns) == 8
-    assert 'name' in CountryTable.base_columns
-    assert not hasattr(CountryTable, 'name')
+        assert len(CountryTable.base_columns) == 8
+        assert 'name' in CountryTable.base_columns
+        assert not hasattr(CountryTable, 'name')
 
-    # Override one model column, add another custom one, exclude one
-    class CountryTable(tables.ModelTable):
-        capital = tables.TextColumn(verbose_name='Name of capital')
-        projected = tables.Column(verbose_name="Projected Population")
-        class Meta:
-            model = Country
-            exclude = ['tld']
+        # Override one model column, add another custom one, exclude one
+        class CountryTable(tables.ModelTable):
+            capital = tables.TextColumn(verbose_name='Name of capital')
+            projected = tables.Column(verbose_name="Projected Population")
+            class Meta:
+                model = Country
+                exclude = ['tld']
 
-    assert len(CountryTable.base_columns) == 8
-    assert 'projected' in CountryTable.base_columns
-    assert 'capital' in CountryTable.base_columns
-    assert not 'tld' in CountryTable.base_columns
+        assert len(CountryTable.base_columns) == 8
+        assert 'projected' in CountryTable.base_columns
+        assert 'capital' in CountryTable.base_columns
+        assert not 'tld' in CountryTable.base_columns
 
-    # Inheritance (with a different model) + field restrictions
-    class CityTable(CountryTable):
-        class Meta:
-            model = City
-            columns = ['id', 'name']
-            exclude = ['capital']
+        # Inheritance (with a different model) + field restrictions
+        class CityTable(CountryTable):
+            class Meta:
+                model = City
+                columns = ['id', 'name']
+                exclude = ['capital']
 
-    print CityTable.base_columns
-    assert len(CityTable.base_columns) == 4
-    assert 'id' in CityTable.base_columns
-    assert 'name' in CityTable.base_columns
-    assert 'projected' in CityTable.base_columns # declared in parent
-    assert not 'population' in CityTable.base_columns  # not in Meta:columns
-    assert 'capital' in CityTable.base_columns  # in exclude, but only works on model fields (is that the right behaviour?)
+        print CityTable.base_columns
+        assert len(CityTable.base_columns) == 4
+        assert 'id' in CityTable.base_columns
+        assert 'name' in CityTable.base_columns
+        assert 'projected' in CityTable.base_columns # declared in parent
+        assert not 'population' in CityTable.base_columns  # not in Meta:columns
+        assert 'capital' in CityTable.base_columns  # in exclude, but only works on model fields (is that the right behaviour?)
+
+    def test_columns_custom_order(self):
+        """Using the columns meta option, you can also modify the ordering.
+        """
+        class CountryTable(tables.ModelTable):
+            foo = tables.Column()
+            class Meta:
+                model = Country
+                columns = ('system', 'population', 'foo', 'tld',)
+
+        assert [c.name for c in CountryTable().columns] == ['system', 'population', 'foo', 'tld']
 
 
 def test_basic():
@@ -140,6 +152,7 @@ def test_basic():
         tld = tables.Column(name="domain")
     countries = CountryTable(Country)
     test_country_table(countries)
+
 
 def test_caches():
     """Make sure the caches work for model tables as well (parts are
