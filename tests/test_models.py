@@ -154,6 +154,18 @@ def test_basic():
     test_country_table(countries)
 
 
+def test_invalid_accessor():
+    """Test that a column being backed by a non-existent model property
+    is handled correctly.
+
+    Regression-Test: There used to be a NameError here.
+    """
+    class CountryTable(tables.ModelTable):
+        name = tables.Column(data='something-i-made-up')
+    countries = CountryTable(Country)
+    assert_raises(ValueError, countries[0].__getitem__, 'name')
+
+
 def test_caches():
     """Make sure the caches work for model tables as well (parts are
     reimplemented).
@@ -258,6 +270,7 @@ def test_callable():
     # column default method is called
     assert [row['example_domain'] for row in countries] == \
                     [row['null'] for row in countries]
+
 
 def test_relationships():
     """Test relationship spanning."""

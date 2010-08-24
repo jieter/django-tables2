@@ -70,7 +70,7 @@ class BoundModelRow(BoundRow):
             # also ``_validate_column_name``, where such a mechanism is
             # already implemented).
             if not hasattr(current, bit):
-                raise ValueError("Could not resolve %s from %s" % (bit, name))
+                raise ValueError("Could not resolve %s from %s" % (bit, boundcol.accessor))
 
             current = getattr(current, bit)
             if callable(current):
