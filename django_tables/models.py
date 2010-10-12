@@ -33,7 +33,7 @@ def columns_for_model(model, columns=None, exclude=None):
         if (columns and not f.name in columns) or \
            (exclude and f.name in exclude):
             continue
-        column = Column() # TODO: chose correct column type, with right options
+        column = Column(verbose_name=f.verbose_name) # TODO: chose correct column type, with right options
         if column:
             field_list.append((f.name, column))
     field_dict = SortedDict(field_list)

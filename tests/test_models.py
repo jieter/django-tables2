@@ -103,6 +103,16 @@ class TestDeclaration:
                 columns = ('system', 'population', 'foo', 'tld',)
 
         assert [c.name for c in CountryTable().columns] == ['system', 'population', 'foo', 'tld']
+        
+    def test_columns_verbose_name(self):
+        """Tests that the model field's verbose_name is used for the column
+        """
+        class CountryTable(tables.ModelTable):
+            class Meta:
+                model = Country
+                columns = ('tld',)
+        
+        assert [c.verbose_name for c in CountryTable.columns] = ['Domain Extension']
 
 
 def test_basic():
