@@ -1,4 +1,4 @@
-﻿"""Test template specific functionality.
+"""Test template specific functionality.
 
 Make sure tables expose their functionality to templates right. This
 generally about testing "out"-functionality of the tables, whether
