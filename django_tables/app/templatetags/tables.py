@@ -1,3 +1,4 @@
+# coding: utf8
 """
 Allows setting/changing/removing of chosen url query string parameters,
 while maintaining any existing others.

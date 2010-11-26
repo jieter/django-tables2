@@ -1,3 +1,4 @@
+# coding: utf8
 """Test template specific functionality.
 
 Make sure tables expose their functionality to templates right. This
