@@ -8,4 +8,4 @@ has native support for pagination and sorting. It does for HTML tables what
 
 Documentation_ is available on http://readthedocs.org
 
-.. _: http://readthedocs.org/docs/django-tables/en/latest/
+.. _Documentation: http://readthedocs.org/docs/django-tables/en/latest/
