@@ -1,0 +1,11 @@
+===============================================
+django-tables - An app for creating HTML tables
+===============================================
+
+django-tables simplifies the task of turning sets of datainto HTML tables. It
+has native support for pagination and sorting. It does for HTML tables what
+``django.forms`` does for HTML forms.
+
+`Documentation`_ is available on http://readthedocs.org
+
+.. _: http://readthedocs.org/docs/django-tables/en/latest/
