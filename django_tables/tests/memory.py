@@ -5,17 +5,20 @@ they aren't really MemoryTable specific.
 """
 
 from math import sqrt
-from nose.tools import assert_raises
+from attest import Tests
 from django.core.paginator import Paginator
 import django_tables as tables
 
+memory = Tests()
 
-def test_basic():
-    class StuffTable(tables.MemoryTable):
+@memory.test
+def basics():
+    class StuffTable(tables.Table):
         name = tables.Column()
         answer = tables.Column(default=42)
         c = tables.Column(name="count", default=1)
         email = tables.Column(data="@")
+
     stuff = StuffTable([
         {'id': 1, 'name': 'Foo Bar', '@': 'foo@bar.org'},
     ])
@@ -44,10 +47,6 @@ def test_basic():
 
         # columns with data= option work fine
         assert r['email'] == 'foo@bar.org'
-
-    # try to splice rows by index
-    assert 'name' in stuff.rows[0]
-    assert isinstance(stuff.rows[0:], list)
 
     # [bug] splicing the table gives us valid, working rows
     assert list(stuff[0]) == list(stuff.rows[0])

@@ -1,13 +1,5 @@
 *.pyc
-
 /MANIFEST
-/dist
-/docs/_build/*
-/build
-
-/BRANCH_TODO
-
-# Project files
-/.project
-/.pydevproject
-/*.wpr
+dist/
+docs/_build/
+django_tables.egg-info/

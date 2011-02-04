@@ -1,0 +1,21 @@
+{% load django_tables %}
+{% spaceless %}
+<table>
+    <thead>
+        <tr>
+        {% for column in table.columns %}
+            <th><a href="{% set_url_param sort=column.name_toggled %}">{{ column }}</a></th>
+        {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in table.rows %}
+        <tr>
+            {% for cell in row %}
+                <td>{{ cell }}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endspaceless %}

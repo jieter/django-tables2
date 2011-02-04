@@ -3,11 +3,14 @@
 Sets up a temporary Django project using a memory SQLite database.
 """
 
-from nose.tools import assert_raises, assert_equal
 from django.conf import settings
 from django.core.paginator import *
 import django_tables as tables
+from attest import Tests
 
+
+models = Tests()
+'''
 
 def setup_module(module):
     settings.configure(**{
@@ -362,3 +365,4 @@ def test_pagination():
 
     # reset
     settings.DEBUG = False
+'''

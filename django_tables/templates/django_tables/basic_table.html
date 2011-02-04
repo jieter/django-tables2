@@ -1,0 +1,20 @@
+{% spaceless %}
+<table>
+    <thead>
+        <tr>
+        {% for column in table.columns %}
+            <th>{{ column }}</th>
+        {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in table.rows %}
+        <tr>
+            {% for value in row %}
+                <td>{{ value }}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endspaceless %}
