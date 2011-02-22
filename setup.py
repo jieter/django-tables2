@@ -1,5 +1,8 @@
 # -*- coding: utf8 -*-
-from distutils.core import setup
+try:
+    from setuptools import setup
+except ImportError:
+    from distutils.core import setup
 from distutils.command.install_data import install_data
 from distutils.command.install import INSTALL_SCHEMES
 import os
@@ -86,6 +89,6 @@ setup(
     packages = packages,
     data_files = data_files,
     cmdclass = cmdclasses,
-    requires = ['django(>=1.1)'],
-    install_requires = ['django>=1.1']
+    requires = ['Django(>=1.1)'],
+    install_requires = ['Django>=1.1']
 )

@@ -8,7 +8,6 @@ from django.template.loader import get_template
 from django.template import Context
 from .utils import rmprefix, toggleprefix, OrderByTuple, Accessor
 from .columns import Column
-from .memory import sort_table
 from .rows import Rows, BoundRow
 from .columns import Columns
 
