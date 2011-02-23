@@ -1,3 +1,5 @@
+.. default-domain:: py
+
 =====================================================
 django-tables - An app for creating HTML tables
 =====================================================
@@ -51,8 +53,6 @@ database model API:
     ...     population = tables.Column()
     ...     tz = tables.Column(verbose_name='Time Zone')
     ...     visits = tables.Column()
-
-See :ref:`columns` for more information.
 
 
 Providing data
@@ -110,7 +110,7 @@ template tag:
     {% load django_tables %}
     {% render_table table %}
 
-See :ref:`template tags` for more information.
+See :ref:`template_tags` for more information.
 
 
 Ordering
@@ -187,8 +187,7 @@ DRY).
     ...         value = self.column.
     ...
     >>> table = SimpleTable([{'age': 31, 'id': 10}, {'age': 34, 'id': 11}])
-    >>> row = table.rows[0]
-    >>> for cell in row:
+    >>> for cell in table.rows[0]:
     ...     print cell
     ...
     #10
@@ -221,27 +220,26 @@ and render the template yourself:
 
 
 
-Columns
-=======
+:class:`Columns` Objects
+========================
 
-The :class:`Columns` class provides an container for :class:`BoundColumn`
-instances. The simplest way to access the contained columns is to iterate over
-the instance:
+.. autoclass:: django_tables.columns.Columns
+    :members: __init__, all, items, names, sortable, visible, __iter__,
+              __contains__, __len__, __getitem__
 
-Each :class:`Table` instance has an instance as its :attr:`~Table.columns`
-property. Iterating over the instance yields only the visible columns. To
-access all columns (including those that are hidden), use the
-:func:`~Columns.all` method.
 
-Additionally, the :func:`~Columns.sortable` method provides access to all the
-sortable columns.
+:class:`BoundColumn` Objects
+============================
+
+.. autoclass:: django_tables.columns.BoundColumn
+    :members: __init__, table, column, name, accessor, default, formatter,
+              sortable, verbose_name, visible
 
 
 Column options
 --------------
 
-Each column takes a certain set of column-specific arguments (documented in the
-:ref:`column reference <columns.types>`).
+Each column takes a certain set of column-specific arguments.
 
 There's also a set of common arguments available to all column types. All are
 optional. Here's a summary of them.
@@ -322,58 +320,21 @@ optional. Here's a summary of them.
 Rows
 ====
 
-Row objects
------------
+:class:`Rows` Objects
+=====================
 
-A row object represents a single row in a table.
-
-To access the rendered value of each cell in a row, you can iterate over the
-row:
-
-.. code-block:: python
-
-    >>> import django_tables as tables
-    >>> class SimpleTable(tables.Table):
-    ...     a = tables.Column()
-    ...     b = tables.CheckBoxColumn(attrs={'name': 'my_chkbox'})
-    ...
-    >>> table = SimpleTable([{'a': 1, 'b': 2}])
-    >>> row = table.rows[0]  # we only have one row, so let's use it
-    >>> for cell in row:
-    ...     print cell
-    ...
-    1
-    <input type="checkbox" name="my_chkbox" value="2" />
-
-Alternatively you can treat it like a list and use indexing to retrieve a
-specific cell. It should be noted that this will raise an IndexError on
-failure.
-
-.. code-block:: python
-
-    >>> row[0]
-    1
-    >>> row[1]
-    u'<input type="checkbox" name="my_chkbox" value="2" />'
-    >>> row[2]
-    ...
-    IndexError: list index out of range
-
-Finally you can also treat it like a dictionary and use column names as the
-keys. This will raise KeyError on failure (unlike the above indexing using
-integers).
-
-.. code-block:: python
-
-    >>> row['a']
-    1
-    >>> row['b']
-    u'<input type="checkbox" name="my_chkbox" value="2" />'
-    >>> row['c']
-    ...
-    KeyError: 'c'
+.. autoclass:: django_tables.rows.Rows
+    :members: __init__, all, page, __iter__, __len__, count, __getitem__
 
 
+:class:`BoundRow` Objects
+=========================
+
+.. autoclass:: django_tables.rows.BoundRow
+    :members: __init__, values, __getitem__, __contains__, __iter__
+
+
+.. _template_tags:
 
 Template tags
 =============
@@ -443,46 +404,3 @@ which can be iterated over:
         {% endfor %}
         </tbody>
     </table>
-
-
-Custom render methods
----------------------
-
-Often, displaying a raw value of a table cell is not good enough. For
-example, if your table has a ``rating`` column, you might want to show
-an image showing the given number of **stars**, rather than the plain
-numeric value.
-
-While you can always write your templates so that the column in question
-is treated separately, either by conditionally checking for a column name,
-or by explicitely rendering each column manually (as opposed to simply
-looping over the ``rows`` and ``columns`` attributes), this is often
-tedious to do.
-
-Instead, you can opt to move certain formatting responsibilites into
-your Python code:
-
-.. code-block:: python
-
-    class BookTable(tables.ModelTable):
-        name = tables.Column()
-        rating = tables.Column(accessor='rating_int')
-
-        def render_rating(self, bound_table):
-            if bound_table.rating_count == 0:
-                return '<img src="no-rating.png"/>'
-            else:
-                return '<img src="rating-%s.png"/>' % bound_table.rating_int
-
-When accessing ``table.rows[i].rating``, the ``render_rating`` method
-will be called. Note the following:
-
-- What is passed is underlying raw data object, in this case, the model
-  instance. This gives you access to data values that may not have been defined
-  as a column.
-- For the method name, the public name of the column must be used, not the
-  internal field name. That is, it's ``render_rating``, not
-  ``render_rating_int``.
-- The method is called whenever the cell value is retrieved by you, whether from
-  Python code or within templates. However, operations by ``django-tables``,
-  like sorting, always work with the raw data.

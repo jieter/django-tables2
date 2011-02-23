@@ -1,16 +1,78 @@
-class BoundRow(object):
-    """Represents a single row of in a table.
+# -*- coding: utf-8 -*-
 
-    BoundRow provides a layer on top of the table data that exposes final
-    rendered cell values for the table. This means that formatting (via
-    Column.formatter or overridden Column.render in subclasses) applied to the
-    values from the table's data.
+class BoundRow(object):
+    """Represents a *specific* row in a table.
+
+    :class:`BoundRow` objects expose rendered versions of raw table data. This
+    means that formatting (via :attr:`Column.formatter` or an overridden
+    :meth:`Column.render` method) is applied to the values from the table's
+    data.
+
+    To access the rendered value of each cell in a row, just iterate over it:
+
+    .. code-block:: python
+
+        >>> import django_tables as tables
+        >>> class SimpleTable(tables.Table):
+        ...     a = tables.Column()
+        ...     b = tables.CheckBoxColumn(attrs={'name': 'my_chkbox'})
+        ...
+        >>> table = SimpleTable([{'a': 1, 'b': 2}])
+        >>> row = table.rows[0]  # we only have one row, so let's use it
+        >>> for cell in row:
+        ...     print cell
+        ...
+        1
+        <input type="checkbox" name="my_chkbox" value="2" />
+
+    Alternatively you can treat it like a list and use indexing to retrieve a
+    specific cell. It should be noted that this will raise an IndexError on
+    failure.
+
+    .. code-block:: python
+
+        >>> row[0]
+        1
+        >>> row[1]
+        u'<input type="checkbox" name="my_chkbox" value="2" />'
+        >>> row[2]
+        ...
+        IndexError: list index out of range
+
+    Finally you can also treat it like a dictionary and use column names as the
+    keys. This will raise KeyError on failure (unlike the above indexing using
+    integers).
+
+    .. code-block:: python
+
+        >>> row['a']
+        1
+        >>> row['b']
+        u'<input type="checkbox" name="my_chkbox" value="2" />'
+        >>> row['c']
+        ...
+        KeyError: 'c'
+
     """
     def __init__(self, table, data):
+        """Initialise a new :class:`BoundRow` object where:
+
+        * *table* is the :class:`Table` in which this row exists.
+        * *data* is a chunk of data that describes the information for this
+          row. A "chunk" of data might be a :class:`Model` object, a ``dict``,
+          or perhaps something else.
+
+        """
         self.table = table
         self.data = data
 
     def __iter__(self):
+        """Iterate over the rendered values for cells in the row.
+
+        Under the hood this method just makes a call to :meth:`__getitem__` for
+        each cell.
+
+        """
         for value in self.values:
             yield value
 
@@ -35,6 +97,8 @@ class BoundRow(object):
     @property
     def values(self):
         for column in self.table.columns:
+            # this uses __getitem__, using the name (rather than the accessor)
+            # is correct – it's what __getitem__ expects.
             yield self[column.name]
 
 
@@ -46,29 +110,41 @@ class Rows(object):
     iterator in the table class.
     """
     def __init__(self, table):
+        """Initialise a :class:`Rows` object. *table* is the :class:`Table`
+        object in which the rows exist.
+
+        """
         self.table = table
 
     def all(self):
-        """Return all rows."""
+        """Return an iterable for all :class:`BoundRow` objects in the table.
+
+        """
         for row in self.table.data:
             yield BoundRow(self.table, row)
 
     def page(self):
-        """Return rows on current page (if paginated)."""
+        """If the table is paginated, return an iterable of :class:`BoundRow`
+        objects that appear on the current page, otherwise return None.
+
+        """
         if not hasattr(self.table, 'page'):
             return None
         return iter(self.table.page.object_list)
 
     def __iter__(self):
-        return iter(self.all())
+        """Convience method for all()"""
+        return self.all()
 
     def __len__(self):
+        """Returns the number of rows in the table."""
         return len(self.table.data)
 
     # for compatibility with QuerySetPaginator
     count = __len__
 
     def __getitem__(self, key):
+        """Allows normal list slicing syntax to be used."""
         if isinstance(key, slice):
             result = list()
             for row in self.table.data[key]:

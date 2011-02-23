@@ -86,41 +86,72 @@ class CheckBoxColumn(Column):
 
 
 class BoundColumn(StrAndUnicode):
-    """'Runtime' version of ``Column`` that is bound to a table instance,
-    and thus knows about the table's data. The difference between BoundColumn
-    and Column, is a BoundColumn is aware of actual values (e.g. its name)
-    where-as Column is not.
+    """A *runtime* version of :class:`Column`. The difference between
+    :class:`BoundColumn` and :class:`Column`, is that :class:`BoundColumn`
+    objects are of the relationship between a :class:`Column` and a
+    :class:`Table`. This means that it knows the *name* given to the
+    :class:`Column`.
 
-    For convenience, all Column properties are available from this class.
+    For convenience, all :class:`Column` properties are available from this
+    class.
+
     """
     def __init__(self, table, column, name):
-        """*table* - the table in which this column exists
-        *column* - the column class
-        *name* – the variable name used when the column was defined in the
-                 table class
+        """Initialise a :class:`BoundColumn` object where:
+
+        * *table* - a :class:`Table` object in which this column exists
+        * *column* - a :class:`Column` object
+        * *name* – the variable name used when the column was added to the
+                   :class:`Table` subclass
+
         """
-        self.table = table
-        self.column = column
-        self.name = name
+        self._table = table
+        self._column = column
+        self._name = name
 
     def __unicode__(self):
         s = self.column.verbose_name or self.name.replace('_', ' ')
         return capfirst(force_unicode(s))
 
     @property
+    def table(self):
+        """Returns the :class:`Table` object that this column is part of."""
+        return self._table
+
+    @property
+    def column(self):
+        """Returns the :class:`Column` object for this column."""
+        return self._column
+
+    @property
+    def name(self):
+        """Returns the string used to identify this column."""
+        return self._name
+
+    @property
     def accessor(self):
+        """Returns the string used to access data for this column out of the
+        data source.
+
+        """
         return self.column.accessor or self.name
 
     @property
     def default(self):
+        """Returns the default value for this column."""
         return self.column.default
 
     @property
     def formatter(self):
+        """Returns a function or ``None`` that represents the formatter for
+        this column.
+
+        """
         return self.column.formatter
 
     @property
     def sortable(self):
+        """Returns a ``bool`` depending on whether this column is sortable."""
         if self.column.sortable is not None:
             return self.column.sortable
         elif self.table._meta.sortable is not None:
@@ -130,10 +161,12 @@ class BoundColumn(StrAndUnicode):
 
     @property
     def verbose_name(self):
+        """Returns the verbose name for this column."""
         return self.column.verbose_name
 
     @property
     def visible(self):
+        """Returns a ``bool`` depending on whether this column is visible."""
         return self.column.visible
 
 
@@ -144,8 +177,22 @@ class Columns(object):
     provides access to those columns in different ways (iterator,
     item-based, filtered and unfiltered etc), stuff that would not be
     possible with a simple iterator in the table class.
+
+    A :class:`Columns` object is a container for holding :class:`BoundColumn`
+    objects. It provides methods that make accessing columns easier than if
+    they were stored in a ``list`` or ``dict``. :class:`Columns` has a similar
+    API to a ``dict`` (it actually uses a :class:`SortedDict` interally).
+
+    At the moment you'll only come across this class when you access a
+    :attr:`Table.columns` property.
+
     """
     def __init__(self, table):
+        """Initialise a :class:`Columns` object.
+
+        *table* must be a :class:`Table` object.
+
+        """
         self.table = table
         # ``self._columns`` attribute stores the bound columns (columns that
         # have a real name, )
@@ -164,52 +211,65 @@ class Columns(object):
         self._columns = new_columns
 
     def all(self):
-        """Iterate through all columns, regardless of visiblity (as
-        opposed to ``__iter__``.
+        """Iterate through all :class:`BoundColumn` objects, regardless of
+        visiblity or sortability.
 
-        This is used internally a lot.
         """
         self._spawn_columns()
         for column in self._columns.values():
             yield column
 
     def items(self):
+        """Return an iterator of ``(name, column)`` pairs (where *column* is a
+        :class:`BoundColumn` object).
+
+        """
         self._spawn_columns()
         for r in self._columns.items():
             yield r
 
     def names(self):
+        """Return an iterator of column names."""
         self._spawn_columns()
         for r in self._columns.keys():
             yield r
 
-    def index(self, name):
-        self._spawn_columns()
-        return self._columns.keyOrder.index(name)
-
     def sortable(self):
-        """Iterate through all sortable columns.
+        """Same as :meth:`all` but only returns sortable :class:`BoundColumn`
+        objects.
 
-        This is primarily useful in templates, where iterating over the full
-        set and checking {% if column.sortable %} can be problematic in
-        conjunction with e.g. {{ forloop.last }} (the last column might not
+        This is useful in templates, where iterating over the full
+        set and checking ``{% if column.sortable %}`` can be problematic in
+        conjunction with e.g. ``{{ forloop.last }}`` (the last column might not
         be the actual last that is rendered).
+
         """
         for column in self.all():
             if column.sortable:
                 yield column
 
-    def __iter__(self):
-        """Iterate through all *visible* bound columns.
+    def visible(self):
+        """Same as :meth:`sortable` but only returns visible
+        :class:`BoundColumn` objects.
 
-        This is primarily geared towards table rendering.
+        This is geared towards table rendering.
+
         """
         for column in self.all():
             if column.visible:
                 yield column
 
+    def __iter__(self):
+        """Convenience API with identical functionality to :meth:`visible`."""
+        return self.visible()
+
     def __contains__(self, item):
-        """Check by both column object and column name."""
+        """Check if a column is contained within a :class:`Columns` object.
+
+        *item* can either be a :class:`BoundColumn` object, or the name of a
+        column.
+
+        """
         self._spawn_columns()
         if isinstance(item, basestring):
             return item in self.names()
@@ -217,11 +277,21 @@ class Columns(object):
             return item in self.all()
 
     def __len__(self):
+        """Return how many :class:`BoundColumn` objects are contained."""
         self._spawn_columns()
         return len([1 for c in self._columns.values() if c.visible])
 
     def __getitem__(self, index):
-        """Return a column by name or index."""
+        """Retrieve a specific :class:`BoundColumn` object.
+
+        *index* can either be 0-indexed or the name of a column
+
+        .. code-block:: python
+
+            columns['speed']  # returns a bound column with name 'speed'
+            columns[0]        # returns the first column
+
+        """
         self._spawn_columns()
         if isinstance(index, int):
             return self._columns.value_for_index(index)

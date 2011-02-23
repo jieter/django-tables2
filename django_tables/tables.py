@@ -1,6 +1,5 @@
 # -*- coding: utf8 -*-
 import copy
-from django.db.models.query import QuerySet
 from django.core.paginator import Paginator
 from django.utils.datastructures import SortedDict
 from django.http import Http404
@@ -20,6 +19,7 @@ class TableData(object):
     set and a list of dicts.
     """
     def __init__(self, data, table):
+        from django.db.models.query import QuerySet
         self._data = data if not isinstance(data, QuerySet) else None
         self._queryset = data if isinstance(data, QuerySet) else None
         self._table = table
