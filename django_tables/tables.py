@@ -1,14 +1,13 @@
 # -*- coding: utf8 -*-
 import copy
-from django.db.models.query import QuerySet
 from django.core.paginator import Paginator
 from django.utils.datastructures import SortedDict
 from django.http import Http404
 from django.template.loader import get_template
 from django.template import Context
+from django.utils.encoding import StrAndUnicode
 from .utils import rmprefix, toggleprefix, OrderByTuple, Accessor
 from .columns import Column
-from .memory import sort_table
 from .rows import Rows, BoundRow
 from .columns import Columns
 
@@ -21,6 +20,7 @@ class TableData(object):
     set and a list of dicts.
     """
     def __init__(self, data, table):
+        from django.db.models.query import QuerySet
         self._data = data if not isinstance(data, QuerySet) else None
         self._queryset = data if isinstance(data, QuerySet) else None
         self._table = table
@@ -175,7 +175,7 @@ class TableOptions(object):
         self.order_by = getattr(options, 'order_by', ())
 
 
-class Table(object):
+class Table(StrAndUnicode):
     """A collection of columns, plus their associated data rows."""
     __metaclass__ = DeclarativeColumnsMetaclass
 

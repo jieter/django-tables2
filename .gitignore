@@ -2,5 +2,6 @@
 /*.komodoproject
 /MANIFEST
 /dist/
+/build/
 /docs/_build/
 /django_tables.egg-info/
