@@ -85,7 +85,9 @@ class BoundRow(object):
         custom = getattr(self.table, 'render_%s' % name, None)
         if custom:
             return custom(bound_column, self)
-        return bound_column.column.render(self.table, bound_column, self)
+        return bound_column.column.render(table=self.table,
+                                          bound_column=bound_column,
+                                          bound_row=self)
 
     def __contains__(self, item):
         """Check by both row object and column name."""

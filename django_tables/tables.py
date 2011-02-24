@@ -5,6 +5,7 @@ from django.utils.datastructures import SortedDict
 from django.http import Http404
 from django.template.loader import get_template
 from django.template import Context
+from django.utils.encoding import StrAndUnicode
 from .utils import rmprefix, toggleprefix, OrderByTuple, Accessor
 from .columns import Column
 from .rows import Rows, BoundRow
@@ -174,7 +175,7 @@ class TableOptions(object):
         self.order_by = getattr(options, 'order_by', ())
 
 
-class Table(object):
+class Table(StrAndUnicode):
     """A collection of columns, plus their associated data rows."""
     __metaclass__ = DeclarativeColumnsMetaclass
 

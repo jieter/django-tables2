@@ -7,27 +7,99 @@ from django.utils.text import capfirst
 class Column(object):
     """Represents a single column of a table.
 
-    ``verbose_name`` defines a display name for this column used for output.
+    :class:`Column` objects control the way a column (including the cells that
+    fall within it) are rendered.
 
-    You can use ``visible`` to flag the column as hidden by default.
-    However, this can be overridden by the ``visibility`` argument to the
-    table constructor. If you want to make the column completely unavailable
-    to the user, set ``inaccessible`` to True.
-
-    Setting ``sortable`` to False will result in this column being unusable
-    in ordering. You can further change the *default* sort direction to
-    descending using ``direction``. Note that this option changes the actual
-    direction only indirectly. Normal und reverse order, the terms
-    django-tables exposes, now simply mean different things.
-
-    Data can be formatted by using ``formatter``, which accepts a callable as
-    an argument (e.g. lambda x: x.upper())
     """
-    # Tracks each time a Column instance is created. Used to retain order.
+    #: Tracks each time a Column instance is created. Used to retain order.
     creation_counter = 0
 
     def __init__(self, verbose_name=None, accessor=None, default=None,
                  visible=True, sortable=None, formatter=None):
+        """Initialise a :class:`Column` object.
+
+        :param verbose_name:
+            A pretty human readable version of the column name. Typically this
+            is used in the header cells in the HTML output.
+
+        :param accessor:
+            A string or callable that specifies the attribute to access when
+            retrieving the value for a cell in this column from the data-set.
+            Multiple lookups can be achieved by providing a dot separated list
+            of lookups, e.g. ``"user.first_name"``. The functionality is
+            identical to that of Django's template variable syntax, e.g. ``{{
+            user.first_name }}``
+
+            A callable should be used if the dot separated syntax is not
+            capable of describing the lookup properly. The callable will be
+            passed a single item from the data (if the table is using
+            :class:`QuerySet` data, this would be a :class:`Model` instance),
+            and is expected to return the correct value for the column.
+
+            Consider the following:
+
+            .. code-block:: python
+
+                >>> import django_tables as tables
+                >>> data = [
+                ...     {'dot.separated.key': 1},
+                ...     {'dot.separated.key': 2},
+                ... ]
+                ...
+                >>> class SlightlyComplexTable(tables.Table):
+                >>>     dot_seperated_key = tables.Column(accessor=lambda x: x['dot.separated.key'])
+                ...
+                >>> table = SlightlyComplexTable(data)
+                >>> for row in table.rows:
+                >>>     print row['dot_seperated_key']
+                ...
+                1
+                2
+
+            This would **not** have worked:
+
+            .. code-block:: python
+
+                dot_seperated_key = tables.Column(accessor='dot.separated.key')
+
+        :param default:
+            The default value for the column. This can be a value or a callable
+            object [1]_. If an object in the data provides :const:`None` for a
+            column, the default will be used instead.
+
+            The default value may affect ordering, depending on the type of
+            data the table is using. The only case where ordering is not
+            affected ing when a :class:`QuerySet` is used as the table data
+            (since sorting is performed by the database).
+
+            .. [1] The provided callable object must not expect to receive any
+               arguments.
+
+        :param visible:
+            If :const:`False`, this column will not be in HTML from output
+            generators (e.g. :meth:`as_html` or ``{% render_table %}``).
+
+            When a field is not visible, it is removed from the table's
+            :attr:`~Column.columns` iterable.
+
+        :param sortable:
+            If :const:`False`, this column will not be allowed to be used in
+            ordering the table.
+
+        :param formatter:
+            A callable object that is used as a final step in formatting the
+            value for a cell. The callable will be passed the string that would
+            have otherwise been displayed in the cell.
+
+            In the following table, cells in the *name* column have upper-case
+            values.
+
+            .. code-block:: python
+
+                class Example(tables.Table):
+                    name = tables.Column(formatter=lambda x: x.upper())
+
+        """
         if not (accessor is None or isinstance(accessor, basestring) or
                 callable(accessor)):
             raise TypeError('accessor must be a string or callable, not %s' %
@@ -47,26 +119,32 @@ class Column(object):
 
     @property
     def default(self):
-        """Since ``Column.default`` property may be a callable, this function
-        handles access.
+        """The default value for cells in this column.
+
+        The default value passed into ``Column.default`` property may be a
+        callable, this function handles access.
+
         """
         return self._default() if callable(self._default) else self._default
 
     def render(self, table, bound_column, bound_row):
         """Returns a cell's content.
         This method can be overridden by ``render_FOO`` methods on the table or
-        by subclassing ``Column``.
+        by subclassing :class:`Column`.
+        
         """
         return table.data.data_for_cell(bound_column=bound_column,
                                         bound_row=bound_row)
 
 
 class CheckBoxColumn(Column):
-    """A subclass of Column that renders its column data as a checkbox
-
-    ``name`` is the html name of the checkbox.
-    """
+    """A subclass of Column that renders its column data as a checkbox"""
     def __init__(self, attrs=None, *args, **kwargs):
+        """
+        :param attrs: a dict of HTML element attributes to be added to the
+            ``<input>``
+
+        """
         super(CheckBoxColumn, self).__init__(*args, **kwargs)
         self.attrs = attrs or {}
 
