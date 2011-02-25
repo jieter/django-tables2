@@ -1,58 +1,87 @@
-"""Test ModelTable specific functionality.
-
-Sets up a temporary Django project using a memory SQLite database.
-"""
-
+from django.contrib.auth.models import User
 from django.conf import settings
 from django.core.paginator import *
 import django_tables as tables
+import django_tables.models as django_tables_models
 from attest import Tests
 
 
+# we're going to test against User, so let's create a few
+User.objects.create_user('fake-user-1', 'fake-1@example.com', 'password')
+User.objects.create_user('fake-user-2', 'fake-2@example.com', 'password')
+User.objects.create_user('fake-user-3', 'fake-3@example.com', 'password')
+User.objects.create_user('fake-user-4', 'fake-4@example.com', 'password')
+
+
 models = Tests()
+
+
+@models.context
+def transaction():
+    print 't1'
+    yield
+    print 't2'
+
+@models.context
+def context():
+    class Context(object):
+        class UserTable(tables.Table):
+            username = tables.Column()
+            first_name = tables.Column()
+            last_name = tables.Column()
+            email = tables.Column()
+            password = tables.Column()
+            is_staff = tables.Column()
+            is_active = tables.Column()
+            is_superuser = tables.Column()
+            last_login = tables.Column()
+            date_joined = tables.Column()
+
+    print 'c1'
+    yield Context
+    print 'c2'
+
+@models.test
+def simple(context):
+    table = context.UserTable(User.objects.all())
+
+
 '''
+class City(models.Model):
+    name = models.TextField()
+    population = models.IntegerField(null=True)
 
-def setup_module(module):
-    settings.configure(**{
-        'DATABASE_ENGINE': 'sqlite3',
-        'DATABASE_NAME': ':memory:',
-        'INSTALLED_APPS': ('tests.testapp',)
-    })
+    class Meta:
+        app_label = 'django_tables'
+django_tables_models.City = City
 
-    from django.db import models
-    from django.core.management import call_command
 
-    class City(models.Model):
-        name = models.TextField()
-        population = models.IntegerField(null=True)
-        class Meta:
-            app_label = 'testapp'
-    module.City = City
+class Country(models.Model):
+    name = models.TextField()
+    population = models.IntegerField()
+    capital = models.ForeignKey(City, blank=True, null=True)
+    tld = models.TextField(verbose_name='Domain Extension', max_length=2)
+    system = models.TextField(blank=True, null=True)
+    null = models.TextField(blank=True, null=True)   # tests expect this to be always null!
+    null2 = models.TextField(blank=True, null=True)  #  - " -
 
-    class Country(models.Model):
-        name = models.TextField()
-        population = models.IntegerField()
-        capital = models.ForeignKey(City, blank=True, null=True)
-        tld = models.TextField(verbose_name='Domain Extension', max_length=2)
-        system = models.TextField(blank=True, null=True)
-        null = models.TextField(blank=True, null=True)   # tests expect this to be always null!
-        null2 = models.TextField(blank=True, null=True)  #  - " -
-        def example_domain(self):
-            return 'example.%s' % self.tld
-        class Meta:
-            app_label = 'testapp'
-    module.Country = Country
+    class Meta:
+        app_label = 'django_tables'
 
-    # create the tables
-    call_command('syncdb', verbosity=1, interactive=False)
+    def example_domain(self):
+        return 'example.%s' % self.tld
+django_tables_models.Country = Country
 
-    # create a couple of objects
-    berlin=City(name="Berlin"); berlin.save()
-    amsterdam=City(name="Amsterdam"); amsterdam.save()
-    Country(name="Austria", tld="au", population=8, system="republic").save()
-    Country(name="Germany", tld="de", population=81, capital=berlin).save()
-    Country(name="France", tld="fr", population=64, system="republic").save()
-    Country(name="Netherlands", tld="nl", population=16, system="monarchy", capital=amsterdam).save()
+# create the tables
+call_command('syncdb', verbosity=1, interactive=False)
+
+# create a couple of objects
+berlin=City(name="Berlin"); berlin.save()
+amsterdam=City(name="Amsterdam"); amsterdam.save()
+Country(name="Austria", tld="au", population=8, system="republic").save()
+Country(name="Germany", tld="de", population=81, capital=berlin).save()
+Country(name="France", tld="fr", population=64, system="republic").save()
+Country(name="Netherlands", tld="nl", population=16, system="monarchy", capital=amsterdam).save()
 
 
 class TestDeclaration:

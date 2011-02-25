@@ -380,9 +380,15 @@ which can be iterated over:
 API Reference
 =============
 
-:class:`Column` Objects:
+:class:`Table` Objects:
 ------------------------
 
+.. autoclass:: django_tables.tables.Table
+    :members: __init__, data, order_by, rows, columns, as_html, paginate
+
+
+:class:`Column` Objects:
+------------------------
 
 .. autoclass:: django_tables.columns.Column
     :members: __init__, default, render

@@ -1,10 +1,11 @@
 from attest import Tests
 from .core import core
 from .templates import templates
+from .models import models
 #from .memory import memory
-#from .models import models
 
-tests = Tests([core, templates])
+
+tests = Tests([core, templates, models])
 
 def suite():
     return tests.test_suite()

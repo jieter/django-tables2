@@ -16,8 +16,9 @@ __all__ = ('Table',)
 QUERYSET_ACCESSOR_SEPARATOR = '__'
 
 class TableData(object):
-    """Exposes a consistent API for a table data. It currently supports a query
-    set and a list of dicts.
+    """Exposes a consistent API for a table data. It currently supports a
+    :class:`QuerySet` or a ``list`` of ``dict``s.
+
     """
     def __init__(self, data, table):
         from django.db.models.query import QuerySet
@@ -68,6 +69,7 @@ class TableData(object):
         """Populates self._data with missing values based on the default value
         for each column. It will create new items in the dataset (not modify
         existing ones).
+
         """
         for i, item in enumerate(data):
             # add data that is missing from the source. we do this now
@@ -99,8 +101,9 @@ class TableData(object):
     def data_for_cell(self, bound_column, bound_row, apply_formatter=True):
         """Calculate the value of a cell given a bound row and bound column.
 
-        *formatting* – Apply column formatter after retrieving the value from
-                       the data.
+        :param formatting:
+            Apply column formatter after retrieving the value from the data.
+
         """
         value = Accessor(bound_column.accessor).resolve(bound_row.data)
         # try and use default value if we've only got 'None'
@@ -116,28 +119,13 @@ class TableData(object):
 
 class DeclarativeColumnsMetaclass(type):
     """Metaclass that converts Column attributes on the class to a dictionary
-    called 'base_columns', taking into account parent class 'base_columns' as
-    well.
+    called ``base_columns``, taking into account parent class ``base_columns``
+    as well.
+
     """
     def __new__(cls, name, bases, attrs, parent_cols_from=None):
-        """The ``parent_cols_from`` argument determines from which attribute
-        we read the columns of a base class that this table might be
-        subclassing. This is useful for ``ModelTable`` (and possibly other
-        derivatives) which might want to differ between the declared columns
-        and others.
+        """Ughhh document this :)
 
-        Note that if the attribute specified in ``parent_cols_from`` is not
-        found, we fall back to the default (``base_columns``), instead of
-        skipping over that base. This makes a table like the following work:
-
-            class MyNewTable(tables.ModelTable, MyNonModelTable):
-                pass
-
-        ``MyNewTable`` will be built by the ModelTable metaclass, which will
-        call this base with a modified ``parent_cols_from`` argument
-        specific to ModelTables. Since ``MyNonModelTable`` is not a
-        ModelTable, and thus does not provide that attribute, the columns
-        from that base class would otherwise be ignored.
         """
         # extract declared columns
         columns = [(name, attrs.pop(name)) for name, column in attrs.items()
@@ -188,8 +176,13 @@ class Table(StrAndUnicode):
     def __init__(self, data, order_by=DefaultOrder):
         """Create a new table instance with the iterable ``data``.
 
-        If ``order_by`` is specified, the data will be sorted accordingly.
-        Otherwise, the sort order can be specified in the table options.
+        :param order_by:
+            If specified, it must be a sequence containing the names of columns
+            in the order that they should be ordered (much the same as
+            :method:`QuerySet.order_by`)
+
+            If not specified, the table will fall back to the
+            :attr:`Meta.order_by` setting.
 
         Note that unlike a ``Form``, tables are always bound to data. Also
         unlike a form, the ``columns`` attribute is read-only and returns
@@ -200,6 +193,7 @@ class Table(StrAndUnicode):
         the perfect fit for this. Instead, ``base_colums`` is copied to
         table instances, so modifying that will not touch the class-wide
         column list.
+        
         """
         self._rows = Rows(self)  # bound rows
         self._columns = Columns(self)  # bound columns
