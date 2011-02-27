@@ -2,28 +2,18 @@ from django.contrib.auth.models import User
 from django.conf import settings
 from django.core.paginator import *
 import django_tables as tables
-import django_tables.models as django_tables_models
+from django_attest import TestContext
 from attest import Tests
-
-
-# we're going to test against User, so let's create a few
-User.objects.create_user('fake-user-1', 'fake-1@example.com', 'password')
-User.objects.create_user('fake-user-2', 'fake-2@example.com', 'password')
-User.objects.create_user('fake-user-3', 'fake-3@example.com', 'password')
-User.objects.create_user('fake-user-4', 'fake-4@example.com', 'password')
 
 
 models = Tests()
 
 
-@models.context
-def transaction():
-    print 't1'
-    yield
-    print 't2'
+models.context(TestContext())
+
 
 @models.context
-def context():
+def samples():
     class Context(object):
         class UserTable(tables.Table):
             username = tables.Column()
@@ -37,13 +27,18 @@ def context():
             last_login = tables.Column()
             date_joined = tables.Column()
 
-    print 'c1'
+    # we're going to test against User, so let's create a few
+    User.objects.create_user('fake-user-1', 'fake-1@example.com', 'password')
+    User.objects.create_user('fake-user-2', 'fake-2@example.com', 'password')
+    User.objects.create_user('fake-user-3', 'fake-3@example.com', 'password')
+    User.objects.create_user('fake-user-4', 'fake-4@example.com', 'password')
+
     yield Context
-    print 'c2'
+
 
 @models.test
-def simple(context):
-    table = context.UserTable(User.objects.all())
+def simple(dj, samples):
+    table = samples.UserTable(User.objects.all())
 
 
 '''

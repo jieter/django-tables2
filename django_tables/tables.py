@@ -22,33 +22,40 @@ class TableData(object):
     """
     def __init__(self, data, table):
         from django.db.models.query import QuerySet
-        self._data = data if not isinstance(data, QuerySet) else None
-        self._queryset = data if isinstance(data, QuerySet) else None
+        if isinstance(data, QuerySet):
+            self.queryset = data
+        elif isinstance(data, list):
+            self.list = data
+        else:
+            raise ValueError('data must be a list or QuerySet object, not %s'
+                             % data.__class__.__name__)
         self._table = table
 
         # work with a copy of the data that has missing values populated with
         # defaults.
-        if self._data:
-            self._data = copy.copy(self._data)
-            self._populate_missing_values(self._data)
+        if hasattr(self, 'list'):
+            self.list = copy.copy(self.list)
+            self._populate_missing_values(self.list)
 
     def __len__(self):
         # Use the queryset count() method to get the length, instead of
         # loading all results into memory. This allows, for example,
         # smart paginators that use len() to perform better.
-        return self._queryset.count() if self._queryset else len(self._data)
+        return (self.queryset.count() if hasattr(self, 'queryset')
+                                      else len(self.list))
 
     def order_by(self, order_by):
         """Order the data based on column names in the table."""
         # translate order_by to something suitable for this data
         order_by = self._translate_order_by(order_by)
-        if self._queryset:
+        if hasattr(self, 'queryset'):
             # need to convert the '.' separators to '__' (filter syntax)
-            order_by = order_by.replace(Accessor.SEPARATOR,
-                                        QUERYSET_ACCESSOR_SEPARATOR)
-            self._queryset = self._queryset.order_by(**order_by)
+            order_by = [o.replace(Accessor.SEPARATOR,
+                                  QUERYSET_ACCESSOR_SEPARATOR)
+                        for o in order_by]
+            self.queryset = self.queryset.order_by(*order_by)
         else:
-            self._data.sort(cmp=order_by.cmp)
+            self.list.sort(cmp=order_by.cmp)
 
     def _translate_order_by(self, order_by):
         """Translate from column names to column accessors"""
@@ -113,8 +120,8 @@ class TableData(object):
             value = bound_column.formatter(value)
         return value
 
-    def __getitem__(self, key):
-        return self._data[key]
+    def __getitem__(self, index):
+        return (self.list if hasattr(self, 'list') else self.queryset)[index]
 
 
 class DeclarativeColumnsMetaclass(type):
@@ -193,7 +200,7 @@ class Table(StrAndUnicode):
         the perfect fit for this. Instead, ``base_colums`` is copied to
         table instances, so modifying that will not touch the class-wide
         column list.
-        
+
         """
         self._rows = Rows(self)  # bound rows
         self._columns = Columns(self)  # bound columns
