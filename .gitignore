@@ -1,0 +1,5 @@
+*.pyc
+*.komodoproject
+*.egg-info/
+/dist/
+/build/
