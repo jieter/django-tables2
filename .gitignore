@@ -1,7 +1,7 @@
 *.pyc
 /*.komodoproject
+/*.egg-info/
 /MANIFEST
 /dist/
 /build/
 /docs/_build/
-/django_tables.egg-info/
