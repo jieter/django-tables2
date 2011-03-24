@@ -142,9 +142,12 @@ control you want, the less easy it is to use).
 Column formatter
 ----------------
 
-If all you want to do is change the way a column is formatted, you can simply
-provide the :attr:`~Column.formatter` argument to a :class:`Column` when you
-define the :class:`Table`:
+Using a formatter is a quick way to adjust the way values are displayed in a
+column. A limitation of this approach is that you *only* have access to a
+single attribute of the data source.
+
+To use a formatter, simply provide the :attr:`~Column.formatter` argument to a
+:class:`Column` when you define the :class:`Table`:
 
 .. code-block:: python
 
@@ -161,10 +164,17 @@ define the :class:`Table`:
     #10
     31 years old
 
-The limitation of this approach is that you're unable to incorporate any
-run-time information of the table into the formatter. For example it would not
-be possible to incorporate the row number into the cell's value.
+As you can see, the only the value of the column is available to the formatter.
+This means that **it's impossible create a formatter that incorporates other
+values of the record**, e.g. a column with an ``<a href="...">`` that uses
+:func:`reverse` with the record's ``pk``.
 
+If formatters aren't powerful enough, you'll need to either :ref:`create a
+Column subclass <subclassing-column>`, or to use the
+:ref:`Table.render_FOO method <table.render_foo>`.
+
+
+.. _table.render_foo:
 
 :meth:`Table.render_FOO` Method
 -------------------------------
@@ -177,8 +187,10 @@ DRY).
 The example below has a number of different techniques in use:
 
 * :meth:`Column.render` (accessible via :attr:`BoundColumn.column`) applies the
-  *formatter* function if it's been provided. This is evident in the order that
-  the square and angled brackets have been applied for the ``id`` column.
+  *formatter* if it's been provided. The effect of this behaviour can be seen
+  below in the output for the ``id`` column. Square brackets (from the
+  *formatter*) have been applied *after* the angled brackets (from the
+  :meth:`~Table.render_FOO`).
 * Completely abitrary values can be returned by :meth:`render_FOO` methods, as
   shown in :meth:`~SimpleTable.render_row_number` (a :attr:`_counter` attribute
   is added to the :class:`SimpleTable` object to keep track of the row number).
@@ -213,6 +225,11 @@ The example below has a number of different techniques in use:
     <[10]>
     31 years old
 
+The :meth:`Column.render` method is what actually performs the lookup into a
+record to retrieve the column value. In the example above, the
+:meth:`render_row_number` never called :meth:`Column.render` and as a result
+there was not attempt to access the data source to retrieve a value.
+
 
 Custom Template
 ---------------
@@ -243,6 +260,8 @@ ignore the built-in generation tools, and instead pass an instance of your
         </tbody>
     </table>
 
+
+.. _subclassing-column:
 
 Subclassing :class:`Column`
 ---------------------------
@@ -380,9 +399,15 @@ which can be iterated over:
 API Reference
 =============
 
-:class:`Column` Objects:
+:class:`Table` Objects:
 ------------------------
 
+.. autoclass:: django_tables.tables.Table
+    :members: __init__, data, order_by, rows, columns, as_html, paginate
+
+
+:class:`Column` Objects:
+------------------------
 
 .. autoclass:: django_tables.columns.Column
     :members: __init__, default, render
@@ -415,4 +440,14 @@ API Reference
 -------------------------
 
 .. autoclass:: django_tables.rows.BoundRow
-    :members: __init__, values, __getitem__, __contains__, __iter__
+    :members: __init__, __getitem__, __contains__, __iter__, record, table
+
+
+Glossary
+========
+
+.. glossary::
+
+    table
+        The traditional concept of a table. i.e. a grid of rows and columns
+        containing data.

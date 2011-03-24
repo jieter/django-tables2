@@ -54,17 +54,30 @@ class BoundRow(object):
         KeyError: 'c'
 
     """
-    def __init__(self, table, data):
+    def __init__(self, table, record):
         """Initialise a new :class:`BoundRow` object where:
 
         * *table* is the :class:`Table` in which this row exists.
-        * *data* is a chunk of data that describes the information for this
-          row. A "chunk" of data might be a :class:`Model` object, a ``dict``,
-          or perhaps something else.
+        * *record* is a single record from the data source that is posed to
+          populate the row. A record could be a :class:`Model` object, a
+          ``dict``, or something else.
 
         """
-        self.table = table
-        self.data = data
+        self._table = table
+        self._record = record
+
+    @property
+    def table(self):
+        """The associated :term:`table`."""
+        return self._table
+
+    @property
+    def record(self):
+        """The data record from the data source which is used to populate this
+        row with data.
+
+        """
+        return self._record
 
     def __iter__(self):
         """Iterate over the rendered values for cells in the row.
@@ -73,8 +86,10 @@ class BoundRow(object):
         each cell.
 
         """
-        for value in self.values:
-            yield value
+        for column in self.table.columns:
+            # this uses __getitem__, using the name (rather than the accessor)
+            # is correct – it's what __getitem__ expects.
+            yield self[column.name]
 
     def __getitem__(self, name):
         """Returns the final rendered value for a cell in the row, given the
@@ -95,13 +110,6 @@ class BoundRow(object):
             return item in self.table._columns
         else:
             return item in self
-
-    @property
-    def values(self):
-        for column in self.table.columns:
-            # this uses __getitem__, using the name (rather than the accessor)
-            # is correct – it's what __getitem__ expects.
-            yield self[column.name]
 
 
 class Rows(object):
