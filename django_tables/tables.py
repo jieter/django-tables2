@@ -112,7 +112,7 @@ class TableData(object):
             Apply column formatter after retrieving the value from the data.
 
         """
-        value = Accessor(bound_column.accessor).resolve(bound_row.data)
+        value = Accessor(bound_column.accessor).resolve(bound_row.record)
         # try and use default value if we've only got 'None'
         if value is None and bound_column.default is not None:
             value = bound_column.default()

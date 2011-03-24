@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='django-tables',
-    version='0.4.0.alpha2.dev',
+    version='0.4.0.alpha2',
     description='Table framework for Django',
 
     author='Bradley Ayers',
@@ -16,6 +16,10 @@ setup(
     include_package_data=True,  # declarations in MANIFEST.in
 
     install_requires=['Django >=1.1'],
+    tests_require=['Django >=1.1', 'Attest >=0.4', 'django_attest'],
+
+    test_loader='attest:FancyReporter.test_loader',
+    test_suite='tests.everything',
 
     classifiers=[
         'Environment :: Web Environment',

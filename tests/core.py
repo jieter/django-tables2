@@ -1,5 +1,4 @@
 """Test the core table functionality."""
-
 import copy
 from attest import Tests, Assert
 from django.http import Http404

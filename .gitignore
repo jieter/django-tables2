@@ -1,6 +1,7 @@
 *.pyc
 /*.komodoproject
 /*.egg-info/
+/*.egg
 /MANIFEST
 /dist/
 /build/

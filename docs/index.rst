@@ -440,4 +440,14 @@ API Reference
 -------------------------
 
 .. autoclass:: django_tables.rows.BoundRow
-    :members: __init__, values, __getitem__, __contains__, __iter__
+    :members: __init__, __getitem__, __contains__, __iter__, record, table
+
+
+Glossary
+========
+
+.. glossary::
+
+    table
+        The traditional concept of a table. i.e. a grid of rows and columns
+        containing data.

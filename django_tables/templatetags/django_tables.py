@@ -1,6 +1,6 @@
 ﻿"""
-Allows setting/changing/removing of chosen url query string parameters,
-while maintaining any existing others.
+Allows setting/changing/removing of chosen url query string parameters, while
+maintaining any existing others.
 
 Expects the current request to be available in the context as ``request``.
 
@@ -9,14 +9,15 @@ Examples:
     {% set_url_param page=next_page %}
     {% set_url_param page="" %}
     {% set_url_param filter="books" page=1 %}
-"""
 
+"""
 import urllib
 import tokenize
 import StringIO
 from django import template
 from django.template.loader import get_template
 from django.utils.safestring import mark_safe
+
 
 register = template.Library()
 
@@ -59,7 +60,8 @@ class SetUrlParamNode(template.Node):
         return '?' + urllib.urlencode(params, doseq=True)
 
 
-def do_set_url_param(parser, token):
+@register.tag
+def set_url_param(parser, token):
     bits = token.contents.split()
     qschanges = {}
     for i in bits[1:]:
@@ -81,8 +83,6 @@ def do_set_url_param(parser, token):
                    "Argument syntax wrong: should be key=value")
     return SetUrlParamNode(qschanges)
 
-register.tag('set_url_param', do_set_url_param)
-
 
 class RenderTableNode(template.Node):
     def __init__(self, table_var_name):
@@ -96,12 +96,11 @@ class RenderTableNode(template.Node):
         return get_template('django_tables/table.html').render(context)
 
 
-def do_render_table(parser, token):
+@register.tag
+def render_table(parser, token):
     try:
         _, table_var_name = token.contents.split()
     except ValueError:
         raise template.TemplateSyntaxError,\
           "%r tag requires a single argument" % token.contents.split()[0]
     return RenderTableNode(table_var_name)
-
-register.tag('render_table', do_render_table)
