@@ -1,8 +1,8 @@
 {% load django_tables %}
 {% spaceless %}
-<table>
+<table{% if table.attrs %} {{ table.attrs.as_html }}{% endif %}>
     <thead>
-        <tr>
+        <tr class="{% cycle "odd" "even" %}">
         {% for column in table.columns %}
             <th><a href="{% set_url_param sort=column.name_toggled %}">{{ column }}</a></th>
         {% endfor %}
@@ -10,7 +10,7 @@
     </thead>
     <tbody>
         {% for row in table.rows %}
-        <tr>
+        <tr class="{% cycle "odd" "even" %}">
             {% for cell in row %}
                 <td>{{ cell }}</td>
             {% endfor %}

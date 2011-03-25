@@ -138,6 +138,39 @@ There are a number of options available for changing the way the table is
 rendered. Each approach provides balance of ease-of-use and control (the more
 control you want, the less easy it is to use).
 
+CSS
+---
+
+If you want to affect the appearance of the table using CSS, you probably want
+to add a ``class`` or ``id`` attribute to the ``<table>`` element. This can be
+achieved by specifying an ``attrs`` variable in the table's ``Meta`` class.
+
+.. code-block:: python
+
+    >>> import django_tables as tables
+    >>> class SimpleTable(tables.Table):
+    ...     id = tables.Column()
+    ...     age = tables.Column()
+    ...
+    ...     class Meta:
+    ...         attrs = {'class': 'mytable'}
+    ...
+    >>> table = SimpleTable()
+    >>> table.as_html()
+    '<table class="mytable">...'
+
+The :attr:`Table.attrs` property actually returns an :class:`AttributeDict`
+object. These objects are identical to :class:`dict`, but have an
+:meth:`AttributeDict.as_html` method that returns a HTML tag attribute string.
+
+.. code-block:: python
+
+    >>> from django_tables.utils import AttributeDict
+    >>> attrs = AttributeDict({'class': 'mytable', 'id': 'someid'})
+    >>> attrs.as_html()
+    'class="mytable" id="someid"'
+
+The returned string is marked safe, so it can be used safely in a template.
 
 Column formatter
 ----------------
@@ -173,6 +206,7 @@ If formatters aren't powerful enough, you'll need to either :ref:`create a
 Column subclass <subclassing-column>`, or to use the
 :ref:`Table.render_FOO method <table.render_foo>`.
 
+.. _table.render_foo:
 
 .. _table.render_foo:
 
@@ -403,7 +437,14 @@ API Reference
 ------------------------
 
 .. autoclass:: django_tables.tables.Table
-    :members: __init__, data, order_by, rows, columns, as_html, paginate
+    :members:
+
+
+:class:`TableOptions` Objects:
+------------------------------
+
+.. autoclass:: django_tables.tables.TableOptions
+    :members:
 
 
 :class:`Column` Objects:
@@ -441,6 +482,13 @@ API Reference
 
 .. autoclass:: django_tables.rows.BoundRow
     :members: __init__, __getitem__, __contains__, __iter__, record, table
+
+
+:class:`AttributeDict` Objects
+------------------------------
+
+.. autoclass:: django_tables.utils.AttributeDict
+    :members:
 
 
 Glossary

@@ -1,7 +1,7 @@
 {% spaceless %}
-<table>
+<table{% if table.attrs %} {{ table.attrs.as_html }}{% endif %}>
     <thead>
-        <tr>
+        <tr class="{% cycle "odd" "even" %}">
         {% for column in table.columns %}
             <th>{{ column }}</th>
         {% endfor %}
@@ -9,7 +9,7 @@
     </thead>
     <tbody>
         {% for row in table.rows %}
-        <tr>
+        <tr class="{% cycle "odd" "even" %}">
             {% for value in row %}
                 <td>{{ value }}</td>
             {% endfor %}

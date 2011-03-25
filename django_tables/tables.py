@@ -6,7 +6,8 @@ from django.http import Http404
 from django.template.loader import get_template
 from django.template import Context
 from django.utils.encoding import StrAndUnicode
-from .utils import rmprefix, toggleprefix, OrderByTuple, Accessor
+from .utils import (rmprefix, toggleprefix, OrderByTuple, Accessor,
+                    AttributeDict)
 from .columns import Column
 from .rows import Rows, BoundRow
 from .columns import Columns
@@ -164,10 +165,24 @@ class DeclarativeColumnsMetaclass(type):
 
 
 class TableOptions(object):
+    """Options for a :term:`table`.
+
+    The following parameters are extracted via attribute access from the
+    *object* parameter.
+
+    :param sortable:
+        bool determining if the table supports sorting.
+    :param order_by:
+        tuple describing the fields used to order the contents.
+    :param attrs:
+        HTML attributes added to the ``<table>`` tag.
+
+    """
     def __init__(self, options=None):
         super(TableOptions, self).__init__()
         self.sortable = getattr(options, 'sortable', None)
         self.order_by = getattr(options, 'order_by', ())
+        self.attrs = AttributeDict(getattr(options, 'attrs', {}))
 
 
 class Table(StrAndUnicode):
@@ -267,9 +282,22 @@ class Table(StrAndUnicode):
         features require a RequestContext. Use the ``render_table`` template
         tag (requires ``{% load django_tables %}``) if you require this extra
         functionality.
+
         """
         template = get_template('django_tables/basic_table.html')
         return template.render(Context({'table': self}))
+
+    @property
+    def attrs(self):
+        """The attributes that should be applied to the ``<table>`` tag when
+        rendering HTML.
+
+        ``attrs`` is an :class:`AttributeDict` object which allows the
+        attributes to be rendered to HTML element style syntax via the
+        :meth:`~AttributeDict.as_html` method.
+
+        """
+        return self._meta.attrs
 
     def paginate(self, klass=Paginator, page=1, *args, **kwargs):
         self.paginator = klass(self.rows, *args, **kwargs)

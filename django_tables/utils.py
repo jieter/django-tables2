@@ -2,6 +2,8 @@
 from django.utils.datastructures import SortedDict
 from django.template import Context
 from django.utils.encoding import force_unicode, StrAndUnicode
+from django.utils.safestring import mark_safe
+from django.template.defaultfilters import escape
 
 
 __all__ = ('BaseTable', 'options')
@@ -141,3 +143,14 @@ class Accessor(object):
     @property
     def bits(self):
         return self.path.split(self.SEPARATOR)
+
+
+class AttributeDict(dict):
+    """A wrapper around :class:`dict` that knows how to render itself as HTML
+    style tag attributes.
+
+    """
+    def as_html(self):
+        """Render as HTML style tag attributes."""
+        return mark_safe(' '.join(['%s="%s"' % (k, escape(v))
+                                   for k, v in self.iteritems()]))
