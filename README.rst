@@ -16,7 +16,7 @@ requests to views for testing.
 Installation
 ============
 
-1. Just run `python setup.py install` or `pip install <tar.gz>`.
+1. Just run ``python setup.py install`` or ``pip install <tar.gz>``.
 2. You're done! (There's **no reason** to add it to your ``INSTALLED_APPS``)
 
 
