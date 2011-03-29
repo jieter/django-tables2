@@ -23,14 +23,13 @@ class TransactionTestContext(TransactionTestCase):
             self.multi_db = multi_db
 
     def __call__(self):
-        """
-        Wrapper around default __call__ method to perform common Django test
-        set up. This means that user-defined Test Cases aren't required to
+        """Wrapper around default __call__ method to perform common Django
+        test set up. This means that user-defined Test Cases aren't required to
         include a call to super().setUp().
+
         """
-        self.client = self.client_class()
         self._pre_setup()
-        yield self
+        yield self.client_class()
         self._post_teardown()
 
 
