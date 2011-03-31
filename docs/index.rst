@@ -491,6 +491,20 @@ API Reference
     :members:
 
 
+:class:`OrderBy` Objects
+------------------------
+
+.. autoclass:: django_tables.utils.OrderBy
+    :members:
+
+
+:class:`OrderByTuple` Objects
+-----------------------------
+
+.. autoclass:: django_tables.utils.OrderByTuple
+    :members: __contains__, __getitem__, __unicode__
+
+
 Glossary
 ========
 

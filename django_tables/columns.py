@@ -2,6 +2,7 @@
 from django.utils.encoding import force_unicode, StrAndUnicode
 from django.utils.datastructures import SortedDict
 from django.utils.text import capfirst
+from .utils import OrderBy
 
 
 class Column(object):
@@ -131,7 +132,7 @@ class Column(object):
         """Returns a cell's content.
         This method can be overridden by ``render_FOO`` methods on the table or
         by subclassing :class:`Column`.
-        
+
         """
         return table.data.data_for_cell(bound_column=bound_column,
                                         bound_row=bound_row)
@@ -246,6 +247,17 @@ class BoundColumn(StrAndUnicode):
     def visible(self):
         """Returns a ``bool`` depending on whether this column is visible."""
         return self.column.visible
+
+    @property
+    def order_by(self):
+        """If this column is sorted, return the associated OrderBy instance.
+        Otherwise return a None.
+
+        """
+        try:
+            return self.table.order_by[self.name]
+        except IndexError:
+            return None
 
 
 class Columns(object):

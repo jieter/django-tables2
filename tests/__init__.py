@@ -12,10 +12,14 @@ settings.configure(
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': ':memory:',
         }
     },
     INSTALLED_APPS = [
-        'django_tables'
+        #'django.contrib.contenttypes',
+        #'django.contrib.auth',
+        'tests.testapp',
+        'django_tables',
     ]
 )
 
@@ -23,6 +27,7 @@ settings.configure(
 from .core import core
 from .templates import templates
 from .models import models
+from .utils import utils
 
 
-everything = Tests([core, templates, models])
+everything = Tests([core, templates, models, utils])

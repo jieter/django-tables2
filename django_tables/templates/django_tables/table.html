@@ -4,7 +4,13 @@
     <thead>
         <tr class="{% cycle "odd" "even" %}">
         {% for column in table.columns %}
-            <th><a href="{% set_url_param sort=column.name_toggled %}">{{ column }}</a></th>
+        {% if column.sortable %}
+            {% with column.order_by as ob %}
+            <th class="{% spaceless %}{% if column.sortable %}sortable {% endif %}{% if ob %}{% if ob.is_descending %}desc{% else %}asc{% endif %}{% endif %}{% endspaceless %}"><a href="{% if ob %}{% set_url_param sort=ob.opposite %}{% else %}{% set_url_param sort=column.name %}{% endif %}">{{ column }}</a></th>
+            {% endwith %}
+        {% else %}
+            <th>{{ column }}</th>
+        {% endif %}
         {% endfor %}
         </tr>
     </thead>

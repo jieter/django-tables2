@@ -94,7 +94,7 @@ def sorting(context):
     # a rewritten order_by is also wrapped
     table = MyUnsortedTable([])
     table.order_by = 'alpha'
-    assert ('alpha',) == table.order_by
+    assert ('alpha', ) == table.order_by
 
     # default sort order can be specified in table options
     class MySortedTable(MyUnsortedTable):
@@ -191,14 +191,6 @@ def pagination():
     with Assert.raises(Http404) as error:
         books.paginate(Paginator, page=9999, per_page=10)
         books.paginate(Paginator, page='abc', per_page=10)
-
-
-@core.test
-def utilities():
-    assert utils.rmprefix('thing') == 'thing'
-    assert utils.rmprefix('-thing') == 'thing'
-    assert utils.toggleprefix('thing') == '-thing'
-    assert utils.toggleprefix('-thing') == 'thing'
 
 
 if __name__ == '__main__':

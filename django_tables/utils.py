@@ -9,82 +9,127 @@ from django.template.defaultfilters import escape
 __all__ = ('BaseTable', 'options')
 
 
-def rmprefix(s):
-    """Normalize a column name by removing a potential sort prefix"""
-    return s[1:] if s[:1] == '-' else s
+class OrderBy(str):
+    """A single element in an :class:`OrderByTuple`. This class is essentially
+    just a :class:`str` with some extra properties.
 
+    """
+    @property
+    def bare(self):
+        """Return the bare or naked version. That is, remove a ``-`` prefix if
+        it exists and return the result.
 
-def toggleprefix(s):
-    """Remove - prefix is existing, or add if missing."""
-    return s[1:] if s[:1] == '-' else '-' + s
+        """
+        return OrderBy(self[1:]) if self[:1] == '-' else self
+
+    @property
+    def opposite(self):
+        """Return the an :class:`OrderBy` object with the opposite sort
+        influence. e.g.
+
+        .. code-block:: python
+
+            >>> order_by = OrderBy('name')
+            >>> order_by.opposite
+            '-name'
+
+        """
+        return OrderBy(self[1:]) if self.is_descending else OrderBy('-' + self)
+
+    @property
+    def is_descending(self):
+        """Return :const:`True` if this object induces *descending* ordering."""
+        return self.startswith('-')
+
+    @property
+    def is_ascending(self):
+        """Return :const:`True` if this object induces *ascending* ordering."""
+        return not self.is_descending
 
 
 class OrderByTuple(tuple, StrAndUnicode):
-    """Stores 'order by' instructions; Used to render output in a format we
-    understand as input (see __unicode__) - especially useful in templates.
+    """Stores ordering instructions (as :class:`OrderBy` objects). The
+    :attr:`Table.order_by` property is always converted into an
+    :class:`OrderByTuplw` objectUsed to render output in a format we understand
+    as input (see :meth:`~OrderByTuple.__unicode__`) - especially useful in
+    templates.
 
-    Also supports some functionality to interact with and modify the order.
+    It's quite easy to create one of these. Pass in an iterable, and it will
+    automatically convert each element into an :class:`OrderBy` object. e.g.
+
+    .. code-block:: python
+
+        >>> ordering = ('name', '-age')
+        >>> order_by_tuple = OrderByTuple(ordering)
+        >>> age = order_by_tuple['age']
+        >>> age
+        '-age'
+        >>> age.is_descending
+        True
+        >>> age.opposite
+        'age'
+
     """
+    def __new__(cls, iterable):
+        transformed = []
+        for item in iterable:
+            if not isinstance(item, OrderBy):
+                item = OrderBy(item)
+            transformed.append(item)
+        return tuple.__new__(cls, transformed)
+
     def __unicode__(self):
-        """Output in our input format."""
+        """Output in human readable format."""
         return ','.join(self)
 
     def __contains__(self, name):
-        """Determine whether a column is part of this order."""
+        """Determine whether a column is part of this order (i.e. descending
+        prefix agnostic). e.g.
+
+        .. code-block:: python
+
+            >>> ordering = ('name', '-age')
+            >>> order_by_tuple = OrderByTuple(ordering)
+            >>> 'age' in  order_by_tuple
+            True
+            >>> '-age' in order_by_tuple
+            True
+
+        """
         for o in self:
-            if rmprefix(o) == name:
+            if o == name or o.bare == name:
                 return True
         return False
 
-    def is_reversed(self, name):
-        """Returns a bool indicating whether the column is ordered reversed,
-        None if it is missing.
+    def __getitem__(self, index):
+        """Allows an :class:`OrderBy` object to be extracted using
+        :class:`dict`-style indexing in addition to standard 0-based integer
+        indexing. The :class:`dict`-style is prefix agnostic in the same way as
+        :meth:`~OrderByTuple.__contains__`.
+
+        .. code-block:: python
+
+            >>> ordering = ('name', '-age')
+            >>> order_by_tuple = OrderByTuple(ordering)
+            >>> order_by_tuple['age']
+            '-age'
+            >>> order_by_tuple['-age']
+            '-age'
+
         """
-        for o in self:
-            if o == '-' + name:
-                return True
-        return False
-
-    def is_straight(self, name):
-        """The opposite of is_reversed."""
-        for o in self:
-            if o == name:
-                return True
-        return False
-
-    def polarize(self, reverse, names=()):
-        """Return a new tuple with the columns from ``names`` set to "reversed"
-        (e.g. prefixed with a '-'). Note that the name is ambiguous - do not
-        confuse this with ``toggle()``.
-
-        If names is not specified, all columns are reversed. If a column name
-        is given that is currently not part of the order, it is added.
-        """
-        prefix = '-' if reverse else ''
-        return OrderByTuple(
-            [o if (names and rmprefix(o) not in names)
-               else prefix + rmprefix(o) for o in self] +
-               [prefix + name for name in names if not name in self]
-        )
-
-    def toggle(self, names=()):
-        """Return a new tuple with the columns from ``names`` toggled with
-        respect to their "reversed" state. E.g. a '-' prefix will be removed is
-        existing, or added if lacking. Do not confuse with ``reverse()``.
-
-        If names is not specified, all columns are toggled. If a column name is
-        given that is currently not part of the order, it is added in
-        non-reverse form.
-        """
-        return OrderByTuple(
-            [o if (names and rmprefix(o) not in names)
-               else (o[1:] if o[:1] == '-' else '-' + o) for o in self] +
-               [name for name in names if not name in self]
-        )
+        if isinstance(index, basestring):
+            for ob in self:
+                if ob == index or ob.bare == index:
+                    return ob
+            raise IndexError
+        return tuple.__getitem__(self, index)
 
     @property
     def cmp(self):
-        """Return a function suitable for sorting a list"""
+        """Return a function suitable for sorting a list. This is used for
+        non-:class:`QuerySet` data sources.
+
+        """
         def _cmp(a, b):
             for accessor, reverse in instructions:
                 res = cmp(accessor.resolve(a), accessor.resolve(b))
