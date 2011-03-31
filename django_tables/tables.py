@@ -6,8 +6,7 @@ from django.http import Http404
 from django.template.loader import get_template
 from django.template import Context
 from django.utils.encoding import StrAndUnicode
-from .utils import (rmprefix, toggleprefix, OrderByTuple, Accessor,
-                    AttributeDict)
+from .utils import OrderBy, OrderByTuple, Accessor, AttributeDict
 from .columns import Column
 from .rows import Rows, BoundRow
 from .columns import Columns
@@ -181,7 +180,10 @@ class TableOptions(object):
     def __init__(self, options=None):
         super(TableOptions, self).__init__()
         self.sortable = getattr(options, 'sortable', None)
-        self.order_by = getattr(options, 'order_by', ())
+        order_by = getattr(options, 'order_by', ())
+        if isinstance(order_by, basestring):
+            order_by = (order_by, )
+        self.order_by = OrderByTuple(order_by)
         self.attrs = AttributeDict(getattr(options, 'attrs', {}))
 
 
@@ -251,21 +253,15 @@ class Table(StrAndUnicode):
         # accept both string and tuple instructions
         order_by = value.split(',') if isinstance(value, basestring) else value
         order_by = () if order_by is None else order_by
+        new = []
         # validate, raise exception on failure
         for o in order_by:
-            name = rmprefix(o)
-            if name not in self.columns:
-                raise ValueError('Column "%s" can not be used for ordering as '
-                                 'it does not exist in the table' % name)
-            if not self.columns[name].sortable:
-                raise ValueError('Column "%s" can not be used for ordering as '
-                                 'the column has explicitly forbidden it.' %
-                                 name)
-
-        new = OrderByTuple(order_by)
-        if not (hasattr(self, '_order_by') and self._order_by == new):
-            self._order_by = new
-            self._data.order_by(new)
+            name = OrderBy(o).bare
+            if name in self.columns and self.columns[name].sortable:
+                new.append(o)
+        order_by = OrderByTuple(new)
+        self._order_by = order_by
+        self._data.order_by(order_by)
 
     @property
     def rows(self):
