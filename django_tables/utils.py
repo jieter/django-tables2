@@ -145,50 +145,46 @@ class OrderByTuple(tuple, StrAndUnicode):
         return _cmp
 
 
-class Accessor(object):
+class Accessor(str):
     SEPARATOR = '.'
 
-    def __init__(self, path):
-        self.path = path
-
     def resolve(self, context):
-        if callable(self.path):
-            return self.path(context)
-        else:
-            # Try to resolve relationships spanning attributes. This is
-            # basically a copy/paste from django/template/base.py in
-            # Variable._resolve_lookup()
-            current = context
-            for bit in self.bits:
-                try:  # dictionary lookup
-                    current = current[bit]
-                except (TypeError, AttributeError, KeyError):
-                    try:  # attribute lookup
-                        current = getattr(current, bit)
-                    except (TypeError, AttributeError):
-                        try:  # list-index lookup
-                            current = current[int(bit)]
-                        except (IndexError, # list index out of range
-                                ValueError, # invalid literal for int()
-                                KeyError,   # dict without `int(bit)` key
-                                TypeError,  # unsubscriptable object
-                                ):
-                            raise ValueError('Failed lookup for key [%s] in %r'
-                                             ', when resolving the accessor %s'
-                                              % (bit, current, self.path))
-                if callable(current):
-                    current = current()
-                # important that we break in None case, or a relationship
-                # spanning across a null-key will raise an exception in the
-                # next iteration, instead of defaulting.
-                if current is None:
-                    break
-            return current
+        # Try to resolve relationships spanning attributes. This is
+        # basically a copy/paste from django/template/base.py in
+        # Variable._resolve_lookup()
+        current = context
+        for bit in self.bits:
+            try:  # dictionary lookup
+                current = current[bit]
+            except (TypeError, AttributeError, KeyError):
+                try:  # attribute lookup
+                    current = getattr(current, bit)
+                except (TypeError, AttributeError):
+                    try:  # list-index lookup
+                        current = current[int(bit)]
+                    except (IndexError, # list index out of range
+                            ValueError, # invalid literal for int()
+                            KeyError,   # dict without `int(bit)` key
+                            TypeError,  # unsubscriptable object
+                            ):
+                        raise ValueError('Failed lookup for key [%s] in %r'
+                                         ', when resolving the accessor %s'
+                                          % (bit, current, self))
+            if callable(current):
+                current = current()
+            # important that we break in None case, or a relationship
+            # spanning across a null-key will raise an exception in the
+            # next iteration, instead of defaulting.
+            if current is None:
+                break
+        return current
 
     @property
     def bits(self):
-        return self.path.split(self.SEPARATOR)
+        return self.split(self.SEPARATOR)
 
+
+A = Accessor  # alias
 
 class AttributeDict(dict):
     """A wrapper around :class:`dict` that knows how to render itself as HTML

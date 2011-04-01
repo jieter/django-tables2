@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
+from django.core.urlresolvers import reverse
 from django.utils.encoding import force_unicode, StrAndUnicode
 from django.utils.datastructures import SortedDict
 from django.utils.text import capfirst
-from .utils import OrderBy
+from django.utils.safestring import mark_safe
+from django.template import Context, Template
+from .utils import OrderBy, A, AttributeDict
 
 
 class Column(object):
@@ -16,7 +19,7 @@ class Column(object):
     creation_counter = 0
 
     def __init__(self, verbose_name=None, accessor=None, default=None,
-                 visible=True, sortable=None, formatter=None):
+                 visible=True, sortable=None):
         """Initialise a :class:`Column` object.
 
         :param verbose_name:
@@ -87,19 +90,6 @@ class Column(object):
             If :const:`False`, this column will not be allowed to be used in
             ordering the table.
 
-        :param formatter:
-            A callable object that is used as a final step in formatting the
-            value for a cell. The callable will be passed the string that would
-            have otherwise been displayed in the cell.
-
-            In the following table, cells in the *name* column have upper-case
-            values.
-
-            .. code-block:: python
-
-                class Example(tables.Table):
-                    name = tables.Column(formatter=lambda x: x.upper())
-
         """
         if not (accessor is None or isinstance(accessor, basestring) or
                 callable(accessor)):
@@ -108,9 +98,8 @@ class Column(object):
         if callable(accessor) and default is not None:
             raise TypeError('accessor must be string when default is used, not'
                             ' callable')
-        self.accessor = accessor
+        self.accessor = A(accessor) if accessor else None
         self._default = default
-        self.formatter = formatter
         self.sortable = sortable
         self.verbose_name = verbose_name
         self.visible = visible
@@ -128,43 +117,100 @@ class Column(object):
         """
         return self._default() if callable(self._default) else self._default
 
-    def render(self, table, bound_column, bound_row):
+    def render(self, value, **kwargs):
         """Returns a cell's content.
         This method can be overridden by ``render_FOO`` methods on the table or
         by subclassing :class:`Column`.
 
         """
-        return table.data.data_for_cell(bound_column=bound_column,
-                                        bound_row=bound_row)
+        return value
 
 
 class CheckBoxColumn(Column):
     """A subclass of Column that renders its column data as a checkbox"""
-    def __init__(self, attrs=None, *args, **kwargs):
+    def __init__(self, attrs=None, **extra):
         """
         :param attrs: a dict of HTML element attributes to be added to the
             ``<input>``
 
         """
-        super(CheckBoxColumn, self).__init__(*args, **kwargs)
+        params = {'sortable': False}
+        params.update(extra)
+        super(CheckBoxColumn, self).__init__(**params)
+        self.attrs = attrs or {}
+        self.verbose_name = mark_safe('<input type="checkbox"/>')
+
+    def render(self, value, bound_column, **kwargs):
+        attrs = AttributeDict({
+            'type': 'checkbox',
+            'name': bound_column.name,
+            'value': value
+        })
+        attrs.update(self.attrs)
+        return mark_safe('<input %s/>' % AttributeDict(attrs).as_html())
+
+
+
+class LinkColumn(Column):
+    def __init__(self, viewname, urlconf=None, args=None, kwargs=None,
+                 current_app=None, attrs=None, **extra):
+        """
+        The first arguments are identical to that of
+        :func:`django.core.urlresolvers.reverse` and allow a URL to be
+        described. The last argument ``attrs`` allows custom HTML attributes to
+        be added to the ``<a>`` tag.
+        """
+        super(LinkColumn, self).__init__(**extra)
+        self.viewname = viewname
+        self.urlconf = urlconf
+        self.args = args
+        self.kwargs = kwargs
+        self.current_app = current_app
         self.attrs = attrs or {}
 
-    def render(self, bound_column, bound_row):
-        from django.template import Template, Context
-        attrs = {'name': bound_column.name}
-        attrs.update(self.attrs)
-        t = Template('<input type="checkbox" value="{{ value }}" '
-                     '{% for attr, value in attrs.iteritems %}'
-                     '{{ attr|escapejs }}="{{ value|escapejs }}" '
-                     '{% endfor %}/>')
-        return t.render(Context({
-            'value': self.value(bound_column=bound_column,
-                                bound_row=bound_row),
-            'attrs': attrs,
-        }))
+    def render(self, value, record, bound_column, **kwargs):
+        params = {}  # args for reverse()
+        if self.viewname:
+            params['viewname'] = (self.viewname.resolve(record)
+                                 if isinstance(self.viewname, A)
+                                 else self.viewname)
+        if self.urlconf:
+            params['urlconf'] = (self.urlconf.resolve(record)
+                                 if isinstance(self.urlconf, A)
+                                 else self.urlconf)
+        if self.args:
+            params['args'] = [a.resolve(record) if isinstance(a, A) else a
+                              for a in self.args]
+        if self.kwargs:
+            params['kwargs'] = self.kwargs
+            for key, value in self.kwargs:
+                if isinstance(value, A):
+                    params['kwargs'][key] = value.resolve(record)
+        if self.current_app:
+            params['current_app'] = self.current_app
+            for key, value in self.current_app:
+                if isinstance(value, A):
+                    params['current_app'][key] = value.resolve(record)
+        url = reverse(**params)
+        html = '<a href="{url}" {attrs}>{value}</a>'.format(
+            url=reverse(**params),
+            attrs=AttributeDict(self.attrs).as_html(),
+            value=value
+        )
+        return mark_safe(html)
 
 
-class BoundColumn(StrAndUnicode):
+class TemplateColumn(Column):
+    def __init__(self, template_code=None, **extra):
+        super(TemplateColumn, self).__init__(**extra)
+        self.template_code = template_code
+
+    def render(self, record, **kwargs):
+        t = Template(self.template_code)
+        return t.render(Context({'record': record}))
+
+
+class BoundColumn(object):
     """A *runtime* version of :class:`Column`. The difference between
     :class:`BoundColumn` and :class:`Column`, is that :class:`BoundColumn`
     objects are of the relationship between a :class:`Column` and a
@@ -189,8 +235,7 @@ class BoundColumn(StrAndUnicode):
         self._name = name
 
     def __unicode__(self):
-        s = self.column.verbose_name or self.name.replace('_', ' ')
-        return capfirst(force_unicode(s))
+        return self.verbose_name
 
     @property
     def table(self):
@@ -213,20 +258,12 @@ class BoundColumn(StrAndUnicode):
         data source.
 
         """
-        return self.column.accessor or self.name
+        return self.column.accessor or A(self.name)
 
     @property
     def default(self):
         """Returns the default value for this column."""
         return self.column.default
-
-    @property
-    def formatter(self):
-        """Returns a function or ``None`` that represents the formatter for
-        this column.
-
-        """
-        return self.column.formatter
 
     @property
     def sortable(self):
@@ -241,7 +278,8 @@ class BoundColumn(StrAndUnicode):
     @property
     def verbose_name(self):
         """Returns the verbose name for this column."""
-        return self.column.verbose_name
+        return (self.column.verbose_name
+                or capfirst(force_unicode(self.name.replace('_', ' '))))
 
     @property
     def visible(self):

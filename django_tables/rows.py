@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
+from django.utils.safestring import EscapeUnicode, SafeData
+
 
 class BoundRow(object):
     """Represents a *specific* row in a table.
 
-    :class:`BoundRow` objects expose rendered versions of raw table data. This
-    means that formatting (via :attr:`Column.formatter` or an overridden
-    :meth:`Column.render` method) is applied to the values from the table's
-    data.
+    :class:`BoundRow` objects are a container that make it easy to access the
+    final 'rendered' values for cells in a row. You can simply iterate over a
+    :class:`BoundRow` object and it will take care to return values rendered
+    using the correct method (e.g. :meth:`Column.render_FOO`)
 
     To access the rendered value of each cell in a row, just iterate over it:
 
@@ -94,15 +96,34 @@ class BoundRow(object):
     def __getitem__(self, name):
         """Returns the final rendered value for a cell in the row, given the
         name of a column.
+
         """
         bound_column = self.table.columns[name]
-        # use custom render_FOO methods on the table
-        custom = getattr(self.table, 'render_%s' % name, None)
-        if custom:
-            return custom(bound_column, self)
-        return bound_column.column.render(table=self.table,
-                                          bound_column=bound_column,
-                                          bound_row=self)
+        raw = bound_column.accessor.resolve(self.record)
+        kwargs = {
+            'value': raw if raw is not None else bound_column.default,
+            'record': self.record,
+            'column': bound_column.column,
+            'bound_column': bound_column,
+            'bound_row': self,
+            'table': self._table,
+        }
+        render_FOO = 'render_' + bound_column.name
+        render = getattr(self.table, render_FOO, bound_column.column.render)
+        try:
+            return render(**kwargs)
+        except TypeError as e:
+            # Let's be helpful and provide a decent error message, since
+            # render() underwent backwards incompatible changes.
+            if e.message.startswith('render() got an unexpected keyword'):
+                if hasattr(self.table, render_FOO):
+                    cls = self.table.__class__.__name__
+                    meth = render_FOO
+                else:
+                    cls = kwargs['column'].__class__.__name__
+                    meth = 'render'
+                msg = 'Did you forget to add **kwargs to %s.%s() ?' % (cls, meth)
+                raise TypeError(e.message + '. ' + msg)
 
     def __contains__(self, item):
         """Check by both row object and column name."""

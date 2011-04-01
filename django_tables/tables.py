@@ -66,9 +66,6 @@ class TableData(object):
                                                 else ('', name))
             # find the accessor name
             column = self._table.columns[name]
-            if not isinstance(column.accessor, basestring):
-                raise TypeError('unable to sort on a column that uses a '
-                                'callable accessor')
             translated.append(prefix + column.accessor)
         return OrderByTuple(translated)
 
@@ -105,20 +102,6 @@ class TableData(object):
             if modified_item is not None:
                 data[i] = modified_item
 
-    def data_for_cell(self, bound_column, bound_row, apply_formatter=True):
-        """Calculate the value of a cell given a bound row and bound column.
-
-        :param formatting:
-            Apply column formatter after retrieving the value from the data.
-
-        """
-        value = Accessor(bound_column.accessor).resolve(bound_row.record)
-        # try and use default value if we've only got 'None'
-        if value is None and bound_column.default is not None:
-            value = bound_column.default()
-        if apply_formatter and bound_column.formatter:
-            value = bound_column.formatter(value)
-        return value
 
     def __getitem__(self, index):
         return (self.list if hasattr(self, 'list') else self.queryset)[index]
