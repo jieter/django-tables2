@@ -7,17 +7,19 @@ from django.template.loader import get_template
 from django.template import Context
 from django.utils.encoding import StrAndUnicode
 from .utils import OrderBy, OrderByTuple, Accessor, AttributeDict
-from .columns import Column
-from .rows import Rows, BoundRow
-from .columns import Columns
+from .rows import BoundRows, BoundRow
+from .columns import BoundColumns, Column
 
-__all__ = ('Table',)
 
 QUERYSET_ACCESSOR_SEPARATOR = '__'
 
 class TableData(object):
-    """Exposes a consistent API for a table data. It currently supports a
-    :class:`QuerySet` or a ``list`` of ``dict``s.
+    """
+    Exposes a consistent API for :term:`table data`. It currently supports a
+    :class:`QuerySet`, or a :class:`list` of :class:`dict` objects.
+
+    This class is used by :class:.Table` to wrap any
+    input table data.
 
     """
     def __init__(self, data, table):
@@ -45,7 +47,13 @@ class TableData(object):
                                       else len(self.list))
 
     def order_by(self, order_by):
-        """Order the data based on column names in the table."""
+        """
+        Order the data based on column names in the table.
+
+        :param order_by: the ordering to apply
+        :type order_by: an :class:`~.utils.OrderByTuple` object
+
+        """
         # translate order_by to something suitable for this data
         order_by = self._translate_order_by(order_by)
         if hasattr(self, 'queryset'):
@@ -70,7 +78,8 @@ class TableData(object):
         return OrderByTuple(translated)
 
     def _populate_missing_values(self, data):
-        """Populates self._data with missing values based on the default value
+        """
+        Populates self._data with missing values based on the default value
         for each column. It will create new items in the dataset (not modify
         existing ones).
 
@@ -108,7 +117,8 @@ class TableData(object):
 
 
 class DeclarativeColumnsMetaclass(type):
-    """Metaclass that converts Column attributes on the class to a dictionary
+    """
+    Metaclass that converts Column attributes on the class to a dictionary
     called ``base_columns``, taking into account parent class ``base_columns``
     as well.
 
@@ -147,20 +157,17 @@ class DeclarativeColumnsMetaclass(type):
 
 
 class TableOptions(object):
-    """Options for a :term:`table`.
-
-    The following parameters are extracted via attribute access from the
-    *object* parameter.
-
-    :param sortable:
-        bool determining if the table supports sorting.
-    :param order_by:
-        tuple describing the fields used to order the contents.
-    :param attrs:
-        HTML attributes added to the ``<table>`` tag.
-
+    """
+    Extracts and exposes options for a :class:`.Table` from a ``class Meta``
+    when the table is defined.
     """
     def __init__(self, options=None):
+        """
+
+        :param options: options for a table
+        :type options: :class:`Meta` on a :class:`.Table`
+
+        """
         super(TableOptions, self).__init__()
         self.sortable = getattr(options, 'sortable', None)
         order_by = getattr(options, 'order_by', ())
@@ -171,7 +178,21 @@ class TableOptions(object):
 
 
 class Table(StrAndUnicode):
-    """A collection of columns, plus their associated data rows."""
+    """A collection of columns, plus their associated data rows.
+
+    :type data: :class:`list` or :class:`QuerySet`
+    :param data:
+        The :term:`table data`.
+
+    :param: :class:`tuple`-like or :class:`basestring`
+    :param order_by:
+        The description of how the table should be ordered. This allows the
+        :attr:`.Table.Meta.order_by` option to be overridden.
+
+    .. note::
+        Unlike a :class:`Form`, tables are always bound to data.
+
+    """
     __metaclass__ = DeclarativeColumnsMetaclass
 
     # this value is not the same as None. it means 'use the default sort
@@ -181,29 +202,8 @@ class Table(StrAndUnicode):
     TableDataClass = TableData
 
     def __init__(self, data, order_by=DefaultOrder):
-        """Create a new table instance with the iterable ``data``.
-
-        :param order_by:
-            If specified, it must be a sequence containing the names of columns
-            in the order that they should be ordered (much the same as
-            :method:`QuerySet.order_by`)
-
-            If not specified, the table will fall back to the
-            :attr:`Meta.order_by` setting.
-
-        Note that unlike a ``Form``, tables are always bound to data. Also
-        unlike a form, the ``columns`` attribute is read-only and returns
-        ``BoundColumn`` wrappers, similar to the ``BoundField``s you get
-        when iterating over a form. This is because the table iterator
-        already yields rows, and we need an attribute via which to expose
-        the (visible) set of (bound) columns - ``Table.columns`` is simply
-        the perfect fit for this. Instead, ``base_colums`` is copied to
-        table instances, so modifying that will not touch the class-wide
-        column list.
-
-        """
-        self._rows = Rows(self)  # bound rows
-        self._columns = Columns(self)  # bound columns
+        self._rows = BoundRows(self)  # bound rows
+        self._columns = BoundColumns(self)  # bound columns
         self._data = self.TableDataClass(data=data, table=self)
 
         # None is a valid order, so we must use DefaultOrder as a flag
@@ -271,9 +271,7 @@ class Table(StrAndUnicode):
         """The attributes that should be applied to the ``<table>`` tag when
         rendering HTML.
 
-        ``attrs`` is an :class:`AttributeDict` object which allows the
-        attributes to be rendered to HTML element style syntax via the
-        :meth:`~AttributeDict.as_html` method.
+        :returns: :class:`~.utils.AttributeDict` object.
 
         """
         return self._meta.attrs

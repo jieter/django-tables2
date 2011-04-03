@@ -10,22 +10,26 @@ __all__ = ('BaseTable', 'options')
 
 
 class OrderBy(str):
-    """A single element in an :class:`OrderByTuple`. This class is essentially
-    just a :class:`str` with some extra properties.
+    """A single item in an :class:`.OrderByTuple` object. This class is
+    essentially just a :class:`str` with some extra properties.
 
     """
     @property
     def bare(self):
-        """Return the bare or naked version. That is, remove a ``-`` prefix if
-        it exists and return the result.
+        """
+        Return the :term:`bare <bare orderby>` form.
+
+        :rtype: :class:`.OrderBy` object
 
         """
         return OrderBy(self[1:]) if self[:1] == '-' else self
 
     @property
     def opposite(self):
-        """Return the an :class:`OrderBy` object with the opposite sort
-        influence. e.g.
+        """
+        Return an :class:`.OrderBy` object with an opposite sort influence.
+
+        Example:
 
         .. code-block:: python
 
@@ -33,40 +37,49 @@ class OrderBy(str):
             >>> order_by.opposite
             '-name'
 
+        :rtype: :class:`.OrderBy` object
+
         """
         return OrderBy(self[1:]) if self.is_descending else OrderBy('-' + self)
 
     @property
     def is_descending(self):
-        """Return :const:`True` if this object induces *descending* ordering."""
+        """
+        Return :const:`True` if this object induces *descending* ordering
+
+        :rtype: :class:`bool`
+
+        """
         return self.startswith('-')
 
     @property
     def is_ascending(self):
-        """Return :const:`True` if this object induces *ascending* ordering."""
+        """
+        Return :const:`True` if this object induces *ascending* ordering.
+
+        :returns: :class:`bool`
+
+        """
         return not self.is_descending
 
 
 class OrderByTuple(tuple, StrAndUnicode):
-    """Stores ordering instructions (as :class:`OrderBy` objects). The
-    :attr:`Table.order_by` property is always converted into an
-    :class:`OrderByTuplw` objectUsed to render output in a format we understand
-    as input (see :meth:`~OrderByTuple.__unicode__`) - especially useful in
-    templates.
+    """Stores ordering as (as :class:`.OrderBy` objects). The
+    :attr:`django_tables.tables.Table.order_by` property is always converted
+    to an :class:`.OrderByTuple` object.
 
-    It's quite easy to create one of these. Pass in an iterable, and it will
-    automatically convert each element into an :class:`OrderBy` object. e.g.
+    This class is essentially just a :class:`tuple` with some useful extras.
+
+    Example:
 
     .. code-block:: python
 
-        >>> ordering = ('name', '-age')
-        >>> order_by_tuple = OrderByTuple(ordering)
-        >>> age = order_by_tuple['age']
-        >>> age
+        >>> x = OrderByTuple(('name', '-age'))
+        >>> x['age']
         '-age'
-        >>> age.is_descending
+        >>> x['age'].is_descending
         True
-        >>> age.opposite
+        >>> x['age'].opposite
         'age'
 
     """
@@ -83,17 +96,22 @@ class OrderByTuple(tuple, StrAndUnicode):
         return ','.join(self)
 
     def __contains__(self, name):
-        """Determine whether a column is part of this order (i.e. descending
-        prefix agnostic). e.g.
+        """
+        Determine if a column has an influence on ordering.
+
+        Example:
 
         .. code-block:: python
 
-            >>> ordering = ('name', '-age')
-            >>> order_by_tuple = OrderByTuple(ordering)
-            >>> 'age' in  order_by_tuple
+            >>> ordering =
+            >>> x = OrderByTuple(('name', '-age'))
+            >>> 'age' in  x
             True
-            >>> '-age' in order_by_tuple
+            >>> '-age' in x
             True
+
+        :param name: The name of a column. (optionally prefixed)
+        :returns: :class:`bool`
 
         """
         for o in self:
@@ -102,19 +120,23 @@ class OrderByTuple(tuple, StrAndUnicode):
         return False
 
     def __getitem__(self, index):
-        """Allows an :class:`OrderBy` object to be extracted using
-        :class:`dict`-style indexing in addition to standard 0-based integer
-        indexing. The :class:`dict`-style is prefix agnostic in the same way as
-        :meth:`~OrderByTuple.__contains__`.
+        """
+        Allows an :class:`.OrderBy` object to be extracted via named or integer
+        based indexing.
+
+        When using named based indexing, it's fine to used a prefixed named.
 
         .. code-block:: python
 
-            >>> ordering = ('name', '-age')
-            >>> order_by_tuple = OrderByTuple(ordering)
-            >>> order_by_tuple['age']
+            >>> x = OrderByTuple(('name', '-age'))
+            >>> x[0]
+            'name'
+            >>> x['age']
             '-age'
-            >>> order_by_tuple['-age']
+            >>> x['-age']
             '-age'
+
+        :rtype: :class:`.OrderBy` object
 
         """
         if isinstance(index, basestring):
@@ -126,8 +148,12 @@ class OrderByTuple(tuple, StrAndUnicode):
 
     @property
     def cmp(self):
-        """Return a function suitable for sorting a list. This is used for
-        non-:class:`QuerySet` data sources.
+        """
+        Return a function for use with :meth:`list.sort()` that implements this
+        object's ordering. This is used to sort non-:class:`QuerySet` based
+        :term:`table data`.
+
+        :rtype: function
 
         """
         def _cmp(a, b):
@@ -146,12 +172,46 @@ class OrderByTuple(tuple, StrAndUnicode):
 
 
 class Accessor(str):
+    """
+    A string describing a path from one object to another via attribute/index
+    accesses. For convenience, the class has an alias ``A`` to allow for more concise code.
+
+    Relations are separated by a ``.`` character.
+
+    """
     SEPARATOR = '.'
 
     def resolve(self, context):
-        # Try to resolve relationships spanning attributes. This is
-        # basically a copy/paste from django/template/base.py in
-        # Variable._resolve_lookup()
+        """
+        Return an object described by the accessor by traversing the attributes
+        of *context*.
+
+        Example:
+
+        .. code-block:: python
+
+            >>> x = Accessor('__len__`')
+            >>> x.resolve('brad')
+            4
+            >>> x = Accessor('0.upper')
+            >>> x.resolve('brad')
+            'B'
+
+        :type context: :class:`object`
+        :param context: The root/first object to traverse.
+        :returns: target object
+        :raises: TypeError, AttributeError, KeyError, ValueError
+
+        :meth:`~.Accessor.resolve` attempts lookups in the following order:
+
+        - dictionary (e.g. ``obj[related]``)
+        - attribute (e.g. ``obj.related``)
+        - list-index lookup (e.g. ``obj[int(related)]``)
+
+        Callable objects are called, and their result is used, before
+        proceeding with the resolving.
+
+        """
         current = context
         for bit in self.bits:
             try:  # dictionary lookup
@@ -190,8 +250,25 @@ class AttributeDict(dict):
     """A wrapper around :class:`dict` that knows how to render itself as HTML
     style tag attributes.
 
+    The returned string is marked safe, so it can be used safely in a template.
+    See :meth:`.as_html` for a usage example.
+
     """
     def as_html(self):
-        """Render as HTML style tag attributes."""
+        """
+        Render to HTML tag attributes.
+
+        Example:
+
+        .. code-block:: python
+
+            >>> from django_tables.utils import AttributeDict
+            >>> attrs = AttributeDict({'class': 'mytable', 'id': 'someid'})
+            >>> attrs.as_html()
+            'class="mytable" id="someid"'
+
+        :rtype: :class:`~django.utils.safestring.SafeUnicode` object
+
+        """
         return mark_safe(' '.join(['%s="%s"' % (k, escape(v))
                                    for k, v in self.iteritems()]))

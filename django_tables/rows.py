@@ -133,30 +133,35 @@ class BoundRow(object):
             return item in self
 
 
-class Rows(object):
-    """Container for spawning BoundRows.
+class BoundRows(object):
+    """
+    Container for spawning :class:`.BoundRow` objects.
 
-    This is bound to a table and provides it's ``rows`` property. It
-    provides functionality that would not be possible with a simple
-    iterator in the table class.
+    The :attr:`.tables.Table.rows` attribute is a :class:`.BoundRows` object.
+    It provides functionality that would not be possible with a simple iterator
+    in the table class.
+
     """
     def __init__(self, table):
-        """Initialise a :class:`Rows` object. *table* is the :class:`Table`
-        object in which the rows exist.
+        """
+        Initialise a :class:`Rows` object. *table* is the :class:`Table` object
+        in which the rows exist.
 
         """
         self.table = table
 
     def all(self):
-        """Return an iterable for all :class:`BoundRow` objects in the table.
+        """
+        Return an iterable for all :class:`BoundRow` objects in the table.
 
         """
-        for row in self.table.data:
-            yield BoundRow(self.table, row)
+        for record in self.table.data:
+            yield BoundRow(self.table, record)
 
     def page(self):
-        """If the table is paginated, return an iterable of :class:`BoundRow`
-        objects that appear on the current page, otherwise return None.
+        """
+        If the table is paginated, return an iterable of :class:`.BoundRow`
+        objects that appear on the current page, otherwise :const:`None`.
 
         """
         if not hasattr(self.table, 'page'):
@@ -164,7 +169,7 @@ class Rows(object):
         return iter(self.table.page.object_list)
 
     def __iter__(self):
-        """Convience method for all()"""
+        """Convience method for :meth:`.BoundRows.all`"""
         return self.all()
 
     def __len__(self):

@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='django-tables',
-    version='0.4.0.beta',
+    version='0.4.0.beta2',
     description='Table framework for Django',
 
     author='Bradley Ayers',

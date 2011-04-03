@@ -1,2 +1,2 @@
-from .tables import *
+from .tables import Table
 from .columns import *
