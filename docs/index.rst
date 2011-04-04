@@ -172,6 +172,26 @@ by modified.
     table.order_by = 'name,-population'  # equivalant
 
 
+.. _pagination:
+
+Pagination
+==========
+
+Pagination is easy, just call :meth:`.Table.paginate` and pass in the current
+page number, e.g.
+
+.. code-block:: python
+
+    def people_listing(request):
+        table = PeopleTable(Person.objects.all())
+        table.paginate(page=request.GET.get('page', 1))
+        return render_to_response('people_listing.html', {'table': table},
+                                  context_instance=RequestContext(request))
+
+The last set is to render the table. :meth:`.Table.as_html` doesn't support
+pagination, so you must use :ref:`{% render_table %}
+<template-tags.render_table>`.
+
 .. _custom-rendering:
 
 Custom rendering
@@ -371,6 +391,11 @@ Sample usage:
     {% load django_tables %}
     {% render_table table %}
 
+This tag temporarily modifies the :class:`.Table` object while it is being
+rendered. It adds a ``request`` attribute to the table, which allows
+:class:`Column` objects to have access to a ``RequestContext``. See
+:class:`.TemplateColumn` for an example.
+
 
 .. _template-tags.set_url_param:
 
@@ -531,14 +556,14 @@ API Reference
 --------------------------
 
 .. autoclass:: django_tables.rows.BoundRows
-    :members: __init__, all, page, __iter__, __len__, count
+    :members: all, page, __iter__, __len__, count
 
 
 :class:`BoundRow` Objects
 -------------------------
 
 .. autoclass:: django_tables.rows.BoundRow
-    :members: __init__, __getitem__, __contains__, __iter__, record, table
+    :members: __getitem__, __contains__, __iter__, record, table
 
 
 :class:`AttributeDict` Objects

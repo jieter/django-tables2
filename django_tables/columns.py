@@ -4,7 +4,7 @@ from django.utils.encoding import force_unicode, StrAndUnicode
 from django.utils.datastructures import SortedDict
 from django.utils.text import capfirst
 from django.utils.safestring import mark_safe
-from django.template import Context, Template
+from django.template import RequestContext, Context, Template
 from .utils import OrderBy, A, AttributeDict
 
 
@@ -119,7 +119,15 @@ class CheckBoxColumn(Column):
     used as the value for the checkbox, i.e. ``<input type="checkbox"
     value="..." />``
 
-    By default this column is not sortable.
+    This class implements some sensible defaults:
+
+    - The ``name`` attribute of the input is the name of the :term:`column
+      name` (can be overriden via ``attrs`` argument).
+    - The ``sortable`` parameter defaults to :const:`False`.
+    - The ``type`` attribute of the input is ``checkbox`` (can be overriden via
+      ``attrs`` argument).
+    - The header checkbox is left bare, i.e. ``<input type="checkbox"/>`` (use
+      the ``header_attrs`` argument to customise).
 
     .. note:: The "apply some operation onto the selection" functionality is
         not implemented in this column, and requires manually implemention.
@@ -127,17 +135,24 @@ class CheckBoxColumn(Column):
     :param attrs:
         a :class:`dict` of HTML attributes that are added to the rendered
         ``<input type="checkbox" .../>`` tag
+    :param header_attrs:
+        same as *attrs*, but applied **only** to the header checkbox
 
     """
-    def __init__(self, attrs=None, **extra):
+    def __init__(self, attrs=None, header_attrs=None, **extra):
         params = {'sortable': False}
         params.update(extra)
         super(CheckBoxColumn, self).__init__(**params)
         self.attrs = attrs or {}
+        self.header_attrs = header_attrs or {}
 
     @property
     def header(self):
-        return mark_safe('<input type="checkbox"/>')
+        attrs = AttributeDict({
+            'type': 'checkbox',
+        })
+        attrs.update(self.header_attrs)
+        return mark_safe('<input %s/>' % attrs.as_html())
 
     def render(self, value, bound_column, **kwargs):
         attrs = AttributeDict({
@@ -261,14 +276,24 @@ class TemplateColumn(Column):
 
     Both columns will have the same output.
 
+
+    .. important::
+        In order to use template tags or filters that require a
+        ``RequestContext``, the table **must** be rendered via
+        :ref:`{% render_table %} <template-tags.render_table>`.
+
     """
     def __init__(self, template_code=None, **extra):
         super(TemplateColumn, self).__init__(**extra)
         self.template_code = template_code
 
-    def render(self, record, **kwargs):
+    def render(self, record, table, **kwargs):
         t = Template(self.template_code)
-        return t.render(Context({'record': record}))
+        if hasattr(table, 'request'):
+            context = RequestContext(table.request, {'record': record})
+        else:
+            context = Context({'record': record})
+        return t.render(context)
 
 
 class BoundColumn(object):
@@ -334,7 +359,7 @@ class BoundColumn(object):
         column.
 
         """
-        return self.verbose_name
+        return self.column.header or self.verbose_name
 
     @property
     def name(self):

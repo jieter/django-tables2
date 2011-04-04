@@ -89,11 +89,15 @@ class RenderTableNode(template.Node):
         self.table_var = template.Variable(table_var_name)
 
     def render(self, context):
-        context = template.Context({
-            'request': context.get('request', None),
-            'table': self.table_var.resolve(context)
-        })
-        return get_template('django_tables/table.html').render(context)
+        table = self.table_var.resolve(context)
+        request = context.get('request', None)
+        context = template.Context({'request': request, 'table': table})
+        try:
+            table.request = request
+            return get_template('django_tables/table.html').render(context)
+        finally:
+            pass
+            #del table.request
 
 
 @register.tag

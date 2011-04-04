@@ -27,17 +27,11 @@ class TableData(object):
         if isinstance(data, QuerySet):
             self.queryset = data
         elif isinstance(data, list):
-            self.list = data
+            self.list = data[:]
         else:
             raise ValueError('data must be a list or QuerySet object, not %s'
                              % data.__class__.__name__)
         self._table = table
-
-        # work with a copy of the data that has missing values populated with
-        # defaults.
-        if hasattr(self, 'list'):
-            self.list = copy.copy(self.list)
-            self._populate_missing_values(self.list)
 
     def __len__(self):
         # Use the queryset count() method to get the length, instead of
@@ -76,41 +70,6 @@ class TableData(object):
             column = self._table.columns[name]
             translated.append(prefix + column.accessor)
         return OrderByTuple(translated)
-
-    def _populate_missing_values(self, data):
-        """
-        Populates self._data with missing values based on the default value
-        for each column. It will create new items in the dataset (not modify
-        existing ones).
-
-        """
-        for i, item in enumerate(data):
-            # add data that is missing from the source. we do this now
-            # so that the column's ``default`` values can affect
-            # sorting (even when callables are used)!
-            #
-            # This is a design decision - the alternative would be to
-            # resolve the values when they are accessed, and either do
-            # not support sorting them at all, or run the callables
-            # during sorting.
-            modified_item = None
-            for bound_column in self._table.columns.all():
-                # the following will be True if:
-                # * the source does not provide a value for the column
-                #   or the value is None
-                # * the column did provide a data callable that
-                #   returned None
-                accessor = Accessor(bound_column.accessor)
-                try:
-                    if accessor.resolve(item) is None:  # may raise ValueError
-                        raise ValueError('None values also need replacing')
-                except ValueError:
-                    if modified_item is None:
-                        modified_item = copy.copy(item)
-                    modified_item[accessor.bits[0]] = bound_column.default
-            if modified_item is not None:
-                data[i] = modified_item
-
 
     def __getitem__(self, index):
         return (self.list if hasattr(self, 'list') else self.queryset)[index]
@@ -230,8 +189,10 @@ class Table(StrAndUnicode):
 
     @order_by.setter
     def order_by(self, value):
-        """Order the rows of the table based columns. ``value`` must be a
-        sequence of column names.
+        """
+        Order the rows of the table based columns. ``value`` must be a sequence
+        of column names.
+
         """
         # accept both string and tuple instructions
         order_by = value.split(',') if isinstance(value, basestring) else value
@@ -271,13 +232,13 @@ class Table(StrAndUnicode):
         """The attributes that should be applied to the ``<table>`` tag when
         rendering HTML.
 
-        :returns: :class:`~.utils.AttributeDict` object.
+        :rtype: :class:`~.utils.AttributeDict` object.
 
         """
         return self._meta.attrs
 
-    def paginate(self, klass=Paginator, page=1, *args, **kwargs):
-        self.paginator = klass(self.rows, *args, **kwargs)
+    def paginate(self, klass=Paginator, per_page=25, page=1, *args, **kwargs):
+        self.paginator = klass(self.rows, per_page, *args, **kwargs)
         try:
             self.page = self.paginator.page(page)
         except Exception as e:

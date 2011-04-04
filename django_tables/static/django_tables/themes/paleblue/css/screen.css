@@ -6,7 +6,8 @@ table.paleblue {
 }
 
 table.paleblue a:link,
-table.paleblue a:visited {
+table.paleblue a:visited,
+table.paleblue + ul.pagination > li > a {
     color: #5B80B2;
     text-decoration: none;
     font-weight: bold;
@@ -31,7 +32,7 @@ table.paleblue thead td:first-child {
 
 table.paleblue thead th,
 table.paleblue thead td {
-    background: #FCFCFC url(../img/nav-bg.gif) top left repeat-x;
+    background: #FCFCFC url(../img/header-bg.gif) top left repeat-x;
     border-bottom: 1px solid #DDD;
     padding: 2px 5px;
     font-size: 11px;
@@ -63,4 +64,25 @@ table.paleblue tr.odd {
 
 table.paleblue tr.even {
     background-color: white;
+}
+
+table.paleblue + ul.pagination {
+    background: white url(../img/pagination-bg.gif) left 180% repeat-x;
+    overflow: auto;
+    padding: 10px;
+    border: 1px solid #DDD;
+}
+
+table.paleblue + ul.pagination > li {
+    float: left;
+    line-height: 22px;
+    margin-left: 10px;
+}
+
+table.paleblue + ul.pagination > li:first-child {
+    margin-left: 0;
+}
+
+div.table-container {
+    display: inline-block;
 }
