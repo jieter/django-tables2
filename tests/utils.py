@@ -1,5 +1,5 @@
 # -*- coding: utf8 -*-
-from django_tables.utils import OrderByTuple, OrderBy
+from django_tables.utils import OrderByTuple, OrderBy, Accessor
 from attest import Tests, Assert
 
 
@@ -33,3 +33,18 @@ def orderby():
     Assert('b') == b.opposite
     Assert(True) == b.is_descending
     Assert(False) == b.is_ascending
+
+
+@utils.test
+def accessor():
+    x = Accessor('0')
+    Assert('B') == x.resolve('Brad')
+    
+    x = Accessor('1')
+    Assert('r') == x.resolve('Brad')
+
+    x = Accessor('2.upper')
+    Assert('A') == x.resolve('Brad')
+
+    x = Accessor('2.upper.__len__')
+    Assert(1) == x.resolve('Brad')

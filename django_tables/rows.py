@@ -1,12 +1,17 @@
 # -*- coding: utf-8 -*-
+from django.utils.safestring import EscapeUnicode, SafeData
+from .proxies import TemplateSafeLazyProxy
+import itertools
+
 
 class BoundRow(object):
-    """Represents a *specific* row in a table.
+    """
+    Represents a *specific* row in a table.
 
-    :class:`BoundRow` objects expose rendered versions of raw table data. This
-    means that formatting (via :attr:`Column.formatter` or an overridden
-    :meth:`Column.render` method) is applied to the values from the table's
-    data.
+    :class:`.BoundRow` objects are a container that make it easy to access the
+    final 'rendered' values for cells in a row. You can simply iterate over a
+    :class:`.BoundRow` object and it will take care to return values rendered
+    using the correct method (e.g. :meth:`.Column.render_FOO`)
 
     To access the rendered value of each cell in a row, just iterate over it:
 
@@ -53,37 +58,36 @@ class BoundRow(object):
         ...
         KeyError: 'c'
 
+    :param table: is the :class:`Table` in which this row exists.
+    :param record: a single record from the :term:`table data` that is used to
+        populate the row. A record could be a :class:`Model` object, a
+        :class:`dict`, or something else.
+
     """
     def __init__(self, table, record):
-        """Initialise a new :class:`BoundRow` object where:
-
-        * *table* is the :class:`Table` in which this row exists.
-        * *record* is a single record from the data source that is posed to
-          populate the row. A record could be a :class:`Model` object, a
-          ``dict``, or something else.
-
-        """
         self._table = table
         self._record = record
 
     @property
     def table(self):
-        """The associated :term:`table`."""
+        """The associated :class:`.Table` object."""
         return self._table
 
     @property
     def record(self):
-        """The data record from the data source which is used to populate this
-        row with data.
+        """
+        The data record from the data source which is used to populate this row
+        with data.
 
         """
         return self._record
 
     def __iter__(self):
-        """Iterate over the rendered values for cells in the row.
+        """
+        Iterate over the rendered values for cells in the row.
 
-        Under the hood this method just makes a call to :meth:`__getitem__` for
-        each cell.
+        Under the hood this method just makes a call to
+        :meth:`.BoundRow.__getitem__` for each cell.
 
         """
         for column in self.table.columns:
@@ -92,17 +96,44 @@ class BoundRow(object):
             yield self[column.name]
 
     def __getitem__(self, name):
-        """Returns the final rendered value for a cell in the row, given the
-        name of a column.
+        """
+        Returns the final rendered value for a cell in the row, given the name
+        of a column.
+
         """
         bound_column = self.table.columns[name]
-        # use custom render_FOO methods on the table
-        custom = getattr(self.table, 'render_%s' % name, None)
-        if custom:
-            return custom(bound_column, self)
-        return bound_column.column.render(table=self.table,
-                                          bound_column=bound_column,
-                                          bound_row=self)
+
+        def value():
+            try:
+                raw = bound_column.accessor.resolve(self.record)
+            except (TypeError, AttributeError, KeyError, ValueError) as e:
+                raw = None
+            return raw if raw is not None else bound_column.default
+
+        kwargs = {
+            'value': TemplateSafeLazyProxy(value),
+            'record': self.record,
+            'column': bound_column.column,
+            'bound_column': bound_column,
+            'bound_row': self,
+            'table': self._table,
+        }
+        render_FOO = 'render_' + bound_column.name
+        render = getattr(self.table, render_FOO, bound_column.column.render)
+        try:
+            return render(**kwargs)
+        except TypeError as e:
+            # Let's be helpful and provide a decent error message, since
+            # render() underwent backwards incompatible changes.
+            if e.message.startswith('render() got an unexpected keyword'):
+                if hasattr(self.table, render_FOO):
+                    cls = self.table.__class__.__name__
+                    meth = render_FOO
+                else:
+                    cls = kwargs['column'].__class__.__name__
+                    meth = 'render'
+                msg = 'Did you forget to add **kwargs to %s.%s() ?' % (cls, meth)
+                raise TypeError(e.message + '. ' + msg)
 
     def __contains__(self, item):
         """Check by both row object and column name."""
@@ -112,38 +143,42 @@ class BoundRow(object):
             return item in self
 
 
-class Rows(object):
-    """Container for spawning BoundRows.
+class BoundRows(object):
+    """
+    Container for spawning :class:`.BoundRow` objects.
 
-    This is bound to a table and provides it's ``rows`` property. It
-    provides functionality that would not be possible with a simple
-    iterator in the table class.
+    The :attr:`.Table.rows` attribute is a :class:`.BoundRows` object.
+    It provides functionality that would not be possible with a simple iterator
+    in the table class.
+
+    :type table: :class:`.Table` object
+    :param table: the table in which the rows exist.
+
     """
     def __init__(self, table):
-        """Initialise a :class:`Rows` object. *table* is the :class:`Table`
-        object in which the rows exist.
-
-        """
         self.table = table
 
     def all(self):
-        """Return an iterable for all :class:`BoundRow` objects in the table.
+        """
+        Return an iterable for all :class:`.BoundRow` objects in the table.
 
         """
-        for row in self.table.data:
-            yield BoundRow(self.table, row)
+        for record in self.table.data:
+            yield BoundRow(self.table, record)
 
     def page(self):
-        """If the table is paginated, return an iterable of :class:`BoundRow`
-        objects that appear on the current page, otherwise return None.
+        """
+        If the table is paginated, return an iterable of :class:`.BoundRow`
+        objects that appear on the current page.
 
+        :rtype: iterable of :class:`.BoundRow` objects, or :const:`None`.
         """
         if not hasattr(self.table, 'page'):
             return None
         return iter(self.table.page.object_list)
 
     def __iter__(self):
-        """Convience method for all()"""
+        """Convience method for :meth:`.BoundRows.all`"""
         return self.all()
 
     def __len__(self):
@@ -156,10 +191,8 @@ class Rows(object):
     def __getitem__(self, key):
         """Allows normal list slicing syntax to be used."""
         if isinstance(key, slice):
-            result = list()
-            for row in self.table.data[key]:
-                result.append(BoundRow(self.table, row))
-            return result
+            return itertools.imap(lambda record: BoundRow(self.table, record),
+                                  self.table.data[key])
         elif isinstance(key, int):
             return BoundRow(self.table, self.table.data[key])
         else:

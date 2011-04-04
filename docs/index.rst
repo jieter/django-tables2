@@ -1,8 +1,8 @@
 .. default-domain:: py
 
-=====================================================
+===============================================
 django-tables - An app for creating HTML tables
-=====================================================
+===============================================
 
 django-tables simplifies the task of turning sets of datainto HTML tables. It
 has native support for pagination and sorting. It does for HTML tables what
@@ -11,139 +11,202 @@ has native support for pagination and sorting. It does for HTML tables what
 Quick start guide
 =================
 
-1. Download and install the package.
-2. Install the tables framework by adding ``'django_tables'`` to your
+1. Download and install from https://github.com/bradleyayers/django-tables.
+   Grab a ``.tar.gz`` of the latest tag, and run ``pip install <tar.gz>``.
+2. Hook the app into your Django project by adding ``'django_tables'`` to your
    ``INSTALLED_APPS`` setting.
-3. Ensure that ``'django.core.context_processors.request'`` is in your
-   ``TEMPLATE_CONTEXT_PROCESSORS`` setting.
-4. Write table classes for the types of tables you want to display.
-5. Create an instance of a table in a view, provide it your data, and pass it
-   to a template for display.
-6. Use ``{{ table.as_html }}``, the
-   :ref:`template tag <template_tags.render_table>`, or your own
-   custom template code to display the table.
+3. Write a subclass of :class:`~django_tables.tables.Table` that describes the
+   structure of your table.
+4. Create an instance of your table in a :term:`view`, provide it with
+   :term:`table data`, and pass it to a :term:`template` for display.
+5. Use ``{{ table.as_html }}``, the
+   :ref:`template tag <template-tags.render_table>`, or your own
+   :ref:`custom template <custom-template>` to display the table.
 
 
-Tables
-======
+Slow start guide
+================
 
-For each type of table you want to display, you will need to create a subclass
-of ``django_tables.Table`` that describes the structure of the table.
-
-In this example we are going to take some data describing three countries and
-turn it into a HTML table. We start by creating our data:
+We're going to take some data that describes three countries and
+turn it into an HTML table. This is the data we'll be using:
 
 .. code-block:: python
 
-    >>> countries = [
-    ...     {'name': 'Australia', 'population': 21, 'tz': 'UTC +10', 'visits': 1},
-    ...     {'name': 'Germany', 'population', 81, 'tz': 'UTC +1', 'visits': 2},
-    ...     {'name': 'Mexico', 'population': 107, 'tz': 'UTC -6', 'visits': 0},
-    ... ]
-
-Next we subclass ``django_tables.Table`` to create a table that describes our
-data. The API should look very familiar since it's based on Django's
-database model API:
-
-.. code-block:: python
-
-    >>> import django_tables as tables
-    >>> class CountryTable(tables.Table):
-    ...     name = tables.Column()
-    ...     population = tables.Column()
-    ...     tz = tables.Column(verbose_name='Time Zone')
-    ...     visits = tables.Column()
+    countries = [
+        {'name': 'Australia', 'population': 21, 'tz': 'UTC +10', 'visits': 1},
+        {'name': 'Germany', 'population', 81, 'tz': 'UTC +1', 'visits': 2},
+        {'name': 'Mexico', 'population': 107, 'tz': 'UTC -6', 'visits': 0},
+    ]
 
 
-Providing data
---------------
-
-To use the table, simply create an instance of the table class and pass in your
-data. e.g. following on from the above example:
+The first step is to subclass :class:`~django_tables.tables.Table` and describe
+the table structure. This is done by creating a column for each attribute in
+the :term:`table data`.
 
 .. code-block:: python
 
-    >>> table = CountryTable(countries)
+    import django_tables as tables
 
-Tables have support for any iterable data that contains objects with
-attributes that can be accessed as property or dictionary syntax:
+    class CountryTable(tables.Table):
+        name = tables.Column()
+        population = tables.Column()
+        tz = tables.Column(verbose_name='Time Zone')
+        visits = tables.Column()
+
+
+Now that we've defined our table, it's ready for use. We simply create an
+instance of it, and pass in our table data.
 
 .. code-block:: python
 
-    >>> table = SomeTable([{'a': 1, 'b': 2}, {'a': 4, 'b': 8}])  # valid
-    >>> table = SomeTable(SomeModel.objects.all())  # also valid
+    table = CountryTable(countries)
 
-Each item in the data corresponds to one row in the table. By default, the
-table uses column names as the keys (or attributes) for extracting cell values
-from the data. This can be changed by using the :attr:`~Column.accessor`
-argument.
+Now we add it to our template context and render it to HTML. Typically you'd
+write a view that would look something like:
 
+.. code-block:: python
 
-Displaying a table
-------------------
+    def home(request):
+        table = CountryTable(countries)
+        return render_to_response('home.html', {'table': table},
+                                  context_instances=RequestContext(request))
 
-There are two ways to display a table, the easiest way is to use the table's
-own ``as_html`` method:
+In your template, the easiest way to :term:`render` the table is via the
+:meth:`~django_tables.tables.Table.as_html` method:
 
 .. code-block:: django
 
     {{ table.as_html }}
 
-Which will render something like:
+…which will render something like:
 
-+--------------+------------+---------+
-| Country Name | Population | Tz      |
-+==============+============+=========+
-| Australia    | 21         | UTC +10 |
-+--------------+------------+---------+
-| Germany      | 81         | UTC +1  |
-+--------------+------------+---------+
-| Mexico       | 107        | UTC -6  |
-+--------------+------------+---------+
++--------------+------------+---------+--------+
+| Country Name | Population | Tz      | Visit  |
++==============+============+=========+========+
+| Australia    | 21         | UTC +10 | 1      |
++--------------+------------+---------+--------+
+| Germany      | 81         | UTC +1  | 2      |
++--------------+------------+---------+--------+
+| Mexico       | 107        | UTC -6  | 0      |
++--------------+------------+---------+--------+
 
-The downside of this approach is that pagination and sorting will not be
-available. These features require the use of the ``{% render_table %}``
-template tag:
+This approach is easy, but it's not fully featured. For slightly more effort,
+you can render a table with sortable columns. For this, you must use the
+template tag.
 
 .. code-block:: django
 
     {% load django_tables %}
     {% render_table table %}
 
-See :ref:`template_tags` for more information.
+See :ref:`template-tags.render_table` for more information.
 
-
-Ordering
---------
-
-Controlling the order that the rows are displayed (sorting) is simple, just use
-the :attr:`~Table.order_by` property or pass it in when initialising the
-instance:
+The table will be rendered, but chances are it will still look quite ugly. An
+easy way to make it pretty is to use the built-in *paleblue* theme. For this to
+work, you must add a CSS class to the ``<table>`` tag. This can be achieved by
+adding a ``class Meta:`` to the table class and defining a ``attrs`` variable.
 
 .. code-block:: python
 
-    >>> # order_by argument when creating table instances
-    >>> table = CountryTable(countries, order_by='name, -population')
-    >>> table = CountryTable(countries, order_by=('name', '-population'))
-    >>> # order_by property on table instances
-    >>> table = CountryTable(countries)
-    >>> table.order_by = 'name, -population'
-    >>> table.order_by = ('name', '-population')
+    import django_tables as tables
+
+    class CountryTable(tables.Table):
+        name = tables.Column()
+        population = tables.Column()
+        tz = tables.Column(verbose_name='Time Zone')
+        visits = tables.Column()
+
+        class Meta:
+            attrs = {'class': 'paleblue'}
+
+The last thing to do is to include the stylesheet in the template.
+
+.. code-block:: html
+
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}django_tables/themes/paleblue/css/screen.css" />
+
+Save your template and reload the page in your browser.
 
 
-Customising the output
-======================
+.. _table-data:
 
-There are a number of options available for changing the way the table is
-rendered. Each approach provides balance of ease-of-use and control (the more
-control you want, the less easy it is to use).
+Table data
+==========
+
+The data used to populate a table is called :term:`table data`. To provide a
+table with data, pass it in as the first argument when instantiating a table.
+
+.. code-block:: python
+
+    table = CountryTable(countries)              # valid
+    table = CountryTable(Country.objects.all())  # also valid
+
+Each item in the :term:`table data` is called a :term:`record` and is used to
+populate a single row in the table. By default, the table uses column names
+as :term:`accessors <accessor>` to retrieve individual cell values. This can
+be changed via the :attr:`~django_tables.columns.Column.accessor` argument.
+
+Any iterable can be used as table data, and there's builtin support for
+:class:`QuerySet` objects (to ensure they're handled effeciently).
+
+
+.. _ordering:
+
+Ordering
+========
+
+Changing the table ordering is easy. When creating a
+:class:`~django_tables.tables.Table` object include an `order_by` parameter
+with a tuple that describes the way the ordering should be applied.
+
+.. code-block:: python
+
+    table = CountryTable(countries, order_by=('name', '-population'))
+    table = CountryTable(countries, order_by='name,-population')  # equivalant
+
+Alternatively, the :attr:`~django_tables.tables.Table.order_by` attribute can
+by modified.
+
+    table = CountryTable(countries)
+    table.order_by = ('name', '-population')
+    table.order_by = 'name,-population'  # equivalant
+
+
+.. _pagination:
+
+Pagination
+==========
+
+Pagination is easy, just call :meth:`.Table.paginate` and pass in the current
+page number, e.g.
+
+.. code-block:: python
+
+    def people_listing(request):
+        table = PeopleTable(Person.objects.all())
+        table.paginate(page=request.GET.get('page', 1))
+        return render_to_response('people_listing.html', {'table': table},
+                                  context_instance=RequestContext(request))
+
+The last set is to render the table. :meth:`.Table.as_html` doesn't support
+pagination, so you must use :ref:`{% render_table %}
+<template-tags.render_table>`.
+
+.. _custom-rendering:
+
+Custom rendering
+================
+
+Various options are available for changing the way the table is :term:`rendered
+<render>`. Each approach has a different balance of ease-of-use and
+flexibility.
 
 CSS
 ---
 
-If you want to affect the appearance of the table using CSS, you probably want
-to add a ``class`` or ``id`` attribute to the ``<table>`` element. This can be
-achieved by specifying an ``attrs`` variable in the table's ``Meta`` class.
+In order to use CSS to style a table, you'll probably want to add a
+``class`` or ``id`` attribute to the ``<table>`` element. ``django-tables`` has
+a hook that allows abitrary attributes to be added to the ``<table>`` tag.
 
 .. code-block:: python
 
@@ -159,96 +222,50 @@ achieved by specifying an ``attrs`` variable in the table's ``Meta`` class.
     >>> table.as_html()
     '<table class="mytable">...'
 
-The :attr:`Table.attrs` property actually returns an :class:`AttributeDict`
-object. These objects are identical to :class:`dict`, but have an
-:meth:`AttributeDict.as_html` method that returns a HTML tag attribute string.
-
-.. code-block:: python
-
-    >>> from django_tables.utils import AttributeDict
-    >>> attrs = AttributeDict({'class': 'mytable', 'id': 'someid'})
-    >>> attrs.as_html()
-    'class="mytable" id="someid"'
-
-The returned string is marked safe, so it can be used safely in a template.
-
-Column formatter
-----------------
-
-Using a formatter is a quick way to adjust the way values are displayed in a
-column. A limitation of this approach is that you *only* have access to a
-single attribute of the data source.
-
-To use a formatter, simply provide the :attr:`~Column.formatter` argument to a
-:class:`Column` when you define the :class:`Table`:
-
-.. code-block:: python
-
-    >>> import django_tables as tables
-    >>> class SimpleTable(tables.Table):
-    ...     id = tables.Column(formatter=lambda x: '#%d' % x)
-    ...     age = tables.Column(formatter=lambda x: '%d years old' % x)
-    ...
-    >>> table = SimpleTable([{'age': 31, 'id': 10}, {'age': 34, 'id': 11}])
-    >>> row = table.rows[0]
-    >>> for cell in row:
-    ...     print cell
-    ...
-    #10
-    31 years old
-
-As you can see, the only the value of the column is available to the formatter.
-This means that **it's impossible create a formatter that incorporates other
-values of the record**, e.g. a column with an ``<a href="...">`` that uses
-:func:`reverse` with the record's ``pk``.
-
-If formatters aren't powerful enough, you'll need to either :ref:`create a
-Column subclass <subclassing-column>`, or to use the
-:ref:`Table.render_FOO method <table.render_foo>`.
+Inspired by Django's ORM, the ``class Meta:`` allows you to define extra
+characteristics of a table. See :class:`Table.Meta` for details.
 
 .. _table.render_foo:
 
 .. _table.render_foo:
 
-:meth:`Table.render_FOO` Method
--------------------------------
+:meth:`Table.render_FOO` Methods
+--------------------------------
+
+If you want to adjust the way table cells in a particular column are rendered,
+you can implement a ``render_FOO`` method. ``FOO`` is replaced with the
+:term:`name <column name>` of the column.
 
 This approach provides a lot of control, but is only suitable if you intend to
 customise the rendering for a single table (otherwise you'll end up having to
 copy & paste the method to every table you want to modify – which violates
 DRY).
 
-The example below has a number of different techniques in use:
+For convenience, a bunch of commonly used/useful values are passed to
+``render_FOO`` functions, when writing the signature, accept the arguments
+you're interested in, and collect the rest in a ``**kwargs`` argument.
 
-* :meth:`Column.render` (accessible via :attr:`BoundColumn.column`) applies the
-  *formatter* if it's been provided. The effect of this behaviour can be seen
-  below in the output for the ``id`` column. Square brackets (from the
-  *formatter*) have been applied *after* the angled brackets (from the
-  :meth:`~Table.render_FOO`).
-* Completely abitrary values can be returned by :meth:`render_FOO` methods, as
-  shown in :meth:`~SimpleTable.render_row_number` (a :attr:`_counter` attribute
-  is added to the :class:`SimpleTable` object to keep track of the row number).
-
-  This is possible because :meth:`render_FOO` methods override the default
-  behaviour of retrieving a value from the data-source.
+:param value: the value for the cell retrieved from the :term:`table data`
+:param record: the entire record for the row from :term:`table data`
+:param column: the :class:`.Column` object
+:param bound_column: the :class:`.BoundColumn` object
+:param bound_row: the :class:`.BoundRow` object
+:param table: alias for ``self``
 
 .. code-block:: python
 
     >>> import django_tables as tables
     >>> class SimpleTable(tables.Table):
     ...     row_number = tables.Column()
-    ...     id = tables.Column(formatter=lambda x: '[%s]' % x)
-    ...     age = tables.Column(formatter=lambda x: '%d years old' % x)
+    ...     id = tables.Column()
+    ...     age = tables.Column()
     ...
-    ...     def render_row_number(self, bound_column, bound_row):
+    ...     def render_row_number(self, **kwargs):
     ...         value = getattr(self, '_counter', 0)
     ...         self._counter = value + 1
     ...         return 'Row %d' % value
     ...
-    ...     def render_id(self, bound_column, bound_row):
-    ...         value = bound_column.column.render(table=self,
-    ...                                            bound_column=bound_column,
-    ...                                            bound_row=bound_row)
+    ...     def render_id(self, value, **kwargs):
     ...         return '<%s>' % value
     ...
     >>> table = SimpleTable([{'age': 31, 'id': 10}, {'age': 34, 'id': 11}])
@@ -256,14 +273,11 @@ The example below has a number of different techniques in use:
     ...     print cell
     ...
     Row 0
-    <[10]>
-    31 years old
+    <10>
+    31
 
-The :meth:`Column.render` method is what actually performs the lookup into a
-record to retrieve the column value. In the example above, the
-:meth:`render_row_number` never called :meth:`Column.render` and as a result
-there was not attempt to access the data source to retrieve a value.
 
+.. _custom-template:
 
 Custom Template
 ---------------
@@ -363,23 +377,28 @@ rendered). This can be achieved by using the :func:`mark_safe` function.
 Template tags
 =============
 
-.. _template_tags.render_table:
+.. _template-tags.render_table:
 
 render_table
 ------------
 
-If you want to render a table that provides support for sorting and pagination,
-you must use the ``{% render_table %}`` template tag. In this example ``table``
-is an instance of a :class:`django_tables.Table` that has been put into the
-template context:
+Renders a :class:`~django_tables.tables.Table` object to HTML and includes as
+many features as possible.
+
+Sample usage:
 
 .. code-block:: django
 
     {% load django_tables %}
     {% render_table table %}
 
+This tag temporarily modifies the :class:`.Table` object while it is being
+rendered. It adds a ``request`` attribute to the table, which allows
+:class:`Column` objects to have access to a ``RequestContext``. See
+:class:`.TemplateColumn` for an example.
 
-.. _template_tags.set_url_param:
+
+.. _template-tags.set_url_param:
 
 set_url_param
 -------------
@@ -393,9 +412,8 @@ This is very useful if you want the give your users the ability to interact
 with your table (e.g. change the ordering), because you will need to create
 urls with the appropriate queries.
 
-Let's assume we have the query-string
-``?search=pirates&sort=name&page=5`` and we want to update the ``sort``
-parameter:
+Let's assume we have the querystring ``?search=pirates&sort=name&page=5`` and
+we want to update the ``sort`` parameter:
 
 .. code-block:: django
 
@@ -433,11 +451,57 @@ which can be iterated over:
 API Reference
 =============
 
+:class:`Accessor` Objects:
+--------------------------
+
+.. autoclass:: django_tables.utils.Accessor
+    :members:
+
+
 :class:`Table` Objects:
-------------------------
+-----------------------
 
 .. autoclass:: django_tables.tables.Table
-    :members:
+
+
+:class:`Table.Meta` Objects:
+----------------------------
+
+.. class:: Table.Meta
+
+    .. attribute:: attrs
+
+        Allows custom HTML attributes to be specified which will be added to
+        the ``<table>`` tag of any table rendered via
+        :meth:`~django_tables.tables.Table.as_html` or the
+        :ref:`template-tags.render_table` template tag.
+
+        Default: ``{}``
+
+        :type: :class:`dict`
+
+    .. attribute:: sortable
+
+        Does the table support ordering?
+
+        Default: :const:`True`
+
+        :type: :class:`bool`
+
+    .. attribute:: order_by
+
+        The default ordering. e.g. ``('name', '-age')``
+
+        Default: ``()``
+
+        :type: :class:`tuple`
+
+
+:class:`TableData` Objects:
+------------------------------
+
+.. autoclass:: django_tables.tables.TableData
+    :members: __init__, order_by, __getitem__, __len__
 
 
 :class:`TableOptions` Objects:
@@ -451,14 +515,34 @@ API Reference
 ------------------------
 
 .. autoclass:: django_tables.columns.Column
-    :members: __init__, default, render
 
 
-:class:`Columns` Objects
-------------------------
+:class:`CheckBoxColumn` Objects:
+--------------------------------
 
-.. autoclass:: django_tables.columns.Columns
-    :members: __init__, all, items, names, sortable, visible, __iter__,
+.. autoclass:: django_tables.columns.CheckBoxColumn
+    :members:
+
+
+:class:`LinkColumn` Objects:
+----------------------------
+
+.. autoclass:: django_tables.columns.LinkColumn
+    :members:
+
+
+:class:`TemplateColumn` Objects:
+--------------------------------
+
+.. autoclass:: django_tables.columns.TemplateColumn
+    :members:
+
+
+:class:`BoundColumns` Objects
+-----------------------------
+
+.. autoclass:: django_tables.columns.BoundColumns
+    :members: all, items, names, sortable, visible, __iter__,
               __contains__, __len__, __getitem__
 
 
@@ -466,22 +550,21 @@ API Reference
 ----------------------------
 
 .. autoclass:: django_tables.columns.BoundColumn
-    :members: __init__, table, column, name, accessor, default, formatter,
-              sortable, verbose_name, visible
+    :members:
 
 
-:class:`Rows` Objects
----------------------
+:class:`BoundRows` Objects
+--------------------------
 
-.. autoclass:: django_tables.rows.Rows
-    :members: __init__, all, page, __iter__, __len__, count, __getitem__
+.. autoclass:: django_tables.rows.BoundRows
+    :members: all, page, __iter__, __len__, count
 
 
 :class:`BoundRow` Objects
 -------------------------
 
 .. autoclass:: django_tables.rows.BoundRow
-    :members: __init__, __getitem__, __contains__, __iter__, record, table
+    :members: __getitem__, __contains__, __iter__, record, table
 
 
 :class:`AttributeDict` Objects
@@ -502,7 +585,7 @@ API Reference
 -----------------------------
 
 .. autoclass:: django_tables.utils.OrderByTuple
-    :members: __contains__, __getitem__, __unicode__
+    :members: __unicode__, __contains__, __getitem__, cmp
 
 
 Glossary
@@ -510,6 +593,41 @@ Glossary
 
 .. glossary::
 
+    accessor
+        Refers to an :class:`~django_tables.utils.Accessor` object
+
+    bare orderby
+        The non-prefixed form of an :class:`~django_tables.utils.OrderBy`
+        object. Typically the bare form is just the ascending form.
+
+        Example: ``age`` is the bare form of ``-age``
+
+    column name
+        The name given to a column. In the follow example, the *column name* is
+        ``age``.
+
+        .. code-block:: python
+
+            class SimpleTable(tables.Table):
+                age = tables.Column()
+
     table
         The traditional concept of a table. i.e. a grid of rows and columns
         containing data.
+
+    view
+        A Django view.
+
+    record
+        A single Python object used as the data for a single row.
+
+    render
+        The act of serialising a :class:`~django_tables.tables.Table` into
+        HTML.
+
+    template
+        A Django template.
+
+    table data
+        An interable of :term:`records <record>` that
+        :class:`~django_tables.tables.Table` uses to populate its rows.

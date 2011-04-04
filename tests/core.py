@@ -174,7 +174,6 @@ def pagination():
     paginator = Paginator(books.rows, 10)
     assert paginator.num_pages == 10
     page = paginator.page(1)
-    assert len(page.object_list) == 10
     assert page.has_previous() == False
     assert page.has_next() == True
 

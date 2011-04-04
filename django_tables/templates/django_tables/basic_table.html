@@ -3,7 +3,7 @@
     <thead>
         <tr class="{% cycle "odd" "even" %}">
         {% for column in table.columns %}
-            <th>{{ column }}</th>
+            <th>{{ column.header }}</th>
         {% endfor %}
         </tr>
     </thead>
