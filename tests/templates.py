@@ -65,6 +65,7 @@ def custom_rendering(context):
               'None 31 Austria None 8 43 ')
     Assert(result) == template.render(context)
 
+
 @templates.test
 def templatetag(context):
     # ensure it works with a multi-order-by

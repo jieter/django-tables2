@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
+from itertools import imap, ifilter
+import inspect
 from django.utils.safestring import EscapeUnicode, SafeData
+from django.utils.functional import curry
 from .proxies import TemplateSafeLazyProxy
-import itertools
 
 
 class BoundRow(object):
@@ -120,20 +122,17 @@ class BoundRow(object):
         }
         render_FOO = 'render_' + bound_column.name
         render = getattr(self.table, render_FOO, bound_column.column.render)
-        try:
-            return render(**kwargs)
-        except TypeError as e:
-            # Let's be helpful and provide a decent error message, since
-            # render() underwent backwards incompatible changes.
-            if e.message.startswith('render() got an unexpected keyword'):
-                if hasattr(self.table, render_FOO):
-                    cls = self.table.__class__.__name__
-                    meth = render_FOO
-                else:
-                    cls = kwargs['column'].__class__.__name__
-                    meth = 'render'
-                msg = 'Did you forget to add **kwargs to %s.%s() ?' % (cls, meth)
-                raise TypeError(e.message + '. ' + msg)
+
+        # just give a list of all available methods
+        available = ifilter(curry(hasattr, inspect), ('getfullargspec', 'getargspec'))
+        spec = getattr(inspect, next(available))
+        # only provide the arguments that the func is interested in
+        kw = {}
+        for name in spec(render).args:
+            if name == 'self':
+                continue
+            kw[name] = kwargs[name]
+        return render(**kw)
 
     def __contains__(self, item):
         """Check by both row object and column name."""
@@ -158,14 +157,6 @@ class BoundRows(object):
     def __init__(self, table):
         self.table = table
 
-    def all(self):
-        """
-        Return an iterable for all :class:`.BoundRow` objects in the table.
-
-        """
-        for record in self.table.data:
-            yield BoundRow(self.table, record)
-
     def page(self):
         """
         If the table is paginated, return an iterable of :class:`.BoundRow`
@@ -179,7 +170,8 @@ class BoundRows(object):
 
     def __iter__(self):
         """Convience method for :meth:`.BoundRows.all`"""
-        return self.all()
+        for record in self.table.data:
+            yield BoundRow(self.table, record)
 
     def __len__(self):
         """Returns the number of rows in the table."""
@@ -191,8 +183,8 @@ class BoundRows(object):
     def __getitem__(self, key):
         """Allows normal list slicing syntax to be used."""
         if isinstance(key, slice):
-            return itertools.imap(lambda record: BoundRow(self.table, record),
-                                  self.table.data[key])
+            return imap(lambda record: BoundRow(self.table, record),
+                        self.table.data[key])
         elif isinstance(key, int):
             return BoundRow(self.table, self.table.data[key])
         else:
