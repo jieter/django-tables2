@@ -103,22 +103,35 @@ def sorting(context):
 
     # order_by is inherited from the options if not explitly set
     table = MySortedTable([])
-    assert ('alpha',) == table.order_by
+    assert ('alpha', ) == table.order_by
 
     # ...but can be overloaded at __init___
     table = MySortedTable([], order_by='beta')
-    assert ('beta',) == table.order_by
+    assert ('beta', ) == table.order_by
 
     # ...or rewritten later
     table = MySortedTable(context.memory_data)
     table.order_by = 'beta'
-    assert ('beta',) == table.order_by
+    assert ('beta', ) == table.order_by
     assert 3 == table.rows[0]['i']
 
-    # ...or reset to None (unsorted), ignoring the table default
+    # Explicitly pass in None, should default to table's Meta.order_by
     table = MySortedTable(context.memory_data, order_by=None)
+    assert ('alpha', ) == table.order_by
+    assert 1 == table.rows[0]['i']
+
+    # ...or reset to Table.DoNotOrder (unsorted), ignoring the table default
+    table = MySortedTable(context.memory_data, order_by=MySortedTable.DoNotOrder)
     assert () == table.order_by
     assert 2 == table.rows[0]['i']
+
+
+@core.test
+def boundrows_iteration(context):
+    records = []
+    for row in context.table.rows:
+        records.append(row.record)
+    Assert(records) == context.memory_data
 
 
 @core.test
@@ -181,7 +194,7 @@ def pagination():
     books.paginate(Paginator, page=1, per_page=10)
     # rows is now paginated
     assert len(list(books.rows.page())) == 10
-    assert len(list(books.rows.all())) == 100
+    assert len(list(books.rows)) == 100
     # new attributes
     assert books.paginator.num_pages == 10
     assert books.page.has_previous() == False

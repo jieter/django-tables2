@@ -16,8 +16,6 @@ settings.configure(
         }
     },
     INSTALLED_APPS = [
-        #'django.contrib.contenttypes',
-        #'django.contrib.auth',
         'tests.testapp',
         'django_tables',
     ]

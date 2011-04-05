@@ -241,8 +241,13 @@ copy & paste the method to every table you want to modify – which violates
 DRY).
 
 For convenience, a bunch of commonly used/useful values are passed to
-``render_FOO`` functions, when writing the signature, accept the arguments
-you're interested in, and collect the rest in a ``**kwargs`` argument.
+``render_FOO`` functions, when writing the signature, simply accept the
+arguments you're interested in, and the function will recieve them
+
+.. note:: Due to the implementation, a "catch-extra" arguments (e.g. ``*args``
+    or ``**kwargs``) will not recieve any arguments. This is because
+    ``inspect.getargsspec()`` is used to check what arguments a ``render_FOO``
+    method expect, and only to supply those.
 
 :param value: the value for the cell retrieved from the :term:`table data`
 :param record: the entire record for the row from :term:`table data`
