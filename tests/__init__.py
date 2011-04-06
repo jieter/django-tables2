@@ -26,6 +26,7 @@ from .core import core
 from .templates import templates
 from .models import models
 from .utils import utils
+from .rows import rows
 
 
-everything = Tests([core, templates, models, utils])
+everything = Tests([core, templates, models, utils, rows])

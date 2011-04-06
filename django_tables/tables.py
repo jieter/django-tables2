@@ -144,6 +144,7 @@ class TableOptions(object):
             order_by = (order_by, )
         self.order_by = OrderByTuple(order_by)
         self.attrs = AttributeDict(getattr(options, 'attrs', {}))
+        self.empty_text = getattr(options, 'empty_text', None)
 
 
 class Table(StrAndUnicode):
@@ -153,15 +154,15 @@ class Table(StrAndUnicode):
     :type data:  ``list`` or ``QuerySet``
     :param data: The :term:`table data`.
 
-    :type order_by: ``Table.DoNotOrder``, ``None``, ``tuple`` or ``basestring``
+    :type order_by: ``None``, ``tuple`` or ``string``
     :param order_by: sort the table based on these columns prior to display.
         (default :attr:`.Table.Meta.order_by`)
 
     The ``order_by`` argument is optional and allows the table's
-    ``Meta.order_by`` option to be overridden. If the ``bool(order_by)``
-    evaluates to ``False``, the table's ``Meta.order_by`` will be used. If you
-    want to disable a default ordering, you must pass in the value
-    ``Table.DoNotOrder``.
+    ``Meta.order_by`` option to be overridden. If the ``order_by is None``
+    the table's ``Meta.order_by`` will be used. If you want to disable a
+    default ordering, simply use an empty ``tuple``, ``string``, or ``list``,
+    e.g. ``Table(…, order_by='')``.
 
     Example:
 
@@ -169,33 +170,28 @@ class Table(StrAndUnicode):
 
         def obj_list(request):
             ...
-            # We don't want a default sort
-            order_by = request.GET.get('sort', SimpleTable.DoNotOrder)
+            # If there's no ?sort=…, we don't want to fallback to
+            # Table.Meta.order_by, thus we must not default to passing in None
+            order_by = request.GET.get('sort', ())
             table = SimpleTable(data, order_by=order_by)
             ...
 
     """
     __metaclass__ = DeclarativeColumnsMetaclass
-
-    # this value is not the same as None. it means 'use the default sort
-    # order', which may (or may not) be inherited from the table options.
-    # None means 'do not sort the data', ignoring the default.
-    DoNotOrder = type('DoNotOrder', (), {})
     TableDataClass = TableData
 
-    def __init__(self, data, order_by=None):
+    def __init__(self, data, order_by=None, sortable=None, empty_text=None):
         self._rows = BoundRows(self)  # bound rows
         self._columns = BoundColumns(self)  # bound columns
         self._data = self.TableDataClass(data=data, table=self)
 
-        # None is a valid order, so we must use DefaultOrder as a flag
-        # to fall back to the table sort order.
-        if not order_by:
+        if order_by is None:
             self.order_by = self._meta.order_by
-        elif order_by is Table.DoNotOrder:
-            self.order_by = None
         else:
             self.order_by = order_by
+
+        self.sortable = sortable
+        self.empty_text = empty_text
 
         # Make a copy so that modifying this will not touch the class
         # definition. Note that this is different from forms, where the
@@ -233,6 +229,22 @@ class Table(StrAndUnicode):
         order_by = OrderByTuple(new)
         self._order_by = order_by
         self._data.order_by(order_by)
+
+    @property
+    def sortable(self):
+        return self._sortable if self._sortable is not None else self._meta.sortable
+
+    @sortable.setter
+    def sortable(self, value):
+        self._sortable = value
+
+    @property
+    def empty_text(self):
+        return self._empty_text if self._empty_text is not None else self._meta.empty_text
+
+    @empty_text.setter
+    def empty_text(self, value):
+        self._empty_text = value
 
     @property
     def rows(self):

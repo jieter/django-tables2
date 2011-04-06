@@ -3,7 +3,6 @@ from itertools import imap, ifilter
 import inspect
 from django.utils.safestring import EscapeUnicode, SafeData
 from django.utils.functional import curry
-from .proxies import TemplateSafeLazyProxy
 
 
 class BoundRow(object):
@@ -113,25 +112,25 @@ class BoundRow(object):
             return raw if raw is not None else bound_column.default
 
         kwargs = {
-            'value': TemplateSafeLazyProxy(value),
-            'record': self.record,
-            'column': bound_column.column,
-            'bound_column': bound_column,
-            'bound_row': self,
-            'table': self._table,
+            'value':        value,  # already a function
+            'record':       lambda: self.record,
+            'column':       lambda: bound_column.column,
+            'bound_column': lambda: bound_column,
+            'bound_row':    lambda: self,
+            'table':        lambda: self._table,
         }
         render_FOO = 'render_' + bound_column.name
         render = getattr(self.table, render_FOO, bound_column.column.render)
 
         # just give a list of all available methods
-        available = ifilter(curry(hasattr, inspect), ('getfullargspec', 'getargspec'))
-        spec = getattr(inspect, next(available))
+        funcs = ifilter(curry(hasattr, inspect), ('getfullargspec', 'getargspec'))
+        spec = getattr(inspect, next(funcs))
         # only provide the arguments that the func is interested in
         kw = {}
         for name in spec(render).args:
             if name == 'self':
                 continue
-            kw[name] = kwargs[name]
+            kw[name] = kwargs[name]()
         return render(**kw)
 
     def __contains__(self, item):
@@ -156,17 +155,6 @@ class BoundRows(object):
     """
     def __init__(self, table):
         self.table = table
-
-    def page(self):
-        """
-        If the table is paginated, return an iterable of :class:`.BoundRow`
-        objects that appear on the current page.
-
-        :rtype: iterable of :class:`.BoundRow` objects, or :const:`None`.
-        """
-        if not hasattr(self.table, 'page'):
-            return None
-        return iter(self.table.page.object_list)
 
     def __iter__(self):
         """Convience method for :meth:`.BoundRows.all`"""
