@@ -14,6 +14,10 @@
                 <td>{{ value }}</td>
             {% endfor %}
         </tr>
+		{% empty %}
+		{% if table.empty_text %}
+		<tr><td colspan="{{ table.columns|length }}">{{ table.empty_text }}</td></tr>
+		{% endif %}
         {% endfor %}
     </tbody>
 </table>

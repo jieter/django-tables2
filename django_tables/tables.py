@@ -83,6 +83,7 @@ class TableData(object):
     def __getitem__(self, index):
         """Forwards indexing accesses to underlying data"""
         return (self.list if hasattr(self, 'list') else self.queryset)[index]
+        
 
 
 class DeclarativeColumnsMetaclass(type):
@@ -138,7 +139,7 @@ class TableOptions(object):
 
         """
         super(TableOptions, self).__init__()
-        self.sortable = getattr(options, 'sortable', None)
+        self.sortable = getattr(options, 'sortable', True)
         order_by = getattr(options, 'order_by', ())
         if isinstance(order_by, basestring):
             order_by = (order_by, )
@@ -184,19 +185,16 @@ class Table(StrAndUnicode):
         self._rows = BoundRows(self)  # bound rows
         self._columns = BoundColumns(self)  # bound columns
         self._data = self.TableDataClass(data=data, table=self)
-
+        self.empty_text = empty_text
+        self.sortable = sortable
         if order_by is None:
             self.order_by = self._meta.order_by
         else:
             self.order_by = order_by
 
-        self.sortable = sortable
-        self.empty_text = empty_text
-
         # Make a copy so that modifying this will not touch the class
         # definition. Note that this is different from forms, where the
-        # copy is made available in a ``fields`` attribute. See the
-        # ``Table`` class docstring for more information.
+        # copy is made available in a ``fields`` attribute.
         self.base_columns = copy.deepcopy(type(self).base_columns)
 
     def __unicode__(self):
@@ -217,15 +215,17 @@ class Table(StrAndUnicode):
         of column names.
 
         """
-        # accept both string and tuple instructions
+        # accept string
         order_by = value.split(',') if isinstance(value, basestring) else value
+        # accept None
         order_by = () if order_by is None else order_by
         new = []
-        # validate, raise exception on failure
+        # everything's been converted to a iterable, accept iterable!
         for o in order_by:
-            name = OrderBy(o).bare
+            ob = OrderBy(o)
+            name = ob.bare
             if name in self.columns and self.columns[name].sortable:
-                new.append(o)
+                new.append(ob)
         order_by = OrderByTuple(new)
         self._order_by = order_by
         self._data.order_by(order_by)

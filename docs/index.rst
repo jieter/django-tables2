@@ -486,7 +486,12 @@ API Reference
 
     .. attribute:: sortable
 
-        Does the table support ordering?
+        The default value for determining if a :class:`.Column` is sortable.
+
+        If the ``Table`` and ``Column`` don't specify a value, a column's
+        ``sortable`` value will fallback to this. object specify. This provides
+        an easy mechanism to disable sorting on an entire table, without adding
+        ``sortable=False`` to each ``Column`` in a ``Table``.
 
         Default: :const:`True`
 

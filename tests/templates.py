@@ -11,6 +11,7 @@ from django.template import Template, Context
 from django.http import HttpRequest
 import django_tables as tables
 from attest import Tests, Assert
+from xml.etree import ElementTree as ET
 
 templates = Tests()
 
@@ -41,8 +42,29 @@ def context():
 
 @templates.test
 def as_html(context):
-    countries = context.CountryTable(context.data)
-    countries.as_html()
+    table = context.CountryTable(context.data)
+    root = ET.fromstring(table.as_html())    
+    Assert(len(root.findall('.//thead/tr'))) == 1
+    Assert(len(root.findall('.//thead/tr/th'))) == 4
+    Assert(len(root.findall('.//tbody/tr'))) == 4
+    Assert(len(root.findall('.//tbody/tr/td'))) == 16
+    
+    # no data with no empty_text
+    table = context.CountryTable([])
+    root = ET.fromstring(table.as_html())
+    Assert(1) == len(root.findall('.//thead/tr'))
+    Assert(4) == len(root.findall('.//thead/tr/th'))
+    Assert(0) == len(root.findall('.//tbody/tr'))
+    
+    # no data WITH empty_text
+    table = context.CountryTable([], empty_text='this table is empty')
+    root = ET.fromstring(table.as_html())
+    Assert(1) == len(root.findall('.//thead/tr'))
+    Assert(4) == len(root.findall('.//thead/tr/th'))
+    Assert(1) == len(root.findall('.//tbody/tr'))
+    Assert(1) == len(root.findall('.//tbody/tr/td'))
+    Assert(int(root.find('.//tbody/tr/td').attrib['colspan'])) == len(root.findall('.//thead/tr/th'))
+    Assert(root.find('.//tbody/tr/td').text) == 'this table is empty'
 
 
 @templates.test
@@ -69,7 +91,36 @@ def custom_rendering(context):
 @templates.test
 def templatetag(context):
     # ensure it works with a multi-order-by
-    countries = context.CountryTable(context.data,
-                                     order_by=('name', 'population'))
+    table = context.CountryTable(context.data, order_by=('name', 'population'))
     t = Template('{% load django_tables %}{% render_table table %}')
-    t.render(Context({'request': HttpRequest(), 'table': countries}))
+    html = t.render(Context({'request': HttpRequest(), 'table': table}))
+    
+    root = ET.fromstring(html)    
+    Assert(len(root.findall('.//thead/tr'))) == 1
+    Assert(len(root.findall('.//thead/tr/th'))) == 4
+    Assert(len(root.findall('.//tbody/tr'))) == 4
+    Assert(len(root.findall('.//tbody/tr/td'))) == 16
+    
+    # no data with no empty_text
+    table = context.CountryTable([])
+    t = Template('{% load django_tables %}{% render_table table %}')
+    html = t.render(Context({'request': HttpRequest(), 'table': table}))
+    root = ET.fromstring(html)    
+    Assert(len(root.findall('.//thead/tr'))) == 1
+    Assert(len(root.findall('.//thead/tr/th'))) == 4
+    Assert(len(root.findall('.//tbody/tr'))) == 0
+    
+    # no data WITH empty_text
+    table = context.CountryTable([], empty_text='this table is empty')
+    t = Template('{% load django_tables %}{% render_table table %}')
+    html = t.render(Context({'request': HttpRequest(), 'table': table}))
+    root = ET.fromstring(html)    
+    Assert(len(root.findall('.//thead/tr'))) == 1
+    Assert(len(root.findall('.//thead/tr/th'))) == 4
+    Assert(len(root.findall('.//tbody/tr'))) == 1
+    Assert(len(root.findall('.//tbody/tr/td'))) == 1
+    Assert(int(root.find('.//tbody/tr/td').attrib['colspan'])) == len(root.findall('.//thead/tr/th'))
+    Assert(root.find('.//tbody/tr/td').text) == 'this table is empty'
+    
+    
+    

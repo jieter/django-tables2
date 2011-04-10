@@ -117,6 +117,34 @@ def sorting(ctx):
     table = ctx.SortedTable(ctx.memory_data)
     Assert(1) == table.rows[0]['i']
 
+    # column's can't be sorted if they're not allowed to be
+    class TestTable(tables.Table):
+        a = tables.Column(sortable=False)
+        b = tables.Column()
+
+    table = TestTable([], order_by='a')
+    Assert(table.order_by) == ()
+
+    table = TestTable([], order_by='b')
+    Assert(table.order_by) == ('b', )
+
+    # sorting disabled by default
+    class TestTable(tables.Table):
+        a = tables.Column(sortable=True)
+        b = tables.Column()
+
+        class Meta:
+            sortable = False
+
+    table = TestTable([], order_by='a')
+    Assert(table.order_by) == ('a', )
+
+    table = TestTable([], order_by='b')
+    Assert(table.order_by) == ()
+
+    table = TestTable([], sortable=True, order_by='b')
+    Assert(table.order_by) == ('b', )
+
 
 @core.test
 def column_count(context):
@@ -173,3 +201,24 @@ def pagination():
     with Assert.raises(Http404) as error:
         books.paginate(Paginator, page=9999, per_page=10)
         books.paginate(Paginator, page='abc', per_page=10)
+
+
+@core.test
+def empty_text():
+    class TestTable(tables.Table):
+        a = tables.Column()
+
+    table = TestTable([])
+    Assert(table.empty_text) is None
+
+    class TestTable(tables.Table):
+        a = tables.Column()
+
+        class Meta:
+            empty_text = 'nothing here'
+
+    table = TestTable([])
+    Assert(table.empty_text) == 'nothing here'
+
+    table = TestTable([], empty_text='still nothing')
+    Assert(table.empty_text) == 'still nothing'
