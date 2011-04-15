@@ -155,21 +155,67 @@ Any iterable can be used as table data, and there's builtin support for
 Ordering
 ========
 
-Changing the table ordering is easy. When creating a
-:class:`~django_tables.tables.Table` object include an `order_by` parameter
-with a tuple that describes the way the ordering should be applied.
+Changing the way a table is ordered is easy and can be controlled via the
+:attr:`.Table.Meta.order_by` option. The following examples all achieve the
+same thing:
 
 .. code-block:: python
 
-    table = CountryTable(countries, order_by=('name', '-population'))
-    table = CountryTable(countries, order_by='name,-population')  # equivalant
+    class SimpleTable(tables.Table):
+        name = tables.Column()
+        
+        class Meta:
+            order_by = 'name'
 
-Alternatively, the :attr:`~django_tables.tables.Table.order_by` attribute can
-by modified.
+The following allows the ``Meta.order_by`` option to be overridden on a
+per-instance basis.
 
-    table = CountryTable(countries)
-    table.order_by = ('name', '-population')
-    table.order_by = 'name,-population'  # equivalant
+.. code-block:: python
+
+    class SimpleTable(tables.Table):
+        name = tables.Column()
+    
+    table = SimpleTable(..., order_by='name')
+
+Finally the attribute method overrides both of the previous approaches.
+
+.. code-block:: python
+
+    class SimpleTable(tables.Table):
+        name = tables.Column()
+    
+    table = SimpleTable(...)
+    table.order_by = 'name'
+
+----
+
+By default all table columns support sorting. This means that the headers for
+columns are rendered as links which allow that column to be toggled as the
+between ascending and descending ordering preference.
+
+Sorting can be disabled on a column, table, or table instance basis via the
+:attr:`.Table.Meta.sortable` option.
+
+To disable sorting by default for all columns:
+
+.. code-block:: python
+
+    class SimpleTable(tables.Table):
+        name = tables.Column()
+        
+        class Meta:
+            sortable = False
+
+To disable sorting for a specific table instance:
+
+.. code-block:: python
+
+    class SimpleTable(tables.Table):
+        name = tables.Column()
+
+    table = SimpleTable(..., sortable=False)
+    # or
+    table.sortable = False
 
 
 .. _pagination:
@@ -222,9 +268,6 @@ a hook that allows abitrary attributes to be added to the ``<table>`` tag.
     >>> table.as_html()
     '<table class="mytable">...'
 
-Inspired by Django's ORM, the ``class Meta:`` allows you to define extra
-characteristics of a table. See :class:`Table.Meta` for details.
-
 
 .. _table.render_foo:
 
@@ -264,12 +307,12 @@ arguments you're interested in, and the function will recieve them
     ...     id = tables.Column()
     ...     age = tables.Column()
     ...
-    ...     def render_row_number(self, **kwargs):
+    ...     def render_row_number(self):
     ...         value = getattr(self, '_counter', 0)
     ...         self._counter = value + 1
     ...         return 'Row %d' % value
     ...
-    ...     def render_id(self, value, **kwargs):
+    ...     def render_id(self, value):
     ...         return '<%s>' % value
     ...
     >>> table = SimpleTable([{'age': 31, 'id': 10}, {'age': 34, 'id': 11}])
@@ -305,9 +348,13 @@ ignore the built-in generation tools, and instead pass an instance of your
             {% for row in table.rows %}
             <tr>
                 {% for cell in row %}
-                    <td>{{ cell }}</td>
+                <td>{{ cell }}</td>
                 {% endfor %}
             </tr>
+            {% empty %}
+                {% if table.empty_text %}
+                <tr><td colspan="{{ table.columns|length }}">{{ table.empty_text }}</td></tr>
+                {% endif %}
             {% endfor %}
         </tbody>
     </table>
@@ -329,9 +376,8 @@ To change the way cells are rendered, simply override the
     >>> import django_tables as tables
     >>>
     >>> class AngryColumn(tables.Column):
-    ...     def render(self, *args, **kwargs):
-    ...         raw = super(AngryColumn, self).render(*args, **kwargs)
-    ...         return raw.upper()
+    ...     def render(self, value):
+    ...         return value.upper()
     ...
     >>> class Example(tables.Table):
     ...     normal = tables.Column()
@@ -348,6 +394,8 @@ To change the way cells are rendered, simply override the
     >>> table = Example(data)
     >>> table.as_html()
     u'<table><thead><tr><th>Normal</th><th>Angry</th></tr></thead><tbody><tr><td>May I have some food?</td><td>GIVE ME THE FOOD NOW!</td></tr><tr><td>Hello!</td><td>WHAT ARE YOU LOOKING AT?</td></tr></tbody></table>\n'
+
+See :ref:`table.render_foo` for a list of arguments that can be accepted.
 
 Which, when displayed in a browser, would look something like this:
 
@@ -369,9 +417,8 @@ rendered). This can be achieved by using the :func:`mark_safe` function.
     >>> from django.utils.safestring import mark_safe
     >>>
     >>> class ImageColumn(tables.Column):
-    ...     def render(self, **kwargs):
-    ...         raw = super(AngryColumn, self).render(**kwargs)
-    ...         return mark_safe('<img src="/media/img/%s.jpg" />' % raw)
+    ...     def render(self, value):
+    ...         return mark_safe('<img src="/media/img/%s.jpg" />' % value)
     ...
 
 
@@ -551,7 +598,7 @@ API Reference
 -----------------------------
 
 .. autoclass:: django_tables.columns.BoundColumns
-    :members: all, items, names, sortable, visible, __iter__,
+    :members: all, items, sortable, visible, __iter__,
               __contains__, __len__, __getitem__
 
 
@@ -566,7 +613,7 @@ API Reference
 --------------------------
 
 .. autoclass:: django_tables.rows.BoundRows
-    :members: all, page, __iter__, __len__, count
+    :members: __iter__, __len__, count
 
 
 :class:`BoundRow` Objects

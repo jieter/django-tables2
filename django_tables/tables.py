@@ -13,6 +13,7 @@ from .columns import BoundColumns, Column
 
 QUERYSET_ACCESSOR_SEPARATOR = '__'
 
+
 class TableData(object):
     """
     Exposes a consistent API for :term:`table data`. It currently supports a
@@ -20,8 +21,8 @@ class TableData(object):
 
     This class is used by :class:.Table` to wrap any
     input table data.
-
     """
+
     def __init__(self, data, table):
         from django.db.models.query import QuerySet
         if isinstance(data, QuerySet):
@@ -46,7 +47,6 @@ class TableData(object):
 
         :param order_by: the ordering to apply
         :type order_by: an :class:`~.utils.OrderByTuple` object
-
         """
         # translate order_by to something suitable for this data
         order_by = self._translate_order_by(order_by)
@@ -76,14 +76,13 @@ class TableData(object):
         for ... in ... default to using this. There's a bug in Django 1.3
         with indexing into querysets, so this side-steps that problem (as well
         as just being a better way to iterate).
-
         """
-        return self.list.__iter__() if hasattr(self, 'list') else self.queryset.__iter__()
+        return (self.list.__iter__() if hasattr(self, 'list')
+                                     else self.queryset.__iter__())
 
     def __getitem__(self, index):
         """Forwards indexing accesses to underlying data"""
         return (self.list if hasattr(self, 'list') else self.queryset)[index]
-        
 
 
 class DeclarativeColumnsMetaclass(type):
@@ -91,12 +90,10 @@ class DeclarativeColumnsMetaclass(type):
     Metaclass that converts Column attributes on the class to a dictionary
     called ``base_columns``, taking into account parent class ``base_columns``
     as well.
-
     """
-    def __new__(cls, name, bases, attrs, parent_cols_from=None):
-        """Ughhh document this :)
 
-        """
+    def __new__(cls, name, bases, attrs, parent_cols_from=None):
+        """Ughhh document this :)"""
         # extract declared columns
         columns = [(name, attrs.pop(name)) for name, column in attrs.items()
                                            if isinstance(column, Column)]
@@ -131,6 +128,7 @@ class TableOptions(object):
     Extracts and exposes options for a :class:`.Table` from a ``class Meta``
     when the table is defined.
     """
+
     def __init__(self, options=None):
         """
 
@@ -159,11 +157,19 @@ class Table(StrAndUnicode):
     :param order_by: sort the table based on these columns prior to display.
         (default :attr:`.Table.Meta.order_by`)
 
+    :type sortable: ``bool``
+    :param sortable: Enable/disable sorting on this table
+
+    :type empty_text: ``string``
+    :param empty_text: Empty text to render when the table has no data.
+        (default :attr:`.Table.Meta.empty_text`)
+
     The ``order_by`` argument is optional and allows the table's
     ``Meta.order_by`` option to be overridden. If the ``order_by is None``
     the table's ``Meta.order_by`` will be used. If you want to disable a
     default ordering, simply use an empty ``tuple``, ``string``, or ``list``,
     e.g. ``Table(…, order_by='')``.
+
 
     Example:
 
@@ -176,7 +182,6 @@ class Table(StrAndUnicode):
             order_by = request.GET.get('sort', ())
             table = SimpleTable(data, order_by=order_by)
             ...
-
     """
     __metaclass__ = DeclarativeColumnsMetaclass
     TableDataClass = TableData
@@ -213,7 +218,6 @@ class Table(StrAndUnicode):
         """
         Order the rows of the table based columns. ``value`` must be a sequence
         of column names.
-
         """
         # accept string
         order_by = value.split(',') if isinstance(value, basestring) else value
@@ -232,7 +236,8 @@ class Table(StrAndUnicode):
 
     @property
     def sortable(self):
-        return self._sortable if self._sortable is not None else self._meta.sortable
+        return (self._sortable if self._sortable is not None
+                               else self._meta.sortable)
 
     @sortable.setter
     def sortable(self, value):
@@ -240,7 +245,8 @@ class Table(StrAndUnicode):
 
     @property
     def empty_text(self):
-        return self._empty_text if self._empty_text is not None else self._meta.empty_text
+        return (self._empty_text if self._empty_text is not None
+                                 else self._meta.empty_text)
 
     @empty_text.setter
     def empty_text(self, value):
@@ -255,24 +261,24 @@ class Table(StrAndUnicode):
         return self._columns
 
     def as_html(self):
-        """Render the table to a simple HTML table.
+        """
+        Render the table to a simple HTML table.
 
         The rendered table won't include pagination or sorting, as those
         features require a RequestContext. Use the ``render_table`` template
         tag (requires ``{% load django_tables %}``) if you require this extra
         functionality.
-
         """
         template = get_template('django_tables/basic_table.html')
         return template.render(Context({'table': self}))
 
     @property
     def attrs(self):
-        """The attributes that should be applied to the ``<table>`` tag when
+        """
+        The attributes that should be applied to the ``<table>`` tag when
         rendering HTML.
 
         :rtype: :class:`~.utils.AttributeDict` object.
-
         """
         return self._meta.attrs
 

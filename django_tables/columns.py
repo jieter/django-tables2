@@ -100,9 +100,8 @@ class Column(object):
         """
         Returns the content for a specific cell.
 
-        This method can be overridden by :meth:`render_FOO` methods on the table or
-        by subclassing :class:`Column`.
-
+        This method can be overridden by :meth:`render_FOO` methods on the
+        table or by subclassing :class:`Column`.
         """
         return value
 
@@ -137,8 +136,8 @@ class CheckBoxColumn(Column):
         ``<input type="checkbox" .../>`` tag
     :param header_attrs:
         same as *attrs*, but applied **only** to the header checkbox
-
     """
+
     def __init__(self, attrs=None, header_attrs=None, **extra):
         params = {'sortable': False}
         params.update(extra)
@@ -154,7 +153,7 @@ class CheckBoxColumn(Column):
         attrs.update(self.header_attrs)
         return mark_safe('<input %s/>' % attrs.as_html())
 
-    def render(self, value, bound_column, **kwargs):
+    def render(self, value, bound_column):
         attrs = AttributeDict({
             'type': 'checkbox',
             'name': bound_column.name,
@@ -162,7 +161,6 @@ class CheckBoxColumn(Column):
         })
         attrs.update(self.attrs)
         return mark_safe('<input %s/>' % attrs.as_html())
-
 
 
 class LinkColumn(Column):
@@ -210,8 +208,8 @@ class LinkColumn(Column):
 
         class PeopleTable(tables.Table):
             name = tables.LinkColumn('people_detail', args=[A('pk')])
-
     """
+
     def __init__(self, viewname, urlconf=None, args=None, kwargs=None,
                  current_app=None, attrs=None, **extra):
         super(LinkColumn, self).__init__(**extra)
@@ -222,7 +220,7 @@ class LinkColumn(Column):
         self.current_app = current_app
         self.attrs = attrs or {}
 
-    def render(self, value, record, bound_column, **kwargs):
+    def render(self, value, record, bound_column):
         params = {}  # args for reverse()
         if self.viewname:
             params['viewname'] = (self.viewname.resolve(record)
@@ -281,8 +279,8 @@ class TemplateColumn(Column):
         In order to use template tags or filters that require a
         ``RequestContext``, the table **must** be rendered via
         :ref:`{% render_table %} <template-tags.render_table>`.
-
     """
+
     def __init__(self, template_code=None, **extra):
         super(TemplateColumn, self).__init__(**extra)
         self.template_code = template_code
@@ -321,8 +319,8 @@ class BoundColumn(object):
                 age = tables.Column()
 
         ``age`` is the name.
-
     """
+
     def __init__(self, table, column, name):
         self._table = table
         self._column = column
@@ -426,8 +424,8 @@ class BoundColumns(object):
 
     :type table: :class:`.Table` object
     :param table: the table containing the columns
-
     """
+
     def __init__(self, table):
         self.table = table
         # ``self._columns`` attribute stores the bound columns (columns that
