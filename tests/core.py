@@ -23,6 +23,10 @@ def context():
             alpha = tables.Column()
             beta = tables.Column()
 
+        class SortedTable(UnsortedTable):
+            class Meta:
+                order_by = 'alpha'
+
         table = UnsortedTable(memory_data)
 
     yield Context
@@ -75,80 +79,71 @@ def datasource_untouched(context):
 
 
 @core.test
-def sorting(context):
-    class MyUnsortedTable(tables.Table):
-        i = tables.Column()
-        alpha = tables.Column()
-        beta = tables.Column()
-
-    # various different ways to say the same thing: don't sort
-    Assert(MyUnsortedTable([]).order_by) == ()
-    Assert(MyUnsortedTable([], order_by=None).order_by) == ()
-    Assert(MyUnsortedTable([], order_by=[]).order_by) == ()
-    Assert(MyUnsortedTable([], order_by=()).order_by) == ()
+def sorting(ctx):
+    # fallback to Table.Meta
+    Assert(('alpha', )) == ctx.SortedTable([], order_by=None).order_by == ctx.SortedTable([]).order_by
 
     # values of order_by are wrapped in tuples before being returned
-    Assert(MyUnsortedTable([], order_by='alpha').order_by) == ('alpha',)
-    Assert(MyUnsortedTable([], order_by=('beta',)).order_by) == ('beta',)
+    Assert(ctx.SortedTable([], order_by='alpha').order_by)   == ('alpha', )
+    Assert(ctx.SortedTable([], order_by=('beta',)).order_by) == ('beta', )
 
-    # a rewritten order_by is also wrapped
-    table = MyUnsortedTable([])
+    # "no sorting"
+    table = ctx.SortedTable([])
+    table.order_by = []
+    Assert(()) == table.order_by == ctx.SortedTable([], order_by=[]).order_by
+
+    table = ctx.SortedTable([])
+    table.order_by = ()
+    Assert(()) == table.order_by == ctx.SortedTable([], order_by=()).order_by
+
+    table = ctx.SortedTable([])
+    table.order_by = ''
+    Assert(()) == table.order_by == ctx.SortedTable([], order_by='').order_by
+
+    # apply a sorting
+    table = ctx.UnsortedTable([])
     table.order_by = 'alpha'
-    assert ('alpha', ) == table.order_by
+    Assert(('alpha', )) == ctx.UnsortedTable([], order_by='alpha').order_by == table.order_by
 
-    # default sort order can be specified in table options
-    class MySortedTable(MyUnsortedTable):
+    table = ctx.SortedTable([])
+    table.order_by = 'alpha'
+    Assert(('alpha', )) == ctx.SortedTable([], order_by='alpha').order_by  == table.order_by
+
+    # let's check the data
+    table = ctx.SortedTable(ctx.memory_data, order_by='beta')
+    Assert(3) == table.rows[0]['i']
+
+    # allow fallback to Table.Meta.order_by
+    table = ctx.SortedTable(ctx.memory_data)
+    Assert(1) == table.rows[0]['i']
+
+    # column's can't be sorted if they're not allowed to be
+    class TestTable(tables.Table):
+        a = tables.Column(sortable=False)
+        b = tables.Column()
+
+    table = TestTable([], order_by='a')
+    Assert(table.order_by) == ()
+
+    table = TestTable([], order_by='b')
+    Assert(table.order_by) == ('b', )
+
+    # sorting disabled by default
+    class TestTable(tables.Table):
+        a = tables.Column(sortable=True)
+        b = tables.Column()
+
         class Meta:
-            order_by = 'alpha'
+            sortable = False
 
-    # order_by is inherited from the options if not explitly set
-    table = MySortedTable([])
-    assert ('alpha', ) == table.order_by
+    table = TestTable([], order_by='a')
+    Assert(table.order_by) == ('a', )
 
-    # ...but can be overloaded at __init___
-    table = MySortedTable([], order_by='beta')
-    assert ('beta', ) == table.order_by
+    table = TestTable([], order_by='b')
+    Assert(table.order_by) == ()
 
-    # ...or rewritten later
-    table = MySortedTable(context.memory_data)
-    table.order_by = 'beta'
-    assert ('beta', ) == table.order_by
-    assert 3 == table.rows[0]['i']
-
-    # Explicitly pass in None, should default to table's Meta.order_by
-    table = MySortedTable(context.memory_data, order_by=None)
-    assert ('alpha', ) == table.order_by
-    assert 1 == table.rows[0]['i']
-
-    # ...or reset to Table.DoNotOrder (unsorted), ignoring the table default
-    table = MySortedTable(context.memory_data, order_by=MySortedTable.DoNotOrder)
-    assert () == table.order_by
-    assert 2 == table.rows[0]['i']
-
-
-@core.test
-def boundrows_iteration(context):
-    records = []
-    for row in context.table.rows:
-        records.append(row.record)
-    Assert(records) == context.memory_data
-
-
-@core.test
-def row_subscripting(context):
-    row = context.table.rows[0]
-    # attempt number indexing
-    Assert(row[0]) == 2
-    Assert(row[1]) == 'b'
-    Assert(row[2]) == 'b'
-    with Assert.raises(IndexError) as error:
-        row[3]
-    # attempt column name indexing
-    Assert(row['i']) == 2
-    Assert(row['alpha']) == 'b'
-    Assert(row['beta']) == 'b'
-    with Assert.raises(KeyError) as error:
-        row['gamma']
+    table = TestTable([], sortable=True, order_by='b')
+    Assert(table.order_by) == ('b', )
 
 
 @core.test
@@ -168,7 +163,7 @@ def column_accessor(context):
         col2 = tables.Column(accessor='alpha.upper')
     table = SimpleTable(context.memory_data)
     row = table.rows[0]
-    Assert(row['col1']) == True
+    Assert(row['col1']) is True
     Assert(row['col2']) == 'B'
 
 
@@ -179,31 +174,51 @@ def pagination():
 
     # create some sample data
     data = []
-    for i in range(1,101):
-        data.append({'name': 'Book Nr. %d' % i})
+    for i in range(100):
+        data.append({'name': 'Book No. %d' % i})
     books = BookTable(data)
 
     # external paginator
     paginator = Paginator(books.rows, 10)
     assert paginator.num_pages == 10
     page = paginator.page(1)
-    assert page.has_previous() == False
-    assert page.has_next() == True
+    assert page.has_previous() is False
+    assert page.has_next() is True
 
     # integrated paginator
-    books.paginate(Paginator, page=1, per_page=10)
-    # rows is now paginated
-    assert len(list(books.rows.page())) == 10
-    assert len(list(books.rows)) == 100
+    books.paginate(page=1)
+    Assert(hasattr(books, 'page')) is True
+
+    books.paginate(page=1, per_page=10)
+    Assert(len(list(books.page.object_list))) == 10
+
     # new attributes
-    assert books.paginator.num_pages == 10
-    assert books.page.has_previous() == False
-    assert books.page.has_next() == True
+    Assert(books.paginator.num_pages) == 10
+    Assert(books.page.has_previous()) is False
+    Assert(books.page.has_next()) is True
+
     # exceptions are converted into 404s
     with Assert.raises(Http404) as error:
         books.paginate(Paginator, page=9999, per_page=10)
         books.paginate(Paginator, page='abc', per_page=10)
 
 
-if __name__ == '__main__':
-    core.main()
+@core.test
+def empty_text():
+    class TestTable(tables.Table):
+        a = tables.Column()
+
+    table = TestTable([])
+    Assert(table.empty_text) is None
+
+    class TestTable(tables.Table):
+        a = tables.Column()
+
+        class Meta:
+            empty_text = 'nothing here'
+
+    table = TestTable([])
+    Assert(table.empty_text) == 'nothing here'
+
+    table = TestTable([], empty_text='still nothing')
+    Assert(table.empty_text) == 'still nothing'
