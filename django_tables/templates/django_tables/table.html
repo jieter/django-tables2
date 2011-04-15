@@ -34,14 +34,13 @@
 {% if table.page %}
 <ul class="pagination">
     {% if table.page.has_previous %}
-    <li class="previous"><a href="{% set_url_param page=table.page.previous_page_number %}">Previous</a>
+    <li class="previous"><a href="{% set_url_param page=table.page.previous_page_number %}">Previous</a></li>
     {% endif %}
     <li class="current">Page {{ table.page.number }} of {{ table.paginator.num_pages }}</li>
     {% if table.page.has_next %}
-    <li class="next"><a href="{% set_url_param page=table.page.next_page_number %}">Next</a>
+    <li class="next"><a href="{% set_url_param page=table.page.next_page_number %}">Next</a></li>
     {% endif %}
-    </span>
-</div>
+</ul>
 </div>
 {% endif %}
 {% endspaceless %}
