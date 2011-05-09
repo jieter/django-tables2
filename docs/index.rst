@@ -34,7 +34,7 @@ turn it into an HTML table. This is the data we'll be using:
 
     countries = [
         {'name': 'Australia', 'population': 21, 'tz': 'UTC +10', 'visits': 1},
-        {'name': 'Germany', 'population', 81, 'tz': 'UTC +1', 'visits': 2},
+        {'name': 'Germany', 'population': 81, 'tz': 'UTC +1', 'visits': 2},
         {'name': 'Mexico', 'population': 107, 'tz': 'UTC -6', 'visits': 0},
     ]
 
@@ -69,7 +69,7 @@ write a view that would look something like:
     def home(request):
         table = CountryTable(countries)
         return render_to_response('home.html', {'table': table},
-                                  context_instances=RequestContext(request))
+                                  context_instance=RequestContext(request))
 
 In your template, the easiest way to :term:`render` the table is via the
 :meth:`~django_tables.tables.Table.as_html` method:
@@ -163,7 +163,7 @@ same thing:
 
     class SimpleTable(tables.Table):
         name = tables.Column()
-        
+
         class Meta:
             order_by = 'name'
 
@@ -174,7 +174,7 @@ per-instance basis.
 
     class SimpleTable(tables.Table):
         name = tables.Column()
-    
+
     table = SimpleTable(..., order_by='name')
 
 Finally the attribute method overrides both of the previous approaches.
@@ -183,7 +183,7 @@ Finally the attribute method overrides both of the previous approaches.
 
     class SimpleTable(tables.Table):
         name = tables.Column()
-    
+
     table = SimpleTable(...)
     table.order_by = 'name'
 
@@ -202,7 +202,7 @@ To disable sorting by default for all columns:
 
     class SimpleTable(tables.Table):
         name = tables.Column()
-        
+
         class Meta:
             sortable = False
 
