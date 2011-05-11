@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="{{ LANGUAGE_CODE }}" xml:lang="{{ LANGUAGE_CODE }}">
+    <head>
+        <title>django-tables examples</title>
+        <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}django_tables/themes/paleblue/css/screen.css" />
+        <style type="text/css">
+            pre {
+                background-color: #D8F0FF;
+                border: 1px solid #9BBBD5;
+                padding: 8px;
+            }
+        </style>
+    </head>
+
+    <body>
+        <h1><tt>django-tables</tt> examples</h1>
+        <p>This page demonstrates various types of tables being rendered via
+        <tt>django-tables</tt>.</p>
+
+        <h2>Example 1 — QuerySet</h2>
+        <h3>via <tt>as_html()</tt></h3>
+        <pre>{% templatetag openvariable %} example1.as_html {% templatetag closevariable %}</pre>
+        {{ example1.as_html }}
+
+        <h3>via template tag</h3>
+        <pre>{% templatetag openblock %} load django_tables {% templatetag closeblock %}
+{% templatetag openblock %} render_table example1 {% templatetag closeblock %}</pre>
+        {% load django_tables %}
+        {% render_table example1 %}
+
+        <h2>Example 2 — QuerySet + pagination</h2>
+        <h3>via <tt>as_html()</tt></h3>
+        <pre>{% templatetag openvariable %} example2.as_html {% templatetag closevariable %}</pre>
+        {{ example2.as_html }}
+
+        <h3>via template tag</h3>
+        <pre>{% templatetag openblock %} load django_tables {% templatetag closeblock %}
+{% templatetag openblock %} render_table example2 {% templatetag closeblock %}</pre>
+        {% load django_tables %}
+        {% render_table example2 %}
+
+        <h2>Example 3 — QuerySet + paleblue theme</h2>
+        <h3>via <tt>as_html()</tt></h3>
+        <pre>{% templatetag openvariable %} example3.as_html {% templatetag closevariable %}</pre>
+        {{ example3.as_html }}
+
+        <h3>via template tag</h3>
+        <pre>{% templatetag openblock %} load django_tables {% templatetag closeblock %}
+{% templatetag openblock %} render_table example3 {% templatetag closeblock %}</pre>
+        {% load django_tables %}
+        {% render_table example3 %}
+
+        <h2>Example 4 — QuerySet + pagination + paleblue theme</h2>
+        <h3>via <tt>as_html()</tt></h3>
+        <pre>{% templatetag openvariable %} example4.as_html {% templatetag closevariable %}</pre>
+        {{ example4.as_html }}
+
+        <h3>via template tag</h3>
+        <pre>{% templatetag openblock %} load django_tables {% templatetag closeblock %}
+{% templatetag openblock %} render_table example4 {% templatetag closeblock %}</pre>
+        {% load django_tables %}
+        {% render_table example4 %}
+
+    </body>
+</html>

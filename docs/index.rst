@@ -90,16 +90,36 @@ In your template, the easiest way to :term:`render` the table is via the
 | Mexico       | 107        | UTC -6  | 0      |
 +--------------+------------+---------+--------+
 
-This approach is easy, but it's not fully featured. For slightly more effort,
-you can render a table with sortable columns. For this, you must use the
-template tag.
+This approach is easy, but it's not fully featured (e.g. no pagination, no
+sorting). Don't worry it's very easy to add these. First, you must render the
+table via the :ref:`template tag <template-tags.render_table>` rather than
+``as_html()``:
 
 .. code-block:: django
 
     {% load django_tables %}
     {% render_table table %}
 
-See :ref:`template-tags.render_table` for more information.
+.. note::
+
+    ``{% render_table %}`` requires that the ``TEMPLATE_CONTEXT_PROCESSORS``
+    setting contains ``"django.core.context_processors.request"``. See
+    :ref:`template-tags.render_table` for details.
+
+This is all that's required for the template, but in the view you'll need to
+tell the table to which column to order by, and which page of data to display
+(pagination). This is achieved as follows:
+
+.. code-block:: python
+
+    def home(request):
+        countries = Country.objects.all()
+        table = CountryTable(countries, order_by=request.GET.get('sort'))
+        table.paginate(page=request.GET.get('page', 1))
+        return render_to_response('home.html', {'table': table},
+                                  context_instance=RequestContext(request))
+
+See :ref:`ordering`, and :ref:`pagination` for more information.
 
 The table will be rendered, but chances are it will still look quite ugly. An
 easy way to make it pretty is to use the built-in *paleblue* theme. For this to
@@ -167,8 +187,8 @@ same thing:
         class Meta:
             order_by = 'name'
 
-The following allows the ``Meta.order_by`` option to be overridden on a
-per-instance basis.
+By passing in a value for ``order_by`` into the ``Table`` constructor, the
+``Meta.order_by`` option can be overridden on a per-instance basis.
 
 .. code-block:: python
 
@@ -177,7 +197,21 @@ per-instance basis.
 
     table = SimpleTable(..., order_by='name')
 
-Finally the attribute method overrides both of the previous approaches.
+This approach allows column sorting to be enabled for use with the ``{%
+render_table %}`` template tag. The template tag converts column headers into
+hyperlinks that add the querystring parameter ``sort`` to the current URL. This
+means your view will need to look something like:
+
+.. code-block:: python
+
+    def home(request):
+        countries = Country.objects.all()
+        table = CountryTable(countries, order_by=request.GET.get('sort'))
+        return render_to_response('home.html', {'table': table},
+                                  context_instance=RequestContext(request))
+
+The final approach allows both of the previous approaches to be overridden. The
+instance property ``order_by`` can be
 
 .. code-block:: python
 
@@ -189,9 +223,30 @@ Finally the attribute method overrides both of the previous approaches.
 
 ----
 
-By default all table columns support sorting. This means that the headers for
-columns are rendered as links which allow that column to be toggled as the
-between ascending and descending ordering preference.
+By default all table columns support sorting. This means that if you're using
+the :ref:`template tag <template-tags.render_table>` to render the table,
+users can sort the table based on any column by clicking the corresponding
+header link.
+
+In some cases this may not be appropriate. For example you may have a column
+which displays data that isn't in the dataset:
+
+.. code-block:: python
+
+    class SimpleTable(tables.Table):
+        name = tables.Column()
+        lucky_rating = tables.Column()
+
+        class Meta:
+            sortable = False
+
+        def render_lucky_rating(self):
+            import random
+            return random.randint(1, 10)
+
+In these types of scenarios, it's simply not possible to sort the table based
+on column data that isn't in the dataset. The solution is to disable sorting
+for these columns.
 
 Sorting can be disabled on a column, table, or table instance basis via the
 :attr:`.Table.Meta.sortable` option.
@@ -447,6 +502,26 @@ This tag temporarily modifies the :class:`.Table` object while it is being
 rendered. It adds a ``request`` attribute to the table, which allows
 :class:`Column` objects to have access to a ``RequestContext``. See
 :class:`.TemplateColumn` for an example.
+
+This tag requires that the template in which it's rendered contains the
+``HttpRequest`` inside a ``request`` variable. This can be achieved by ensuring
+the ``TEMPLATE_CONTEXT_PROCESSORS`` setting contains
+``"django.core.context_processors.request"``. By default it is not included,
+and the setting itself is not even defined within your project's
+``settings.py``. To resolve this simply add the following to your
+``settings.py``:
+
+.. code-block:: python
+
+    TEMPLATE_CONTEXT_PROCESSORS = (
+        "django.contrib.auth.context_processors.auth",
+        "django.core.context_processors.debug",
+        "django.core.context_processors.i18n",
+        "django.core.context_processors.media",
+        "django.core.context_processors.static",
+        "django.contrib.messages.context_processors.messages",
+        "django.core.context_processors.request",
+    )
 
 
 .. _template-tags.set_url_param:

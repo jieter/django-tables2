@@ -274,13 +274,13 @@ class TemplateColumn(Column):
 
     Both columns will have the same output.
 
-
     .. important::
+
         In order to use template tags or filters that require a
         ``RequestContext``, the table **must** be rendered via
         :ref:`{% render_table %} <template-tags.render_table>`.
-    """
 
+    """
     def __init__(self, template_code=None, **extra):
         super(TemplateColumn, self).__init__(**extra)
         self.template_code = template_code
