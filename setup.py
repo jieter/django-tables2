@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='django-tables',
-    version='0.4.1',
+    version='0.4.2',
     description='Table framework for Django',
 
     author='Bradley Ayers',
@@ -12,7 +12,7 @@ setup(
     license='Simplified BSD',
     url='https://github.com/bradleyayers/django-tables/',
 
-    packages=find_packages(),
+    packages=find_packages(exclude=['tests.*', 'tests', 'example.*', 'example']),
     include_package_data=True,  # declarations in MANIFEST.in
 
     install_requires=['Django >=1.1'],
