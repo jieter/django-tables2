@@ -2,7 +2,11 @@ table.paleblue {
     border-collapse: collapse;
     border-color: #CCC;
     border: 1px solid #DDD;
-    font-family: 'Lucida Grande', Verdana, Arial, sans-serif;
+}
+
+table.paleblue,
+table.paleblue +  ul.pagination {
+    font: normal 11px/14px 'Lucida Grande', Verdana, Arial, sans-serif;
 }
 
 table.paleblue a:link,
@@ -23,6 +27,7 @@ table.paleblue th {
     line-height: 13px;
     border-bottom: 1px solid #EEE;
     border-left: 1px solid #DDD;
+    text-align: left;
 }
 
 table.paleblue thead th:first-child,
@@ -69,8 +74,10 @@ table.paleblue tr.even {
 table.paleblue + ul.pagination {
     background: white url(../img/pagination-bg.gif) left 180% repeat-x;
     overflow: auto;
+    margin: 0;
     padding: 10px;
     border: 1px solid #DDD;
+    list-style: none;
 }
 
 table.paleblue + ul.pagination > li {

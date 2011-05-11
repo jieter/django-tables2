@@ -1,0 +1,42 @@
+[
+    {
+        "pk": 1, 
+        "model": "app.country", 
+        "fields": {
+            "tz": "Australia/Brisbane", 
+            "name": "Australia", 
+            "visits": 2, 
+            "population": 20000000
+        }
+    }, 
+    {
+        "pk": 2, 
+        "model": "app.country", 
+        "fields": {
+            "tz": "NZST", 
+            "name": "New Zealand", 
+            "visits": 1, 
+            "population": 12000000
+        }
+    }, 
+    {
+        "pk": 3, 
+        "model": "app.country", 
+        "fields": {
+            "tz": "CAT", 
+            "name": "Africa", 
+            "visits": 0, 
+            "population": 1000010000
+        }
+    }, 
+    {
+        "pk": 4, 
+        "model": "app.country", 
+        "fields": {
+            "tz": "UTC\u22123.5", 
+            "name": "Canada", 
+            "visits": 1, 
+            "population": 34447000
+        }
+    }
+]

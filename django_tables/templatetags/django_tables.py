@@ -90,14 +90,17 @@ class RenderTableNode(template.Node):
 
     def render(self, context):
         table = self.table_var.resolve(context)
-        request = context.get('request', None)
-        context = template.Context({'request': request, 'table': table})
+        if 'request' not in context:
+            raise AssertionError('{% render_table %} requires that the '
+                                 'template context contains the HttpRequest in'
+                                 ' a "request" variable, check your '
+                                 ' TEMPLATE_CONTEXT_PROCESSORS setting.')
+        context = template.Context({'request': context['request'], 'table': table})
         try:
-            table.request = request
+            table.request = context['request']
             return get_template('django_tables/table.html').render(context)
         finally:
-            pass
-            #del table.request
+            del table.request
 
 
 @register.tag
@@ -105,6 +108,6 @@ def render_table(parser, token):
     try:
         _, table_var_name = token.contents.split()
     except ValueError:
-        raise template.TemplateSyntaxError,\
-          "%r tag requires a single argument" % token.contents.split()[0]
+        raise (template.TemplateSyntaxError,
+               '%r tag requires a single argument' % token.contents.split()[0])
     return RenderTableNode(table_var_name)
