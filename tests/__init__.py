@@ -18,7 +18,8 @@ settings.configure(
     INSTALLED_APPS = [
         'tests.testapp',
         'django_tables',
-    ]
+    ],
+    ROOT_URLCONF = 'tests.testapp.urls',
 )
 
 

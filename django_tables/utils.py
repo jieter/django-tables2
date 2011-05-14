@@ -270,5 +270,5 @@ class AttributeDict(dict):
         :rtype: :class:`~django.utils.safestring.SafeUnicode` object
 
         """
-        return mark_safe(' '.join(['%s="%s"' % (k, escape(v))
+        return mark_safe(' '.join([u'%s="%s"' % (k, escape(v))
                                    for k, v in self.iteritems()]))

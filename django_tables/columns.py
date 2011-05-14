@@ -52,7 +52,7 @@ class Column(object):
                  visible=True, sortable=None):
         if not (accessor is None or isinstance(accessor, basestring) or
                 callable(accessor)):
-            raise TypeError('accessor must be a string or callable, not %s' %
+            raise TypeError(u'accessor must be a string or callable, not %s' %
                             accessor.__class__.__name__)
         if callable(accessor) and default is not None:
             raise TypeError('accessor must be string when default is used, not'
@@ -151,7 +151,7 @@ class CheckBoxColumn(Column):
             'type': 'checkbox',
         })
         attrs.update(self.header_attrs)
-        return mark_safe('<input %s/>' % attrs.as_html())
+        return mark_safe(u'<input %s/>' % attrs.as_html())
 
     def render(self, value, bound_column):
         attrs = AttributeDict({
@@ -160,7 +160,7 @@ class CheckBoxColumn(Column):
             'value': value
         })
         attrs.update(self.attrs)
-        return mark_safe('<input %s/>' % attrs.as_html())
+        return mark_safe(u'<input %s/>' % attrs.as_html())
 
 
 class LinkColumn(Column):
@@ -221,7 +221,9 @@ class LinkColumn(Column):
         self.attrs = attrs or {}
 
     def render(self, value, record, bound_column):
-        params = {}  # args for reverse()
+        # The following params + if statements create the arguments required to
+        # pass to Django's reverse() function.
+        params = {}
         if self.viewname:
             params['viewname'] = (self.viewname.resolve(record)
                                  if isinstance(self.viewname, A)
@@ -244,7 +246,7 @@ class LinkColumn(Column):
                 if isinstance(value, A):
                     params['current_app'][key] = value.resolve(record)
         url = reverse(**params)
-        html = '<a href="{url}" {attrs}>{value}</a>'.format(
+        html = u'<a href="{url}" {attrs}>{value}</a>'.format(
             url=reverse(**params),
             attrs=AttributeDict(self.attrs).as_html(),
             value=value
@@ -537,5 +539,5 @@ class BoundColumns(object):
         elif isinstance(index, basestring):
             return self._columns[index]
         else:
-            raise TypeError('row indices must be integers or str, not %s' %
+            raise TypeError(u'row indices must be integers or str, not %s' %
                             index.__class__.__name__)
