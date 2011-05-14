@@ -109,5 +109,6 @@ def render_table(parser, token):
         _, table_var_name = token.contents.split()
     except ValueError:
         raise (template.TemplateSyntaxError,
-               '%r tag requires a single argument' % token.contents.split()[0])
+               u'%r tag requires a single argument'
+               % token.contents.split()[0])
     return RenderTableNode(table_var_name)
