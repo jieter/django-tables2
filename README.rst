@@ -170,3 +170,34 @@ A few things to note:
 Finally, the tests can be run via::
 
     python setup.py test
+
+
+Testing non-reusable apps in a Django project
+---------------------------------------------
+
+To test non-reusable apps in a Django project, the app must either a ``tests``
+or ``models`` module with a ``suite`` function that returns a
+``unittest.TestCase`` (see `Django's documentation
+<http://docs.djangoproject.com/en/1.3/topics/testing/#writing-unit-tests>`_ for
+details).
+
+As an example, an app that wants to test some of its templating code has a
+``tests.py`` file containing::
+
+    from attest import Tests
+
+    template = Tests()
+
+    @template.test
+    def filter():
+        """Test the template filter."""
+        # ...
+
+
+    @template.test
+    def tag():
+        """Test the template tag."""
+        # ...
+
+    def suite():
+        return template.test_suite()
