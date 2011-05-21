@@ -1,16 +1,17 @@
 # -*- coding: utf-8 -*-
 """Test the core table functionality."""
 from attest import Tests, Assert
+from django_attest import TransactionTestContext
 from django.test.client import RequestFactory
 from django.template import Context, Template
 import django_tables as tables
 from django_tables import utils, A
+from .testapp.models import Person
 
 
-columns = Tests()
+general = Tests()
 
-
-@columns.test
+@general.test
 def sortable():
     class SimpleTable(tables.Table):
         name = tables.Column()
@@ -31,8 +32,11 @@ def sortable():
     Assert(SimpleTable([]).columns['name'].sortable) is True
 
 
-@columns.test
-def link_column():
+linkcolumn = Tests()
+linkcolumn.context(TransactionTestContext())
+
+@linkcolumn.test
+def unicode():
     """Test LinkColumn"""
     # test unicode values + headings
     class UnicodeTable(tables.Table):
@@ -54,4 +58,23 @@ def link_column():
     Assert(u'Chr…s' in html)
     Assert(u'DÒble' in html)
 
+    # Test handling queryset data with a null foreign key
 
+
+@linkcolumn.test
+def null_foreign_key():
+    """
+
+    """
+    class PersonTable(tables.Table):
+        first_name = tables.Column()
+        last_name = tables.Column()
+        occupation = tables.LinkColumn('occupation', args=[A('occupation.pk')])
+
+    Person.objects.create(first_name='bradley', last_name='ayers')
+
+    table = PersonTable(Person.objects.all())
+    table.as_html()
+
+
+columns = Tests([general, linkcolumn])

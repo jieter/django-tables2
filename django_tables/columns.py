@@ -221,6 +221,8 @@ class LinkColumn(Column):
         self.attrs = attrs or {}
 
     def render(self, value, record, bound_column):
+        if value is None:
+            return self.default
         # The following params + if statements create the arguments required to
         # pass to Django's reverse() function.
         params = {}
