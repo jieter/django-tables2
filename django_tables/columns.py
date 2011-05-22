@@ -299,10 +299,11 @@ class TemplateColumn(Column):
 
 
 class BoundColumn(object):
-    """A *runtime* version of :class:`.Column`. The difference between
-    ``BoundColumn`` and ``Column``, is that ``BoundColumn`` objects are of
-    the relationship between a ``Column`` and a :class:`.Table`. This
-    means that it knows the *name* given to the ``Column``.
+    """
+    A *runtime* version of :class:`.Column`. The difference between
+    ``BoundColumn`` and ``Column``, is that ``BoundColumn`` objects are of the
+    relationship between a ``Column`` and a :class:`.Table`. This means that it
+    knows the *name* given to the ``Column``.
 
     For convenience, all :class:`.Column` properties are available from this
     class.
@@ -395,9 +396,32 @@ class BoundColumn(object):
         Return the verbose name for this column, or fallback to prettified
         column name.
 
+        If the table is using queryset data, then use the corresponding
+        model field's ``verbose_name``. If it's traversing a relationship,
+        then get the last field in the accessor (i.e. stop when the
+        relationship turns from ORM relationships to object attributes [e.g.
+        person.upper should stop at person]).
         """
-        return (self.column.verbose_name
-                or capfirst(force_unicode(self.name.replace('_', ' '))))
+        # Favor an explicit verbose_name
+        if self.column.verbose_name:
+            return self.column.verbose_name
+
+        # Reasonable fallback
+        name = self.name.replace('_', ' ')
+
+        # Perhap use a model field's verbose_name
+        if hasattr(self.table.data, 'queryset'):
+            model = self.table.data.queryset.model
+            parts = self.accessor.split('.')
+            for part in parts:
+                field = model._meta.get_field(part)
+                if hasattr(field, 'rel') and hasattr(field.rel, 'to'):
+                    model = field.rel.to
+                    continue
+                break
+            if field:
+                name = field.verbose_name
+        return capfirst(name)
 
     @property
     def visible(self):
