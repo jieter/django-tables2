@@ -80,15 +80,15 @@ In your template, the easiest way to :term:`render` the table is via the
 
 …which will render something like:
 
-+--------------+------------+---------+--------+
-| Country Name | Population | Tz      | Visit  |
-+==============+============+=========+========+
-| Australia    | 21         | UTC +10 | 1      |
-+--------------+------------+---------+--------+
-| Germany      | 81         | UTC +1  | 2      |
-+--------------+------------+---------+--------+
-| Mexico       | 107        | UTC -6  | 0      |
-+--------------+------------+---------+--------+
++--------------+------------+-----------+--------+
+| Country Name | Population | Time Zone | Visit  |
++==============+============+===========+========+
+| Australia    | 21         | UTC +10   | 1      |
++--------------+------------+-----------+--------+
+| Germany      | 81         | UTC +1    | 2      |
++--------------+------------+-----------+--------+
+| Mexico       | 107        | UTC -6    | 0      |
++--------------+------------+-----------+--------+
 
 This approach is easy, but it's not fully featured (e.g. no pagination, no
 sorting). Don't worry it's very easy to add these. First, you must render the
@@ -273,6 +273,48 @@ To disable sorting for a specific table instance:
     table.sortable = False
 
 
+.. _column-headers:
+
+Column headers
+==============
+
+The header cell for each column comes from the column's
+:meth:`~django_tables.columns.BoundColumn.header` method. By default this
+method returns the column's ``verbose_name``, which is either explicitly
+specified, or generated automatically based on the column name.
+
+When using queryset input data, rather than falling back to the column name if
+a ``verbose_name`` has not been specified explicitly, the queryset model's
+field ``verbose_name`` is used.
+
+Consider the following:
+
+    >>> class Person(models.Model):
+    ...     first_name = models.CharField(verbose_name='FIRST name', max_length=200)
+    ...     last_name = models.CharField(max_length=200)
+    ...     region = models.ForeignKey('Region')
+    ...
+    >>> class Region(models.Model):
+    ...     name = models.CharField(max_length=200)
+    ...
+    >>> class PersonTable(tables.Table):
+    ...     first_name = tables.Column()
+    ...     ln = tables.Column(accessor='last_name')
+    ...     region_name = tables.Column(accessor='region.name')
+    ...
+    >>> table = PersonTable(Person.objects.all())
+    >>> table.columns['first_name'].verbose_name
+    u'FIRST name'
+    >>> table.columns['ln'].verbose_name
+    u'Last name'
+    >>> table.columns['region_name'].verbose_name
+    u'Name'
+
+As you can see in the last example, the results are not always desirable when
+an accessor is used to cross relationships. To get around this be careful to
+define a ``verbose_name`` on such columns.
+
+
 .. _pagination:
 
 Pagination
@@ -379,42 +421,6 @@ arguments you're interested in, and the function will recieve them
     31
 
 
-.. _custom-template:
-
-Custom Template
----------------
-
-And of course if you want full control over the way the table is rendered,
-ignore the built-in generation tools, and instead pass an instance of your
-:class:`Table` subclass into your own template, and render it yourself:
-
-.. code-block:: django
-
-    {% load django_tables %}
-    <table>
-        <thead>
-            <tr>
-            {% for column in table.columns %}
-                <th><a href="{% set_url_param sort=column.name_toggled %}">{{ column }}</a></th>
-            {% endfor %}
-            </tr>
-        </thead>
-        <tbody>
-            {% for row in table.rows %}
-            <tr>
-                {% for cell in row %}
-                <td>{{ cell }}</td>
-                {% endfor %}
-            </tr>
-            {% empty %}
-                {% if table.empty_text %}
-                <tr><td colspan="{{ table.columns|length }}">{{ table.empty_text }}</td></tr>
-                {% endif %}
-            {% endfor %}
-        </tbody>
-    </table>
-
-
 .. _subclassing-column:
 
 Subclassing :class:`Column`
@@ -463,8 +469,8 @@ Which, when displayed in a browser, would look something like this:
 +-----------------------+--------------------------+
 
 
-If you plan on returning HTML from a :meth:`~Column.render` method, you must
-remember to mark it as safe (otherwise it will be escaped when the table is
+For complicated columns, it's sometimes necessary to return HTML from a :meth:`~Column.render` method, but the string
+must be marked as safe (otherwise it will be escaped when the table is
 rendered). This can be achieved by using the :func:`mark_safe` function.
 
 .. code-block:: python
@@ -476,6 +482,41 @@ rendered). This can be achieved by using the :func:`mark_safe` function.
     ...         return mark_safe('<img src="/media/img/%s.jpg" />' % value)
     ...
 
+
+.. _custom-template:
+
+Custom Template
+---------------
+
+And of course if you want full control over the way the table is rendered,
+ignore the built-in generation tools, and instead pass an instance of your
+:class:`Table` subclass into your own template, and render it yourself:
+
+.. code-block:: django
+
+    {% load django_tables %}
+    <table>
+        <thead>
+            <tr>
+            {% for column in table.columns %}
+                <th><a href="{% set_url_param sort=column.name_toggled %}">{{ column }}</a></th>
+            {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in table.rows %}
+            <tr>
+                {% for cell in row %}
+                <td>{{ cell }}</td>
+                {% endfor %}
+            </tr>
+            {% empty %}
+                {% if table.empty_text %}
+                <tr><td colspan="{{ table.columns|length }}">{{ table.empty_text }}</td></tr>
+                {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
 
 
 .. _template_tags:
