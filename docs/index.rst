@@ -615,6 +615,65 @@ which can be iterated over:
     </table>
 
 
+Class Based Generic Mixins
+==========================
+
+Django 1.3 introduced `class based views`__ as a mechanism to reduce the
+repetition in view code. django-tables comes with a single class based view
+mixin: ``SingleTableMixin``. It makes it trivial to incorporate a table into a
+view/template, however it requires a few variables to be defined on the view:
+
+- ``table_class`` –- the table class to use, e.g. ``SimpleTable``
+- ``table_data`` (or ``get_table_data()``) -- the data used to populate the
+  table
+- ``context_table_name`` -- the name of template variable containing the table
+  object
+
+.. __: https://docs.djangoproject.com/en/1.3/topics/class-based-views/
+
+For example:
+
+.. code-block:: python
+
+    from django_tables.views import SingleTableMixin
+    from django.generic.views.list import ListView
+
+
+    class Simple(models.Model):
+        first_name = models.CharField(max_length=200)
+        last_name = models.CharField(max_length=200)
+
+
+    class SimpleTable(tables.Table):
+        first_name = tables.Column()
+        last_name = tables.Column()
+
+
+    class MyTableView(SingleTableMixin, ListView):
+        model = Simple
+        table_class = SimpleTable
+
+
+The template could then be as simple as:
+
+.. code-block:: django
+
+    {% load django_tables %}
+    {% render_table table %}
+
+Such little code is possible due to the example above taking advantage of
+default values and ``SimpleTableMixin``'s eagarness at finding data sources
+when one isn't explicitly defined.
+
+.. note::
+
+    If you want more than one table on a page, at the moment the simplest way
+    to do it is to use ``SimpleTableMixin`` for one table, and write the
+    boilerplate for the other yourself in ``get_context_data()``. Obviously
+    this isn't particularly elegant, and as such will hopefully be resolved in
+    the future.
+
+
 API Reference
 =============
 
