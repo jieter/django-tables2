@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.core.urlresolvers import reverse
 from django.utils.encoding import force_unicode, StrAndUnicode
+from django.db.models.fields import FieldDoesNotExist
 from django.utils.datastructures import SortedDict
 from django.utils.text import capfirst
 from django.utils.safestring import mark_safe
@@ -413,8 +414,12 @@ class BoundColumn(object):
         if hasattr(self.table.data, 'queryset'):
             model = self.table.data.queryset.model
             parts = self.accessor.split('.')
+            field = None
             for part in parts:
-                field = model._meta.get_field(part)
+                try:
+                    field = model._meta.get_field(part)
+                except FieldDoesNotExist:
+                    break
                 if hasattr(field, 'rel') and hasattr(field.rel, 'to'):
                     model = field.rel.to
                     continue
