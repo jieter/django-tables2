@@ -6,34 +6,30 @@ from django.core.paginator import Paginator
 import django_tables as tables
 from django_tables import utils
 
+
 core = Tests()
 
 
-@core.context
-def context():
-    class Context(object):
-        memory_data = [
-            {'i': 2, 'alpha': 'b', 'beta': 'b'},
-            {'i': 1, 'alpha': 'a', 'beta': 'c'},
-            {'i': 3, 'alpha': 'c', 'beta': 'a'},
-        ]
+class UnsortedTable(tables.Table):
+    i = tables.Column()
+    alpha = tables.Column()
+    beta = tables.Column()
 
-        class UnsortedTable(tables.Table):
-            i = tables.Column()
-            alpha = tables.Column()
-            beta = tables.Column()
 
-        class SortedTable(UnsortedTable):
-            class Meta:
-                order_by = 'alpha'
+class SortedTable(UnsortedTable):
+    class Meta:
+        order_by = 'alpha'
 
-        table = UnsortedTable(memory_data)
 
-    yield Context
+MEMORY_DATA = [
+    {'i': 2, 'alpha': 'b', 'beta': 'b'},
+    {'i': 1, 'alpha': 'a', 'beta': 'c'},
+    {'i': 3, 'alpha': 'c', 'beta': 'a'},
+]
 
 
 @core.test
-def declarations(context):
+def declarations():
     """Test defining tables by declaration."""
     class GeoAreaTable(tables.Table):
         name = tables.Column()
@@ -61,60 +57,60 @@ def declarations(context):
 
 
 @core.test
-def datasource_untouched(context):
+def datasource_untouched():
     """Ensure that data that is provided to the table (the datasource) is not
     modified by table operations.
     """
-    original_data = copy.deepcopy(context.memory_data)
+    original_data = copy.deepcopy(MEMORY_DATA)
 
-    table = context.UnsortedTable(context.memory_data)
+    table = UnsortedTable(MEMORY_DATA)
     table.order_by = 'i'
     list(table.rows)
-    assert context.memory_data == Assert(original_data)
+    assert MEMORY_DATA == Assert(original_data)
 
-    table = context.UnsortedTable(context.memory_data)
+    table = UnsortedTable(MEMORY_DATA)
     table.order_by = 'beta'
     list(table.rows)
-    assert context.memory_data == Assert(original_data)
+    assert MEMORY_DATA == Assert(original_data)
 
 
 @core.test
-def sorting(ctx):
+def sorting():
     # fallback to Table.Meta
-    Assert(('alpha', )) == ctx.SortedTable([], order_by=None).order_by == ctx.SortedTable([]).order_by
+    Assert(('alpha', )) == SortedTable([], order_by=None).order_by == SortedTable([]).order_by
 
     # values of order_by are wrapped in tuples before being returned
-    Assert(ctx.SortedTable([], order_by='alpha').order_by)   == ('alpha', )
-    Assert(ctx.SortedTable([], order_by=('beta',)).order_by) == ('beta', )
+    Assert(SortedTable([], order_by='alpha').order_by)   == ('alpha', )
+    Assert(SortedTable([], order_by=('beta',)).order_by) == ('beta', )
 
     # "no sorting"
-    table = ctx.SortedTable([])
+    table = SortedTable([])
     table.order_by = []
-    Assert(()) == table.order_by == ctx.SortedTable([], order_by=[]).order_by
+    Assert(()) == table.order_by == SortedTable([], order_by=[]).order_by
 
-    table = ctx.SortedTable([])
+    table = SortedTable([])
     table.order_by = ()
-    Assert(()) == table.order_by == ctx.SortedTable([], order_by=()).order_by
+    Assert(()) == table.order_by == SortedTable([], order_by=()).order_by
 
-    table = ctx.SortedTable([])
+    table = SortedTable([])
     table.order_by = ''
-    Assert(()) == table.order_by == ctx.SortedTable([], order_by='').order_by
+    Assert(()) == table.order_by == SortedTable([], order_by='').order_by
 
     # apply a sorting
-    table = ctx.UnsortedTable([])
+    table = UnsortedTable([])
     table.order_by = 'alpha'
-    Assert(('alpha', )) == ctx.UnsortedTable([], order_by='alpha').order_by == table.order_by
+    Assert(('alpha', )) == UnsortedTable([], order_by='alpha').order_by == table.order_by
 
-    table = ctx.SortedTable([])
+    table = SortedTable([])
     table.order_by = 'alpha'
-    Assert(('alpha', )) == ctx.SortedTable([], order_by='alpha').order_by  == table.order_by
+    Assert(('alpha', )) == SortedTable([], order_by='alpha').order_by  == table.order_by
 
     # let's check the data
-    table = ctx.SortedTable(ctx.memory_data, order_by='beta')
+    table = SortedTable(MEMORY_DATA, order_by='beta')
     Assert(3) == table.rows[0]['i']
 
     # allow fallback to Table.Meta.order_by
-    table = ctx.SortedTable(ctx.memory_data)
+    table = SortedTable(MEMORY_DATA)
     Assert(1) == table.rows[0]['i']
 
     # column's can't be sorted if they're not allowed to be
@@ -147,7 +143,7 @@ def sorting(ctx):
 
 
 @core.test
-def column_count(context):
+def column_count():
     class SimpleTable(tables.Table):
         visible = tables.Column(visible=True)
         hidden = tables.Column(visible=False)
@@ -157,14 +153,48 @@ def column_count(context):
 
 
 @core.test
-def column_accessor(context):
-    class SimpleTable(context.UnsortedTable):
+def column_accessor():
+    class SimpleTable(UnsortedTable):
         col1 = tables.Column(accessor='alpha.upper.isupper')
         col2 = tables.Column(accessor='alpha.upper')
-    table = SimpleTable(context.memory_data)
+    table = SimpleTable(MEMORY_DATA)
     row = table.rows[0]
     Assert(row['col1']) is True
     Assert(row['col2']) == 'B'
+
+
+@core.test
+def exclude_columns():
+    """
+    Defining ``Table.Meta.exclude`` or providing an ``exclude`` argument when
+    instantiating a table should have the same effect -- exclude those columns
+    from the table. It should have the same effect as not defining the
+    columns originally.
+    """
+    # Table(..., exclude=...)
+    table = UnsortedTable([], exclude=("i"))
+    Assert([c.name for c in table.columns]) == ["alpha", "beta"]
+
+    # Table.Meta: exclude=...
+    class PartialTable(UnsortedTable):
+        class Meta:
+            exclude = ("alpha", )
+    table = PartialTable([])
+    Assert([c.name for c in table.columns]) == ["i", "beta"]
+
+    # Inheritence -- exclude in parent, add in child
+    class AddonTable(PartialTable):
+        added = tables.Column()
+    table = AddonTable([])
+    Assert([c.name for c in table.columns]) == ["i", "beta", "added"]
+
+    # Inheritence -- exclude in child
+    class ExcludeTable(UnsortedTable):
+        added = tables.Column()
+        class Meta:
+            exclude = ("alpha", )
+    table = ExcludeTable([])
+    Assert([c.name for c in table.columns]) == ["i", "beta", "added"]
 
 
 @core.test
@@ -175,7 +205,7 @@ def pagination():
     # create some sample data
     data = []
     for i in range(100):
-        data.append({'name': 'Book No. %d' % i})
+        data.append({"name": "Book No. %d" % i})
     books = BookTable(data)
 
     # external paginator
@@ -187,7 +217,7 @@ def pagination():
 
     # integrated paginator
     books.paginate(page=1)
-    Assert(hasattr(books, 'page')) is True
+    Assert(hasattr(books, "page")) is True
 
     books.paginate(page=1, per_page=10)
     Assert(len(list(books.page.object_list))) == 10

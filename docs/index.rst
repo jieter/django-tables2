@@ -636,6 +636,9 @@ API Reference
 
 .. class:: Table.Meta
 
+    Provides a way to define *global* settings for table, as opposed to
+    defining them for each instance.
+
     .. attribute:: attrs
 
         Allows custom HTML attributes to be specified which will be added to
@@ -643,9 +646,54 @@ API Reference
         :meth:`~django_tables.tables.Table.as_html` or the
         :ref:`template-tags.render_table` template tag.
 
+        This is typically used to enable a theme for a table (which is done by
+        adding a CSS class to the ``<table>`` element). i.e.::
+
+            class SimpleTable(tables.Table):
+                name = tables.Column()
+
+                class Meta:
+                    attrs = {"class": "paleblue"}
+
+        :type: ``dict``
+
         Default: ``{}``
 
-        :type: :class:`dict`
+    .. attribute:: empty_text
+
+        Defines the text to display when the table has no rows.
+
+    .. attribute:: exclude
+
+        Defines which columns should be excluded from the table. This is useful
+        in subclasses to exclude columns in a parent. e.g.
+
+            >>> class Person(tables.Table):
+            ...     first_name = tables.Column()
+            ...     last_name = tables.Column()
+            ...
+            >>> Person.base_columns
+            {'first_name': <django_tables.columns.Column object at 0x10046df10>,
+            'last_name': <django_tables.columns.Column object at 0x10046d8d0>}
+            >>> class ForgetfulPerson(Person):
+            ...     class Meta:
+            ...         exclude = ("last_name", )
+            ...
+            >>> ForgetfulPerson.base_columns
+            {'first_name': <django_tables.columns.Column object at 0x10046df10>}
+
+        :type: tuple of ``string`` objects
+
+        Default: ``()``
+
+    .. attribute:: order_by
+
+        The default ordering. e.g. ``('name', '-age')``. A hyphen ``-`` can be
+        used to prefix a column name to indicate *descending* order.
+
+        :type: :class:`tuple`
+
+        Default: ``()``
 
     .. attribute:: sortable
 
@@ -656,17 +704,9 @@ API Reference
         an easy mechanism to disable sorting on an entire table, without adding
         ``sortable=False`` to each ``Column`` in a ``Table``.
 
-        Default: :const:`True`
-
         :type: :class:`bool`
 
-    .. attribute:: order_by
-
-        The default ordering. e.g. ``('name', '-age')``
-
-        Default: ``()``
-
-        :type: :class:`tuple`
+        Default: :const:`True`
 
 
 :class:`TableData` Objects:
@@ -674,13 +714,6 @@ API Reference
 
 .. autoclass:: django_tables.tables.TableData
     :members: __init__, order_by, __getitem__, __len__
-
-
-:class:`TableOptions` Objects:
-------------------------------
-
-.. autoclass:: django_tables.tables.TableOptions
-    :members:
 
 
 :class:`Column` Objects:

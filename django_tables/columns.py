@@ -434,17 +434,17 @@ class BoundColumn(object):
 
 class BoundColumns(object):
     """
-    Container for spawning BoundColumns.
+    Container for spawning :class:`.BoundColumn` objects.
 
     This is bound to a table and provides its :attr:`.Table.columns` property.
     It provides access to those columns in different ways (iterator,
     item-based, filtered and unfiltered etc), stuff that would not be possible
     with a simple iterator in the table class.
 
-    A :class:`.BoundColumns` object is a container for holding
-    :class:`.BoundColumn` objects. It provides methods that make accessing
+    A ``BoundColumns`` object is a container for holding
+    ``BoundColumn`` objects. It provides methods that make accessing
     columns easier than if they were stored in a ``list`` or
-    :class:`dict`. :class:`Columns` has a similar API to a ``dict`` (it
+    ``dict``. ``Columns`` has a similar API to a ``dict`` (it
     actually uses a ``SortedDict`` interally).
 
     At the moment you'll only come across this class when you access a

@@ -19,7 +19,7 @@ class TableData(object):
     Exposes a consistent API for :term:`table data`. It currently supports a
     :class:`QuerySet`, or a :class:`list` of :class:`dict` objects.
 
-    This class is used by :class:.Table` to wrap any
+    This class is used by :class:`.Table` to wrap any
     input table data.
     """
 
@@ -92,7 +92,7 @@ class DeclarativeColumnsMetaclass(type):
     as well.
     """
 
-    def __new__(cls, name, bases, attrs, parent_cols_from=None):
+    def __new__(cls, name, bases, attrs):
         """Ughhh document this :)"""
         # extract declared columns
         columns = [(name, attrs.pop(name)) for name, column in attrs.items()
@@ -104,22 +104,22 @@ class DeclarativeColumnsMetaclass(type):
         # well. Note that we loop over the bases in *reverse* - this is
         # necessary to preserve the correct order of columns.
         for base in bases[::-1]:
-            cols_attr = (parent_cols_from if (parent_cols_from and
-                                             hasattr(base, parent_cols_from))
-                                          else 'base_columns')
-            if hasattr(base, cols_attr):
-                columns = getattr(base, cols_attr).items() + columns
+            if hasattr(base, "base_columns"):
+                columns = base.base_columns.items() + columns
         # Note that we are reusing an existing ``base_columns`` attribute.
         # This is because in certain inheritance cases (mixing normal and
         # ModelTables) this metaclass might be executed twice, and we need
         # to avoid overriding previous data (because we pop() from attrs,
         # the second time around columns might not be registered again).
         # An example would be:
-        #    class MyNewTable(MyOldNonModelTable, tables.ModelTable): pass
-        if not 'base_columns' in attrs:
-            attrs['base_columns'] = SortedDict()
-        attrs['base_columns'].update(SortedDict(columns))
-        attrs['_meta'] = TableOptions(attrs.get('Meta', None))
+        #    class MyNewTable(MyOldNonTable, tables.Table): pass
+        if not "base_columns" in attrs:
+            attrs["base_columns"] = SortedDict()
+        attrs["base_columns"].update(SortedDict(columns))
+        attrs["_meta"] = opts = TableOptions(attrs.get("Meta", None))
+        for ex in opts.exclude:
+            if ex in attrs["base_columns"]:
+                attrs["base_columns"].pop(ex)
         return type.__new__(cls, name, bases, attrs)
 
 
@@ -127,23 +127,21 @@ class TableOptions(object):
     """
     Extracts and exposes options for a :class:`.Table` from a ``class Meta``
     when the table is defined.
+
+    :param options: options for a table
+    :type options: :class:`Meta` on a :class:`.Table`
     """
 
     def __init__(self, options=None):
-        """
-
-        :param options: options for a table
-        :type options: :class:`Meta` on a :class:`.Table`
-
-        """
         super(TableOptions, self).__init__()
-        self.sortable = getattr(options, 'sortable', True)
-        order_by = getattr(options, 'order_by', ())
+        self.attrs = AttributeDict(getattr(options, "attrs", {}))
+        self.empty_text = getattr(options, "empty_text", None)
+        self.exclude = getattr(options, "exclude", ())
+        order_by = getattr(options, "order_by", ())
         if isinstance(order_by, basestring):
             order_by = (order_by, )
         self.order_by = OrderByTuple(order_by)
-        self.attrs = AttributeDict(getattr(options, 'attrs', {}))
-        self.empty_text = getattr(options, 'empty_text', None)
+        self.sortable = getattr(options, "sortable", True)
 
 
 class Table(StrAndUnicode):
@@ -186,9 +184,10 @@ class Table(StrAndUnicode):
     __metaclass__ = DeclarativeColumnsMetaclass
     TableDataClass = TableData
 
-    def __init__(self, data, order_by=None, sortable=None, empty_text=None):
-        self._rows = BoundRows(self)  # bound rows
-        self._columns = BoundColumns(self)  # bound columns
+    def __init__(self, data, order_by=None, sortable=None, empty_text=None,
+                 exclude=None):
+        self._rows = BoundRows(self)
+        self._columns = BoundColumns(self)
         self._data = self.TableDataClass(data=data, table=self)
         self.empty_text = empty_text
         self.sortable = sortable
@@ -196,11 +195,14 @@ class Table(StrAndUnicode):
             self.order_by = self._meta.order_by
         else:
             self.order_by = order_by
-
         # Make a copy so that modifying this will not touch the class
         # definition. Note that this is different from forms, where the
         # copy is made available in a ``fields`` attribute.
         self.base_columns = copy.deepcopy(type(self).base_columns)
+        self.exclude = exclude or ()
+        for ex in self.exclude:
+            if ex in self.base_columns:
+                self.base_columns.pop(ex)
 
     def __unicode__(self):
         return self.as_html()
