@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 from django.core.urlresolvers import reverse
 from django.utils.encoding import force_unicode, StrAndUnicode
-from django.db.models.fields import FieldDoesNotExist
 from django.utils.datastructures import SortedDict
 from django.utils.text import capfirst
 from django.utils.safestring import mark_safe
 from django.template import RequestContext, Context, Template
+from django.db.models.fields import FieldDoesNotExist
 from .utils import OrderBy, A, AttributeDict
 
 

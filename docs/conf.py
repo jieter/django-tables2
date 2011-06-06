@@ -11,14 +11,14 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
-import sys, os
-
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
+import sys, os
 sys.path.insert(0, os.path.join(os.path.abspath('.'), os.pardir))
-import django_tables as tables
+import example
 sys.path.pop(0)
+os.environ["DJANGO_SETTINGS_MODULE"] = "example.settings"
 
 # -- General configuration -----------------------------------------------------
 
