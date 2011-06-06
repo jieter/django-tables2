@@ -7,10 +7,12 @@ from django.utils.safestring import mark_safe
 from django.template import RequestContext, Context, Template
 from django.db.models.fields import FieldDoesNotExist
 from .utils import OrderBy, A, AttributeDict
+from itertools import ifilter
 
 
 class Column(object):
-    """Represents a single column of a table.
+    """
+    Represents a single column of a table.
 
     :class:`Column` objects control the way a column (including the cells that
     fall within it) are rendered.
@@ -44,7 +46,6 @@ class Column(object):
     :type sortable: :class:`bool`
     :param sortable: If :const:`False`, this column will not be allowed to
         influence row ordering/sorting.
-
     """
     #: Tracks each time a Column instance is created. Used to retain order.
     creation_counter = 0
@@ -74,7 +75,6 @@ class Column(object):
 
         The default value passed into ``Column.default`` property may be a
         callable, this function handles access.
-
         """
         return self._default() if callable(self._default) else self._default
 
@@ -93,7 +93,6 @@ class Column(object):
             to the column name (it's only available on a :class:`.BoundColumn`
             object hence accessing that first) when this property doesn't
             return something useful.
-
         """
         return self.verbose_name
 
@@ -138,7 +137,6 @@ class CheckBoxColumn(Column):
     :param header_attrs:
         same as *attrs*, but applied **only** to the header checkbox
     """
-
     def __init__(self, attrs=None, header_attrs=None, **extra):
         params = {'sortable': False}
         params.update(extra)
@@ -210,7 +208,6 @@ class LinkColumn(Column):
         class PeopleTable(tables.Table):
             name = tables.LinkColumn('people_detail', args=[A('pk')])
     """
-
     def __init__(self, viewname, urlconf=None, args=None, kwargs=None,
                  current_app=None, attrs=None, **extra):
         super(LinkColumn, self).__init__(**extra)
@@ -284,7 +281,6 @@ class TemplateColumn(Column):
         In order to use template tags or filters that require a
         ``RequestContext``, the table **must** be rendered via
         :ref:`{% render_table %} <template-tags.render_table>`.
-
     """
     def __init__(self, template_code=None, **extra):
         super(TemplateColumn, self).__init__(**extra)
@@ -326,7 +322,6 @@ class BoundColumn(object):
 
         ``age`` is the name.
     """
-
     def __init__(self, table, column, name):
         self._table = table
         self._column = column
@@ -340,31 +335,35 @@ class BoundColumn(object):
         """
         Returns the string used to access data for this column out of the data
         source.
-
         """
         return self.column.accessor or A(self.name)
 
     @property
     def column(self):
-        """Returns the :class:`.Column` object for this column."""
+        """
+        Returns the :class:`.Column` object for this column.
+        """
         return self._column
 
     @property
     def default(self):
-        """Returns the default value for this column."""
+        """
+        Returns the default value for this column.
+        """
         return self.column.default
 
     @property
     def header(self):
         """
         The value that should be used in the header cell for this column.
-
         """
         return self.column.header or self.verbose_name
 
     @property
     def name(self):
-        """Returns the string used to identify this column."""
+        """
+        Returns the string used to identify this column.
+        """
         return self._name
 
     @property
@@ -372,7 +371,6 @@ class BoundColumn(object):
         """
         If this column is sorted, return the associated :class:`.OrderBy`
         instance, otherwise ``None``.
-
         """
         try:
             return self.table.order_by[self.name]
@@ -381,14 +379,18 @@ class BoundColumn(object):
 
     @property
     def sortable(self):
-        """Return a ``bool`` depending on whether this column is sortable."""
+        """
+        Return a ``bool`` depending on whether this column is sortable.
+        """
         if self.column.sortable is not None:
             return self.column.sortable
         return self.table.sortable
 
     @property
     def table(self):
-        """Return the :class:`Table` object that this column is part of."""
+        """
+        Return the :class:`Table` object that this column is part of.
+        """
         return self._table
 
     @property
@@ -432,7 +434,6 @@ class BoundColumn(object):
     def visible(self):
         """
         Returns a :class:`bool` depending on whether this column is visible.
-
         """
         return self.column.visible
 
@@ -458,7 +459,6 @@ class BoundColumns(object):
     :type table: :class:`.Table` object
     :param table: the table containing the columns
     """
-
     def __init__(self, table):
         self.table = table
         # ``self._columns`` attribute stores the bound columns (columns that
@@ -471,7 +471,6 @@ class BoundColumns(object):
         (note that :attr:`.base_columns` might have changed since last time);
         creating :class:`.BoundColumn` instances can be costly, so we reuse
         existing ones.
-
         """
         columns = SortedDict()
         for name, column in self.table.base_columns.items():
@@ -485,21 +484,17 @@ class BoundColumns(object):
         """
         Return an iterator that exposes all :class:`.BoundColumn` objects,
         regardless of visiblity or sortability.
-
         """
         self._spawn_columns()
-        for column in self._columns.values():
-            yield column
+        return (column for name, column in self._columns.iteritems())
 
     def items(self):
         """
         Return an iterator of ``(name, column)`` pairs (where ``column`` is a
         :class:`.BoundColumn` object).
-
         """
         self._spawn_columns()
-        for r in self._columns.items():
-            yield r
+        return self._columns.iteritems()
 
     def sortable(self):
         """
@@ -510,11 +505,8 @@ class BoundColumns(object):
         set and checking ``{% if column.sortable %}`` can be problematic in
         conjunction with e.g. ``{{ forloop.last }}`` (the last column might not
         be the actual last that is rendered).
-
         """
-        for column in self.all():
-            if column.sortable:
-                yield column
+        return ifilter(lambda x: x.sortable, self.all())
 
     def visible(self):
         """
@@ -522,22 +514,21 @@ class BoundColumns(object):
         :class:`.BoundColumn` objects.
 
         This is geared towards table rendering.
-
         """
-        for column in self.all():
-            if column.visible:
-                yield column
+        return ifilter(lambda x: x.visible, self.all())
 
     def __iter__(self):
-        """Convenience API with identical functionality to :meth:`visible`."""
+        """
+        Convenience API with identical functionality to :meth:`visible`.
+        """
         return self.visible()
 
     def __contains__(self, item):
-        """Check if a column is contained within a :class:`.Columns` object.
+        """
+        Check if a column is contained within a :class:`.Columns` object.
 
         *item* can either be a :class:`.BoundColumn` object, or the name of a
         column.
-
         """
         self._spawn_columns()
         if isinstance(item, basestring):
@@ -549,12 +540,15 @@ class BoundColumns(object):
             return item in self.all()
 
     def __len__(self):
-        """Return how many :class:`BoundColumn` objects are contained."""
+        """
+        Return how many :class:`BoundColumn` objects are contained.
+        """
         self._spawn_columns()
         return len([1 for c in self._columns.values() if c.visible])
 
     def __getitem__(self, index):
-        """Retrieve a specific :class:`BoundColumn` object.
+        """
+        Retrieve a specific :class:`BoundColumn` object.
 
         *index* can either be 0-indexed or the name of a column
 
@@ -562,7 +556,6 @@ class BoundColumns(object):
 
             columns['speed']  # returns a bound column with name 'speed'
             columns[0]        # returns the first column
-
         """
         self._spawn_columns()
         if isinstance(index, int):
