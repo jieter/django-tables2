@@ -15,6 +15,34 @@ from .columns import BoundColumns, Column
 QUERYSET_ACCESSOR_SEPARATOR = '__'
 
 
+def _validate_sequence(seq, column_names):
+    """
+    Validates a sequence against a list of column names. It checks that "..."
+    is used at most once, either at the head or tail, and that if it's not
+    used, every column is specified.
+
+    :raises: ValueError on error.
+    """
+    if (seq.count("...") > 1 or (seq.count("...") == 1 and seq[0] != "..."
+                                 and seq[-1] != "...")):
+        raise ValueError("'...' must be used at most once in 'sequence', "
+                         "either at the head or tail.")
+
+    if "..." in seq:
+        extra = (set(seq) - set(("...", ))).difference(column_names)
+        if extra:
+            raise ValueError(u"'sequence' defined but names columns that do "
+                             u"not exist in the table. Remove '%s'."
+                             % "', '".join(extra))
+    else:
+        diff = set(seq) ^ set(column_names)
+        if diff:
+            print 'seq', seq
+            print 'column_names', column_names
+            raise ValueError(u"'sequence' defined but does not match columns. "
+                             u"Fix '%s' or possibly add '...' to head or tail."
+                             % "', '".join(diff))
+
 class TableData(object):
     """
     Exposes a consistent API for :term:`table data`. It currently supports a
@@ -94,7 +122,7 @@ class DeclarativeColumnsMetaclass(type):
     def __new__(cls, name, bases, attrs):
         """Ughhh document this :)"""
         # extract declared columns
-        columns = [(name, attrs.pop(name)) for name, column in attrs.items()
+        columns = [(name_, attrs.pop(name_)) for name_, column in attrs.items()
                                            if isinstance(column, Column)]
         columns.sort(lambda x, y: cmp(x[1].creation_counter,
                                       y[1].creation_counter))
@@ -119,6 +147,16 @@ class DeclarativeColumnsMetaclass(type):
         for ex in opts.exclude:
             if ex in attrs["base_columns"]:
                 attrs["base_columns"].pop(ex)
+        if opts.sequence:
+            _validate_sequence(opts.sequence, attrs["base_columns"].keys())
+            if "..." not in opts.sequence:
+                attrs["base_columns"] = SortedDict(((s, attrs["base_columns"][s]) for s in opts.sequence))
+            elif opts.sequence[0] == "...":
+                for s in opts.sequence[1:]:
+                    attrs["base_columns"][s] = attrs["base_columns"].pop(s)  # append
+            elif opts.sequence[-1] == "...":
+                for s in opts.sequence[:-1]:
+                    attrs["base_columns"].insert(0, s, attrs["base_columns"].pop(s))
         return type.__new__(cls, name, bases, attrs)
 
 
@@ -140,6 +178,7 @@ class TableOptions(object):
         if isinstance(order_by, basestring):
             order_by = (order_by, )
         self.order_by = OrderByTuple(order_by)
+        self.sequence = getattr(options, "sequence", None)
         self.sortable = getattr(options, "sortable", True)
 
 
@@ -184,17 +223,13 @@ class Table(StrAndUnicode):
     TableDataClass = TableData
 
     def __init__(self, data, order_by=None, sortable=None, empty_text=None,
-                 exclude=None, attrs=None):
+                 exclude=None, attrs=None, sequence=None):
         self._rows = BoundRows(self)
         self._columns = BoundColumns(self)
         self._data = self.TableDataClass(data=data, table=self)
         self.attrs = attrs
         self.empty_text = empty_text
         self.sortable = sortable
-        if order_by is None:
-            self.order_by = self._meta.order_by
-        else:
-            self.order_by = order_by
         # Make a copy so that modifying this will not touch the class
         # definition. Note that this is different from forms, where the
         # copy is made available in a ``fields`` attribute.
@@ -203,6 +238,12 @@ class Table(StrAndUnicode):
         for ex in self.exclude:
             if ex in self.base_columns:
                 self.base_columns.pop(ex)
+        self.sequence = sequence
+        if order_by is None:
+            self.order_by = self._meta.order_by
+        else:
+            self.order_by = order_by
+
 
     def __unicode__(self):
         return self.as_html()
@@ -235,6 +276,17 @@ class Table(StrAndUnicode):
         order_by = OrderByTuple(new)
         self._order_by = order_by
         self._data.order_by(order_by)
+
+    @property
+    def sequence(self):
+        return (self._sequence if self._sequence is not None
+                               else self._meta.sequence)
+
+    @sequence.setter
+    def sequence(self, value):
+        if value:
+            _validate_sequence(value, self.base_columns.keys())
+        self._sequence = value
 
     @property
     def sortable(self):

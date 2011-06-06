@@ -480,23 +480,37 @@ class BoundColumns(object):
                 columns[name] = BoundColumn(self.table, column, name)
         self._columns = columns
 
-    def all(self):
+    def iternames(self):
+        return (name for name, column in self.iteritems())
+
+    def names(self):
+        return list(self.iternames())
+
+    def iterall(self):
         """
         Return an iterator that exposes all :class:`.BoundColumn` objects,
         regardless of visiblity or sortability.
         """
-        self._spawn_columns()
-        return (column for name, column in self._columns.iteritems())
+        return (column for name, column in self.iteritems())
 
-    def items(self):
+    def all(self):
+        return list(self.iterall())
+
+    def iteritems(self):
         """
         Return an iterator of ``(name, column)`` pairs (where ``column`` is a
         :class:`.BoundColumn` object).
         """
         self._spawn_columns()
-        return self._columns.iteritems()
+        if self.table.sequence:
+            return ((x, self._columns[x]) for x in self.table.sequence)
+        else:
+            return self._columns.iteritems()
 
-    def sortable(self):
+    def items(self):
+        return list(self.iteritems())
+
+    def itersortable(self):
         """
         Same as :meth:`.BoundColumns.all` but only returns sortable
         :class:`.BoundColumn` objects.
@@ -508,7 +522,10 @@ class BoundColumns(object):
         """
         return ifilter(lambda x: x.sortable, self.all())
 
-    def visible(self):
+    def sortable(self):
+        return list(self.itersortable())
+
+    def itervisible(self):
         """
         Same as :meth:`.sortable` but only returns visible
         :class:`.BoundColumn` objects.
@@ -517,11 +534,14 @@ class BoundColumns(object):
         """
         return ifilter(lambda x: x.visible, self.all())
 
+    def visible(self):
+        return list(self.itervisible())
+
     def __iter__(self):
         """
         Convenience API with identical functionality to :meth:`visible`.
         """
-        return self.visible()
+        return self.itervisible()
 
     def __contains__(self, item):
         """
@@ -530,21 +550,19 @@ class BoundColumns(object):
         *item* can either be a :class:`.BoundColumn` object, or the name of a
         column.
         """
-        self._spawn_columns()
         if isinstance(item, basestring):
-            for key in self._columns.keys():
-                if item == key:
-                    return True
-            return False
+            return item in self.iternames()
         else:
-            return item in self.all()
+            # let's assume we were given a column
+            return item in self.iterall()
 
     def __len__(self):
         """
-        Return how many :class:`BoundColumn` objects are contained.
+        Return how many :class:`BoundColumn` objects are contained (and
+        visible).
         """
         self._spawn_columns()
-        return len([1 for c in self._columns.values() if c.visible])
+        return len(self.visible())
 
     def __getitem__(self, index):
         """

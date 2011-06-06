@@ -705,6 +705,9 @@ API Reference
         :meth:`~django_tables.tables.Table.as_html` or the
         :ref:`template-tags.render_table` template tag.
 
+        :type: ``dict``
+        :default: ``{}``
+
         This is typically used to enable a theme for a table (which is done by
         adding a CSS class to the ``<table>`` element). i.e.::
 
@@ -714,10 +717,6 @@ API Reference
                 class Meta:
                     attrs = {"class": "paleblue"}
 
-        :type: ``dict``
-
-        Default: ``{}``
-
         .. note::
 
             This functionality is also available via the ``attrs`` keyword
@@ -726,6 +725,13 @@ API Reference
     .. attribute:: empty_text
 
         Defines the text to display when the table has no rows.
+
+        :type: ``string``
+        :default: ``None``
+
+        If the table is empty and ``bool(empty_text)`` is ``True``, a row is
+        displayed containing ``empty_text``. This is allows a message such as
+        *There are currently no FOO.* to be displayed.
 
         .. note::
 
@@ -776,7 +782,8 @@ API Reference
 
     .. attribute:: sortable
 
-        The default value for determining if a :class:`.Column` is sortable.
+        Whether columns are by default sortable, or not. i.e. the fallback for
+        value for a column's sortable value.
 
         If the ``Table`` and ``Column`` don't specify a value, a column's
         ``sortable`` value will fallback to this. object specify. This provides
