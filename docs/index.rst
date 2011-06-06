@@ -718,9 +718,19 @@ API Reference
 
         Default: ``{}``
 
+        .. note::
+
+            This functionality is also available via the ``attrs`` keyword
+            argument to a table's constructor.
+
     .. attribute:: empty_text
 
         Defines the text to display when the table has no rows.
+
+        .. note::
+
+            This functionality is also available via the ``empty_text`` keyword
+            argument to a table's constructor.
 
     .. attribute:: exclude
 
@@ -745,6 +755,11 @@ API Reference
 
         Default: ``()``
 
+        .. note::
+
+            This functionality is also available via the ``exclude`` keyword
+            argument to a table's constructor.
+
     .. attribute:: order_by
 
         The default ordering. e.g. ``('name', '-age')``. A hyphen ``-`` can be
@@ -753,6 +768,11 @@ API Reference
         :type: :class:`tuple`
 
         Default: ``()``
+
+        .. note::
+
+            This functionality is also available via the ``order_by`` keyword
+            argument to a table's constructor.
 
     .. attribute:: sortable
 
@@ -766,6 +786,11 @@ API Reference
         :type: :class:`bool`
 
         Default: :const:`True`
+
+        .. note::
+
+            This functionality is also available via the ``sortable`` keyword
+            argument to a table's constructor.
 
 
 :class:`TableData` Objects:

@@ -6,6 +6,7 @@ from django.http import Http404
 from django.template.loader import get_template
 from django.template import Context
 from django.utils.encoding import StrAndUnicode
+from django.db.models.query import QuerySet
 from .utils import OrderBy, OrderByTuple, Accessor, AttributeDict
 from .rows import BoundRows, BoundRow
 from .columns import BoundColumns, Column
@@ -22,9 +23,7 @@ class TableData(object):
     This class is used by :class:`.Table` to wrap any
     input table data.
     """
-
     def __init__(self, data, table):
-        from django.db.models.query import QuerySet
         if isinstance(data, QuerySet):
             self.queryset = data
         elif isinstance(data, list):
@@ -185,10 +184,11 @@ class Table(StrAndUnicode):
     TableDataClass = TableData
 
     def __init__(self, data, order_by=None, sortable=None, empty_text=None,
-                 exclude=None):
+                 exclude=None, attrs=None):
         self._rows = BoundRows(self)
         self._columns = BoundColumns(self)
         self._data = self.TableDataClass(data=data, table=self)
+        self.attrs = attrs
         self.empty_text = empty_text
         self.sortable = sortable
         if order_by is None:
@@ -282,7 +282,11 @@ class Table(StrAndUnicode):
 
         :rtype: :class:`~.utils.AttributeDict` object.
         """
-        return self._meta.attrs
+        return self._attrs if self._attrs is not None else self._meta.attrs
+
+    @attrs.setter
+    def attrs(self, value):
+        self._attrs = value
 
     def paginate(self, klass=Paginator, per_page=25, page=1, *args, **kwargs):
         self.paginator = klass(self.rows, per_page, *args, **kwargs)

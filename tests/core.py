@@ -57,6 +57,29 @@ def declarations():
 
 
 @core.test
+def attrs():
+    class TestTable(tables.Table):
+        class Meta:
+            attrs = {}
+    Assert({}) == TestTable([]).attrs
+
+    class TestTable2(tables.Table):
+        class Meta:
+            attrs = {"a": "b"}
+    Assert({"a": "b"}) == TestTable2([]).attrs
+
+    class TestTable3(tables.Table):
+        pass
+    Assert({}) == TestTable3([]).attrs
+    Assert({"a": "b"}) == TestTable3([], attrs={"a": "b"}).attrs
+
+    class TestTable4(tables.Table):
+        class Meta:
+            attrs = {"a": "b"}
+    Assert({"c": "d"}) == TestTable4([], attrs={"c": "d"}).attrs
+
+
+@core.test
 def datasource_untouched():
     """Ensure that data that is provided to the table (the datasource) is not
     modified by table operations.
