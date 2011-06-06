@@ -14,11 +14,15 @@
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-import sys, os
+import os
+import sys
+os.environ["DJANGO_SETTINGS_MODULE"] = "example.settings"
+# import our libs
 sys.path.insert(0, os.path.join(os.path.abspath('.'), os.pardir))
 import example
+import django_tables as tables
 sys.path.pop(0)
-os.environ["DJANGO_SETTINGS_MODULE"] = "example.settings"
+
 
 # -- General configuration -----------------------------------------------------
 
