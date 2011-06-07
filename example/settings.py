@@ -2,14 +2,7 @@
 from os.path import dirname, join, abspath
 import sys
 
-
 ROOT = dirname(abspath(__file__))
-
-
-sys.path.insert(0, join(ROOT, '..'))
-import django_tables
-sys.path.pop(0)
-
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG

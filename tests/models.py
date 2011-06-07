@@ -32,6 +32,49 @@ def boundrows_iteration():
 
 
 @models.test
+def model_table():
+    """
+    The ``model`` option on a table causes the table to dynamically add columns
+    based on the fields.
+    """
+    class OccupationTable(tables.Table):
+        class Meta:
+            model = Occupation
+    Assert(["id", "name", "region"]) == OccupationTable.base_columns.keys()
+
+    class OccupationTable2(tables.Table):
+        extra = tables.Column()
+        class Meta:
+            model = Occupation
+    Assert(["id", "name", "region", "extra"]) == OccupationTable2.base_columns.keys()
+
+    # be aware here, we already have *models* variable, but we're importing
+    # over the top
+    from django.db import models
+    class ComplexModel(models.Model):
+        char = models.CharField(max_length=200)
+        fk = models.ForeignKey("self")
+        m2m = models.ManyToManyField("self")
+
+    class ComplexTable(tables.Table):
+        class Meta:
+            model = ComplexModel
+    Assert(["id", "char", "fk"]) == ComplexTable.base_columns.keys()
+
+
+@models.test
+def mixins():
+    class TableMixin(tables.Table):
+        extra = tables.Column()
+
+    class OccupationTable(TableMixin, tables.Table):
+        extra2 = tables.Column()
+        class Meta:
+            model = Occupation
+    Assert(["extra", "id", "name", "region", "extra2"]) == OccupationTable.base_columns.keys()
+
+
+@models.test
 def verbose_name():
     """
     When using queryset data as input for a table, default to using model field

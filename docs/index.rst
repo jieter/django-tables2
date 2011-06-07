@@ -680,6 +680,114 @@ when one isn't explicitly defined.
     the future.
 
 
+Table Mixins
+============
+
+It's possible to create a mixin for a table that overrides something, however
+unless it itself is a subclass of :class:`.Table` class
+variable instances of :class:`.Column` will **not** be added to the class which is using the mixin.
+
+Example::
+
+    >>> class UselessMixin(object):
+    ...     extra = tables.Column()
+    ...
+    >>> class TestTable(UselessMixin, tables.Table):
+    ...     name = tables.Column()
+    ...
+    >>> TestTable.base_columns.keys()
+    ['name']
+
+To have a mixin contribute a column, it needs to be a subclass of
+:class:`~django_tables.tables.Table`. With this in mind the previous example
+*should* have been written as follows::
+
+    >>> class UsefulMixin(tables.Table):
+    ...     extra = tables.Column()
+    ...
+    >>> class TestTable(UsefulMixin, tables.Table):
+    ...     name = tables.Column()
+    ...
+    >>> TestTable.base_columns.keys()
+    ['extra', 'name']
+
+
+Tables for models
+=================
+
+Most of the time you'll probably be making tables to display queryset data, and
+writing such tables involves a lot of duplicate code, e.g.::
+
+    >>> class Person(models.Model):
+    ...     first_name = models.CharField(max_length=200)
+    ...     last_name = models.CharField(max_length=200)
+    ...     user = models.ForeignKey("auth.User")
+    ...     dob = models.DateField()
+    ...
+    >>> class PersonTable(tables.Table):
+    ...     first_name = tables.Column()
+    ...     last_name = tables.Column()
+    ...     user = tables.Column()
+    ...     dob = tables.Column()
+    ...
+
+Often a table will become quite complex after time, e.g. `table.render_foo`_,
+changing ``verbose_name`` on columns, or adding an extra
+:class:`~.CheckBoxColumn`.
+
+``django-tables`` offers the :attr:`.Table.Meta.model` option to ease the pain.
+The ``model`` option causes the table automatically generate columns for the
+fields in the model. This means that the above table could be re-written as
+follows::
+
+    >>> class PersonTable(tables.Table):
+    ...     class Meta:
+    ...         model = Person
+    ...
+    >>> PersonTable.base_columns.keys()
+    ['first_name', 'last_name', 'user', 'dob']
+
+If you want to customise one of the columns, simply define it the way you would
+normally::
+
+    >>> from django_tables import A
+    >>> class PersonTable(tables.Table):
+    ...     user = tables.LinkColumn("admin:auth_user_change", args=[A("user.pk")])
+    ...
+    ...     class Meta:
+    ...         model = Person
+    ...
+    >>> PersonTable.base_columns.keys()
+    ['first_name', 'last_name', 'dob', 'user']
+
+It's not immediately obvious but if you look carefully you'll notice that the
+order of the fields has now changed -- ``user`` is now last, rather than
+``dob``. This follows the same behaviour of Django's model forms, and can be
+fixed in a similar way -- the :attr:`.Table.Meta.sequence` option::
+
+    >>> class PersonTable(tables.Table):
+    ...     user = tables.LinkColumn("admin:auth_user_change", args=[A("user.pk")])
+    ...
+    ...     class Meta:
+    ...         model = Person
+    ...         sequence = ("first_name", "last_name", "user", "dob")
+    ...
+    >>> PersonTable.base_columns.keys()
+    ['first_name', 'last_name', 'user', 'dob']
+
+… or use a shorter approach that makes use of the special ``"..."`` item::
+
+    >>> class PersonTable(tables.Table):
+    ...     user = tables.LinkColumn("admin:auth_user_change", args=[A("user.pk")])
+    ...
+    ...     class Meta:
+    ...         model = Person
+    ...         sequence = ("...", "dob")
+    ...
+    >>> PersonTable.base_columns.keys()
+    ['first_name', 'last_name', 'user', 'dob']
+
+
 API Reference
 =============
 
@@ -773,6 +881,23 @@ API Reference
             This functionality is also available via the ``exclude`` keyword
             argument to a table's constructor.
 
+            However, unlike some of the other ``Meta`` options, providing the
+            ``exclude`` keyword to a table's constructor **won't override** the
+            ``Meta.exclude``. Instead, it will be effectively be *added*
+            to it. i.e. you can't use the constructor's ``exclude`` argument to
+            *undo* an exclusion.
+
+    .. attribute:: model
+
+        A model to inspect and automatically create corresponding columns.
+
+        :type: Django model
+        :default: ``None``
+
+        This option allows a Django model to be specified to cause the table to
+        automatically generate columns that correspond to the fields in a
+        model.
+
     .. attribute:: order_by
 
         The default ordering. e.g. ``('name', '-age')``. A hyphen ``-`` can be
@@ -813,7 +938,7 @@ API Reference
         The ``"..."`` item can be used at most once in the sequence value. If
         it's not used, every column *must* be explicitly included. e.g. in the
         above example, ``sequence = ("last_name", )`` would be **invalid**
-        because neither ``"..."`` or ``"first_name"`` where included.
+        because neither ``"..."`` or ``"first_name"`` were included.
 
         .. note::
 
