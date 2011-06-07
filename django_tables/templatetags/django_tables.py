@@ -14,6 +14,7 @@ Examples:
 import urllib
 import tokenize
 import StringIO
+from django.conf import settings
 from django import template
 from django.template.loader import get_template
 from django.utils.safestring import mark_safe
@@ -89,18 +90,26 @@ class RenderTableNode(template.Node):
         self.table_var = template.Variable(table_var_name)
 
     def render(self, context):
-        table = self.table_var.resolve(context)
-        if 'request' not in context:
-            raise AssertionError('{% render_table %} requires that the '
-                                 'template context contains the HttpRequest in'
-                                 ' a "request" variable, check your '
-                                 ' TEMPLATE_CONTEXT_PROCESSORS setting.')
-        context = template.Context({'request': context['request'], 'table': table})
         try:
-            table.request = context['request']
-            return get_template('django_tables/table.html').render(context)
-        finally:
-            del table.request
+            # may raise VariableDoesNotExist
+            table = self.table_var.resolve(context)
+            if "request" not in context:
+                raise AssertionError("{% render_table %} requires that the "
+                                     "template context contains the HttpRequest in"
+                                     " a 'request' variable, check your "
+                                     " TEMPLATE_CONTEXT_PROCESSORS setting.")
+            context = template.Context({"request": context["request"],
+                                        "table": table})
+            try:
+                table.request = context["request"]
+                return get_template("django_tables/table.html").render(context)
+            finally:
+                del table.request
+        except:
+            if settings.DEBUG:
+                raise
+            else:
+                return settings.TEMPLATE_STRING_IF_INVALID
 
 
 @register.tag

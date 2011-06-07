@@ -79,3 +79,15 @@ def verbose_name():
     Assert('Name') == table.columns['r1'].verbose_name
     Assert('Name') == table.columns['r2'].verbose_name
     Assert('OVERRIDE') == table.columns['r3'].verbose_name
+
+@models.test
+def column_mapped_to_nonexistant_field():
+    """
+    Issue #9 describes how if a Table has a column that has an accessor that
+    targets a non-existent field, a FieldDoesNotExist error is raised.
+    """
+    class FaultyPersonTable(PersonTable):
+        missing = tables.Column()
+
+    table = FaultyPersonTable(Person.objects.all())
+    table.as_html()  # the bug would cause this to raise FieldDoesNotExist

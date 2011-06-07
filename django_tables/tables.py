@@ -6,6 +6,8 @@ from django.http import Http404
 from django.template.loader import get_template
 from django.template import Context
 from django.utils.encoding import StrAndUnicode
+from django.db.models.query import QuerySet
+from itertools import chain
 from .utils import OrderBy, OrderByTuple, Accessor, AttributeDict
 from .rows import BoundRows, BoundRow
 from .columns import BoundColumns, Column
@@ -14,17 +16,64 @@ from .columns import BoundColumns, Column
 QUERYSET_ACCESSOR_SEPARATOR = '__'
 
 
+class Sequence(list):
+    """
+    Represents a column sequence, e.g. ("first_name", "...", "last_name")
+
+    This is used to represent ``Table.Meta.sequence`` or the Table
+    constructors's ``sequence`` keyword argument.
+
+    The sequence must be a list of column names and is used to specify the
+    order of the columns on a table. Optionally a "..." item can be inserted,
+    which is treated as a *catch-all* for column names that aren't explicitly
+    specified.
+    """
+    def expand(self, columns):
+        """
+        Expands the "..." item in the sequence into the appropriate column
+        names that should be placed there.
+
+        :raises: ``ValueError`` if the sequence is invalid for the columns.
+        """
+        # validation
+        if self.count("...") > 1:
+            raise ValueError("'...' must be used at most once in a sequence.")
+        elif "..." in self:
+            # Check for columns in the sequence that don't exist in *columns*
+            extra = (set(self) - set(("...", ))).difference(columns)
+            if extra:
+                raise ValueError(u"sequence contains columns that do not exist"
+                                 u" in the table. Remove '%s'."
+                                 % "', '".join(extra))
+        else:
+            diff = set(self) ^ set(columns)
+            if diff:
+                raise ValueError(u"sequence does not match columns. Fix '%s' "
+                                 u"or possibly add '...'." % "', '".join(diff))
+        # everything looks good, let's expand the "..." item
+        columns = columns[:]  # don't modify
+        head = []
+        tail = []
+        target = head  # start by adding things to the head
+        for name in self:
+            if name == "...":
+                # now we'll start adding elements to the tail
+                target = tail
+                continue
+            else:
+                target.append(columns.pop(columns.index(name)))
+        self[:] = list(chain(head, columns, tail))
+
+
 class TableData(object):
     """
     Exposes a consistent API for :term:`table data`. It currently supports a
     :class:`QuerySet`, or a :class:`list` of :class:`dict` objects.
 
-    This class is used by :class:.Table` to wrap any
+    This class is used by :class:`.Table` to wrap any
     input table data.
     """
-
     def __init__(self, data, table):
-        from django.db.models.query import QuerySet
         if isinstance(data, QuerySet):
             self.queryset = data
         elif isinstance(data, list):
@@ -92,11 +141,11 @@ class DeclarativeColumnsMetaclass(type):
     as well.
     """
 
-    def __new__(cls, name, bases, attrs, parent_cols_from=None):
+    def __new__(cls, name, bases, attrs):
         """Ughhh document this :)"""
         # extract declared columns
-        columns = [(name, attrs.pop(name)) for name, column in attrs.items()
-                                           if isinstance(column, Column)]
+        columns = [(name_, attrs.pop(name_)) for name_, column in attrs.items()
+                                             if isinstance(column, Column)]
         columns.sort(lambda x, y: cmp(x[1].creation_counter,
                                       y[1].creation_counter))
 
@@ -104,22 +153,25 @@ class DeclarativeColumnsMetaclass(type):
         # well. Note that we loop over the bases in *reverse* - this is
         # necessary to preserve the correct order of columns.
         for base in bases[::-1]:
-            cols_attr = (parent_cols_from if (parent_cols_from and
-                                             hasattr(base, parent_cols_from))
-                                          else 'base_columns')
-            if hasattr(base, cols_attr):
-                columns = getattr(base, cols_attr).items() + columns
+            if hasattr(base, "base_columns"):
+                columns = base.base_columns.items() + columns
         # Note that we are reusing an existing ``base_columns`` attribute.
         # This is because in certain inheritance cases (mixing normal and
         # ModelTables) this metaclass might be executed twice, and we need
         # to avoid overriding previous data (because we pop() from attrs,
         # the second time around columns might not be registered again).
         # An example would be:
-        #    class MyNewTable(MyOldNonModelTable, tables.ModelTable): pass
-        if not 'base_columns' in attrs:
-            attrs['base_columns'] = SortedDict()
-        attrs['base_columns'].update(SortedDict(columns))
-        attrs['_meta'] = TableOptions(attrs.get('Meta', None))
+        #    class MyNewTable(MyOldNonTable, tables.Table): pass
+        if not "base_columns" in attrs:
+            attrs["base_columns"] = SortedDict()
+        attrs["base_columns"].update(SortedDict(columns))
+        attrs["_meta"] = opts = TableOptions(attrs.get("Meta", None))
+        for ex in opts.exclude:
+            if ex in attrs["base_columns"]:
+                attrs["base_columns"].pop(ex)
+        if opts.sequence:
+            opts.sequence.expand(attrs["base_columns"].keys())
+            attrs["base_columns"] = SortedDict(((x, attrs["base_columns"][x]) for x in opts.sequence))
         return type.__new__(cls, name, bases, attrs)
 
 
@@ -127,23 +179,22 @@ class TableOptions(object):
     """
     Extracts and exposes options for a :class:`.Table` from a ``class Meta``
     when the table is defined.
+
+    :param options: options for a table
+    :type options: :class:`Meta` on a :class:`.Table`
     """
 
     def __init__(self, options=None):
-        """
-
-        :param options: options for a table
-        :type options: :class:`Meta` on a :class:`.Table`
-
-        """
         super(TableOptions, self).__init__()
-        self.sortable = getattr(options, 'sortable', True)
-        order_by = getattr(options, 'order_by', ())
+        self.attrs = AttributeDict(getattr(options, "attrs", {}))
+        self.empty_text = getattr(options, "empty_text", None)
+        self.exclude = getattr(options, "exclude", ())
+        order_by = getattr(options, "order_by", ())
         if isinstance(order_by, basestring):
             order_by = (order_by, )
         self.order_by = OrderByTuple(order_by)
-        self.attrs = AttributeDict(getattr(options, 'attrs', {}))
-        self.empty_text = getattr(options, 'empty_text', None)
+        self.sequence = Sequence(getattr(options, "sequence", ()))
+        self.sortable = getattr(options, "sortable", True)
 
 
 class Table(StrAndUnicode):
@@ -186,21 +237,28 @@ class Table(StrAndUnicode):
     __metaclass__ = DeclarativeColumnsMetaclass
     TableDataClass = TableData
 
-    def __init__(self, data, order_by=None, sortable=None, empty_text=None):
-        self._rows = BoundRows(self)  # bound rows
-        self._columns = BoundColumns(self)  # bound columns
+    def __init__(self, data, order_by=None, sortable=None, empty_text=None,
+                 exclude=None, attrs=None, sequence=None):
+        self._rows = BoundRows(self)
+        self._columns = BoundColumns(self)
         self._data = self.TableDataClass(data=data, table=self)
+        self.attrs = attrs
         self.empty_text = empty_text
         self.sortable = sortable
+        # Make a copy so that modifying this will not touch the class
+        # definition. Note that this is different from forms, where the
+        # copy is made available in a ``fields`` attribute.
+        self.base_columns = copy.deepcopy(self.__class__.base_columns)
+        self.exclude = exclude or ()
+        for ex in self.exclude:
+            if ex in self.base_columns:
+                self.base_columns.pop(ex)
+        self.sequence = sequence
         if order_by is None:
             self.order_by = self._meta.order_by
         else:
             self.order_by = order_by
 
-        # Make a copy so that modifying this will not touch the class
-        # definition. Note that this is different from forms, where the
-        # copy is made available in a ``fields`` attribute.
-        self.base_columns = copy.deepcopy(type(self).base_columns)
 
     def __unicode__(self):
         return self.as_html()
@@ -233,6 +291,18 @@ class Table(StrAndUnicode):
         order_by = OrderByTuple(new)
         self._order_by = order_by
         self._data.order_by(order_by)
+
+    @property
+    def sequence(self):
+        return (self._sequence if self._sequence is not None
+                               else self._meta.sequence)
+
+    @sequence.setter
+    def sequence(self, value):
+        if value:
+            value = Sequence(value)
+            value.expand(self.base_columns.keys())
+        self._sequence = value
 
     @property
     def sortable(self):
@@ -280,7 +350,11 @@ class Table(StrAndUnicode):
 
         :rtype: :class:`~.utils.AttributeDict` object.
         """
-        return self._meta.attrs
+        return self._attrs if self._attrs is not None else self._meta.attrs
+
+    @attrs.setter
+    def attrs(self, value):
+        self._attrs = value
 
     def paginate(self, klass=Paginator, per_page=25, page=1, *args, **kwargs):
         self.paginator = klass(self.rows, per_page, *args, **kwargs)

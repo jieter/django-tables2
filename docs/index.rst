@@ -175,9 +175,15 @@ Any iterable can be used as table data, and there's builtin support for
 Ordering
 ========
 
-Changing the way a table is ordered is easy and can be controlled via the
-:attr:`.Table.Meta.order_by` option. The following examples all achieve the
-same thing:
+.. note::
+
+    If you want to change the order in which columns are displayed, see
+    :attr:`Table.Meta.sequence`. Alternatively if you're interested in the
+    order of records within the table, read on.
+
+Changing the way records in a table are ordered is easy and can be controlled
+via the :attr:`.Table.Meta.order_by` option. The following examples all achieve
+the same thing:
 
 .. code-block:: python
 
@@ -615,6 +621,65 @@ which can be iterated over:
     </table>
 
 
+Class Based Generic Mixins
+==========================
+
+Django 1.3 introduced `class based views`__ as a mechanism to reduce the
+repetition in view code. django-tables comes with a single class based view
+mixin: ``SingleTableMixin``. It makes it trivial to incorporate a table into a
+view/template, however it requires a few variables to be defined on the view:
+
+- ``table_class`` –- the table class to use, e.g. ``SimpleTable``
+- ``table_data`` (or ``get_table_data()``) -- the data used to populate the
+  table
+- ``context_table_name`` -- the name of template variable containing the table
+  object
+
+.. __: https://docs.djangoproject.com/en/1.3/topics/class-based-views/
+
+For example:
+
+.. code-block:: python
+
+    from django_tables.views import SingleTableMixin
+    from django.generic.views.list import ListView
+
+
+    class Simple(models.Model):
+        first_name = models.CharField(max_length=200)
+        last_name = models.CharField(max_length=200)
+
+
+    class SimpleTable(tables.Table):
+        first_name = tables.Column()
+        last_name = tables.Column()
+
+
+    class MyTableView(SingleTableMixin, ListView):
+        model = Simple
+        table_class = SimpleTable
+
+
+The template could then be as simple as:
+
+.. code-block:: django
+
+    {% load django_tables %}
+    {% render_table table %}
+
+Such little code is possible due to the example above taking advantage of
+default values and ``SimpleTableMixin``'s eagarness at finding data sources
+when one isn't explicitly defined.
+
+.. note::
+
+    If you want more than one table on a page, at the moment the simplest way
+    to do it is to use ``SimpleTableMixin`` for one table, and write the
+    boilerplate for the other yourself in ``get_context_data()``. Obviously
+    this isn't particularly elegant, and as such will hopefully be resolved in
+    the future.
+
+
 API Reference
 =============
 
@@ -636,6 +701,9 @@ API Reference
 
 .. class:: Table.Meta
 
+    Provides a way to define *global* settings for table, as opposed to
+    defining them for each instance.
+
     .. attribute:: attrs
 
         Allows custom HTML attributes to be specified which will be added to
@@ -643,30 +711,132 @@ API Reference
         :meth:`~django_tables.tables.Table.as_html` or the
         :ref:`template-tags.render_table` template tag.
 
-        Default: ``{}``
+        :type: ``dict``
+        :default: ``{}``
 
-        :type: :class:`dict`
+        This is typically used to enable a theme for a table (which is done by
+        adding a CSS class to the ``<table>`` element). i.e.::
+
+            class SimpleTable(tables.Table):
+                name = tables.Column()
+
+                class Meta:
+                    attrs = {"class": "paleblue"}
+
+        .. note::
+
+            This functionality is also available via the ``attrs`` keyword
+            argument to a table's constructor.
+
+    .. attribute:: empty_text
+
+        Defines the text to display when the table has no rows.
+
+        :type: ``string``
+        :default: ``None``
+
+        If the table is empty and ``bool(empty_text)`` is ``True``, a row is
+        displayed containing ``empty_text``. This is allows a message such as
+        *There are currently no FOO.* to be displayed.
+
+        .. note::
+
+            This functionality is also available via the ``empty_text`` keyword
+            argument to a table's constructor.
+
+    .. attribute:: exclude
+
+        Defines which columns should be excluded from the table. This is useful
+        in subclasses to exclude columns in a parent.
+
+        :type: tuple of ``string`` objects
+        :default: ``()``
+
+        Example::
+
+            >>> class Person(tables.Table):
+            ...     first_name = tables.Column()
+            ...     last_name = tables.Column()
+            ...
+            >>> Person.base_columns
+            {'first_name': <django_tables.columns.Column object at 0x10046df10>,
+            'last_name': <django_tables.columns.Column object at 0x10046d8d0>}
+            >>> class ForgetfulPerson(Person):
+            ...     class Meta:
+            ...         exclude = ("last_name", )
+            ...
+            >>> ForgetfulPerson.base_columns
+            {'first_name': <django_tables.columns.Column object at 0x10046df10>}
+
+        .. note::
+
+            This functionality is also available via the ``exclude`` keyword
+            argument to a table's constructor.
+
+    .. attribute:: order_by
+
+        The default ordering. e.g. ``('name', '-age')``. A hyphen ``-`` can be
+        used to prefix a column name to indicate *descending* order.
+
+        :type: ``tuple``
+        :default: ``()``
+
+        .. note::
+
+            This functionality is also available via the ``order_by`` keyword
+            argument to a table's constructor.
+
+    .. attribute:: sequence
+
+        The sequence of the table columns. This allows the default order of
+        columns (the order they were defined in the Table) to be overridden.
+
+        :type: any iterable (e.g. ``tuple`` or ``list``)
+        :default: ``()``
+
+        The special item ``"..."`` can be used as a placeholder that will be
+        replaced with all the columns that weren't explicitly listed. This
+        allows you to add columns to the front or back when using inheritence.
+
+        Example::
+
+            >>> class Person(tables.Table):
+            ...     first_name = tables.Column()
+            ...     last_name = tables.Column()
+            ...
+            ...     class Meta:
+            ...         sequence = ("last_name", "...")
+            ...
+            >>> Person.base_columns.keys()
+            ['last_name', 'first_name']
+
+        The ``"..."`` item can be used at most once in the sequence value. If
+        it's not used, every column *must* be explicitly included. e.g. in the
+        above example, ``sequence = ("last_name", )`` would be **invalid**
+        because neither ``"..."`` or ``"first_name"`` where included.
+
+        .. note::
+
+            This functionality is also available via the ``sequence`` keyword
+            argument to a table's constructor.
 
     .. attribute:: sortable
 
-        The default value for determining if a :class:`.Column` is sortable.
+        Whether columns are by default sortable, or not. i.e. the fallback for
+        value for a column's sortable value.
+
+        :type: ``bool``
+        :default: ``True``
 
         If the ``Table`` and ``Column`` don't specify a value, a column's
         ``sortable`` value will fallback to this. object specify. This provides
         an easy mechanism to disable sorting on an entire table, without adding
         ``sortable=False`` to each ``Column`` in a ``Table``.
 
-        Default: :const:`True`
+        .. note::
 
-        :type: :class:`bool`
-
-    .. attribute:: order_by
-
-        The default ordering. e.g. ``('name', '-age')``
-
-        Default: ``()``
-
-        :type: :class:`tuple`
+            This functionality is also available via the ``sortable`` keyword
+            argument to a table's constructor.
 
 
 :class:`TableData` Objects:
@@ -674,13 +844,6 @@ API Reference
 
 .. autoclass:: django_tables.tables.TableData
     :members: __init__, order_by, __getitem__, __len__
-
-
-:class:`TableOptions` Objects:
-------------------------------
-
-.. autoclass:: django_tables.tables.TableOptions
-    :members:
 
 
 :class:`Column` Objects:
