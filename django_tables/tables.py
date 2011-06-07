@@ -7,6 +7,7 @@ from django.template.loader import get_template
 from django.template import Context
 from django.utils.encoding import StrAndUnicode
 from django.db.models.query import QuerySet
+from itertools import chain
 from .utils import OrderBy, OrderByTuple, Accessor, AttributeDict
 from .rows import BoundRows, BoundRow
 from .columns import BoundColumns, Column
@@ -15,33 +16,54 @@ from .columns import BoundColumns, Column
 QUERYSET_ACCESSOR_SEPARATOR = '__'
 
 
-def _validate_sequence(seq, column_names):
+class Sequence(list):
     """
-    Validates a sequence against a list of column names. It checks that "..."
-    is used at most once, either at the head or tail, and that if it's not
-    used, every column is specified.
+    Represents a column sequence, e.g. ("first_name", "...", "last_name")
 
-    :raises: ValueError on error.
+    This is used to represent ``Table.Meta.sequence`` or the Table
+    constructors's ``sequence`` keyword argument.
+
+    The sequence must be a list of column names and is used to specify the
+    order of the columns on a table. Optionally a "..." item can be inserted,
+    which is treated as a *catch-all* for column names that aren't explicitly
+    specified.
     """
-    if (seq.count("...") > 1 or (seq.count("...") == 1 and seq[0] != "..."
-                                 and seq[-1] != "...")):
-        raise ValueError("'...' must be used at most once in 'sequence', "
-                         "either at the head or tail.")
+    def expand(self, columns):
+        """
+        Expands the "..." item in the sequence into the appropriate column
+        names that should be placed there.
 
-    if "..." in seq:
-        extra = (set(seq) - set(("...", ))).difference(column_names)
-        if extra:
-            raise ValueError(u"'sequence' defined but names columns that do "
-                             u"not exist in the table. Remove '%s'."
-                             % "', '".join(extra))
-    else:
-        diff = set(seq) ^ set(column_names)
-        if diff:
-            print 'seq', seq
-            print 'column_names', column_names
-            raise ValueError(u"'sequence' defined but does not match columns. "
-                             u"Fix '%s' or possibly add '...' to head or tail."
-                             % "', '".join(diff))
+        :raises: ``ValueError`` if the sequence is invalid for the columns.
+        """
+        # validation
+        if self.count("...") > 1:
+            raise ValueError("'...' must be used at most once in a sequence.")
+        elif "..." in self:
+            # Check for columns in the sequence that don't exist in *columns*
+            extra = (set(self) - set(("...", ))).difference(columns)
+            if extra:
+                raise ValueError(u"sequence contains columns that do not exist"
+                                 u" in the table. Remove '%s'."
+                                 % "', '".join(extra))
+        else:
+            diff = set(self) ^ set(columns)
+            if diff:
+                raise ValueError(u"sequence does not match columns. Fix '%s' "
+                                 u"or possibly add '...'." % "', '".join(diff))
+        # everything looks good, let's expand the "..." item
+        columns = columns[:]  # don't modify
+        head = []
+        tail = []
+        target = head  # start by adding things to the head
+        for name in self:
+            if name == "...":
+                # now we'll start adding elements to the tail
+                target = tail
+                continue
+            else:
+                target.append(columns.pop(columns.index(name)))
+        self[:] = list(chain(head, columns, tail))
+
 
 class TableData(object):
     """
@@ -123,7 +145,7 @@ class DeclarativeColumnsMetaclass(type):
         """Ughhh document this :)"""
         # extract declared columns
         columns = [(name_, attrs.pop(name_)) for name_, column in attrs.items()
-                                           if isinstance(column, Column)]
+                                             if isinstance(column, Column)]
         columns.sort(lambda x, y: cmp(x[1].creation_counter,
                                       y[1].creation_counter))
 
@@ -148,15 +170,8 @@ class DeclarativeColumnsMetaclass(type):
             if ex in attrs["base_columns"]:
                 attrs["base_columns"].pop(ex)
         if opts.sequence:
-            _validate_sequence(opts.sequence, attrs["base_columns"].keys())
-            if "..." not in opts.sequence:
-                attrs["base_columns"] = SortedDict(((s, attrs["base_columns"][s]) for s in opts.sequence))
-            elif opts.sequence[0] == "...":
-                for s in opts.sequence[1:]:
-                    attrs["base_columns"][s] = attrs["base_columns"].pop(s)  # append
-            elif opts.sequence[-1] == "...":
-                for s in opts.sequence[:-1]:
-                    attrs["base_columns"].insert(0, s, attrs["base_columns"].pop(s))
+            opts.sequence.expand(attrs["base_columns"].keys())
+            attrs["base_columns"] = SortedDict(((x, attrs["base_columns"][x]) for x in opts.sequence))
         return type.__new__(cls, name, bases, attrs)
 
 
@@ -178,7 +193,7 @@ class TableOptions(object):
         if isinstance(order_by, basestring):
             order_by = (order_by, )
         self.order_by = OrderByTuple(order_by)
-        self.sequence = getattr(options, "sequence", None)
+        self.sequence = Sequence(getattr(options, "sequence", ()))
         self.sortable = getattr(options, "sortable", True)
 
 
@@ -233,7 +248,7 @@ class Table(StrAndUnicode):
         # Make a copy so that modifying this will not touch the class
         # definition. Note that this is different from forms, where the
         # copy is made available in a ``fields`` attribute.
-        self.base_columns = copy.deepcopy(type(self).base_columns)
+        self.base_columns = copy.deepcopy(self.__class__.base_columns)
         self.exclude = exclude or ()
         for ex in self.exclude:
             if ex in self.base_columns:
@@ -285,7 +300,8 @@ class Table(StrAndUnicode):
     @sequence.setter
     def sequence(self, value):
         if value:
-            _validate_sequence(value, self.base_columns.keys())
+            value = Sequence(value)
+            value.expand(self.base_columns.keys())
         self._sequence = value
 
     @property

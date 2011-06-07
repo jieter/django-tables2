@@ -175,9 +175,15 @@ Any iterable can be used as table data, and there's builtin support for
 Ordering
 ========
 
-Changing the way a table is ordered is easy and can be controlled via the
-:attr:`.Table.Meta.order_by` option. The following examples all achieve the
-same thing:
+.. note::
+
+    If you want to change the order in which columns are displayed, see
+    :attr:`Table.Meta.sequence`. Alternatively if you're interested in the
+    order of records within the table, read on.
+
+Changing the way records in a table are ordered is easy and can be controlled
+via the :attr:`.Table.Meta.order_by` option. The following examples all achieve
+the same thing:
 
 .. code-block:: python
 
@@ -741,7 +747,12 @@ API Reference
     .. attribute:: exclude
 
         Defines which columns should be excluded from the table. This is useful
-        in subclasses to exclude columns in a parent. e.g.
+        in subclasses to exclude columns in a parent.
+
+        :type: tuple of ``string`` objects
+        :default: ``()``
+
+        Example::
 
             >>> class Person(tables.Table):
             ...     first_name = tables.Column()
@@ -757,10 +768,6 @@ API Reference
             >>> ForgetfulPerson.base_columns
             {'first_name': <django_tables.columns.Column object at 0x10046df10>}
 
-        :type: tuple of ``string`` objects
-
-        Default: ``()``
-
         .. note::
 
             This functionality is also available via the ``exclude`` keyword
@@ -771,13 +778,46 @@ API Reference
         The default ordering. e.g. ``('name', '-age')``. A hyphen ``-`` can be
         used to prefix a column name to indicate *descending* order.
 
-        :type: :class:`tuple`
-
-        Default: ``()``
+        :type: ``tuple``
+        :default: ``()``
 
         .. note::
 
             This functionality is also available via the ``order_by`` keyword
+            argument to a table's constructor.
+
+    .. attribute:: sequence
+
+        The sequence of the table columns. This allows the default order of
+        columns (the order they were defined in the Table) to be overridden.
+
+        :type: any iterable (e.g. ``tuple`` or ``list``)
+        :default: ``()``
+
+        The special item ``"..."`` can be used as a placeholder that will be
+        replaced with all the columns that weren't explicitly listed. This
+        allows you to add columns to the front or back when using inheritence.
+
+        Example::
+
+            >>> class Person(tables.Table):
+            ...     first_name = tables.Column()
+            ...     last_name = tables.Column()
+            ...
+            ...     class Meta:
+            ...         sequence = ("last_name", "...")
+            ...
+            >>> Person.base_columns.keys()
+            ['last_name', 'first_name']
+
+        The ``"..."`` item can be used at most once in the sequence value. If
+        it's not used, every column *must* be explicitly included. e.g. in the
+        above example, ``sequence = ("last_name", )`` would be **invalid**
+        because neither ``"..."`` or ``"first_name"`` where included.
+
+        .. note::
+
+            This functionality is also available via the ``sequence`` keyword
             argument to a table's constructor.
 
     .. attribute:: sortable
@@ -785,14 +825,13 @@ API Reference
         Whether columns are by default sortable, or not. i.e. the fallback for
         value for a column's sortable value.
 
+        :type: ``bool``
+        :default: ``True``
+
         If the ``Table`` and ``Column`` don't specify a value, a column's
         ``sortable`` value will fallback to this. object specify. This provides
         an easy mechanism to disable sorting on an entire table, without adding
         ``sortable=False`` to each ``Column`` in a ``Table``.
-
-        :type: :class:`bool`
-
-        Default: :const:`True`
 
         .. note::
 

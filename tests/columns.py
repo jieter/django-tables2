@@ -63,21 +63,44 @@ def sequence():
     # remaining columns are ordered based on their definition order
     class TestTable4(TestTable):
         class Meta:
-            sequence = ("b", "...")
-    Assert(["b", "a", "c"]) == TestTable4([]).columns.names()
-    Assert(["b", "a", "c"]) == TestTable([], sequence=("b", "...")).columns.names()
+            sequence = ("...", )
+    Assert(["a", "b", "c"]) == TestTable4([]).columns.names()
+    Assert(["a", "b", "c"]) == TestTable([], sequence=("...", )).columns.names()
 
     class TestTable5(TestTable):
         class Meta:
+            sequence = ("b", "...")
+    Assert(["b", "a", "c"]) == TestTable5([]).columns.names()
+    Assert(["b", "a", "c"]) == TestTable([], sequence=("b", "...")).columns.names()
+
+    class TestTable6(TestTable):
+        class Meta:
             sequence = ("...", "b")
-    Assert(["a", "c", "b"]) == TestTable5([]).columns.names()
+    Assert(["a", "c", "b"]) == TestTable6([]).columns.names()
     Assert(["a", "c", "b"]) == TestTable([], sequence=("...", "b")).columns.names()
 
-    class TestTable6(tables.Table):
+    class TestTable7(TestTable):
         class Meta:
-            sequence = ("...")
-    Assert(["a", "b", "c"]) == TestTable6([]).columns.names()
-    Assert(["a", "b", "c"]) == TestTable([], sequence=("...")).columns.names()
+            sequence = ("b", "...", "a")
+    Assert(["b", "c", "a"]) == TestTable7([]).columns.names()
+    Assert(["b", "c", "a"]) == TestTable([], sequence=("b", "...", "a")).columns.names()
+
+    # Let's test inheritence
+    class TestTable8(TestTable):
+        d = tables.Column()
+        e = tables.Column()
+        f = tables.Column()
+
+        class Meta:
+            sequence = ("d", "...")
+
+    class TestTable9(TestTable):
+        d = tables.Column()
+        e = tables.Column()
+        f = tables.Column()
+
+    Assert(["d", "a", "b", "c", "e", "f"]) == TestTable8([]).columns.names()
+    Assert(["d", "a", "b", "c", "e", "f"]) == TestTable9([], sequence=("d", "...")).columns.names()
 
 
 linkcolumn = Tests()
