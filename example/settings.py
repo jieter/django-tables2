@@ -1,4 +1,4 @@
-# import django_tables
+# import django_tables2
 from os.path import dirname, join, abspath
 import sys
 
@@ -129,7 +129,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'example.app',
-    'django_tables',
+    'django_tables2',
 )
 
 # A sample logging configuration. The only tangible logging

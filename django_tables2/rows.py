@@ -18,7 +18,7 @@ class BoundRow(object):
 
     .. code-block:: python
 
-        >>> import django_tables as tables
+        >>> import django_tables2 as tables
         >>> class SimpleTable(tables.Table):
         ...     a = tables.Column()
         ...     b = tables.CheckBoxColumn(attrs={'name': 'my_chkbox'})

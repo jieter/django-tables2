@@ -2,7 +2,7 @@ import itertools
 from django.conf import settings
 from django.test.client import RequestFactory
 from django.template import Template, Context
-import django_tables as tables
+import django_tables2 as tables
 from django_attest import TransactionTestContext
 from attest import Tests, Assert
 from .testapp.models import Person, Occupation

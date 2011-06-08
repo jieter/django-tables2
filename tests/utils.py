@@ -1,5 +1,5 @@
 # -*- coding: utf8 -*-
-from django_tables.utils import OrderByTuple, OrderBy, Accessor
+from django_tables2.utils import OrderByTuple, OrderBy, Accessor
 from attest import Tests, Assert
 
 

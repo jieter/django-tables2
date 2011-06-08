@@ -334,10 +334,10 @@ class Table(StrAndUnicode):
 
         The rendered table won't include pagination or sorting, as those
         features require a RequestContext. Use the ``render_table`` template
-        tag (requires ``{% load django_tables %}``) if you require this extra
+        tag (requires ``{% load django_tables2 %}``) if you require this extra
         functionality.
         """
-        template = get_template('django_tables/basic_table.html')
+        template = get_template('django_tables2/basic_table.html')
         return template.render(Context({'table': self}))
 
     @property

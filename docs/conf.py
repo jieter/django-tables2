@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# django-tables documentation build configuration file, created by
+# django-tables2 documentation build configuration file, created by
 # sphinx-quickstart on Wed Jan  5 13:04:34 2011.
 #
 # This file is execfile()d with the current directory set to its containing dir.
@@ -20,7 +20,7 @@ os.environ["DJANGO_SETTINGS_MODULE"] = "example.settings"
 # import our libs
 sys.path.insert(0, os.path.join(os.path.abspath('.'), os.pardir))
 import example
-import django_tables as tables
+import django_tables2 as tables
 sys.path.pop(0)
 
 
@@ -46,7 +46,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'django-tables'
+project = u'django-tables2'
 #copyright = u''
 
 # The version info for the project you're documenting, acts as replacement for
@@ -170,7 +170,7 @@ html_show_copyright = False
 #html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'django-tablesdoc'
+htmlhelp_basename = 'django-tables2doc'
 
 
 # -- Options for LaTeX output --------------------------------------------------
@@ -184,7 +184,7 @@ htmlhelp_basename = 'django-tablesdoc'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'django-tables.tex', u'django-tables Documentation',
+  ('index', 'django-tables2.tex', u'django-tables2 Documentation',
    u'n/a', 'manual'),
 ]
 
@@ -217,6 +217,6 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'django-tables', u'django-tables Documentation',
+    ('index', 'django-tables2', u'django-tables2 Documentation',
      [u'n/a'], 1)
 ]
