@@ -5,8 +5,8 @@ from django_attest import TransactionTestContext
 from django.test.client import RequestFactory
 from django.template import Context, Template
 from django.core.exceptions import ImproperlyConfigured
-import django_tables as tables
-from django_tables import utils, A
+import django_tables2 as tables
+from django_tables2 import utils, A
 from .testapp.models import Person
 
 
@@ -121,7 +121,7 @@ def unicode():
 
     table = UnicodeTable(dataset)
     request = RequestFactory().get('/some-url/')
-    template = Template('{% load django_tables %}{% render_table table %}')
+    template = Template('{% load django_tables2 %}{% render_table table %}')
     html = template.render(Context({'request': request, 'table': table}))
 
     Assert(u'Brädley' in html)

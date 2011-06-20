@@ -1,4 +1,5 @@
-﻿"""
+#! -*- coding: utf-8 -*-
+"""
 Allows setting/changing/removing of chosen url query string parameters, while
 maintaining any existing others.
 
@@ -102,7 +103,7 @@ class RenderTableNode(template.Node):
                                         "table": table})
             try:
                 table.request = context["request"]
-                return get_template("django_tables/table.html").render(context)
+                return get_template("django_tables2/table.html").render(context)
             finally:
                 del table.request
         except:

@@ -65,7 +65,7 @@ class OrderBy(str):
 
 class OrderByTuple(tuple, StrAndUnicode):
     """Stores ordering as (as :class:`.OrderBy` objects). The
-    :attr:`django_tables.tables.Table.order_by` property is always converted
+    :attr:`django_tables2.tables.Table.order_by` property is always converted
     to an :class:`.OrderByTuple` object.
 
     This class is essentially just a :class:`tuple` with some useful extras.
@@ -262,7 +262,7 @@ class AttributeDict(dict):
 
         .. code-block:: python
 
-            >>> from django_tables.utils import AttributeDict
+            >>> from django_tables2.utils import AttributeDict
             >>> attrs = AttributeDict({'class': 'mytable', 'id': 'someid'})
             >>> attrs.as_html()
             'class="mytable" id="someid"'

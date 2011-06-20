@@ -1,4 +1,4 @@
-import django_tables as tables
+import django_tables2 as tables
 
 
 class CountryTable(tables.Table):

@@ -1,7 +1,7 @@
 """Test the core table functionality."""
 from attest import Tests, Assert
-import django_tables as tables
-from django_tables import utils
+import django_tables2 as tables
+from django_tables2 import utils
 
 
 rows = Tests()

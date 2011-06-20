@@ -1,21 +1,21 @@
 .. default-domain:: py
 
-===============================================
-django-tables - An app for creating HTML tables
-===============================================
+================================================
+django-tables2 - An app for creating HTML tables
+================================================
 
-django-tables simplifies the task of turning sets of datainto HTML tables. It
+django-tables2 simplifies the task of turning sets of datainto HTML tables. It
 has native support for pagination and sorting. It does for HTML tables what
 ``django.forms`` does for HTML forms.
 
 Quick start guide
 =================
 
-1. Download and install from https://github.com/bradleyayers/django-tables.
+1. Download and install from https://github.com/bradleyayers/django-tables2.
    Grab a ``.tar.gz`` of the latest tag, and run ``pip install <tar.gz>``.
-2. Hook the app into your Django project by adding ``'django_tables'`` to your
+2. Hook the app into your Django project by adding ``'django_tables2'`` to your
    ``INSTALLED_APPS`` setting.
-3. Write a subclass of :class:`~django_tables.tables.Table` that describes the
+3. Write a subclass of :class:`~django_tables2.tables.Table` that describes the
    structure of your table.
 4. Create an instance of your table in a :term:`view`, provide it with
    :term:`table data`, and pass it to a :term:`template` for display.
@@ -39,13 +39,13 @@ turn it into an HTML table. This is the data we'll be using:
     ]
 
 
-The first step is to subclass :class:`~django_tables.tables.Table` and describe
+The first step is to subclass :class:`~django_tables2.tables.Table` and describe
 the table structure. This is done by creating a column for each attribute in
 the :term:`table data`.
 
 .. code-block:: python
 
-    import django_tables as tables
+    import django_tables2 as tables
 
     class CountryTable(tables.Table):
         name = tables.Column()
@@ -72,7 +72,7 @@ write a view that would look something like:
                                   context_instance=RequestContext(request))
 
 In your template, the easiest way to :term:`render` the table is via the
-:meth:`~django_tables.tables.Table.as_html` method:
+:meth:`~django_tables2.tables.Table.as_html` method:
 
 .. code-block:: django
 
@@ -97,7 +97,7 @@ table via the :ref:`template tag <template-tags.render_table>` rather than
 
 .. code-block:: django
 
-    {% load django_tables %}
+    {% load django_tables2 %}
     {% render_table table %}
 
 .. note::
@@ -128,7 +128,7 @@ adding a ``class Meta:`` to the table class and defining a ``attrs`` variable.
 
 .. code-block:: python
 
-    import django_tables as tables
+    import django_tables2 as tables
 
     class CountryTable(tables.Table):
         name = tables.Column()
@@ -143,7 +143,7 @@ The last thing to do is to include the stylesheet in the template.
 
 .. code-block:: html
 
-    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}django_tables/themes/paleblue/css/screen.css" />
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}django_tables2/themes/paleblue/css/screen.css" />
 
 Save your template and reload the page in your browser.
 
@@ -164,7 +164,7 @@ table with data, pass it in as the first argument when instantiating a table.
 Each item in the :term:`table data` is called a :term:`record` and is used to
 populate a single row in the table. By default, the table uses column names
 as :term:`accessors <accessor>` to retrieve individual cell values. This can
-be changed via the :attr:`~django_tables.columns.Column.accessor` argument.
+be changed via the :attr:`~django_tables2.columns.Column.accessor` argument.
 
 Any iterable can be used as table data, and there's builtin support for
 :class:`QuerySet` objects (to ensure they're handled effeciently).
@@ -285,7 +285,7 @@ Column headers
 ==============
 
 The header cell for each column comes from the column's
-:meth:`~django_tables.columns.BoundColumn.header` method. By default this
+:meth:`~django_tables2.columns.BoundColumn.header` method. By default this
 method returns the column's ``verbose_name``, which is either explicitly
 specified, or generated automatically based on the column name.
 
@@ -354,12 +354,12 @@ CSS
 ---
 
 In order to use CSS to style a table, you'll probably want to add a
-``class`` or ``id`` attribute to the ``<table>`` element. ``django-tables`` has
+``class`` or ``id`` attribute to the ``<table>`` element. ``django-tables2`` has
 a hook that allows abitrary attributes to be added to the ``<table>`` tag.
 
 .. code-block:: python
 
-    >>> import django_tables as tables
+    >>> import django_tables2 as tables
     >>> class SimpleTable(tables.Table):
     ...     id = tables.Column()
     ...     age = tables.Column()
@@ -404,7 +404,7 @@ arguments you're interested in, and the function will recieve them
 
 .. code-block:: python
 
-    >>> import django_tables as tables
+    >>> import django_tables2 as tables
     >>> class SimpleTable(tables.Table):
     ...     row_number = tables.Column()
     ...     id = tables.Column()
@@ -440,7 +440,7 @@ To change the way cells are rendered, simply override the
 
 .. code-block:: python
 
-    >>> import django_tables as tables
+    >>> import django_tables2 as tables
     >>>
     >>> class AngryColumn(tables.Column):
     ...     def render(self, value):
@@ -500,7 +500,7 @@ ignore the built-in generation tools, and instead pass an instance of your
 
 .. code-block:: django
 
-    {% load django_tables %}
+    {% load django_tables2 %}
     <table>
         <thead>
             <tr>
@@ -535,14 +535,14 @@ Template tags
 render_table
 ------------
 
-Renders a :class:`~django_tables.tables.Table` object to HTML and includes as
+Renders a :class:`~django_tables2.tables.Table` object to HTML and includes as
 many features as possible.
 
 Sample usage:
 
 .. code-block:: django
 
-    {% load django_tables %}
+    {% load django_tables2 %}
     {% render_table table %}
 
 This tag temporarily modifies the :class:`.Table` object while it is being
@@ -625,7 +625,7 @@ Class Based Generic Mixins
 ==========================
 
 Django 1.3 introduced `class based views`__ as a mechanism to reduce the
-repetition in view code. django-tables comes with a single class based view
+repetition in view code. django-tables2 comes with a single class based view
 mixin: ``SingleTableMixin``. It makes it trivial to incorporate a table into a
 view/template, however it requires a few variables to be defined on the view:
 
@@ -641,7 +641,7 @@ For example:
 
 .. code-block:: python
 
-    from django_tables.views import SingleTableMixin
+    from django_tables2.views import SingleTableMixin
     from django.generic.views.list import ListView
 
 
@@ -664,7 +664,7 @@ The template could then be as simple as:
 
 .. code-block:: django
 
-    {% load django_tables %}
+    {% load django_tables2 %}
     {% render_table table %}
 
 Such little code is possible due to the example above taking advantage of
@@ -680,20 +680,128 @@ when one isn't explicitly defined.
     the future.
 
 
+Table Mixins
+============
+
+It's possible to create a mixin for a table that overrides something, however
+unless it itself is a subclass of :class:`.Table` class
+variable instances of :class:`.Column` will **not** be added to the class which is using the mixin.
+
+Example::
+
+    >>> class UselessMixin(object):
+    ...     extra = tables.Column()
+    ...
+    >>> class TestTable(UselessMixin, tables.Table):
+    ...     name = tables.Column()
+    ...
+    >>> TestTable.base_columns.keys()
+    ['name']
+
+To have a mixin contribute a column, it needs to be a subclass of
+:class:`~django_tables2.tables.Table`. With this in mind the previous example
+*should* have been written as follows::
+
+    >>> class UsefulMixin(tables.Table):
+    ...     extra = tables.Column()
+    ...
+    >>> class TestTable(UsefulMixin, tables.Table):
+    ...     name = tables.Column()
+    ...
+    >>> TestTable.base_columns.keys()
+    ['extra', 'name']
+
+
+Tables for models
+=================
+
+Most of the time you'll probably be making tables to display queryset data, and
+writing such tables involves a lot of duplicate code, e.g.::
+
+    >>> class Person(models.Model):
+    ...     first_name = models.CharField(max_length=200)
+    ...     last_name = models.CharField(max_length=200)
+    ...     user = models.ForeignKey("auth.User")
+    ...     dob = models.DateField()
+    ...
+    >>> class PersonTable(tables.Table):
+    ...     first_name = tables.Column()
+    ...     last_name = tables.Column()
+    ...     user = tables.Column()
+    ...     dob = tables.Column()
+    ...
+
+Often a table will become quite complex after time, e.g. `table.render_foo`_,
+changing ``verbose_name`` on columns, or adding an extra
+:class:`~.CheckBoxColumn`.
+
+``django-tables2`` offers the :attr:`.Table.Meta.model` option to ease the pain.
+The ``model`` option causes the table automatically generate columns for the
+fields in the model. This means that the above table could be re-written as
+follows::
+
+    >>> class PersonTable(tables.Table):
+    ...     class Meta:
+    ...         model = Person
+    ...
+    >>> PersonTable.base_columns.keys()
+    ['first_name', 'last_name', 'user', 'dob']
+
+If you want to customise one of the columns, simply define it the way you would
+normally::
+
+    >>> from django_tables2 import A
+    >>> class PersonTable(tables.Table):
+    ...     user = tables.LinkColumn("admin:auth_user_change", args=[A("user.pk")])
+    ...
+    ...     class Meta:
+    ...         model = Person
+    ...
+    >>> PersonTable.base_columns.keys()
+    ['first_name', 'last_name', 'dob', 'user']
+
+It's not immediately obvious but if you look carefully you'll notice that the
+order of the fields has now changed -- ``user`` is now last, rather than
+``dob``. This follows the same behaviour of Django's model forms, and can be
+fixed in a similar way -- the :attr:`.Table.Meta.sequence` option::
+
+    >>> class PersonTable(tables.Table):
+    ...     user = tables.LinkColumn("admin:auth_user_change", args=[A("user.pk")])
+    ...
+    ...     class Meta:
+    ...         model = Person
+    ...         sequence = ("first_name", "last_name", "user", "dob")
+    ...
+    >>> PersonTable.base_columns.keys()
+    ['first_name', 'last_name', 'user', 'dob']
+
+… or use a shorter approach that makes use of the special ``"..."`` item::
+
+    >>> class PersonTable(tables.Table):
+    ...     user = tables.LinkColumn("admin:auth_user_change", args=[A("user.pk")])
+    ...
+    ...     class Meta:
+    ...         model = Person
+    ...         sequence = ("...", "dob")
+    ...
+    >>> PersonTable.base_columns.keys()
+    ['first_name', 'last_name', 'user', 'dob']
+
+
 API Reference
 =============
 
 :class:`Accessor` Objects:
 --------------------------
 
-.. autoclass:: django_tables.utils.Accessor
+.. autoclass:: django_tables2.utils.Accessor
     :members:
 
 
 :class:`Table` Objects:
 -----------------------
 
-.. autoclass:: django_tables.tables.Table
+.. autoclass:: django_tables2.tables.Table
 
 
 :class:`Table.Meta` Objects:
@@ -708,7 +816,7 @@ API Reference
 
         Allows custom HTML attributes to be specified which will be added to
         the ``<table>`` tag of any table rendered via
-        :meth:`~django_tables.tables.Table.as_html` or the
+        :meth:`~django_tables2.tables.Table.as_html` or the
         :ref:`template-tags.render_table` template tag.
 
         :type: ``dict``
@@ -759,19 +867,36 @@ API Reference
             ...     last_name = tables.Column()
             ...
             >>> Person.base_columns
-            {'first_name': <django_tables.columns.Column object at 0x10046df10>,
-            'last_name': <django_tables.columns.Column object at 0x10046d8d0>}
+            {'first_name': <django_tables2.columns.Column object at 0x10046df10>,
+            'last_name': <django_tables2.columns.Column object at 0x10046d8d0>}
             >>> class ForgetfulPerson(Person):
             ...     class Meta:
             ...         exclude = ("last_name", )
             ...
             >>> ForgetfulPerson.base_columns
-            {'first_name': <django_tables.columns.Column object at 0x10046df10>}
+            {'first_name': <django_tables2.columns.Column object at 0x10046df10>}
 
         .. note::
 
             This functionality is also available via the ``exclude`` keyword
             argument to a table's constructor.
+
+            However, unlike some of the other ``Meta`` options, providing the
+            ``exclude`` keyword to a table's constructor **won't override** the
+            ``Meta.exclude``. Instead, it will be effectively be *added*
+            to it. i.e. you can't use the constructor's ``exclude`` argument to
+            *undo* an exclusion.
+
+    .. attribute:: model
+
+        A model to inspect and automatically create corresponding columns.
+
+        :type: Django model
+        :default: ``None``
+
+        This option allows a Django model to be specified to cause the table to
+        automatically generate columns that correspond to the fields in a
+        model.
 
     .. attribute:: order_by
 
@@ -813,7 +938,7 @@ API Reference
         The ``"..."`` item can be used at most once in the sequence value. If
         it's not used, every column *must* be explicitly included. e.g. in the
         above example, ``sequence = ("last_name", )`` would be **invalid**
-        because neither ``"..."`` or ``"first_name"`` where included.
+        because neither ``"..."`` or ``"first_name"`` were included.
 
         .. note::
 
@@ -842,41 +967,41 @@ API Reference
 :class:`TableData` Objects:
 ------------------------------
 
-.. autoclass:: django_tables.tables.TableData
+.. autoclass:: django_tables2.tables.TableData
     :members: __init__, order_by, __getitem__, __len__
 
 
 :class:`Column` Objects:
 ------------------------
 
-.. autoclass:: django_tables.columns.Column
+.. autoclass:: django_tables2.columns.Column
 
 
 :class:`CheckBoxColumn` Objects:
 --------------------------------
 
-.. autoclass:: django_tables.columns.CheckBoxColumn
+.. autoclass:: django_tables2.columns.CheckBoxColumn
     :members:
 
 
 :class:`LinkColumn` Objects:
 ----------------------------
 
-.. autoclass:: django_tables.columns.LinkColumn
+.. autoclass:: django_tables2.columns.LinkColumn
     :members:
 
 
 :class:`TemplateColumn` Objects:
 --------------------------------
 
-.. autoclass:: django_tables.columns.TemplateColumn
+.. autoclass:: django_tables2.columns.TemplateColumn
     :members:
 
 
 :class:`BoundColumns` Objects
 -----------------------------
 
-.. autoclass:: django_tables.columns.BoundColumns
+.. autoclass:: django_tables2.columns.BoundColumns
     :members: all, items, sortable, visible, __iter__,
               __contains__, __len__, __getitem__
 
@@ -884,42 +1009,42 @@ API Reference
 :class:`BoundColumn` Objects
 ----------------------------
 
-.. autoclass:: django_tables.columns.BoundColumn
+.. autoclass:: django_tables2.columns.BoundColumn
     :members:
 
 
 :class:`BoundRows` Objects
 --------------------------
 
-.. autoclass:: django_tables.rows.BoundRows
+.. autoclass:: django_tables2.rows.BoundRows
     :members: __iter__, __len__, count
 
 
 :class:`BoundRow` Objects
 -------------------------
 
-.. autoclass:: django_tables.rows.BoundRow
+.. autoclass:: django_tables2.rows.BoundRow
     :members: __getitem__, __contains__, __iter__, record, table
 
 
 :class:`AttributeDict` Objects
 ------------------------------
 
-.. autoclass:: django_tables.utils.AttributeDict
+.. autoclass:: django_tables2.utils.AttributeDict
     :members:
 
 
 :class:`OrderBy` Objects
 ------------------------
 
-.. autoclass:: django_tables.utils.OrderBy
+.. autoclass:: django_tables2.utils.OrderBy
     :members:
 
 
 :class:`OrderByTuple` Objects
 -----------------------------
 
-.. autoclass:: django_tables.utils.OrderByTuple
+.. autoclass:: django_tables2.utils.OrderByTuple
     :members: __unicode__, __contains__, __getitem__, cmp
 
 
@@ -929,10 +1054,10 @@ Glossary
 .. glossary::
 
     accessor
-        Refers to an :class:`~django_tables.utils.Accessor` object
+        Refers to an :class:`~django_tables2.utils.Accessor` object
 
     bare orderby
-        The non-prefixed form of an :class:`~django_tables.utils.OrderBy`
+        The non-prefixed form of an :class:`~django_tables2.utils.OrderBy`
         object. Typically the bare form is just the ascending form.
 
         Example: ``age`` is the bare form of ``-age``
@@ -957,7 +1082,7 @@ Glossary
         A single Python object used as the data for a single row.
 
     render
-        The act of serialising a :class:`~django_tables.tables.Table` into
+        The act of serialising a :class:`~django_tables2.tables.Table` into
         HTML.
 
     template
@@ -965,4 +1090,4 @@ Glossary
 
     table data
         An interable of :term:`records <record>` that
-        :class:`~django_tables.tables.Table` uses to populate its rows.
+        :class:`~django_tables2.tables.Table` uses to populate its rows.

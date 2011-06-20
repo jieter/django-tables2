@@ -2,7 +2,7 @@ import itertools
 from django.conf import settings
 from django.test.client import RequestFactory
 from django.template import Template, Context
-import django_tables as tables
+import django_tables2 as tables
 from django_attest import TransactionTestContext
 from attest import Tests, Assert
 from .testapp.models import Person, Occupation
@@ -29,6 +29,49 @@ def boundrows_iteration():
     expecteds = Person.objects.all()
     for expected, actual in itertools.izip(expecteds, records):
         Assert(expected) == actual
+
+
+@models.test
+def model_table():
+    """
+    The ``model`` option on a table causes the table to dynamically add columns
+    based on the fields.
+    """
+    class OccupationTable(tables.Table):
+        class Meta:
+            model = Occupation
+    Assert(["id", "name", "region"]) == OccupationTable.base_columns.keys()
+
+    class OccupationTable2(tables.Table):
+        extra = tables.Column()
+        class Meta:
+            model = Occupation
+    Assert(["id", "name", "region", "extra"]) == OccupationTable2.base_columns.keys()
+
+    # be aware here, we already have *models* variable, but we're importing
+    # over the top
+    from django.db import models
+    class ComplexModel(models.Model):
+        char = models.CharField(max_length=200)
+        fk = models.ForeignKey("self")
+        m2m = models.ManyToManyField("self")
+
+    class ComplexTable(tables.Table):
+        class Meta:
+            model = ComplexModel
+    Assert(["id", "char", "fk"]) == ComplexTable.base_columns.keys()
+
+
+@models.test
+def mixins():
+    class TableMixin(tables.Table):
+        extra = tables.Column()
+
+    class OccupationTable(TableMixin, tables.Table):
+        extra2 = tables.Column()
+        class Meta:
+            model = Occupation
+    Assert(["extra", "id", "name", "region", "extra2"]) == OccupationTable.base_columns.keys()
 
 
 @models.test

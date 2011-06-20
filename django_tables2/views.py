@@ -9,7 +9,7 @@ class SingleTableMixin(object):
     ``TemplateResponseMixin``.
 
     :param table_class: table class
-    :type table_class: subclass of ``django_tables.Table``
+    :type table_class: subclass of ``django_tables2.Table``
 
     :param table_data: data used to populate the table
     :type table_data: any compatible data source

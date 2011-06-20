@@ -2,7 +2,7 @@
 from django.template import Template, Context, VariableDoesNotExist
 from django.http import HttpRequest
 from django.conf import settings
-import django_tables as tables
+import django_tables2 as tables
 from attest import Tests, Assert
 from xml.etree import ElementTree as ET
 
@@ -83,7 +83,7 @@ def custom_rendering():
 def templatetag():
     # ensure it works with a multi-order-by
     table = CountryTable(MEMORY_DATA, order_by=('name', 'population'))
-    t = Template('{% load django_tables %}{% render_table table %}')
+    t = Template('{% load django_tables2 %}{% render_table table %}')
     html = t.render(Context({'request': HttpRequest(), 'table': table}))
 
     root = ET.fromstring(html)
@@ -94,7 +94,7 @@ def templatetag():
 
     # no data with no empty_text
     table = CountryTable([])
-    t = Template('{% load django_tables %}{% render_table table %}')
+    t = Template('{% load django_tables2 %}{% render_table table %}')
     html = t.render(Context({'request': HttpRequest(), 'table': table}))
     root = ET.fromstring(html)
     Assert(len(root.findall('.//thead/tr'))) == 1
@@ -103,7 +103,7 @@ def templatetag():
 
     # no data WITH empty_text
     table = CountryTable([], empty_text='this table is empty')
-    t = Template('{% load django_tables %}{% render_table table %}')
+    t = Template('{% load django_tables2 %}{% render_table table %}')
     html = t.render(Context({'request': HttpRequest(), 'table': table}))
     root = ET.fromstring(html)
     Assert(len(root.findall('.//thead/tr'))) == 1
@@ -114,7 +114,7 @@ def templatetag():
     Assert(root.find('.//tbody/tr/td').text) == 'this table is empty'
 
     # variable that doesn't exist (issue #8)
-    t = Template('{% load django_tables %}{% render_table this_doesnt_exist %}')
+    t = Template('{% load django_tables2 %}{% render_table this_doesnt_exist %}')
     with Assert.raises(VariableDoesNotExist):
         settings.DEBUG = True
         t.render(Context())

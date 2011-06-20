@@ -3,8 +3,8 @@ import copy
 from attest import Tests, Assert
 from django.http import Http404
 from django.core.paginator import Paginator
-import django_tables as tables
-from django_tables import utils
+import django_tables2 as tables
+from django_tables2 import utils
 
 
 core = Tests()

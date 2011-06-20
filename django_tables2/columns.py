@@ -203,7 +203,7 @@ class LinkColumn(Column):
         )
 
         # tables.py
-        from django_tables.utils import A  # alias for Accessor
+        from django_tables2.utils import A  # alias for Accessor
 
         class PeopleTable(tables.Table):
             name = tables.LinkColumn('people_detail', args=[A('pk')])

@@ -142,7 +142,8 @@ class DeclarativeColumnsMetaclass(type):
     """
 
     def __new__(cls, name, bases, attrs):
-        """Ughhh document this :)"""
+
+        attrs["_meta"] = opts = TableOptions(attrs.get("Meta", None))
         # extract declared columns
         columns = [(name_, attrs.pop(name_)) for name_, column in attrs.items()
                                              if isinstance(column, Column)]
@@ -152,23 +153,23 @@ class DeclarativeColumnsMetaclass(type):
         # If this class is subclassing other tables, add their fields as
         # well. Note that we loop over the bases in *reverse* - this is
         # necessary to preserve the correct order of columns.
+        parent_columns = []
         for base in bases[::-1]:
             if hasattr(base, "base_columns"):
-                columns = base.base_columns.items() + columns
-        # Note that we are reusing an existing ``base_columns`` attribute.
-        # This is because in certain inheritance cases (mixing normal and
-        # ModelTables) this metaclass might be executed twice, and we need
-        # to avoid overriding previous data (because we pop() from attrs,
-        # the second time around columns might not be registered again).
-        # An example would be:
-        #    class MyNewTable(MyOldNonTable, tables.Table): pass
-        if not "base_columns" in attrs:
-            attrs["base_columns"] = SortedDict()
+                parent_columns = base.base_columns.items() + parent_columns
+        # Start with the parent columns
+        attrs["base_columns"] = SortedDict(parent_columns)
+        # Possibly add some generated columns based on a model
+        if opts.model:
+            extra = SortedDict(((f.name, Column()) for f in opts.model._meta.fields))
+            attrs["base_columns"].update(extra)
+        # Explicit columns override both parent and generated columns
         attrs["base_columns"].update(SortedDict(columns))
-        attrs["_meta"] = opts = TableOptions(attrs.get("Meta", None))
+        # Apply any explicit exclude setting
         for ex in opts.exclude:
             if ex in attrs["base_columns"]:
                 attrs["base_columns"].pop(ex)
+        # Now reorder the columns based on explicit sequence
         if opts.sequence:
             opts.sequence.expand(attrs["base_columns"].keys())
             attrs["base_columns"] = SortedDict(((x, attrs["base_columns"][x]) for x in opts.sequence))
@@ -195,6 +196,7 @@ class TableOptions(object):
         self.order_by = OrderByTuple(order_by)
         self.sequence = Sequence(getattr(options, "sequence", ()))
         self.sortable = getattr(options, "sortable", True)
+        self.model = getattr(options, "model", None)
 
 
 class Table(StrAndUnicode):
@@ -258,10 +260,6 @@ class Table(StrAndUnicode):
             self.order_by = self._meta.order_by
         else:
             self.order_by = order_by
-
-
-    def __unicode__(self):
-        return self.as_html()
 
     @property
     def data(self):
@@ -336,10 +334,10 @@ class Table(StrAndUnicode):
 
         The rendered table won't include pagination or sorting, as those
         features require a RequestContext. Use the ``render_table`` template
-        tag (requires ``{% load django_tables %}``) if you require this extra
+        tag (requires ``{% load django_tables2 %}``) if you require this extra
         functionality.
         """
-        template = get_template('django_tables/basic_table.html')
+        template = get_template('django_tables2/basic_table.html')
         return template.render(Context({'table': self}))
 
     @property

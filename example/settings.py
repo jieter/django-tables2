@@ -1,15 +1,8 @@
-# import django_tables
+# import django_tables2
 from os.path import dirname, join, abspath
 import sys
 
-
 ROOT = dirname(abspath(__file__))
-
-
-sys.path.insert(0, join(ROOT, '..'))
-import django_tables
-sys.path.pop(0)
-
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -136,7 +129,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'example.app',
-    'django_tables',
+    'django_tables2',
 )
 
 # A sample logging configuration. The only tangible logging

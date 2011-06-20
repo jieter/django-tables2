@@ -3,14 +3,14 @@ from setuptools import setup, find_packages
 
 
 setup(
-    name='django-tables',
-    version='0.5.0',
+    name='django-tables2',
+    version='0.6.0',
     description='Table framework for Django',
 
     author='Bradley Ayers',
     author_email='bradley.ayers@gmail.com',
     license='Simplified BSD',
-    url='https://github.com/bradleyayers/django-tables/',
+    url='https://github.com/bradleyayers/django-tables2/',
 
     packages=find_packages(exclude=['tests.*', 'tests', 'example.*', 'example']),
     include_package_data=True,  # declarations in MANIFEST.in
