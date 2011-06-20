@@ -38,7 +38,7 @@ And finally in the template::
 This example shows one of the simplest cases, but django-tables2 can do a lot
 more! Check out the `documentation`__ for more details.
 
-.. __: http://readthedocs.org/docs/django-tables2/en/latest/
+.. __: http://django-tables2.readthedocs.org/en/latest/
 
 
 Building the documentation
