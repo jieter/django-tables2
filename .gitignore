@@ -1,4 +1,5 @@
 *.pyc
+example/database.sqlite
 /*.komodoproject
 /*.tmproj
 /*.egg-info/
