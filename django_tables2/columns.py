@@ -2,7 +2,6 @@
 from django.core.urlresolvers import reverse
 from django.utils.encoding import force_unicode, StrAndUnicode
 from django.utils.datastructures import SortedDict
-from django.utils.text import capfirst
 from django.utils.safestring import mark_safe
 from django.template import RequestContext, Context, Template
 from django.db.models.fields import FieldDoesNotExist
@@ -428,7 +427,7 @@ class BoundColumn(object):
                 break
             if field:
                 name = field.verbose_name
-        return capfirst(name)
+        return name
 
     @property
     def visible(self):
