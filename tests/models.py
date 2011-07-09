@@ -100,6 +100,8 @@ def verbose_name():
         r1 = tables.Column(accessor='occupation.region.name')
         r2 = tables.Column(accessor='occupation.region.name.upper')
         r3 = tables.Column(accessor='occupation.region.name', verbose_name='OVERRIDE')
+        trans_test = tables.Column()
+        trans_test_lazy = tables.Column()
 
     # The Person model has a ``first_name`` and ``last_name`` field, but only
     # the ``last_name`` field has an explicit ``verbose_name`` set. This means
@@ -122,6 +124,20 @@ def verbose_name():
     Assert('Name') == table.columns['r1'].verbose_name
     Assert('Name') == table.columns['r2'].verbose_name
     Assert('OVERRIDE') == table.columns['r3'].verbose_name
+    Assert("Translation Test") == table.columns["trans_test"].verbose_name
+    Assert("Translation Test Lazy") == table.columns["trans_test_lazy"].verbose_name
+
+    # -------------------------------------------------------------------------
+
+    # Now we'll try using a table with Meta.model
+    class PersonTable(tables.Table):
+        class Meta:
+            model = Person
+    # Issue #16
+    table = PersonTable([])
+    Assert("Translation Test") == table.columns["trans_test"].verbose_name
+    Assert("Translation Test Lazy") == table.columns["trans_test_lazy"].verbose_name
+
 
 @models.test
 def column_mapped_to_nonexistant_field():
