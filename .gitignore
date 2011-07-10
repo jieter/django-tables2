@@ -7,3 +7,4 @@
 /dist/
 /build/
 /docs/_build/
+/example/database.sqlite
