@@ -500,29 +500,57 @@ ignore the built-in generation tools, and instead pass an instance of your
 
 .. code-block:: django
 
+    {% spaceless %}
     {% load django_tables2 %}
-    <table>
+    {% if table.page %}
+    <div class="table-container">
+    {% endif %}
+    <table{% if table.attrs %} {{ table.attrs.as_html }}{% endif %}>
         <thead>
-            <tr>
+            <tr class="{% cycle "odd" "even" %}">
             {% for column in table.columns %}
-                <th><a href="{% set_url_param sort=column.name_toggled %}">{{ column }}</a></th>
+            {% if column.sortable %}
+                {% with column.order_by as ob %}
+                <th class="{% spaceless %}{% if column.sortable %}sortable {% endif %}{% if ob %}{% if ob.is_descending %}desc{% else %}asc{% endif %}{% endif %}{% endspaceless %}"><a href="{% if ob %}{% set_url_param sort=ob.opposite %}{% else %}{% set_url_param sort=column.name %}{% endif %}">{{ column.header }}</a></th>
+                {% endwith %}
+            {% else %}
+                <th>{{ column.header }}</th>
+            {% endif %}
             {% endfor %}
             </tr>
         </thead>
         <tbody>
-            {% for row in table.rows %}
-            <tr>
+            {% for row in table.page.object_list|default:table.rows %} {# support pagination #}
+            <tr class="{% cycle "odd" "even" %}">
                 {% for cell in row %}
-                <td>{{ cell }}</td>
+                    <td>{{ cell }}</td>
                 {% endfor %}
             </tr>
             {% empty %}
-                {% if table.empty_text %}
-                <tr><td colspan="{{ table.columns|length }}">{{ table.empty_text }}</td></tr>
-                {% endif %}
+            {% if table.empty_text %}
+            <tr><td colspan="{{ table.columns|length }}">{{ table.empty_text }}</td></tr>
+            {% endif %}
             {% endfor %}
         </tbody>
     </table>
+    {% if table.page %}
+    <ul class="pagination">
+        {% if table.page.has_previous %}
+        <li class="previous"><a href="{% set_url_param page=table.page.previous_page_number %}">Previous</a></li>
+        {% endif %}
+        <li class="current">Page {{ table.page.number }} of {{ table.paginator.num_pages }}</li>
+        {% if table.page.has_next %}
+        <li class="next"><a href="{% set_url_param page=table.page.next_page_number %}">Next</a></li>
+        {% endif %}
+    </ul>
+    </div>
+    {% endif %}
+    {% endspaceless %}
+
+.. note::
+
+    This is a complicated example, and is actually the template code that
+    ``{% render_table %}`` uses.
 
 
 .. _template_tags:
