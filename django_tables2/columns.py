@@ -331,7 +331,7 @@ class BoundColumn(object):
         self._name = name
 
     def __unicode__(self):
-        return self.verbose_name
+        return unicode(self.verbose_name)
 
     @property
     def accessor(self):
@@ -416,7 +416,7 @@ class BoundColumn(object):
         # in anything useful.
         name = self.name.replace('_', ' ')
 
-        # Perhap use a model field's verbose_name
+        # Try to use a tmodel field's verbose_name
         if hasattr(self.table.data, 'queryset'):
             model = self.table.data.queryset.model
             parts = self.accessor.split('.')

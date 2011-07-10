@@ -5,6 +5,7 @@ from django.conf import settings
 import django_tables2 as tables
 from attest import Tests, Assert
 from xml.etree import ElementTree as ET
+from django.utils.translation import ugettext_lazy as _
 
 
 templates = Tests()
@@ -12,7 +13,7 @@ templates = Tests()
 
 class CountryTable(tables.Table):
     name = tables.Column()
-    capital = tables.Column(sortable=False)
+    capital = tables.Column(sortable=False, verbose_name=_("Capital"))
     population = tables.Column(verbose_name='Population Size')
     currency = tables.Column(visible=False)
     tld = tables.Column(visible=False, verbose_name='Domain')
