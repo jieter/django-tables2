@@ -275,3 +275,71 @@ def empty_text():
 
     table = TestTable([], empty_text='still nothing')
     Assert(table.empty_text) == 'still nothing'
+
+
+@core.test
+def prefix():
+    """Test that table prefixes affect the names of querystring parameters"""
+    class TableA(tables.Table):
+        name = tables.Column()
+
+        class Meta:
+            prefix = "x"
+
+    Assert("x") == TableA([]).prefix
+
+    class TableB(tables.Table):
+        name = tables.Column()
+
+    Assert("") == TableB([]).prefix
+    Assert("x") == TableB([], prefix="x").prefix
+
+    table = TableB([])
+    table.prefix = "x"
+    Assert("x") == table.prefix
+
+
+@core.test
+def field_names():
+    class TableA(tables.Table):
+        class Meta:
+            order_by_field = "abc"
+            page_field = "def"
+            per_page_field = "ghi"
+
+    table = TableA([])
+    Assert("abc") == table.order_by_field
+    Assert("def") == table.page_field
+    Assert("ghi") == table.per_page_field
+
+
+@core.test
+def field_names_with_prefix():
+    class TableA(tables.Table):
+        class Meta:
+            order_by_field = "sort"
+            page_field = "page"
+            per_page_field = "per_page"
+            prefix = "1-"
+
+    table = TableA([])
+    Assert("1-sort") == table.prefixed_order_by_field
+    Assert("1-page") == table.prefixed_page_field
+    Assert("1-per_page") == table.prefixed_per_page_field
+
+    class TableB(tables.Table):
+        class Meta:
+            order_by_field = "sort"
+            page_field = "page"
+            per_page_field = "per_page"
+
+    table = TableB([], prefix="1-")
+    Assert("1-sort") == table.prefixed_order_by_field
+    Assert("1-page") == table.prefixed_page_field
+    Assert("1-per_page") == table.prefixed_per_page_field
+
+    table = TableB([])
+    table.prefix = "1-"
+    Assert("1-sort") == table.prefixed_order_by_field
+    Assert("1-page") == table.prefixed_page_field
+    Assert("1-per_page") == table.prefixed_per_page_field

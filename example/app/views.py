@@ -2,21 +2,23 @@ from django.shortcuts import render_to_response
 from django.template import RequestContext
 from .tables import CountryTable, ThemedCountryTable
 from .models import Country
+from django_tables2 import RequestConfig
 
 
 def home(request):
-    order_by = request.GET.get('sort')
-    queryset = Country.objects.all()
-    #
-    example1 = CountryTable(queryset, order_by=order_by)
-    #
-    example2 = CountryTable(queryset, order_by=order_by)
-    example2.paginate(page=request.GET.get('page', 1), per_page=3)
-    #
-    example3 = ThemedCountryTable(queryset, order_by=order_by)
-    #
-    example4 = ThemedCountryTable(queryset, order_by=order_by)
-    example4.paginate(page=request.GET.get('page', 1), per_page=3)
+    qs = Country.objects.all()
+
+    example1 = CountryTable(qs, prefix="1-")
+    RequestConfig(request, paginate=False).configure(example1)
+
+    example2 = CountryTable(qs, prefix="2-")
+    RequestConfig(request, paginate={"per_page": 2}).configure(example2)
+
+    example3 = ThemedCountryTable(qs, prefix="3-")
+    RequestConfig(request, paginate={"per_page": 3}).configure(example3)
+
+    example4 = ThemedCountryTable(qs, prefix="4-")
+    RequestConfig(request, paginate={"per_page": 3}).configure(example4)
 
     return render_to_response('example.html', {
         'example1': example1,

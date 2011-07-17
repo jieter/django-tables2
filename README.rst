@@ -13,6 +13,18 @@ django-tables2 simplifies the task of turning sets of data into HTML tables. It
 has native support for pagination and sorting. It does for HTML tables what
 ``django.forms`` does for HTML forms.
 
+Its features include:
+
+- Any iterable can be a data-source, but special support for Django querysets
+  is included.
+- The builtin UI does not rely on JavaScript.
+- Support for automatic table generation based on a Django model.
+- Supports custom column functionality via subclassing.
+- Pagination.
+- Column based table sorting.
+- Template tag to enable trivial rendering to HTML.
+- Generic view mixin for use in Django 1.3.
+
 Creating a table is as simple as::
 
     import django_tables2 as tables

@@ -31,5 +31,6 @@ from .models import models
 from .utils import utils
 from .rows import rows
 from .columns import columns
+from .config import config
 
-everything = Tests([core, templates, models, utils, rows, columns])
+everything = Tests([core, templates, models, utils, rows, columns, config])

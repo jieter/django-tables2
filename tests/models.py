@@ -1,6 +1,5 @@
 import itertools
 from django.conf import settings
-from django.test.client import RequestFactory
 from django.template import Template, Context
 import django_tables2 as tables
 from django_attest import TransactionTestContext
