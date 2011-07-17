@@ -1,4 +1,5 @@
 #! -*- coding: utf-8 -*-
+from __future__ import absolute_import
 """
 Allows setting/changing/removing of chosen url query string parameters, while
 maintaining any existing others.
@@ -12,19 +13,46 @@ Examples:
     {% set_url_param filter="books" page=1 %}
 
 """
-import urllib
+import re
 import tokenize
 import StringIO
 from django.conf import settings
 from django import template
+from django.template import TemplateSyntaxError, Context, Variable, Node
+from django.utils.datastructures import SortedDict
 from django.template.loader import get_template
 from django.utils.safestring import mark_safe
+from django.utils.http import urlencode
+import django_tables2 as tables
 
 
 register = template.Library()
+kwarg_re = re.compile(r"(?:(.+)=)?(.+)")
 
 
-class SetUrlParamNode(template.Node):
+def token_kwargs(bits, parser):
+    """
+    Based on Django's ``django.template.defaulttags.token_kwargs``, but with a
+    few changes:
+
+    - No legacy mode.
+    - Both keys and values are compiled as a filter
+
+    """
+    if not bits:
+        return {}
+    kwargs = SortedDict()
+    while bits:
+        match = kwarg_re.match(bits[0])
+        if not match or not match.group(1):
+            return kwargs
+        key, value = match.groups()
+        del bits[:1]
+        kwargs[parser.compile_filter(key)] = parser.compile_filter(value)
+    return kwargs
+
+
+class SetUrlParamNode(Node):
     def __init__(self, changes):
         self.changes = changes
 
@@ -32,9 +60,6 @@ class SetUrlParamNode(template.Node):
         request = context.get('request', None)
         if not request:
             return ""
-        # Note that we want params to **not** be a ``QueryDict`` (thus we
-        # don't use it's ``copy()`` method), as it would force all values
-        # to be unicode, and ``urllib.urlencode`` can't handle that.
         params = dict(request.GET)
         for key, newvalue in self.changes.items():
             newvalue = newvalue.resolve(context)
@@ -42,28 +67,22 @@ class SetUrlParamNode(template.Node):
                 params.pop(key, False)
             else:
                 params[key] = unicode(newvalue)
-
-        # ``urlencode`` chokes on unicode input, so convert everything to utf8.
-        # Note that if some query arguments passed to the site have their
-        # non-ascii characters screwed up when passed though this, it's most
-        # likely not our fault. Django (the ``QueryDict`` class to be exact)
-        # uses your projects DEFAULT_CHARSET to decode incoming query strings,
-        # whereas your browser might encode the url differently. For example,
-        # typing "ä" in my German Firefox's (v2) address bar results in "%E4"
-        # being passed to the server (in iso-8859-1), but Django might expect
-        # utf-8, where ä would be "%C3%A4"
-        def mkstr(s):
-            if isinstance(s, list):
-                return map(mkstr, s)
-            else:
-                return s.encode('utf-8') if isinstance(s, unicode) else s
-        params = dict([(mkstr(k), mkstr(v)) for k, v in params.items()])
-        # done, return (string is already safe)
-        return '?' + urllib.urlencode(params, doseq=True)
+        return "?" + urlencode(params, doseq=True)
 
 
 @register.tag
 def set_url_param(parser, token):
+    """
+    Creates a URL (containing only the querystring [including "?"]) based on
+    the current URL, but updated with the provided keyword arguments.
+
+    Example::
+
+        {% set_url_param name="help" age=20 %}
+        ?name=help&age=20
+
+    **Deprecated** as of 0.7.0, use ``updateqs``.
+    """
     bits = token.contents.split()
     qschanges = {}
     for i in bits[1:]:
@@ -75,32 +94,73 @@ def set_url_param(parser, token):
             keys = list(tokenize.generate_tokens(a_line_iter))
             if keys[0][0] == tokenize.NAME:
                 # workaround bug #5270
-                b = (template.Variable(b) if b == '""' else
-                     parser.compile_filter(b))
+                b = Variable(b) if b == '""' else parser.compile_filter(b)
                 qschanges[str(a)] = b
             else:
                 raise ValueError
         except ValueError:
-            raise (template.TemplateSyntaxError,
-                   "Argument syntax wrong: should be key=value")
+            raise TemplateSyntaxError("Argument syntax wrong: should be"
+                                      "key=value")
     return SetUrlParamNode(qschanges)
 
 
-class RenderTableNode(template.Node):
-    def __init__(self, table_var_name):
-        self.table_var = template.Variable(table_var_name)
+class QuerystringNode(Node):
+    def __init__(self, params):
+        self.params = params
+
+    def render(self, context):
+        request = context.get('request', None)
+        if not request:
+            return ""
+        params = dict(request.GET)
+        for key, value in self.params.iteritems():
+            key = key.resolve(context)
+            value = value.resolve(context)
+            if key not in ("", None):
+                params[key] = value
+        return "?" + urlencode(params, doseq=True)
+
+
+# {% querystring "name"="abc" "age"=15 %}
+@register.tag
+def querystring(parser, token):
+    """
+    Creates a URL (containing only the querystring [including "?"]) derived
+    from the current URL's querystring, by updating it with the provided
+    keyword arguments.
+
+    Example (imagine URL is /abc/?gender=male&name=Brad::
+
+        {% querystring "name"="Ayers" "age"=20 %}
+        ?name=Ayers&gender=male&age=20
+    """
+    bits = token.split_contents()
+    tag = bits.pop(0)
+    try:
+        return QuerystringNode(token_kwargs(bits, parser))
+    finally:
+        # ``bits`` should now be empty, if this is not the case, it means there
+        # was some junk arguments that token_kwargs couldn't handle.
+        if bits:
+            raise TemplateSyntaxError("Malformed arguments to '%s'" % tag)
+
+
+class RenderTableNode(Node):
+    def __init__(self, table):
+        self.table = table
 
     def render(self, context):
         try:
-            # may raise VariableDoesNotExist
-            table = self.table_var.resolve(context)
+            table = self.table.resolve(context)
+            if not isinstance(table, tables.Table):
+                raise ValueError("Expected Table object, but didn't find one.")
             if "request" not in context:
-                raise AssertionError("{% render_table %} requires that the "
-                                     "template context contains the HttpRequest in"
-                                     " a 'request' variable, check your "
-                                     " TEMPLATE_CONTEXT_PROCESSORS setting.")
-            context = template.Context({"request": context["request"],
-                                        "table": table})
+                raise AssertionError(
+                        "{% render_table %} requires that the template context"
+                        " contains the HttpRequest in a 'request' variable, "
+                        "check your TEMPLATE_CONTEXT_PROCESSORS setting.")
+            context = Context({"request": context["request"], "table": table})
+            # HACK! :(
             try:
                 table.request = context["request"]
                 return get_template("django_tables2/table.html").render(context)
@@ -115,10 +175,7 @@ class RenderTableNode(template.Node):
 
 @register.tag
 def render_table(parser, token):
-    try:
-        _, table_var_name = token.contents.split()
-    except ValueError:
-        raise (template.TemplateSyntaxError,
-               u'%r tag requires a single argument'
-               % token.contents.split()[0])
-    return RenderTableNode(table_var_name)
+    bits = token.split_contents()
+    if len(bits) != 2:
+        raise TemplateSyntaxError("'%s' requires one argument." % bits[0])
+    return RenderTableNode(parser.compile_filter(bits[1]))

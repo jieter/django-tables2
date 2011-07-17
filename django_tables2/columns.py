@@ -17,8 +17,10 @@ class Column(object):
     :class:`Column` objects control the way a column (including the cells that
     fall within it) are rendered.
 
-    :param verbose_name: A pretty human readable version of the column name.
-        Typically this is used in the header cells in the HTML output.
+    :param verbose_name: A human readable version of the column name.
+        Typically this is used in the header cells in the HTML output. (But if
+        you're writing your own template, use ``.header`` rather than
+        ``.verbose_name``)
 
     :type accessor: :class:`basestring` or :class:`~.utils.Accessor`
     :param accessor: An accessor that describes how to extract values for this
@@ -96,7 +98,7 @@ class Column(object):
         """
         return self.verbose_name
 
-    def render(self, value, **kwargs):
+    def render(self, value):
         """
         Returns the content for a specific cell.
 
@@ -297,10 +299,11 @@ class TemplateColumn(Column):
 
 class BoundColumn(object):
     """
-    A *runtime* version of :class:`.Column`. The difference between
-    ``BoundColumn`` and ``Column``, is that ``BoundColumn`` objects are of the
-    relationship between a ``Column`` and a :class:`.Table`. This means that it
-    knows the *name* given to the ``Column``.
+    A *run-time* version of :class:`.Column`. The difference between
+    ``BoundColumn`` and ``Column``, is that ``BoundColumn`` objects include the
+    relationship between a ``Column`` and a :class:`.Table`. In practice, this
+    means that a ``BoundColumn`` knows the *"variable name"* given to the
+    ``Column`` when it was declared on the ``Table``.
 
     For convenience, all :class:`.Column` properties are available from this
     class.
@@ -328,7 +331,7 @@ class BoundColumn(object):
         self._name = name
 
     def __unicode__(self):
-        return self.verbose_name
+        return unicode(self.verbose_name)
 
     @property
     def accessor(self):
@@ -405,14 +408,15 @@ class BoundColumn(object):
         relationship turns from ORM relationships to object attributes [e.g.
         person.upper should stop at person]).
         """
-        # Favor an explicit verbose_name
+        # Favor an explicit defined verbose_name
         if self.column.verbose_name:
             return self.column.verbose_name
 
-        # Reasonable fallback
+        # This is our reasonable fallback, should the next section not result
+        # in anything useful.
         name = self.name.replace('_', ' ')
 
-        # Perhap use a model field's verbose_name
+        # Try to use a tmodel field's verbose_name
         if hasattr(self.table.data, 'queryset'):
             model = self.table.data.queryset.model
             parts = self.accessor.split('.')

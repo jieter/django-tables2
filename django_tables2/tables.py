@@ -161,7 +161,11 @@ class DeclarativeColumnsMetaclass(type):
         attrs["base_columns"] = SortedDict(parent_columns)
         # Possibly add some generated columns based on a model
         if opts.model:
-            extra = SortedDict(((f.name, Column()) for f in opts.model._meta.fields))
+            # We explicitly pass in verbose_name, so that if the table is
+            # instantiated with non-queryset data, model field verbose_names
+            # are used anyway.
+            extra = SortedDict(((f.name, Column(verbose_name=f.verbose_name))
+                                for f in opts.model._meta.fields))
             attrs["base_columns"].update(extra)
         # Explicit columns override both parent and generated columns
         attrs["base_columns"].update(SortedDict(columns))
@@ -179,7 +183,8 @@ class DeclarativeColumnsMetaclass(type):
 class TableOptions(object):
     """
     Extracts and exposes options for a :class:`.Table` from a ``class Meta``
-    when the table is defined.
+    when the table is defined. See ``Table`` for documentation on the impact of
+    variables in this class.
 
     :param options: options for a table
     :type options: :class:`Meta` on a :class:`.Table`
@@ -194,6 +199,10 @@ class TableOptions(object):
         if isinstance(order_by, basestring):
             order_by = (order_by, )
         self.order_by = OrderByTuple(order_by)
+        self.order_by_field = getattr(options, "order_by_field", "sort")
+        self.page_field = getattr(options, "page_field", "page")
+        self.per_page_field = getattr(options, "per_page_field", "per_page")
+        self.prefix = getattr(options, "prefix", "")
         self.sequence = Sequence(getattr(options, "sequence", ()))
         self.sortable = getattr(options, "sortable", True)
         self.model = getattr(options, "model", None)
@@ -203,19 +212,52 @@ class Table(StrAndUnicode):
     """
     A collection of columns, plus their associated data rows.
 
+    :type attrs: ``dict``
+    :param attrs: A mapping of attributes to values that will be added to the
+            HTML ``<table>`` tag.
+
     :type data:  ``list`` or ``QuerySet``
     :param data: The :term:`table data`.
 
+    :type exclude: *iterable*
+    :param exclude: A list of columns to be excluded from this table.
+
     :type order_by: ``None``, ``tuple`` or ``string``
     :param order_by: sort the table based on these columns prior to display.
-        (default :attr:`.Table.Meta.order_by`)
+            (default :attr:`.Table.Meta.order_by`)
+
+    :type order_by_field: ``string`` or ``None``
+    :param order_by_field: The name of the querystring field used to control
+            the table ordering.
+
+    :type page_field: ``string`` or ``None``
+    :param page_field: The name of the querystring field used to control which
+            page of the table is displayed (used when a table is paginated).
+
+    :type per_page_field: ``string`` or ``None``
+    :param per_page_field: The name of the querystring field used to control
+            how many records are displayed on each page of the table.
+
+    :type prefix: ``string``
+    :param prefix: A prefix used on querystring arguments to allow multiple
+            tables to be used on a single page, without having conflicts
+            between querystring arguments. Depending on how the table is
+            rendered, will determine how the prefix is used. For example ``{%
+            render_table %}`` uses ``<prefix>-<argument>``.
+
+    :type sequence: *iterable*
+    :param sequence: The sequence/order of columns the columns (from left to
+            right). Items in the sequence must be column names, or the
+            *remaining items* symbol marker ``"..."`` (string containing three
+            periods). If this marker is used, not all columns need to be
+            defined.
 
     :type sortable: ``bool``
     :param sortable: Enable/disable sorting on this table
 
     :type empty_text: ``string``
     :param empty_text: Empty text to render when the table has no data.
-        (default :attr:`.Table.Meta.empty_text`)
+            (default :attr:`.Table.Meta.empty_text`)
 
     The ``order_by`` argument is optional and allows the table's
     ``Meta.order_by`` option to be overridden. If the ``order_by is None``
@@ -240,13 +282,18 @@ class Table(StrAndUnicode):
     TableDataClass = TableData
 
     def __init__(self, data, order_by=None, sortable=None, empty_text=None,
-                 exclude=None, attrs=None, sequence=None):
+                 exclude=None, attrs=None, sequence=None, prefix=None,
+                 order_by_field=None, page_field=None, per_page_field=None):
         self._rows = BoundRows(self)
         self._columns = BoundColumns(self)
         self._data = self.TableDataClass(data=data, table=self)
         self.attrs = attrs
         self.empty_text = empty_text
         self.sortable = sortable
+        self.prefix = prefix
+        self.order_by_field = order_by_field
+        self.page_field = page_field
+        self.per_page_field = per_page_field
         # Make a copy so that modifying this will not touch the class
         # definition. Note that this is different from forms, where the
         # copy is made available in a ``fields`` attribute.
@@ -261,72 +308,8 @@ class Table(StrAndUnicode):
         else:
             self.order_by = order_by
 
-    @property
-    def data(self):
-        return self._data
-
-    @property
-    def order_by(self):
-        return self._order_by
-
-    @order_by.setter
-    def order_by(self, value):
-        """
-        Order the rows of the table based columns. ``value`` must be a sequence
-        of column names.
-        """
-        # accept string
-        order_by = value.split(',') if isinstance(value, basestring) else value
-        # accept None
-        order_by = () if order_by is None else order_by
-        new = []
-        # everything's been converted to a iterable, accept iterable!
-        for o in order_by:
-            ob = OrderBy(o)
-            name = ob.bare
-            if name in self.columns and self.columns[name].sortable:
-                new.append(ob)
-        order_by = OrderByTuple(new)
-        self._order_by = order_by
-        self._data.order_by(order_by)
-
-    @property
-    def sequence(self):
-        return (self._sequence if self._sequence is not None
-                               else self._meta.sequence)
-
-    @sequence.setter
-    def sequence(self, value):
-        if value:
-            value = Sequence(value)
-            value.expand(self.base_columns.keys())
-        self._sequence = value
-
-    @property
-    def sortable(self):
-        return (self._sortable if self._sortable is not None
-                               else self._meta.sortable)
-
-    @sortable.setter
-    def sortable(self, value):
-        self._sortable = value
-
-    @property
-    def empty_text(self):
-        return (self._empty_text if self._empty_text is not None
-                                 else self._meta.empty_text)
-
-    @empty_text.setter
-    def empty_text(self, value):
-        self._empty_text = value
-
-    @property
-    def rows(self):
-        return self._rows
-
-    @property
-    def columns(self):
-        return self._columns
+    def __unicode__(self):
+        return unicode(repr(self))
 
     def as_html(self):
         """
@@ -354,9 +337,137 @@ class Table(StrAndUnicode):
     def attrs(self, value):
         self._attrs = value
 
+    @property
+    def columns(self):
+        return self._columns
+
+    @property
+    def data(self):
+        return self._data
+
+    @property
+    def empty_text(self):
+        return (self._empty_text if self._empty_text is not None
+                                 else self._meta.empty_text)
+
+    @empty_text.setter
+    def empty_text(self, value):
+        self._empty_text = value
+
+    @property
+    def order_by(self):
+        return self._order_by
+
+    @order_by.setter
+    def order_by(self, value):
+        """
+        Order the rows of the table based columns. ``value`` must be a sequence
+        of column names.
+        """
+        # accept string
+        order_by = value.split(',') if isinstance(value, basestring) else value
+        # accept None
+        order_by = () if order_by is None else order_by
+        new = []
+        # everything's been converted to a iterable, accept iterable!
+        for o in order_by:
+            ob = OrderBy(o)
+            name = ob.bare
+            if name in self.columns and self.columns[name].sortable:
+                new.append(ob)
+        order_by = OrderByTuple(new)
+        self._order_by = order_by
+        self._data.order_by(order_by)
+
+    @property
+    def order_by_field(self):
+        return (self._order_by_field if self._order_by_field is not None
+                else self._meta.order_by_field)
+
+    @order_by_field.setter
+    def order_by_field(self, value):
+        self._order_by_field = value
+
+    @property
+    def page_field(self):
+        return (self._page_field if self._page_field is not None
+                else self._meta.page_field)
+
+    @page_field.setter
+    def page_field(self, value):
+        self._page_field = value
+
     def paginate(self, klass=Paginator, per_page=25, page=1, *args, **kwargs):
+        """
+        Paginates the table using a paginator and creates a ``page`` property
+        containing information for the current page.
+
+        :type klass: Paginator ``class``
+        :param klass: a paginator class to paginate the results
+
+        :type per_page: ``int``
+        :param per_page: how many records are displayed on each page
+
+        :type page: ``int``
+        :param page: which page should be displayed.
+        """
         self.paginator = klass(self.rows, per_page, *args, **kwargs)
         try:
             self.page = self.paginator.page(page)
         except Exception as e:
             raise Http404(str(e))
+
+    @property
+    def per_page_field(self):
+        return (self._per_page_field if self._per_page_field is not None
+                else self._meta.per_page_field)
+
+    @per_page_field.setter
+    def per_page_field(self, value):
+        self._per_page_field = value
+
+    @property
+    def prefix(self):
+        return (self._prefix if self._prefix is not None
+                else self._meta.prefix)
+
+    @prefix.setter
+    def prefix(self, value):
+        self._prefix = value
+
+    @property
+    def prefixed_order_by_field(self):
+        return u"%s%s" % (self.prefix, self.order_by_field)
+
+    @property
+    def prefixed_page_field(self):
+        return u"%s%s" % (self.prefix, self.page_field)
+
+    @property
+    def prefixed_per_page_field(self):
+        return u"%s%s" % (self.prefix, self.per_page_field)
+
+    @property
+    def rows(self):
+        return self._rows
+
+    @property
+    def sequence(self):
+        return (self._sequence if self._sequence is not None
+                               else self._meta.sequence)
+
+    @sequence.setter
+    def sequence(self, value):
+        if value:
+            value = Sequence(value)
+            value.expand(self.base_columns.keys())
+        self._sequence = value
+
+    @property
+    def sortable(self):
+        return (self._sortable if self._sortable is not None
+                               else self._meta.sortable)
+
+    @sortable.setter
+    def sortable(self, value):
+        self._sortable = value

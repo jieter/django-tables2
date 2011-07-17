@@ -8,9 +8,12 @@ from django.core.exceptions import ImproperlyConfigured
 import django_tables2 as tables
 from django_tables2 import utils, A
 from .testapp.models import Person
+from django.utils.translation import ugettext_lazy
+from django.utils.translation import ugettext
 
 
 general = Tests()
+
 
 @general.test
 def sortable():
@@ -31,6 +34,21 @@ def sortable():
         class Meta:
             sortable = True
     Assert(SimpleTable([]).columns['name'].sortable) is True
+
+
+@general.test
+def translation():
+    """
+    Tests different types of values for the ``verbose_name`` property of a
+    column.
+    """
+    class TranslationTable(tables.Table):
+        normal = tables.Column(verbose_name=ugettext("Normal"))
+        lazy = tables.Column(verbose_name=ugettext("Lazy"))
+
+    table = TranslationTable([])
+    Assert("Normal") == table.columns["normal"].header
+    Assert("Lazy") == table.columns["lazy"].header
 
 
 @general.test

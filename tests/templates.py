@@ -1,10 +1,13 @@
 # -*- coding: utf8 -*-
 from django.template import Template, Context, VariableDoesNotExist
+from django.test.client import RequestFactory
 from django.http import HttpRequest
 from django.conf import settings
+from urlparse import parse_qs
 import django_tables2 as tables
 from attest import Tests, Assert
 from xml.etree import ElementTree as ET
+from django.utils.translation import ugettext_lazy as _
 
 
 templates = Tests()
@@ -12,7 +15,7 @@ templates = Tests()
 
 class CountryTable(tables.Table):
     name = tables.Column()
-    capital = tables.Column(sortable=False)
+    capital = tables.Column(sortable=False, verbose_name=_("Capital"))
     population = tables.Column(verbose_name='Population Size')
     currency = tables.Column(visible=False)
     tld = tables.Column(visible=False, verbose_name='Domain')
@@ -80,7 +83,7 @@ def custom_rendering():
 
 
 @templates.test
-def templatetag():
+def render_table_templatetag():
     # ensure it works with a multi-order-by
     table = CountryTable(MEMORY_DATA, order_by=('name', 'population'))
     t = Template('{% load django_tables2 %}{% render_table table %}')
@@ -115,10 +118,27 @@ def templatetag():
 
     # variable that doesn't exist (issue #8)
     t = Template('{% load django_tables2 %}{% render_table this_doesnt_exist %}')
-    with Assert.raises(VariableDoesNotExist):
+    with Assert.raises(ValueError):
         settings.DEBUG = True
         t.render(Context())
 
     # Should be silent with debug off
     settings.DEBUG = False
     t.render(Context())
+
+
+@templates.test
+def querystring_templatetag():
+    factory = RequestFactory()
+    t = Template('{% load django_tables2 %}{% querystring "name"="Brad" foo.bar=value %}')
+    # Should be something like: ?name=Brad&a=b&c=5&age=21
+    url = t.render(Context({
+        "request": factory.get('/?a=b&name=dog&c=5'),
+        "foo": {"bar": "age"},
+        "value": 21,
+    }))
+    qs = parse_qs(url[1:])  # everything after the ?
+    Assert(qs["name"]) == ["Brad"]
+    Assert(qs["age"]) == ["21"]
+    Assert(qs["a"]) == ["b"]
+    Assert(qs["c"]) == ["5"]
