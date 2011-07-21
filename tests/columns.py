@@ -3,6 +3,7 @@
 from attest import Tests, Assert
 from django_attest import TransactionTestContext
 from django.test.client import RequestFactory
+from django.core.urlresolvers import reverse
 from django.template import Context, Template
 from django.core.exceptions import ImproperlyConfigured
 import django_tables2 as tables
@@ -164,6 +165,17 @@ def null_foreign_key():
 
     table = PersonTable(Person.objects.all())
     table.as_html()
+
+
+@linkcolumn.test
+def kwargs():
+    class PersonTable(tables.Table):
+        a = tables.LinkColumn('occupation', kwargs={"pk": A('a')})
+
+    html = PersonTable([{"a": 0}, {"a": 1}]).as_html()
+    print html
+    assert reverse("occupation", kwargs={"pk": 0}) in html
+    assert reverse("occupation", kwargs={"pk": 1}) in html
 
 
 columns = Tests([general, linkcolumn])

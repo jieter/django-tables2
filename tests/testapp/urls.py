@@ -3,6 +3,6 @@ from . import views
 
 
 urlpatterns = patterns('',
-    url(r'^people/(\d+)/$',      views.person,     name='person'),
-    url(r'^occupations/(\d+)/$', views.occupation, name='occupation'),
+    url(r'^people/(?P<pk>\d+)/$',      views.person,     name='person'),
+    url(r'^occupations/(?P<pk>\d+)/$', views.occupation, name='occupation'),
 )
