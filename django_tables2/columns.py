@@ -238,16 +238,14 @@ class LinkColumn(Column):
             params['args'] = [a.resolve(record) if isinstance(a, A) else a
                               for a in self.args]
         if self.kwargs:
-            params['kwargs'] = self.kwargs
-            for key, value in self.kwargs:
-                if isinstance(value, A):
-                    params['kwargs'][key] = value.resolve(record)
+            params['kwargs'] = {}
+            for k, v in self.kwargs.items():
+                # If we're dealing with an Accessor (A), resolve it, otherwise
+                # use the value verbatim.
+                params['kwargs'][k] = (v.resolve(record) if isinstance(v, A)
+                                       else v)
         if self.current_app:
             params['current_app'] = self.current_app
-            for key, value in self.current_app:
-                if isinstance(value, A):
-                    params['current_app'][key] = value.resolve(record)
-        url = reverse(**params)
         html = u'<a href="{url}" {attrs}>{value}</a>'.format(
             url=reverse(**params),
             attrs=AttributeDict(self.attrs).as_html(),
