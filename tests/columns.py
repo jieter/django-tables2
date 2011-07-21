@@ -173,7 +173,6 @@ def kwargs():
         a = tables.LinkColumn('occupation', kwargs={"pk": A('a')})
 
     html = PersonTable([{"a": 0}, {"a": 1}]).as_html()
-    print html
     assert reverse("occupation", kwargs={"pk": 0}) in html
     assert reverse("occupation", kwargs={"pk": 1}) in html
 
