@@ -221,7 +221,15 @@ class LinkColumn(Column):
         self.attrs = attrs or {}
 
     def render(self, value, record, bound_column):
-        if value is None:
+        # Remember that value is actually what would have normally been put
+        # into the cell. i.e. it *already* takes into consideration the
+        # column's *default* property, thus we must check the actual data value
+        # and use that to decide whether to render a link or just the default
+        try:
+            raw = bound_column.accessor.resolve(record)
+        except (TypeError, AttributeError, KeyError, ValueError) as e:
+            raw = None
+        if raw is None:
             return self.default
         # The following params + if statements create the arguments required to
         # pass to Django's reverse() function.
@@ -245,7 +253,9 @@ class LinkColumn(Column):
                 params['kwargs'][k] = (v.resolve(record) if isinstance(v, A)
                                        else v)
         if self.current_app:
-            params['current_app'] = self.current_app
+            params['current_app'] = (self.current_app.resolve(record)
+                                     if isinstance(self.current_app, A)
+                                     else self.urlconf)
         html = u'<a href="{url}" {attrs}>{value}</a>'.format(
             url=reverse(**params),
             attrs=AttributeDict(self.attrs).as_html(),
