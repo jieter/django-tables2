@@ -148,8 +148,6 @@ def unicode():
     Assert(u'Chr…s' in html)
     Assert(u'DÒble' in html)
 
-    # Test handling queryset data with a null foreign key
-
 
 @linkcolumn.test
 def null_foreign_key():
@@ -176,5 +174,14 @@ def kwargs():
     assert reverse("occupation", kwargs={"pk": 0}) in html
     assert reverse("occupation", kwargs={"pk": 1}) in html
 
+
+@linkcolumn.test
+def html_escape_value():
+    class PersonTable(tables.Table):
+        name = tables.LinkColumn("occupation", kwargs={"pk": A("pk")})
+
+    html = PersonTable([{"name": "<brad>", "pk": 1}]).as_html()
+    assert "<brad>" not in html
+    
 
 columns = Tests([general, linkcolumn])

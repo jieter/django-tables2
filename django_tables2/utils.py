@@ -3,7 +3,7 @@ from django.utils.datastructures import SortedDict
 from django.template import Context
 from django.utils.encoding import force_unicode, StrAndUnicode
 from django.utils.safestring import mark_safe
-from django.template.defaultfilters import escape
+from django.utils.html import escape
 
 
 __all__ = ('BaseTable', 'options')

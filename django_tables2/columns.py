@@ -3,6 +3,7 @@ from django.core.urlresolvers import reverse
 from django.utils.encoding import force_unicode, StrAndUnicode
 from django.utils.datastructures import SortedDict
 from django.utils.text import capfirst
+from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.template import RequestContext, Context, Template
 from django.db.models.fields import FieldDoesNotExist
@@ -259,7 +260,7 @@ class LinkColumn(Column):
         html = u'<a href="{url}" {attrs}>{value}</a>'.format(
             url=reverse(**params),
             attrs=AttributeDict(self.attrs).as_html(),
-            value=value
+            value=escape(value)
         )
         return mark_safe(html)
 
