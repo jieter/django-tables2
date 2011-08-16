@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from attest import Tests
 from django_tables2 import RequestConfig
 from django.test.client import RequestFactory

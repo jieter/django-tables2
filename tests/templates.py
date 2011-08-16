@@ -1,4 +1,4 @@
-# -*- coding: utf8 -*-
+# -*- coding: utf-8 -*-
 from django.template import Template, Context, VariableDoesNotExist
 from django.test.client import RequestFactory
 from django.http import HttpRequest

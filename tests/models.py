@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import itertools
 from django.conf import settings
 from django.template import Template, Context
