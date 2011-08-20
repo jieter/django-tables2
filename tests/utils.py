@@ -1,4 +1,4 @@
-# -*- coding: utf8 -*-
+# -*- coding: utf-8 -*-
 from django_tables2.utils import OrderByTuple, OrderBy, Accessor
 from attest import Tests, Assert
 

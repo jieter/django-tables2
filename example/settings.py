@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # import django_tables2
 from os.path import dirname, join, abspath
 import sys

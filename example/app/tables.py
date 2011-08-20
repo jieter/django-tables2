@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import django_tables2 as tables
 
 

@@ -1,4 +1,4 @@
-# -*- coding: utf8 -*-
+# -*- coding: utf-8 -*-
 import copy
 from django.core.paginator import Paginator
 from django.utils.datastructures import SortedDict

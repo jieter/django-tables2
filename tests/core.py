@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Test the core table functionality."""
 import copy
 from attest import Tests, Assert

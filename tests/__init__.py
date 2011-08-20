@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from attest import AssertImportHook, Tests
 
 # Django's django.utils.module_loading.module_has_submodule is busted
