@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Test the core table functionality."""
 from attest import Tests, Assert
 import django_tables2 as tables
