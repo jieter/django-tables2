@@ -163,7 +163,7 @@ class OrderByTuple(tuple, StrAndUnicode):
                 try:
                     res = cmp(x, y)
                 except TypeError:
-                    res = cmp((repr(x.__class__), id(x.__class__), x), \
+                    res = cmp((repr(x.__class__), id(x.__class__), x),
                               (repr(y.__class__), id(y.__class__), y))
                 if res != 0:
                     return -res if reverse else res

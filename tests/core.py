@@ -167,7 +167,7 @@ def sorting():
 
 
 @core.test
-def sort_diff_types():
+def sorting_different_types():
     from datetime import datetime
 
     data = [
