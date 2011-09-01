@@ -43,7 +43,7 @@ class SingleTableMixin(object):
         """
         if self.table_class:
             return self.table_class
-        raise ImproperlyConfigured(u"A table class was not specified. Define"
+        raise ImproperlyConfigured(u"A table class was not specified. Define "
                                    u"%(cls)s.table_class"
                                    % {"cls": self.__class__.__name__})
 
