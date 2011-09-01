@@ -167,6 +167,26 @@ def sorting():
 
 
 @core.test
+def sorting_different_types():
+    from datetime import datetime
+
+    data = [
+        {'i': 1, 'alpha': datetime.now(), 'beta': [1]},
+        {'i': {}, 'alpha': None, 'beta': ''},
+        {'i': 2, 'alpha': None, 'beta': []},
+    ]
+
+    table = SortedTable(data)
+    Assert(None) == table.rows[0]['alpha']
+
+    table = SortedTable(data, order_by='i')
+    Assert(1) == table.rows[0]['i']
+
+    table = SortedTable(data, order_by='beta')
+    Assert([]) == table.rows[0]['beta']
+
+
+@core.test
 def column_count():
     class SimpleTable(tables.Table):
         visible = tables.Column(visible=True)

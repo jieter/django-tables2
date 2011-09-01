@@ -280,6 +280,20 @@ To disable sorting for a specific table instance:
     # or
     table.sortable = False
 
+Where the table is :ref:`backed by a model <tables-for-models>`, the database
+will handle the sorting. Where this is not the case, the Python ``cmp``
+function is used and the following mechanism is used as a fallback when
+comparing across different types:
+
+.. code-block:: python
+
+    def cmp_(x, y):
+        try:
+            return cmp(x, y)
+        except TypeError:
+            return cmp((repr(x.__class__), id(x.__class__), x),
+                       (repr(y.__class__), id(y.__class__), y))
+
 
 .. _column-headers:
 
@@ -850,6 +864,8 @@ To have a mixin contribute a column, it needs to be a subclass of
     >>> TestTable.base_columns.keys()
     ['extra', 'name']
 
+
+.. _tables-for-models:
 
 Tables for models
 =================
