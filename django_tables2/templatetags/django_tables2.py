@@ -146,8 +146,9 @@ def querystring(parser, token):
 
 
 class RenderTableNode(Node):
-    def __init__(self, table):
+    def __init__(self, table, template_path):
         self.table = table
+        self.template_path = template_path
 
     def render(self, context):
         try:
@@ -163,7 +164,7 @@ class RenderTableNode(Node):
             # HACK! :(
             try:
                 table.request = context["request"]
-                return get_template("django_tables2/table.html").render(context)
+                return get_template(self.template_path).render(context)
             finally:
                 del table.request
         except:
@@ -176,6 +177,11 @@ class RenderTableNode(Node):
 @register.tag
 def render_table(parser, token):
     bits = token.split_contents()
-    if len(bits) != 2:
-        raise TemplateSyntaxError("'%s' requires one argument." % bits[0])
-    return RenderTableNode(parser.compile_filter(bits[1]))
+    if len(bits) > 3:
+        raise TemplateSyntaxError("'%s' requires a table argument and an optional template path." % bits[0])
+        
+    template_path = "django_tables2/table.html" # default
+    if len(bits) > 2:
+        template_path = bits[2]
+        
+    return RenderTableNode(parser.compile_filter(bits[1]), template_path)
