@@ -44,7 +44,7 @@ This would then be used in a view::
 And finally in the template::
 
     {% load django_tables2 %}
-    {% render_table table ["path/to/custom_table_template.html"] %}
+    {% render_table table %}
 
 
 This example shows one of the simplest cases, but django-tables2 can do a lot
