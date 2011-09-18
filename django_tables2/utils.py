@@ -247,6 +247,8 @@ class Accessor(str):
 
     @property
     def bits(self):
+        if self == '':
+            return ()
         return self.split(self.SEPARATOR)
 
 

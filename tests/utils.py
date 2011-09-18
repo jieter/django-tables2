@@ -39,7 +39,7 @@ def orderby():
 def accessor():
     x = Accessor('0')
     Assert('B') == x.resolve('Brad')
-    
+
     x = Accessor('1')
     Assert('r') == x.resolve('Brad')
 
@@ -48,3 +48,6 @@ def accessor():
 
     x = Accessor('2.upper.__len__')
     Assert(1) == x.resolve('Brad')
+
+    x = Accessor('')
+    Assert('Brad') == x.resolve('Brad')
