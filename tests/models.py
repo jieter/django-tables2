@@ -140,6 +140,39 @@ def verbose_name():
 
 
 @models.test
+def field_choices_used_to_translated_value():
+    """
+    When a model field uses the ``choices`` option, a table should render the
+    "pretty" value rather than the database value.
+
+    See issue #30 for details.
+    """
+    LANGUAGES = (
+        ('en', 'English'),
+        ('ru', 'Russian'),
+    )
+
+    from django.db import models
+
+    class Article(models.Model):
+        name = models.CharField(max_length=200)
+        language = models.CharField(max_length=200, choices=LANGUAGES)
+
+        def __unicode__(self):
+            return self.name
+
+    class ArticleTable(tables.Table):
+        class Meta:
+            model = Article
+
+    table = ArticleTable([Article(name='English article', language='en'),
+                          Article(name='Russian article', language='ru')])
+
+    Assert('English') == table.rows[0]['language']
+    Assert('Russian') == table.rows[1]['language']
+
+
+@models.test
 def column_mapped_to_nonexistant_field():
     """
     Issue #9 describes how if a Table has a column that has an accessor that

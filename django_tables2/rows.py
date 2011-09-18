@@ -107,7 +107,7 @@ class BoundRow(object):
         def value():
             try:
                 raw = bound_column.accessor.resolve(self.record)
-            except (TypeError, AttributeError, KeyError, ValueError) as e:
+            except (TypeError, AttributeError, KeyError, ValueError):
                 raw = None
             return raw if raw is not None else bound_column.default
 
