@@ -236,9 +236,22 @@ def exclude_columns():
     class ExcludeTable(UnsortedTable):
         added = tables.Column()
         class Meta:
-            exclude = ("alpha", )
+            exclude = ("beta", )
     table = ExcludeTable([])
-    Assert([c.name for c in table.columns]) == ["i", "beta", "added"]
+    Assert([c.name for c in table.columns]) == ["i", "alpha", "added"]
+
+
+@core.test
+def table_exclude_property_should_override_constructor_argument():
+    class SimpleTable(tables.Table):
+        a = tables.Column()
+        b = tables.Column()
+
+    table = SimpleTable([], exclude=('b', ))
+    Assert([c.name for c in table.columns]) == ['a']
+    table.exclude = ('a', )
+    Assert([c.name for c in table.columns]) == ['b']
+
 
 
 @core.test

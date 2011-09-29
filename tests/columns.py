@@ -122,6 +122,36 @@ def sequence():
     Assert(["d", "a", "b", "c", "e", "f"]) == TestTable9([], sequence=("d", "...")).columns.names()
 
 
+@general.test
+def should_support_both_meta_sequence_and_constructor_exclude():
+    """
+    Issue #32 describes a problem when both ``Meta.sequence`` and
+    ``Table(..., exclude=...)`` are used on a single table. The bug caused an
+    exception to be raised when the table was iterated.
+    """
+    class SequencedTable(tables.Table):
+        a = tables.Column()
+        b = tables.Column()
+        c = tables.Column()
+
+        class Meta:
+            sequence = ('a', '...')
+
+    table = SequencedTable([], exclude=('c', ))
+    table.as_html()
+
+
+@general.test
+def bound_columns_should_support_indexing():
+    class SimpleTable(tables.Table):
+        a = tables.Column()
+        b = tables.Column()
+
+    table = SimpleTable([])
+    Assert('b') == table.columns[1].name
+    Assert('b') == table.columns['b'].name
+
+
 linkcolumn = Tests()
 linkcolumn.context(TransactionTestContext())
 
@@ -182,6 +212,6 @@ def html_escape_value():
 
     html = PersonTable([{"name": "<brad>", "pk": 1}]).as_html()
     assert "<brad>" not in html
-    
+
 
 columns = Tests([general, linkcolumn])

@@ -1,68 +1,18 @@
 # -*- coding: utf-8 -*-
 import copy
 from django.core.paginator import Paginator
-from django.utils.datastructures import SortedDict
-from django.http import Http404
-from django.template.loader import get_template
-from django.template import Context
-from django.utils.encoding import StrAndUnicode
 from django.db.models.query import QuerySet
-from itertools import chain
-from .utils import OrderBy, OrderByTuple, Accessor, AttributeDict
+from django.http import Http404
+from django.utils.datastructures import SortedDict
+from django.template import Context
+from django.template.loader import get_template
+from django.utils.encoding import StrAndUnicode
+from .utils import Accessor, AttributeDict, OrderBy, OrderByTuple, Sequence
 from .rows import BoundRows, BoundRow
 from .columns import BoundColumns, Column
 
 
 QUERYSET_ACCESSOR_SEPARATOR = '__'
-
-
-class Sequence(list):
-    """
-    Represents a column sequence, e.g. ("first_name", "...", "last_name")
-
-    This is used to represent ``Table.Meta.sequence`` or the Table
-    constructors's ``sequence`` keyword argument.
-
-    The sequence must be a list of column names and is used to specify the
-    order of the columns on a table. Optionally a "..." item can be inserted,
-    which is treated as a *catch-all* for column names that aren't explicitly
-    specified.
-    """
-    def expand(self, columns):
-        """
-        Expands the "..." item in the sequence into the appropriate column
-        names that should be placed there.
-
-        :raises: ``ValueError`` if the sequence is invalid for the columns.
-        """
-        # validation
-        if self.count("...") > 1:
-            raise ValueError("'...' must be used at most once in a sequence.")
-        elif "..." in self:
-            # Check for columns in the sequence that don't exist in *columns*
-            extra = (set(self) - set(("...", ))).difference(columns)
-            if extra:
-                raise ValueError(u"sequence contains columns that do not exist"
-                                 u" in the table. Remove '%s'."
-                                 % "', '".join(extra))
-        else:
-            diff = set(self) ^ set(columns)
-            if diff:
-                raise ValueError(u"sequence does not match columns. Fix '%s' "
-                                 u"or possibly add '...'." % "', '".join(diff))
-        # everything looks good, let's expand the "..." item
-        columns = columns[:]  # don't modify
-        head = []
-        tail = []
-        target = head  # start by adding things to the head
-        for name in self:
-            if name == "...":
-                # now we'll start adding elements to the tail
-                target = tail
-                continue
-            else:
-                target.append(columns.pop(columns.index(name)))
-        self[:] = list(chain(head, columns, tail))
 
 
 class TableData(object):
@@ -284,9 +234,9 @@ class Table(StrAndUnicode):
     def __init__(self, data, order_by=None, sortable=None, empty_text=None,
                  exclude=None, attrs=None, sequence=None, prefix=None,
                  order_by_field=None, page_field=None, per_page_field=None):
-        self._rows = BoundRows(self)
-        self._columns = BoundColumns(self)
-        self._data = self.TableDataClass(data=data, table=self)
+        self.rows = BoundRows(self)
+        self.columns = BoundColumns(self)
+        self.data = self.TableDataClass(data=data, table=self)
         self.attrs = attrs
         self.empty_text = empty_text
         self.sortable = sortable
@@ -299,9 +249,6 @@ class Table(StrAndUnicode):
         # copy is made available in a ``fields`` attribute.
         self.base_columns = copy.deepcopy(self.__class__.base_columns)
         self.exclude = exclude or ()
-        for ex in self.exclude:
-            if ex in self.base_columns:
-                self.base_columns.pop(ex)
         self.sequence = sequence
         if order_by is None:
             self.order_by = self._meta.order_by
@@ -338,14 +285,6 @@ class Table(StrAndUnicode):
         self._attrs = value
 
     @property
-    def columns(self):
-        return self._columns
-
-    @property
-    def data(self):
-        return self._data
-
-    @property
     def empty_text(self):
         return (self._empty_text if self._empty_text is not None
                                  else self._meta.empty_text)
@@ -377,7 +316,7 @@ class Table(StrAndUnicode):
                 new.append(ob)
         order_by = OrderByTuple(new)
         self._order_by = order_by
-        self._data.order_by(order_by)
+        self.data.order_by(order_by)
 
     @property
     def order_by_field(self):
@@ -446,10 +385,6 @@ class Table(StrAndUnicode):
     @property
     def prefixed_per_page_field(self):
         return u"%s%s" % (self.prefix, self.per_page_field)
-
-    @property
-    def rows(self):
-        return self._rows
 
     @property
     def sequence(self):

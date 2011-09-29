@@ -1,12 +1,59 @@
 # -*- coding: utf-8 -*-
-from django.utils.datastructures import SortedDict
 from django.template import Context
+from django.utils.datastructures import SortedDict
 from django.utils.encoding import force_unicode, StrAndUnicode
-from django.utils.safestring import mark_safe
 from django.utils.html import escape
+from django.utils.safestring import mark_safe
+from itertools import chain
 
 
-__all__ = ('BaseTable', 'options')
+class Sequence(list):
+    """
+    Represents a column sequence, e.g. ("first_name", "...", "last_name")
+
+    This is used to represent ``Table.Meta.sequence`` or the Table
+    constructors's ``sequence`` keyword argument.
+
+    The sequence must be a list of column names and is used to specify the
+    order of the columns on a table. Optionally a "..." item can be inserted,
+    which is treated as a *catch-all* for column names that aren't explicitly
+    specified.
+    """
+    def expand(self, columns):
+        """
+        Expands the "..." item in the sequence into the appropriate column
+        names that should be placed there.
+
+        :raises: ``ValueError`` if the sequence is invalid for the columns.
+        """
+        # validation
+        if self.count("...") > 1:
+            raise ValueError("'...' must be used at most once in a sequence.")
+        elif "..." in self:
+            # Check for columns in the sequence that don't exist in *columns*
+            extra = (set(self) - set(("...", ))).difference(columns)
+            if extra:
+                raise ValueError(u"sequence contains columns that do not exist"
+                                 u" in the table. Remove '%s'."
+                                 % "', '".join(extra))
+        else:
+            diff = set(self) ^ set(columns)
+            if diff:
+                raise ValueError(u"sequence does not match columns. Fix '%s' "
+                                 u"or possibly add '...'." % "', '".join(diff))
+        # everything looks good, let's expand the "..." item
+        columns = columns[:]  # don't modify
+        head = []
+        tail = []
+        target = head  # start by adding things to the head
+        for name in self:
+            if name == "...":
+                # now we'll start adding elements to the tail
+                target = tail
+                continue
+            else:
+                target.append(columns.pop(columns.index(name)))
+        self[:] = list(chain(head, columns, tail))
 
 
 class OrderBy(str):

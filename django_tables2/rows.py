@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
-from itertools import imap, ifilter
 import inspect
+from itertools import imap, ifilter
 from django.db import models
 from django.db.models.fields import FieldDoesNotExist
-from django.utils.safestring import EscapeUnicode, SafeData
 from django.utils.functional import curry
+from django.utils.safestring import EscapeUnicode, SafeData
 from .utils import A
 
 

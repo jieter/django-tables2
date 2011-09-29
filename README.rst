@@ -59,3 +59,17 @@ Building the documentation
 If you want to build the docs from within a virtualenv, use::
 
     make html SPHINXBUILD="python $(which sphinx-build)"
+
+
+Change log
+==========
+
+v0.7.8
+------
+
+- Tables now support using both ``sequence`` and ``exclude`` (issue #32).
+- ``Sequence`` class moved to ``django_tables2/utils.py``.
+- Table instances now support modification to the ``exclude`` property.
+- Removed ``BoundColumns._spawn_columns``.
+- ``Table.data``, ``Table.rows``, and ``Table.columns`` are now attributes
+  rather than properties.

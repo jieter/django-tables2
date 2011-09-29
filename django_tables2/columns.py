@@ -7,8 +7,8 @@ from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.template import RequestContext, Context, Template
 from django.db.models.fields import FieldDoesNotExist
-from .utils import OrderBy, A, AttributeDict
-from itertools import ifilter
+from .utils import A, AttributeDict, OrderBy, Sequence
+from itertools import ifilter, islice
 
 
 class Column(object):
@@ -474,24 +474,6 @@ class BoundColumns(object):
     """
     def __init__(self, table):
         self.table = table
-        # ``self._columns`` attribute stores the bound columns (columns that
-        # have a real name, )
-        self._columns = SortedDict()
-
-    def _spawn_columns(self):
-        """
-        (re)build the "_bound_columns" cache of :class:`.BoundColumn` objects
-        (note that :attr:`.base_columns` might have changed since last time);
-        creating :class:`.BoundColumn` instances can be costly, so we reuse
-        existing ones.
-        """
-        columns = SortedDict()
-        for name, column in self.table.base_columns.items():
-            if name in self._columns:
-                columns[name] = self._columns[name]
-            else:
-                columns[name] = BoundColumn(self.table, column, name)
-        self._columns = columns
 
     def iternames(self):
         return (name for name, column in self.iteritems())
@@ -513,12 +495,24 @@ class BoundColumns(object):
         """
         Return an iterator of ``(name, column)`` pairs (where ``column`` is a
         :class:`.BoundColumn` object).
+
+        This method is the mechanism for retrieving columns that takes into
+        consideration all of the ordering and filtering modifiers that a table
+        supports (e.g. ``exclude`` and ``sequence``).
         """
-        self._spawn_columns()
-        if self.table.sequence:
-            return ((x, self._columns[x]) for x in self.table.sequence)
-        else:
-            return self._columns.iteritems()
+        # First we build a sorted dict of all the columns that we need.
+        columns = SortedDict()
+        for name, column in self.table.base_columns.iteritems():
+            columns[name] = BoundColumn(self.table, column, name)
+
+        # A list of column names in the correct sequence that they should be
+        # rendered in the table.
+        sequence = (self.table.sequence or Sequence(('...', )))
+        sequence.expand(self.table.base_columns.keys())
+
+        for name in sequence:
+            if name not in self.table.exclude:
+                yield (name, columns[name])
 
     def items(self):
         return list(self.iteritems())
@@ -533,7 +527,7 @@ class BoundColumns(object):
         conjunction with e.g. ``{{ forloop.last }}`` (the last column might not
         be the actual last that is rendered).
         """
-        return ifilter(lambda x: x.sortable, self.all())
+        return ifilter(lambda x: x.sortable, self.iterall())
 
     def sortable(self):
         return list(self.itersortable())
@@ -545,14 +539,14 @@ class BoundColumns(object):
 
         This is geared towards table rendering.
         """
-        return ifilter(lambda x: x.visible, self.all())
+        return ifilter(lambda x: x.visible, self.iterall())
 
     def visible(self):
         return list(self.itervisible())
 
     def __iter__(self):
         """
-        Convenience API with identical functionality to :meth:`visible`.
+        Convenience API, alias of :meth:`.itervisible`.
         """
         return self.itervisible()
 
@@ -574,7 +568,6 @@ class BoundColumns(object):
         Return how many :class:`BoundColumn` objects are contained (and
         visible).
         """
-        self._spawn_columns()
         return len(self.visible())
 
     def __getitem__(self, index):
@@ -588,11 +581,16 @@ class BoundColumns(object):
             columns['speed']  # returns a bound column with name 'speed'
             columns[0]        # returns the first column
         """
-        self._spawn_columns()
         if isinstance(index, int):
-            return self._columns.value_for_index(index)
+            try:
+                return next(islice(self.iterall(), index, index+1))
+            except StopIteration:
+                raise IndexError
         elif isinstance(index, basestring):
-            return self._columns[index]
+            for column in self.iterall():
+                if column.name == index:
+                    return column
+            raise KeyError("Column with name '%s' does not exist." % index)
         else:
-            raise TypeError(u'row indices must be integers or str, not %s' %
-                            index.__class__.__name__)
+            raise TypeError(u'row indices must be integers or str, not %s'
+                            % index.__class__.__name__)
