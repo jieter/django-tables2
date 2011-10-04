@@ -696,12 +696,19 @@ Sample usage:
 .. code-block:: django
 
     {% load django_tables2 %}
-    {% render_table table %}
+    {% render_table table ["path/to/custom_table_template.html"] %}
 
 This tag temporarily modifies the :class:`.Table` object while it is being
 rendered. It adds a ``request`` attribute to the table, which allows
 :class:`Column` objects to have access to a ``RequestContext``. See
 :class:`.TemplateColumn` for an example.
+
+.. note::
+
+	The ``{% render_table %}`` tag allows an optional parameter for specifying a 
+	path to your own custom template for rendering the table. Be sure to wrap 
+	the path in quotes if it contains any special characters.
+
 
 This tag requires that the template in which it's rendered contains the
 ``HttpRequest`` inside a ``request`` variable. This can be achieved by ensuring
