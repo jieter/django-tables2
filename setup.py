@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='django-attest',
-    version='0.1.0',
+    version='0.1.1',
     description = 'Provides Django specific testing helpers to Attest',
 
     author='Bradley Ayers',
@@ -12,9 +12,8 @@ setup(
     license='Simplified BSD',
     url='https://github.com/bradleyayers/django-attest/',
 
-    packages = find_packages(),
-
-    install_requires=['Django >=1.2', 'Attest >=0.4'],
+    packages=['django_attest'],
+    install_requires=['Django >=1.2', 'Attest >=0.5'],
 
     classifiers = [
         'Environment :: Web Environment',

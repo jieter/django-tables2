@@ -62,7 +62,10 @@ class TestContext(TransactionTestContext):
 
         for db in databases:
             if hasattr(self, 'fixtures'):
-                args = [self.fixtures]
+                if not isinstance(self.fixtures, (list, tuple)):
+                    args = [self.fixtures]
+                else:
+                    args = self.fixtures
                 kwargs = {
                     'verbosity': 0,
                     'commit': False,
