@@ -3,15 +3,15 @@
     <thead>
         <tr class="{% cycle "odd" "even" %}">
         {% for column in table.columns %}
-            <th>{{ column.header }}</th>
+            <th{% if column.attrs %} {{ column.attrs.as_html }}{% endif %}>{{ column.header }}</th>
         {% endfor %}
         </tr>
     </thead>
     <tbody>
         {% for row in table.rows %}
         <tr class="{% cycle "odd" "even" %}">
-            {% for value in row %}
-                <td>{{ value }}</td>
+            {% for column, value in row %}
+                <td{% if column.attrs %} {{ column.attrs.as_html }}{% endif %}>{{ value }}</td>
             {% endfor %}
         </tr>
 		{% empty %}
