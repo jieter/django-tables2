@@ -24,7 +24,7 @@ class TableData(object):
     input table data.
     """
     def __init__(self, data, table):
-        if isinstance(data, QuerySet):
+        if isinstance(data, QuerySet) or hasattr(data, 'order_by'):
             self.queryset = data
         elif isinstance(data, list):
             self.list = data[:]
