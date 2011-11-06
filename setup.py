@@ -16,7 +16,8 @@ setup(
     include_package_data=True,  # declarations in MANIFEST.in
 
     install_requires=['Django >=1.1'],
-    tests_require=['Django >=1.1', 'Attest >=0.4', 'django-attest', 'fudge'],
+    tests_require=['Django >=1.1', 'Attest >=0.4', 'django-attest', 'fudge',
+                   'django-haystack'],
 
     test_loader='attest:FancyReporter.test_loader',
     test_suite='tests.everything',

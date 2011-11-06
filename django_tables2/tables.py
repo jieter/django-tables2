@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import copy
 from django.core.paginator import Paginator
-from django.db.models.query import QuerySet
 from django.http import Http404
 from django.utils.datastructures import SortedDict
 from django.template import Context
@@ -24,14 +23,19 @@ class TableData(object):
     input table data.
     """
     def __init__(self, data, table):
-        if isinstance(data, QuerySet):
-            self.queryset = data
-        elif isinstance(data, list):
-            self.list = data[:]
-        else:
-            raise ValueError('data must be a list or QuerySet object, not %s'
-                             % data.__class__.__name__)
         self._table = table
+        # data may be a QuerySet-like objects with count() and order_by()
+        if (hasattr(data, 'count') and callable(data.count) and
+            hasattr(data, 'order_by') and callable(data.order_by)):
+            self.queryset = data
+        # otherwise it must be convertable to a list
+        else:
+            try:
+                self.list = list(data)
+            except:
+                raise ValueError('data must be QuerySet-like (have count and '
+                                 'order_by) or support list(data) -- %s is '
+                                 'neither' % data.__class__.__name__)
 
     def __len__(self):
         # Use the queryset count() method to get the length, instead of

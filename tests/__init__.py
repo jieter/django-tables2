@@ -18,20 +18,23 @@ settings.configure(
     INSTALLED_APPS = [
         'tests.testapp',
         'django_tables2',
+        'haystack',
     ],
     ROOT_URLCONF = 'tests.testapp.urls',
+    HAYSTACK_SEARCH_ENGINE = 'simple',
+    HAYSTACK_SITECONF = 'tests.testapp.search_sites'
 )
 
 from django.test.simple import DjangoTestSuiteRunner
 runner = DjangoTestSuiteRunner()
 runner.setup_databases()
 
-from .core import core
-from .templates import templates
-from .models import models
-from .utils import utils
-from .rows import rows
 from .columns import columns
 from .config import config
+from .core import core
+from .models import models
+from .rows import rows
+from .templates import templates
+from .utils import utils
 
-everything = Tests([core, templates, models, utils, rows, columns, config])
+everything = Tests([columns, config, core, models, rows, templates, utils])

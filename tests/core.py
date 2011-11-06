@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 """Test the core table functionality."""
-import copy
+from __future__ import absolute_import
 from attest import Tests, Assert
+import copy
 from django.http import Http404
 from django.core.paginator import Paginator
 import django_tables2 as tables
 from django_tables2 import utils
+from haystack.query import SearchQuerySet
 
 
 core = Tests()
@@ -96,6 +98,27 @@ def datasource_untouched():
     table.order_by = 'beta'
     list(table.rows)
     assert MEMORY_DATA == Assert(original_data)
+
+
+@core.test
+def should_support_tuple_data_source():
+    class SimpleTable(tables.Table):
+        name = tables.Column()
+
+    table = SimpleTable((
+        {'name': 'brad'},
+        {'name': 'stevie'},
+    ))
+
+    assert len(table.rows) == 2
+
+@core.test
+def should_support_haystack_data_source():
+    class PersonTable(tables.Table):
+        first_name = tables.Column()
+
+    table = PersonTable(SearchQuerySet().all())
+    table.as_html()
 
 
 @core.test
