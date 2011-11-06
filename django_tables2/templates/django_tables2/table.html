@@ -1,5 +1,5 @@
 {% spaceless %}
-{% load django_tables2 %}
+{% load django_tables2 i18n %}
 {% if table.page %}
 <div class="table-container">
 {% endif %}
@@ -34,11 +34,11 @@
 {% if table.page %}
 <ul class="pagination">
     {% if table.page.has_previous %}
-    <li class="previous"><a href="{% querystring table.prefixed_page_field=table.page.previous_page_number %}">Previous</a></li>
+    <li class="previous"><a href="{% querystring table.prefixed_page_field=table.page.previous_page_number %}">{% trans "Previous" %}</a></li>
     {% endif %}
-    <li class="current">Page {{ table.page.number }} of {{ table.paginator.num_pages }}</li>
+    <li class="current">{% blocktrans with current=table.page.number total=table.paginator.num_pages %}Page {{ current }} of {{ total }}{% endblocktrans %}</li>
     {% if table.page.has_next %}
-    <li class="next"><a href="{% querystring table.prefixed_page_field=table.page.next_page_number %}">Next</a></li>
+    <li class="next"><a href="{% querystring table.prefixed_page_field=table.page.next_page_number %}">{% trans "Next" %}</a></li>
     {% endif %}
 </ul>
 </div>
