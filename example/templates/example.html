@@ -61,5 +61,16 @@
         {% load django_tables2 %}
         {% render_table example4 %}
 
+        <h2>Example 5 – QuerySet + pagination + paleblue theme + custom template</h3>
+        <h3>via <tt>as_html()</tt></h3>
+        <pre>{% templatetag openvariable %} example5.as_html {% templatetag closevariable %}</pre>
+        {{ example5.as_html }}
+
+        <h3>via template tag</h3>
+        <pre>{% templatetag openblock %} load django_tables2 {% templatetag closeblock %}
+{% templatetag openblock %} render_table example5 {% templatetag closeblock %}</pre>
+        {% load django_tables2 %}
+        {% render_table example5 %}
+
     </body>
 </html>

@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
 from attest import Tests
+import django_tables2 as tables
 from django_tables2 import RequestConfig
 from django.test.client import RequestFactory
 from fudge import Fake
 
 
 config = Tests()
+
+
 class NOTSET(object):
     """
     A default value that can be checked against later.

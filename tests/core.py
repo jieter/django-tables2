@@ -307,10 +307,24 @@ def pagination():
     Assert(books.page.has_previous()) is False
     Assert(books.page.has_next()) is True
 
-    # exceptions are converted into 404s
+    # accessing a non-existant page raises 404
     with Assert.raises(Http404) as error:
         books.paginate(Paginator, page=9999, per_page=10)
+        books.page
+
+    with Assert.raises(Http404) as error:
         books.paginate(Paginator, page='abc', per_page=10)
+        books.page
+
+@core.test
+def pagination_shouldnt_prevent_multiple_rendering():
+    class SimpleTable(tables.Table):
+        name = tables.Column()
+
+    table = SimpleTable([{'name': 'brad'}])
+    table.paginate()
+
+    assert table.as_html() == table.as_html()
 
 
 @core.test
@@ -400,3 +414,44 @@ def field_names_with_prefix():
     Assert("1-sort") == table.prefixed_order_by_field
     Assert("1-page") == table.prefixed_page_field
     Assert("1-per_page") == table.prefixed_per_page_field
+
+
+@core.test
+def should_support_a_template_to_be_specified():
+    class MetaDeclarationSpecifiedTemplateTable(tables.Table):
+        name = tables.Column()
+
+        class Meta:
+            template = "dummy.html"
+
+    table = MetaDeclarationSpecifiedTemplateTable([])
+    assert table.template == "dummy.html"
+
+    class ConstructorSpecifiedTemplateTable(tables.Table):
+        name = tables.Column()
+
+    table = ConstructorSpecifiedTemplateTable([], template="dummy.html")
+    assert table.template == "dummy.html"
+
+    class PropertySpecifiedTemplateTable(tables.Table):
+        name = tables.Column()
+
+    table = PropertySpecifiedTemplateTable([])
+    table.template = "dummy.html"
+    assert table.template == "dummy.html"
+
+    class DefaultTable(tables.Table):
+        pass
+
+    table = DefaultTable([])
+    assert table.template == "django_tables2/table.html"
+
+
+@core.test
+def should_support_rendering_multiple_times():
+    class MultiRenderTable(tables.Table):
+        name = tables.Column()
+
+    # test list data
+    table = MultiRenderTable([{'name': 'brad'}])
+    assert table.as_html() == table.as_html()

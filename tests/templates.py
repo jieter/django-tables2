@@ -60,6 +60,10 @@ def as_html():
     Assert(int(root.find('.//tbody/tr/td').attrib['colspan'])) == len(root.findall('.//thead/tr/th'))
     Assert(root.find('.//tbody/tr/td').text) == 'this table is empty'
 
+    # with custom template
+    table = CountryTable([], template="django_tables2/table.html")
+    table.as_html()
+
 
 @templates.test
 def custom_rendering():

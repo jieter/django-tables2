@@ -61,13 +61,37 @@ more! Check out the `documentation`__ for more details.
 Building the documentation
 ==========================
 
-If you want to build the docs from within a virtualenv, use::
+If you want to build the docs from within a virtualenv, and Sphinx is installed
+globally, use::
 
     make html SPHINXBUILD="python $(which sphinx-build)"
 
 
 Change log
 ==========
+
+v0.8.0
+------
+
+- Added translation support in the default template via `{% trans %}`
+- Removed `basic_table.html`, `Table.as_html()` now renders `table.html` but
+  will clobber the querystring of the current request. Use the `render_table`
+  template tag instead
+- `render_table` now supports an optional second argument -- the template to
+  use when rendering the table
+- `Table` now supports declaring which template to use when rendering to HTML
+- Django >=1.3 is now required
+- Added support for using django-haystack's `SearchQuerySet` as a data source
+- The default template `table.html` now includes block tags to make it easy to
+  extend to change small pieces
+- Fixed table template parsing problems being hidden due to a subsequent
+  exception being raised
+- Http404 exceptions are no longer raised during a call to `Table.paginate()`,
+  instead it now occurs when `Table.page` is accessed
+- Fixed bug where a table couldn't be rendered more than once if it was
+  paginated
+- Accessing `Table.page` now returns a new page every time, rather than reusing
+  a single object
 
 v0.7.8
 ------

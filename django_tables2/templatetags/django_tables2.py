@@ -18,7 +18,7 @@ import tokenize
 import StringIO
 from django.conf import settings
 from django import template
-from django.template import TemplateSyntaxError, Context, Variable, Node
+from django.template import TemplateSyntaxError, RequestContext, Variable, Node
 from django.utils.datastructures import SortedDict
 from django.template.loader import get_template
 from django.utils.safestring import mark_safe
@@ -129,10 +129,11 @@ def querystring(parser, token):
     from the current URL's querystring, by updating it with the provided
     keyword arguments.
 
-    Example (imagine URL is /abc/?gender=male&name=Brad::
+    Example (imagine URL is ``/abc/?gender=male&name=Brad``)::
 
         {% querystring "name"="Ayers" "age"=20 %}
         ?name=Ayers&gender=male&age=20
+
     """
     bits = token.split_contents()
     tag = bits.pop(0)
@@ -146,8 +147,15 @@ def querystring(parser, token):
 
 
 class RenderTableNode(Node):
-    def __init__(self, table):
+    """
+    :param    table: the table to render
+    :type     table: Table object
+    :param template: Name[s] of template to render
+    :type  template: unicode or list
+    """
+    def __init__(self, table, template=None):
         self.table = table
+        self.template = template
 
     def render(self, context):
         try:
@@ -157,13 +165,19 @@ class RenderTableNode(Node):
             if "request" not in context:
                 raise AssertionError(
                         "{% render_table %} requires that the template context"
-                        " contains the HttpRequest in a 'request' variable, "
-                        "check your TEMPLATE_CONTEXT_PROCESSORS setting.")
-            context = Context({"request": context["request"], "table": table})
-            # HACK! :(
+                        " contains the HttpRequest in a 'request' variable,"
+                        " check your TEMPLATE_CONTEXT_PROCESSORS setting.")
+            request = context['request']
+            context = RequestContext(request, {"table": table})
+            template = self.template or table.template
+            if isinstance(template, basestring):
+                template = get_template(template)
+            else:
+                # assume some iterable was given
+                template = select_template(template)
             try:
-                table.request = context["request"]
-                return get_template("django_tables2/table.html").render(context)
+                table.request = request  # HACK! :(
+                return template.render(context)
             finally:
                 del table.request
         except:
@@ -176,6 +190,9 @@ class RenderTableNode(Node):
 @register.tag
 def render_table(parser, token):
     bits = token.split_contents()
-    if len(bits) != 2:
-        raise TemplateSyntaxError("'%s' requires one argument." % bits[0])
-    return RenderTableNode(parser.compile_filter(bits[1]))
+    try:
+        tag, table = bits.pop(0), parser.compile_filter(bits.pop(0))
+    except ValueError:
+        raise TemplateSyntaxError("'%s' must be given a table." % bits[0])
+    template = parser.compile_filter(bits.pop(0)) if bits else None
+    return RenderTableNode(table, template)
