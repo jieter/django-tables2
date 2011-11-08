@@ -20,7 +20,7 @@ from django.conf import settings
 from django import template
 from django.template import TemplateSyntaxError, RequestContext, Variable, Node
 from django.utils.datastructures import SortedDict
-from django.template.loader import get_template
+from django.template.loader import get_template, select_template
 from django.utils.safestring import mark_safe
 from django.utils.http import urlencode
 import django_tables2 as tables
@@ -169,7 +169,10 @@ class RenderTableNode(Node):
                         " check your TEMPLATE_CONTEXT_PROCESSORS setting.")
             request = context['request']
             context = RequestContext(request, {"table": table})
-            template = self.template or table.template
+            if self.template:
+                template = self.template.resolve(context)
+            else:
+                template = table.template
             if isinstance(template, basestring):
                 template = get_template(template)
             else:

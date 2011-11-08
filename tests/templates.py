@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from django.template import Template, Context, VariableDoesNotExist
+from django.template import Template, RequestContext, Context, VariableDoesNotExist
 from django.test.client import RequestFactory
 from django.http import HttpRequest
 from django.conf import settings
@@ -129,6 +129,16 @@ def render_table_templatetag():
     # Should be silent with debug off
     settings.DEBUG = False
     t.render(Context())
+
+
+@templates.test
+def render_table_should_support_template_argument():
+    table = CountryTable(MEMORY_DATA, order_by=('name', 'population'))
+    t = Template('{% load django_tables2 %}{% render_table table "dummy.html" %}')
+    request = RequestFactory().get('/')
+    context = RequestContext(request, {'table': table})
+    settings.DEBUG = True
+    assert t.render(context) == 'dummy template contents\n'
 
 
 @templates.test

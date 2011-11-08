@@ -70,6 +70,11 @@ globally, use::
 Change log
 ==========
 
+v0.8.1
+------
+
+- Fixed bug in render_table when giving it a template (issue #41)
+
 v0.8.0
 ------
 

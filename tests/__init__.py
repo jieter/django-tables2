@@ -4,7 +4,7 @@ from attest import AssertImportHook, Tests
 # Django's django.utils.module_loading.module_has_submodule is busted
 AssertImportHook.disable()
 
-from django.conf import settings
+from django.conf import global_settings, settings
 
 # It's important to configure prior to importing the tests, as some of them
 # import Django's DB stuff.
@@ -21,6 +21,7 @@ settings.configure(
         'haystack',
     ],
     ROOT_URLCONF = 'tests.testapp.urls',
+    TEMPLATE_CONTEXT_PROCESSORS = ['django.core.context_processors.request'] + list(global_settings.TEMPLATE_CONTEXT_PROCESSORS),
     HAYSTACK_SEARCH_ENGINE = 'simple',
     HAYSTACK_SITECONF = 'tests.testapp.search_sites'
 )
