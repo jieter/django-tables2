@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='django-tables2',
-    version='0.7.8',
+    version='0.8.1',
     description='Table framework for Django',
 
     author='Bradley Ayers',
@@ -15,8 +15,9 @@ setup(
     packages=find_packages(exclude=['tests.*', 'tests', 'example.*', 'example']),
     include_package_data=True,  # declarations in MANIFEST.in
 
-    install_requires=['Django >=1.1'],
-    tests_require=['Django >=1.1', 'Attest >=0.4', 'django-attest', 'fudge'],
+    install_requires=['Django >=1.3'],
+    tests_require=['Django >=1.3', 'Attest >=0.4', 'django-attest', 'fudge',
+                   'django-haystack'],
 
     test_loader='attest:FancyReporter.test_loader',
     test_suite='tests.everything',

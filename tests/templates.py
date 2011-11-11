@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from django.template import Template, Context, VariableDoesNotExist
+from django.template import Template, RequestContext, Context, VariableDoesNotExist
 from django.test.client import RequestFactory
 from django.http import HttpRequest
 from django.conf import settings
@@ -59,6 +59,10 @@ def as_html():
     Assert(1) == len(root.findall('.//tbody/tr/td'))
     Assert(int(root.find('.//tbody/tr/td').attrib['colspan'])) == len(root.findall('.//thead/tr/th'))
     Assert(root.find('.//tbody/tr/td').text) == 'this table is empty'
+
+    # with custom template
+    table = CountryTable([], template="django_tables2/table.html")
+    table.as_html()
 
 
 @templates.test
@@ -125,6 +129,16 @@ def render_table_templatetag():
     # Should be silent with debug off
     settings.DEBUG = False
     t.render(Context())
+
+
+@templates.test
+def render_table_should_support_template_argument():
+    table = CountryTable(MEMORY_DATA, order_by=('name', 'population'))
+    t = Template('{% load django_tables2 %}{% render_table table "dummy.html" %}')
+    request = RequestFactory().get('/')
+    context = RequestContext(request, {'table': table})
+    settings.DEBUG = True
+    assert t.render(context) == 'dummy template contents\n'
 
 
 @templates.test

@@ -21,9 +21,14 @@ def home(request):
     example4 = ThemedCountryTable(qs, prefix="4-")
     RequestConfig(request, paginate={"per_page": 3}).configure(example4)
 
+    example5 = ThemedCountryTable(qs, prefix="5-")
+    example5.template = "extended_table.html"
+    RequestConfig(request, paginate={"per_page": 3}).configure(example5)
+
     return render_to_response('example.html', {
         'example1': example1,
         'example2': example2,
         'example3': example3,
         'example4': example4,
+        'example5': example5,
     }, context_instance=RequestContext(request))

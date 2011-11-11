@@ -72,7 +72,7 @@ write a view that would look something like:
                                   context_instance=RequestContext(request))
 
 In your template, the easiest way to :term:`render` the table is via the
-:meth:`~django_tables2.tables.Table.as_html` method:
+:meth:`.Table.as_html` method:
 
 .. code-block:: django
 
@@ -90,10 +90,10 @@ In your template, the easiest way to :term:`render` the table is via the
 | Mexico       | 107        | UTC -6    | 0      |
 +--------------+------------+-----------+--------+
 
-This approach is easy, but it's not fully featured (e.g. no pagination, no
-sorting). Don't worry it's very easy to add these. First, you must render the
-table via the :ref:`template tag <template-tags.render_table>` rather than
-``as_html()``:
+This approach is easy, but it has a major problem in that it clobbers
+(overwrites) any existing querystring values when pagination or
+sorting are used. For these reasons you should use the :ref:`template tag
+<template-tags.render_table>` instead:
 
 .. code-block:: django
 
@@ -451,8 +451,8 @@ See :class:`.RequestConfig` for details.
 Pagination
 ==========
 
-Pagination is easy, just call :meth:`.Table.paginate` and pass in the current
-page number, e.g.
+Pagination is easy, just call :meth:`.Table.paginate` and
+pass in the current page number, e.g.
 
 .. code-block:: python
 
@@ -461,10 +461,6 @@ page number, e.g.
         table.paginate(page=request.GET.get('page', 1))
         return render_to_response('people_listing.html', {'table': table},
                                   context_instance=RequestContext(request))
-
-The last set is to render the table. :meth:`.Table.as_html` doesn't support
-pagination, so you must use :ref:`{% render_table %}
-<template-tags.render_table>`.
 
 .. _custom-rendering:
 
@@ -600,9 +596,10 @@ Which, when displayed in a browser, would look something like this:
 +-----------------------+--------------------------+
 
 
-For complicated columns, it's sometimes necessary to return HTML from a :meth:`~Column.render` method, but the string
-must be marked as safe (otherwise it will be escaped when the table is
-rendered). This can be achieved by using the :func:`mark_safe` function.
+For complicated columns, it's sometimes necessary to return HTML from a
+:meth:`~Column.render` method, but the string must be marked as safe (otherwise
+it will be escaped when the table is rendered). This can be achieved by using
+the :func:`mark_safe` function.
 
 .. code-block:: python
 
@@ -621,7 +618,7 @@ Custom Template
 
 And of course if you want full control over the way the table is rendered,
 ignore the built-in generation tools, and instead pass an instance of your
-:class:`Table` subclass into your own template, and render it yourself:
+:class:`.Table` subclass into your own template, and render it yourself:
 
 .. code-block:: django
 
@@ -688,20 +685,26 @@ Template tags
 render_table
 ------------
 
-Renders a :class:`~django_tables2.tables.Table` object to HTML and includes as
-many features as possible.
-
-Sample usage:
+Renders a :class:`~django_tables2.tables.Table` object to HTML and enables as
+many features in the output as possible.
 
 .. code-block:: django
 
     {% load django_tables2 %}
     {% render_table table %}
 
-This tag temporarily modifies the :class:`.Table` object while it is being
-rendered. It adds a ``request`` attribute to the table, which allows
-:class:`Column` objects to have access to a ``RequestContext``. See
-:class:`.TemplateColumn` for an example.
+    {# Alternatively a specific template can be used #}
+    {% render_table table "path/to/custom_table_template.html" %}
+
+If the second argument (template path) is given, the template will be rendered
+with a ``RequestContext`` and the table will be in the variable ``table``.
+
+.. note::
+
+    This tag temporarily modifies the ``Table`` object while it is being
+    rendered. It adds a ``request`` attribute to the table, which allows
+    :class:`Column` objects to have access to a ``RequestContext``. See
+    :class:`.TemplateColumn` for an example.
 
 This tag requires that the template in which it's rendered contains the
 ``HttpRequest`` inside a ``request`` variable. This can be achieved by ensuring
@@ -746,8 +749,6 @@ we want to update the ``sort`` parameter:
     {% set_url_param sort="dob" %}         # ?search=pirates&sort=dob&page=5
     {% set_url_param sort="" %}            # ?search=pirates&page=5
     {% set_url_param sort="" search="" %}  # ?page=5
-
-
 
 A table instance bound to data has two attributes ``columns`` and ``rows``,
 which can be iterated over:
@@ -962,6 +963,7 @@ API Reference
 -----------------------
 
 .. autoclass:: django_tables2.tables.Table
+    :members:
 
 
 :class:`Table.Meta` Objects:
@@ -976,7 +978,7 @@ API Reference
 
         Allows custom HTML attributes to be specified which will be added to
         the ``<table>`` tag of any table rendered via
-        :meth:`~django_tables2.tables.Table.as_html` or the
+        :meth:`.Table.as_html` or the
         :ref:`template-tags.render_table` template tag.
 
         :type: ``dict``
@@ -1121,6 +1123,18 @@ API Reference
         .. note::
 
             This functionality is also available via the ``sortable`` keyword
+            argument to a table's constructor.
+
+    .. attribute:: template
+
+        The default template to use when rendering the table.
+
+        :type: ``unicode``
+        :default: ``django_tables2/table.html``
+
+        .. note::
+
+            This functionality is also available via the ``template`` keyword
             argument to a table's constructor.
 
 
@@ -1323,4 +1337,3 @@ Upgrading from django-tables Version 1
   .. code-block:: django
 
       {{ column.order_by.is_descending }} and {{ column.order_by.is_ascending }}
-

@@ -183,3 +183,13 @@ def column_mapped_to_nonexistant_field():
 
     table = FaultyPersonTable(Person.objects.all())
     table.as_html()  # the bug would cause this to raise FieldDoesNotExist
+
+
+@models.test
+def should_support_rendering_multiple_times():
+    class MultiRenderTable(tables.Table):
+        name = tables.Column()
+
+    # test queryset data
+    table = MultiRenderTable(Person.objects.all())
+    assert table.as_html() == table.as_html()
