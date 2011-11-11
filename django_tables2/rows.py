@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import inspect
-from itertools import imap, ifilter
+from itertools import ifilter
 from django.db import models
 from django.db.models.fields import FieldDoesNotExist
 from django.utils.functional import curry
@@ -174,17 +174,28 @@ class BoundRows(object):
     :param table: the table in which the rows exist.
 
     """
-    def __init__(self, table):
+    def __init__(self, table, slice=None):
         self.table = table
+        if slice is not None:
+            self._data = table.data[slice]
+        else:
+            self._data = None
+
+    @property
+    def data(self):
+        if self._data:
+            return self._data
+        else:
+            return self.table.data
 
     def __iter__(self):
         """Convience method for :meth:`.BoundRows.all`"""
-        for record in self.table.data:
+        for record in self.data:
             yield BoundRow(self.table, record)
 
     def __len__(self):
         """Returns the number of rows in the table."""
-        return len(self.table.data)
+        return len(self.data)
 
     # for compatibility with QuerySetPaginator
     count = __len__
@@ -192,9 +203,8 @@ class BoundRows(object):
     def __getitem__(self, key):
         """Allows normal list slicing syntax to be used."""
         if isinstance(key, slice):
-            return imap(lambda record: BoundRow(self.table, record),
-                        self.table.data[key])
+            return BoundRows(self.table, key)
         elif isinstance(key, int):
-            return BoundRow(self.table, self.table.data[key])
+            return BoundRow(self.table, self.data[key])
         else:
             raise TypeError('Key must be a slice or integer.')
