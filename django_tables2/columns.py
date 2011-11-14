@@ -256,7 +256,8 @@ class LinkColumn(Column):
         if self.current_app:
             params['current_app'] = (self.current_app.resolve(record)
                                      if isinstance(self.current_app, A)
-                                     else self.urlconf)
+                                     else self.current_app)
+        print 'params =', params
         html = u'<a href="{url}" {attrs}>{value}</a>'.format(
             url=reverse(**params),
             attrs=AttributeDict(self.attrs).as_html(),

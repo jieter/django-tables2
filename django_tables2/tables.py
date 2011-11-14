@@ -9,7 +9,7 @@ from django.test.client import RequestFactory
 from django.utils.encoding import StrAndUnicode
 import sys
 from .utils import Accessor, AttributeDict, OrderBy, OrderByTuple, Sequence
-from .rows import BoundRows, BoundRow
+from .rows import BoundRows
 from .columns import BoundColumns, Column
 
 
@@ -126,9 +126,9 @@ class DeclarativeColumnsMetaclass(type):
         # Explicit columns override both parent and generated columns
         attrs["base_columns"].update(SortedDict(columns))
         # Apply any explicit exclude setting
-        for ex in opts.exclude:
-            if ex in attrs["base_columns"]:
-                attrs["base_columns"].pop(ex)
+        for exclusion in opts.exclude:
+            if exclusion in attrs["base_columns"]:
+                attrs["base_columns"].pop(exclusion)
         # Now reorder the columns based on explicit sequence
         if opts.sequence:
             opts.sequence.expand(attrs["base_columns"].keys())
@@ -246,6 +246,7 @@ class Table(StrAndUnicode):
                  exclude=None, attrs=None, sequence=None, prefix=None,
                  order_by_field=None, page_field=None, per_page_field=None,
                  template=None):
+        super(Table, self).__init__()
         self.rows = BoundRows(self)
         self.columns = BoundColumns(self)
         self.data = self.TableDataClass(data=data, table=self)

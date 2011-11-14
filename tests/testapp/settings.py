@@ -15,7 +15,7 @@ INSTALLED_APPS = [
 ]
 
 
-ROOT_URLCONF = 'tests.app.urls',
+ROOT_URLCONF = 'tests.testapp.urls'
 
 
 TEMPLATE_CONTEXT_PROCESSORS = [

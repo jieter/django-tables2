@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 """Test the core table functionality."""
 from __future__ import absolute_import
-from attest import Tests, Assert
+from attest import assert_hook, Assert, Tests
 import copy
-from django.http import Http404
 from django.core.paginator import Paginator
+from django.http import Http404
 import django_tables2 as tables
-from django_tables2 import utils
 from haystack.query import SearchQuerySet
 
 
@@ -64,22 +63,22 @@ def attrs():
     class TestTable(tables.Table):
         class Meta:
             attrs = {}
-    Assert({}) == TestTable([]).attrs
+    assert {} == TestTable([]).attrs
 
     class TestTable2(tables.Table):
         class Meta:
             attrs = {"a": "b"}
-    Assert({"a": "b"}) == TestTable2([]).attrs
+    assert {"a": "b"} == TestTable2([]).attrs
 
     class TestTable3(tables.Table):
         pass
-    Assert({}) == TestTable3([]).attrs
-    Assert({"a": "b"}) == TestTable3([], attrs={"a": "b"}).attrs
+    assert {} == TestTable3([]).attrs
+    assert {"a": "b"} == TestTable3([], attrs={"a": "b"}).attrs
 
     class TestTable4(tables.Table):
         class Meta:
             attrs = {"a": "b"}
-    Assert({"c": "d"}) == TestTable4([], attrs={"c": "d"}).attrs
+    assert {"c": "d"} == TestTable4([], attrs={"c": "d"}).attrs
 
 
 @core.test
@@ -92,12 +91,12 @@ def datasource_untouched():
     table = UnsortedTable(MEMORY_DATA)
     table.order_by = 'i'
     list(table.rows)
-    assert MEMORY_DATA == Assert(original_data)
+    assert MEMORY_DATA == original_data
 
     table = UnsortedTable(MEMORY_DATA)
     table.order_by = 'beta'
     list(table.rows)
-    assert MEMORY_DATA == Assert(original_data)
+    assert MEMORY_DATA == original_data
 
 
 @core.test
@@ -124,69 +123,69 @@ def should_support_haystack_data_source():
 @core.test
 def sorting():
     # fallback to Table.Meta
-    Assert(('alpha', )) == SortedTable([], order_by=None).order_by == SortedTable([]).order_by
+    assert ('alpha', ) == SortedTable([], order_by=None).order_by == SortedTable([]).order_by
 
     # values of order_by are wrapped in tuples before being returned
-    Assert(SortedTable([], order_by='alpha').order_by)   == ('alpha', )
-    Assert(SortedTable([], order_by=('beta',)).order_by) == ('beta', )
+    assert SortedTable([], order_by='alpha').order_by   == ('alpha', )
+    assert SortedTable([], order_by=('beta',)).order_by == ('beta', )
 
     # "no sorting"
     table = SortedTable([])
     table.order_by = []
-    Assert(()) == table.order_by == SortedTable([], order_by=[]).order_by
+    assert () == table.order_by == SortedTable([], order_by=[]).order_by
 
     table = SortedTable([])
     table.order_by = ()
-    Assert(()) == table.order_by == SortedTable([], order_by=()).order_by
+    assert () == table.order_by == SortedTable([], order_by=()).order_by
 
     table = SortedTable([])
     table.order_by = ''
-    Assert(()) == table.order_by == SortedTable([], order_by='').order_by
+    assert () == table.order_by == SortedTable([], order_by='').order_by
 
     # apply a sorting
     table = UnsortedTable([])
     table.order_by = 'alpha'
-    Assert(('alpha', )) == UnsortedTable([], order_by='alpha').order_by == table.order_by
+    assert ('alpha', ) == UnsortedTable([], order_by='alpha').order_by == table.order_by
 
     table = SortedTable([])
     table.order_by = 'alpha'
-    Assert(('alpha', )) == SortedTable([], order_by='alpha').order_by  == table.order_by
+    assert ('alpha', ) == SortedTable([], order_by='alpha').order_by  == table.order_by
 
     # let's check the data
     table = SortedTable(MEMORY_DATA, order_by='beta')
-    Assert(3) == table.rows[0]['i']
+    assert 3 == table.rows[0]['i']
 
     # allow fallback to Table.Meta.order_by
     table = SortedTable(MEMORY_DATA)
-    Assert(1) == table.rows[0]['i']
+    assert 1 == table.rows[0]['i']
 
     # column's can't be sorted if they're not allowed to be
-    class TestTable(tables.Table):
+    class TestTable2(tables.Table):
         a = tables.Column(sortable=False)
         b = tables.Column()
 
-    table = TestTable([], order_by='a')
-    Assert(table.order_by) == ()
+    table = TestTable2([], order_by='a')
+    assert table.order_by == ()
 
-    table = TestTable([], order_by='b')
-    Assert(table.order_by) == ('b', )
+    table = TestTable2([], order_by='b')
+    assert table.order_by == ('b', )
 
     # sorting disabled by default
-    class TestTable(tables.Table):
+    class TestTable3(tables.Table):
         a = tables.Column(sortable=True)
         b = tables.Column()
 
         class Meta:
             sortable = False
 
-    table = TestTable([], order_by='a')
-    Assert(table.order_by) == ('a', )
+    table = TestTable3([], order_by='a')
+    assert table.order_by == ('a', )
 
-    table = TestTable([], order_by='b')
-    Assert(table.order_by) == ()
+    table = TestTable3([], order_by='b')
+    assert table.order_by == ()
 
-    table = TestTable([], sortable=True, order_by='b')
-    Assert(table.order_by) == ('b', )
+    table = TestTable3([], sortable=True, order_by='b')
+    assert table.order_by == ('b', )
 
 
 @core.test
@@ -200,13 +199,13 @@ def sorting_different_types():
     ]
 
     table = SortedTable(data)
-    Assert(None) == table.rows[0]['alpha']
+    assert None == table.rows[0]['alpha']
 
     table = SortedTable(data, order_by='i')
-    Assert(1) == table.rows[0]['i']
+    assert 1 == table.rows[0]['i']
 
     table = SortedTable(data, order_by='beta')
-    Assert([]) == table.rows[0]['beta']
+    assert [] == table.rows[0]['beta']
 
 
 @core.test
@@ -226,8 +225,8 @@ def column_accessor():
         col2 = tables.Column(accessor='alpha.upper')
     table = SimpleTable(MEMORY_DATA)
     row = table.rows[0]
-    Assert(row['col1']) is True
-    Assert(row['col2']) == 'B'
+    assert row['col1'] is True
+    assert row['col2'] == 'B'
 
 
 @core.test
@@ -240,20 +239,20 @@ def exclude_columns():
     """
     # Table(..., exclude=...)
     table = UnsortedTable([], exclude=("i"))
-    Assert([c.name for c in table.columns]) == ["alpha", "beta"]
+    assert [c.name for c in table.columns] == ["alpha", "beta"]
 
     # Table.Meta: exclude=...
     class PartialTable(UnsortedTable):
         class Meta:
             exclude = ("alpha", )
     table = PartialTable([])
-    Assert([c.name for c in table.columns]) == ["i", "beta"]
+    assert [c.name for c in table.columns] == ["i", "beta"]
 
     # Inheritence -- exclude in parent, add in child
     class AddonTable(PartialTable):
         added = tables.Column()
     table = AddonTable([])
-    Assert([c.name for c in table.columns]) == ["i", "beta", "added"]
+    assert [c.name for c in table.columns] == ["i", "beta", "added"]
 
     # Inheritence -- exclude in child
     class ExcludeTable(UnsortedTable):
@@ -261,7 +260,7 @@ def exclude_columns():
         class Meta:
             exclude = ("beta", )
     table = ExcludeTable([])
-    Assert([c.name for c in table.columns]) == ["i", "alpha", "added"]
+    assert [c.name for c in table.columns] == ["i", "alpha", "added"]
 
 
 @core.test
@@ -271,10 +270,9 @@ def table_exclude_property_should_override_constructor_argument():
         b = tables.Column()
 
     table = SimpleTable([], exclude=('b', ))
-    Assert([c.name for c in table.columns]) == ['a']
+    assert [c.name for c in table.columns] == ['a']
     table.exclude = ('a', )
-    Assert([c.name for c in table.columns]) == ['b']
-
+    assert [c.name for c in table.columns] == ['b']
 
 
 @core.test
@@ -297,24 +295,24 @@ def pagination():
 
     # integrated paginator
     books.paginate(page=1)
-    Assert(hasattr(books, "page")) is True
+    assert hasattr(books, "page") is True
 
     books.paginate(page=1, per_page=10)
-    Assert(len(list(books.page.object_list))) == 10
+    assert len(list(books.page.object_list)) == 10
 
     # new attributes
-    Assert(books.paginator.num_pages) == 10
-    Assert(books.page.has_previous()) is False
-    Assert(books.page.has_next()) is True
+    assert books.paginator.num_pages == 10
+    assert books.page.has_previous() is False
+    assert books.page.has_next() is True
 
     # accessing a non-existant page raises 404
     with Assert.raises(Http404) as error:
         books.paginate(Paginator, page=9999, per_page=10)
-        books.page
+        assert books.page
 
     with Assert.raises(Http404) as error:
         books.paginate(Paginator, page='abc', per_page=10)
-        books.page
+        assert books.page
 
 @core.test
 def pagination_shouldnt_prevent_multiple_rendering():
@@ -333,19 +331,19 @@ def empty_text():
         a = tables.Column()
 
     table = TestTable([])
-    Assert(table.empty_text) is None
+    assert table.empty_text is None
 
-    class TestTable(tables.Table):
+    class TestTable2(tables.Table):
         a = tables.Column()
 
         class Meta:
             empty_text = 'nothing here'
 
-    table = TestTable([])
-    Assert(table.empty_text) == 'nothing here'
+    table = TestTable2([])
+    assert table.empty_text == 'nothing here'
 
-    table = TestTable([], empty_text='still nothing')
-    Assert(table.empty_text) == 'still nothing'
+    table = TestTable2([], empty_text='still nothing')
+    assert table.empty_text == 'still nothing'
 
 
 @core.test
@@ -357,17 +355,17 @@ def prefix():
         class Meta:
             prefix = "x"
 
-    Assert("x") == TableA([]).prefix
+    assert "x" == TableA([]).prefix
 
     class TableB(tables.Table):
         name = tables.Column()
 
-    Assert("") == TableB([]).prefix
-    Assert("x") == TableB([], prefix="x").prefix
+    assert "" == TableB([]).prefix
+    assert "x" == TableB([], prefix="x").prefix
 
     table = TableB([])
     table.prefix = "x"
-    Assert("x") == table.prefix
+    assert "x" == table.prefix
 
 
 @core.test
@@ -379,9 +377,9 @@ def field_names():
             per_page_field = "ghi"
 
     table = TableA([])
-    Assert("abc") == table.order_by_field
-    Assert("def") == table.page_field
-    Assert("ghi") == table.per_page_field
+    assert "abc" == table.order_by_field
+    assert "def" == table.page_field
+    assert "ghi" == table.per_page_field
 
 
 @core.test
@@ -394,9 +392,9 @@ def field_names_with_prefix():
             prefix = "1-"
 
     table = TableA([])
-    Assert("1-sort") == table.prefixed_order_by_field
-    Assert("1-page") == table.prefixed_page_field
-    Assert("1-per_page") == table.prefixed_per_page_field
+    assert "1-sort" == table.prefixed_order_by_field
+    assert "1-page" == table.prefixed_page_field
+    assert "1-per_page" == table.prefixed_per_page_field
 
     class TableB(tables.Table):
         class Meta:
@@ -405,15 +403,15 @@ def field_names_with_prefix():
             per_page_field = "per_page"
 
     table = TableB([], prefix="1-")
-    Assert("1-sort") == table.prefixed_order_by_field
-    Assert("1-page") == table.prefixed_page_field
-    Assert("1-per_page") == table.prefixed_per_page_field
+    assert "1-sort" == table.prefixed_order_by_field
+    assert "1-page" == table.prefixed_page_field
+    assert "1-per_page" == table.prefixed_per_page_field
 
     table = TableB([])
     table.prefix = "1-"
-    Assert("1-sort") == table.prefixed_order_by_field
-    Assert("1-page") == table.prefixed_page_field
-    Assert("1-per_page") == table.prefixed_per_page_field
+    assert "1-sort" == table.prefixed_order_by_field
+    assert "1-page" == table.prefixed_page_field
+    assert "1-per_page" == table.prefixed_per_page_field
 
 
 @core.test
