@@ -17,7 +17,7 @@ setup(
 
     install_requires=['Django >=1.3'],
     tests_require=['Django >=1.3', 'Attest >=0.4', 'django-attest', 'fudge',
-                   'django-haystack'],
+                   'django-haystack', 'unittest-xml-reporting'],
 
     test_loader='attest:FancyReporter.test_loader',
     test_suite='tests.everything',
