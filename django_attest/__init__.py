@@ -1,10 +1,15 @@
 # -*- coding: utf8 -*-
+from django import get_version
 from django.test import TestCase, TransactionTestCase
 from django.test.testcases import connections_support_transactions, \
     disable_transaction_methods, restore_transaction_methods
 from django.test.client import Client
 from django.db import transaction, connections, DEFAULT_DB_ALIAS
 from django.core.management import call_command
+from .patches import apply_django_fixes
+
+
+apply_django_fixes()
 
 
 class TransactionTestContext(TransactionTestCase):
