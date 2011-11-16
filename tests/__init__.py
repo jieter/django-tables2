@@ -1,12 +1,9 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, unicode_literals
-from attest import AssertImportHook, Tests
-# Django's django.utils.module_loading.module_has_submodule is busted
-AssertImportHook.disable()
-
-
+from attest import Tests
 import os
 os.environ['DJANGO_SETTINGS_MODULE'] = 'tests.testapp.settings'
+import django_attest  # applies django/attest fixes if necessary
 from django.test.simple import DjangoTestSuiteRunner
 runner = DjangoTestSuiteRunner()
 runner.setup_databases()
