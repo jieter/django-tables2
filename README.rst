@@ -4,9 +4,10 @@ django-attest
 Provides the same testing helper functionality as Django's
 ``django.test.TestCase`` wrapper of ``unittest.TestCase``.
 
-``django_attest.TestContext`` provides the same functionality as subclassing
-``django.test.TestCase``, and ``django_attest.TransactionTestContext`` does the
-same as ``django.test.TransactionTestCase``.
+``django_attest.TestContext`` provides the most of the same functionality as
+subclassing ``django.test.TestCase``, and
+``django_attest.TransactionTestContext`` does the same as
+``django.test.TransactionTestCase``.
 
 Both contexts provide a ``django.test.TestClient`` object (normally accessed
 via ``self.client`` in ``django.test.TestCase`` tests), which can be used to
@@ -16,19 +17,18 @@ make requests to views for testing.
 Installation
 ============
 
-You have two options:
+Use pip::
 
-- Install from PyPI: ``python setup.py install``
-- Download the source and ``pip install <tar.gz>``
+    ``pip install django-attest``
 
 
 Usage
 =====
 
-Create a test collection and include one of ``django-attest``'s test contexts.
-The result is that a ``client`` argument is passed to each test within the
-collection. ``client`` is a ``django.test.TestClient`` object and allows you to
-make HTTP requests to your project.
+Create a test collection and optionally include one of ``django-attest``'s test
+contexts. The result is that a ``client`` argument is passed to each test
+within the collection. ``client`` is a ``django.test.TestClient`` object and
+allows you to make HTTP requests to your project.
 
 ::
 
@@ -70,15 +70,14 @@ in these options when creating the ``django_tables.TestContext`` object:
     tests.context(TestContext(fixtures=['testdata.json'], urls='myapp.urls'))
 
 
-Test database
--------------
+Transaction management in tests
+-------------------------------
 
-As mentioned above, if you want the same functionality as
-``django.test.TransactionTestCase`` (i.e. transaction is rolled back after each
-test), use ``TransactionTestContext`` rather than ``TestContext``, e.g.::
+If you need to test transaction management within your tests, use
+``TransactionTestContext`` rather than ``TestContext``, e.g.::
 
     from attest import Tests
-    from django-attest import TransactionTestContext
+    from django_attest import TransactionTestContext
 
     tests = Tests()
     tests.context(TransactionTestContext())
@@ -88,84 +87,72 @@ test), use ``TransactionTestContext`` rather than ``TestContext``, e.g.::
         # test something
         ...
 
-If you're testing a reusable Django app you'll probably be using Attest's test
-loader in your ``setup.py``. Example::
+Testing a reusable Django app
+-----------------------------
 
-    from setuptools import setup, find_packages
+Often you'll want to test database or template related code. Django's built-in
+test runner does some automatic setup and teardown of the environment to allow
+you to do this (e.g. it creates a test database and patches ``Template`` to add
+rendering signal hooks).
+
+To get the same goodness in a reusable app, you should use one of
+django-attest's patched Attest reporters. You must however ensure
+``DJANGO_SETTINGS_MODULE`` is defined before importing anything from
+``django_attest``.
+
+A simple solution is to create a ``tests/__init__.py`` file that contains::
+
+    import os
+    os.environ['DJANGO_SETTINGS_MODULE'] = 'tests.settings'
+
+    from attest import Tests
+    from django_attest import FancyReporter
+    from .templates import tests as template_tests
+    from .models import tests as model_tests
+
+    loader = FancyReporter.test_loader
+    everything = Tests([template_tests, model_tests])
+
+Next ensure your ``setup.py`` contains the following::
+
+    from setuptools import setup
 
     setup(
         ...
         tests_require=['Django >=1.1', 'Attest >=0.4', 'django-attest'],
-        test_loader='attest:FancyReporter.test_loader',
+        test_loader='tests:loader',
         test_suite='tests.everything',
     )
 
-In this example ``tests.everything`` is a test collection that contains all the
-tests for the app, and ``attest:FancyReporter.test_loader`` is Attest's
-standard test loader.
+Finally create ``tests/settings.py`` and populate it with the Django settings
+you need for your app, e.g.::
 
-Testing a reusable Django app
------------------------------
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': ':memory:',
+        }
+    }
 
-This is all good, but in order to use ``TransactionTestContext``, Django's
-database infrastructure must be configured. Normally this is performed by
-Django's test loader and a project's ``settings.py``, but since we're using
-Attest's test loader and we don't have a project setup, database initialization
-isn't performed automatically.
+    INSTALLED_APPS = [
+        'django.contrib.sessions',
+        'django.contrib.auth',
+        'django.contrib.contenttypes',
+        'myapp',
+        'tests.app',
+    ]
 
-The solution is simple. In your ``tests/__init__.py`` file (or
-where ever you're creating your master test collection) configure Django
-settings, and use ``django.test.simple.DjangoTestSuiteRunner.setup_databases``
-to perform the database initialization.
+    SECRET_KEY = 'abcdefghiljklmnopqrstuvwxyz'
 
-The following is from one of my reusable Django apps that uses
-``django-attest`` (``django-tables``)::
+    ROOT_URLCONF = 'tests.app.urls'
 
-    from attest import Tests, AssertImportHook
-    from django.test.simple import DjangoTestSuiteRunner
-
-    # django.utils.module_loading.module_has_submodule is busted in all
-    # versions up to (and including) Django 1.3. It's important to do this
-    # prior to loading ``django.conf``.
-    AssertImportHook.disable()
-
-    from django.conf import settings
-
-    # It's important to configure prior to importing the tests, as some of them
-    # import Django's DB stuff.
-    settings.configure(
-        DATABASES = {
-            'default': {
-                'ENGINE': 'django.db.backends.sqlite3',
-                'NAME': ':memory:',
-            }
-        },
-        INSTALLED_APPS = [
-            'tests.testapp',
-            'django_tables',  # the app that this
-        ],
-        ROOT_URLCONF = 'tests.testapp.urls',
-    )
-
-    # The following
-    runner = DjangoTestSuiteRunner()
-    runner.setup_databases()
-
-    from .templates import templates
-    from .models import models
-
-    everything = Tests([templates, models])
 
 A few things to note:
 
 - ``everything`` is the tests collection that contains all the separate test
   collections. The ``test_suite`` option in ``setup.py`` refers to this.
-- ``INSTALLED_APPS`` contains ``tests.testapp`` which is a basic Django app
-  inside the ``tests`` package that contains some URLs, models, and views that
-  aid in testing.
 - The database is *in-memory* and uses the ``django.db.backends.sqlite3``
-  backend. This makes running the tests very simple as no database
-  configuration is required by the developer.
+  backend.
 
 Finally, the tests can be run via::
 
@@ -175,8 +162,8 @@ Finally, the tests can be run via::
 Testing non-reusable apps in a Django project
 ---------------------------------------------
 
-To test non-reusable apps in a Django project, the app must either a ``tests``
-or ``models`` module with a ``suite`` function that returns a
+To test non-reusable apps in a Django project, the app must contain either a
+``tests`` or ``models`` module with a ``suite`` function that returns a
 ``unittest.TestCase`` (see `Django's documentation
 <http://docs.djangoproject.com/en/1.3/topics/testing/#writing-unit-tests>`_ for
 details).
@@ -188,7 +175,7 @@ As an example, an app that wants to test some of its templating code has a
 
     template = Tests()
 
-    @template.test
+    @tests.test
     def filter():
         """Test the template filter."""
         # ...
@@ -201,3 +188,7 @@ As an example, an app that wants to test some of its templating code has a
 
     def suite():
         return template.test_suite()
+
+Since you should be using Django's test runner, all test environment setup/tear
+down is handled automatically, and there's no need for any of Attest's
+reporters.

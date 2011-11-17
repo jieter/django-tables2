@@ -1,15 +1,14 @@
 # -*- coding: utf8 -*-
-from django import get_version
-from django.test import TestCase, TransactionTestCase
-from django.test.testcases import connections_support_transactions, \
-    disable_transaction_methods, restore_transaction_methods
-from django.test.client import Client
+from attest import Tests
 from django.db import transaction, connections, DEFAULT_DB_ALIAS
+from django.test import TestCase, TransactionTestCase
+from django.test.testcases import (connections_support_transactions,
+                                   disable_transaction_methods,
+                                   restore_transaction_methods)
+from django.test.client import Client
 from django.core.management import call_command
-from .patches import apply_django_fixes
-
-
-apply_django_fixes()
+from .reporters import (AbstractReporter, PlainReporter, FancyReporter,
+                        auto_reporter, XmlReporter, QuickFixReporter)
 
 
 class TransactionTestContext(TransactionTestCase):
@@ -28,10 +27,10 @@ class TransactionTestContext(TransactionTestCase):
             self.multi_db = multi_db
 
     def __call__(self):
-        """Wrapper around default __call__ method to perform common Django
+        """
+        Wrapper around default __call__ method to perform common Django
         test set up. This means that user-defined Test Cases aren't required to
         include a call to super().setUp().
-
         """
         self._pre_setup()
         yield self.client_class()
@@ -39,12 +38,12 @@ class TransactionTestContext(TransactionTestCase):
 
 
 class TestContext(TransactionTestContext):
-    """Does basically the same as TransactionTestContext, but surrounds every
+    """
+    Does basically the same as TransactionTestContext, but surrounds every
     test with a transaction, monkey-patches the real transaction management
     routines to do nothing, and rollsback the test transaction at the end of
     the test. You have to use TransactionTestContext, if you need transaction
     management inside a test.
-
     """
     def _fixture_setup(self):
         if not connections_support_transactions():
