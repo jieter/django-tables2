@@ -7,6 +7,7 @@ from django.test.testcases import (connections_support_transactions,
                                    restore_transaction_methods)
 from django.test.client import Client
 from django.core.management import call_command
+from .environment import testing_environment
 from .reporters import (AbstractReporter, PlainReporter, FancyReporter,
                         auto_reporter, XmlReporter, QuickFixReporter)
 
