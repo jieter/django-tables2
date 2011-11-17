@@ -34,11 +34,13 @@ class TransactionTestContext(TransactionTestCase):
         include a call to super().setUp().
         """
         self._pre_setup()
-        yield self.client_class()
-        self._post_teardown()
+        try:
+            yield self.client_class()
+        finally:
+            self._post_teardown()
 
 
-class TestContext(TransactionTestContext):
+class TestContext(TestCase, TransactionTestContext):
     """
     Does basically the same as TransactionTestContext, but surrounds every
     test with a transaction, monkey-patches the real transaction management
@@ -46,50 +48,3 @@ class TestContext(TransactionTestContext):
     the test. You have to use TransactionTestContext, if you need transaction
     management inside a test.
     """
-    def _fixture_setup(self):
-        if not connections_support_transactions():
-            return super(TestContext, self)._fixture_setup()
-
-        # If the test case has a multi_db=True flag, setup all databases.
-        # Otherwise, just use default.
-        if getattr(self, 'multi_db', False):
-            databases = connections
-        else:
-            databases = [DEFAULT_DB_ALIAS]
-
-        for db in databases:
-            transaction.enter_transaction_management(using=db)
-            transaction.managed(True, using=db)
-        disable_transaction_methods()
-
-        from django.contrib.sites.models import Site
-        Site.objects.clear_cache()
-
-        for db in databases:
-            if hasattr(self, 'fixtures'):
-                if not isinstance(self.fixtures, (list, tuple)):
-                    args = [self.fixtures]
-                else:
-                    args = self.fixtures
-                kwargs = {
-                    'verbosity': 0,
-                    'commit': False,
-                    'database': db
-                }
-                call_command('loaddata', *args, **kwargs)
-
-    def _fixture_teardown(self):
-        if not connections_support_transactions():
-            return super(TestContext, self)._fixture_teardown()
-
-        # If the test case has a multi_db=True flag, teardown all databases.
-        # Otherwise, just teardown default.
-        if getattr(self, 'multi_db', False):
-            databases = connections
-        else:
-            databases = [DEFAULT_DB_ALIAS]
-
-        restore_transaction_methods()
-        for db in databases:
-            transaction.rollback(using=db)
-            transaction.leave_transaction_management(using=db)
