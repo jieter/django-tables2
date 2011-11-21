@@ -9,13 +9,13 @@ DATABASES = {
 }
 
 INSTALLED_APPS = [
-    'tests.testapp',
+    'tests.app',
     'django_tables2',
     'haystack',
 ]
 
 
-ROOT_URLCONF = 'tests.testapp.urls'
+ROOT_URLCONF = 'tests.app.urls'
 
 
 TEMPLATE_CONTEXT_PROCESSORS = [
@@ -24,4 +24,4 @@ TEMPLATE_CONTEXT_PROCESSORS = [
 
 
 HAYSTACK_SEARCH_ENGINE = 'simple',
-HAYSTACK_SITECONF = 'tests.testapp.search_sites'
+HAYSTACK_SITECONF = 'tests.app.models'

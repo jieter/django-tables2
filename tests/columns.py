@@ -8,7 +8,7 @@ from django.template import Context, Template
 from django.core.exceptions import ImproperlyConfigured
 import django_tables2 as tables
 from django_tables2 import utils, A
-from .testapp.models import Person
+from .app.models import Person
 from django.utils.translation import ugettext_lazy
 from django.utils.translation import ugettext
 

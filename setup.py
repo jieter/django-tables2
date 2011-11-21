@@ -16,10 +16,10 @@ setup(
     include_package_data=True,  # declarations in MANIFEST.in
 
     install_requires=['Django >=1.3'],
-    tests_require=['Django >=1.3', 'Attest >=0.4', 'django-attest >=0.1.2',
+    tests_require=['Django >=1.3', 'Attest >=0.4', 'django-attest >=0.2.2',
                    'fudge', 'django-haystack', 'unittest-xml-reporting'],
 
-    test_loader='attest:FancyReporter.test_loader',
+    test_loader='tests:loader',
     test_suite='tests.everything',
 
     classifiers=[

@@ -1,14 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, unicode_literals
-from attest import Tests
 import os
-os.environ['DJANGO_SETTINGS_MODULE'] = 'tests.testapp.settings'
-import django_attest  # applies django/attest fixes if necessary
-from django.test.simple import DjangoTestSuiteRunner
-runner = DjangoTestSuiteRunner()
-runner.setup_databases()
+os.environ['DJANGO_SETTINGS_MODULE'] = 'tests.app.settings'
 
-
+from attest import Tests
+import django_attest
 from .columns import columns
 from .config import config
 from .core import core
@@ -18,6 +14,7 @@ from .templates import templates
 from .utils import utils
 
 
+loader = django_attest.FancyReporter.test_loader
 everything = Tests([columns, config, core, models, rows, templates, utils])
 
 
