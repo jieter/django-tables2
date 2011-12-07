@@ -1,37 +1,47 @@
 # -*- coding: utf-8 -*-
-from attest import AssertImportHook, Tests
+from __future__ import absolute_import, unicode_literals
+import os
+os.environ['DJANGO_SETTINGS_MODULE'] = 'tests.app.settings'
 
-# Django's django.utils.module_loading.module_has_submodule is busted
-AssertImportHook.disable()
-
-from django.conf import settings
-
-# It's important to configure prior to importing the tests, as some of them
-# import Django's DB stuff.
-settings.configure(
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': ':memory:',
-        }
-    },
-    INSTALLED_APPS = [
-        'tests.testapp',
-        'django_tables2',
-    ],
-    ROOT_URLCONF = 'tests.testapp.urls',
-)
-
-from django.test.simple import DjangoTestSuiteRunner
-runner = DjangoTestSuiteRunner()
-runner.setup_databases()
-
-from .core import core
-from .templates import templates
-from .models import models
-from .utils import utils
-from .rows import rows
+from attest import Tests
+import django_attest
 from .columns import columns
 from .config import config
+from .core import core
+from .models import models
+from .rows import rows
+from .templates import templates
+from .utils import utils
 
-everything = Tests([core, templates, models, utils, rows, columns, config])
+
+loader = django_attest.FancyReporter.test_loader
+everything = Tests([columns, config, core, models, rows, templates, utils])
+
+
+# -----------------------------------------------------------------------------
+
+
+junit = Tests()
+
+@junit.test
+def make_junit_output():
+    import xmlrunner
+    runner = xmlrunner.XMLTestRunner(output=b'reports')
+    runner.run(everything.test_suite())
+
+
+# -----------------------------------------------------------------------------
+
+
+pylint = Tests()
+
+@pylint.test
+def make_pylint_output():
+    from os.path import expanduser
+    from pylint.lint import Run
+    from pylint.reporters.text import ParseableTextReporter
+    if not os.path.exists('reports'):
+        os.mkdir('reports')
+    with open('reports/pylint.report', 'wb') as handle:
+        args = ['django_tables2', 'example', 'tests']
+        Run(args, reporter=ParseableTextReporter(output=handle), exit=False)

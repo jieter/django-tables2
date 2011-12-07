@@ -1,0 +1,26 @@
+# This file is distributed under the same license as the django-tables2 package
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: django-tables2\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2011-11-06 10:41+1000\n"
+"PO-Revision-Date: 2011-11-06 10:41+1000\n"
+"Last-Translator: Bradley Ayers <bradley.ayers@gmail.com>\n"
+"Language-Team: English <en@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: templates/django_tables2/table.html:37
+msgid "Previous"
+msgstr ""
+
+#: templates/django_tables2/table.html:39
+#, python-format
+msgid "Page %(current)s of %(total)s"
+msgstr ""
+
+#: templates/django_tables2/table.html:41
+msgid "Next"
+msgstr ""
