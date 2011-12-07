@@ -11,7 +11,7 @@
         {% for column in table.columns %}
         {% if column.sortable %}
             {% with column.order_by as ob %}
-            <th{% if column.header_attrs %} {{ column.header_attrs.as_html }}{% endif %}>{{ column.header }}><a href="{% querystring table.prefixed_order_by_field=ob.opposite|default:column.name %}">{{ column.header }}</a></th>
+            <th{% if column.header_attrs %} {{ column.header_attrs.as_html }}{% endif %}><a href="{% querystring table.prefixed_order_by_field=ob.opposite|default:column.name %}">{{ column.header }}</a></th>
             {% endwith %}
         {% else %}
             <th{% if column.header_attrs %} {{ column.header_attrs.as_html }}{% endif %}>{{ column.header }}</th>
