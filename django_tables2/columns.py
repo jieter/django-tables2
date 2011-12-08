@@ -426,10 +426,11 @@ class BoundColumn(object):
         attrs = AttributeDict(self.column.col_attrs.copy())
         if self.sortable:
             attrs['class'] = 'sortable %s' %attrs.get('class', '')
-        if self.order_by and self.order_by.is_descending:
-            attrs['class'] = 'desc %s' %attrs.get('class', '')
-        else:
-            attrs['class'] = 'asc %s' %attrs.get('class', '')
+
+            if self.order_by and self.order_by.is_descending:
+                attrs['class'] = 'desc %s' %attrs.get('class', '')
+            elif self.order_by and self.order_by.is_ascending:
+                attrs['class'] = 'asc %s' %attrs.get('class', '')
         return attrs
 
     @property

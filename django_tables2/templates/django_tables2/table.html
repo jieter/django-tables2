@@ -25,7 +25,7 @@
         {% for row in table.page.object_list|default:table.rows %} {# support pagination #}
         {% block table.tbody.row %}
         <tr class="{% cycle "odd" "even" %}">
-            {% for column, value in row %}
+            {% for column, value in row.items %}
                 <td{% if column.attrs %} {{ column.attrs.as_html }}{% endif %}>{{ value }}</td>
             {% endfor %}
         </tr>

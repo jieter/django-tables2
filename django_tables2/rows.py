@@ -88,7 +88,7 @@ class BoundRow(object):
 
     def __iter__(self):
         """
-        Iterate over the column object and rendered values for cells in the row.
+        Iterate over the rendered values for cells in the row.
 
         Under the hood this method just makes a call to
         :meth:`.BoundRow.__getitem__` for each cell.
@@ -97,17 +97,14 @@ class BoundRow(object):
         for column in self.table.columns:
             # this uses __getitem__, using the name (rather than the accessor)
             # is correct – it's what __getitem__ expects.
-            yield (column, self[column.name])
+            yield self[column.name]
 
     def items(self):
         """
-        Iterate over the key value pairs of column name/value so you can do:
-        {% for name, val in row.items %}
-            <td class = {{ name }}>{{ val }}</td>
-        {% endfor %}
+        Iterate over the key value pairs of column/value
         """
         for column in self.table.columns:
-            yield column.name, self[column.name]
+            yield column, self[column.name]
 
     def __getitem__(self, name):
         """

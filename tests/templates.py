@@ -80,7 +80,7 @@ def custom_rendering():
     assert result == template.render(context)
 
     # row values
-    template = Template('{% for row in countries.rows %}{% for col, value in row %}'
+    template = Template('{% for row in countries.rows %}{% for value in row %}'
                         '{{ value }} {% endfor %}{% endfor %}')
     result = ('Germany Berlin 83 49 France None 64 33 Netherlands Amsterdam '
               'None 31 Austria None 8 43 ')
