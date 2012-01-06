@@ -57,16 +57,19 @@ class TableData(object):
         order_by = self._translate_order_by(order_by)
 
         if hasattr(self, 'queryset'):
-            # need to convert the '.' separators to '__' (filter syntax)
+            queryset_order_by = ()
             for o in order_by:
-                # search for custom order
-                custom_order = getattr(self._table, "order_by_"+o.replace('-','',1), None)
-                if custom_order:
-                    self.list = custom_order(o.startswith('-'))
-                    return
-                o.replace(Accessor.SEPARATOR, QUERYSET_ACCESSOR_SEPARATOR)
+                # search for custom order field
+                order_method_name = 'order_by_%s' % o.replace('-', '', 1)
+                order_method = getattr(self._table, order_method_name, None)
+                if order_method:
+                    o = order_method(o.startswith('-'))
 
-            self.queryset = self.queryset.order_by(*order_by)
+                # need to convert the '.' separators to '__' (filter syntax)
+                o.replace(Accessor.SEPARATOR, QUERYSET_ACCESSOR_SEPARATOR)
+                queryset_order_by += (o,)
+
+            self.queryset = self.queryset.order_by(*queryset_order_by)
         else:
             self.list.sort(cmp=order_by.cmp)
 
