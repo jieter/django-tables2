@@ -60,14 +60,25 @@ class TableData(object):
             queryset_order_by = ()
             for o in order_by:
                 # search for custom order field
-                order_method_name = 'order_by_%s' % o.replace('-', '', 1)
+                order_method_name = 'order_by_%s' % o
+
+                # Remove the '-' prefix from method name
+                order_method_name = order_method_name.replace('-', '', 1)
+
+                # Make method name compatible with the separator notation
+                order_method_name = order_method_name.replace('.', '_')
                 order_method = getattr(self._table, order_method_name, None)
                 if order_method:
                     o = order_method(o.startswith('-'))
 
                 # need to convert the '.' separators to '__' (filter syntax)
-                o.replace(Accessor.SEPARATOR, QUERYSET_ACCESSOR_SEPARATOR)
-                queryset_order_by += (o,)
+                if type(o) == tuple:
+                    for oo in o:
+                        oo = oo.replace(Accessor.SEPARATOR, QUERYSET_ACCESSOR_SEPARATOR)
+                        queryset_order_by += (oo,)
+                else:
+                    o = o.replace(Accessor.SEPARATOR, QUERYSET_ACCESSOR_SEPARATOR)
+                    queryset_order_by += (o,)
 
             self.queryset = self.queryset.order_by(*queryset_order_by)
         else:
