@@ -76,7 +76,7 @@ class SingleTableMixin(object):
         return context
 
 
-class SingleTableView(SingleTableMixin, TemplateResponseMixin, BaseListView):
+class SingleTableView(SingleTableMixin, ListView):
     """
     Generic view that renders a template and passes in a ``Table`` object.
     """

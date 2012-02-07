@@ -158,37 +158,30 @@ class RenderTableNode(Node):
         self.template = template
 
     def render(self, context):
+        table = self.table.resolve(context)
+        if not isinstance(table, tables.Table):
+            raise ValueError("Expected Table object, but didn't find one.")
+        if "request" not in context:
+            raise AssertionError(
+                    "{% render_table %} requires that the template context"
+                    " contains the HttpRequest in a 'request' variable,"
+                    " check your TEMPLATE_CONTEXT_PROCESSORS setting.")
+        request = context['request']
+        context = RequestContext(request, {"table": table})
+        if self.template:
+            template = self.template.resolve(context)
+        else:
+            template = table.template
+        if isinstance(template, basestring):
+            template = get_template(template)
+        else:
+            # assume some iterable was given
+            template = select_template(template)
         try:
-            table = self.table.resolve(context)
-            if not isinstance(table, tables.Table):
-                raise ValueError("Expected Table object, but didn't find one.")
-            if "request" not in context:
-                raise AssertionError(
-                        "{% render_table %} requires that the template context"
-                        " contains the HttpRequest in a 'request' variable,"
-                        " check your TEMPLATE_CONTEXT_PROCESSORS setting.")
-            request = context['request']
-            context = RequestContext(request, {"table": table})
-            if self.template:
-                template = self.template.resolve(context)
-            else:
-                template = table.template
-            if isinstance(template, basestring):
-                template = get_template(template)
-            else:
-                # assume some iterable was given
-                template = select_template(template)
-            try:
-                table.request = request  # HACK! :(
-                return template.render(context)
-            finally:
-                del table.request
-        except:
-            if settings.DEBUG:
-                raise
-            else:
-                return settings.TEMPLATE_STRING_IF_INVALID
-
+            table.request = request  # HACK! :(
+            return template.render(context)
+        finally:
+            del table.request
 
 @register.tag
 def render_table(parser, token):

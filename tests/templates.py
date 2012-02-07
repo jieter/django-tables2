@@ -128,9 +128,10 @@ def render_table_templatetag():
         settings.DEBUG = True
         template.render(Context())
 
-    # Should be silent with debug off
-    settings.DEBUG = False
-    template.render(Context())
+    # Should still be noisy with debug off
+    with Assert.raises(ValueError):
+        settings.DEBUG = False
+        template.render(Context())
 
 
 @templates.test

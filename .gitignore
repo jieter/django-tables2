@@ -1,6 +1,7 @@
 *.pyc
 /.env
 /reports
+/*.sublime-*
 /*.komodoproject
 /*.tmproj
 /*.egg-info/

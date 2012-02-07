@@ -70,6 +70,13 @@ globally, use::
 Change log
 ==========
 
+v0.8.2
+------
+
+- `SingleTableView` now inherits from `ListView` which enables automatic
+  `foo_list.html` template name resolution (thanks dramon for reporting)
+- `render_table` template tag no suppresses exceptions when `DEBUG=True`
+
 v0.8.1
 ------
 
