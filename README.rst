@@ -70,6 +70,12 @@ globally, use::
 Change log
 ==========
 
+v0.8.3
+------
+
+- Fixed stupid import mistake. Tests didn't pick it up due to them ignoring
+  `ImportError`.
+
 v0.8.2
 ------
 
