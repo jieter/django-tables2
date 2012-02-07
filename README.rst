@@ -70,6 +70,14 @@ globally, use::
 Change log
 ==========
 
+v0.8.4
+------
+
+- Removed random 'print' statements.
+- Tweaked 'paleblue' theme css to be more flexible
+  - removed `whitespace: no-wrap`
+  - header background image to support more than 2 rows of text
+
 v0.8.3
 ------
 

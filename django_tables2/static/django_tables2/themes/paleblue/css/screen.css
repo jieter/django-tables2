@@ -6,7 +6,7 @@ table.paleblue {
 
 table.paleblue,
 table.paleblue +  ul.pagination {
-    font: normal 11px/14px 'Lucida Grande', Verdana, Arial, sans-serif;
+    font: normal 11px/14px 'Lucida Grande', Helvetica, Verdana, Arial, sans-serif;
 }
 
 table.paleblue a:link,
@@ -37,12 +37,11 @@ table.paleblue thead td:first-child {
 
 table.paleblue thead th,
 table.paleblue thead td {
-    background: #FCFCFC url(../img/header-bg.gif) top left repeat-x;
+    background: #FCFCFC url(../img/header-bg.png) left bottom repeat-x;
     border-bottom: 1px solid #DDD;
     padding: 2px 5px;
     font-size: 11px;
     vertical-align: middle;
-    white-space: nowrap;
     color: #666;
 }
 
