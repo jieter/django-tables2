@@ -11,10 +11,10 @@
         {% for column in table.columns %}
         {% if column.sortable %}
             {% with column.order_by as ob %}
-            <th class="{% spaceless %}{% if column.sortable %}sortable {% endif %}{% if ob %}{% if ob.is_descending %}desc{% else %}asc{% endif %}{% endif %}{% endspaceless %}"><a href="{% querystring table.prefixed_order_by_field=ob.opposite|default:column.name %}">{{ column.header }}</a></th>
+            <th{% if column.header_attrs %} {{ column.header_attrs.as_html }}{% endif %}><a href="{% querystring table.prefixed_order_by_field=ob.opposite|default:column.name %}">{{ column.header }}</a></th>
             {% endwith %}
         {% else %}
-            <th>{{ column.header }}</th>
+            <th{% if column.header_attrs %} {{ column.header_attrs.as_html }}{% endif %}>{{ column.header }}</th>
         {% endif %}
         {% endfor %}
         </tr>
@@ -25,8 +25,8 @@
         {% for row in table.page.object_list|default:table.rows %} {# support pagination #}
         {% block table.tbody.row %}
         <tr class="{% cycle "odd" "even" %}">
-            {% for cell in row %}
-                <td>{{ cell }}</td>
+            {% for column, value in row.items %}
+                <td{% if column.attrs %} {{ column.attrs.as_html }}{% endif %}>{{ value }}</td>
             {% endfor %}
         </tr>
         {% endblock table.tbody.row %}

@@ -49,12 +49,16 @@ class Column(object):
     :type sortable: :class:`bool`
     :param sortable: If :const:`False`, this column will not be allowed to
         influence row ordering/sorting.
+
+    :type col_attrs: :class:`dict`
+    :param col_attrs: HTML attributes applied to the ``<td>`` or ``<th>`` tag
+        for this column
     """
     #: Tracks each time a Column instance is created. Used to retain order.
     creation_counter = 0
 
     def __init__(self, verbose_name=None, accessor=None, default=None,
-                 visible=True, sortable=None):
+                 visible=True, sortable=None, col_attrs=None):
         if not (accessor is None or isinstance(accessor, basestring) or
                 callable(accessor)):
             raise TypeError(u'accessor must be a string or callable, not %s' %
@@ -67,6 +71,7 @@ class Column(object):
         self.sortable = sortable
         self.verbose_name = verbose_name
         self.visible = visible
+        self._col_attrs = col_attrs or {}
 
         self.creation_counter = Column.creation_counter
         Column.creation_counter += 1
@@ -98,6 +103,13 @@ class Column(object):
             return something useful.
         """
         return self.verbose_name
+
+    @property
+    def col_attrs(self):
+        """
+        The attributes applied to the ``<td>`` and ``<th>`` tag for this column
+        """
+        return AttributeDict(self._col_attrs)
 
     def render(self, value):
         """
@@ -397,6 +409,28 @@ class BoundColumn(object):
         if self.column.sortable is not None:
             return self.column.sortable
         return self.table.sortable
+
+    @property
+    def attrs(self):
+        """
+        Return the HTML column attributes used in the ``<td>`` tag
+        """
+        return self.column.col_attrs
+
+    @property
+    def header_attrs(self):
+        """
+        Return the HTML column attributes used in the ``<th>`` tag
+        """
+        attrs = AttributeDict(self.column.col_attrs.copy())
+        if self.sortable:
+            attrs['class'] = 'sortable %s' %attrs.get('class', '')
+
+            if self.order_by and self.order_by.is_descending:
+                attrs['class'] = 'desc %s' %attrs.get('class', '')
+            elif self.order_by and self.order_by.is_ascending:
+                attrs['class'] = 'asc %s' %attrs.get('class', '')
+        return attrs
 
     @property
     def table(self):

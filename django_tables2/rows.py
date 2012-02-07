@@ -99,6 +99,13 @@ class BoundRow(object):
             # is correct – it's what __getitem__ expects.
             yield self[column.name]
 
+    def items(self):
+        """
+        Iterate over the key value pairs of column/value
+        """
+        for column in self.table.columns:
+            yield column, self[column.name]
+
     def __getitem__(self, name):
         """
         Returns the final rendered value for a cell in the row, given the name
