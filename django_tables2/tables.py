@@ -371,7 +371,11 @@ class Table(StrAndUnicode):
             try:
                 return self.paginator.page(self._page_number)
             except:
-                raise Http404(sys.exc_info()[1])
+                import settings
+                if settings.DEBUG:
+                    raise
+                else:
+                    raise Http404(sys.exc_info()[1])
 
     @property
     def per_page_field(self):
