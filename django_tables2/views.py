@@ -24,6 +24,7 @@ class SingleTableMixin(object):
     """
     table_class = None
     table_data = None
+    per_page = 25
     context_table_name = None
 
     def get_table(self):
@@ -34,7 +35,8 @@ class SingleTableMixin(object):
         table_class = self.get_table_class()
         table = table_class(self.get_table_data(),
                             order_by=self.request.GET.get("sort"))
-        table.paginate(page=self.request.GET.get("page", 1))
+        table.paginate(page=self.request.GET.get("page", 1),
+                       per_page=self.request.GET.get("per_page", self.per_page))
         return table
 
     def get_table_class(self):
