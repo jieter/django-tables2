@@ -70,6 +70,11 @@ globally, use::
 Change log
 ==========
 
+v0.9.1
+------
+
+- Fix version in setup.py (doh)
+
 v0.9.0
 ------
 
