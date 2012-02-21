@@ -590,7 +590,8 @@ class BoundColumns(object):
             for column in self.iterall():
                 if column.name == index:
                     return column
-            raise KeyError("Column with name '%s' does not exist." % index)
+            raise KeyError(("Column with name '%s' does not exist; " +
+                "valid values are: %s") % (index, [c.name for c in self.iterall()]))
         else:
             raise TypeError(u'row indices must be integers or str, not %s'
                             % index.__class__.__name__)
