@@ -7,7 +7,7 @@ from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.template import RequestContext, Context, Template
 from django.db.models.fields import FieldDoesNotExist
-from .utils import A, AttributeDict, OrderBy, Sequence
+from .utils import A, AttributeDict, Attrs, OrderBy, Sequence
 from itertools import ifilter, islice
 
 
@@ -19,42 +19,50 @@ class Column(object):
     fall within it) are rendered.
 
     :param verbose_name: A human readable version of the column name.
-        Typically this is used in the header cells in the HTML output. (But if
-        you're writing your own template, use ``.header`` rather than
-        ``.verbose_name``)
+                         Typically this is used in the header cells in the HTML
+                         output. (But if you're writing your own template, use
+                         ``.header`` rather than ``.verbose_name``)
+    :type  verbose_name: ``unicode``
+    :type      accessor: :class:`basestring` or :class:`~.utils.Accessor`
+    :param     accessor: An accessor that describes how to extract values for
+                         this column from the :term:`table data`.
+    :parameter  default: The default value for the column. This can be a value
+                         or a callable object [1]_. If an object in the data
+                         provides :const:`None` for a column, the default will
+                         be used instead.
 
-    :type accessor: :class:`basestring` or :class:`~.utils.Accessor`
-    :param accessor: An accessor that describes how to extract values for this
-        column from the :term:`table data`.
+                         The default value may affect ordering, depending on
+                         the type of data the table is using. The only case
+                         where ordering is not affected is when a
+                         :class:`QuerySet` is used as the table data (since
+                         sorting is performed by the database).
 
-    :param default: The default value for the column. This can be a value or a
-        callable object [1]_. If an object in the data provides :const:`None`
-        for a column, the default will be used instead.
+                         .. [1] The provided callable object must not expect to
+                                receive any arguments.
+    :type      visible: :class:`bool`
+    :param     visible: If :const:`False`, this column will not be in HTML from
+                        output generators (e.g. :meth:`as_html` or
+                        ``{% render_table %}``).
 
-        The default value may affect ordering, depending on the type of
-        data the table is using. The only case where ordering is not
-        affected ing when a :class:`QuerySet` is used as the table data
-        (since sorting is performed by the database).
+                        When a field is not visible, it is removed from the
+                        table's :attr:`~Column.columns` iterable.
+    :type     sortable: :class:`bool`
+    :param    sortable: If :const:`False`, this column will not be allowed to
+                        influence row ordering/sorting.
+    :type        attrs: :class:`Attrs` object
+    :param       attrs: HTML attributes to be added to components in the column
 
-        .. [1] The provided callable object must not expect to receive any
-           arguments.
+    Supported ``Attrs`` keys are:
 
-    :type visible: :class:`bool`
-    :param visible: If :const:`False`, this column will not be in HTML from
-        output generators (e.g. :meth:`as_html` or ``{% render_table %}``).
-
-        When a field is not visible, it is removed from the table's
-        :attr:`~Column.columns` iterable.
-
-    :type sortable: :class:`bool`
-    :param sortable: If :const:`False`, this column will not be allowed to
-        influence row ordering/sorting.
+    - *th* -- ``<th>`` element in header
+    - *td* -- ``<td>`` element in body
+    - *cell* -- fall back for ``<th>`` and ``<td>`` should they not be specified
     """
     #: Tracks each time a Column instance is created. Used to retain order.
     creation_counter = 0
 
     def __init__(self, verbose_name=None, accessor=None, default=None,
-                 visible=True, sortable=None):
+                 visible=True, sortable=None, attrs=None):
         if not (accessor is None or isinstance(accessor, basestring) or
                 callable(accessor)):
             raise TypeError(u'accessor must be a string or callable, not %s' %
@@ -67,6 +75,10 @@ class Column(object):
         self.sortable = sortable
         self.verbose_name = verbose_name
         self.visible = visible
+        attrs = attrs or {}
+        if not isinstance(attrs, Attrs):
+            attrs = Attrs(attrs)
+        self.attrs = attrs
 
         self.creation_counter = Column.creation_counter
         Column.creation_counter += 1
@@ -123,45 +135,59 @@ class CheckBoxColumn(Column):
 
     This class implements some sensible defaults:
 
-    - The ``name`` attribute of the input is the name of the :term:`column
-      name` (can be overriden via ``attrs`` argument).
+    - The ``name`` attribute of the input is the :term:`column name` (can
+      override via ``attrs`` argument).
     - The ``sortable`` parameter defaults to :const:`False`.
-    - The ``type`` attribute of the input is ``checkbox`` (can be overriden via
-      ``attrs`` argument).
-    - The header checkbox is left bare, i.e. ``<input type="checkbox"/>`` (use
-      the ``header_attrs`` argument to customise).
 
-    .. note:: The "apply some operation onto the selection" functionality is
-        not implemented in this column, and requires manually implemention.
+    .. note::
 
-    :param attrs:
-        a :class:`dict` of HTML attributes that are added to the rendered
-        ``<input type="checkbox" .../>`` tag
-    :param header_attrs:
-        same as *attrs*, but applied **only** to the header checkbox
+        You'd expect that you could select multiple checkboxes in the rendered
+        table and then *do something* with that. This functionality isn't
+        implemented. If you want something to actually happen, you'll need to
+        implement that yourself.
+
+    In addition to ``Attrs`` keys supported by ``Column``, the following are
+    available:
+
+    - *input*     -- ``<input>`` elements in both ``<td>`` and ``<th>``.
+    - *th__input* -- If defined: used *instead of* ``input`` in table header.
+    - *td__input* -- If defined: used *instead of* ``input`` in table body.
     """
-    def __init__(self, attrs=None, header_attrs=None, **extra):
-        params = {'sortable': False}
-        params.update(extra)
-        super(CheckBoxColumn, self).__init__(**params)
-        self.attrs = attrs or {}
-        self.header_attrs = header_attrs or {}
+    def __init__(self, attrs=None, **extra):
+        header_attrs = extra.pop('header_attrs', None)
+        # For backwards compatibility, passing in a normal dict effectively
+        # should assign attributes to the `<input>` tag.
+        attrs = attrs or Attrs()
+        if not isinstance(attrs, Attrs):
+            attrs = Attrs(td__input=attrs)
+        # This is done for backwards compatible too, there used to be a
+        # ``header_attrs`` argument, but this has been deprecated. We'll
+        # maintain it for a while by translating it into ``head.checkbox``.
+        if header_attrs:
+            attrs.setdefault('th__input', header_attrs)
+
+        kwargs = {'sortable': False, 'attrs': attrs}
+        kwargs.update(extra)
+        super(CheckBoxColumn, self).__init__(**kwargs)
+
 
     @property
     def header(self):
-        attrs = AttributeDict({
-            'type': 'checkbox',
-        })
-        attrs.update(self.header_attrs)
+        default = {'type': 'checkbox'}
+        general = self.attrs.get('input')
+        specific = self.attrs.get('th__input')
+        attrs = AttributeDict(default, **(specific or general or {}))
         return mark_safe(u'<input %s/>' % attrs.as_html())
 
     def render(self, value, bound_column):
-        attrs = AttributeDict({
+        default = {
             'type': 'checkbox',
             'name': bound_column.name,
             'value': value
-        })
-        attrs.update(self.attrs)
+        }
+        general = self.attrs.get('input')
+        specific = self.attrs.get('td__input')
+        attrs = AttributeDict(default, **(specific or general or {}))
         return mark_safe(u'<input %s/>' % attrs.as_html())
 
 
@@ -177,15 +203,13 @@ class LinkColumn(Column):
     described. The last argument ``attrs`` allows custom HTML attributes to
     be added to the ``<a>`` tag.
 
-    :param viewname: See :func:`django.core.urlresolvers.reverse`.
-    :param urlconf: See :func:`django.core.urlresolvers.reverse`.
-    :param args: See :func:`django.core.urlresolvers.reverse`. **
-    :param kwargs: See :func:`django.core.urlresolvers.reverse`. **
+    :param    viewname: See :func:`django.core.urlresolvers.reverse`.
+    :param     urlconf: See :func:`django.core.urlresolvers.reverse`.
+    :param        args: See :func:`django.core.urlresolvers.reverse`. **
+    :param      kwargs: See :func:`django.core.urlresolvers.reverse`. **
     :param current_app: See :func:`django.core.urlresolvers.reverse`.
-
-    :param attrs:
-        a :class:`dict` of HTML attributes that are added to the rendered
-        ``<input type="checkbox" .../>`` tag
+    :param       attrs: a :class:`dict` of HTML attributes that are added to
+                        the rendered ``<input type="checkbox" .../>`` tag
 
     ** In order to create a link to a URL that relies on information in the
     current row, :class:`.Accessor` objects can be used in the ``args`` or
@@ -210,16 +234,25 @@ class LinkColumn(Column):
 
         class PeopleTable(tables.Table):
             name = tables.LinkColumn('people_detail', args=[A('pk')])
+
+    In addition to ``Attrs`` keys supported by ``Column``, the following are
+    available:
+
+    - *a* -- ``<a>`` elements in ``<td>``.
     """
     def __init__(self, viewname, urlconf=None, args=None, kwargs=None,
                  current_app=None, attrs=None, **extra):
+        # backwards compatible translation for naive attrs value
+        attrs = attrs or Attrs()
+        if not isinstance(attrs, Attrs):
+            attrs = Attrs(a=attrs)
+        extra['attrs'] = attrs
         super(LinkColumn, self).__init__(**extra)
         self.viewname = viewname
         self.urlconf = urlconf
         self.args = args
         self.kwargs = kwargs
         self.current_app = current_app
-        self.attrs = attrs or {}
 
     def render(self, value, record, bound_column):
         # Remember that value is actually what would have normally been put
@@ -259,7 +292,7 @@ class LinkColumn(Column):
                                      else self.current_app)
         html = u'<a href="{url}" {attrs}>{value}</a>'.format(
             url=reverse(**params),
-            attrs=AttributeDict(self.attrs).as_html(),
+            attrs=AttributeDict(self.attrs.get('a', {})).as_html(),
             value=escape(value)
         )
         return mark_safe(html)
@@ -317,22 +350,19 @@ class BoundColumn(object):
     For convenience, all :class:`.Column` properties are available from this
     class.
 
-    :type table: :class:`.Table` object
-    :param table: the table in which this column exists
-
-    :type column: :class:`.Column` object
+    :type   table: :class:`.Table` object
+    :param  table: the table in which this column exists
+    :type  column: :class:`.Column` object
     :param column: the type of column
+    :type    name: ``basestring`` object
+    :param   name: the variable name of the column used to when defining the
+                   :class:`.Table`. In this example the name is ``age``:
 
-    :type name: ``basestring`` object
-    :param name: the variable name of the column used to when defining the
-        :class:`.Table`. Example:
+                       .. code-block:: python
 
-        .. code-block:: python
+                           class SimpleTable(tables.Table):
+                               age = tables.Column()
 
-            class SimpleTable(tables.Table):
-                age = tables.Column()
-
-        ``age`` is the name.
     """
     def __init__(self, table, column, name):
         self._table = table
@@ -349,6 +379,39 @@ class BoundColumn(object):
         source.
         """
         return self.column.accessor or A(self.name)
+
+    @property
+    def attrs(self):
+        """
+        Proxy to ``Column.attrs`` but injects some values of our own.
+
+        A ``th`` and ``td`` are guaranteed to be defined (irrespective of
+        what's actually defined in the column attrs. This makes writing
+        templates easier.
+        """
+        # Work on a copy of the Attrs object since we're tweaking stuff
+        attrs = dict(self.column.attrs)
+
+        # Find the relevant th attributes (fall back to cell if th isn't
+        # explicitly specified).
+        attrs["td"] = td = AttributeDict(attrs.get('td', attrs.get('cell', {})))
+        attrs["th"] = th = AttributeDict(attrs.get("th", attrs.get("cell", {})))
+        # make set of existing classes.
+        th_class = set((c for c in th.get("class", "").split(" ") if c))
+        td_class = set((c for c in td.get("class", "").split(" ") if c))
+        # add classes for ordering
+        if self.column.sortable:
+            th_class.add("sortable")
+        order_by = self.order_by
+        if order_by:
+            th_class.add("desc" if order_by.is_descending else "asc")
+        # Always add the column name as a class
+        th_class.add(self.name)
+        td_class.add(self.name)
+        if th_class: th['class'] = " ".join(th_class)
+        if td_class: td['class'] = " ".join(td_class)
+        print 'td =', td
+        return attrs
 
     @property
     def column(self):
@@ -397,6 +460,7 @@ class BoundColumn(object):
         if self.column.sortable is not None:
             return self.column.sortable
         return self.table.sortable
+
 
     @property
     def table(self):
@@ -469,7 +533,7 @@ class BoundColumns(object):
     At the moment you'll only come across this class when you access a
     :attr:`.Table.columns` property.
 
-    :type table: :class:`.Table` object
+    :type  table: :class:`.Table` object
     :param table: the table containing the columns
     """
     def __init__(self, table):

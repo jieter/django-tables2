@@ -1,5 +1,6 @@
 {% spaceless %}
-{% load django_tables2 i18n %}
+{% load querystring from django_tables2 %}
+{% load trans blocktrans from i18n %}
 {% if table.page %}
 <div class="table-container">
 {% endif %}
@@ -7,15 +8,9 @@
 <table{% if table.attrs %} {{ table.attrs.as_html }}{% endif %}>
     {% block table.thead %}
     <thead>
-        <tr class="{% cycle "odd" "even" %}">
+        <tr>
         {% for column in table.columns %}
-        {% if column.sortable %}
-            {% with column.order_by as ob %}
-            <th class="{% spaceless %}{% if column.sortable %}sortable {% endif %}{% if ob %}{% if ob.is_descending %}desc{% else %}asc{% endif %}{% endif %}{% endspaceless %}"><a href="{% querystring table.prefixed_order_by_field=ob.opposite|default:column.name %}">{{ column.header }}</a></th>
-            {% endwith %}
-        {% else %}
-            <th>{{ column.header }}</th>
-        {% endif %}
+            <th {{ column.attrs.th.as_html }}><a href="{% querystring table.prefixed_order_by_field=column.order_by.opposite|default:column.name %}">{{ column.header }}</a></th>
         {% endfor %}
         </tr>
     </thead>
@@ -25,8 +20,8 @@
         {% for row in table.page.object_list|default:table.rows %} {# support pagination #}
         {% block table.tbody.row %}
         <tr class="{% cycle "odd" "even" %}">
-            {% for cell in row %}
-                <td>{{ cell }}</td>
+            {% for column, cell in row.items %}
+                <td {{ column.attrs.td.as_html }}>{{ cell }}</td>
             {% endfor %}
         </tr>
         {% endblock table.tbody.row %}

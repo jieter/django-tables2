@@ -4,31 +4,28 @@
 django-tables2 - An app for creating HTML tables
 ================================================
 
-django-tables2 simplifies the task of turning sets of datainto HTML tables. It
-has native support for pagination and sorting. It does for HTML tables what
-``django.forms`` does for HTML forms.
+django-tables2 simplifies transforming data into HTML tables. It does for HTML
+tables what ``django.forms`` does for HTML forms. Features:
 
-Quick start guide
-=================
-
-1. Download and install from https://github.com/bradleyayers/django-tables2.
-   Grab a ``.tar.gz`` of the latest tag, and run ``pip install <tar.gz>``.
-2. Hook the app into your Django project by adding ``'django_tables2'`` to your
-   ``INSTALLED_APPS`` setting.
-3. Write a subclass of :class:`~django_tables2.tables.Table` that describes the
-   structure of your table.
-4. Create an instance of your table in a :term:`view`, provide it with
-   :term:`table data`, and pass it to a :term:`template` for display.
-5. Use ``{{ table.as_html }}``, the
-   :ref:`template tag <template-tags.render_table>`, or your own
-   :ref:`custom template <custom-template>` to display the table.
+- Pagination
+- Column sorting
+- Built-in columns for common use-cases
+- Easily extendable via subclassing
+- Extendable template
+- Generic view
+- QuerySet support
+- Built-in Django admin style theme (but can be easily remove).
+- *ModelTable* support (think *django.forms.ModelForm*)
 
 
-Slow start guide
-================
+Tutorial
+========
 
-We're going to take some data that describes three countries and
-turn it into an HTML table. This is the data we'll be using:
+Install the app via ``pip install django-tables2``, then add
+``'django_tables2'`` to ``INSTALLED_APPS``.
+
+Find some data that you'd like to render as a table. A QuerySet will work, but
+ease of demonstration we'll use a list of dicts:
 
 .. code-block:: python
 
@@ -39,9 +36,7 @@ turn it into an HTML table. This is the data we'll be using:
     ]
 
 
-The first step is to subclass :class:`~django_tables2.tables.Table` and describe
-the table structure. This is done by creating a column for each attribute in
-the :term:`table data`.
+First step is it write a Table class to describe the structure:
 
 .. code-block:: python
 
@@ -53,16 +48,7 @@ the :term:`table data`.
         tz = tables.Column(verbose_name='Time Zone')
         visits = tables.Column()
 
-
-Now that we've defined our table, it's ready for use. We simply create an
-instance of it, and pass in our table data.
-
-.. code-block:: python
-
-    table = CountryTable(countries)
-
-Now we add it to our template context and render it to HTML. Typically you'd
-write a view that would look something like:
+Now instantiate the table and pass in the data, then pass it to a template:
 
 .. code-block:: python
 
@@ -71,14 +57,14 @@ write a view that would look something like:
         return render_to_response('home.html', {'table': table},
                                   context_instance=RequestContext(request))
 
-In your template, the easiest way to :term:`render` the table is via the
-:meth:`.Table.as_html` method:
+Render the table in the template using the built-in template tag.
 
 .. code-block:: django
 
-    {{ table.as_html }}
+    {% load render_table from django_tables2 %}
+    {% render_table table %}
 
-…which will render something like:
+…which will give you somethinglike:
 
 +--------------+------------+-----------+--------+
 | Country Name | Population | Time Zone | Visit  |
@@ -90,34 +76,24 @@ In your template, the easiest way to :term:`render` the table is via the
 | Mexico       | 107        | UTC -6    | 0      |
 +--------------+------------+-----------+--------+
 
-This approach is easy, but it has a major problem in that it clobbers
-(overwrites) any existing querystring values when pagination or
-sorting are used. For these reasons you should use the :ref:`template tag
-<template-tags.render_table>` instead:
-
-.. code-block:: django
-
-    {% load django_tables2 %}
-    {% render_table table %}
-
 .. note::
 
     ``{% render_table %}`` requires that the ``TEMPLATE_CONTEXT_PROCESSORS``
     setting contains ``"django.core.context_processors.request"``. See
     :ref:`template-tags.render_table` for details.
 
-This is all that's required for the template, but in the view you'll need to
-tell the table to which column to order by, and which page of data to display
-(pagination). This is achieved as follows:
+To enable sorting and pagination, use a ``RequestConfig`` object in the view:
 
 .. code-block:: python
 
+    from django_tables2 import RequestConfig
+
     def home(request):
-        countries = Country.objects.all()
-        table = CountryTable(countries, order_by=request.GET.get('sort'))
-        table.paginate(page=request.GET.get('page', 1))
+        table = CountryTable(countries)
+        RequestConfig(request).configure(table)
         return render_to_response('home.html', {'table': table},
                                   context_instance=RequestContext(request))
+
 
 See :ref:`ordering`, and :ref:`pagination` for more information.
 
@@ -156,11 +132,6 @@ Table data
 The data used to populate a table is called :term:`table data`. To provide a
 table with data, pass it in as the first argument when instantiating a table.
 
-.. code-block:: python
-
-    table = CountryTable(countries)              # valid
-    table = CountryTable(Country.objects.all())  # also valid
-
 Each item in the :term:`table data` is called a :term:`record` and is used to
 populate a single row in the table. By default, the table uses column names
 as :term:`accessors <accessor>` to retrieve individual cell values. This can
@@ -179,106 +150,57 @@ Ordering
 
     If you want to change the order in which columns are displayed, see
     :attr:`Table.Meta.sequence`. Alternatively if you're interested in the
-    order of records within the table, read on.
+    ordering of records within the table, read on.
 
 Changing the way records in a table are ordered is easy and can be controlled
-via the :attr:`.Table.Meta.order_by` option. The following examples all achieve
-the same thing:
+via the ``order_by`` option. This can be configured in three places:
 
-.. code-block:: python
+1. ``Table.Meta.order_by``
+2. ``Table(..., order_by=...)``
+3. ``Table(...).order_by = ...``
 
-    class SimpleTable(tables.Table):
-        name = tables.Column()
+Each of the above options takes prescendent over the previous.
 
-        class Meta:
-            order_by = 'name'
+The value must be either a comma separated string of column names, or a list of
+column names. Generally you'll only use a single column name, but multiple are
+supported to allow for multi-fallback-column ordering.
 
-By passing in a value for ``order_by`` into the ``Table`` constructor, the
-``Meta.order_by`` option can be overridden on a per-instance basis.
+Ordering preference is passed via the querystring in a variable. The name of
+the variable is determined by ``order_by_field`` (default: ``sort``). This can
+be configured in three places:
 
-.. code-block:: python
+1. ``Table.Meta.order_by_field``
+2. ``Table(..., order_by_field=...)``
+3. ``Table(...).order_by_field = ...``
 
-    class SimpleTable(tables.Table):
-        name = tables.Column()
-
-    table = SimpleTable(..., order_by='name')
-
-This approach allows column sorting to be enabled for use with the ``{%
-render_table %}`` template tag. The template tag converts column headers into
-hyperlinks that add the querystring field ``sort`` to the current URL. This
-means your view will need to look something like:
-
-.. code-block:: python
-
-    def home(request):
-        countries = Country.objects.all()
-        table = CountryTable(countries, order_by=request.GET.get('sort'))
-        return render_to_response('home.html', {'table': table},
-                                  context_instance=RequestContext(request))
-
-See :ref:`query-string-fields` for more details.
-
-The final approach allows both of the previous approaches to be overridden. The
-instance property ``order_by`` can be
-
-.. code-block:: python
-
-    class SimpleTable(tables.Table):
-        name = tables.Column()
-
-    table = SimpleTable(...)
-    table.order_by = 'name'
+``RequestConfig`` honors these values and *does the right thing*.
 
 ----
 
-By default all table columns support sorting. This means that if you're using
-the :ref:`template tag <template-tags.render_table>` to render the table,
-users can sort the table based on any column by clicking the corresponding
-header link.
+By default all table columns support ordering. This means that all the column
+headers are rendered as links which allow the user to adjust the ordering of
+the table data.
 
-In some cases this may not be appropriate. For example you may have a column
-which displays data that isn't in the dataset:
+Ordering can be disabled on a table or column basis.
+
+- ``Table.Meta.sortable = False`` -- default to disable ordering on columns
+- ``Column(sortable=False)`` -- disable ordering for specific column
+
+e.g. disable columns on all but one:
 
 .. code-block:: python
 
     class SimpleTable(tables.Table):
         name = tables.Column()
-        lucky_rating = tables.Column()
+        rating = tables.Column(sortable=True)
 
         class Meta:
             sortable = False
 
-        def render_lucky_rating(self):
-            import random
-            return random.randint(1, 10)
+.. note::
 
-In these types of scenarios, it's simply not possible to sort the table based
-on column data that isn't in the dataset. The solution is to disable sorting
-for these columns.
-
-Sorting can be disabled on a column, table, or table instance basis via the
-:attr:`.Table.Meta.sortable` option.
-
-To disable sorting by default for all columns:
-
-.. code-block:: python
-
-    class SimpleTable(tables.Table):
-        name = tables.Column()
-
-        class Meta:
-            sortable = False
-
-To disable sorting for a specific table instance:
-
-.. code-block:: python
-
-    class SimpleTable(tables.Table):
-        name = tables.Column()
-
-    table = SimpleTable(..., sortable=False)
-    # or
-    table.sortable = False
+    It's very unfortunate that the option is called ``sortable`` as opposed to
+    ``orderable``. Expect this to change in the future.
 
 Where the table is :ref:`backed by a model <tables-for-models>`, the database
 will handle the sorting. Where this is not the case, the Python ``cmp``
@@ -302,12 +224,11 @@ Column headers
 
 The header cell for each column comes from the column's
 :meth:`~django_tables2.columns.BoundColumn.header` method. By default this
-method returns the column's ``verbose_name``, which is either explicitly
-specified, or generated automatically based on the column name.
+method returns a titlised version of the column's ``verbose_name``.
 
-When using queryset input data, rather than falling back to the column name if
-a ``verbose_name`` has not been specified explicitly, the queryset model's
-field ``verbose_name`` is used.
+When using queryset input data and a verbose name hasn't been explicitly
+defined for a column, the corresponding model field's verbose name will be
+used.
 
 Consider the following:
 
@@ -325,125 +246,16 @@ Consider the following:
     ...     region_name = tables.Column(accessor='region.name')
     ...
     >>> table = PersonTable(Person.objects.all())
-    >>> table.columns['first_name'].verbose_name
-    u'FIRST name'
-    >>> table.columns['ln'].verbose_name
+    >>> table.columns['first_name'].header
+    u'FIRST Name'
+    >>> table.columns['ln'].header
     u'Last name'
-    >>> table.columns['region_name'].verbose_name
+    >>> table.columns['region_name'].header
     u'Name'
 
 As you can see in the last example, the results are not always desirable when
 an accessor is used to cross relationships. To get around this be careful to
 define a ``verbose_name`` on such columns.
-
-
-.. _query-string-fields:
-
-Querystring fields
-==================
-
-The table from ``{% render_table %}`` supports sortable columns, and
-pagination. These options are passed via the querystring, and must be passed to
-the table in order for them to have an effect, e.g.
-
-.. code-block:: python
-
-    def people_listing(request):
-        table = PeopleTable(Person.objects.all())
-        table.paginate(page=request.GET.get("page", 1))
-        table.order_by = request.GET.get("sort")
-        return render_to_response("people_listing.html", {"table": table},
-                                  context_instance=RequestContext(request))
-
-This works well unless you have more than one table on a page. In that
-scenarios, all the tables will try to use the same ``sort`` and ``page``
-querystring fields.
-
-In following ``django.forms`` the solution, a prefix can be specified for each
-table:
-
-.. code-block:: python
-
-    def people_listing(request):
-        table1 = PeopleTable(Person.objects.all(), prefix="1-")  # prefix specified
-        table1.paginate(page=request.GET.get("1-page", 1))
-        table1.order_by = request.GET.get("1-sort")
-
-        table2 = PeopleTable(Person.objects.all(), prefix="2-")  # prefix specified
-        table2.paginate(page=request.GET.get("2-page", 1))
-        table2.order_by = request.GET.get("2-sort")
-
-        return render_to_response("people_listing.html",
-                                  {"table1": table1, "table2": table2},
-                                  context_instance=RequestContext(request))
-
-Taking this one step further, rather than just specifying a prefix, it's
-possible to specify the base name for each option. Suppose you don't like the
-name ``sort`` for the ordering option -- you could change it to ``ob``
-(initialism of *order by*). Such options are configured via the ``FOO_field``
-properties:
-
-- ``order_by_field``
-- ``page_field``
-- ``per_page_field`` -- **note:** this field currently isn't used by
-  ``{% render_table %}``
-
-Example:
-
-.. code-block:: python
-
-    def people_listing(request):
-        table = PeopleTable(Person.objects.all(), order_by_field="ob",
-                            page_field="p")
-        table.paginate(page=request.GET.get("p", 1))
-        table.order_by = request.GET.get("ob")
-        return render_to_response("people_listing.html", {"table": table},
-                                  context_instance=RequestContext(request))
-
-In following django-tables2 conventions, these options can be configured in
-different places:
-
-- ``Meta`` class in the table definition.
-- Table constructor.
-- Table instance property.
-
-For convenience there is a set of ``prefixed_FOO_field`` properties that exist
-on each table instance and return the final querystring field names (i.e.
-combines the prefix with the base name). This allows the above view to be
-re-written:
-
-.. code-block:: python
-
-    def people_listing(request):
-        table = PeopleTable(Person.objects.all(), order_by_field="ob",
-                            page_field="p")
-        table.paginate(page=request.GET.get(table.prefixed_page_field, 1))
-        table.order_by = request.GET.get(table.prefixed_order_by_field)
-        return render_to_response("people_listing.html", {"table": table},
-                                  context_instance=RequestContext(request))
-
-
-Config objects
-==============
-
-Config objects make it easier to configure a table. At the moment there's just
-one -- ``RequestConfig``. It takes a ``HttpRequest`` and is able to configure a
-table's sorting and pagination by extracting querystring data.
-
-The view from the previous section can be rewritten without the boilerplate:
-
-.. code-block:: python
-
-    from django_tables2 import RequestConfig
-
-    def people_listing(request):
-        table = PeopleTable(Person.objects.all(), order_by_field="ob",
-                            page_field="p")
-        RequestConfig(request).configure(table)
-        return render_to_response("people_listing.html", {"table": table},
-                                  context_instance=RequestContext(request))
-
-See :class:`.RequestConfig` for details.
 
 
 .. _pagination:
@@ -458,7 +270,18 @@ pass in the current page number, e.g.
 
     def people_listing(request):
         table = PeopleTable(Person.objects.all())
-        table.paginate(page=request.GET.get('page', 1))
+        table.paginate(page=request.GET.get('page', 1), per_page=25)
+        return render_to_response('people_listing.html', {'table': table},
+                                  context_instance=RequestContext(request))
+
+If you're using ``RequestConfig``, pass pagination options to ``configure()``,
+e.g.:
+
+.. code-block:: python
+
+    def people_listing(request):
+        table = PeopleTable(Person.objects.all())
+        RequestConfig(request).configure(table, paginate={"per_page": 25})
         return render_to_response('people_listing.html', {'table': table},
                                   context_instance=RequestContext(request))
 
@@ -548,6 +371,85 @@ arguments you're interested in, and the function will recieve them
     31
 
 
+.. _query-string-fields:
+
+Querystring fields
+==================
+
+Tables pass data via the querystring to indicate sorting and pagination
+preferences.
+
+The names of the querystring variables are configurable via the options:
+
+- ``order_by_field`` -- default: ``sort``
+- ``page_field`` -- default: ``page``
+- ``per_page_field`` -- default: ``per_page``, **note:** this field currently
+  isn't used by ``{% render_table %}``
+
+Each of these can be specified in three places:
+
+- ``Table.Meta.foo``
+- ``Table(..., foo=...)``
+- ``Table(...).foo = ...``
+
+If you're using multiple tables on a single page, you'll want to prefix these
+fields with a table-specific name. e.g.
+
+.. code-block:: python
+
+    def people_listing(request):
+        config = RequestConfig(request)
+        table1 = PeopleTable(Person.objects.all(), prefix="1-")  # prefix specified
+        table2 = PeopleTable(Person.objects.all(), prefix="2-")  # prefix specified
+        config.configure(table1)
+        config.configure(table2)
+        return render_to_response("people_listing.html",
+                                  {"table1": table1, "table2": table2},
+                                  context_instance=RequestContext(request))
+
+.. _column-attributes:
+
+Column attributes
+=================
+
+Column attributes can be specified using the :class:`.Attrs` object. An
+``Attrs`` object defines HTML tag attributes for one of more elements within
+the column. Depending on the column, different elements are supported, however
+``th`` and ``td`` are supported universally.
+
+e.g.
+
+.. code-block:: python
+
+    >>> from django_tables2 import Attrs
+    >>> import django_tables2 as tables
+    >>>
+    >>> class SimpleTable(tables.Table):
+    ...     name = tables.Column(attrs=Attrs(th={"id": "foo"}))
+    ...
+    >>> SimpleTable(data).as_html()
+    "{snip}<thead><tr><th id="foo" class="name">{snip}<tbody><tr><td class="name">{snip}"
+
+
+``th`` and ``td`` are special cases because they're extended during rendering
+to add the column name as a class. This is done to make writing CSS easier.
+Have a look at each column's API reference to find which elements are
+supported.
+
+
+.. _builtin-columns:
+
+Built-in columns
+================
+
+For common use-cases the following columns are included:
+
+- :class:`.Column` -- generic column
+- :class:`.CheckBoxColumn` -- renders checkbox form inputs
+- :class:`.LinkColumn` -- renders ``<a href="...">`` tags
+- :class:`.TemplateColumn` -- renders template code
+
+
 .. _subclassing-column:
 
 Subclassing :class:`Column`
@@ -618,62 +520,10 @@ Custom Template
 
 And of course if you want full control over the way the table is rendered,
 ignore the built-in generation tools, and instead pass an instance of your
-:class:`.Table` subclass into your own template, and render it yourself:
+:class:`.Table` subclass into your own template, and render it yourself.
 
-.. code-block:: django
-
-    {% spaceless %}
-    {% load django_tables2 %}
-    {% if table.page %}
-    <div class="table-container">
-    {% endif %}
-    <table{% if table.attrs %} {{ table.attrs.as_html }}{% endif %}>
-        <thead>
-            <tr class="{% cycle "odd" "even" %}">
-            {% for column in table.columns %}
-            {% if column.sortable %}
-                {% with column.order_by as ob %}
-                <th class="{% spaceless %}{% if column.sortable %}sortable {% endif %}{% if ob %}{% if ob.is_descending %}desc{% else %}asc{% endif %}{% endif %}{% endspaceless %}"><a href="{% if ob %}{% set_url_param sort=ob.opposite %}{% else %}{% set_url_param sort=column.name %}{% endif %}">{{ column.header }}</a></th>
-                {% endwith %}
-            {% else %}
-                <th>{{ column.header }}</th>
-            {% endif %}
-            {% endfor %}
-            </tr>
-        </thead>
-        <tbody>
-            {% for row in table.page.object_list|default:table.rows %} {# support pagination #}
-            <tr class="{% cycle "odd" "even" %}">
-                {% for cell in row %}
-                    <td>{{ cell }}</td>
-                {% endfor %}
-            </tr>
-            {% empty %}
-            {% if table.empty_text %}
-            <tr><td colspan="{{ table.columns|length }}">{{ table.empty_text }}</td></tr>
-            {% endif %}
-            {% endfor %}
-        </tbody>
-    </table>
-    {% if table.page %}
-    <ul class="pagination">
-        {% if table.page.has_previous %}
-        <li class="previous"><a href="{% set_url_param page=table.page.previous_page_number %}">Previous</a></li>
-        {% endif %}
-        <li class="current">Page {{ table.page.number }} of {{ table.paginator.num_pages }}</li>
-        {% if table.page.has_next %}
-        <li class="next"><a href="{% set_url_param page=table.page.next_page_number %}">Next</a></li>
-        {% endif %}
-    </ul>
-    </div>
-    {% endif %}
-    {% endspaceless %}
-
-.. note::
-
-    This is a complicated example, and is actually the template code that
-    ``{% render_table %}`` uses.
-
+Have a look at ``django_tables2/templates/django_tables2/table.html`` for an
+example.
 
 .. _template_tags:
 
@@ -727,52 +577,26 @@ and the setting itself is not even defined within your project's
     )
 
 
-.. _template-tags.set_url_param:
+.. _template-tags.querystring:
 
-set_url_param
--------------
+querystring
+-----------
 
-This template tag is a utility that allows you to update a portion of the
-query-string without overwriting the entire thing. However you shouldn't need
-to use this template tag unless you are rendering the table from scratch (i.e.
-not using ``as_html()`` or ``{% render_table %}``).
-
-This is very useful if you want the give your users the ability to interact
-with your table (e.g. change the ordering), because you will need to create
-urls with the appropriate queries.
+A utility that allows you to update a portion of the query-string without
+overwriting the entire thing.
 
 Let's assume we have the querystring ``?search=pirates&sort=name&page=5`` and
 we want to update the ``sort`` parameter:
 
 .. code-block:: django
 
-    {% set_url_param sort="dob" %}         # ?search=pirates&sort=dob&page=5
-    {% set_url_param sort="" %}            # ?search=pirates&page=5
-    {% set_url_param sort="" search="" %}  # ?page=5
+    {% querystring "sort"="dob" %}           # ?search=pirates&sort=dob&page=5
+    {% querystring "sort"="" %}              # ?search=pirates&page=5
+    {% querystring "sort"="" "search"="" %}  # ?page=5
 
-A table instance bound to data has two attributes ``columns`` and ``rows``,
-which can be iterated over:
-
-.. code-block:: django
-
-    <table>
-        <thead>
-            <tr>
-            {% for column in table.columns %}
-                <th><a href="?sort={{ column.name_toggled }}">{{ column }}</a></th>
-            {% endfor %}
-            </tr>
-        </thead>
-        <tbody>
-        {% for row in table.rows %}
-            <tr>
-            {% for value in row %}
-                <td>{{ value }}</td>
-            {% endfor %}
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+    {% with "search" as key %}               # supports variables as keys
+    {% querystring key="robots" %}           # ?search=robots&page=5
+    {% endwith %}
 
 
 Class Based Generic Mixins
@@ -818,7 +642,7 @@ The template could then be as simple as:
 
 .. code-block:: django
 
-    {% load django_tables2 %}
+    {% load render_table from django_tables2 %}
     {% render_table table %}
 
 Such little code is possible due to the example above taking advantage of
@@ -951,6 +775,12 @@ API Reference
 --------------------------
 
 .. autoclass:: django_tables2.utils.Accessor
+
+
+:class:`Attrs` Objects:
+--------------------------
+
+.. autoclass:: django_tables2.utils.Attrs
 
 
 :class:`RequestConfig` Objects:
@@ -1198,7 +1028,7 @@ API Reference
 -------------------------
 
 .. autoclass:: django_tables2.rows.BoundRow
-    :members: __getitem__, __contains__, __iter__, record, table
+    :members: __getitem__, __contains__, __iter__, record, table, items
 
 
 :class:`AttributeDict` Objects
@@ -1319,9 +1149,9 @@ Upgrading from django-tables Version 1
   .. code-block:: django
 
        {% if column.order_by %}
-            {% set_url_param sort=column.order_by.opposite %}
+            {% querystring table.order_by_field=column.order_by.opposite %}
        {% else %}
-            {% set_url_param sort=column.name %}
+            {% querystring table.order_by_field=column.name %}
        {% endif %}
 
   You might want to use ``{% spaceless %}`` to make it more readable.

@@ -1,16 +1,53 @@
 # -*- coding: utf-8 -*-
 """Test the core table functionality."""
 from attest import Tests, Assert
-from django_attest import TransactionTestContext
+from django_attest import TestContext
+import django_tables2 as tables
+from django_tables2 import utils, A, Attrs
 from django.test.client import RequestFactory
 from django.core.urlresolvers import reverse
 from django.template import Context, Template
 from django.core.exceptions import ImproperlyConfigured
-import django_tables2 as tables
-from django_tables2 import utils, A
-from .app.models import Person
 from django.utils.translation import ugettext_lazy
 from django.utils.translation import ugettext
+from itertools import chain
+from xml.etree import ElementTree as ET
+from .app.models import Person
+
+
+def attrs(xml):
+    """
+    Helper function that returns a dict of XML attributes, given an element.
+    """
+    return ET.fromstring(xml).attrib
+
+
+checkboxcolumn = Tests()
+
+
+@checkboxcolumn.test
+def attrs_should_be_translated_for_backwards_compatibility():
+    class TestTable(tables.Table):
+        col = tables.CheckBoxColumn(header_attrs={"th_key": "th_value"},
+                                    attrs={"td_key": "td_value"})
+
+    table = TestTable([{"col": "data"}])
+    assert attrs(table.columns["col"].header) == {"type": "checkbox", "th_key": "th_value"}
+    assert attrs(table.rows[0]["col"])        == {"type": "checkbox", "td_key": "td_value", "value": "data", "name": "col"}
+
+
+@checkboxcolumn.test
+def new_attrs_should_be_supported():
+    class TestTable(tables.Table):
+        col1 = tables.CheckBoxColumn(attrs=Attrs(th__input={"th_key": "th_value"},
+                                                 td__input={"td_key": "td_value"}))
+        col2 = tables.CheckBoxColumn(attrs=Attrs(input={"key": "value"}))
+
+    table = TestTable([{"col1": "data", "col2": "data"}])
+    assert attrs(table.columns["col1"].header) == {"type": "checkbox", "th_key": "th_value"}
+    assert attrs(table.rows[0]["col1"])        == {"type": "checkbox", "td_key": "td_value", "value": "data", "name": "col1"}
+    assert attrs(table.columns["col2"].header) == {"type": "checkbox", "key": "value"}
+    assert attrs(table.rows[0]["col2"])        == {"type": "checkbox", "key": "value", "value": "data", "name": "col2"}
 
 
 general = Tests()
@@ -148,12 +185,36 @@ def bound_columns_should_support_indexing():
         b = tables.Column()
 
     table = SimpleTable([])
-    Assert('b') == table.columns[1].name
-    Assert('b') == table.columns['b'].name
+    assert 'b' == table.columns[1].name
+    assert 'b' == table.columns['b'].name
+
+
+@general.test
+def cell_attrs_applies_to_td_and_th():
+    class SimpleTable(tables.Table):
+        a = tables.Column(attrs=Attrs(cell={"key": "value"}))
+
+    # providing data ensures 1 row is rendered
+    table = SimpleTable([{"a": "value"}])
+    root = ET.fromstring(table.as_html())
+    assert root.findall('.//thead/tr/th')[0].attrib == {"key": "value", "class": "a"}
+    print table.as_html()
+    assert root.findall('.//tbody/tr/td')[0].attrib == {"key": "value", "class": "a"}
+
+
+@general.test
+def cells_are_automatically_given_column_name_as_class():
+    class SimpleTable(tables.Table):
+        a = tables.Column()
+
+    table = SimpleTable([{"a": "value"}])
+    root = ET.fromstring(table.as_html())
+    assert root.findall('.//thead/tr/th')[0].attrib == {"class": "a"}
+    assert root.findall('.//tbody/tr/td')[0].attrib == {"class": "a"}
 
 
 linkcolumn = Tests()
-linkcolumn.context(TransactionTestContext())
+linkcolumn.context(TestContext())
 
 @linkcolumn.test
 def unicode():
@@ -181,9 +242,6 @@ def unicode():
 
 @linkcolumn.test
 def null_foreign_key():
-    """
-
-    """
     class PersonTable(tables.Table):
         first_name = tables.Column()
         last_name = tables.Column()
@@ -214,4 +272,26 @@ def html_escape_value():
     assert "<brad>" not in html
 
 
-columns = Tests([general, linkcolumn])
+@linkcolumn.test
+def old_style_attrs_should_still_work():
+    class TestTable(tables.Table):
+        col = tables.LinkColumn('occupation', kwargs={"pk": A('col')},
+                                attrs={"title": "Occupation Title"})
+
+    table = TestTable([{"col": 0}])
+    assert attrs(table.rows[0]["col"]) == {"href": reverse("occupation", kwargs={"pk": 0}),
+                                           "title": "Occupation Title"}
+
+
+@linkcolumn.test
+def a_attrs_should_be_supported():
+    class TestTable(tables.Table):
+        col = tables.LinkColumn('occupation', kwargs={"pk": A('col')},
+                                attrs=Attrs(a={"title": "Occupation Title"}))
+
+    table = TestTable([{"col": 0}])
+    assert attrs(table.rows[0]["col"]) == {"href": reverse("occupation", kwargs={"pk": 0}),
+                                           "title": "Occupation Title"}
+
+
+columns = Tests([checkboxcolumn, general, linkcolumn])

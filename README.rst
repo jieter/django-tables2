@@ -70,6 +70,14 @@ globally, use::
 Change log
 ==========
 
+v0.9.0
+------
+
+- Add support for column attributes (see Attrs)
+- Add BoundRows.items() to yield (bound_column, cell) pairs
+- Tried to make docs more concise. Much stronger promotion of using
+  RequestConfig and {% querystring %}
+
 v0.8.4
 ------
 

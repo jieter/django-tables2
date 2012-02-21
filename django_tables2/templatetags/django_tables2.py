@@ -37,7 +37,6 @@ def token_kwargs(bits, parser):
 
     - No legacy mode.
     - Both keys and values are compiled as a filter
-
     """
     if not bits:
         return {}
@@ -189,6 +188,6 @@ def render_table(parser, token):
     try:
         tag, table = bits.pop(0), parser.compile_filter(bits.pop(0))
     except ValueError:
-        raise TemplateSyntaxError("'%s' must be given a table." % bits[0])
+        raise TemplateSyntaxError(u"'%s' must be given a table." % bits[0])
     template = parser.compile_filter(bits.pop(0)) if bits else None
     return RenderTableNode(table, template)

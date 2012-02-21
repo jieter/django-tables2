@@ -3,13 +3,13 @@ import itertools
 from django.conf import settings
 from django.template import Template, Context
 import django_tables2 as tables
-from django_attest import TransactionTestContext
+from django_attest import TestContext
 from attest import Tests, Assert
 from .app.models import Person, Occupation
 
 
 models = Tests()
-models.context(TransactionTestContext())
+models.context(TestContext())
 
 
 class PersonTable(tables.Table):

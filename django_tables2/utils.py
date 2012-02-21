@@ -57,9 +57,9 @@ class Sequence(list):
 
 
 class OrderBy(str):
-    """A single item in an :class:`.OrderByTuple` object. This class is
+    """
+    A single item in an :class:`.OrderByTuple` object. This class is
     essentially just a :class:`str` with some extra properties.
-
     """
     @property
     def bare(self):
@@ -67,7 +67,6 @@ class OrderBy(str):
         Return the :term:`bare <bare orderby>` form.
 
         :rtype: :class:`.OrderBy` object
-
         """
         return OrderBy(self[1:]) if self[:1] == '-' else self
 
@@ -85,7 +84,6 @@ class OrderBy(str):
             '-name'
 
         :rtype: :class:`.OrderBy` object
-
         """
         return OrderBy(self[1:]) if self.is_descending else OrderBy('-' + self)
 
@@ -95,7 +93,6 @@ class OrderBy(str):
         Return :const:`True` if this object induces *descending* ordering
 
         :rtype: :class:`bool`
-
         """
         return self.startswith('-')
 
@@ -105,7 +102,6 @@ class OrderBy(str):
         Return :const:`True` if this object induces *ascending* ordering.
 
         :returns: :class:`bool`
-
         """
         return not self.is_descending
 
@@ -159,7 +155,6 @@ class OrderByTuple(tuple, StrAndUnicode):
 
         :param name: The name of a column. (optionally prefixed)
         :returns: :class:`bool`
-
         """
         for o in self:
             if o == name or o.bare == name:
@@ -184,7 +179,6 @@ class OrderByTuple(tuple, StrAndUnicode):
             '-age'
 
         :rtype: :class:`.OrderBy` object
-
         """
         if isinstance(index, basestring):
             for ob in self:
@@ -201,7 +195,6 @@ class OrderByTuple(tuple, StrAndUnicode):
         :term:`table data`.
 
         :rtype: function
-
         """
         def _cmp(a, b):
             for accessor, reverse in instructions:
@@ -230,7 +223,6 @@ class Accessor(str):
     accesses. For convenience, the class has an alias ``A`` to allow for more concise code.
 
     Relations are separated by a ``.`` character.
-
     """
     SEPARATOR = '.'
 
@@ -263,7 +255,6 @@ class Accessor(str):
 
         Callable objects are called, and their result is used, before
         proceeding with the resolving.
-
         """
         current = context
         for bit in self.bits:
@@ -302,12 +293,12 @@ class Accessor(str):
 A = Accessor  # alias
 
 class AttributeDict(dict):
-    """A wrapper around :class:`dict` that knows how to render itself as HTML
+    """
+    A wrapper around :class:`dict` that knows how to render itself as HTML
     style tag attributes.
 
     The returned string is marked safe, so it can be used safely in a template.
     See :meth:`.as_html` for a usage example.
-
     """
     def as_html(self):
         """
@@ -327,3 +318,21 @@ class AttributeDict(dict):
         """
         return mark_safe(' '.join([u'%s="%s"' % (k, escape(v))
                                    for k, v in self.iteritems()]))
+
+
+class Attrs(dict):
+    """
+    A collection of :class:`AttributeDict`, each given a key.
+
+    This class is used as a container to hold differenct sets of attributes for
+    a given column. Keys indicate where the attributes should be used, and
+    support varies depending on the column.
+
+    It's used in favour of a standard `dict` to enable backwards compatibility.
+    Before it was introduced, columns had an `attrs` parameter that would be
+    given a `dict` and would assign it to a single (typically input) element.
+    The new approach allows attributes to be specified for multiple elements.
+    By using the `Attrs` class your intention to use the new mechanism is
+    explicit.
+    """
+

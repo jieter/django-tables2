@@ -96,7 +96,6 @@ class DeclarativeColumnsMetaclass(type):
     called ``base_columns``, taking into account parent class ``base_columns``
     as well.
     """
-
     def __new__(cls, name, bases, attrs):
 
         attrs["_meta"] = opts = TableOptions(attrs.get("Meta", None))
@@ -145,7 +144,6 @@ class TableOptions(object):
     :param options: options for a table
     :type options: :class:`Meta` on a :class:`.Table`
     """
-
     def __init__(self, options=None):
         super(TableOptions, self).__init__()
         self.attrs = AttributeDict(getattr(options, "attrs", {}))

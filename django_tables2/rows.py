@@ -82,7 +82,6 @@ class BoundRow(object):
         """
         The data record from the data source which is used to populate this row
         with data.
-
         """
         return self._record
 
@@ -92,18 +91,16 @@ class BoundRow(object):
 
         Under the hood this method just makes a call to
         :meth:`.BoundRow.__getitem__` for each cell.
-
         """
-        for column in self.table.columns:
+        for column, value in self.items():
             # this uses __getitem__, using the name (rather than the accessor)
             # is correct – it's what __getitem__ expects.
-            yield self[column.name]
+            yield value
 
     def __getitem__(self, name):
         """
         Returns the final rendered value for a cell in the row, given the name
         of a column.
-
         """
         bound_column = self.table.columns[name]
 
@@ -161,6 +158,16 @@ class BoundRow(object):
         else:
             return item in self
 
+    def items(self):
+        """
+        Returns iterator yielding ``(bound_column, cell)`` pairs.
+
+        ``cell`` is ``row[name]`` -- the rendered unicode value that should be
+        ``rendered within ``<td>``.
+        """
+        for column in self.table.columns:
+            yield (column, self[column.name])
+
 
 class BoundRows(object):
     """
@@ -172,7 +179,6 @@ class BoundRows(object):
 
     :type table: :class:`.Table` object
     :param table: the table in which the rows exist.
-
     """
     def __init__(self, table):
         self.table = table
