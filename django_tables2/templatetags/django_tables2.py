@@ -8,6 +8,7 @@ from django.template.defaultfilters import stringfilter, title as old_title
 from django.utils.datastructures import SortedDict
 from django.utils.safestring import mark_safe
 from django.utils.http import urlencode
+from xml.sax import saxutils
 import django_tables2 as tables
 import re
 import StringIO
@@ -105,7 +106,7 @@ class QuerystringNode(Node):
             value = value.resolve(context)
             if key not in ("", None):
                 params[key] = value
-        return "?" + urlencode(params, doseq=True)
+        return "?" + saxutils.escape(urlencode(params, doseq=True))
 
 
 # {% querystring "name"="abc" "age"=15 %}
@@ -146,29 +147,33 @@ class RenderTableNode(Node):
 
     def render(self, context):
         table = self.table.resolve(context)
+        
         if not isinstance(table, tables.Table):
             raise ValueError("Expected Table object, but didn't find one.")
+        
         if "request" not in context:
             raise AssertionError(
                     "{% render_table %} requires that the template context"
                     " contains the HttpRequest in a 'request' variable,"
                     " check your TEMPLATE_CONTEXT_PROCESSORS setting.")
-        request = context['request']
-        context = RequestContext(request, {"table": table})
+        
+        context.update({"table": table})
+
         if self.template:
             template = self.template.resolve(context)
         else:
             template = table.template
+        
         if isinstance(template, basestring):
             template = get_template(template)
         else:
             # assume some iterable was given
             template = select_template(template)
+        
         try:
-            table.request = request  # HACK! :(
             return template.render(context)
         finally:
-            del table.request
+            context.pop()
 
 @register.tag
 def render_table(parser, token):
