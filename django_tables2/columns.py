@@ -410,7 +410,6 @@ class BoundColumn(object):
         td_class.add(self.name)
         if th_class: th['class'] = " ".join(th_class)
         if td_class: td['class'] = " ".join(td_class)
-        print 'td =', td
         return attrs
 
     @property

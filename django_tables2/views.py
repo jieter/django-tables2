@@ -34,7 +34,7 @@ class SingleTableMixin(object):
         """
         table_class = self.get_table_class()
         table = table_class(self.get_table_data())
-        RequestConfig(request).configure(table)
+        RequestConfig(self.request).configure(table)
         return table
 
     def get_table_class(self):

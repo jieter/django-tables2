@@ -70,6 +70,12 @@ globally, use::
 Change log
 ==========
 
+v0.9.3
+------
+
+- Fix regression in ``SingleTableMixin``.
+- Remove stray `print` statement.
+
 v0.9.2
 ------
 
