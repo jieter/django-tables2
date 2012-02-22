@@ -1,29 +1,17 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
-"""
-Allows setting/changing/removing of chosen url query string parameters, while
-maintaining any existing others.
-
-Expects the current request to be available in the context as ``request``.
-
-Examples:
-
-    {% set_url_param page=next_page %}
-    {% set_url_param page="" %}
-    {% set_url_param filter="books" page=1 %}
-
-"""
-import re
-import tokenize
-import StringIO
 from django.conf import settings
 from django import template
 from django.template import TemplateSyntaxError, RequestContext, Variable, Node
-from django.utils.datastructures import SortedDict
 from django.template.loader import get_template, select_template
+from django.template.defaultfilters import stringfilter, title as old_title
+from django.utils.datastructures import SortedDict
 from django.utils.safestring import mark_safe
 from django.utils.http import urlencode
 import django_tables2 as tables
+import re
+import StringIO
+import tokenize
 
 
 register = template.Library()
@@ -191,3 +179,21 @@ def render_table(parser, token):
         raise TemplateSyntaxError(u"'%s' must be given a table." % bits[0])
     template = parser.compile_filter(bits.pop(0)) if bits else None
     return RenderTableNode(table, template)
+
+
+RE_UPPERCASE = re.compile('[A-Z]')
+
+
+@register.filter
+@stringfilter
+def title(value):
+    """
+    A slightly better title template filter.
+
+    Same as Django's builtin ``title`` filter, but operates on individual words
+    and leaves words unchanged if they already have a capital letter.
+    """
+    title_word = lambda w: w if RE_UPPERCASE.search(w) else old_title(w)
+    return re.sub('(\S+)', lambda m: title_word(m.group(0)), value)
+title.is_safe = True
+

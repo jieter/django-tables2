@@ -70,6 +70,21 @@ globally, use::
 Change log
 ==========
 
+v0.9.2
+------
+
+- `SingleTableView` now uses `RequestConfig`. This fixes issues with
+  ``order_by_field`, `page_field`, and `per_page_field` not being honored.
+- Add `Table.Meta.per_page` and change `Table.paginate` to use it as default.
+- Add `title` template filter. It differs from Django's built-in `title` filter
+  because it operates on an individual word basis and leaves words containing
+  capitals untouched. **Warning**: use `{% load ... from ... %}` to avoid
+  inadvertantly replacing Django's builtin `title` template filter.
+- `BoundColumn.verbose_name` no longer does `capfirst`, titlising is now the
+  responsbility of `Column.header`.
+- `BoundColumn.__unicode__` now uses `BoundColumn.header` rather than
+  `BoundColumn.verbose_name`.
+
 v0.9.1
 ------
 

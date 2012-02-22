@@ -335,4 +335,3 @@ class Attrs(dict):
     By using the `Attrs` class your intention to use the new mechanism is
     explicit.
     """
-

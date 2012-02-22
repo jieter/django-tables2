@@ -111,21 +111,21 @@ def verbose_name():
     # capitalized version of the column name as the column header.
     table = PersonTable(Person.objects.all())
     # Should be generated (capitalized column name)
-    Assert('First name') == table.columns['first_name'].verbose_name
-    Assert('First name') == table.columns['fn1'].verbose_name
-    Assert('First name') == table.columns['fn2'].verbose_name
+    Assert('first name') == table.columns['first_name'].verbose_name
+    Assert('first name') == table.columns['fn1'].verbose_name
+    Assert('first name') == table.columns['fn2'].verbose_name
     Assert('OVERRIDE') == table.columns['fn3'].verbose_name
     # Should use the model field's verbose_name
-    Assert('Surname') == table.columns['last_name'].verbose_name
-    Assert('Surname') == table.columns['ln1'].verbose_name
-    Assert('Surname') == table.columns['ln2'].verbose_name
+    Assert('surname') == table.columns['last_name'].verbose_name
+    Assert('surname') == table.columns['ln1'].verbose_name
+    Assert('surname') == table.columns['ln2'].verbose_name
     Assert('OVERRIDE') == table.columns['ln3'].verbose_name
-    Assert('Name') == table.columns['region'].verbose_name
-    Assert('Name') == table.columns['r1'].verbose_name
-    Assert('Name') == table.columns['r2'].verbose_name
+    Assert('name') == table.columns['region'].verbose_name
+    Assert('name') == table.columns['r1'].verbose_name
+    Assert('name') == table.columns['r2'].verbose_name
     Assert('OVERRIDE') == table.columns['r3'].verbose_name
-    Assert("Translation Test") == table.columns["trans_test"].verbose_name
-    Assert("Translation Test Lazy") == table.columns["trans_test_lazy"].verbose_name
+    Assert("translation test") == table.columns["trans_test"].verbose_name
+    Assert("translation test lazy") == table.columns["trans_test_lazy"].verbose_name
 
     # -------------------------------------------------------------------------
 
@@ -135,8 +135,8 @@ def verbose_name():
             model = Person
     # Issue #16
     table = PersonTable([])
-    Assert("Translation Test") == table.columns["trans_test"].verbose_name
-    Assert("Translation Test Lazy") == table.columns["trans_test_lazy"].verbose_name
+    Assert("translation test") == table.columns["trans_test"].verbose_name
+    Assert("translation test lazy") == table.columns["trans_test_lazy"].verbose_name
 
 
 @models.test

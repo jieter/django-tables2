@@ -54,6 +54,17 @@ general = Tests()
 
 
 @general.test
+def column_header_should_use_titlised_verbose_name():
+    class SimpleTable(tables.Table):
+        basic = tables.Column()
+        acronym = tables.Column(verbose_name="has FBI help")
+
+    table = SimpleTable([])
+    assert table.columns["basic"].header == "Basic"
+    assert table.columns["acronym"].header == "Has FBI Help"
+
+
+@general.test
 def sortable():
     class SimpleTable(tables.Table):
         name = tables.Column()

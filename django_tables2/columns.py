@@ -7,8 +7,9 @@ from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.template import RequestContext, Context, Template
 from django.db.models.fields import FieldDoesNotExist
-from .utils import A, AttributeDict, Attrs, OrderBy, Sequence
 from itertools import ifilter, islice
+from .templatetags.django_tables2 import title
+from .utils import A, AttributeDict, Attrs, OrderBy, Sequence
 
 
 class Column(object):
@@ -18,10 +19,9 @@ class Column(object):
     :class:`Column` objects control the way a column (including the cells that
     fall within it) are rendered.
 
-    :param verbose_name: A human readable version of the column name.
-                         Typically this is used in the header cells in the HTML
-                         output. (But if you're writing your own template, use
-                         ``.header`` rather than ``.verbose_name``)
+    :param verbose_name: A human readable version of the column name. This
+                         should not be title case. It is converted to title
+                         case for use in column headers.
     :type  verbose_name: ``unicode``
     :type      accessor: :class:`basestring` or :class:`~.utils.Accessor`
     :param     accessor: An accessor that describes how to extract values for
@@ -109,7 +109,7 @@ class Column(object):
             object hence accessing that first) when this property doesn't
             return something useful.
         """
-        return self.verbose_name
+        return title(self.verbose_name) if self.verbose_name else None
 
     def render(self, value):
         """
@@ -370,7 +370,7 @@ class BoundColumn(object):
         self._name = name
 
     def __unicode__(self):
-        return unicode(self.verbose_name)
+        return unicode(self.header)
 
     @property
     def accessor(self):
@@ -432,7 +432,7 @@ class BoundColumn(object):
         """
         The value that should be used in the header cell for this column.
         """
-        return self.column.header or self.verbose_name
+        return self.column.header or title(self.verbose_name)
 
     @property
     def name(self):
@@ -505,7 +505,7 @@ class BoundColumn(object):
                 break
             if field:
                 name = field.verbose_name
-        return capfirst(name)
+        return name
 
     @property
     def visible(self):

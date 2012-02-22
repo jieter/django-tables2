@@ -16,12 +16,12 @@ templates = Tests()
 class CountryTable(tables.Table):
     name = tables.Column()
     capital = tables.Column(sortable=False,
-                            verbose_name=ugettext_lazy("Capital"))
-    population = tables.Column(verbose_name='Population Size')
+                            verbose_name=ugettext_lazy("capital"))
+    population = tables.Column(verbose_name='population size')
     currency = tables.Column(visible=False)
-    tld = tables.Column(visible=False, verbose_name='Domain')
+    tld = tables.Column(visible=False, verbose_name='domain')
     calling_code = tables.Column(accessor='cc',
-                                 verbose_name='Phone Ext.')
+                                 verbose_name='phone ext.')
 
 
 MEMORY_DATA = [
@@ -77,7 +77,7 @@ def custom_rendering():
                         '{{ column.name }} {% endfor %}')
     result = ('Name/name Capital/capital Population Size/population '
               'Phone Ext./calling_code ')
-    assert result == template.render(context)
+    Assert( result) == template.render(context)
 
     # row values
     template = Template('{% for row in countries.rows %}{% for value in row %}'
@@ -161,3 +161,18 @@ def querystring_templatetag():
     assert qs["age"] == ["21"]
     assert qs["a"] == ["b"]
     assert qs["c"] == ["5"]
+
+
+@templates.test
+def title_should_only_apply_to_words_without_uppercase_letters():
+    expectations = {
+        "a brown fox": "A Brown Fox",
+        "a brown foX": "A Brown foX",
+        "black FBI": "Black FBI",
+        "f.b.i": "F.B.I",
+        "start 6pm": "Start 6pm",
+    }
+
+    for raw, expected in expectations.items():
+        Assert(Template("{% load title from django_tables2 %}{{ x|title }}")
+                .render(Context({"x": raw}))) == expected

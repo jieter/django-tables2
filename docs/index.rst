@@ -45,7 +45,7 @@ First step is it write a Table class to describe the structure:
     class CountryTable(tables.Table):
         name = tables.Column()
         population = tables.Column()
-        tz = tables.Column(verbose_name='Time Zone')
+        tz = tables.Column(verbose_name='time zone')
         visits = tables.Column()
 
 Now instantiate the table and pass in the data, then pass it to a template:
@@ -109,7 +109,7 @@ adding a ``class Meta:`` to the table class and defining a ``attrs`` variable.
     class CountryTable(tables.Table):
         name = tables.Column()
         population = tables.Column()
-        tz = tables.Column(verbose_name='Time Zone')
+        tz = tables.Column(verbose_name='time zone')
         visits = tables.Column()
 
         class Meta:
@@ -226,14 +226,14 @@ The header cell for each column comes from the column's
 :meth:`~django_tables2.columns.BoundColumn.header` method. By default this
 method returns a titlised version of the column's ``verbose_name``.
 
-When using queryset input data and a verbose name hasn't been explicitly
+When using queryset data and a verbose name hasn't been explicitly
 defined for a column, the corresponding model field's verbose name will be
 used.
 
 Consider the following:
 
     >>> class Person(models.Model):
-    ...     first_name = models.CharField(verbose_name='FIRST name', max_length=200)
+    ...     first_name = models.CharField(verbose_name='model verbose name', max_length=200)
     ...     last_name = models.CharField(max_length=200)
     ...     region = models.ForeignKey('Region')
     ...
@@ -247,15 +247,15 @@ Consider the following:
     ...
     >>> table = PersonTable(Person.objects.all())
     >>> table.columns['first_name'].header
-    u'FIRST Name'
+    u'Model Verbose Name'
     >>> table.columns['ln'].header
-    u'Last name'
+    u'Last Name'
     >>> table.columns['region_name'].header
     u'Name'
 
-As you can see in the last example, the results are not always desirable when
-an accessor is used to cross relationships. To get around this be careful to
-define a ``verbose_name`` on such columns.
+As you can see in the last example (region name), the results are not always
+desirable when an accessor is used to cross relationships. To get around this
+be careful to define a ``verbose_name`` on such columns.
 
 
 .. _pagination:
@@ -597,6 +597,27 @@ we want to update the ``sort`` parameter:
     {% with "search" as key %}               # supports variables as keys
     {% querystring key="robots" %}           # ?search=robots&page=5
     {% endwith %}
+
+
+Template filters
+================
+
+title
+-----
+
+String filter that performs title case conversion on a per-word basis, leaving
+words containing upper-case letters alone.
+
+.. code-block:: django
+
+    {{ "start 6PM"|title }}   # Start 6PM
+    {{ "sTart 6pm"|title }}   # sTart 6pm
+
+.. warning::
+
+    Be careful when loading the ``django_tables2`` template library to not
+    in advertantly load ``title``. You should always use the
+    ``{% load ... from ... %}`` syntax.
 
 
 Class Based Generic Mixins
@@ -1135,8 +1156,6 @@ Upgrading from django-tables Version 1
      wanted_column_name = tables.Column(accessor="name_in_dataset")
 
   and exclude ``column_to_override`` via the table meta data.
-
-- When rendering columns, change ``{{ column }}`` to ``{{ column.header }}``.
 
 - When generating the link to sort the column, instead of:
 

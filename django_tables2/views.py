@@ -2,6 +2,7 @@
 from django.core.exceptions import ImproperlyConfigured
 from django.views.generic.base import TemplateResponseMixin
 from django.views.generic.list import ListView
+from .config import RequestConfig
 
 
 class SingleTableMixin(object):
@@ -32,9 +33,8 @@ class SingleTableMixin(object):
         sorting and pagination.
         """
         table_class = self.get_table_class()
-        table = table_class(self.get_table_data(),
-                            order_by=self.request.GET.get("sort"))
-        table.paginate(page=self.request.GET.get("page", 1))
+        table = table_class(self.get_table_data())
+        RequestConfig(request).configure(table)
         return table
 
     def get_table_class(self):

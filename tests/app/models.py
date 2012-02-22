@@ -7,19 +7,19 @@ from django.utils.translation import ugettext
 class Person(models.Model):
     first_name = models.CharField(max_length=200)
 
-    last_name = models.CharField(max_length=200, verbose_name='Surname')
+    last_name = models.CharField(max_length=200, verbose_name='surname')
 
     occupation = models.ForeignKey(
             'Occupation', related_name='people',
-            null=True, verbose_name='Occupation')
+            null=True, verbose_name='occupation')
 
     trans_test = models.CharField(
             max_length=200, blank=True,
-            verbose_name=ugettext("Translation Test"))
+            verbose_name=ugettext("translation test"))
 
     trans_test_lazy = models.CharField(
             max_length=200, blank=True,
-            verbose_name=ugettext_lazy("Translation Test Lazy"))
+            verbose_name=ugettext_lazy("translation test lazy"))
 
     def __unicode__(self):
         return self.first_name

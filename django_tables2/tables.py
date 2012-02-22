@@ -155,6 +155,7 @@ class TableOptions(object):
         self.order_by = OrderByTuple(order_by)
         self.order_by_field = getattr(options, "order_by_field", "sort")
         self.page_field = getattr(options, "page_field", "page")
+        self.per_page = getattr(options, "per_page", 25)
         self.per_page_field = getattr(options, "per_page_field", "per_page")
         self.prefix = getattr(options, "prefix", "")
         self.sequence = Sequence(getattr(options, "sequence", ()))
@@ -348,20 +349,19 @@ class Table(StrAndUnicode):
     def page_field(self, value):
         self._page_field = value
 
-    def paginate(self, klass=Paginator, per_page=25, page=1, *args, **kwargs):
+    def paginate(self, klass=Paginator, per_page=None, page=1, *args, **kwargs):
         """
         Paginates the table using a paginator and creates a ``page`` property
         containing information for the current page.
 
-        :type klass: Paginator ``class``
-        :param klass: a paginator class to paginate the results
-
-        :type per_page: ``int``
+        :type     klass: Paginator ``class``
+        :param    klass: a paginator class to paginate the results
+        :type  per_page: ``int``
         :param per_page: how many records are displayed on each page
-
-        :type page: ``int``
-        :param page: which page should be displayed.
+        :type      page: ``int``
+        :param     page: which page should be displayed.
         """
+        per_page = per_page or self._meta.per_page
         self.paginator = klass(self.rows, per_page, *args, **kwargs)
         self._page_number = page
 
