@@ -331,12 +331,15 @@ class TemplateColumn(Column):
         self.template_code = template_code
 
     def render(self, record, table, **kwargs):
-        t = Template(self.template_code)
-        if hasattr(table, 'request'):
-            context = RequestContext(table.request, {'record': record})
-        else:
-            context = Context({'record': record})
-        return t.render(context)
+        # If the table is being rendered using `render_table`, it hackily
+        # attaches the context to the table as a gift to `TemplateColumn`. If
+        # the table is being rendered via `Table.as_html`, this won't exist.
+        context = getattr(table, 'context', Context())
+        context.update({'record': record})
+        try:
+            return Template(self.template_code).render(context)
+        finally:
+            context.pop()
 
 
 class BoundColumn(object):
@@ -653,8 +656,8 @@ class BoundColumns(object):
             for column in self.iterall():
                 if column.name == index:
                     return column
-            raise KeyError(("Column with name '%s' does not exist; " +
-                "valid values are: %s") % (index, [c.name for c in self.iterall()]))
+            raise KeyError("Column with name '%s' does not exist; "
+                           "choices are: %s" % (index, self.names()))
         else:
             raise TypeError(u'row indices must be integers or str, not %s'
                             % index.__class__.__name__)

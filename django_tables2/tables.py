@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import copy
+from django.conf import settings
 from django.core.paginator import Paginator
 from django.http import Http404
 from django.utils.datastructures import SortedDict
@@ -371,7 +372,6 @@ class Table(StrAndUnicode):
             try:
                 return self.paginator.page(self._page_number)
             except:
-                import settings
                 if settings.DEBUG:
                     raise
                 else:

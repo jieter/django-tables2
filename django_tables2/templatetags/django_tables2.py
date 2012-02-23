@@ -8,7 +8,7 @@ from django.template.defaultfilters import stringfilter, title as old_title
 from django.utils.datastructures import SortedDict
 from django.utils.safestring import mark_safe
 from django.utils.http import urlencode
-from xml.sax import saxutils
+from django.utils.html import escape
 import django_tables2 as tables
 import re
 import StringIO
@@ -106,7 +106,7 @@ class QuerystringNode(Node):
             value = value.resolve(context)
             if key not in ("", None):
                 params[key] = value
-        return "?" + saxutils.escape(urlencode(params, doseq=True))
+        return escape("?" + urlencode(params, doseq=True))
 
 
 # {% querystring "name"="abc" "age"=15 %}
@@ -147,32 +147,35 @@ class RenderTableNode(Node):
 
     def render(self, context):
         table = self.table.resolve(context)
-        
+
         if not isinstance(table, tables.Table):
             raise ValueError("Expected Table object, but didn't find one.")
-        
-        if "request" not in context:
-            raise AssertionError(
-                    "{% render_table %} requires that the template context"
-                    " contains the HttpRequest in a 'request' variable,"
-                    " check your TEMPLATE_CONTEXT_PROCESSORS setting.")
-        
-        context.update({"table": table})
 
         if self.template:
             template = self.template.resolve(context)
         else:
             template = table.template
-        
+
         if isinstance(template, basestring):
             template = get_template(template)
         else:
             # assume some iterable was given
             template = select_template(template)
-        
+
+        # Contexts are basically a `MergeDict`, when you `update()`, it
+        # internally just adds a dict to the list to attempt lookups from. This
+        # is why we're able to `pop()` later.
+        context.update({"table": table})
         try:
+            # HACK:
+            # TemplateColumn benefits from being able to use the context
+            # that the table is rendered in. The current way this is
+            # achieved is to temporarily attach the context to the table,
+            # which TemplateColumn then looks for and uses.
+            table.context = context
             return template.render(context)
         finally:
+            del table.context
             context.pop()
 
 @register.tag

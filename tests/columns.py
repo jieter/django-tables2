@@ -305,4 +305,18 @@ def a_attrs_should_be_supported():
                                            "title": "Occupation Title"}
 
 
-columns = Tests([checkboxcolumn, general, linkcolumn])
+templatecolumn = Tests()
+
+
+@templatecolumn.test
+def should_handle_context_on_table():
+    class TestTable(tables.Table):
+        col = tables.TemplateColumn("{{ record.col }}{{ STATIC_URL }}")
+
+    table = TestTable([{"col": "brad"}])
+    assert table.rows[0]["col"] == "brad"
+    table.context = Context({"STATIC_URL": "/static/"})
+    Assert(table.rows[0]["col"]) == "brad/static/"
+
+
+columns = Tests([checkboxcolumn, general, linkcolumn, templatecolumn])

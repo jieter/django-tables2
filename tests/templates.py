@@ -149,13 +149,18 @@ def render_table_should_support_template_argument():
 def querystring_templatetag():
     factory = RequestFactory()
     template = Template('{% load django_tables2 %}'
-                        '{% querystring "name"="Brad" foo.bar=value %}')
-    # Should be something like: ?name=Brad&a=b&c=5&age=21
-    url = template.render(Context({
+                        '<b>{% querystring "name"="Brad" foo.bar=value %}</b>')
+
+    # Should be something like: <root>?name=Brad&amp;a=b&amp;c=5&amp;age=21</root>
+    xml = template.render(Context({
         "request": factory.get('/?a=b&name=dog&c=5'),
         "foo": {"bar": "age"},
         "value": 21,
     }))
+
+    # Ensure it's valid XML, retrieve the URL
+    url = ET.fromstring(xml).text
+
     qs = parse_qs(url[1:])  # everything after the ?
     assert qs["name"] == ["Brad"]
     assert qs["age"] == ["21"]
