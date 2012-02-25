@@ -277,10 +277,10 @@ def kwargs():
 @linkcolumn.test
 def html_escape_value():
     class PersonTable(tables.Table):
-        name = tables.LinkColumn("occupation", kwargs={"pk": A("pk")})
+        name = tables.LinkColumn("escaping", kwargs={"pk": A("pk")})
 
-    html = PersonTable([{"name": "<brad>", "pk": 1}]).as_html()
-    assert "<brad>" not in html
+    table = PersonTable([{"name": "<brad>", "pk": 1}])
+    assert table.rows[0]["name"] == '<a href="/&amp;&#39;%22/1/" >&lt;brad&gt;</a>'
 
 
 @linkcolumn.test

@@ -291,7 +291,7 @@ class LinkColumn(Column):
                                      if isinstance(self.current_app, A)
                                      else self.current_app)
         html = u'<a href="{url}" {attrs}>{value}</a>'.format(
-            url=reverse(**params),
+            url=escape(reverse(**params)),
             attrs=AttributeDict(self.attrs.get('a', {})).as_html(),
             value=escape(value)
         )
