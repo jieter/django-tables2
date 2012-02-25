@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from django_tables2.utils import OrderByTuple, OrderBy, Accessor
-from attest import Tests, Assert
+from django_tables2.utils import Accessor, AttributeDict, OrderByTuple, OrderBy
+from attest import Assert, Tests
 
 
 utils = Tests()
@@ -51,3 +51,9 @@ def accessor():
 
     x = Accessor('')
     Assert('Brad') == x.resolve('Brad')
+
+
+@utils.test
+def attribute_dict_handles_escaping():
+    x = AttributeDict({"x": '"\'x&'})
+    Assert(x.as_html()) == 'x="&quot;&#39;x&amp;"'
