@@ -8,6 +8,7 @@ from django.utils.safestring import mark_safe
 from django.template import RequestContext, Context, Template
 from django.db.models.fields import FieldDoesNotExist
 from itertools import ifilter, islice
+import warnings
 from .templatetags.django_tables2 import title
 from .utils import A, AttributeDict, Attrs, OrderBy, Sequence
 
@@ -77,6 +78,8 @@ class Column(object):
         self.visible = visible
         attrs = attrs or {}
         if not isinstance(attrs, Attrs):
+            warnings.warn('attrs must be Attrs object, not %s'
+                          % attrs.__class__.__name__, DeprecationWarning)
             attrs = Attrs(attrs)
         self.attrs = attrs
 
@@ -159,6 +162,8 @@ class CheckBoxColumn(Column):
         # should assign attributes to the `<input>` tag.
         attrs = attrs or Attrs()
         if not isinstance(attrs, Attrs):
+            warnings.warn('attrs must be Attrs object, not %s'
+                          % attrs.__class__.__name__, DeprecationWarning)
             attrs = Attrs(td__input=attrs)
         # This is done for backwards compatible too, there used to be a
         # ``header_attrs`` argument, but this has been deprecated. We'll
@@ -245,6 +250,8 @@ class LinkColumn(Column):
         # backwards compatible translation for naive attrs value
         attrs = attrs or Attrs()
         if not isinstance(attrs, Attrs):
+            warnings.warn('attrs must be Attrs object, not %s'
+                          % attrs.__class__.__name__, DeprecationWarning)
             attrs = Attrs(a=attrs)
         extra['attrs'] = attrs
         super(LinkColumn, self).__init__(**extra)
