@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 from django.core.urlresolvers import reverse
+from django.db.models.fields import FieldDoesNotExist
+from django.template import RequestContext, Context, Template
 from django.utils.encoding import force_unicode, StrAndUnicode
 from django.utils.datastructures import SortedDict
 from django.utils.text import capfirst
 from django.utils.html import escape
-from django.utils.safestring import mark_safe
-from django.template import RequestContext, Context, Template
-from django.db.models.fields import FieldDoesNotExist
+from django.utils.safestring import mark_safe, SafeData
 from itertools import ifilter, islice
 import warnings
 from .templatetags.django_tables2 import title
@@ -101,7 +101,10 @@ class Column(object):
         """
         The value used for the column heading (e.g. inside the ``<th>`` tag).
 
-        By default this equivalent to the column's :attr:`verbose_name`.
+        By default this titlises the column's :attr:`verbose_name`. If
+        ``verbose_name`` is an instance of ``SafeData``, it's used unmodified.
+
+        :returns: ``unicode`` or ``None``
 
         .. note::
 
@@ -112,7 +115,12 @@ class Column(object):
             object hence accessing that first) when this property doesn't
             return something useful.
         """
-        return title(self.verbose_name) if self.verbose_name else None
+        if self.verbose_name:
+            if isinstance(self.verbose_name, SafeData):
+                # If the author has used mark_safe, we're going to assume the
+                # author wants the value used verbatim.
+                return self.verbose_name
+            return title(self.verbose_name)
 
     def render(self, value):
         """
@@ -441,7 +449,18 @@ class BoundColumn(object):
         """
         The value that should be used in the header cell for this column.
         """
-        return self.column.header or title(self.verbose_name)
+        # favour Column.header
+        column_header = self.column.header
+        if column_header:
+            return column_header
+        # fall back to automatic best guess
+        verbose_name = self.verbose_name  # avoid calculating multiple times
+        if isinstance(verbose_name, SafeData):
+            # If the verbose_name has come from a model field, it's possible
+            # that the author used mark_safe to include HTML in the value. If
+            # this is the case, we leave it verbatim.
+            return verbose_name
+        return title(verbose_name)
 
     @property
     def name(self):
@@ -489,6 +508,9 @@ class BoundColumn(object):
         then get the last field in the accessor (i.e. stop when the
         relationship turns from ORM relationships to object attributes [e.g.
         person.upper should stop at person]).
+
+        If the model field's ``verbose_name`` is a ``SafeData``, it's used
+        unmodified.
         """
         # Favor an explicit defined verbose_name
         if self.column.verbose_name:

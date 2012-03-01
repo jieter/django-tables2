@@ -10,6 +10,7 @@ from django.template import Context, Template
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.translation import ugettext_lazy
 from django.utils.translation import ugettext
+from django.utils.safestring import mark_safe, SafeData
 from itertools import chain
 from xml.etree import ElementTree as ET
 from .app.models import Person
@@ -62,6 +63,24 @@ def column_header_should_use_titlised_verbose_name():
     table = SimpleTable([])
     assert table.columns["basic"].header == "Basic"
     assert table.columns["acronym"].header == "Has FBI Help"
+
+
+@general.test
+def should_support_safe_verbose_name():
+    class SimpleTable(tables.Table):
+        safe = tables.Column(verbose_name=mark_safe("<b>Safe</b>"))
+
+    table = SimpleTable([])
+    assert isinstance(table.columns["safe"].header, SafeData)
+
+
+@general.test
+def should_support_safe_verbose_name_via_model():
+    class PersonTable(tables.Table):
+        safe = tables.Column()
+
+    table = PersonTable(Person.objects.all())
+    assert isinstance(table.columns["safe"].header, SafeData)
 
 
 @general.test

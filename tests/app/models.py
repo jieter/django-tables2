@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.db import models
+from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy
 from django.utils.translation import ugettext
 
@@ -20,6 +21,9 @@ class Person(models.Model):
     trans_test_lazy = models.CharField(
             max_length=200, blank=True,
             verbose_name=ugettext_lazy("translation test lazy"))
+
+    safe = models.CharField(
+            max_length=200, blank=True, verbose_name=mark_safe("<b>Safe</b>"))
 
     def __unicode__(self):
         return self.first_name

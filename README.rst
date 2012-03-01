@@ -70,6 +70,13 @@ globally, use::
 Change log
 ==========
 
+v0.9.4
+------
+
+- Fix regression that caused column verbose_name values that were marked as
+  safe to be escaped. Now any verbose_name values that are instances of
+  SafeData are used unmodified.
+
 v0.9.3
 ------
 
