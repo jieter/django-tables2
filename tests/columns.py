@@ -87,21 +87,21 @@ def should_support_safe_verbose_name_via_model():
 def sortable():
     class SimpleTable(tables.Table):
         name = tables.Column()
-    Assert(SimpleTable([]).columns['name'].sortable) is True
+    assert SimpleTable([]).columns['name'].sortable is True
 
     class SimpleTable(tables.Table):
         name = tables.Column()
 
         class Meta:
             sortable = False
-    Assert(SimpleTable([]).columns['name'].sortable) is False
+    assert SimpleTable([]).columns['name'].sortable is False
 
     class SimpleTable(tables.Table):
         name = tables.Column()
 
         class Meta:
             sortable = True
-    Assert(SimpleTable([]).columns['name'].sortable) is True
+    assert SimpleTable([]).columns['name'].sortable is True
 
 
 @general.test
@@ -115,8 +115,8 @@ def translation():
         lazy = tables.Column(verbose_name=ugettext("Lazy"))
 
     table = TranslationTable([])
-    Assert("Normal") == table.columns["normal"].header
-    Assert("Lazy") == table.columns["lazy"].header
+    assert "Normal" == table.columns["normal"].header
+    assert "Lazy" == table.columns["lazy"].header
 
 
 @general.test
@@ -128,14 +128,14 @@ def sequence():
         a = tables.Column()
         b = tables.Column()
         c = tables.Column()
-    Assert(["a", "b", "c"]) == TestTable([]).columns.names()
-    Assert(["b", "a", "c"]) == TestTable([], sequence=("b", "a", "c")).columns.names()
+    assert ["a", "b", "c"] == TestTable([]).columns.names()
+    assert ["b", "a", "c"] == TestTable([], sequence=("b", "a", "c")).columns.names()
 
     class TestTable2(TestTable):
         class Meta:
             sequence = ("b", "a", "c")
-    Assert(["b", "a", "c"]) == TestTable2([]).columns.names()
-    Assert(["a", "b", "c"]) == TestTable2([], sequence=("a", "b", "c")).columns.names()
+    assert ["b", "a", "c"] == TestTable2([]).columns.names()
+    assert ["a", "b", "c"] == TestTable2([], sequence=("a", "b", "c")).columns.names()
 
     # BAD, all columns must be specified, or must use "..."
     with Assert.raises(ValueError):
@@ -150,26 +150,26 @@ def sequence():
     class TestTable4(TestTable):
         class Meta:
             sequence = ("...", )
-    Assert(["a", "b", "c"]) == TestTable4([]).columns.names()
-    Assert(["a", "b", "c"]) == TestTable([], sequence=("...", )).columns.names()
+    assert ["a", "b", "c"] == TestTable4([]).columns.names()
+    assert ["a", "b", "c"] == TestTable([], sequence=("...", )).columns.names()
 
     class TestTable5(TestTable):
         class Meta:
             sequence = ("b", "...")
-    Assert(["b", "a", "c"]) == TestTable5([]).columns.names()
-    Assert(["b", "a", "c"]) == TestTable([], sequence=("b", "...")).columns.names()
+    assert ["b", "a", "c"] == TestTable5([]).columns.names()
+    assert ["b", "a", "c"] == TestTable([], sequence=("b", "...")).columns.names()
 
     class TestTable6(TestTable):
         class Meta:
             sequence = ("...", "b")
-    Assert(["a", "c", "b"]) == TestTable6([]).columns.names()
-    Assert(["a", "c", "b"]) == TestTable([], sequence=("...", "b")).columns.names()
+    assert ["a", "c", "b"] == TestTable6([]).columns.names()
+    assert ["a", "c", "b"] == TestTable([], sequence=("...", "b")).columns.names()
 
     class TestTable7(TestTable):
         class Meta:
             sequence = ("b", "...", "a")
-    Assert(["b", "c", "a"]) == TestTable7([]).columns.names()
-    Assert(["b", "c", "a"]) == TestTable([], sequence=("b", "...", "a")).columns.names()
+    assert ["b", "c", "a"] == TestTable7([]).columns.names()
+    assert ["b", "c", "a"] == TestTable([], sequence=("b", "...", "a")).columns.names()
 
     # Let's test inheritence
     class TestTable8(TestTable):
@@ -185,8 +185,8 @@ def sequence():
         e = tables.Column()
         f = tables.Column()
 
-    Assert(["d", "a", "b", "c", "e", "f"]) == TestTable8([]).columns.names()
-    Assert(["d", "a", "b", "c", "e", "f"]) == TestTable9([], sequence=("d", "...")).columns.names()
+    assert ["d", "a", "b", "c", "e", "f"] == TestTable8([]).columns.names()
+    assert ["d", "a", "b", "c", "e", "f"] == TestTable9([], sequence=("d", "...")).columns.names()
 
 
 @general.test
@@ -228,7 +228,7 @@ def cell_attrs_applies_to_td_and_th():
     table = SimpleTable([{"a": "value"}])
     root = ET.fromstring(table.as_html())
 
-    assert root.findall('.//thead/tr/th')[0].attrib == {"key": "value", "class": "a"}
+    assert root.findall('.//thead/tr/th')[0].attrib == {"key": "value", "class": "a sortable"}
     assert root.findall('.//tbody/tr/td')[0].attrib == {"key": "value", "class": "a"}
 
 
@@ -239,8 +239,23 @@ def cells_are_automatically_given_column_name_as_class():
 
     table = SimpleTable([{"a": "value"}])
     root = ET.fromstring(table.as_html())
-    assert root.findall('.//thead/tr/th')[0].attrib == {"class": "a"}
+    assert root.findall('.//thead/tr/th')[0].attrib == {"class": "a sortable"}
     assert root.findall('.//tbody/tr/td')[0].attrib == {"class": "a"}
+
+
+@general.test
+def th_are_given_sortable_class_if_column_is_sortable():
+    class SimpleTable(tables.Table):
+        a = tables.Column()
+        b = tables.Column(sortable=False)
+
+    table = SimpleTable([{"a": "value"}])
+    root = ET.fromstring(table.as_html())
+    # return classes of an element as a set
+    classes = lambda x: set(x.attrib["class"].split())
+    assert "sortable" in classes(root.findall('.//thead/tr/th')[0])
+    assert "sortable" not in classes(root.findall('.//thead/tr/th')[1])
+
 
 
 linkcolumn = Tests()
@@ -264,10 +279,10 @@ def unicode():
     template = Template('{% load django_tables2 %}{% render_table table %}')
     html = template.render(Context({'request': request, 'table': table}))
 
-    Assert(u'Brädley' in html)
-    Assert(u'∆yers' in html)
-    Assert(u'Chr…s' in html)
-    Assert(u'DÒble' in html)
+    assert u'Brädley' in html
+    assert u'∆yers' in html
+    assert u'Chr…s' in html
+    assert u'DÒble' in html
 
 
 @linkcolumn.test
@@ -335,7 +350,7 @@ def should_handle_context_on_table():
     table = TestTable([{"col": "brad"}])
     assert table.rows[0]["col"] == "brad"
     table.context = Context({"STATIC_URL": "/static/"})
-    Assert(table.rows[0]["col"]) == "brad/static/"
+    assert table.rows[0]["col"] == "brad/static/"
 
 
 columns = Tests([checkboxcolumn, general, linkcolumn, templatecolumn])

@@ -10,7 +10,11 @@
     <thead>
         <tr>
         {% for column in table.columns %}
+            {% if column.sortable %}
             <th {{ column.attrs.th.as_html }}><a href="{% querystring table.prefixed_order_by_field=column.order_by.opposite|default:column.name %}">{{ column.header }}</a></th>
+            {% else %}
+            <th {{ column.attrs.th.as_html }}>{{ column.header }}</th>
+            {% endif %}
         {% endfor %}
         </tr>
     </thead>

@@ -418,7 +418,7 @@ class BoundColumn(object):
         th_class = set((c for c in th.get("class", "").split(" ") if c))
         td_class = set((c for c in td.get("class", "").split(" ") if c))
         # add classes for ordering
-        if self.column.sortable:
+        if self.sortable:
             th_class.add("sortable")
         order_by = self.order_by
         if order_by:
@@ -426,8 +426,8 @@ class BoundColumn(object):
         # Always add the column name as a class
         th_class.add(self.name)
         td_class.add(self.name)
-        if th_class: th['class'] = " ".join(th_class)
-        if td_class: td['class'] = " ".join(td_class)
+        if th_class: th['class'] = " ".join(sorted(th_class))
+        if td_class: td['class'] = " ".join(sorted(td_class))
         return attrs
 
     @property
@@ -485,7 +485,6 @@ class BoundColumn(object):
         if self.column.sortable is not None:
             return self.column.sortable
         return self.table.sortable
-
 
     @property
     def table(self):

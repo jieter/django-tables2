@@ -28,7 +28,7 @@ def boundrows_iteration():
     records = [row.record for row in table.rows]
     expecteds = Person.objects.all()
     for expected, actual in itertools.izip(expecteds, records):
-        Assert(expected) == actual
+        assert expected == actual
 
 
 @models.test
@@ -40,13 +40,13 @@ def model_table():
     class OccupationTable(tables.Table):
         class Meta:
             model = Occupation
-    Assert(["id", "name", "region"]) == OccupationTable.base_columns.keys()
+    assert ["id", "name", "region"] == OccupationTable.base_columns.keys()
 
     class OccupationTable2(tables.Table):
         extra = tables.Column()
         class Meta:
             model = Occupation
-    Assert(["id", "name", "region", "extra"]) == OccupationTable2.base_columns.keys()
+    assert ["id", "name", "region", "extra"] == OccupationTable2.base_columns.keys()
 
     # be aware here, we already have *models* variable, but we're importing
     # over the top
@@ -59,7 +59,7 @@ def model_table():
     class ComplexTable(tables.Table):
         class Meta:
             model = ComplexModel
-    Assert(["id", "char", "fk"]) == ComplexTable.base_columns.keys()
+    assert ["id", "char", "fk"] == ComplexTable.base_columns.keys()
 
 
 @models.test
@@ -71,7 +71,7 @@ def mixins():
         extra2 = tables.Column()
         class Meta:
             model = Occupation
-    Assert(["extra", "id", "name", "region", "extra2"]) == OccupationTable.base_columns.keys()
+    assert ["extra", "id", "name", "region", "extra2"] == OccupationTable.base_columns.keys()
 
 
 @models.test
@@ -111,21 +111,21 @@ def verbose_name():
     # capitalized version of the column name as the column header.
     table = PersonTable(Person.objects.all())
     # Should be generated (capitalized column name)
-    Assert('first name') == table.columns['first_name'].verbose_name
-    Assert('first name') == table.columns['fn1'].verbose_name
-    Assert('first name') == table.columns['fn2'].verbose_name
-    Assert('OVERRIDE') == table.columns['fn3'].verbose_name
+    assert 'first name' == table.columns['first_name'].verbose_name
+    assert 'first name' == table.columns['fn1'].verbose_name
+    assert 'first name' == table.columns['fn2'].verbose_name
+    assert 'OVERRIDE' == table.columns['fn3'].verbose_name
     # Should use the model field's verbose_name
-    Assert('surname') == table.columns['last_name'].verbose_name
-    Assert('surname') == table.columns['ln1'].verbose_name
-    Assert('surname') == table.columns['ln2'].verbose_name
-    Assert('OVERRIDE') == table.columns['ln3'].verbose_name
-    Assert('name') == table.columns['region'].verbose_name
-    Assert('name') == table.columns['r1'].verbose_name
-    Assert('name') == table.columns['r2'].verbose_name
-    Assert('OVERRIDE') == table.columns['r3'].verbose_name
-    Assert("translation test") == table.columns["trans_test"].verbose_name
-    Assert("translation test lazy") == table.columns["trans_test_lazy"].verbose_name
+    assert 'surname' == table.columns['last_name'].verbose_name
+    assert 'surname' == table.columns['ln1'].verbose_name
+    assert 'surname' == table.columns['ln2'].verbose_name
+    assert 'OVERRIDE' == table.columns['ln3'].verbose_name
+    assert 'name' == table.columns['region'].verbose_name
+    assert 'name' == table.columns['r1'].verbose_name
+    assert 'name' == table.columns['r2'].verbose_name
+    assert 'OVERRIDE' == table.columns['r3'].verbose_name
+    assert "translation test" == table.columns["trans_test"].verbose_name
+    assert "translation test lazy" == table.columns["trans_test_lazy"].verbose_name
 
     # -------------------------------------------------------------------------
 
@@ -135,8 +135,8 @@ def verbose_name():
             model = Person
     # Issue #16
     table = PersonTable([])
-    Assert("translation test") == table.columns["trans_test"].verbose_name
-    Assert("translation test lazy") == table.columns["trans_test_lazy"].verbose_name
+    assert "translation test" == table.columns["trans_test"].verbose_name
+    assert "translation test lazy" == table.columns["trans_test_lazy"].verbose_name
 
 
 @models.test
@@ -168,8 +168,8 @@ def field_choices_used_to_translated_value():
     table = ArticleTable([Article(name='English article', language='en'),
                           Article(name='Russian article', language='ru')])
 
-    Assert('English') == table.rows[0]['language']
-    Assert('Russian') == table.rows[1]['language']
+    assert 'English' == table.rows[0]['language']
+    assert 'Russian' == table.rows[1]['language']
 
 
 @models.test

@@ -48,7 +48,6 @@ table.paleblue thead td {
 table.paleblue thead th > a:link,
 table.paleblue thead th > a:visited {
     color: #666;
-    display: block;
 }
 
 table.paleblue thead th.sortable > a {
