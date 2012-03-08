@@ -227,8 +227,8 @@ def cell_attrs_applies_to_td_and_th():
     # providing data ensures 1 row is rendered
     table = SimpleTable([{"a": "value"}])
     root = ET.fromstring(table.as_html())
+
     assert root.findall('.//thead/tr/th')[0].attrib == {"key": "value", "class": "a"}
-    print table.as_html()
     assert root.findall('.//tbody/tr/td')[0].attrib == {"key": "value", "class": "a"}
 
 

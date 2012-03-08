@@ -4,6 +4,7 @@ from __future__ import absolute_import
 from attest import assert_hook, Assert, Tests
 import copy
 from django.core.paginator import Paginator
+from django.db.models.query import QuerySet
 from django.http import Http404
 import django_tables2 as tables
 from django_tables2.tables import DeclarativeColumnsMetaclass
@@ -162,7 +163,14 @@ def sorting():
     assert SortedTable([], order_by='alpha').order_by   == ('alpha', )
     assert SortedTable([], order_by=('beta',)).order_by == ('beta', )
 
+    class NoOrderByQuerySet(QuerySet):
+        def order_by(self, *args, **kwargs):
+            raise NotImplementedError
+
     # "no sorting"
+    table = UnsortedTable(NoOrderByQuerySet())
+    assert table.order_by == None
+
     table = SortedTable([])
     table.order_by = []
     assert () == table.order_by == SortedTable([], order_by=[]).order_by

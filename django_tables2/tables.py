@@ -150,10 +150,10 @@ class TableOptions(object):
         self.attrs = AttributeDict(getattr(options, "attrs", {}))
         self.empty_text = getattr(options, "empty_text", None)
         self.exclude = getattr(options, "exclude", ())
-        order_by = getattr(options, "order_by", ())
+        order_by = getattr(options, "order_by", None)
         if isinstance(order_by, basestring):
             order_by = (order_by, )
-        self.order_by = OrderByTuple(order_by)
+        self.order_by = OrderByTuple(order_by) if order_by is not None else None
         self.order_by_field = getattr(options, "order_by_field", "sort")
         self.page_field = getattr(options, "page_field", "page")
         self.per_page = getattr(options, "per_page", 25)
@@ -221,11 +221,10 @@ class Table(StrAndUnicode):
             (default :attr:`.Table.Meta.empty_text`)
 
     The ``order_by`` argument is optional and allows the table's
-    ``Meta.order_by`` option to be overridden. If  ``order_by`` is ``None``
-    the table's ``Meta.order_by`` will be used. If you want to disable a
-    default ordering, simply use an empty ``tuple``, ``string``, or ``list``,
-    e.g. ``Table(..., order_by='')``.
-
+    ``Meta.order_by`` option to be overridden. If  ``order_by`` is ``None`` the
+    table's ``Meta.order_by`` will be used. If you don't want any ordering
+    changes to be made, use `None`. If you want to erase any existing ordering
+    (only applies to QuerySets), use an empty tuple. i.e. ``Table(..., order_by=())``.
 
     Example:
 
@@ -235,7 +234,7 @@ class Table(StrAndUnicode):
             ...
             # If there's no ?sort=…, we don't want to fallback to
             # Table.Meta.order_by, thus we must not default to passing in None
-            order_by = request.GET.get('sort', ())
+            order_by = request.GET.get('sort', None)
             table = SimpleTable(data, order_by=order_by)
             ...
     """
@@ -263,8 +262,14 @@ class Table(StrAndUnicode):
         self.base_columns = copy.deepcopy(self.__class__.base_columns)
         self.exclude = exclude or ()
         self.sequence = sequence
+        # `None` value for order_by means no order is specified. This means we
+        # `shouldn't touch our data's ordering in any way. *However*
+        # `table.order_by = None` means "remove any ordering from the data"
+        # (it's equivalent to `table.order_by = ()`).
+        if order_by is None and self._meta.order_by is not None:
+            order_by = self._meta.order_by
         if order_by is None:
-            self.order_by = self._meta.order_by
+            self._order_by = None
         else:
             self.order_by = order_by
         self.template = template

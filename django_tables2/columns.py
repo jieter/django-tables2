@@ -475,10 +475,7 @@ class BoundColumn(object):
         If this column is sorted, return the associated :class:`.OrderBy`
         instance, otherwise ``None``.
         """
-        try:
-            return self.table.order_by[self.name]
-        except IndexError:
-            return None
+        return (self.table.order_by or {}).get(self.name)
 
     @property
     def sortable(self):
