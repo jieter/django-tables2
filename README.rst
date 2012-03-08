@@ -2,13 +2,6 @@
 django-tables2 - An app for creating HTML tables
 ================================================
 
-.. note::
-
-    Prior to v0.6.0 this package was a fork of miracle2k's and both were known
-    as *django-tables*. This caused some problems (e.g. ambiguity and inability
-    to put this library on PyPI) so as of v0.6.0 this package is known as
-    *django-tables2*.
-
 django-tables2 simplifies the task of turning sets of data into HTML tables. It
 has native support for pagination and sorting. It does for HTML tables what
 ``django.forms`` does for HTML forms. e.g.
