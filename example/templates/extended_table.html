@@ -3,7 +3,7 @@
 {% block table.tfoot %}
 <tfoot>
     <tr>
-        <td>This is a footer</td>
+        <td colspan="{{ table.columns|length }}">This is a footer</td>
     </tr>
 </tfoot>
 {% endblock %}
