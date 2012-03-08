@@ -184,8 +184,8 @@ class OrderByTuple(tuple, StrAndUnicode):
             for ob in self:
                 if ob == index or ob.bare == index:
                     return ob
-            raise IndexError
-        return tuple.__getitem__(self, index)
+            raise KeyError
+        return super(OrderByTuple, self).__getitem__(index)
 
     @property
     def cmp(self):

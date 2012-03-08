@@ -12,7 +12,7 @@ def orderbytuple():
     Assert(obt) == (OrderBy('a'), OrderBy('b'), OrderBy('c'))
     Assert(obt[0]) == OrderBy('a')
     Assert(obt['b']) == OrderBy('b')
-    with Assert.raises(IndexError) as error:
+    with Assert.raises(KeyError) as error:
         obt['d']
     with Assert.raises(TypeError) as error:
         obt[('tuple', )]

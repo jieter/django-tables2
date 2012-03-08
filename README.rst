@@ -70,6 +70,11 @@ globally, use::
 Change log
 ==========
 
+v0.9.6
+------
+
+- Fix bug that caused an ordered column's th to have no HTML attributes.
+
 v0.9.5
 ------
 

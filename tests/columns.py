@@ -256,6 +256,14 @@ def th_are_given_sortable_class_if_column_is_sortable():
     assert "sortable" in classes(root.findall('.//thead/tr/th')[0])
     assert "sortable" not in classes(root.findall('.//thead/tr/th')[1])
 
+    # Now try with an ordered table
+    table = SimpleTable([], order_by="a")
+    root = ET.fromstring(table.as_html())
+    # return classes of an element as a set
+    assert "sortable" in classes(root.findall('.//thead/tr/th')[0])
+    assert "asc" in classes(root.findall('.//thead/tr/th')[0])
+    assert "sortable" not in classes(root.findall('.//thead/tr/th')[1])
+
 
 
 linkcolumn = Tests()
