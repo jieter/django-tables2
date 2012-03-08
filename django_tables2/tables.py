@@ -133,7 +133,7 @@ class DeclarativeColumnsMetaclass(type):
         if opts.sequence:
             opts.sequence.expand(attrs["base_columns"].keys())
             attrs["base_columns"] = SortedDict(((x, attrs["base_columns"][x]) for x in opts.sequence))
-        return type.__new__(cls, name, bases, attrs)
+        return super(DeclarativeColumnsMetaclass, cls).__new__(cls, name, bases, attrs)
 
 
 class TableOptions(object):
