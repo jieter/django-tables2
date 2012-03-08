@@ -56,12 +56,32 @@ class TableData(object):
         """
         # translate order_by to something suitable for this data
         order_by = self._translate_order_by(order_by)
+
         if hasattr(self, 'queryset'):
-            # need to convert the '.' separators to '__' (filter syntax)
-            order_by = [o.replace(Accessor.SEPARATOR,
-                                  QUERYSET_ACCESSOR_SEPARATOR)
-                        for o in order_by]
-            self.queryset = self.queryset.order_by(*order_by)
+            queryset_order_by = ()
+            for o in order_by:
+                # search for custom order field
+                order_method_name = 'order_by_%s' % o
+
+                # Remove the '-' prefix from method name
+                order_method_name = order_method_name.replace('-', '', 1)
+
+                # Make method name compatible with the separator notation
+                order_method_name = order_method_name.replace('.', '_')
+                order_method = getattr(self._table, order_method_name, None)
+                if order_method:
+                    o = order_method(o.startswith('-'))
+
+                # need to convert the '.' separators to '__' (filter syntax)
+                if type(o) == tuple:
+                    for oo in o:
+                        oo = oo.replace(Accessor.SEPARATOR, QUERYSET_ACCESSOR_SEPARATOR)
+                        queryset_order_by += (oo,)
+                else:
+                    o = o.replace(Accessor.SEPARATOR, QUERYSET_ACCESSOR_SEPARATOR)
+                    queryset_order_by += (o,)
+
+            self.queryset = self.queryset.order_by(*queryset_order_by)
         else:
             self.list.sort(cmp=order_by.cmp)
 
