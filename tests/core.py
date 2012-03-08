@@ -6,6 +6,7 @@ import copy
 from django.core.paginator import Paginator
 from django.http import Http404
 import django_tables2 as tables
+from django_tables2.tables import DeclarativeColumnsMetaclass
 from haystack.query import SearchQuerySet
 
 
@@ -56,6 +57,38 @@ def declarations():
 
     assert len(CityTable.base_columns) == 4
     assert 'added' in CityTable.base_columns
+
+
+@core.test
+def metaclass_inheritance():
+    class Tweaker(type):
+        """Adds an attribute "tweaked" to all classes"""
+        def __new__(cls, name, bases, attrs):
+            attrs['tweaked'] = True
+            return super(Tweaker, cls).__new__(cls, name, bases, attrs)
+
+    class Meta(Tweaker, DeclarativeColumnsMetaclass):
+        pass
+
+    class TweakedTable(tables.Table):
+        __metaclass__ = Meta
+        name = tables.Column()
+
+    table = TweakedTable([])
+    assert 'name' in table.columns
+    assert table.tweaked
+
+    # now flip the order
+    class FlippedMeta(DeclarativeColumnsMetaclass, Tweaker):
+        pass
+
+    class FlippedTweakedTable(tables.Table):
+        __metaclass__ = FlippedMeta
+        name = tables.Column()
+
+    table = FlippedTweakedTable([])
+    assert 'name' in table.columns
+    assert table.tweaked
 
 
 @core.test
