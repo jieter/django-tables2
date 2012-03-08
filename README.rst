@@ -70,6 +70,19 @@ globally, use::
 Change log
 ==========
 
+v0.9.5
+------
+
+- Updated example project to add colspan on footer cell so table border renders
+  correctly in Webkit.
+- Fix regression that caused 'sortable' class on <th>.
+- Table.__init__ no longer *always* calls .order_by() on querysets, fixes #55.
+  This does introduce a slight backwards incompatibility. `Table.order_by` now
+  has the possibility of returning `None`, previously it would *always* return
+  an `OrderByTuple`.
+- DeclarativeColumnsMetaclass.__new__ now uses super()
+- Testing now requires pylint and Attest >=0.5.3
+
 v0.9.4
 ------
 
