@@ -162,7 +162,7 @@ via the ``order_by`` option. This can be configured in three places:
 Each of the above options takes prescendent over the previous.
 
 The value must be an iterable (or comma separated string) of :term:`order by
-aliases`.
+alias`.
 
 Ordering preference is passed via the querystring in a variable. The name of
 the variable is determined by ``order_by_field`` (default: ``sort``). This can
@@ -195,7 +195,8 @@ In the above example ``order_by`` needs to be specified, else the table would
 try to execute ``.order_by('name')`` on the queryset when the table is ordered.
 This would fail because ``name`` isn't a field on the model.
 
-----
+Disabling ordering for specific columns
+---------------------------------------
 
 By default all table columns support ordering. This means that all the column
 headers are rendered as links which allow the user to adjust the ordering of
@@ -217,6 +218,8 @@ e.g. disable columns on all but one:
         class Meta:
             orderable = False
 
+Non-queryset data ordering
+--------------------------
 
 Where the table is :ref:`backed by a model <tables-for-models>`, the database
 will handle the ordering. Where this is not the case, the Python ``cmp``
@@ -229,8 +232,8 @@ comparing across different types:
         try:
             return cmp(x, y)
         except TypeError:
-            return cmp((repr(x.__class__), id(x.__class__), x),
-                       (repr(y.__class__), id(y.__class__), y))
+            return cmp((repr(type(x)), id(type(x)), x),
+                       (repr(type(y)), id(type(y)), y))
 
 
 .. _column-headers:
