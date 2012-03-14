@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, unicode_literals
 from django.core.urlresolvers import reverse
 from django.db.models.fields import FieldDoesNotExist
 from django.template import RequestContext, Context, Template
@@ -10,7 +11,7 @@ from django.utils.safestring import mark_safe, SafeData
 from itertools import ifilter, islice
 import warnings
 from .templatetags.django_tables2 import title
-from .utils import A, AttributeDict, Attrs, OrderBy, Sequence
+from .utils import A, AttributeDict, Attrs, OrderBy, OrderByTuple, Sequence
 
 
 class Column(object):
@@ -27,7 +28,7 @@ class Column(object):
     :type      accessor: :class:`basestring` or :class:`~.utils.Accessor`
     :param     accessor: An accessor that describes how to extract values for
                          this column from the :term:`table data`.
-    :parameter  default: The default value for the column. This can be a value
+    :param      default: The default value for the column. This can be a value
                          or a callable object [1]_. If an object in the data
                          provides :const:`None` for a column, the default will
                          be used instead.
@@ -40,6 +41,9 @@ class Column(object):
 
                          .. [1] The provided callable object must not expect to
                                 receive any arguments.
+    :param    order_by: Allows one or more accessors to be used for ordering
+                        rather than ``accessor``.
+    :type     order_by: :class:`unicode`, :class:`tuple`, :class:`~utils.Accessor`
     :type      visible: :class:`bool`
     :param     visible: If :const:`False`, this column will not be in HTML from
                         output generators (e.g. :meth:`as_html` or
@@ -47,8 +51,8 @@ class Column(object):
 
                         When a field is not visible, it is removed from the
                         table's :attr:`~Column.columns` iterable.
-    :type     sortable: :class:`bool`
-    :param    sortable: If :const:`False`, this column will not be allowed to
+    :type    orderable: :class:`bool`
+    :param   orderable: If :const:`False`, this column will not be allowed to
                         influence row ordering/sorting.
     :type        attrs: :class:`Attrs` object
     :param       attrs: HTML attributes to be added to components in the column
@@ -63,25 +67,34 @@ class Column(object):
     creation_counter = 0
 
     def __init__(self, verbose_name=None, accessor=None, default=None,
-                 visible=True, sortable=None, attrs=None):
+                 visible=True, orderable=None, attrs=None, order_by=None,
+                 sortable=None):
         if not (accessor is None or isinstance(accessor, basestring) or
                 callable(accessor)):
-            raise TypeError(u'accessor must be a string or callable, not %s' %
+            raise TypeError('accessor must be a string or callable, not %s' %
                             accessor.__class__.__name__)
         if callable(accessor) and default is not None:
-            raise TypeError('accessor must be string when default is used, not'
-                            ' callable')
+            raise TypeError('accessor must be string when default is used, not callable')
         self.accessor = A(accessor) if accessor else None
         self._default = default
-        self.sortable = sortable
         self.verbose_name = verbose_name
         self.visible = visible
+        if sortable is not None:
+            warnings.warn('`sortable` is deprecated, use `orderable` instead.',
+                          DeprecationWarning)
+            # if orderable hasn't been specified, we'll use sortable's value
+            if orderable is None:
+                orderable = sortable
+        self.orderable = orderable
         attrs = attrs or {}
         if not isinstance(attrs, Attrs):
             warnings.warn('attrs must be Attrs object, not %s'
                           % attrs.__class__.__name__, DeprecationWarning)
             attrs = Attrs(attrs)
         self.attrs = attrs
+        # massage order_by into an OrderByTuple or None
+        order_by = (order_by, ) if isinstance(order_by, basestring) else order_by
+        self.order_by = OrderByTuple(order_by) if order_by is not None else None
 
         self.creation_counter = Column.creation_counter
         Column.creation_counter += 1
@@ -131,6 +144,15 @@ class Column(object):
         """
         return value
 
+    @property
+    def sortable(self):
+        """
+        *deprecated* -- use `orderable` instead.
+        """
+        warnings.warn('`sortable` is deprecated, use `orderable` instead.',
+                      DeprecationWarning)
+        return self.orderable
+
 
 class CheckBoxColumn(Column):
     """
@@ -146,9 +168,9 @@ class CheckBoxColumn(Column):
 
     This class implements some sensible defaults:
 
-    - The ``name`` attribute of the input is the :term:`column name` (can
-      override via ``attrs`` argument).
-    - The ``sortable`` parameter defaults to :const:`False`.
+    - HTML input's ``name`` attribute is the :term:`column name` (can override
+      via ``attrs`` argument).
+    - ``orderable`` defaults to :const:`False`.
 
     .. note::
 
@@ -179,7 +201,7 @@ class CheckBoxColumn(Column):
         if header_attrs:
             attrs.setdefault('th__input', header_attrs)
 
-        kwargs = {'sortable': False, 'attrs': attrs}
+        kwargs = {'orderable': False, 'attrs': attrs}
         kwargs.update(extra)
         super(CheckBoxColumn, self).__init__(**kwargs)
 
@@ -418,11 +440,11 @@ class BoundColumn(object):
         th_class = set((c for c in th.get("class", "").split(" ") if c))
         td_class = set((c for c in td.get("class", "").split(" ") if c))
         # add classes for ordering
-        if self.sortable:
-            th_class.add("sortable")
-        order_by = self.order_by
-        if order_by:
-            th_class.add("desc" if order_by.is_descending else "asc")
+        if self.orderable:
+            th_class.add("orderable")
+            th_class.add("sortable")  # backwards compatible
+        if self.is_ordered:
+            th_class.add("desc" if self.order_by_alias.is_descending else "asc")
         # Always add the column name as a class
         th_class.add(self.name)
         td_class.add(self.name)
@@ -472,22 +494,94 @@ class BoundColumn(object):
     @property
     def order_by(self):
         """
-        If this column is sorted, return the associated :class:`.OrderBy`
-        instance, otherwise ``None``.
+        Returns an :class:`OrderByTuple` of appropriately prefixed data source
+        keys used to sort this column.
+
+        See :meth:`.order_by_alias` for details.
         """
-        try:
-            return (self.table.order_by or {})[self.name]
-        except KeyError:
-            return None
+        if self.column.order_by is not None:
+            order_by = self.column.order_by
+        else:
+            # default to using column name as data source sort key
+            order_by = OrderByTuple((self.name, ))
+        return order_by.opposite if self.order_by_alias.is_descending else order_by
+
+    @property
+    def order_by_alias(self):
+        """
+        Returns an :class:`OrderBy` describing the current state of ordering
+        for this column.
+
+        The following attempts to explain the difference between ``order_by``
+        and ``order_by_alias``.
+
+        ``order_by_alias`` returns and ``OrderBy`` instance that's based on
+        the *name* of the column, rather than the keys used to order the table
+        data. Understanding the difference is essential.
+
+        Having an alias *and* a normal version is necessary because an N-tuple
+        (of data source keys) can be used by the column to order the data, and
+        it's ambiguous when mapping from N-tuple to column (since multiple
+        columns could use the same N-tuple).
+
+        The solution is to use order by *aliases* (which are really just
+        prefixed column names) that describe the ordering *state* of the
+        column, rather than the specific keys in the data source should be
+        ordered.
+
+        e.g.::
+
+            >>> class SimpleTable(tables.Table):
+            ...     name = tables.Column(order_by=("firstname", "last_name"))
+            ...
+            >>> table = SimpleTable([], order_by=("-name", ))
+            >>> table.columns["name"].order_by_alias
+            "-name"
+            >>> table.columns["name"].order_by
+            ("-first_name", "-last_name")
+
+        The ``OrderBy`` returned has been patched to include an extra attribute
+        ``next``, which returns a version of the alias that would be
+        transitioned to if the user toggles sorting on this column, e.g.::
+
+            not sorted -> ascending
+            ascending  -> descending
+            descending -> ascending
+
+        This is useful otherwise in templates you'd need something like:
+
+            {% if column.is_ordered %}
+            {% querystring table.prefixed_order_by_field=column.order_by_alias.opposite %}
+            {% else %}
+            {% querystring table.prefixed_order_by_field=column.order_by_alias %}
+            {% endif %}
+
+        """
+        order_by = OrderBy((self.table.order_by or {}).get(self.name, self.name))
+        order_by.next = order_by.opposite if self.is_ordered else order_by
+        return order_by
+
+    @property
+    def is_ordered(self):
+        return self.name in (self.table.order_by or ())
 
     @property
     def sortable(self):
         """
-        Return a ``bool`` depending on whether this column is sortable.
+        *deprecated* -- use `orderable` instead.
         """
-        if self.column.sortable is not None:
-            return self.column.sortable
-        return self.table.sortable
+        warnings.warn('`%s.sortable` is deprecated, use `orderable`'
+                      % type(self).__name__, DeprecationWarning)
+        return self.orderable
+
+    @property
+    def orderable(self):
+        """
+        Return a ``bool`` depending on whether this column supports ordering.
+        """
+        if self.column.orderable is not None:
+            return self.column.orderable
+        return self.table.orderable
 
     @property
     def table(self):
@@ -611,24 +705,33 @@ class BoundColumns(object):
     def items(self):
         return list(self.iteritems())
 
-    def itersortable(self):
+    def iterorderable(self):
         """
-        Same as :meth:`.BoundColumns.all` but only returns sortable
-        :class:`.BoundColumn` objects.
+        Same as :meth:`.BoundColumns.all` but only returns orderable columns.
 
         This is useful in templates, where iterating over the full
         set and checking ``{% if column.sortable %}`` can be problematic in
         conjunction with e.g. ``{{ forloop.last }}`` (the last column might not
         be the actual last that is rendered).
         """
-        return ifilter(lambda x: x.sortable, self.iterall())
+        return ifilter(lambda x: x.orderable, self.iterall())
+
+    def itersortable(self):
+        warnings.warn('`itersortable` is deprecated, use `iterorderable` instead.',
+                      DeprecationWarning)
+        return self.iterorderable()
+
+    def orderable(self):
+        return list(self.iterorderable())
 
     def sortable(self):
-        return list(self.itersortable())
+        warnings.warn("`sortable` is deprecated, use `orderable` instead.",
+                      DeprecationWarning)
+        return self.orderable
 
     def itervisible(self):
         """
-        Same as :meth:`.sortable` but only returns visible
+        Same as :meth:`.iterorderable` but only returns visible
         :class:`.BoundColumn` objects.
 
         This is geared towards table rendering.

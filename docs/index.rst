@@ -8,7 +8,7 @@ django-tables2 simplifies transforming data into HTML tables. It does for HTML
 tables what ``django.forms`` does for HTML forms. Features:
 
 - Pagination
-- Column sorting
+- Column based data ordering
 - Built-in columns for common use-cases
 - Easily extendable via subclassing
 - Extendable template
@@ -82,7 +82,7 @@ Render the table in the template using the built-in template tag.
     setting contains ``"django.core.context_processors.request"``. See
     :ref:`template-tags.render_table` for details.
 
-To enable sorting and pagination, use a ``RequestConfig`` object in the view:
+To enable ordering and pagination, use a ``RequestConfig`` object in the view:
 
 .. code-block:: python
 
@@ -161,9 +161,8 @@ via the ``order_by`` option. This can be configured in three places:
 
 Each of the above options takes prescendent over the previous.
 
-The value must be either a comma separated string of column names, or a list of
-column names. Generally you'll only use a single column name, but multiple are
-supported to allow for multi-fallback-column ordering.
+The value must be an iterable (or comma separated string) of :term:`order by
+aliases`.
 
 Ordering preference is passed via the querystring in a variable. The name of
 the variable is determined by ``order_by_field`` (default: ``sort``). This can
@@ -175,6 +174,27 @@ be configured in three places:
 
 ``RequestConfig`` honors these values and *does the right thing*.
 
+Specifing ordering accessors for a column
+-----------------------------------------
+
+In scenarios where you don't want to use the column's ``accessor`` value
+for sorting table data, it's possible to specify alternatives. e.g.::
+
+    class Person(models.Model):
+        first_name = models.CharField(max_length=200)
+        last_name = models.CharField(max_length=200)
+
+        def name(self):
+            return "{} {}".format(self.first_name, self.last_name)
+
+
+    class PersonTable(tables.Table):
+        name = tables.Column(order_by=("last_name", "first_name"))
+
+In the above example ``order_by`` needs to be specified, else the table would
+try to execute ``.order_by('name')`` on the queryset when the table is ordered.
+This would fail because ``name`` isn't a field on the model.
+
 ----
 
 By default all table columns support ordering. This means that all the column
@@ -183,8 +203,8 @@ the table data.
 
 Ordering can be disabled on a table or column basis.
 
-- ``Table.Meta.sortable = False`` -- default to disable ordering on columns
-- ``Column(sortable=False)`` -- disable ordering for specific column
+- ``Table.Meta.orderable = False`` -- default to disable ordering on columns
+- ``Column(orderable=False)`` -- disable ordering for specific column
 
 e.g. disable columns on all but one:
 
@@ -192,18 +212,14 @@ e.g. disable columns on all but one:
 
     class SimpleTable(tables.Table):
         name = tables.Column()
-        rating = tables.Column(sortable=True)
+        rating = tables.Column(orderable=True)
 
         class Meta:
-            sortable = False
+            orderable = False
 
-.. note::
-
-    It's very unfortunate that the option is called ``sortable`` as opposed to
-    ``orderable``. Expect this to change in the future.
 
 Where the table is :ref:`backed by a model <tables-for-models>`, the database
-will handle the sorting. Where this is not the case, the Python ``cmp``
+will handle the ordering. Where this is not the case, the Python ``cmp``
 function is used and the following mechanism is used as a fallback when
 comparing across different types:
 
@@ -376,7 +392,7 @@ arguments you're interested in, and the function will recieve them
 Querystring fields
 ==================
 
-Tables pass data via the querystring to indicate sorting and pagination
+Tables pass data via the querystring to indicate ordering and pagination
 preferences.
 
 The names of the querystring variables are configurable via the options:
@@ -958,22 +974,21 @@ API Reference
             This functionality is also available via the ``sequence`` keyword
             argument to a table's constructor.
 
-    .. attribute:: sortable
+    .. attribute:: orderable
 
-        Whether columns are by default sortable, or not. i.e. the fallback for
-        value for a column's sortable value.
+        Default value for column's ``orderable`` attribute.
 
         :type: ``bool``
         :default: ``True``
 
         If the ``Table`` and ``Column`` don't specify a value, a column's
-        ``sortable`` value will fallback to this. object specify. This provides
-        an easy mechanism to disable sorting on an entire table, without adding
-        ``sortable=False`` to each ``Column`` in a ``Table``.
+        ``orderable`` value will fallback to this. object specify. This
+        provides an easy mechanism to disable ordering on an entire table,
+        without adding ``orderable=False`` to each ``Column`` in a ``Table``.
 
         .. note::
 
-            This functionality is also available via the ``sortable`` keyword
+            This functionality is also available via the ``orderable`` keyword
             argument to a table's constructor.
 
     .. attribute:: template
@@ -1027,7 +1042,7 @@ API Reference
 -----------------------------
 
 .. autoclass:: django_tables2.columns.BoundColumns
-    :members: all, items, sortable, visible, __iter__,
+    :members: all, items, orderable, visible, __iter__,
               __contains__, __len__, __getitem__
 
 
@@ -1070,52 +1085,7 @@ API Reference
 -----------------------------
 
 .. autoclass:: django_tables2.utils.OrderByTuple
-    :members: __unicode__, __contains__, __getitem__, cmp
-
-
-Glossary
-========
-
-.. glossary::
-
-    accessor
-        Refers to an :class:`~django_tables2.utils.Accessor` object
-
-    bare orderby
-        The non-prefixed form of an :class:`~django_tables2.utils.OrderBy`
-        object. Typically the bare form is just the ascending form.
-
-        Example: ``age`` is the bare form of ``-age``
-
-    column name
-        The name given to a column. In the follow example, the *column name* is
-        ``age``.
-
-        .. code-block:: python
-
-            class SimpleTable(tables.Table):
-                age = tables.Column()
-
-    table
-        The traditional concept of a table. i.e. a grid of rows and columns
-        containing data.
-
-    view
-        A Django view.
-
-    record
-        A single Python object used as the data for a single row.
-
-    render
-        The act of serialising a :class:`~django_tables2.tables.Table` into
-        HTML.
-
-    template
-        A Django template.
-
-    table data
-        An interable of :term:`records <record>` that
-        :class:`~django_tables2.tables.Table` uses to populate its rows.
+    :members: __unicode__, __contains__, __getitem__, cmp, get
 
 
 Upgrading from django-tables Version 1
@@ -1157,23 +1127,17 @@ Upgrading from django-tables Version 1
 
   and exclude ``column_to_override`` via the table meta data.
 
-- When generating the link to sort the column, instead of:
+- When generating the link to order the column, instead of:
 
   .. code-block:: django
 
-     {% set_url_param sort=column.name_toggled %}
+      {% set_url_param sort=column.name_toggled %}
 
   use:
 
   .. code-block:: django
 
-       {% if column.order_by %}
-            {% querystring table.order_by_field=column.order_by.opposite %}
-       {% else %}
-            {% querystring table.order_by_field=column.name %}
-       {% endif %}
-
-  You might want to use ``{% spaceless %}`` to make it more readable.
+      {% querystring table.order_by_field=column.order_by_alias.next %}
 
 - Replace:
 
@@ -1186,3 +1150,62 @@ Upgrading from django-tables Version 1
   .. code-block:: django
 
       {{ column.order_by.is_descending }} and {{ column.order_by.is_ascending }}
+
+
+Glossary
+========
+
+.. glossary::
+
+    accessor
+        Refers to an :class:`~django_tables2.utils.Accessor` object
+
+    bare orderby
+        The non-prefixed form of an :class:`~django_tables2.utils.OrderBy`
+        object. Typically the bare form is just the ascending form.
+
+        Example: ``age`` is the bare form of ``-age``
+
+    column name
+        The name given to a column. In the follow example, the *column name* is
+        ``age``.
+
+        .. code-block:: python
+
+            class SimpleTable(tables.Table):
+                age = tables.Column()
+
+    order by alias
+        A prefixed column name that describes how a column should impact the
+        order of data within the table. This allows the implementation of how
+        a column affects ordering to be abstracted, which is useful (e.g. in
+        querystrings).
+
+        .. code-block:: python
+
+            class ExampleTable(tables.Table):
+                name = tables.Column(order_by=('first_name', 'last_name'))
+
+        In this example ``-name`` and ``name`` are valid order by aliases. In
+        a querystring you might then have ``?order=-name``.
+
+    table
+        The traditional concept of a table. i.e. a grid of rows and columns
+        containing data.
+
+    view
+        A Django view.
+
+    record
+        A single Python object used as the data for a single row.
+
+    render
+        The act of serialising a :class:`~django_tables2.tables.Table` into
+        HTML.
+
+    template
+        A Django template.
+
+    table data
+        An interable of :term:`records <record>` that
+        :class:`~django_tables2.tables.Table` uses to populate its rows.

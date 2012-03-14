@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.template import Context
 from django.utils.datastructures import SortedDict
-from django.utils.encoding import force_unicode, StrAndUnicode
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from itertools import chain
@@ -106,7 +105,7 @@ class OrderBy(str):
         return not self.is_descending
 
 
-class OrderByTuple(tuple, StrAndUnicode):
+class OrderByTuple(tuple):
     """Stores ordering as (as :class:`.OrderBy` objects). The
     :attr:`django_tables2.tables.Table.order_by` property is always converted
     to an :class:`.OrderByTuple` object.
@@ -132,11 +131,14 @@ class OrderByTuple(tuple, StrAndUnicode):
             if not isinstance(item, OrderBy):
                 item = OrderBy(item)
             transformed.append(item)
-        return tuple.__new__(cls, transformed)
+        return super(OrderByTuple, cls).__new__(cls, transformed)
 
     def __unicode__(self):
-        """Output in human readable format."""
+        """Human readable format."""
         return ','.join(self)
+
+    def __str__(self):
+        return unicode(self).encode('utf-8')
 
     def __contains__(self, name):
         """
@@ -147,17 +149,18 @@ class OrderByTuple(tuple, StrAndUnicode):
         .. code-block:: python
 
             >>> ordering =
-            >>> x = OrderByTuple(('name', '-age'))
-            >>> 'age' in  x
+            >>> x = OrderByTuple(('name', ))
+            >>> 'name' in  x
             True
-            >>> '-age' in x
+            >>> '-name' in x
             True
 
         :param name: The name of a column. (optionally prefixed)
         :returns: :class:`bool`
         """
+        name = OrderBy(name).bare
         for o in self:
-            if o == name or o.bare == name:
+            if o.bare == name:
                 return True
         return False
 
@@ -215,6 +218,30 @@ class OrderByTuple(tuple, StrAndUnicode):
             else:
                 instructions.append((Accessor(o), False))
         return _cmp
+
+    def get(self, key, fallback):
+        """
+        Identical to __getitem__, but supports fallback value.
+        """
+        try:
+            return self[key]
+        except (KeyError, IndexError):
+            return fallback
+
+    @property
+    def opposite(self):
+        """
+        Return version with each :class:`OrderBy` prefix toggled.
+
+        Example:
+
+        .. code-block:: python
+
+            >>> order_by = OrderByTuple(('name', '-age'))
+            >>> order_by.opposite
+            ('-name', 'age')
+        """
+        return type(self)((o.opposite for o in self))
 
 
 class Accessor(str):

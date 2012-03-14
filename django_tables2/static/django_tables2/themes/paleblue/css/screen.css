@@ -50,14 +50,14 @@ table.paleblue thead th > a:visited {
     color: #666;
 }
 
-table.paleblue thead th.sortable > a {
+table.paleblue thead th.orderable > a {
     padding-right: 20px;
     background: url(../img/arrow-inactive-up.png) right center no-repeat;
 }
-table.paleblue thead th.sortable.asc > a {
+table.paleblue thead th.orderable.asc > a {
     background-image: url(../img/arrow-active-up.png);
 }
-table.paleblue thead th.sortable.desc > a {
+table.paleblue thead th.orderable.desc > a {
     background-image: url(../img/arrow-active-down.png);
 }
 

@@ -63,6 +63,31 @@ globally, use::
 Change log
 ==========
 
+v0.10.0
+-------
+
+- Renamed `BoundColumn.order_by` to `order_by_alias` and never returns ``None``
+ (**Backwards incompatible**). Templates are affected if they use something
+ like:
+
+      {% querystring table.prefixed_order_by_field=column.order_by.opposite|default:column.name %}
+
+  Which should be rewritten as:
+
+      {% querystring table.prefixed_order_by_field=column.order_by_alias.next %}
+
+- Added `OrderByTuple.get()`
+- Deprecated `BoundColumn.sortable`, `Column.sortable`, `Table.sortable`,
+  `sortable` CSS class, `BoundColumns.itersortable`, `BoundColumns.sortable`; use `orderable` instead of
+  `sortable`.
+- Added `BoundColumn.is_ordered`
+- Added `next` shortcut to `OrderBy` returned from `BoundColumn.order_by_alias`
+- Introduced concept of an `order by alias`, see glossary in the docs for details.
+-
+
+
+note use type() unicode() str() etc, rather than special methods __foo__
+
 v0.9.6
 ------
 

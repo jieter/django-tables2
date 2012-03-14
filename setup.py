@@ -4,8 +4,8 @@ from setuptools import setup, find_packages
 
 setup(
     name='django-tables2',
-    version='0.9.6',
-    description='Table framework for Django',
+    version='0.10.0',
+    description='Table/data-grid framework for Django',
 
     author='Bradley Ayers',
     author_email='bradley.ayers@gmail.com',

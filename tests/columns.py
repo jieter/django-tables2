@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """Test the core table functionality."""
-from attest import Tests, Assert
+from attest import Tests, Assert, assert_hook
 from django_attest import TestContext
 import django_tables2 as tables
 from django_tables2 import utils, A, Attrs
@@ -84,24 +84,97 @@ def should_support_safe_verbose_name_via_model():
 
 
 @general.test
-def sortable():
+def sortable_backwards_compatibility():
+    # Table.Meta.sortable (not set)
     class SimpleTable(tables.Table):
         name = tables.Column()
-    assert SimpleTable([]).columns['name'].sortable is True
+    table = SimpleTable([])
+    assert table.columns['name'].sortable is True
 
+    # Table.Meta.sortable = False
     class SimpleTable(tables.Table):
         name = tables.Column()
-
         class Meta:
             sortable = False
-    assert SimpleTable([]).columns['name'].sortable is False
+    table = SimpleTable([])
+    assert table.columns['name'].sortable is False  # backwards compatible
+    assert table.columns['name'].orderable is False
 
+    # Table.Meta.sortable = True
+    class SimpleTable(tables.Table):
+        name = tables.Column()
+        class Meta:
+            sortable = True
+    table = SimpleTable([])
+    assert table.columns['name'].sortable is True  # backwards compatible
+    assert table.columns['name'].orderable is True
+
+
+@general.test
+def orderable():
+    # Table.Meta.orderable = False
+    class SimpleTable(tables.Table):
+        name = tables.Column()
+    table = SimpleTable([])
+    assert table.columns['name'].orderable is True
+
+    # Table.Meta.orderable = False
+    class SimpleTable(tables.Table):
+        name = tables.Column()
+        class Meta:
+            orderable = False
+    table = SimpleTable([])
+    assert table.columns['name'].orderable is False
+    assert table.columns['name'].sortable is False  # backwards compatible
+
+    # Table.Meta.orderable = True
+    class SimpleTable(tables.Table):
+        name = tables.Column()
+        class Meta:
+            orderable = True
+    table = SimpleTable([])
+    assert table.columns['name'].sortable is True  # backwards compatible
+    assert table.columns['name'].orderable is True
+
+
+@general.test
+def supports_order_by():
+    class SimpleTable(tables.Table):
+        name = tables.Column(order_by=("last_name", "-first_name"))
+        age = tables.Column()
+
+    table = SimpleTable([], order_by=("-age", ))
+    # alias
+    assert table.columns["name"].order_by_alias == "name"
+    assert table.columns["age"].order_by_alias == "-age"
+    # order by
+    assert table.columns["name"].order_by == ("last_name", "-first_name")
+    assert table.columns["age"].order_by == ("-age", )
+
+    # now try with name ordered
+    table = SimpleTable([], order_by=("-name", ))
+    # alias
+    assert table.columns["name"].order_by_alias == "-name"
+    assert table.columns["age"].order_by_alias == "age"
+    # alias next
+    assert table.columns["name"].order_by_alias.next == "name"
+    assert table.columns["age"].order_by_alias.next == "age"
+    # order by
+    assert table.columns["name"].order_by == ("-last_name", "first_name")
+    assert table.columns["age"].order_by == ("age", )
+
+
+@general.test
+def supports_is_ordered():
     class SimpleTable(tables.Table):
         name = tables.Column()
 
-        class Meta:
-            sortable = True
-    assert SimpleTable([]).columns['name'].sortable is True
+    # sorted
+    table = SimpleTable([], order_by='name')
+    assert table.columns["name"].is_ordered
+    # unsorted
+    table = SimpleTable([])
+    assert not table.columns["name"].is_ordered
 
 
 @general.test
@@ -228,7 +301,7 @@ def cell_attrs_applies_to_td_and_th():
     table = SimpleTable([{"a": "value"}])
     root = ET.fromstring(table.as_html())
 
-    assert root.findall('.//thead/tr/th')[0].attrib == {"key": "value", "class": "a sortable"}
+    assert root.findall('.//thead/tr/th')[0].attrib == {"key": "value", "class": "a orderable sortable"}
     assert root.findall('.//tbody/tr/td')[0].attrib == {"key": "value", "class": "a"}
 
 
@@ -239,7 +312,7 @@ def cells_are_automatically_given_column_name_as_class():
 
     table = SimpleTable([{"a": "value"}])
     root = ET.fromstring(table.as_html())
-    assert root.findall('.//thead/tr/th')[0].attrib == {"class": "a sortable"}
+    assert root.findall('.//thead/tr/th')[0].attrib == {"class": "a orderable sortable"}
     assert root.findall('.//tbody/tr/td')[0].attrib == {"class": "a"}
 
 
