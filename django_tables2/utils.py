@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, unicode_literals
 from django.template import Context
 from django.utils.datastructures import SortedDict
 from django.utils.html import escape
@@ -32,14 +33,14 @@ class Sequence(list):
             # Check for columns in the sequence that don't exist in *columns*
             extra = (set(self) - set(("...", ))).difference(columns)
             if extra:
-                raise ValueError(u"sequence contains columns that do not exist"
-                                 u" in the table. Remove '%s'."
+                raise ValueError("sequence contains columns that do not exist"
+                                 " in the table. Remove '%s'."
                                  % "', '".join(extra))
         else:
             diff = set(self) ^ set(columns)
             if diff:
-                raise ValueError(u"sequence does not match columns. Fix '%s' "
-                                 u"or possibly add '...'." % "', '".join(diff))
+                raise ValueError("sequence does not match columns. Fix '%s' "
+                                 "or possibly add '...'." % "', '".join(diff))
         # everything looks good, let's expand the "..." item
         columns = columns[:]  # don't modify
         head = []
@@ -206,8 +207,8 @@ class OrderByTuple(tuple):
                 try:
                     res = cmp(x, y)
                 except TypeError:
-                    res = cmp((repr(x.__class__), id(x.__class__), x),
-                              (repr(y.__class__), id(y.__class__), y))
+                    res = cmp((repr(type(x)), id(type(x)), x),
+                              (repr(type(y)), id(type(y)), y))
                 if res != 0:
                     return -res if reverse else res
             return 0
@@ -343,7 +344,7 @@ class AttributeDict(dict):
         :rtype: :class:`~django.utils.safestring.SafeUnicode` object
 
         """
-        return mark_safe(' '.join([u'%s="%s"' % (k, escape(v))
+        return mark_safe(' '.join(['%s="%s"' % (k, escape(v))
                                    for k, v in self.iteritems()]))
 
 

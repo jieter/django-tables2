@@ -45,7 +45,7 @@ class SingleTableMixin(object):
             return self.table_class
         raise ImproperlyConfigured(u"A table class was not specified. Define "
                                    u"%(cls)s.table_class"
-                                   % {"cls": self.__class__.__name__})
+                                   % {"cls": type(self).__name__})
 
     def get_context_table_name(self, table):
         """
@@ -63,7 +63,7 @@ class SingleTableMixin(object):
             return self.get_queryset()
         raise ImproperlyConfigured(u"Table data was not specified. Define "
                                    u"%(cls)s.table_data"
-                                   % {"cls": self.__class__.__name__})
+                                   % {"cls": type(self).__name__})
 
     def get_context_data(self, **kwargs):
         """

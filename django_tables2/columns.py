@@ -72,7 +72,7 @@ class Column(object):
         if not (accessor is None or isinstance(accessor, basestring) or
                 callable(accessor)):
             raise TypeError('accessor must be a string or callable, not %s' %
-                            accessor.__class__.__name__)
+                            type(accessor).__name__)
         if callable(accessor) and default is not None:
             raise TypeError('accessor must be string when default is used, not callable')
         self.accessor = A(accessor) if accessor else None
@@ -89,7 +89,7 @@ class Column(object):
         attrs = attrs or {}
         if not isinstance(attrs, Attrs):
             warnings.warn('attrs must be Attrs object, not %s'
-                          % attrs.__class__.__name__, DeprecationWarning)
+                          % type(attrs).__name__, DeprecationWarning)
             attrs = Attrs(attrs)
         self.attrs = attrs
         # massage order_by into an OrderByTuple or None
@@ -193,7 +193,7 @@ class CheckBoxColumn(Column):
         attrs = attrs or Attrs()
         if not isinstance(attrs, Attrs):
             warnings.warn('attrs must be Attrs object, not %s'
-                          % attrs.__class__.__name__, DeprecationWarning)
+                          % type(attrs).__name__, DeprecationWarning)
             attrs = Attrs(td__input=attrs)
         # This is done for backwards compatible too, there used to be a
         # ``header_attrs`` argument, but this has been deprecated. We'll
@@ -281,7 +281,7 @@ class LinkColumn(Column):
         attrs = attrs or Attrs()
         if not isinstance(attrs, Attrs):
             warnings.warn('attrs must be Attrs object, not %s'
-                          % attrs.__class__.__name__, DeprecationWarning)
+                          % type(attrs).__name__, DeprecationWarning)
             attrs = Attrs(a=attrs)
         extra['attrs'] = attrs
         super(LinkColumn, self).__init__(**extra)
@@ -791,4 +791,4 @@ class BoundColumns(object):
                            "choices are: %s" % (index, self.names()))
         else:
             raise TypeError(u'row indices must be integers or str, not %s'
-                            % index.__class__.__name__)
+                            % type(index).__name__)

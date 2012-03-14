@@ -40,7 +40,7 @@ class TableData(object):
             except:
                 raise ValueError('data must be QuerySet-like (have count and '
                                  'order_by) or support list(data) -- %s is '
-                                 'neither' % data.__class__.__name__)
+                                 'neither' % type(data).__name__)
 
     def __len__(self):
         # Use the queryset count() method to get the length, instead of
@@ -79,8 +79,7 @@ class TableData(object):
         with indexing into querysets, so this side-steps that problem (as well
         as just being a better way to iterate).
         """
-        return (self.list.__iter__() if hasattr(self, 'list')
-                                     else self.queryset.__iter__())
+        return iter(self.list) if hasattr(self, 'list') else iter(self.queryset)
 
     def __getitem__(self, index):
         """Forwards indexing accesses to underlying data"""
@@ -245,7 +244,7 @@ class Table(StrAndUnicode):
         # Make a copy so that modifying this will not touch the class
         # definition. Note that this is different from forms, where the
         # copy is made available in a ``fields`` attribute.
-        self.base_columns = copy.deepcopy(self.__class__.base_columns)
+        self.base_columns = copy.deepcopy(type(self).base_columns)
         self.exclude = exclude or ()
         self.sequence = sequence
         # `None` value for order_by means no order is specified. This means we
