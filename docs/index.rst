@@ -17,6 +17,11 @@ tables what ``django.forms`` does for HTML forms. Features:
 - Built-in Django admin style theme (but can be easily remove).
 - *ModelTable* support (think *django.forms.ModelForm*)
 
+It's available in a few places, feedback is always welcome.
+
+- GitHub -- http://github.com/bradleyayers/django-tables2
+- PyPI -- http://pypi.python.org/pypi/django-tables2
+
 
 Tutorial
 ========
