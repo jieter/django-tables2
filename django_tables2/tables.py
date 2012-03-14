@@ -61,7 +61,7 @@ class TableData(object):
         """
         accessors = self._translate_aliases_to_accessors(aliases)
         if hasattr(self, 'queryset'):
-            translate = lambda accessor: accessor.replace(Accessor.SEPARATOR, QUERYSET_ACCESSOR_SEPAARATOR)
+            translate = lambda accessor: accessor.replace(Accessor.SEPARATOR, QUERYSET_ACCESSOR_SEPARATOR)
             self.queryset = self.queryset.order_by(*(translate(a) for a in accessors))
         else:
             self.list.sort(cmp=accessors.cmp)

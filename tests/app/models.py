@@ -28,6 +28,10 @@ class Person(models.Model):
     def __unicode__(self):
         return self.first_name
 
+    @property
+    def name(self):
+        return "{} {}".format(self.first_name, self.last_name)
+
 
 class Occupation(models.Model):
     name = models.CharField(max_length=200)

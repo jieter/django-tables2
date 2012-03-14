@@ -193,3 +193,12 @@ def should_support_rendering_multiple_times():
     # test queryset data
     table = MultiRenderTable(Person.objects.all())
     assert table.as_html() == table.as_html()
+
+
+@models.test
+def ordering():
+    class SimpleTable(tables.Table):
+        name = tables.Column(order_by=("first_name", "last_name"))
+
+    table = SimpleTable(Person.objects.all(), order_by="name")
+    assert table.as_html()
