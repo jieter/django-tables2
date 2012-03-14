@@ -660,7 +660,7 @@ For example:
 .. code-block:: python
 
     from django_tables2.views import SingleTableMixin
-    from django.generic.views.list import ListView
+    from django.views.generic.list import ListView
 
 
     class Simple(models.Model):
@@ -692,8 +692,8 @@ when one isn't explicitly defined.
 .. note::
 
     If you want more than one table on a page, at the moment the simplest way
-    to do it is to use ``SimpleTableMixin`` for one table, and write the
-    boilerplate for the other yourself in ``get_context_data()``. Obviously
+    to do it is to use ``SimpleTableMixin`` for one of the tables, and write
+    the boilerplate for the other yourself in ``get_context_data()``. Obviously
     this isn't particularly elegant, and as such will hopefully be resolved in
     the future.
 
