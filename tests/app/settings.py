@@ -14,14 +14,13 @@ INSTALLED_APPS = [
     'haystack',
 ]
 
-
 ROOT_URLCONF = 'tests.app.urls'
 
+SECRET_KEY = "this is super secret"
 
 TEMPLATE_CONTEXT_PROCESSORS = [
     'django.core.context_processors.request'
 ] + list(global_settings.TEMPLATE_CONTEXT_PROCESSORS)
-
 
 HAYSTACK_SEARCH_ENGINE = 'simple',
 HAYSTACK_SITECONF = 'tests.app.models'
