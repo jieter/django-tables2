@@ -1,5 +1,6 @@
 *.pyc
 *.komodoproject
+/*.sublime-*
 *.egg-info/
 /dist/
 /build/
