@@ -1,17 +1,13 @@
 from attest import AssertImportHook
 from contextlib import contextmanager
-from django import get_version
+import django
 from django.test.simple import DjangoTestSuiteRunner
+from pkg_resources import parse_version
 import warnings
 
 
 def _fix_for_django():
-    version = get_version()
-    if version.count('.') >= 2:
-        # Turn a.b.c.d.e import a.b
-        version = version[:version.index('.', 2)]
-
-    if float(version) <= 1.3:
+    if parse_version(django.get_version()) <= parse_version('1.3'):
         warnings.warn("Django <=1.3 has broken import infrastructure, Attest's"
                       " assert hook will be disabled.")
         AssertImportHook.disable()
