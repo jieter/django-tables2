@@ -26,7 +26,7 @@ class SingleTableMixin(object):
     table_class = None
     table_data = None
     context_table_name = None
-    paginate = None
+    paginate = True
 
     def get_table(self):
         """
