@@ -26,7 +26,7 @@ class SingleTableMixin(object):
     table_class = None
     table_data = None
     context_table_name = None
-    paginate = True
+    paginate = None
 
     def get_table(self):
         """
@@ -69,7 +69,8 @@ class SingleTableMixin(object):
             
     def get_paginate(self):
         """
-        Returns pagination options: True for default, False for no pagination, and a dictionary for custom pagination.
+        Returns pagination options: True for standard pagination (default),
+        False for no pagination, and a dictionary for custom pagination.
         """
         if isinstance(self.paginate, int):
             return bool(self.paginate)
