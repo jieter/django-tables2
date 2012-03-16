@@ -12,7 +12,7 @@ class RequestConfig(object):
             default ``per_page`` value).
 
     """
-    def __init__(self, request, paginate=True):
+    def __init__(self, request, paginate):
         self.request = request
         self.paginate = paginate
 
