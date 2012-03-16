@@ -338,7 +338,7 @@ class Table(StrAndUnicode):
     def page_field(self, value):
         self._page_field = value
 
-    def paginate(self, klass=Paginator, per_page=None, page=1, *args, **kwargs):
+    def paginate(self, klass=Paginator, per_page=10, page=1, *args, **kwargs):
         """
         Paginates the table using a paginator and creates a ``page`` property
         containing information for the current page.
