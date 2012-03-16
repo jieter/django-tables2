@@ -59,8 +59,7 @@ Now instantiate the table and pass in the data, then pass it to a template:
 
     def home(request):
         table = CountryTable(countries)
-        return render_to_response('home.html', {'table': table},
-                                  context_instance=RequestContext(request))
+        return render(request, 'home.html', {'table': table})
 
 Render the table in the template using the built-in template tag.
 
@@ -96,8 +95,7 @@ To enable ordering and pagination, use a ``RequestConfig`` object in the view:
     def home(request):
         table = CountryTable(countries)
         RequestConfig(request).configure(table)
-        return render_to_response('home.html', {'table': table},
-                                  context_instance=RequestContext(request))
+        return render(request, 'home.html', {'table': table})
 
 
 See :ref:`ordering`, and :ref:`pagination` for more information.
@@ -295,8 +293,7 @@ pass in the current page number, e.g.
     def people_listing(request):
         table = PeopleTable(Person.objects.all())
         table.paginate(page=request.GET.get('page', 1), per_page=25)
-        return render_to_response('people_listing.html', {'table': table},
-                                  context_instance=RequestContext(request))
+        return render(request, 'people_listing.html', {'table': table})
 
 If you're using ``RequestConfig``, pass pagination options to the constructor,
 e.g.:
@@ -306,8 +303,7 @@ e.g.:
     def people_listing(request):
         table = PeopleTable(Person.objects.all())
         RequestConfig(request, paginate={"per_page": 25}).configure(table)
-        return render_to_response('people_listing.html', {'table': table},
-                                  context_instance=RequestContext(request))
+        return render(request, 'people_listing.html', {'table': table})
 
 .. _custom-rendering:
 
@@ -427,9 +423,8 @@ fields with a table-specific name. e.g.
         table2 = PeopleTable(Person.objects.all(), prefix="2-")  # prefix specified
         config.configure(table1)
         config.configure(table2)
-        return render_to_response("people_listing.html",
-                                  {"table1": table1, "table2": table2},
-                                  context_instance=RequestContext(request))
+        return render(request, "people_listing.html",
+                      {"table1": table1, "table2": table2})
 
 .. _column-attributes:
 
