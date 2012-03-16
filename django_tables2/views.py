@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.core.exceptions import ImproperlyConfigured
+from django.db.models import Q
 from django.views.generic.base import TemplateResponseMixin
 from django.views.generic.list import ListView
 from .config import RequestConfig
@@ -26,6 +27,8 @@ class SingleTableMixin(object):
     table_class = None
     table_data = None
     context_table_name = None
+    search_fields = None
+
 
     def get_table(self):
         """
@@ -53,6 +56,9 @@ class SingleTableMixin(object):
         """
         return self.context_table_name or "table"
 
+    def get_query_string(self):
+        return self.request.GET.get('query', None)
+
     def get_table_data(self):
         """
         Return the table data that should be used to populate the rows.
@@ -60,7 +66,20 @@ class SingleTableMixin(object):
         if self.table_data:
             return self.table_data
         elif hasattr(self, "get_queryset"):
-            return self.get_queryset()
+            qs = self.get_queryset()
+            # Build a queryset filter based on search_fields attribute
+            # For example setting search_fields = ['name', 'email'] will give:
+            # filter(Q(name__icontains=query) | Q(email__icontains=query))
+            search_fields = getattr(self, 'search_fields', [])
+            q = self.get_query_string()
+            if q and search_fields and data:
+                queries = [Q(**{ field + '__icontains': q })
+                           for field in search_fields]
+                query = queries.pop()
+                for item in queries:
+                    query |= item
+                qs = qs.filter(query)
+            return qs
         raise ImproperlyConfigured(u"Table data was not specified. Define "
                                    u"%(cls)s.table_data"
                                    % {"cls": type(self).__name__})
