@@ -298,14 +298,14 @@ pass in the current page number, e.g.
         return render_to_response('people_listing.html', {'table': table},
                                   context_instance=RequestContext(request))
 
-If you're using ``RequestConfig``, pass pagination options to ``configure()``,
+If you're using ``RequestConfig``, pass pagination options to the constructor,
 e.g.:
 
 .. code-block:: python
 
     def people_listing(request):
         table = PeopleTable(Person.objects.all())
-        RequestConfig(request).configure(table, paginate={"per_page": 25})
+        RequestConfig(request, paginate={"per_page": 25}).configure(table)
         return render_to_response('people_listing.html', {'table': table},
                                   context_instance=RequestContext(request))
 
