@@ -26,7 +26,7 @@ class SingleTableMixin(object):
     table_class = None
     table_data = None
     context_table_name = None
-    table_pagination = True
+    table_pagination = None
 
     def get_table(self):
         """
@@ -35,8 +35,7 @@ class SingleTableMixin(object):
         """
         table_class = self.get_table_class()
         table = table_class(self.get_table_data())
-        table_pagination = self.get_pagination()
-        RequestConfig(self.request, table_pagination).configure(table)
+        RequestConfig(self.request, paginate=self.get_table_pagination()).configure(table)
         return table
 
     def get_table_class(self):
@@ -67,20 +66,12 @@ class SingleTableMixin(object):
                                    u"%(cls)s.table_data"
                                    % {"cls": type(self).__name__})
             
-    def get_pagination(self):
+    def get_table_pagination(self):
         """
         Returns pagination options: True for standard pagination (default),
         False for no pagination, and a dictionary for custom pagination.
         """
-        if isinstance(self.table_pagination, int):
-            return bool(self.table_pagination)
-        else:
-            try:
-                # Duck type for dictionary-like objects
-                self.table_pagination.keys()
-                return self.table_pagination
-            except TypeError:
-                print "%(cls)s.paginate must be true, false, or a dictionary." % {"cls": type(self).__name__}
+        return self.table_pagination or True
 
     def get_context_data(self, **kwargs):
         """
