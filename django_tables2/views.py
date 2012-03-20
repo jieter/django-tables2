@@ -26,15 +26,20 @@ class SingleTableMixin(object):
     table_class = None
     table_data = None
     context_table_name = None
+    table_pagination = None
 
     def get_table(self):
         """
         Return a table object to use. The table has automatic support for
         sorting and pagination.
         """
+        options = {}
         table_class = self.get_table_class()
         table = table_class(self.get_table_data())
-        RequestConfig(self.request).configure(table)
+        paginate = self.get_table_pagination()
+        if paginate is not None:
+            options['paginate'] = paginate
+        RequestConfig(self.request, **options).configure(table)
         return table
 
     def get_table_class(self):
@@ -64,6 +69,13 @@ class SingleTableMixin(object):
         raise ImproperlyConfigured(u"Table data was not specified. Define "
                                    u"%(cls)s.table_data"
                                    % {"cls": type(self).__name__})
+            
+    def get_table_pagination(self):
+        """
+        Returns pagination options: True for standard pagination (default),
+        False for no pagination, and a dictionary for custom pagination.
+        """
+        return self.table_pagination
 
     def get_context_data(self, **kwargs):
         """
