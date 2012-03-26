@@ -7,8 +7,8 @@ import warnings
 
 
 def _fix_for_django():
-    if parse_version(django.get_version()) <= parse_version('1.3'):
-        warnings.warn("Django <=1.3 has broken import infrastructure, Attest's"
+    if parse_version(django.get_version()) < parse_version('1.4'):
+        warnings.warn("Django <1.4 has broken import infrastructure, Attest's"
                       " assert hook will be disabled.")
         AssertImportHook.disable()
 
