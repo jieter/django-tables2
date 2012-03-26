@@ -173,45 +173,28 @@ class BoundRows(object):
     """
     Container for spawning :class:`.BoundRow` objects.
 
-    The :attr:`.Table.rows` attribute is a :class:`.BoundRows` object.
-    It provides functionality that would not be possible with a simple iterator
-    in the table class.
+    :type  data: :class:`.TableData` object
+    :param data: the table in which the rows exist.
 
-    :type table: :class:`.Table` object
-    :param table: the table in which the rows exist.
-
+    This is used for :attr:`.Table.rows`.
     """
-    def __init__(self, table, slice=None):
-        self.table = table
-        if slice is not None:
-            self._data = table.data[slice]
-        else:
-            self._data = None
-
-    @property
-    def data(self):
-        if self._data:
-            return self._data
-        else:
-            return self.table.data
+    def __init__(self, data):
+        self.data = data
 
     def __iter__(self):
-        """Convience method for :meth:`.BoundRows.all`"""
+        table = self.data.table  # avoid repeated lookups
         for record in self.data:
-            yield BoundRow(self.table, record)
+            yield BoundRow(table, record)
 
     def __len__(self):
-        """Returns the number of rows in the table."""
         return len(self.data)
 
-    # for compatibility with QuerySetPaginator
-    count = __len__
-
     def __getitem__(self, key):
-        """Allows normal list slicing syntax to be used."""
+        """
+        Slicing returns a new :class:`.BoundRows` instance, indexing returns
+        a single :class:`.BoundRow` instance.
+        """
         if isinstance(key, slice):
-            return BoundRows(self.table, key)
-        elif isinstance(key, int):
-            return BoundRow(self.table, self.data[key])
+            return BoundRows(self.data[key])
         else:
-            raise TypeError('Key must be a slice or integer.')
+            return BoundRow(self.data.table, self.data[key])

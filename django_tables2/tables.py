@@ -21,14 +21,14 @@ QUERYSET_ACCESSOR_SEPARATOR = '__'
 
 class TableData(object):
     """
-    Exposes a consistent API for :term:`table data`. It currently supports a
-    :class:`QuerySet`, or a :class:`list` of :class:`dict` objects.
+    Exposes a consistent API for :term:`table data`.
 
-    This class is used by :class:`.Table` to wrap any
-    input table data.
+    :param  data: iterable containing data for each row
+    :type   data: :class:`QuerySet` or :class:`list` of :class:`dict`
+    :param table: :class:`.Table` object
     """
     def __init__(self, data, table):
-        self._table = table
+        self.table = table
         # data may be a QuerySet-like objects with count() and order_by()
         if (hasattr(data, 'count') and callable(data.count) and
             hasattr(data, 'order_by') and callable(data.order_by)):
@@ -70,7 +70,7 @@ class TableData(object):
         """
         Translate from order by aliases to column accessors.
         """
-        columns = (self._table.columns[OrderBy(alias).bare] for alias in aliases)
+        columns = (self.table.columns[OrderBy(alias).bare] for alias in aliases)
         return OrderByTuple(itertools.chain(*(c.order_by for c in columns)))
 
     def __iter__(self):
@@ -81,9 +81,16 @@ class TableData(object):
         """
         return iter(self.list) if hasattr(self, 'list') else iter(self.queryset)
 
-    def __getitem__(self, index):
-        """Forwards indexing accesses to underlying data"""
-        return (self.list if hasattr(self, 'list') else self.queryset)[index]
+    def __getitem__(self, key):
+        """
+        Slicing returns a new :class:`.TableData` instance, indexing returns a
+        single record.
+        """
+        data = (self.list if hasattr(self, 'list') else self.queryset)[key]
+        if isinstance(key, slice):
+            return type(self)(data, self.table)
+        else:
+            return data
 
 
 class DeclarativeColumnsMetaclass(type):
@@ -226,9 +233,9 @@ class Table(StrAndUnicode):
                  order_by_field=None, page_field=None, per_page_field=None,
                  template=None, sortable=None):
         super(Table, self).__init__()
-        self.rows = BoundRows(self)
-        self.columns = BoundColumns(self)
         self.data = self.TableDataClass(data=data, table=self)
+        self.rows = BoundRows(self.data)
+        self.columns = BoundColumns(self)
         self.attrs = attrs
         self.empty_text = empty_text
         if sortable is not None:

@@ -63,6 +63,17 @@ globally, use::
 Change log
 ==========
 
+v0.10.1
+-------
+
+- Fixed support for Django 1.4's paginator (thanks koledennix)
+- Some juggling of internal implementation. `TableData` now supports slicing
+  and returns new `TableData` instances. `BoundRows` now takes a single
+  argument `data` (a `TableData` instance).
+- Add support for `get_pagination` on `SingleTableMixin`.
+- `SingleTableMixin` and `SingleTableView` are now importable directly from
+  `django_tables2`.
+
 v0.10.0
 -------
 

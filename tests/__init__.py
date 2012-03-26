@@ -12,10 +12,12 @@ from .models import models
 from .rows import rows
 from .templates import templates
 from .utils import utils
+from .views import views
 
 
 loader = django_attest.FancyReporter.test_loader
-everything = Tests([columns, config, core, models, rows, templates, utils])
+everything = Tests([columns, config, core, models, rows, templates, utils,
+                    views])
 
 
 # -----------------------------------------------------------------------------

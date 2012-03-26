@@ -26,8 +26,8 @@ It's available in a few places, feedback is always welcome.
 Tutorial
 ========
 
-Install the app via ``pip install django-tables2``, then add
-``'django_tables2'`` to ``INSTALLED_APPS``.
+1. ``pip install django-tables2``
+2. Add ``'django_tables2'`` to ``INSTALLED_APPS``
 
 Find some data that you'd like to render as a table. A QuerySet will work, but
 ease of demonstration we'll use a list of dicts:
@@ -342,7 +342,7 @@ a hook that allows abitrary attributes to be added to the ``<table>`` tag.
 --------------------------------
 
 If you want to adjust the way table cells in a particular column are rendered,
-you can implement a ``render_FOO`` method. ``FOO`` is replaced with the
+you can implement a ``render_FOO`` method. ``FOO`` should be the
 :term:`name <column name>` of the column.
 
 This approach provides a lot of control, but is only suitable if you intend to
@@ -350,23 +350,16 @@ customise the rendering for a single table (otherwise you'll end up having to
 copy & paste the method to every table you want to modify – which violates
 DRY).
 
-For convenience, a bunch of commonly used/useful values are passed to
-``render_FOO`` functions, when writing the signature, simply accept the
-arguments you're interested in, and the function will recieve them
+Supported keyword arguments include: (only the arguments declared will be passed)
 
-.. note:: Due to the implementation, a "catch-extra" arguments (e.g. ``*args``
-    or ``**kwargs``) will not recieve any arguments. This is because
-    ``inspect.getargsspec()`` is used to check what arguments a ``render_FOO``
-    method expect, and only to supply those.
+- ``record`` -- the entire record for the row from the :term:`table data`
+- ``value`` -- the value for the cell retrieved from the :term:`table data`
+- ``column`` -- the :class:`.Column` object
+- ``bound_column`` -- the :class:`.BoundColumn` object
+- ``bound_row`` -- the :class:`.BoundRow` object
+- ``table`` -- alias for ``self``
 
-:param value: the value for the cell retrieved from the :term:`table data`
-:param record: the entire record for the row from :term:`table data`
-:param column: the :class:`.Column` object
-:param bound_column: the :class:`.BoundColumn` object
-:param bound_row: the :class:`.BoundRow` object
-:param table: alias for ``self``
-
-.. code-block:: python
+Example::
 
     >>> import django_tables2 as tables
     >>> class SimpleTable(tables.Table):
@@ -389,6 +382,15 @@ arguments you're interested in, and the function will recieve them
     Row 0
     <10>
     31
+
+.. note::
+
+    Due to the implementation of dynamic argument passing, any "catch-extra"
+    arguments (e.g. ``*args`` or ``**kwargs``) will not recieve any arguments.
+    This is because `inspect.getargsspec()`__ is used to check what arguments a
+    ``render_FOO`` method expect, and only to supply those.
+
+.. __: http://docs.python.org/library/inspect.html#inspect.getargspec
 
 
 .. _query-string-fields:
@@ -645,13 +647,14 @@ Class Based Generic Mixins
 Django 1.3 introduced `class based views`__ as a mechanism to reduce the
 repetition in view code. django-tables2 comes with a single class based view
 mixin: ``SingleTableMixin``. It makes it trivial to incorporate a table into a
-view/template, however it requires a few variables to be defined on the view:
+view/template.
+
+The following view parameters are supported:
 
 - ``table_class`` –- the table class to use, e.g. ``SimpleTable``
-- ``table_data`` (or ``get_table_data()``) -- the data used to populate the
-  table
-- ``context_table_name`` -- the name of template variable containing the table
-  object
+- ``table_data`` (or ``get_table_data()``) -- the data used to populate the table
+- ``context_table_name`` -- the name of template variable containing the table object
+- ``table_pagination`` -- pagination options to pass to :class:`RequestConfig`
 
 .. __: https://docs.djangoproject.com/en/1.3/topics/class-based-views/
 
@@ -659,23 +662,22 @@ For example:
 
 .. code-block:: python
 
-    from django_tables2.views import SingleTableMixin
-    from django.views.generic.list import ListView
+    from django_tables2 import SingleTableView
 
 
-    class Simple(models.Model):
+    class Person(models.Model):
         first_name = models.CharField(max_length=200)
         last_name = models.CharField(max_length=200)
 
 
-    class SimpleTable(tables.Table):
-        first_name = tables.Column()
-        last_name = tables.Column()
+    class PersonTable(tables.Table):
+        class Meta:
+            model = Simple
 
 
-    class MyTableView(SingleTableMixin, ListView):
-        model = Simple
-        table_class = SimpleTable
+    class PersonList(SingleTableView):
+        model = Person
+        table_class = PersonTable
 
 
 The template could then be as simple as:
@@ -691,11 +693,14 @@ when one isn't explicitly defined.
 
 .. note::
 
-    If you want more than one table on a page, at the moment the simplest way
-    to do it is to use ``SimpleTableMixin`` for one of the tables, and write
-    the boilerplate for the other yourself in ``get_context_data()``. Obviously
-    this isn't particularly elegant, and as such will hopefully be resolved in
-    the future.
+    If you need more than one table on a page, use ``SingleTableView`` and use
+    ``get_context_data()`` to initialise the other tables and add them to the
+    context.
+
+.. note::
+
+    You don't have to base your view on ``ListView``, you're able to mix
+    ``SingleTableMixin`` directly.
 
 
 Table Mixins
@@ -811,8 +816,8 @@ fixed in a similar way -- the :attr:`.Table.Meta.sequence` option::
 API Reference
 =============
 
-:class:`Accessor` Objects:
---------------------------
+:class:`Accessor` (`A`) Objects:
+--------------------------------
 
 .. autoclass:: django_tables2.utils.Accessor
 
@@ -1060,7 +1065,7 @@ API Reference
 --------------------------
 
 .. autoclass:: django_tables2.rows.BoundRows
-    :members: __iter__, __len__, count
+    :members: __iter__, __len__
 
 
 :class:`BoundRow` Objects
@@ -1068,27 +1073,6 @@ API Reference
 
 .. autoclass:: django_tables2.rows.BoundRow
     :members: __getitem__, __contains__, __iter__, record, table, items
-
-
-:class:`AttributeDict` Objects
-------------------------------
-
-.. autoclass:: django_tables2.utils.AttributeDict
-    :members:
-
-
-:class:`OrderBy` Objects
-------------------------
-
-.. autoclass:: django_tables2.utils.OrderBy
-    :members:
-
-
-:class:`OrderByTuple` Objects
------------------------------
-
-.. autoclass:: django_tables2.utils.OrderByTuple
-    :members: __unicode__, __contains__, __getitem__, cmp, get
 
 
 Upgrading from django-tables Version 1
@@ -1162,12 +1146,6 @@ Glossary
 
     accessor
         Refers to an :class:`~django_tables2.utils.Accessor` object
-
-    bare orderby
-        The non-prefixed form of an :class:`~django_tables2.utils.OrderBy`
-        object. Typically the bare form is just the ascending form.
-
-        Example: ``age`` is the bare form of ``-age``
 
     column name
         The name given to a column. In the follow example, the *column name* is

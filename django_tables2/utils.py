@@ -64,7 +64,12 @@ class OrderBy(str):
     @property
     def bare(self):
         """
-        Return the :term:`bare <bare orderby>` form.
+        Return the bare form.
+
+        The *bare form* is the non-prefixed form. Typically the bare form is
+        just the ascending form.
+
+        Example: ``age`` is the bare form of ``-age``
 
         :rtype: :class:`.OrderBy` object
         """
