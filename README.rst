@@ -63,6 +63,12 @@ globally, use::
 Change log
 ==========
 
+v0.10.2
+-------
+
+- Fix MANIFEST.in to include example templates, thanks TWAC.
+- Upgrade django-attest to fix problem with tests on Django 1.3.1
+
 v0.10.1
 -------
 
