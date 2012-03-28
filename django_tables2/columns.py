@@ -86,7 +86,7 @@ class Column(object):
             if orderable is None:
                 orderable = sortable
         self.orderable = orderable
-        attrs = attrs or {}
+        attrs = attrs or Attrs()
         if not isinstance(attrs, Attrs):
             warnings.warn('attrs must be Attrs object, not %s'
                           % type(attrs).__name__, DeprecationWarning)
