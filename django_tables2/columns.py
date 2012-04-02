@@ -2,6 +2,7 @@
 from django.core.urlresolvers import reverse
 from django.db.models.fields import FieldDoesNotExist
 from django.template import RequestContext, Context, Template
+from django.template.loader import render_to_string
 from django.utils.encoding import force_unicode, StrAndUnicode
 from django.utils.datastructures import SortedDict
 from django.utils.text import capfirst
@@ -313,6 +314,60 @@ class LinkColumn(Column):
         return mark_safe(html)
 
 
+class AbsoluteLinkColumn(Column):
+    """
+    A subclass of :class:`.Column` that renders the cell value as a hyperlink.
+
+    It's common to have a url value in a row hyperlinked to other page.
+
+    Example:
+
+    .. code-block:: python
+
+        # models.py
+        class Person(models.Model):
+            name = models.CharField(max_length=200)
+            web =  models.URLField()
+
+        # tables.py
+
+        class PeopleTable(tables.Table):
+            name = tables.Column()
+            web = tables.AbsoluteLinkColumn()
+
+    """
+
+    def render(self, value):
+        return mark_safe("<a href='%(url)s'>%(url)s</a>" % {'url': value})
+
+
+class EmailLinkColumn(Column):
+    """
+    A subclass of :class:`.Column` that renders the cell value as a hyperlink.
+
+    It's common to have a email value in a row hyperlinked to other page.
+
+    Example:
+
+    .. code-block:: python
+
+        # models.py
+        class Person(models.Model):
+            name = models.CharField(max_length=200)
+            email =  models.EmailField()
+
+        # tables.py
+
+        class PeopleTable(tables.Table):
+            name = tables.Column()
+            email = tables.EmailLinkColumn()
+
+    """
+
+    def render(self, value):
+        return mark_safe("<a href='mailto:%(url)s'>%(url)s</a>" % {'url': value})
+
+
 class TemplateColumn(Column):
     """
     A subclass of :class:`.Column` that renders some template code to use as
@@ -331,7 +386,8 @@ class TemplateColumn(Column):
 
         class SimpleTable(tables.Table):
             name1 = tables.TemplateColumn('{{ record.name }}')
-            name2 = tables.Column()
+            name2 = tables.TemplateColumn(template_name='myapp/name2_column.html')
+            name3 = tables.Column()
 
     Both columns will have the same output.
 
@@ -341,9 +397,10 @@ class TemplateColumn(Column):
         ``RequestContext``, the table **must** be rendered via
         :ref:`{% render_table %} <template-tags.render_table>`.
     """
-    def __init__(self, template_code=None, **extra):
+    def __init__(self, template_code=None, template_name=None, **extra):
         super(TemplateColumn, self).__init__(**extra)
         self.template_code = template_code
+        self.template_name = template_name
 
     def render(self, record, table, **kwargs):
         # If the table is being rendered using `render_table`, it hackily
@@ -352,7 +409,10 @@ class TemplateColumn(Column):
         context = getattr(table, 'context', Context())
         context.update({'record': record})
         try:
-            return Template(self.template_code).render(context)
+            if self.template_code:
+                return Template(self.template_code).render(context)
+            else:
+                return render_to_string(self.template_name, context)
         finally:
             context.pop()
 
