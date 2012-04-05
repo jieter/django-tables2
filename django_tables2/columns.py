@@ -283,7 +283,7 @@ class LinkColumn(Column):
             warnings.warn('attrs must be Attrs object, not %s'
                           % type(attrs).__name__, DeprecationWarning)
             attrs = Attrs(a=attrs)
-        extra['attrs'] = attrs
+        extra[b'attrs'] = attrs
         super(LinkColumn, self).__init__(**extra)
         self.viewname = viewname
         self.urlconf = urlconf
@@ -298,7 +298,7 @@ class LinkColumn(Column):
         # and use that to decide whether to render a link or just the default
         try:
             raw = bound_column.accessor.resolve(record)
-        except (TypeError, AttributeError, KeyError, ValueError) as e:
+        except (TypeError, AttributeError, KeyError, ValueError):
             raw = None
         if raw is None:
             return self.default
