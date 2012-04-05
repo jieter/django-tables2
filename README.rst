@@ -63,6 +63,12 @@ globally, use::
 Change log
 ==========
 
+v0.10.3
+-------
+
+- Fix issues for Python 2.6.4 -- thanks Steve Sapovits & brianmay
+- Reduce Django 1.3 dependency to Table.as_html -- thanks brianmay
+
 v0.10.2
 -------
 
