@@ -6,9 +6,10 @@ from django.http import Http404
 from django.utils.datastructures import SortedDict
 from django.template import RequestContext
 from django.template.loader import get_template
-from django.test.client import RequestFactory
 from django.utils.encoding import StrAndUnicode
+import itertools
 import sys
+import warnings
 from .utils import Accessor, AttributeDict, OrderBy, OrderByTuple, Sequence
 from .rows import BoundRows
 from .columns import BoundColumns, Column
@@ -19,14 +20,14 @@ QUERYSET_ACCESSOR_SEPARATOR = '__'
 
 class TableData(object):
     """
-    Exposes a consistent API for :term:`table data`. It currently supports a
-    :class:`QuerySet`, or a :class:`list` of :class:`dict` objects.
+    Exposes a consistent API for :term:`table data`.
 
-    This class is used by :class:`.Table` to wrap any
-    input table data.
+    :param  data: iterable containing data for each row
+    :type   data: :class:`QuerySet` or :class:`list` of :class:`dict`
+    :param table: :class:`.Table` object
     """
     def __init__(self, data, table):
-        self._table = table
+        self.table = table
         # data may be a QuerySet-like objects with count() and order_by()
         if (hasattr(data, 'count') and callable(data.count) and
             hasattr(data, 'order_by') and callable(data.order_by)):
@@ -38,7 +39,7 @@ class TableData(object):
             except:
                 raise ValueError('data must be QuerySet-like (have count and '
                                  'order_by) or support list(data) -- %s is '
-                                 'neither' % data.__class__.__name__)
+                                 'neither' % type(data).__name__)
 
     def __len__(self):
         # Use the queryset count() method to get the length, instead of
@@ -47,35 +48,29 @@ class TableData(object):
         return (self.queryset.count() if hasattr(self, 'queryset')
                                       else len(self.list))
 
-    def order_by(self, order_by):
+    def order_by(self, aliases):
         """
-        Order the data based on column names in the table.
+        Order the data based on order by aliases (prefixed column names) in the
+        table.
 
-        :param order_by: the ordering to apply
-        :type order_by: an :class:`~.utils.OrderByTuple` object
+        :param aliases: optionally prefixed names of columns ('-' indicates
+                        descending order) in order of significance with
+                        regard to data ordering.
+        :type  aliases: :class:`~.utils.OrderByTuple`
         """
-        # translate order_by to something suitable for this data
-        order_by = self._translate_order_by(order_by)
+        accessors = self._translate_aliases_to_accessors(aliases)
         if hasattr(self, 'queryset'):
-            # need to convert the '.' separators to '__' (filter syntax)
-            order_by = [o.replace(Accessor.SEPARATOR,
-                                  QUERYSET_ACCESSOR_SEPARATOR)
-                        for o in order_by]
-            self.queryset = self.queryset.order_by(*order_by)
+            translate = lambda accessor: accessor.replace(Accessor.SEPARATOR, QUERYSET_ACCESSOR_SEPARATOR)
+            self.queryset = self.queryset.order_by(*(translate(a) for a in accessors))
         else:
-            self.list.sort(cmp=order_by.cmp)
+            self.list.sort(cmp=accessors.cmp)
 
-    def _translate_order_by(self, order_by):
-        """Translate from column names to column accessors"""
-        translated = []
-        for name in order_by:
-            # handle order prefix
-            prefix, name = ((name[0], name[1:]) if name[0] == '-'
-                                                else ('', name))
-            # find the accessor name
-            column = self._table.columns[name]
-            translated.append(prefix + column.accessor)
-        return OrderByTuple(translated)
+    def _translate_aliases_to_accessors(self, aliases):
+        """
+        Translate from order by aliases to column accessors.
+        """
+        columns = (self.table.columns[OrderBy(alias).bare] for alias in aliases)
+        return OrderByTuple(itertools.chain(*(c.order_by for c in columns)))
 
     def __iter__(self):
         """
@@ -83,12 +78,18 @@ class TableData(object):
         with indexing into querysets, so this side-steps that problem (as well
         as just being a better way to iterate).
         """
-        return (self.list.__iter__() if hasattr(self, 'list')
-                                     else self.queryset.__iter__())
+        return iter(self.list) if hasattr(self, 'list') else iter(self.queryset)
 
-    def __getitem__(self, index):
-        """Forwards indexing accesses to underlying data"""
-        return (self.list if hasattr(self, 'list') else self.queryset)[index]
+    def __getitem__(self, key):
+        """
+        Slicing returns a new :class:`.TableData` instance, indexing returns a
+        single record.
+        """
+        data = (self.list if hasattr(self, 'list') else self.queryset)[key]
+        if isinstance(key, slice):
+            return type(self)(data, self.table)
+        else:
+            return data
 
 
 class DeclarativeColumnsMetaclass(type):
@@ -160,7 +161,10 @@ class TableOptions(object):
         self.per_page_field = getattr(options, "per_page_field", "per_page")
         self.prefix = getattr(options, "prefix", "")
         self.sequence = Sequence(getattr(options, "sequence", ()))
-        self.sortable = getattr(options, "sortable", True)
+        if hasattr(options, "sortable"):
+            warnings.warn("`Table.Meta.sortable` is deprecated, use `orderable` instead",
+                          DeprecationWarning)
+        self.orderable = self.sortable = getattr(options, "orderable", getattr(options, "sortable", True))
         self.model = getattr(options, "model", None)
         self.template = getattr(options, "template", "django_tables2/table.html")
 
@@ -209,8 +213,8 @@ class Table(StrAndUnicode):
             periods). If this marker is used, not all columns need to be
             defined.
 
-    :type  sortable: bool
-    :param sortable: Enable/disable sorting on this table
+    :type  orderable: bool
+    :param orderable: Enable/disable column ordering on this table
 
     :type  template: string
     :param template: the template to render when using {% render_table %}
@@ -219,39 +223,26 @@ class Table(StrAndUnicode):
     :type  empty_text: string
     :param empty_text: Empty text to render when the table has no data.
             (default :attr:`.Table.Meta.empty_text`)
-
-    The ``order_by`` argument is optional and allows the table's
-    ``Meta.order_by`` option to be overridden. If  ``order_by`` is ``None`` the
-    table's ``Meta.order_by`` will be used. If you don't want any ordering
-    changes to be made, use `None`. If you want to erase any existing ordering
-    (only applies to QuerySets), use an empty tuple. i.e. ``Table(..., order_by=())``.
-
-    Example:
-
-    .. code-block:: python
-
-        def obj_list(request):
-            ...
-            # If there's no ?sort=…, we don't want to fallback to
-            # Table.Meta.order_by, thus we must not default to passing in None
-            order_by = request.GET.get('sort', None)
-            table = SimpleTable(data, order_by=order_by)
-            ...
     """
     __metaclass__ = DeclarativeColumnsMetaclass
     TableDataClass = TableData
 
-    def __init__(self, data, order_by=None, sortable=None, empty_text=None,
+    def __init__(self, data, order_by=None, orderable=None, empty_text=None,
                  exclude=None, attrs=None, sequence=None, prefix=None,
                  order_by_field=None, page_field=None, per_page_field=None,
-                 template=None):
+                 template=None, sortable=None):
         super(Table, self).__init__()
-        self.rows = BoundRows(self)
-        self.columns = BoundColumns(self)
         self.data = self.TableDataClass(data=data, table=self)
+        self.rows = BoundRows(self.data)
+        self.columns = BoundColumns(self)
         self.attrs = attrs
         self.empty_text = empty_text
-        self.sortable = sortable
+        if sortable is not None:
+            warnings.warn("`sortable` is deprecated, use `orderable` instead.",
+                          DeprecationWarning)
+            if orderable is None:
+                orderable = sortable
+        self.orderable = orderable
         self.prefix = prefix
         self.order_by_field = order_by_field
         self.page_field = page_field
@@ -259,7 +250,7 @@ class Table(StrAndUnicode):
         # Make a copy so that modifying this will not touch the class
         # definition. Note that this is different from forms, where the
         # copy is made available in a ``fields`` attribute.
-        self.base_columns = copy.deepcopy(self.__class__.base_columns)
+        self.base_columns = copy.deepcopy(type(self).base_columns)
         self.exclude = exclude or ()
         self.sequence = sequence
         # `None` value for order_by means no order is specified. This means we
@@ -285,6 +276,8 @@ class Table(StrAndUnicode):
         generated will clobber the querystring of the request. Use the
         ``{% render_table %}`` template tag instead.
         """
+        # minimizes Django 1.3 dependency
+        from django.test.client import RequestFactory
         request = RequestFactory().get('/')
         template = get_template(self.template)
         return template.render(RequestContext(request, {'table': self}))
@@ -322,20 +315,18 @@ class Table(StrAndUnicode):
         Order the rows of the table based columns. ``value`` must be a sequence
         of column names.
         """
+        # collapse empty values to ()
+        order_by = () if not value else value
         # accept string
-        order_by = value.split(',') if isinstance(value, basestring) else value
-        # accept None
-        order_by = () if order_by is None else order_by
-        new = []
+        order_by = order_by.split(',') if isinstance(order_by, basestring) else order_by
+        valid = []
         # everything's been converted to a iterable, accept iterable!
         for o in order_by:
-            ob = OrderBy(o)
-            name = ob.bare
-            if name in self.columns and self.columns[name].sortable:
-                new.append(ob)
-        order_by = OrderByTuple(new)
-        self._order_by = order_by
-        self.data.order_by(order_by)
+            name = OrderBy(o).bare
+            if name in self.columns and self.columns[name].orderable:
+                valid.append(o)
+        self._order_by = OrderByTuple(valid)
+        self.data.order_by(self._order_by)
 
     @property
     def order_by_field(self):
@@ -425,13 +416,25 @@ class Table(StrAndUnicode):
         self._sequence = value
 
     @property
+    def orderable(self):
+        return (self._orderable if self._orderable is not None
+                                else self._meta.orderable)
+
+    @orderable.setter
+    def orderable(self, value):
+        self._orderable = value
+
+    @property
     def sortable(self):
-        return (self._sortable if self._sortable is not None
-                               else self._meta.sortable)
+        warnings.warn("`sortable` is deprecated, use `orderable` instead.",
+                      DeprecationWarning)
+        return self.orderable
 
     @sortable.setter
     def sortable(self, value):
-        self._sortable = value
+        warnings.warn("`sortable` is deprecated, use `orderable` instead.",
+                      DeprecationWarning)
+        self.orderable = value
 
     @property
     def template(self):

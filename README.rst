@@ -63,6 +63,55 @@ globally, use::
 Change log
 ==========
 
+v0.10.4
+-------
+
+- Fix more bugs on Python 2.6.4, all tests now pass.
+
+v0.10.3
+-------
+
+- Fix issues for Python 2.6.4 -- thanks Steve Sapovits & brianmay
+- Reduce Django 1.3 dependency to Table.as_html -- thanks brianmay
+
+v0.10.2
+-------
+
+- Fix MANIFEST.in to include example templates, thanks TWAC.
+- Upgrade django-attest to fix problem with tests on Django 1.3.1
+
+v0.10.1
+-------
+
+- Fixed support for Django 1.4's paginator (thanks koledennix)
+- Some juggling of internal implementation. `TableData` now supports slicing
+  and returns new `TableData` instances. `BoundRows` now takes a single
+  argument `data` (a `TableData` instance).
+- Add support for `get_pagination` on `SingleTableMixin`.
+- `SingleTableMixin` and `SingleTableView` are now importable directly from
+  `django_tables2`.
+
+v0.10.0
+-------
+
+- Renamed `BoundColumn.order_by` to `order_by_alias` and never returns ``None``
+ (**Backwards incompatible**). Templates are affected if they use something
+ like:
+
+      {% querystring table.prefixed_order_by_field=column.order_by.opposite|default:column.name %}
+
+  Which should be rewritten as:
+
+      {% querystring table.prefixed_order_by_field=column.order_by_alias.next %}
+
+- Added `next` shortcut to `OrderBy` returned from `BoundColumn.order_by_alias`
+- Added `OrderByTuple.get()`
+- Deprecated `BoundColumn.sortable`, `Column.sortable`, `Table.sortable`,
+  `sortable` CSS class, `BoundColumns.itersortable`, `BoundColumns.sortable`; use `orderable` instead of
+  `sortable`.
+- Added `BoundColumn.is_ordered`
+- Introduced concept of an `order by alias`, see glossary in the docs for details.
+
 v0.9.6
 ------
 

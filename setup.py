@@ -4,8 +4,8 @@ from setuptools import setup, find_packages
 
 setup(
     name='django-tables2',
-    version='0.9.6',
-    description='Table framework for Django',
+    version='0.10.4',
+    description='Table/data-grid framework for Django',
 
     author='Bradley Ayers',
     author_email='bradley.ayers@gmail.com',
@@ -16,7 +16,7 @@ setup(
     include_package_data=True,  # declarations in MANIFEST.in
 
     install_requires=['Django >=1.3'],
-    tests_require=['Django >=1.3', 'Attest >=0.5.3', 'django-attest >=0.2.2',
+    tests_require=['Django >=1.3', 'Attest >=0.5.3', 'django-attest >=0.2.4',
                    'fudge', 'django-haystack', 'unittest-xml-reporting',
                    'pylint'],
 

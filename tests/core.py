@@ -250,6 +250,42 @@ def sorting_different_types():
 
 
 @core.test
+def multi_column_sorting():
+    brad   = {"first_name": "Bradley", "last_name": "Ayers"}
+    brad2  = {"first_name": "Bradley", "last_name": "Fake"}
+    chris  = {"first_name": "Chris",   "last_name": "Doble"}
+    stevie = {"first_name": "Stevie",  "last_name": "Armstrong"}
+    ross   = {"first_name": "Ross",    "last_name": "Ayers"}
+
+    people = [brad, brad2, chris, stevie, ross]
+
+    class PersonTable(tables.Table):
+        first_name = tables.Column()
+        last_name = tables.Column()
+
+    table = PersonTable(people, order_by=("first_name", "last_name"))
+    assert [brad, brad2, chris, ross, stevie] == [r.record for r in table.rows]
+
+    table = PersonTable(people, order_by=("first_name", "-last_name"))
+    assert [brad2, brad, chris, ross, stevie] == [r.record for r in table.rows]
+
+    # let's try column order_by using multiple keys
+    class PersonTable(tables.Table):
+        name = tables.Column(order_by=("first_name", "last_name"))
+
+    # add 'name' key for each person.
+    for person in people:
+        person['name'] = "{p[first_name]} {p[last_name]}".format(p=person)
+    assert brad['name'] == "Bradley Ayers"
+
+    table = PersonTable(people, order_by="name")
+    assert [brad, brad2, chris, ross, stevie] == [r.record for r in table.rows]
+
+    table = PersonTable(people, order_by="-name")
+    assert [stevie, ross, chris, brad2, brad] == [r.record for r in table.rows]
+
+
+@core.test
 def column_count():
     class SimpleTable(tables.Table):
         visible = tables.Column(visible=True)
