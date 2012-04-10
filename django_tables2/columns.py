@@ -338,7 +338,7 @@ class URLColumn(Column):
     """
 
     def render(self, value):
-        return escape("<a href='%(url)s'>%(url)s</a>" % {'url': escape(value)})
+        return mark_safe("<a href='%(url)s'>%(url)s</a>" % {'url': escape(value)})
 
 
 class EmailColumn(Column):
@@ -365,7 +365,7 @@ class EmailColumn(Column):
     """
 
     def render(self, value):
-        return mark_safe("<a href='mailto:%(url)s'>%(url)s</a>" % {'url': escape(value)})
+        return mark_safe("<a href='mailto:%(email)s'>%(email)s</a>" % {'email': escape(value)})
 
 
 class TemplateColumn(Column):
