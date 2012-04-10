@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='django-tables2',
-    version='0.10.3',
+    version='0.10.4',
     description='Table/data-grid framework for Django',
 
     author='Bradley Ayers',

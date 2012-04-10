@@ -201,7 +201,7 @@ class CheckBoxColumn(Column):
         if header_attrs:
             attrs.setdefault('th__input', header_attrs)
 
-        kwargs = {'orderable': False, 'attrs': attrs}
+        kwargs = {b'orderable': False, b'attrs': attrs}
         kwargs.update(extra)
         super(CheckBoxColumn, self).__init__(**kwargs)
 
@@ -306,25 +306,25 @@ class LinkColumn(Column):
         # pass to Django's reverse() function.
         params = {}
         if self.viewname:
-            params['viewname'] = (self.viewname.resolve(record)
+            params[b'viewname'] = (self.viewname.resolve(record)
                                  if isinstance(self.viewname, A)
                                  else self.viewname)
         if self.urlconf:
-            params['urlconf'] = (self.urlconf.resolve(record)
+            params[b'urlconf'] = (self.urlconf.resolve(record)
                                  if isinstance(self.urlconf, A)
                                  else self.urlconf)
         if self.args:
-            params['args'] = [a.resolve(record) if isinstance(a, A) else a
+            params[b'args'] = [a.resolve(record) if isinstance(a, A) else a
                               for a in self.args]
         if self.kwargs:
-            params['kwargs'] = {}
+            params[b'kwargs'] = {}
             for k, v in self.kwargs.items():
                 # If we're dealing with an Accessor (A), resolve it, otherwise
                 # use the value verbatim.
-                params['kwargs'][k] = (v.resolve(record) if isinstance(v, A)
+                params[b'kwargs'][k] = (v.resolve(record) if isinstance(v, A)
                                        else v)
         if self.current_app:
-            params['current_app'] = (self.current_app.resolve(record)
+            params[b'current_app'] = (self.current_app.resolve(record)
                                      if isinstance(self.current_app, A)
                                      else self.current_app)
         html = u'<a href="{url}" {attrs}>{value}</a>'.format(

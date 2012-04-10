@@ -63,6 +63,11 @@ globally, use::
 Change log
 ==========
 
+v0.10.4
+-------
+
+- Fix more bugs on Python 2.6.4, all tests now pass.
+
 v0.10.3
 -------
 
