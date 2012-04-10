@@ -353,12 +353,39 @@ templatecolumn = Tests()
 @templatecolumn.test
 def should_handle_context_on_table():
     class TestTable(tables.Table):
-        col = tables.TemplateColumn("{{ record.col }}{{ STATIC_URL }}")
+        col_code = tables.TemplateColumn(template_code="code:{{ record.col }}{{ STATIC_URL }}")
+        col_name = tables.TemplateColumn(template_name="test_template_column.html")
 
     table = TestTable([{"col": "brad"}])
-    assert table.rows[0]["col"] == "brad"
+    assert table.rows[0]["col_code"] == "code:brad"
+    assert table.rows[0]["col_name"] == "name:brad"
     table.context = Context({"STATIC_URL": "/static/"})
-    assert table.rows[0]["col"] == "brad/static/"
+    assert table.rows[0]["col_code"] == "code:brad/static/"
+    assert table.rows[0]["col_name"] == "name:brad/static/"
 
 
-columns = Tests([checkboxcolumn, general, linkcolumn, templatecolumn])
+urlcolumn = Tests()
+
+
+@urlcolumn.test
+def test_urlcolumn():
+    class TestTable(tables.Table):
+        url = tables.URLColumn()
+
+    table = TestTable([{"url": "http://example.com"}])
+    assert table.rows[0]["url"] == "<a href='http://example.com'>http://example.com</a>"
+
+
+emailcolumn = Tests()
+
+
+@emailcolumn.test
+def test_emailcolumn():
+    class TestTable(tables.Table):
+        email = tables.EmailColumn()
+
+    table = TestTable([{"email": "test@example.com"}])
+    assert table.rows[0]["email"] == "<a href='mailto:test@example.com'>test@example.com</a>"
+
+
+columns = Tests([checkboxcolumn, emailcolumn, general, linkcolumn, templatecolumn, urlcolumn])
