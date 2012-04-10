@@ -314,7 +314,7 @@ class LinkColumn(Column):
         return mark_safe(html)
 
 
-class AbsoluteLinkColumn(Column):
+class URLColumn(Column):
     """
     A subclass of :class:`.Column` that renders the cell value as a hyperlink.
 
@@ -333,7 +333,7 @@ class AbsoluteLinkColumn(Column):
 
         class PeopleTable(tables.Table):
             name = tables.Column()
-            web = tables.AbsoluteLinkColumn()
+            web = tables.URLColumn()
 
     """
 
@@ -341,7 +341,7 @@ class AbsoluteLinkColumn(Column):
         return mark_safe("<a href='%(url)s'>%(url)s</a>" % {'url': value})
 
 
-class EmailLinkColumn(Column):
+class EmailColumn(Column):
     """
     A subclass of :class:`.Column` that renders the cell value as a hyperlink.
 
@@ -360,7 +360,7 @@ class EmailLinkColumn(Column):
 
         class PeopleTable(tables.Table):
             name = tables.Column()
-            email = tables.EmailLinkColumn()
+            email = tables.EmailColumn()
 
     """
 
@@ -401,6 +401,8 @@ class TemplateColumn(Column):
         super(TemplateColumn, self).__init__(**extra)
         self.template_code = template_code
         self.template_name = template_name
+        if not self.template_code and not self.template_name:
+            raise ValueError('The template_code and template_name are equal to "None"')
 
     def render(self, record, table, **kwargs):
         # If the table is being rendered using `render_table`, it hackily

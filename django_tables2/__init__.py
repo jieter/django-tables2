@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
 from .tables import Table
-from .columns import Column, CheckBoxColumn, LinkColumn, TemplateColumn, EmailLinkColumn, AbsoluteLinkColumn
+from .columns import Column, CheckBoxColumn, LinkColumn, TemplateColumn, EmailColumn, URLColumn
 from .config import RequestConfig
 from .utils import A, Attrs
