@@ -374,10 +374,12 @@ class TemplateColumn(Column):
     the cell value.
 
     :type template_code: :class:`basestring` object
+    :type template_name: :class:`basestring` object
     :param template_code: the template code to render
+    :param template_name: the template name to render
 
     A :class:`django.templates.Template` object is created from the
-    *template_code* and rendered with a context containing only a ``record``
+    *template_code* or *template_name* and rendered with a context containing only a ``record``
     variable. This variable is the record for the table row being rendered.
 
     Example:

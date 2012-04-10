@@ -446,9 +446,10 @@ For common use-cases the following columns are included:
 
 - :class:`.Column` -- generic column
 - :class:`.CheckBoxColumn` -- renders checkbox form inputs
-- :class:`.LinkColumn` -- renders ``<a href="...">`` tags
+- :class:`.EmailColumn` -- renders ``<a href="mailto:...">`` tags
+- :class:`.LinkColumn` -- renders ``<a href="...">`` tags (absolute url)
 - :class:`.TemplateColumn` -- renders template code
-
+- :class:`.URLColumn` -- renders ``<a href="...">`` tags (compose a django url)
 
 .. _subclassing-column:
 
@@ -1009,6 +1010,13 @@ API Reference
     :members:
 
 
+:class:`EmailColumn` Objects:
+--------------------------------
+
+.. autoclass:: django_tables2.columns.EmailColumn
+    :members:
+
+
 :class:`LinkColumn` Objects:
 ----------------------------
 
@@ -1021,6 +1029,14 @@ API Reference
 
 .. autoclass:: django_tables2.columns.TemplateColumn
     :members:
+
+
+:class:`URLColumn` Objects:
+--------------------------------
+
+.. autoclass:: django_tables2.columns.URLColumn
+    :members:
+
 
 
 :class:`BoundColumns` Objects
