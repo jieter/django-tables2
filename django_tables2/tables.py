@@ -121,7 +121,13 @@ class DeclarativeColumnsMetaclass(type):
             # We explicitly pass in verbose_name, so that if the table is
             # instantiated with non-queryset data, model field verbose_names
             # are used anyway.
-            extra = SortedDict(((f.name, Column(verbose_name=f.verbose_name))
+            
+            # If declared, include only "fields" declared in Meta instead of everything
+            if opts.fields:
+                extra = SortedDict(((f.name, Column(verbose_name=f.verbose_name))
+                                for f in opts.model._meta.fields if f.name in opts.fields))
+            else:
+                extra = SortedDict(((f.name, Column(verbose_name=f.verbose_name))
                                 for f in opts.model._meta.fields))
             attrs["base_columns"].update(extra)
         # Explicit columns override both parent and generated columns
@@ -167,6 +173,7 @@ class TableOptions(object):
         self.orderable = self.sortable = getattr(options, "orderable", getattr(options, "sortable", True))
         self.model = getattr(options, "model", None)
         self.template = getattr(options, "template", "django_tables2/table.html")
+        self.fields = getattr(options, "fields", None)
 
 
 class Table(StrAndUnicode):
