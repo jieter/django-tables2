@@ -340,7 +340,7 @@ class URLColumn(Column):
     """
     A subclass of :class:`.Column` that renders the cell value as a hyperlink.
 
-    It's common to have a url value in a row hyperlinked to other page.
+    It's common to have a URL value in a row hyperlinked to other page.
 
     Example:
 
