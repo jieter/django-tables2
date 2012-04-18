@@ -352,7 +352,6 @@ class URLColumn(Column):
             web =  models.URLField()
 
         # tables.py
-
         class PeopleTable(tables.Table):
             name = tables.Column()
             web = tables.URLColumn()
@@ -379,7 +378,6 @@ class EmailColumn(Column):
             email =  models.EmailField()
 
         # tables.py
-
         class PeopleTable(tables.Table):
             name = tables.Column()
             email = tables.EmailColumn()
