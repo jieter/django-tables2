@@ -396,7 +396,7 @@ class TemplateColumn(Column):
     :type template_code: :class:`basestring` object
     :type template_name: :class:`basestring` object
     :param template_code: the template code to render
-    :param template_name: the template name to render
+    :param template_name: the name of the template to render
 
     A :class:`django.templates.Template` object is created from the
     *template_code* or *template_name* and rendered with a context containing only a ``record``
