@@ -359,7 +359,7 @@ class URLColumn(Column):
     """
 
     def render(self, value):
-        return mark_safe("<a href='%(url)s'>%(url)s</a>" % {'url': escape(value)})
+        return mark_safe('<a href="%(url)s">%(url)s</a>' % {'url': escape(value)})
 
 
 class EmailColumn(Column):
