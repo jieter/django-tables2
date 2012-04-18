@@ -424,7 +424,7 @@ class TemplateColumn(Column):
         self.template_code = template_code
         self.template_name = template_name
         if not self.template_code and not self.template_name:
-            raise ValueError('The template_code and template_name are equal to "None"')
+            raise ValueError('A template must be provided')
 
     def render(self, record, table, **kwargs):
         # If the table is being rendered using `render_table`, it hackily
