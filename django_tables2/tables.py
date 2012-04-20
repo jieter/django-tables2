@@ -121,8 +121,12 @@ class DeclarativeColumnsMetaclass(type):
             # We explicitly pass in verbose_name, so that if the table is
             # instantiated with non-queryset data, model field verbose_names
             # are used anyway.
+            if opts.fields:
+                fields = [opts.model._meta.get_field_by_name(field)[0] for field in opts.fields]
+            else:
+                fields = opts.model._meta.fields
             extra = SortedDict(((f.name, Column(verbose_name=f.verbose_name))
-                                for f in opts.model._meta.fields))
+                                for f in fields))
             attrs["base_columns"].update(extra)
         # Explicit columns override both parent and generated columns
         attrs["base_columns"].update(SortedDict(columns))
@@ -150,6 +154,7 @@ class TableOptions(object):
         super(TableOptions, self).__init__()
         self.attrs = AttributeDict(getattr(options, "attrs", {}))
         self.empty_text = getattr(options, "empty_text", None)
+        self.fields = getattr(options, "fields", ())
         self.exclude = getattr(options, "exclude", ())
         order_by = getattr(options, "order_by", None)
         if isinstance(order_by, basestring):
