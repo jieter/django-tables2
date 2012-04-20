@@ -227,9 +227,38 @@ class CheckBoxColumn(Column):
         return mark_safe(u'<input %s/>' % attrs.as_html())
 
 
-class LinkColumn(Column):
+class BaseLinkColumn(Column):
     """
-    A subclass of :class:`.Column` that renders the cell value as a hyperlink.
+    A subclass of :class:`.Column` this is only a provider class. To avoid repeating code
+
+
+    :param       attrs: a :class:`dict` of HTML attributes that are added to
+                        the rendered ``<input type="checkbox" .../>`` tag
+    """
+
+    def __init__(self, attrs=None, *args, **kwargs):
+        # backwards compatible translation for naive attrs value
+        attrs = attrs or Attrs()
+        if not isinstance(attrs, Attrs):
+            warnings.warn('attrs must be Attrs object, not %s'
+                          % type(attrs).__name__, DeprecationWarning)
+            attrs = Attrs(a=attrs)
+        kwargs[b'attrs'] = attrs
+        super(BaseLinkColumn, self).__init__(*args, **kwargs)
+
+    def render_link(self, url, value, attrs=None):
+        attrs = attrs or AttributeDict(self.attrs.get('a', {})).as_html()
+        html = u'<a href="{url}" {attrs}>{value}</a>'.format(
+            url=url,
+            attrs=attrs,
+            value=escape(value)
+        )
+        return mark_safe(html)
+
+
+class LinkColumn(BaseLinkColumn):
+    """
+    A subclass of :class:`.BaseLinkColumn` that renders the cell value as a hyperlink.
 
     It's common to have the primary value in a row hyperlinked to page
     dedicated to that record.
@@ -278,14 +307,7 @@ class LinkColumn(Column):
     """
     def __init__(self, viewname, urlconf=None, args=None, kwargs=None,
                  current_app=None, attrs=None, **extra):
-        # backwards compatible translation for naive attrs value
-        attrs = attrs or Attrs()
-        if not isinstance(attrs, Attrs):
-            warnings.warn('attrs must be Attrs object, not %s'
-                          % type(attrs).__name__, DeprecationWarning)
-            attrs = Attrs(a=attrs)
-        extra[b'attrs'] = attrs
-        super(LinkColumn, self).__init__(**extra)
+        super(LinkColumn, self).__init__(attrs, **extra)
         self.viewname = viewname
         self.urlconf = urlconf
         self.args = args
@@ -328,19 +350,17 @@ class LinkColumn(Column):
             params[b'current_app'] = (self.current_app.resolve(record)
                                      if isinstance(self.current_app, A)
                                      else self.current_app)
-        html = u'<a href="{url}" {attrs}>{value}</a>'.format(
-            url=escape(reverse(**params)),
-            attrs=AttributeDict(self.attrs.get('a', {})).as_html(),
-            value=escape(value)
-        )
-        return mark_safe(html)
+        return self.render_link(escape(reverse(**params)), value)
 
 
-class URLColumn(Column):
+class URLColumn(BaseLinkColumn):
     """
-    A subclass of :class:`.Column` that renders the cell value as a hyperlink.
+    A subclass of :class:`.BaseLinkColumn` that renders the cell value as a hyperlink.
 
     It's common to have a URL value in a row hyperlinked to other page.
+
+    :param  attrs: a :class:`dict` of HTML attributes that are added to
+                   the rendered ``<a href="...">...</a>`` tag
 
     Example:
 
@@ -359,14 +379,17 @@ class URLColumn(Column):
     """
 
     def render(self, value):
-        return mark_safe('<a href="%(url)s">%(url)s</a>' % {'url': escape(value)})
+        return self.render_link(value, value)
 
 
-class EmailColumn(Column):
+class EmailColumn(BaseLinkColumn):
     """
-    A subclass of :class:`.Column` that renders the cell value as a hyperlink.
+    A subclass of :class:`.BaseLinkColumn` that renders the cell value as a hyperlink.
 
     It's common to have a email value in a row hyperlinked to other page.
+
+    :param  attrs: a :class:`dict` of HTML attributes that are added to
+                   the rendered ``<a href="...">...</a>`` tag
 
     Example:
 
@@ -385,7 +408,7 @@ class EmailColumn(Column):
     """
 
     def render(self, value):
-        return mark_safe("<a href='mailto:%(email)s'>%(email)s</a>" % {'email': escape(value)})
+        return self.render_link("mailto:%s" % value, value)
 
 
 class TemplateColumn(Column):
