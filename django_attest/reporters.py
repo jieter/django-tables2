@@ -1,5 +1,5 @@
-from attest import reporters, Tests
 from .environment import testing_environment
+from attest import reporters, Tests
 
 
 def patched(reporter):

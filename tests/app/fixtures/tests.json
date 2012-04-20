@@ -1,0 +1,9 @@
+[
+  {
+    "pk": null,
+    "model": "app.thing",
+    "fields": {
+        "name": "loaded from fixture"
+    }
+  }
+]
