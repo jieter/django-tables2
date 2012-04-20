@@ -5,3 +5,5 @@
 *.egg-info/
 /dist/
 /build/
+/reports
+.coverage
