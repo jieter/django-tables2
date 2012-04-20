@@ -63,6 +63,14 @@ globally, use::
 Change log
 ==========
 
+v0.10.5
+-------
+
+- Add `EmailColum`
+- Add `URLColum`
+- The `TemplateColumn` can render a template file
+
+
 v0.10.4
 -------
 

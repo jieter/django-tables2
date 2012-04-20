@@ -3,6 +3,7 @@ from __future__ import absolute_import, unicode_literals
 from django.core.urlresolvers import reverse
 from django.db.models.fields import FieldDoesNotExist
 from django.template import RequestContext, Context, Template
+from django.template.loader import render_to_string
 from django.utils.encoding import force_unicode, StrAndUnicode
 from django.utils.datastructures import SortedDict
 from django.utils.text import capfirst
@@ -226,9 +227,38 @@ class CheckBoxColumn(Column):
         return mark_safe(u'<input %s/>' % attrs.as_html())
 
 
-class LinkColumn(Column):
+class BaseLinkColumn(Column):
     """
-    A subclass of :class:`.Column` that renders the cell value as a hyperlink.
+    A subclass of :class:`.Column` this is only a provider class. To avoid repeating code
+
+
+    :param       attrs: a :class:`dict` of HTML attributes that are added to
+                        the rendered ``<input type="checkbox" .../>`` tag
+    """
+
+    def __init__(self, attrs=None, *args, **kwargs):
+        # backwards compatible translation for naive attrs value
+        attrs = attrs or Attrs()
+        if not isinstance(attrs, Attrs):
+            warnings.warn('attrs must be Attrs object, not %s'
+                          % type(attrs).__name__, DeprecationWarning)
+            attrs = Attrs(a=attrs)
+        kwargs[b'attrs'] = attrs
+        super(BaseLinkColumn, self).__init__(*args, **kwargs)
+
+    def render_link(self, url, value, attrs=None):
+        attrs = attrs or AttributeDict(self.attrs.get('a', {})).as_html()
+        html = u'<a href="{url}" {attrs}>{value}</a>'.format(
+            url=url,
+            attrs=attrs,
+            value=escape(value)
+        )
+        return mark_safe(html)
+
+
+class LinkColumn(BaseLinkColumn):
+    """
+    A subclass of :class:`.BaseLinkColumn` that renders the cell value as a hyperlink.
 
     It's common to have the primary value in a row hyperlinked to page
     dedicated to that record.
@@ -277,14 +307,7 @@ class LinkColumn(Column):
     """
     def __init__(self, viewname, urlconf=None, args=None, kwargs=None,
                  current_app=None, attrs=None, **extra):
-        # backwards compatible translation for naive attrs value
-        attrs = attrs or Attrs()
-        if not isinstance(attrs, Attrs):
-            warnings.warn('attrs must be Attrs object, not %s'
-                          % type(attrs).__name__, DeprecationWarning)
-            attrs = Attrs(a=attrs)
-        extra[b'attrs'] = attrs
-        super(LinkColumn, self).__init__(**extra)
+        super(LinkColumn, self).__init__(attrs, **extra)
         self.viewname = viewname
         self.urlconf = urlconf
         self.args = args
@@ -327,12 +350,65 @@ class LinkColumn(Column):
             params[b'current_app'] = (self.current_app.resolve(record)
                                      if isinstance(self.current_app, A)
                                      else self.current_app)
-        html = u'<a href="{url}" {attrs}>{value}</a>'.format(
-            url=escape(reverse(**params)),
-            attrs=AttributeDict(self.attrs.get('a', {})).as_html(),
-            value=escape(value)
-        )
-        return mark_safe(html)
+        return self.render_link(escape(reverse(**params)), value)
+
+
+class URLColumn(BaseLinkColumn):
+    """
+    A subclass of :class:`.BaseLinkColumn` that renders the cell value as a hyperlink.
+
+    It's common to have a URL value in a row hyperlinked to other page.
+
+    :param  attrs: a :class:`dict` of HTML attributes that are added to
+                   the rendered ``<a href="...">...</a>`` tag
+
+    Example:
+
+    .. code-block:: python
+
+        # models.py
+        class Person(models.Model):
+            name = models.CharField(max_length=200)
+            web =  models.URLField()
+
+        # tables.py
+        class PeopleTable(tables.Table):
+            name = tables.Column()
+            web = tables.URLColumn()
+
+    """
+
+    def render(self, value):
+        return self.render_link(value, value)
+
+
+class EmailColumn(BaseLinkColumn):
+    """
+    A subclass of :class:`.BaseLinkColumn` that renders the cell value as a hyperlink.
+
+    It's common to have a email value in a row hyperlinked to other page.
+
+    :param  attrs: a :class:`dict` of HTML attributes that are added to
+                   the rendered ``<a href="...">...</a>`` tag
+
+    Example:
+
+    .. code-block:: python
+
+        # models.py
+        class Person(models.Model):
+            name = models.CharField(max_length=200)
+            email =  models.EmailField()
+
+        # tables.py
+        class PeopleTable(tables.Table):
+            name = tables.Column()
+            email = tables.EmailColumn()
+
+    """
+
+    def render(self, value):
+        return self.render_link("mailto:%s" % value, value)
 
 
 class TemplateColumn(Column):
@@ -341,10 +417,12 @@ class TemplateColumn(Column):
     the cell value.
 
     :type template_code: :class:`basestring` object
+    :type template_name: :class:`basestring` object
     :param template_code: the template code to render
+    :param template_name: the name of the template to render
 
     A :class:`django.templates.Template` object is created from the
-    *template_code* and rendered with a context containing only a ``record``
+    *template_code* or *template_name* and rendered with a context containing only a ``record``
     variable. This variable is the record for the table row being rendered.
 
     Example:
@@ -353,7 +431,8 @@ class TemplateColumn(Column):
 
         class SimpleTable(tables.Table):
             name1 = tables.TemplateColumn('{{ record.name }}')
-            name2 = tables.Column()
+            name2 = tables.TemplateColumn(template_name='myapp/name2_column.html')
+            name3 = tables.Column()
 
     Both columns will have the same output.
 
@@ -363,9 +442,12 @@ class TemplateColumn(Column):
         ``RequestContext``, the table **must** be rendered via
         :ref:`{% render_table %} <template-tags.render_table>`.
     """
-    def __init__(self, template_code=None, **extra):
+    def __init__(self, template_code=None, template_name=None, **extra):
         super(TemplateColumn, self).__init__(**extra)
         self.template_code = template_code
+        self.template_name = template_name
+        if not self.template_code and not self.template_name:
+            raise ValueError('A template must be provided')
 
     def render(self, record, table, **kwargs):
         # If the table is being rendered using `render_table`, it hackily
@@ -374,7 +456,10 @@ class TemplateColumn(Column):
         context = getattr(table, 'context', Context())
         context.update({'record': record})
         try:
-            return Template(self.template_code).render(context)
+            if self.template_code:
+                return Template(self.template_code).render(context)
+            else:
+                return render_to_string(self.template_name, context)
         finally:
             context.pop()
 
