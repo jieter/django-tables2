@@ -19,6 +19,8 @@ INSTALLED_APPS = [
 
 ROOT_URLCONF = 'tests.app.urls'
 
+SECRET_KEY = "super secret key"
+
 TEMPLATE_DIRS = (
     join(ROOT, "templates"),
 )
