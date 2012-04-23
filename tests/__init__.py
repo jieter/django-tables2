@@ -11,7 +11,7 @@ from pkg_resources import parse_version
 from tests.app.models import Thing
 
 
-loader = django_attest.FancyReporter.test_loader
+loader = django_attest.auto_reporter.test_loader
 everything = Tests()
 
 
@@ -50,6 +50,16 @@ def template_rendering_tracking_works():
         response = client.get('/')
         assert response.content == "rendered from template.html\n"
         assert [t.name for t in response.templates] == ["template.html"]
+
+
+@everything.test
+def reporters():
+    assert django_attest.auto_reporter.test_loader()
+    assert django_attest.AbstractReporter.test_loader()
+    assert django_attest.PlainReporter.test_loader()
+    assert django_attest.FancyReporter.test_loader()
+    assert django_attest.XmlReporter.test_loader()
+    assert django_attest.QuickFixReporter.test_loader()
 
 
 # -----------------------------------------------------------------------------

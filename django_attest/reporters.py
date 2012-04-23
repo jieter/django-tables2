@@ -3,12 +3,11 @@ from attest import reporters, Tests
 
 
 def patched(reporter):
-    @classmethod
-    def test_loader(cls):
+    def test_loader(*args, **kwargs):
         class Loader(object):
             def loadTestsFromNames(self, names, module=None):
                 with testing_environment():
-                    Tests(names).run(cls)
+                    Tests(names).run(reporter)
                 raise SystemExit
         return Loader()
     reporter.test_loader = test_loader
