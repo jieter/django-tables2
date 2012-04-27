@@ -5,11 +5,13 @@ from django.db.models.fields import FieldDoesNotExist
 from django.template import RequestContext, Context, Template
 from django.utils.encoding import force_unicode, StrAndUnicode
 from django.utils.datastructures import SortedDict
+from django.utils.functional import curry
 from django.utils.text import capfirst
 from django.utils.html import escape
 from django.utils.safestring import mark_safe, SafeData
 from itertools import ifilter, islice
 import warnings
+import inspect
 from .templatetags.django_tables2 import title
 from .utils import A, AttributeDict, Attrs, OrderBy, OrderByTuple, Sequence
 
@@ -661,7 +663,24 @@ class BoundColumns(object):
     :param table: the table containing the columns
     """
     def __init__(self, table):
-        self.table = table
+        self.table = table        
+        self.columns = SortedDict()
+        for name, column in self.table.base_columns.iteritems():
+            self.columns[name] = BoundColumn(self.table, column, name)
+        
+        # A list of column names in the correct sequence that they should be
+        # rendered in the table.
+        self.sequence = (self.table.sequence or Sequence(('...', )))
+        self.sequence.expand(self.table.base_columns.keys())
+
+        #Prepare each column's ``render`` function and its expected argument
+        #so they can be easily called when each row is iterated.
+        funcs = ifilter(curry(hasattr, inspect), ('getfullargspec', 'getargspec'))
+        spec = getattr(inspect, next(funcs))
+        for name, bound_column in self.iteritems():
+            bound_column.render = getattr(self.table, 'render_' + bound_column.name,
+                                          bound_column.column.render)
+            bound_column.render_args = [arg for arg in spec(bound_column.render).args][1:]
 
     def iternames(self):
         return (name for name, column in self.iteritems())
@@ -688,19 +707,9 @@ class BoundColumns(object):
         consideration all of the ordering and filtering modifiers that a table
         supports (e.g. ``exclude`` and ``sequence``).
         """
-        # First we build a sorted dict of all the columns that we need.
-        columns = SortedDict()
-        for name, column in self.table.base_columns.iteritems():
-            columns[name] = BoundColumn(self.table, column, name)
-
-        # A list of column names in the correct sequence that they should be
-        # rendered in the table.
-        sequence = (self.table.sequence or Sequence(('...', )))
-        sequence.expand(self.table.base_columns.keys())
-
-        for name in sequence:
+        for name in self.sequence:
             if name not in self.table.exclude:
-                yield (name, columns[name])
+                yield (name, self.columns[name])
 
     def items(self):
         return list(self.iteritems())
