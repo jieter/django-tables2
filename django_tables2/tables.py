@@ -238,7 +238,7 @@ class Table(StrAndUnicode):
                  template=None, sortable=None):
         super(Table, self).__init__()
         self.exclude = exclude or ()
-        self.sequence = sequence
+        self.sequence = sequence or Sequence(('...', ))
         self.data = self.TableDataClass(data=data, table=self)
         self.rows = BoundRows(self.data)
         self.columns = BoundColumns(self)

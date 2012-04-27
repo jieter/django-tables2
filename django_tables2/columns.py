@@ -760,7 +760,7 @@ class BoundColumns(object):
 
         # A list of column names in the correct sequence that they should be
         # rendered in the table.
-        self.sequence = (self.table.sequence or Sequence(('...', )))
+        self.sequence = self.table.sequence
         self.sequence.expand(self.table.base_columns.keys())
 
         #Prepare each column's ``render`` function and its expected argument
