@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
-import inspect
-from itertools import imap, ifilter
+from itertools import imap
 from django.db import models
 from django.db.models.fields import FieldDoesNotExist
-from django.utils.functional import curry
 from django.utils.safestring import EscapeUnicode, SafeData
 from .utils import A
 
@@ -137,19 +135,11 @@ class BoundRow(object):
             'bound_row':    lambda: self,
             'table':        lambda: self._table,
         }
-        render_FOO = 'render_' + bound_column.name
-        render = getattr(self.table, render_FOO, bound_column.column.render)
 
-        # just give a list of all available methods
-        funcs = ifilter(curry(hasattr, inspect), ('getfullargspec', 'getargspec'))
-        spec = getattr(inspect, next(funcs))
-        # only provide the arguments that the func is interested in
         kw = {}
-        for name in spec(render).args:
-            if name == 'self':
-                continue
-            kw[name] = kwargs[name]()
-        return render(**kw)
+        for arg_name in bound_column.render_args:
+            kw[arg_name] = kwargs[arg_name]()
+        return bound_column.render(**kw)
 
     def __contains__(self, item):
         """Check by both row object and column name."""

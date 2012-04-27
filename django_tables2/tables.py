@@ -237,6 +237,8 @@ class Table(StrAndUnicode):
                  order_by_field=None, page_field=None, per_page_field=None,
                  template=None, sortable=None):
         super(Table, self).__init__()
+        self.exclude = exclude or ()
+        self.sequence = sequence
         self.data = self.TableDataClass(data=data, table=self)
         self.rows = BoundRows(self.data)
         self.columns = BoundColumns(self)
@@ -256,8 +258,6 @@ class Table(StrAndUnicode):
         # definition. Note that this is different from forms, where the
         # copy is made available in a ``fields`` attribute.
         self.base_columns = copy.deepcopy(type(self).base_columns)
-        self.exclude = exclude or ()
-        self.sequence = sequence
         # `None` value for order_by means no order is specified. This means we
         # `shouldn't touch our data's ordering in any way. *However*
         # `table.order_by = None` means "remove any ordering from the data"
