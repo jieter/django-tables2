@@ -120,7 +120,7 @@ class DeclarativeColumnsMetaclass(type):
         if opts.model:
             fields = opts.model._meta.fields
             if opts.fields:
-                fields = filter(lambda f: f in opts.fields, fields)
+                fields = filter(lambda f: f.name in opts.fields, fields)
 
             # We explicitly pass in verbose_name, so that if the table is
             # instantiated with non-queryset data, model field verbose_names

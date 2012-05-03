@@ -246,7 +246,7 @@ class BaseLinkColumn(Column):
 
     def render_link(self, uri, text, attrs=None):
         html = u'<a href="{uri}" {attrs}>{text}</a>'.format(
-            url=escape(uri),
+            uri=escape(uri),
             attrs=attrs or AttributeDict(self.attrs.get('a', {})).as_html(),
             text=escape(text)
         )
