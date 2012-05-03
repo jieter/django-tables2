@@ -118,13 +118,13 @@ class DeclarativeColumnsMetaclass(type):
         attrs["base_columns"] = SortedDict(parent_columns)
         # Possibly add some generated columns based on a model
         if opts.model:
+            fields = opts.model._meta.fields
+            if opts.fields:
+                fields = filter(lambda f: f in opts.fields, fields)
+
             # We explicitly pass in verbose_name, so that if the table is
             # instantiated with non-queryset data, model field verbose_names
             # are used anyway.
-            if opts.fields:
-                fields = [opts.model._meta.get_field_by_name(field)[0] for field in opts.fields]
-            else:
-                fields = opts.model._meta.fields
             extra = SortedDict(((f.name, Column(verbose_name=f.verbose_name))
                                 for f in fields))
             attrs["base_columns"].update(extra)
@@ -148,7 +148,7 @@ class TableOptions(object):
     variables in this class.
 
     :param options: options for a table
-    :type options: :class:`Meta` on a :class:`.Table`
+    :type  options: :class:`Meta` on a :class:`.Table`
     """
     def __init__(self, options=None):
         super(TableOptions, self).__init__()

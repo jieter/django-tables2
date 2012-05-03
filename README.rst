@@ -63,13 +63,12 @@ globally, use::
 Change log
 ==========
 
-v0.10.5
+v0.11.0
 -------
 
-- Add `EmailColum`
-- Add `URLColum`
-- The `TemplateColumn` can render a template file
-
+- Add ``URLColumn`` to render URLs in a data source into hyperlinks
+- Add ``EmailColumn`` to render email addresses into hyperlinks
+- ``TemplateColumn`` can now Django's template loaders to render from a file
 
 v0.10.4
 -------

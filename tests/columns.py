@@ -441,24 +441,24 @@ urlcolumn = Tests()
 
 
 @urlcolumn.test
-def test_urlcolumn():
+def should_turn_url_into_hyperlink():
     class TestTable(tables.Table):
         url = tables.URLColumn()
 
     table = TestTable([{"url": "http://example.com"}])
-    assert table.rows[0]["url"] == "<a href='http://example.com'>http://example.com</a>"
+    assert table.rows[0]["url"] == '<a href="http://example.com">http://example.com</a>'
 
 
 emailcolumn = Tests()
 
 
 @emailcolumn.test
-def test_emailcolumn():
+def should_turn_email_address_into_hyperlink():
     class TestTable(tables.Table):
         email = tables.EmailColumn()
 
     table = TestTable([{"email": "test@example.com"}])
-    assert table.rows[0]["email"] == "<a href='mailto:test@example.com'>test@example.com</a>"
+    assert table.rows[0]["email"] == '<a href="mailto:test@example.com">test@example.com</a>'
 
 
 columns = Tests([checkboxcolumn, emailcolumn, general, linkcolumn, templatecolumn, urlcolumn])

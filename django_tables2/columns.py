@@ -229,13 +229,11 @@ class CheckBoxColumn(Column):
 
 class BaseLinkColumn(Column):
     """
-    A subclass of :class:`.Column` this is only a provider class. To avoid repeating code
+    The base for other columns that render links.
 
-
-    :param       attrs: a :class:`dict` of HTML attributes that are added to
-                        the rendered ``<input type="checkbox" .../>`` tag
+    Adds support for an ``a`` key in ``attrs`` which is added to the rendered
+    ``<a href="...">`` tag.
     """
-
     def __init__(self, attrs=None, *args, **kwargs):
         # backwards compatible translation for naive attrs value
         attrs = attrs or Attrs()
@@ -246,27 +244,26 @@ class BaseLinkColumn(Column):
         kwargs[b'attrs'] = attrs
         super(BaseLinkColumn, self).__init__(*args, **kwargs)
 
-    def render_link(self, url, value, attrs=None):
-        attrs = attrs or AttributeDict(self.attrs.get('a', {})).as_html()
-        html = u'<a href="{url}" {attrs}>{value}</a>'.format(
-            url=url,
-            attrs=attrs,
-            value=escape(value)
+    def render_link(self, uri, text, attrs=None):
+        html = u'<a href="{uri}" {attrs}>{text}</a>'.format(
+            url=escape(uri),
+            attrs=attrs or AttributeDict(self.attrs.get('a', {})).as_html(),
+            text=escape(text)
         )
         return mark_safe(html)
 
 
 class LinkColumn(BaseLinkColumn):
     """
-    A subclass of :class:`.BaseLinkColumn` that renders the cell value as a hyperlink.
+    Renders a normal value as an internal hyperlink to another page.
 
-    It's common to have the primary value in a row hyperlinked to page
+    It's common to have the primary value in a row hyperlinked to the page
     dedicated to that record.
 
     The first arguments are identical to that of
-    :func:`django.core.urlresolvers.reverse` and allow a URL to be
+    :func:`django.core.urlresolvers.reverse` and allows an internal URL to be
     described. The last argument ``attrs`` allows custom HTML attributes to
-    be added to the ``<a>`` tag.
+    be added to the rendered ``<a href="...">`` tag.
 
     :param    viewname: See :func:`django.core.urlresolvers.reverse`.
     :param     urlconf: See :func:`django.core.urlresolvers.reverse`.
@@ -350,7 +347,7 @@ class LinkColumn(BaseLinkColumn):
             params[b'current_app'] = (self.current_app.resolve(record)
                                      if isinstance(self.current_app, A)
                                      else self.current_app)
-        return self.render_link(escape(reverse(**params)), value)
+        return self.render_link(reverse(**params), value)
 
 
 class URLColumn(BaseLinkColumn):
