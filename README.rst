@@ -30,7 +30,7 @@ contexts. The result is that a ``client`` argument is passed to each test
 within the collection. ``client`` is a ``django.test.TestClient`` object and
 allows you to make HTTP requests to your project.
 
-.. code-block:: python
+::
 
     from attest import Tests
     from django_attest import TestContext
@@ -59,9 +59,7 @@ options that affect the environment in which your tests are executed.
 
 For example if you want to specify fixtures, urls, a client_class,
 or multi_db, simply pass
-in these options when creating the ``django_tables.TestContext`` object:
-
-.. code-block:: python
+in these options when creating the ``django_tables.TestContext`` object::
 
     from attest import Tests
     from django_attest import TestContext
@@ -74,9 +72,7 @@ Transaction management in tests
 -------------------------------
 
 If you need to test transaction management within your tests, use
-``TransactionTestContext`` rather than ``TestContext``, e.g.:
-
-.. code-block:: python
+``TransactionTestContext`` rather than ``TestContext``, e.g.::
 
     from attest import Tests
     from django_attest import TransactionTestContext
@@ -102,9 +98,7 @@ django-attest's patched Attest reporters. You must however ensure
 ``DJANGO_SETTINGS_MODULE`` is defined before importing anything from
 ``django_attest``.
 
-A simple solution is to create a ``tests/__init__.py`` file containing:
-
-.. code-block:: python
+A simple solution is to create a ``tests/__init__.py`` file containing::
 
     import os
     os.environ['DJANGO_SETTINGS_MODULE'] = 'tests.settings'
@@ -117,9 +111,7 @@ A simple solution is to create a ``tests/__init__.py`` file containing:
     loader = autor_loader.test_loader
     everything = Tests([template_tests, model_tests])
 
-Next ensure your ``setup.py`` contains the following:
-
-.. code-block:: python
+Next ensure your ``setup.py`` contains the following::
 
     from setuptools import setup
 
@@ -131,9 +123,7 @@ Next ensure your ``setup.py`` contains the following:
     )
 
 Finally create ``tests/settings.py`` and populate it with the Django settings
-you need for your app, e.g.:
-
-.. code-block:: python
+you need for your app, e.g.::
 
     DATABASES = {
         'default': {
@@ -176,9 +166,7 @@ To test non-reusable apps in a Django project, the app must contain either a
 documentation <http://docs.djangoproject.com/en/1.3/topics/testing/#writing-unit-tests>`_
 for details).
 
-As of Attest 0.6 you should use test cases:
-
-.. code-block:: python
+As of Attest 0.6 you should use test cases::
 
     # myapp/tests.py
     from attest import Tests
@@ -197,9 +185,7 @@ e.g.::
     python manage.py test myapp.template.filter
 
 Prior to Attest 0.6, you must use the test suite option, which unfortunately
-doesn't support running individual tests:
-
-.. code-block:: python
+doesn't support running individual tests::
 
     from attest import Tests
 
