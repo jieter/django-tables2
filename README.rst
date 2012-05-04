@@ -30,7 +30,7 @@ contexts. The result is that a ``client`` argument is passed to each test
 within the collection. ``client`` is a ``django.test.TestClient`` object and
 allows you to make HTTP requests to your project.
 
-.. code:: python
+.. code-block:: python
 
     from attest import Tests
     from django_attest import TestContext
@@ -61,7 +61,7 @@ For example if you want to specify fixtures, urls, a client_class,
 or multi_db, simply pass
 in these options when creating the ``django_tables.TestContext`` object:
 
-.. code:: python
+.. code-block:: python
 
     from attest import Tests
     from django_attest import TestContext
@@ -76,7 +76,7 @@ Transaction management in tests
 If you need to test transaction management within your tests, use
 ``TransactionTestContext`` rather than ``TestContext``, e.g.:
 
-.. code:: python
+.. code-block:: python
 
     from attest import Tests
     from django_attest import TransactionTestContext
@@ -104,7 +104,7 @@ django-attest's patched Attest reporters. You must however ensure
 
 A simple solution is to create a ``tests/__init__.py`` file containing:
 
-.. code:: python
+.. code-block:: python
 
     import os
     os.environ['DJANGO_SETTINGS_MODULE'] = 'tests.settings'
@@ -119,7 +119,7 @@ A simple solution is to create a ``tests/__init__.py`` file containing:
 
 Next ensure your ``setup.py`` contains the following:
 
-.. code:: python
+.. code-block:: python
 
     from setuptools import setup
 
@@ -133,7 +133,7 @@ Next ensure your ``setup.py`` contains the following:
 Finally create ``tests/settings.py`` and populate it with the Django settings
 you need for your app, e.g.:
 
-.. code:: python
+.. code-block:: python
 
     DATABASES = {
         'default': {
@@ -178,7 +178,7 @@ for details).
 
 As of Attest 0.6 you should use test cases:
 
-.. code:: python
+.. code-block:: python
 
     # myapp/tests.py
     from attest import Tests
@@ -199,7 +199,7 @@ e.g.::
 Prior to Attest 0.6, you must use the test suite option, which unfortunately
 doesn't support running individual tests:
 
-.. code:: python
+.. code-block:: python
 
     from attest import Tests
 
