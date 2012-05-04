@@ -19,7 +19,7 @@ Installation
 
 Use pip::
 
-    ``pip install django-attest``
+    pip install django-attest
 
 
 Usage
@@ -100,17 +100,17 @@ django-attest's patched Attest reporters. You must however ensure
 ``DJANGO_SETTINGS_MODULE`` is defined before importing anything from
 ``django_attest``.
 
-A simple solution is to create a ``tests/__init__.py`` file that contains::
+A simple solution is to create a ``tests/__init__.py`` file containing::
 
     import os
     os.environ['DJANGO_SETTINGS_MODULE'] = 'tests.settings'
 
-    from attest import Tests
-    from django_attest import FancyReporter
+    from attest import assert_hook, Tests
+    from django_attest import auto_loader
     from .templates import tests as template_tests
     from .models import tests as model_tests
 
-    loader = FancyReporter.test_loader
+    loader = autor_loader.test_loader
     everything = Tests([template_tests, model_tests])
 
 Next ensure your ``setup.py`` contains the following::
@@ -163,32 +163,38 @@ Testing non-reusable apps in a Django project
 ---------------------------------------------
 
 To test non-reusable apps in a Django project, the app must contain either a
-``tests`` or ``models`` module with a ``suite`` function that returns a
-``unittest.TestCase`` (see `Django's documentation
-<http://docs.djangoproject.com/en/1.3/topics/testing/#writing-unit-tests>`_ for
-details).
+``tests`` or ``models`` module with either a ``suite`` function that returns a
+``unittest.TestCase``, or simply contains ``TestCase`` classes. (see `Django's
+documentation <http://docs.djangoproject.com/en/1.3/topics/testing/#writing-unit-tests>`_
+for details).
 
-As an example, an app that wants to test some of its templating code has a
-``tests.py`` file containing::
+As of Attest 0.6 you should use test cases::
+
+    # myapp/tests.py
+    from attest import Tests
+
+    template = Tests()
+
+    @template.test
+    def filter():
+        # ...
+
+    template = template.test_case()
+
+This allows Django to find your tests, and allows you to run individual tests,
+e.g.::
+
+    python manage.py test myapp.template.filter
+
+Prior to Attest 0.6, you must use the test suite option, which unfortunately
+doesn't support running individual tests::
 
     from attest import Tests
 
     template = Tests()
 
-    @tests.test
-    def filter():
-        """Test the template filter."""
-        # ...
-
-
     @template.test
-    def tag():
-        """Test the template tag."""
+    def filter():
         # ...
 
-    def suite():
-        return template.test_suite()
-
-Since you should be using Django's test runner, all test environment setup/tear
-down is handled automatically, and there's no need for any of Attest's
-reporters.
+    suite = template.test_suite
