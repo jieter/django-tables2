@@ -144,14 +144,6 @@ you need for your app, e.g.::
 
     ROOT_URLCONF = 'tests.app.urls'
 
-
-A few things to note:
-
-- ``everything`` is the tests collection that contains all the separate test
-  collections. The ``test_suite`` option in ``setup.py`` refers to this.
-- The database is *in-memory* and uses the ``django.db.backends.sqlite3``
-  backend.
-
 Finally, the tests can be run via::
 
     python setup.py test
