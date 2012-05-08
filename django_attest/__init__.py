@@ -1,12 +1,7 @@
 # -*- coding: utf8 -*-
 from attest import Tests
-from django.db import transaction, connections, DEFAULT_DB_ALIAS
 from django.test import TestCase, TransactionTestCase
-from django.test.testcases import (connections_support_transactions,
-                                   disable_transaction_methods,
-                                   restore_transaction_methods)
 from django.test.client import Client
-from django.core.management import call_command
 from .environment import testing_environment
 from .reporters import (AbstractReporter, PlainReporter, FancyReporter,
                         auto_reporter, XmlReporter, QuickFixReporter)
