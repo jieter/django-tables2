@@ -1,22 +1,34 @@
 from .environment import testing_environment
 from attest import reporters, Tests
+from django.utils.functional import wraps
 
 
-def patched(reporter):
-    def test_loader(*args, **kwargs):
-        class Loader(object):
-            def loadTestsFromNames(self, names, module=None):
-                with testing_environment():
-                    Tests(names).run(reporter)
-                raise SystemExit
-        return Loader()
-    reporter.test_loader = test_loader
-    return reporter
+def _test_loader_factory(reporter):
+    class Loader(object):
+        def loadTestsFromNames(self, names, module=None):
+            with testing_environment():
+                Tests(names).run(reporter)
+            raise SystemExit
+    return Loader()
 
 
-AbstractReporter = patched(reporters.AbstractReporter)
-PlainReporter    = patched(reporters.PlainReporter)
-FancyReporter    = patched(reporters.FancyReporter)
-auto_reporter    = patched(reporters.auto_reporter)
-XmlReporter      = patched(reporters.XmlReporter)
-QuickFixReporter = patched(reporters.QuickFixReporter)
+class ReporterMixin(object):
+    """
+    Patch :meth:`test_loader` to perform Django environment configuration.
+    """
+    @classmethod
+    def test_loader(cls):
+        return _test_loader_factory(cls)
+
+
+AbstractReporter = type("AbstractReporter", (ReporterMixin, reporters.AbstractReporter), {})
+PlainReporter    = type("PlainReporter",    (ReporterMixin, reporters.PlainReporter), {})
+FancyReporter    = type("FancyRepoter",     (ReporterMixin, reporters.FancyReporter), {})
+XmlReporter      = type("XmlReporter",      (ReporterMixin, reporters.XmlReporter), {})
+QuickFixReporter = type("QuickFixReporter", (ReporterMixin, reporters.QuickFixReporter), {})
+
+@wraps(reporters.auto_reporter)
+def auto_reporter(**opts):
+    return reporters.auto_reporter(**opts)
+
+auto_reporter.test_loader = lambda: _test_loader_factory(auto_reporter)

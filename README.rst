@@ -88,42 +88,35 @@ If you need to test transaction management within your tests, use
 Testing a reusable Django app
 -----------------------------
 
-Often you'll want to test database or template related code. Django's built-in
-test runner does some automatic setup and teardown of the environment to allow
-you to do this (e.g. it creates a test database and patches ``Template`` to add
-rendering signal hooks).
+A flexible approach is to create a ``tests`` Django project. This shouldn't be
+the fully-fledged output of ``django-admin.py startproject``, but instead the
+minimum required to keep Django happy.
 
-To get the same goodness in a reusable app, you should use one of
-django-attest's patched Attest reporters. You must however ensure
-``DJANGO_SETTINGS_MODULE`` is defined before importing anything from
-``django_attest``.
+tests/__init__.py
+^^^^^^^^^^^^^^^^^
 
-A simple solution is to create a ``tests/__init__.py`` file containing::
-
-    import os
-    os.environ['DJANGO_SETTINGS_MODULE'] = 'tests.settings'
+::
 
     from attest import assert_hook, Tests
+    import os
+    os.environ['DJANGO_SETTINGS_MODULE'] = 'tests.settings'
     from django_attest import auto_loader
-    from .templates import tests as template_tests
-    from .models import tests as model_tests
 
     loader = autor_loader.test_loader
-    everything = Tests([template_tests, model_tests])
+    suite = Tests()
 
-Next ensure your ``setup.py`` contains the following::
+    @suite.test
+    def example():
+        assert len("abc") == 3
 
-    from setuptools import setup
+Django's built-in test runner performs various environment initialisation and
+cleanup tasks. It's important that tests are run using one of the loaders from
+django-attest.
 
-    setup(
-        ...
-        tests_require=['Django >=1.1', 'Attest >=0.4', 'django-attest'],
-        test_loader='tests:loader',
-        test_suite='tests.everything',
-    )
+tests/settings.py
+^^^^^^^^^^^^^^^^^
 
-Finally create ``tests/settings.py`` and populate it with the Django settings
-you need for your app, e.g.::
+::
 
     DATABASES = {
         'default': {
@@ -136,15 +129,39 @@ you need for your app, e.g.::
         'django.contrib.sessions',
         'django.contrib.auth',
         'django.contrib.contenttypes',
-        'myapp',
-        'tests.app',
+        'my_reusable_app',
     ]
 
     SECRET_KEY = 'abcdefghiljklmnopqrstuvwxyz'
 
-    ROOT_URLCONF = 'tests.app.urls'
+    ROOT_URLCONF = 'tests.urls'
 
-Finally, the tests can be run via::
+tests/urls.py
+^^^^^^^^^^^^^
+
+::
+
+    from django.conf.urls import patterns
+    urlpatterns = patterns('')
+
+setup.py
+^^^^^^^^
+
+::
+
+    from setuptools import setup
+    setup(
+        ...
+        tests_require=['Django >=1.1', 'Attest >=0.4', 'django-attest'],
+        test_loader='tests:loader',
+        test_suite='tests.suite',
+    )
+
+
+Running the tests
+^^^^^^^^^^^^^^^^^
+
+::
 
     python setup.py test
 
@@ -174,7 +191,12 @@ As of Attest 0.6 you should use test cases::
 This allows Django to find your tests, and allows you to run individual tests,
 e.g.::
 
-    python manage.py test myapp.template.filter
+    python manage.py test myapp.template.test_filter
+
+.. note::
+
+    When a ``unittest.TestCase`` is created from a test collection, the
+    function names are prefixed with ``test_``.
 
 Prior to Attest 0.6, you must use the test suite option, which unfortunately
 doesn't support running individual tests::

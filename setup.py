@@ -16,7 +16,7 @@ setup(
     install_requires=['Django >=1.1', 'Attest >=0.5', 'distribute'],
 
     test_loader='tests:loader',
-    test_suite='tests.everything',
+    test_suite='tests.suite',
 
     classifiers = [
         'Environment :: Web Environment',

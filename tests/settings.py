@@ -1,4 +1,3 @@
-from django.conf import global_settings
 from os.path import abspath, dirname, join
 
 ROOT = dirname(abspath(__file__))
@@ -17,9 +16,9 @@ INSTALLED_APPS = [
     'tests.app',
 ]
 
-ROOT_URLCONF = 'tests.app.urls'
+SECRET_KEY = 'abcdefghiljklmnopqrstuvwxyz'
 
-SECRET_KEY = "super secret key"
+ROOT_URLCONF = 'tests.urls'
 
 TEMPLATE_DIRS = (
     join(ROOT, "templates"),

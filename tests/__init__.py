@@ -1,28 +1,30 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, unicode_literals
 import os
-os.environ['DJANGO_SETTINGS_MODULE'] = 'tests.app.settings'
+os.environ['DJANGO_SETTINGS_MODULE'] = 'tests.settings'
 
 from attest import assert_hook, Assert, AssertImportHook, COMPILES_AST, Tests
 from contextlib import contextmanager
 import django
+from django.test.simple import build_test
 import django_attest
+from django_attest.reporters import ReporterMixin
 from pkg_resources import parse_version
 from tests.app.models import Thing
 
 
 loader = django_attest.auto_reporter.test_loader
-everything = Tests()
+suite = Tests()
 
 
-@everything.test
+@suite.test
 def assert_import_hook_enabled_by_default():
     is_buggy_django = parse_version(django.get_version()) < parse_version('1.4')
     if not is_buggy_django and COMPILES_AST:
         assert AssertImportHook.enabled
 
 
-@everything.test
+@suite.test
 def test_context_does_transaction_rollback():
     manager = contextmanager(django_attest.TestContext())
     with manager():
@@ -33,7 +35,7 @@ def test_context_does_transaction_rollback():
         Thing.objects.get(pk=thing.pk)
 
 
-@everything.test
+@suite.test
 def test_context_supports_fixtures():
     with Assert.raises(Thing.DoesNotExist):
         Thing.objects.get(name="loaded from fixture")
@@ -43,16 +45,20 @@ def test_context_supports_fixtures():
         Thing.objects.get(name="loaded from fixture")
 
 
-@everything.test
+@suite.test
 def template_rendering_tracking_works():
     manager = contextmanager(django_attest.TestContext())
     with manager() as client:
         response = client.get('/')
         assert response.content == "rendered from template.html\n"
-        assert [t.name for t in response.templates] == ["template.html"]
+        if hasattr(response, "templates"):
+            # Django >= 1.3
+            assert [t.name for t in response.templates] == ["template.html"]
+        else:
+            # Django <= 1.2
+            assert response.template.name == "template.html"
 
-
-@everything.test
+@suite.test
 def reporters():
     assert django_attest.auto_reporter.test_loader()
     assert django_attest.AbstractReporter.test_loader()
@@ -60,6 +66,15 @@ def reporters():
     assert django_attest.FancyReporter.test_loader()
     assert django_attest.XmlReporter.test_loader()
     assert django_attest.QuickFixReporter.test_loader()
+
+
+@suite.test_if(hasattr(Tests, "test_case"))
+def testing_an_individual_test_via_managepy():
+    from tests.app import tests
+    assert tests.TEST_HAS_RUN == False
+    test_suite = build_test("app.test_case.test_change_global")
+    test_suite.debug()  # runs the tests
+    assert tests.TEST_HAS_RUN == True
 
 
 # -----------------------------------------------------------------------------
@@ -71,21 +86,4 @@ junit = Tests()
 def make_junit_output():
     import xmlrunner
     runner = xmlrunner.XMLTestRunner(output=b'reports')
-    runner.run(everything.test_suite())
-
-
-# -----------------------------------------------------------------------------
-
-
-pylint = Tests()
-
-@pylint.test
-def make_pylint_output():
-    from os.path import expanduser
-    from pylint.lint import Run
-    from pylint.reporters.text import ParseableTextReporter
-    if not os.path.exists('reports'):
-        os.mkdir('reports')
-    with open('reports/pylint.report', 'wb') as handle:
-        args = ['django_attest', 'tests']
-        Run(args, reporter=ParseableTextReporter(output=handle), exit=False)
+    runner.run(suite.test_suite())
