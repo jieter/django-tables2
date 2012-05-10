@@ -3,11 +3,12 @@ from __future__ import absolute_import, unicode_literals
 import os
 os.environ['DJANGO_SETTINGS_MODULE'] = 'tests.settings'
 
-from attest import assert_hook, Assert, AssertImportHook, COMPILES_AST, Tests
+from attest import assert_hook, AssertImportHook, COMPILES_AST, Tests
 from contextlib import contextmanager
 import django
 from django.test.simple import build_test
 import django_attest
+from django_attest import Assert, TestContext
 from django_attest.reporters import ReporterMixin
 from pkg_resources import parse_version
 from tests.app.models import Thing
@@ -26,7 +27,7 @@ def assert_import_hook_enabled_by_default():
 
 @suite.test
 def test_context_does_transaction_rollback():
-    manager = contextmanager(django_attest.TestContext())
+    manager = contextmanager(TestContext())
     with manager():
         # create a thing, but it should be rolled back when the context exits
         thing = Thing.objects.create(name="foo")
@@ -40,14 +41,14 @@ def test_context_supports_fixtures():
     with Assert.raises(Thing.DoesNotExist):
         Thing.objects.get(name="loaded from fixture")
 
-    manager = contextmanager(django_attest.TestContext(fixtures=['tests']))
+    manager = contextmanager(TestContext(fixtures=['tests']))
     with manager():
         Thing.objects.get(name="loaded from fixture")
 
 
 @suite.test
 def template_rendering_tracking_works():
-    manager = contextmanager(django_attest.TestContext())
+    manager = contextmanager(TestContext())
     with manager() as client:
         response = client.get('/')
         assert response.content == "rendered from template.html\n"
@@ -75,6 +76,43 @@ def testing_an_individual_test_via_managepy():
     test_suite = build_test("app.test_case.test_change_global")
     test_suite.debug()  # runs the tests
     assert tests.TEST_HAS_RUN == True
+
+
+@suite.test
+def assert_redirects():
+    manager = contextmanager(TestContext())
+    with manager() as client:
+        response = client.get("/bouncer/")
+
+    # First Django's API of passing the URL in by itself should work.
+    Assert.redirects(response, "https://example.com:1234/foo/?a=b#bar")
+
+    valids = [
+        {"port": 1234},
+        {"scheme": "https"},
+        {"domain": "example.com"},
+        {"query": "a=b"},
+        {"path": "/foo/"},
+        {"fragment": "bar"},
+        {"url": "https://example.com:1234/foo/?a=b#bar"},
+    ]
+
+    for valid in valids:
+        Assert.redirects(response, **valid)
+
+    invalids = [
+        {"port": 5678},
+        {"scheme": "http"},
+        {"domain": "example.net"},
+        {"query": "c=d"},
+        {"path": "/baz/"},
+        {"fragment": "ben"},
+        {"url": "http://example.net:5678/baz/?c=d#ben"},
+    ]
+
+    for invalid in invalids:
+        with Assert.raises(AssertionError):
+            Assert.redirects(response, **invalid)
 
 
 # -----------------------------------------------------------------------------

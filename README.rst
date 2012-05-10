@@ -92,6 +92,7 @@ A flexible approach is to create a ``tests`` Django project. This shouldn't be
 the fully-fledged output of ``django-admin.py startproject``, but instead the
 minimum required to keep Django happy.
 
+
 tests/__init__.py
 ^^^^^^^^^^^^^^^^^
 
@@ -112,6 +113,7 @@ tests/__init__.py
 Django's built-in test runner performs various environment initialisation and
 cleanup tasks. It's important that tests are run using one of the loaders from
 django-attest.
+
 
 tests/settings.py
 ^^^^^^^^^^^^^^^^^
@@ -136,6 +138,7 @@ tests/settings.py
 
     ROOT_URLCONF = 'tests.urls'
 
+
 tests/urls.py
 ^^^^^^^^^^^^^
 
@@ -143,6 +146,7 @@ tests/urls.py
 
     from django.conf.urls import patterns
     urlpatterns = patterns('')
+
 
 setup.py
 ^^^^^^^^
@@ -210,3 +214,35 @@ doesn't support running individual tests::
         # ...
 
     suite = template.test_suite
+
+
+assert hook
+-----------
+
+Prior to Attest 0.5, the assert hook was enabled on first import of ``attest``.
+As of Attest 0.6, this is no longer the case – instead it occurs when you use
+the ``attest`` command line program to execute tests.
+
+Since Django uses ``manage.py`` as its entry point, django-attest enables the
+assert hook automatically when it's first imported.
+
+This means that you need to do the following:
+
+1. Make sure ``django_attest`` is imported as soon as possible.
+2. Add ``from attest import assert_hook`` to the top of each test module.
+
+
+Assert helper
+-------------
+
+Despite being deprecated in Attest 0.5, django-attest extends the ``Attest``
+class to add helpers that are available in Django's ``TestCase`` class.
+
+Example::
+
+    from django_attest import Attest
+
+    response = client.get('/')
+    Attest.redirects(response, path="/foo/")
+
+Have a look at the code for details.

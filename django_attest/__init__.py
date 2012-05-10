@@ -1,10 +1,14 @@
 # -*- coding: utf8 -*-
-from attest import Tests
-from django.test import TestCase, TransactionTestCase
-from django.test.client import Client
+from attest import AssertImportHook, Tests
+AssertImportHook.enable()
+
+from .assertion import Assert
 from .environment import testing_environment
 from .reporters import (AbstractReporter, PlainReporter, FancyReporter,
                         auto_reporter, XmlReporter, QuickFixReporter)
+from django.test import TestCase, TransactionTestCase
+from django.test.client import Client
+import urlparse
 
 
 class TransactionTestContext(TransactionTestCase):
