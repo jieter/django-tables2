@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
-from django.conf import settings
 from django import template
-from django.template import TemplateSyntaxError, RequestContext, Variable, Node
+from django.template import TemplateSyntaxError, Variable, Node
 from django.template.loader import get_template, select_template
 from django.template.defaultfilters import stringfilter, title as old_title
 from django.utils.datastructures import SortedDict
-from django.utils.safestring import mark_safe
 from django.utils.http import urlencode
 from django.utils.html import escape
 import django_tables2 as tables
@@ -42,6 +40,7 @@ def token_kwargs(bits, parser):
 
 class SetUrlParamNode(Node):
     def __init__(self, changes):
+        super(SetUrlParamNode, self).__init__()
         self.changes = changes
 
     def render(self, context):
@@ -69,21 +68,21 @@ def set_url_param(parser, token):
         {% set_url_param name="help" age=20 %}
         ?name=help&age=20
 
-    **Deprecated** as of 0.7.0, use ``updateqs``.
+    **Deprecated** as of 0.7.0, use ``querystring``.
     """
     bits = token.contents.split()
     qschanges = {}
     for i in bits[1:]:
         try:
-            a, b = i.split('=', 1)
-            a = a.strip()
-            b = b.strip()
-            a_line_iter = StringIO.StringIO(a).readline
-            keys = list(tokenize.generate_tokens(a_line_iter))
+            key, value = i.split('=', 1)
+            key = key.strip()
+            value = value.strip()
+            key_line_iter = StringIO.StringIO(key).readline
+            keys = list(tokenize.generate_tokens(key_line_iter))
             if keys[0][0] == tokenize.NAME:
                 # workaround bug #5270
-                b = Variable(b) if b == '""' else parser.compile_filter(b)
-                qschanges[str(a)] = b
+                value = Variable(value) if value == '""' else parser.compile_filter(value)
+                qschanges[str(key)] = value
             else:
                 raise ValueError
         except ValueError:
@@ -94,6 +93,7 @@ def set_url_param(parser, token):
 
 class QuerystringNode(Node):
     def __init__(self, params):
+        super(QuerystringNode, self).__init__()
         self.params = params
 
     def render(self, context):
@@ -142,6 +142,7 @@ class RenderTableNode(Node):
     :type  template: unicode or list
     """
     def __init__(self, table, template=None):
+        super(RenderTableNode, self).__init__()
         self.table = table
         self.template = template
 

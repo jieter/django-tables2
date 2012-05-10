@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
-from django.template import Template, RequestContext, Context, VariableDoesNotExist
-from django.test.client import RequestFactory
-from django.http import HttpRequest
+from attest import assert_hook, Tests, Assert  # pylint: disable=W0611
 from django.conf import settings
+from django.http import HttpRequest
+from django.template import Template, RequestContext, Context
+from django.test.client import RequestFactory
+from django.utils.translation import ugettext_lazy
 from urlparse import parse_qs
 import django_tables2 as tables
-from attest import Tests, Assert
 from xml.etree import ElementTree as ET
-from django.utils.translation import ugettext_lazy
 
 
 templates = Tests()
@@ -77,7 +77,7 @@ def custom_rendering():
                         '{{ column.name }} {% endfor %}')
     result = ('Name/name Capital/capital Population Size/population '
               'Phone Ext./calling_code ')
-    Assert( result) == template.render(context)
+    assert result == template.render(context)
 
     # row values
     template = Template('{% for row in countries.rows %}{% for value in row %}'
@@ -161,7 +161,7 @@ def querystring_templatetag():
     # Ensure it's valid XML, retrieve the URL
     url = ET.fromstring(xml).text
 
-    qs = parse_qs(url[1:])  # everything after the ?
+    qs = parse_qs(url[1:])  # everything after the ? pylint: disable=C0103
     assert qs["name"] == ["Brad"]
     assert qs["age"] == ["21"]
     assert qs["a"] == ["b"]
@@ -179,5 +179,5 @@ def title_should_only_apply_to_words_without_uppercase_letters():
     }
 
     for raw, expected in expectations.items():
-        Assert(Template("{% load title from django_tables2 %}{{ x|title }}")
-                .render(Context({"x": raw}))) == expected
+        template = Template("{% load title from django_tables2 %}{{ x|title }}")
+        assert template.render(Context({"x": raw})) == expected

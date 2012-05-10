@@ -1,17 +1,14 @@
 # -*- coding: utf-8 -*-
-"""Test the core table functionality."""
-from attest import Tests, Assert, assert_hook
+# pylint: disable=R0912,E0102
+from attest import assert_hook, Tests, Assert  # pylint: disable=W0611
 from django_attest import TestContext
 import django_tables2 as tables
-from django_tables2 import utils, A, Attrs
+from django_tables2 import A, Attrs
 from django.test.client import RequestFactory
 from django.core.urlresolvers import reverse
 from django.template import Context, Template
-from django.core.exceptions import ImproperlyConfigured
-from django.utils.translation import ugettext_lazy
 from django.utils.translation import ugettext
 from django.utils.safestring import mark_safe, SafeData
-from itertools import chain
 from xml.etree import ElementTree as ET
 from .app.models import Person
 
@@ -94,6 +91,7 @@ def sortable_backwards_compatibility():
     # Table.Meta.sortable = False
     class SimpleTable(tables.Table):
         name = tables.Column()
+
         class Meta:
             sortable = False
     table = SimpleTable([])
@@ -103,6 +101,7 @@ def sortable_backwards_compatibility():
     # Table.Meta.sortable = True
     class SimpleTable(tables.Table):
         name = tables.Column()
+
         class Meta:
             sortable = True
     table = SimpleTable([])
@@ -121,6 +120,7 @@ def orderable():
     # Table.Meta.orderable = False
     class SimpleTable(tables.Table):
         name = tables.Column()
+
         class Meta:
             orderable = False
     table = SimpleTable([])
@@ -130,6 +130,7 @@ def orderable():
     # Table.Meta.orderable = True
     class SimpleTable(tables.Table):
         name = tables.Column()
+
         class Meta:
             orderable = True
     table = SimpleTable([])

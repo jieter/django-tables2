@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, unicode_literals
-from django.template import Context
-from django.utils.datastructures import SortedDict
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from itertools import chain
@@ -165,8 +163,8 @@ class OrderByTuple(tuple):
         :returns: :class:`bool`
         """
         name = OrderBy(name).bare
-        for o in self:
-            if o.bare == name:
+        for order_by in self:
+            if order_by.bare == name:
                 return True
         return False
 
@@ -190,9 +188,9 @@ class OrderByTuple(tuple):
         :rtype: :class:`.OrderBy` object
         """
         if isinstance(index, basestring):
-            for ob in self:
-                if ob == index or ob.bare == index:
-                    return ob
+            for order_by in self:
+                if order_by == index or order_by.bare == index:
+                    return order_by
             raise KeyError
         return super(OrderByTuple, self).__getitem__(index)
 
@@ -205,6 +203,7 @@ class OrderByTuple(tuple):
 
         :rtype: function
         """
+        # pylint: disable=C0103
         def _cmp(a, b):
             for accessor, reverse in instructions:
                 x = accessor.resolve(a)
@@ -218,11 +217,11 @@ class OrderByTuple(tuple):
                     return -res if reverse else res
             return 0
         instructions = []
-        for o in self:
-            if o.startswith('-'):
-                instructions.append((Accessor(o[1:]), True))
+        for order_by in self:
+            if order_by.startswith('-'):
+                instructions.append((Accessor(order_by[1:]), True))
             else:
-                instructions.append((Accessor(o), False))
+                instructions.append((Accessor(order_by), False))
         return _cmp
 
     def get(self, key, fallback):
@@ -299,10 +298,10 @@ class Accessor(str):
                 except (TypeError, AttributeError):
                     try:  # list-index lookup
                         current = current[int(bit)]
-                    except (IndexError, # list index out of range
-                            ValueError, # invalid literal for int()
-                            KeyError,   # dict without `int(bit)` key
-                            TypeError,  # unsubscriptable object
+                    except (IndexError,  # list index out of range
+                            ValueError,  # invalid literal for int()
+                            KeyError,    # dict without `int(bit)` key
+                            TypeError,   # unsubscriptable object
                             ):
                         raise ValueError('Failed lookup for key [%s] in %r'
                                          ', when resolving the accessor %s'

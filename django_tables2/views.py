@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from django.core.exceptions import ImproperlyConfigured
-from django.views.generic.base import TemplateResponseMixin
 from django.views.generic.list import ListView
 from .config import RequestConfig
 
@@ -36,7 +35,7 @@ class SingleTableMixin(object):
         options = {}
         table_class = self.get_table_class()
         table = table_class(self.get_table_data())
-        paginate = self.get_table_pagination()
+        paginate = self.get_table_pagination()  # pylint: disable=E1102
         if paginate is not None:
             options['paginate'] = paginate
         RequestConfig(self.request, **options).configure(table)
@@ -69,7 +68,7 @@ class SingleTableMixin(object):
         raise ImproperlyConfigured(u"Table data was not specified. Define "
                                    u"%(cls)s.table_data"
                                    % {"cls": type(self).__name__})
-            
+
     def get_table_pagination(self):
         """
         Returns pagination options: True for standard pagination (default),

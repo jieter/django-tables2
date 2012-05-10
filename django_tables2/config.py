@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+
 class RequestConfig(object):
     """
     A configurator that uses request data to setup a table.
@@ -29,10 +30,10 @@ class RequestConfig(object):
             else:
                 kwargs = {}
             # extract some options from the request
-            for x in ("page", "per_page"):
-                name = getattr(table, u"prefixed_%s_field" % x)
+            for arg in ("page", "per_page"):
+                name = getattr(table, u"prefixed_%s_field" % arg)
                 try:
-                    kwargs[x] = int(self.request.GET[name])
+                    kwargs[arg] = int(self.request.GET[name])
                 except (ValueError, KeyError):
                     pass
             table.paginate(**kwargs)

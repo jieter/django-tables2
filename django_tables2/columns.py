@@ -2,11 +2,9 @@
 from __future__ import absolute_import, unicode_literals
 from django.core.urlresolvers import reverse
 from django.db.models.fields import FieldDoesNotExist
-from django.template import RequestContext, Context, Template
+from django.template import Context, Template
 from django.template.loader import render_to_string
-from django.utils.encoding import force_unicode, StrAndUnicode
 from django.utils.datastructures import SortedDict
-from django.utils.text import capfirst
 from django.utils.html import escape
 from django.utils.safestring import mark_safe, SafeData
 from itertools import ifilter, islice
@@ -15,7 +13,7 @@ from .templatetags.django_tables2 import title
 from .utils import A, AttributeDict, Attrs, OrderBy, OrderByTuple, Sequence
 
 
-class Column(object):
+class Column(object):  # pylint: disable=R0902
     """
     Represents a single column of a table.
 
@@ -206,7 +204,6 @@ class CheckBoxColumn(Column):
         kwargs.update(extra)
         super(CheckBoxColumn, self).__init__(**kwargs)
 
-
     @property
     def header(self):
         default = {'type': 'checkbox'}
@@ -215,7 +212,7 @@ class CheckBoxColumn(Column):
         attrs = AttributeDict(default, **(specific or general or {}))
         return mark_safe(u'<input %s/>' % attrs.as_html())
 
-    def render(self, value, bound_column):
+    def render(self, value, bound_column):  # pylint: disable=W0221
         default = {
             'type': 'checkbox',
             'name': bound_column.name,
@@ -311,7 +308,7 @@ class LinkColumn(BaseLinkColumn):
         self.kwargs = kwargs
         self.current_app = current_app
 
-    def render(self, value, record, bound_column):
+    def render(self, value, record, bound_column):  # pylint: disable=W0221
         # Remember that value is actually what would have normally been put
         # into the cell. i.e. it *already* takes into consideration the
         # column's *default* property, thus we must check the actual data value
@@ -338,11 +335,11 @@ class LinkColumn(BaseLinkColumn):
                               for a in self.args]
         if self.kwargs:
             params[b'kwargs'] = {}
-            for k, v in self.kwargs.items():
+            for key, val in self.kwargs.items():
                 # If we're dealing with an Accessor (A), resolve it, otherwise
                 # use the value verbatim.
-                params[b'kwargs'][k] = (v.resolve(record) if isinstance(v, A)
-                                       else v)
+                params[b'kwargs'][key] = (val.resolve(record)
+                                          if isinstance(val, A) else val)
         if self.current_app:
             params[b'current_app'] = (self.current_app.resolve(record)
                                      if isinstance(self.current_app, A)
@@ -519,8 +516,8 @@ class BoundColumn(object):
         attrs["td"] = td = AttributeDict(attrs.get('td', attrs.get('cell', {})))
         attrs["th"] = th = AttributeDict(attrs.get("th", attrs.get("cell", {})))
         # make set of existing classes.
-        th_class = set((c for c in th.get("class", "").split(" ") if c))
-        td_class = set((c for c in td.get("class", "").split(" ") if c))
+        th_class = set((c for c in th.get("class", "").split(" ") if c))  # pylint: disable=C0103
+        td_class = set((c for c in td.get("class", "").split(" ") if c))  # pylint: disable=C0103
         # add classes for ordering
         if self.orderable:
             th_class.add("orderable")
@@ -530,8 +527,10 @@ class BoundColumn(object):
         # Always add the column name as a class
         th_class.add(self.name)
         td_class.add(self.name)
-        if th_class: th['class'] = " ".join(sorted(th_class))
-        if td_class: td['class'] = " ".join(sorted(td_class))
+        if th_class:
+            th['class'] = " ".join(sorted(th_class))
+        if td_class:
+            td['class'] = " ".join(sorted(td_class))
         return attrs
 
     @property
@@ -862,7 +861,7 @@ class BoundColumns(object):
         """
         if isinstance(index, int):
             try:
-                return next(islice(self.iterall(), index, index+1))
+                return next(islice(self.iterall(), index, index + 1))
             except StopIteration:
                 raise IndexError
         elif isinstance(index, basestring):
