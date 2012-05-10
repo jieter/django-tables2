@@ -396,7 +396,7 @@ def html_escape_value():
         name = tables.LinkColumn("escaping", kwargs={"pk": A("pk")})
 
     table = PersonTable([{"name": "<brad>", "pk": 1}])
-    assert table.rows[0]["name"] == '<a href="/&amp;&#39;%22/1/" >&lt;brad&gt;</a>'
+    assert table.rows[0]["name"] == '<a href="/&amp;&#39;%22/1/">&lt;brad&gt;</a>'
 
 
 @linkcolumn.test

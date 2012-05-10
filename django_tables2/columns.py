@@ -242,9 +242,18 @@ class BaseLinkColumn(Column):
         super(BaseLinkColumn, self).__init__(*args, **kwargs)
 
     def render_link(self, uri, text, attrs=None):
-        html = u'<a href="{uri}" {attrs}>{text}</a>'.format(
+        """
+        Render a hyperlink.
+
+        :param   uri: URI for the hyperlink
+        :param  text: value wrapped in ``<a></a>``
+        :param attrs: ``<a>`` tag attributes
+        """
+        attrs = AttributeDict(attrs if attrs is not None else
+                              self.attrs.get('a', {}))
+        html = u'<a href="{uri}"{attrs}>{text}</a>'.format(
             uri=escape(uri),
-            attrs=attrs or AttributeDict(self.attrs.get('a', {})).as_html(),
+            attrs=" %s" % attrs.as_html() if attrs else "",
             text=escape(text)
         )
         return mark_safe(html)
