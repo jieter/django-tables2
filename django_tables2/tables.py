@@ -133,8 +133,6 @@ class DeclarativeColumnsMetaclass(type):
         # Now reorder the columns based on explicit sequence
         if opts.sequence:
             opts.sequence.expand(attrs["base_columns"].keys())
-            # Table's sequence defaults to sequence declared in Meta
-            attrs['_sequence'] = opts.sequence
             attrs["base_columns"] = SortedDict(((x, attrs["base_columns"][x]) for x in opts.sequence))
         return super(DeclarativeColumnsMetaclass, cls).__new__(cls, name, bases, attrs)
 
@@ -254,10 +252,20 @@ class Table(StrAndUnicode):
         # definition. Note that this is different from forms, where the
         # copy is made available in a ``fields`` attribute.
         self.base_columns = copy.deepcopy(type(self).base_columns)
-        # Keep fully expanded ``sequence`` at _sequence so it's easily accessible
-        # during render (defaults to '...')
-        self._sequence = Sequence(sequence) if sequence is not None else Sequence(('...', ))
-        self._sequence.expand(self.base_columns.keys())
+        
+        """
+        Keep fully expanded ``Sequence`` at table._sequence_expanded so it can
+        be quickly accessed during render.
+        """
+        if sequence is not None:
+            self._sequence_expanded = Sequence(sequence)
+            self._sequence_expanded.expand(self.base_columns.keys())
+        elif self._meta.sequence:
+            self._sequence_expanded = self._meta.sequence
+        else:
+            self._sequence_expanded = Sequence(('...', ))
+            self._sequence_expanded.expand(self.base_columns.keys())
+
         self.columns = BoundColumns(self)
         # `None` value for order_by means no order is specified. This means we
         # `shouldn't touch our data's ordering in any way. *However*
@@ -411,14 +419,15 @@ class Table(StrAndUnicode):
 
     @property
     def sequence(self):
-        return self._sequence
+        return (self._sequence if self._sequence is not None
+                               else self._meta.sequence)
 
     @sequence.setter
     def sequence(self, value):
         if value:
             value = Sequence(value)
             value.expand(self.base_columns.keys())
-        self._sequence = value
+        self._sequence_expanded = self._sequence = value
 
     @property
     def orderable(self):
