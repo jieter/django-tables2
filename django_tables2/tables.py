@@ -137,6 +137,8 @@ class DeclarativeColumnsMetaclass(type):
         # Now reorder the columns based on explicit sequence
         if opts.sequence:
             opts.sequence.expand(attrs["base_columns"].keys())
+            # Table's sequence defaults to sequence declared in Meta
+            attrs['_sequence'] = opts.sequence
             attrs["base_columns"] = SortedDict(((x, attrs["base_columns"][x]) for x in opts.sequence))
         return super(DeclarativeColumnsMetaclass, cls).__new__(cls, name, bases, attrs)
 
@@ -238,10 +240,9 @@ class Table(StrAndUnicode):
                  template=None, sortable=None):
         super(Table, self).__init__()
         self.exclude = exclude or ()
-        self.sequence = sequence or Sequence(('...', ))
+        self.sequence = sequence
         self.data = self.TableDataClass(data=data, table=self)
-        self.rows = BoundRows(self.data)
-        self.columns = BoundColumns(self)
+        self.rows = BoundRows(self.data)        
         self.attrs = attrs
         self.empty_text = empty_text
         if sortable is not None:
@@ -258,6 +259,11 @@ class Table(StrAndUnicode):
         # definition. Note that this is different from forms, where the
         # copy is made available in a ``fields`` attribute.
         self.base_columns = copy.deepcopy(type(self).base_columns)
+        # Keep fully expanded ``sequence`` at _sequence so it's easily accessible
+        # during render (defaults to '...')
+        self._sequence = Sequence(sequence) if sequence is not None else Sequence(('...', ))
+        self._sequence.expand(self.base_columns.keys())
+        self.columns = BoundColumns(self)
         # `None` value for order_by means no order is specified. This means we
         # `shouldn't touch our data's ordering in any way. *However*
         # `table.order_by = None` means "remove any ordering from the data"
@@ -410,8 +416,7 @@ class Table(StrAndUnicode):
 
     @property
     def sequence(self):
-        return (self._sequence if self._sequence is not None
-                               else self._meta.sequence)
+        return self._sequence
 
     @sequence.setter
     def sequence(self, value):

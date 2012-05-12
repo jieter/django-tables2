@@ -758,13 +758,8 @@ class BoundColumns(object):
         for name, column in self.table.base_columns.iteritems():
             self.columns[name] = BoundColumn(self.table, column, name)
 
-        # A list of column names in the correct sequence that they should be
-        # rendered in the table.
-        self.sequence = self.table.sequence
-        self.sequence.expand(self.table.base_columns.keys())
-
-        #Prepare each column's ``render`` function and its expected argument
-        #so they can be easily called when each row is iterated.
+        # Prepare each column's ``render`` function and its expected argument
+        # so they can be easily called when each row is iterated.
         funcs = ifilter(curry(hasattr, inspect), ('getfullargspec', 'getargspec'))
         spec = getattr(inspect, next(funcs))
         for name, bound_column in self.iteritems():
@@ -797,7 +792,7 @@ class BoundColumns(object):
         consideration all of the ordering and filtering modifiers that a table
         supports (e.g. ``exclude`` and ``sequence``).
         """
-        for name in self.sequence:
+        for name in self.table.sequence:
             if name not in self.table.exclude:
                 yield (name, self.columns[name])
 
