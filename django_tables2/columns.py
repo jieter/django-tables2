@@ -792,7 +792,7 @@ class BoundColumns(object):
         consideration all of the ordering and filtering modifiers that a table
         supports (e.g. ``exclude`` and ``sequence``).
         """
-        for name in self.table._sequence_expanded:
+        for name in self.table.sequence:
             if name not in self.table.exclude:
                 yield (name, self.columns[name])
 
