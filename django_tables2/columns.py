@@ -641,6 +641,10 @@ class BoundColumn(object):
         return self.column.visible
 
 
+funcs = ifilter(curry(hasattr, inspect), ('getfullargspec', 'getargspec'))
+spec = getattr(inspect, next(funcs))
+
+
 class BoundColumns(object):
     """
     Container for spawning :class:`.BoundColumn` objects.
@@ -670,8 +674,6 @@ class BoundColumns(object):
         
         #Prepare each column's ``render`` function and its expected argument
         #so they can be easily called when each row is iterated.
-        funcs = ifilter(curry(hasattr, inspect), ('getfullargspec', 'getargspec'))
-        spec = getattr(inspect, next(funcs))
         for name, bound_column in self.iteritems():
             bound_column.render = getattr(self.table, 'render_' + bound_column.name,
                                           bound_column.column.render)
