@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Test the core table functionality."""
-from attest import Tests, Assert
+from attest import assert_hook, raises, Tests
 import django_tables2 as tables
 from django_tables2 import utils
 
@@ -25,7 +24,7 @@ def bound_rows():
     records = []
     for row in table.rows:
         records.append(row.record)
-    Assert(records) == data
+    assert records == data
 
 
 @rows.test
@@ -41,17 +40,17 @@ def bound_row():
     row = table.rows[0]
 
     # integer indexing into a row
-    Assert(row[0]) == record['name']
-    Assert(row[1]) == record['occupation']
-    Assert(row[2]) == record['age']
+    assert row[0] == record['name']
+    assert row[1] == record['occupation']
+    assert row[2] == record['age']
 
-    with Assert.raises(IndexError) as error:
+    with raises(IndexError):
         row[3]
 
     # column name indexing into a row
-    Assert(row['name'])       == record['name']
-    Assert(row['occupation']) == record['occupation']
-    Assert(row['age'])        == record['age']
+    assert row['name']       == record['name']
+    assert row['occupation'] == record['occupation']
+    assert row['age']        == record['age']
 
-    with Assert.raises(KeyError) as error:
+    with raises(KeyError):
         row['gamma']

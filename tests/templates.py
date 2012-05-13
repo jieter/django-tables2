@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from attest import assert_hook, Tests, Assert  # pylint: disable=W0611
+from attest import assert_hook, raises, Tests  # pylint: disable=W0611
 from django.conf import settings
 from django.http import HttpRequest
 from django.template import Template, RequestContext, Context
@@ -15,7 +15,7 @@ templates = Tests()
 
 class CountryTable(tables.Table):
     name = tables.Column()
-    capital = tables.Column(sortable=False,
+    capital = tables.Column(orderable=False,
                             verbose_name=ugettext_lazy("capital"))
     population = tables.Column(verbose_name='population size')
     currency = tables.Column(visible=False)
@@ -124,12 +124,12 @@ def render_table_templatetag():
     # variable that doesn't exist (issue #8)
     template = Template('{% load django_tables2 %}'
                         '{% render_table this_doesnt_exist %}')
-    with Assert.raises(ValueError):
+    with raises(ValueError):
         settings.DEBUG = True
         template.render(Context())
 
     # Should still be noisy with debug off
-    with Assert.raises(ValueError):
+    with raises(ValueError):
         settings.DEBUG = False
         template.render(Context())
 

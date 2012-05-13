@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from .app.models import Region
-from attest import assert_hook, Assert, Tests
+from attest import assert_hook, Tests
 from django_attest import TestContext
 from django.test.client import RequestFactory
 import django_tables2 as tables

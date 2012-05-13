@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from attest import assert_hook, Assert, Tests
+from attest import assert_hook, raises, Tests
 from django_tables2.utils import Accessor, AttributeDict, OrderByTuple, OrderBy
 
 
@@ -14,9 +14,9 @@ def orderbytuple():
     # indexing
     assert obt[0] == OrderBy('a')
     assert obt['b'] == OrderBy('b')
-    with Assert.raises(KeyError) as error:
+    with raises(KeyError):
         obt['d']
-    with Assert.raises(TypeError) as error:
+    with raises(TypeError):
         obt[('tuple', )]
 
     # .get

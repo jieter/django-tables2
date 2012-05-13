@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # pylint: disable=R0912,E0102
-from attest import assert_hook, Tests, Assert  # pylint: disable=W0611
+from attest import assert_hook, raises, Tests, warns  # pylint: disable=W0611
 from django_attest import TestContext
 import django_tables2 as tables
 from django_tables2 import A, Attrs
@@ -25,9 +25,10 @@ checkboxcolumn = Tests()
 
 @checkboxcolumn.test
 def attrs_should_be_translated_for_backwards_compatibility():
-    class TestTable(tables.Table):
-        col = tables.CheckBoxColumn(header_attrs={"th_key": "th_value"},
-                                    attrs={"td_key": "td_value"})
+    with warns(DeprecationWarning):
+        class TestTable(tables.Table):
+            col = tables.CheckBoxColumn(header_attrs={"th_key": "th_value"},
+                                        attrs={"td_key": "td_value"})
 
     table = TestTable([{"col": "data"}])
     assert attrs(table.columns["col"].header) == {"type": "checkbox", "th_key": "th_value"}
@@ -86,26 +87,31 @@ def sortable_backwards_compatibility():
     class SimpleTable(tables.Table):
         name = tables.Column()
     table = SimpleTable([])
-    assert table.columns['name'].sortable is True
+    with warns(DeprecationWarning):
+        assert table.columns['name'].sortable is True
 
     # Table.Meta.sortable = False
-    class SimpleTable(tables.Table):
-        name = tables.Column()
+    with warns(DeprecationWarning):
+        class SimpleTable(tables.Table):
+            name = tables.Column()
 
-        class Meta:
-            sortable = False
+            class Meta:
+                sortable = False
     table = SimpleTable([])
-    assert table.columns['name'].sortable is False  # backwards compatible
+    with warns(DeprecationWarning):
+        assert table.columns['name'].sortable is False  # backwards compatible
     assert table.columns['name'].orderable is False
 
     # Table.Meta.sortable = True
-    class SimpleTable(tables.Table):
-        name = tables.Column()
+    with warns(DeprecationWarning):
+        class SimpleTable(tables.Table):
+            name = tables.Column()
 
-        class Meta:
-            sortable = True
+            class Meta:
+                sortable = True
     table = SimpleTable([])
-    assert table.columns['name'].sortable is True  # backwards compatible
+    with warns(DeprecationWarning):
+        assert table.columns['name'].sortable is True  # backwards compatible
     assert table.columns['name'].orderable is True
 
 
@@ -125,7 +131,8 @@ def orderable():
             orderable = False
     table = SimpleTable([])
     assert table.columns['name'].orderable is False
-    assert table.columns['name'].sortable is False  # backwards compatible
+    with warns(DeprecationWarning):
+        assert table.columns['name'].sortable is False  # backwards compatible
 
     # Table.Meta.orderable = True
     class SimpleTable(tables.Table):
@@ -134,7 +141,8 @@ def orderable():
         class Meta:
             orderable = True
     table = SimpleTable([])
-    assert table.columns['name'].sortable is True  # backwards compatible
+    with warns(DeprecationWarning):
+        assert table.columns['name'].sortable is True  # backwards compatible
     assert table.columns['name'].orderable is True
 
 
@@ -212,11 +220,11 @@ def sequence():
     assert ["a", "b", "c"] == TestTable2([], sequence=("a", "b", "c")).columns.names()
 
     # BAD, all columns must be specified, or must use "..."
-    with Assert.raises(ValueError):
+    with raises(ValueError):
         class TestTable3(TestTable):
             class Meta:
                 sequence = ("a", )
-    with Assert.raises(ValueError):
+    with raises(ValueError):
         TestTable([], sequence=("a", ))
 
     # GOOD, using a single "..." allows you to only specify some columns. The
@@ -318,10 +326,10 @@ def cells_are_automatically_given_column_name_as_class():
 
 
 @general.test
-def th_are_given_sortable_class_if_column_is_sortable():
+def th_are_given_sortable_class_if_column_is_orderable():
     class SimpleTable(tables.Table):
         a = tables.Column()
-        b = tables.Column(sortable=False)
+        b = tables.Column(orderable=False)
 
     table = SimpleTable([{"a": "value"}])
     root = ET.fromstring(table.as_html())
@@ -401,9 +409,10 @@ def html_escape_value():
 
 @linkcolumn.test
 def old_style_attrs_should_still_work():
-    class TestTable(tables.Table):
-        col = tables.LinkColumn('occupation', kwargs={"pk": A('col')},
-                                attrs={"title": "Occupation Title"})
+    with warns(DeprecationWarning):
+        class TestTable(tables.Table):
+            col = tables.LinkColumn('occupation', kwargs={"pk": A('col')},
+                                    attrs={"title": "Occupation Title"})
 
     table = TestTable([{"col": 0}])
     assert attrs(table.rows[0]["col"]) == {"href": reverse("occupation", kwargs={"pk": 0}),
