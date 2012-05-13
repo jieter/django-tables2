@@ -15,6 +15,11 @@ from .templatetags.django_tables2 import title
 from .utils import A, AttributeDict, Attrs, OrderBy, OrderByTuple, Sequence
 
 
+funcs = ifilter(curry(hasattr, inspect), ('getfullargspec', 'getargspec'))
+getargspec = getattr(inspect, next(funcs))
+del funcs
+
+
 class Column(object):  # pylint: disable=R0902
     """
     Represents a single column of a table.
@@ -760,12 +765,10 @@ class BoundColumns(object):
 
         # Prepare each column's ``render`` function and its expected argument
         # so they can be easily called when each row is iterated.
-        funcs = ifilter(curry(hasattr, inspect), ('getfullargspec', 'getargspec'))
-        spec = getattr(inspect, next(funcs))
         for name, bound_column in self.iteritems():
             bound_column.render = getattr(self.table, 'render_' + bound_column.name,
                                           bound_column.column.render)
-            bound_column.render_args = spec(bound_column.render).args[1:]
+            bound_column.render_args = getargspec(bound_column.render).args[1:]
 
     def iternames(self):
         return (name for name, column in self.iteritems())
