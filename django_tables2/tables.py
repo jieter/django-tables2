@@ -138,7 +138,7 @@ class DeclarativeColumnsMetaclass(type):
         if opts.sequence:
             opts.sequence.expand(attrs["base_columns"].keys())
             # Table's sequence defaults to sequence declared in Meta
-            attrs['_sequence'] = opts.sequence
+            #attrs['_sequence'] = opts.sequence
             attrs["base_columns"] = SortedDict(((x, attrs["base_columns"][x]) for x in opts.sequence))
         return super(DeclarativeColumnsMetaclass, cls).__new__(cls, name, bases, attrs)
 
@@ -260,9 +260,18 @@ class Table(StrAndUnicode):
         # copy is made available in a ``fields`` attribute.
         self.base_columns = copy.deepcopy(type(self).base_columns)
         # Keep fully expanded ``sequence`` at _sequence so it's easily accessible
-        # during render (defaults to '...')
-        self._sequence = Sequence(sequence) if sequence is not None else Sequence(('...', ))
-        self._sequence.expand(self.base_columns.keys())
+        # during render. The priority is as follows:
+        # 1. sequence passed in as an argument
+        # 2. sequence declared in ``Meta``
+        # 3. sequence defaults to '...'
+        if sequence is not None:
+            self._sequence = Sequence(sequence)
+            self._sequence.expand(self.base_columns.keys())
+        elif self._meta.sequence:
+            self._sequence = self._meta.sequence
+        else:
+            self._sequence = Sequence(('...',))
+            self._sequence.expand(self.base_columns.keys())
         self.columns = BoundColumns(self)
         # `None` value for order_by means no order is specified. This means we
         # `shouldn't touch our data's ordering in any way. *However*
