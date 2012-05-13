@@ -677,7 +677,7 @@ class BoundColumns(object):
         for name, bound_column in self.iteritems():
             bound_column.render = getattr(self.table, 'render_' + bound_column.name,
                                           bound_column.column.render)
-            bound_column.render_args = spec(bound_column.render).args[1:]
+            bound_column._render_args = spec(bound_column.render).args[1:]
 
     def iternames(self):
         return (name for name, column in self.iteritems())
