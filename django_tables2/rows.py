@@ -137,7 +137,7 @@ class BoundRow(object):
         }
 
         kw = {}
-        for arg_name in bound_column.render_args:
+        for arg_name in bound_column._render_args:
             kw[arg_name] = kwargs[arg_name]()
         return bound_column.render(**kw)
 
