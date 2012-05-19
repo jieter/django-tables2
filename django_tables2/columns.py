@@ -600,7 +600,7 @@ class BoundColumn(object):
             order_by = self.column.order_by
         else:
             # default to using column name as data source sort key
-            order_by = OrderByTuple((self.name, ))
+            order_by = OrderByTuple((self.accessor, ))
         return order_by.opposite if self.order_by_alias.is_descending else order_by
 
     @property

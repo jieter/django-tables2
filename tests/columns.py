@@ -147,6 +147,15 @@ def orderable():
 
 
 @general.test
+def order_by_defaults_to_accessor():
+    class SimpleTable(tables.Table):
+        foo = tables.Column(accessor="bar")
+
+    table = SimpleTable([])
+    assert table.columns["foo"].order_by == ("bar", )
+
+
+@general.test
 def supports_order_by():
     class SimpleTable(tables.Table):
         name = tables.Column(order_by=("last_name", "-first_name"))
