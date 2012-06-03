@@ -232,17 +232,17 @@ This means that you need to do the following:
 2. Add ``from attest import assert_hook`` to the top of each test module.
 
 
-Assert helper
--------------
+Django assertions
+-----------------
 
-Despite being deprecated in Attest 0.5, django-attest extends the ``Attest``
-class to add helpers that are available in Django's ``TestCase`` class.
+For details on each of these, see ``django_attest/assertion.py``.
+
+redirects
+^^^^^^^^^
 
 Example::
 
-    from django_attest import Attest
+    from django_attest import redirects
 
     response = client.get('/')
-    Attest.redirects(response, path="/foo/")
-
-Have a look at the code for details.
+    redirects(response, path="/foo/")

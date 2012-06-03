@@ -3,12 +3,13 @@ from __future__ import absolute_import, unicode_literals
 import os
 os.environ['DJANGO_SETTINGS_MODULE'] = 'tests.settings'
 
+import attest
 from attest import assert_hook, AssertImportHook, COMPILES_AST, Tests
 from contextlib import contextmanager
 import django
 from django.test.simple import build_test
 import django_attest
-from django_attest import Assert, TestContext
+from django_attest import redirects, TestContext
 from django_attest.reporters import ReporterMixin
 from pkg_resources import parse_version
 from tests.app.models import Thing
@@ -32,13 +33,13 @@ def test_context_does_transaction_rollback():
         # create a thing, but it should be rolled back when the context exits
         thing = Thing.objects.create(name="foo")
 
-    with Assert.raises(Thing.DoesNotExist):
+    with attest.raises(Thing.DoesNotExist):
         Thing.objects.get(pk=thing.pk)
 
 
 @suite.test
 def test_context_supports_fixtures():
-    with Assert.raises(Thing.DoesNotExist):
+    with attest.raises(Thing.DoesNotExist):
         Thing.objects.get(name="loaded from fixture")
 
     manager = contextmanager(TestContext(fixtures=['tests']))
@@ -85,7 +86,7 @@ def assert_redirects():
         response = client.get("/bouncer/")
 
     # First Django's API of passing the URL in by itself should work.
-    Assert.redirects(response, "https://example.com:1234/foo/?a=b#bar")
+    redirects(response, "https://example.com:1234/foo/?a=b#bar")
 
     valids = [
         {"port": 1234},
@@ -98,7 +99,7 @@ def assert_redirects():
     ]
 
     for valid in valids:
-        Assert.redirects(response, **valid)
+        redirects(response, **valid)
 
     invalids = [
         {"port": 5678},
@@ -111,8 +112,8 @@ def assert_redirects():
     ]
 
     for invalid in invalids:
-        with Assert.raises(AssertionError):
-            Assert.redirects(response, **invalid)
+        with attest.raises(AssertionError):
+            redirects(response, **invalid)
 
 
 # -----------------------------------------------------------------------------

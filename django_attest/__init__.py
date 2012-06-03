@@ -1,6 +1,6 @@
 # -*- coding: utf8 -*-
 from .environment import testing_environment  # enables assert import hook
-from .assertion import Assert
+from .assertion import *
 from .reporters import (AbstractReporter, PlainReporter, FancyReporter,
                         auto_reporter, XmlReporter, QuickFixReporter)
 from django.test import TestCase, TransactionTestCase
