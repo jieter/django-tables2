@@ -202,3 +202,15 @@ def ordering():
 
     table = SimpleTable(Person.objects.all(), order_by="name")
     assert table.as_html()
+
+
+@models.test
+def fields_should_implicitly_set_sequence():
+    class PersonTable(tables.Table):
+        extra = tables.Column()
+
+        class Meta:
+            model = Person
+            fields = ('last_name', 'first_name')
+    table = PersonTable(Person.objects.all())
+    assert table.columns.names() == ['last_name', 'first_name', 'extra']

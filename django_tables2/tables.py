@@ -242,7 +242,7 @@ class Table(StrAndUnicode):
         self.exclude = exclude or ()
         self.sequence = sequence
         self.data = self.TableDataClass(data=data, table=self)
-        self.rows = BoundRows(self.data)        
+        self.rows = BoundRows(self.data)
         self.attrs = attrs
         self.empty_text = empty_text
         if sortable is not None:
@@ -270,7 +270,7 @@ class Table(StrAndUnicode):
         elif self._meta.sequence:
             self._sequence = self._meta.sequence
         else:
-            self._sequence = Sequence(('...',))
+            self._sequence = Sequence(self._meta.fields + ('...',))
             self._sequence.expand(self.base_columns.keys())
         self.columns = BoundColumns(self)
         # `None` value for order_by means no order is specified. This means we
