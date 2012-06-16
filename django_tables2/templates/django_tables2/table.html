@@ -1,11 +1,12 @@
 {% spaceless %}
-{% load querystring from django_tables2 %}
+{% load querystring nospaceless from django_tables2 %}
 {% load trans blocktrans from i18n %}
 {% if table.page %}
 <div class="table-container">
 {% endif %}
 {% block table %}
 <table{% if table.attrs %} {{ table.attrs.as_html }}{% endif %}>
+    {% nospaceless %}
     {% block table.thead %}
     <thead>
         <tr>
@@ -41,24 +42,21 @@
     {% block table.tfoot %}
     <tfoot></tfoot>
     {% endblock table.tfoot %}
+    {% endnospaceless %}
 </table>
 {% endblock table %}
 
 {% if table.page %}
-{% block pagination %}
+{% block pagination %}}
 <ul class="pagination">
     {% if table.page.has_previous %}
-    {% block pagination.previous %}
-    <li class="previous"><a href="{% querystring table.prefixed_page_field=table.page.previous_page_number %}">{% trans "Previous" %}</a></li>
-    {% endblock pagination.previous %}
+    {% nospaceless %}{% block pagination.previous %}<li class="previous"><a href="{% querystring table.prefixed_page_field=table.page.previous_page_number %}">{% trans "Previous" %}</a></li>{% endblock pagination.previous %}{% endnospaceless %}
     {% endif %}
-    {% block pagination.current %}
-    <li class="current">{% blocktrans with current=table.page.number total=table.paginator.num_pages %}Page {{ current }} of {{ total }}{% endblocktrans %}</li>
-    {% endblock pagination.current %}
+
+    {% nospaceless %}{% block pagination.current %}<li class="current">{% blocktrans with current=table.page.number total=table.paginator.num_pages %}Page {{ current }} of {{ total }}{% endblocktrans %}</li>{% endblock pagination.current %}{% endnospaceless %}
+
     {% if table.page.has_next %}
-    {% block pagination.next %}
-    <li class="next"><a href="{% querystring table.prefixed_page_field=table.page.next_page_number %}">{% trans "Next" %}</a></li>
-    {% endblock pagination.next %}
+    {% nospaceless %}{% block pagination.next %}<li class="next"><a href="{% querystring table.prefixed_page_field=table.page.next_page_number %}">{% trans "Next" %}</a></li>{% endblock pagination.next %}{% endnospaceless %}
     {% endif %}
 </ul>
 {% endblock pagination %}

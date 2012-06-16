@@ -7,6 +7,7 @@ from django.template.defaultfilters import stringfilter, title as old_title
 from django.utils.datastructures import SortedDict
 from django.utils.http import urlencode
 from django.utils.html import escape
+from django.utils.safestring import mark_safe
 import django_tables2 as tables
 import re
 import StringIO
@@ -188,6 +189,21 @@ def render_table(parser, token):
         raise TemplateSyntaxError(u"'%s' must be given a table." % bits[0])
     template = parser.compile_filter(bits.pop(0)) if bits else None
     return RenderTableNode(table, template)
+
+
+class NoSpacelessNode(Node):
+    def __init__(self, nodelist):
+        self.nodelist = nodelist
+
+    def render(self, context):
+        return mark_safe(re.sub(r'>\s+<', '>&nbsp;<',
+                                self.nodelist.render(context)))
+
+@register.tag
+def nospaceless(parser, token):
+    nodelist = parser.parse(('endnospaceless',))
+    parser.delete_first_token()
+    return NoSpacelessNode(nodelist)
 
 
 RE_UPPERCASE = re.compile('[A-Z]')

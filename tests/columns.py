@@ -9,15 +9,8 @@ from django.core.urlresolvers import reverse
 from django.template import Context, Template
 from django.utils.translation import ugettext
 from django.utils.safestring import mark_safe, SafeData
-from xml.etree import ElementTree as ET
 from .app.models import Person
-
-
-def attrs(xml):
-    """
-    Helper function that returns a dict of XML attributes, given an element.
-    """
-    return ET.fromstring(xml).attrib
+from .templates import attrs, parse
 
 
 checkboxcolumn = Tests()
@@ -317,7 +310,7 @@ def cell_attrs_applies_to_td_and_th():
 
     # providing data ensures 1 row is rendered
     table = SimpleTable([{"a": "value"}])
-    root = ET.fromstring(table.as_html())
+    root = parse(table.as_html())
 
     assert root.findall('.//thead/tr/th')[0].attrib == {"key": "value", "class": "a orderable sortable"}
     assert root.findall('.//tbody/tr/td')[0].attrib == {"key": "value", "class": "a"}
@@ -329,7 +322,7 @@ def cells_are_automatically_given_column_name_as_class():
         a = tables.Column()
 
     table = SimpleTable([{"a": "value"}])
-    root = ET.fromstring(table.as_html())
+    root = parse(table.as_html())
     assert root.findall('.//thead/tr/th')[0].attrib == {"class": "a orderable sortable"}
     assert root.findall('.//tbody/tr/td')[0].attrib == {"class": "a"}
 
@@ -341,7 +334,7 @@ def th_are_given_sortable_class_if_column_is_orderable():
         b = tables.Column(orderable=False)
 
     table = SimpleTable([{"a": "value"}])
-    root = ET.fromstring(table.as_html())
+    root = parse(table.as_html())
     # return classes of an element as a set
     classes = lambda x: set(x.attrib["class"].split())
     assert "sortable" in classes(root.findall('.//thead/tr/th')[0])
@@ -349,7 +342,7 @@ def th_are_given_sortable_class_if_column_is_orderable():
 
     # Now try with an ordered table
     table = SimpleTable([], order_by="a")
-    root = ET.fromstring(table.as_html())
+    root = parse(table.as_html())
     # return classes of an element as a set
     assert "sortable" in classes(root.findall('.//thead/tr/th')[0])
     assert "asc" in classes(root.findall('.//thead/tr/th')[0])

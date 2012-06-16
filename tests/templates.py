@@ -5,9 +5,25 @@ from django.http import HttpRequest
 from django.template import Template, RequestContext, Context
 from django.test.client import RequestFactory
 from django.utils.translation import ugettext_lazy
+from django.utils.safestring import mark_safe
 from urlparse import parse_qs
 import django_tables2 as tables
+from StringIO import StringIO
 from xml.etree import ElementTree as ET
+
+
+def parse(html):
+    parser = ET.XMLParser()
+    parser.parser.UseForeignDTD(True)
+    parser.entity['nbsp'] = ' '
+    return ET.parse(StringIO(html), parser=parser).getroot()
+
+
+def attrs(xml):
+    """
+    Helper function that returns a dict of XML attributes, given an element.
+    """
+    return ET.fromstring(xml).attrib
 
 
 templates = Tests()
@@ -38,7 +54,7 @@ MEMORY_DATA = [
 @templates.test
 def as_html():
     table = CountryTable(MEMORY_DATA)
-    root = ET.fromstring(table.as_html())
+    root = parse(table.as_html())
     assert len(root.findall('.//thead/tr'))== 1
     assert len(root.findall('.//thead/tr/th')) == 4
     assert len(root.findall('.//tbody/tr')) == 4
@@ -46,14 +62,14 @@ def as_html():
 
     # no data with no empty_text
     table = CountryTable([])
-    root = ET.fromstring(table.as_html())
+    root = parse(table.as_html())
     assert 1 == len(root.findall('.//thead/tr'))
     assert 4 == len(root.findall('.//thead/tr/th'))
     assert 0 == len(root.findall('.//tbody/tr'))
 
     # no data WITH empty_text
     table = CountryTable([], empty_text='this table is empty')
-    root = ET.fromstring(table.as_html())
+    root = parse(table.as_html())
     assert 1 == len(root.findall('.//thead/tr'))
     assert 4 == len(root.findall('.//thead/tr/th'))
     assert 1 == len(root.findall('.//tbody/tr'))
@@ -94,7 +110,7 @@ def render_table_templatetag():
     template = Template('{% load django_tables2 %}{% render_table table %}')
     html = template.render(Context({'request': HttpRequest(), 'table': table}))
 
-    root = ET.fromstring(html)
+    root = parse(html)
     assert len(root.findall('.//thead/tr')) == 1
     assert len(root.findall('.//thead/tr/th')) == 4
     assert len(root.findall('.//tbody/tr')) == 4
@@ -104,7 +120,7 @@ def render_table_templatetag():
     table = CountryTable([])
     template = Template('{% load django_tables2 %}{% render_table table %}')
     html = template.render(Context({'request': HttpRequest(), 'table': table}))
-    root = ET.fromstring(html)
+    root = parse(html)
     assert len(root.findall('.//thead/tr')) == 1
     assert len(root.findall('.//thead/tr/th')) == 4
     assert len(root.findall('.//tbody/tr')) == 0
@@ -113,7 +129,7 @@ def render_table_templatetag():
     table = CountryTable([], empty_text='this table is empty')
     template = Template('{% load django_tables2 %}{% render_table table %}')
     html = template.render(Context({'request': HttpRequest(), 'table': table}))
-    root = ET.fromstring(html)
+    root = parse(html)
     assert len(root.findall('.//thead/tr')) == 1
     assert len(root.findall('.//thead/tr/th')) == 4
     assert len(root.findall('.//tbody/tr')) == 1
@@ -141,7 +157,6 @@ def render_table_should_support_template_argument():
                         '{% render_table table "dummy.html" %}')
     request = RequestFactory().get('/')
     context = RequestContext(request, {'table': table})
-    settings.DEBUG = True
     assert template.render(context) == 'dummy template contents\n'
 
 
@@ -159,7 +174,7 @@ def querystring_templatetag():
     }))
 
     # Ensure it's valid XML, retrieve the URL
-    url = ET.fromstring(xml).text
+    url = parse(xml).text
 
     qs = parse_qs(url[1:])  # everything after the ? pylint: disable=C0103
     assert qs["name"] == ["Brad"]
@@ -181,3 +196,23 @@ def title_should_only_apply_to_words_without_uppercase_letters():
     for raw, expected in expectations.items():
         template = Template("{% load title from django_tables2 %}{{ x|title }}")
         assert template.render(Context({"x": raw})) == expected
+
+
+@templates.test
+def nospaceless_works():
+    template = Template("{% load nospaceless from django_tables2 %}"
+                        "{% spaceless %}<b>a</b> <i>b {% nospaceless %}<b>c</b>  <b>d</b> {% endnospaceless %}lic</i>{% endspaceless %}")
+    assert template.render(Context()) == "<b>a</b><i>b <b>c</b>&nbsp;<b>d</b> lic</i>"
+
+
+@templates.test
+def whitespace_is_preserved():
+    class TestTable(tables.Table):
+        name = tables.Column(verbose_name=mark_safe("<b>foo</b> <i>bar</i>"))
+
+    html = TestTable([{"name": mark_safe("<b>foo</b> <i>bar</i>")}]).as_html()
+
+    tree = parse(html)
+
+    assert "<b>foo</b> <i>bar</i>" in ET.tostring(tree.findall('.//thead/tr/th')[0])
+    assert "<b>foo</b> <i>bar</i>" in ET.tostring(tree.findall('.//tbody/tr/td')[0])
