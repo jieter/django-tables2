@@ -17,7 +17,7 @@ setup(
 
     install_requires=['Django >=1.3'],
     tests_require=['Django >=1.3', 'django-attest >=0.3.0', 'fudge', 'pylint',
-                   'django-haystack', 'unittest-xml-reporting'],
+                   'django-haystack', 'unittest-xml-reporting', 'lxml'],
 
     test_loader='tests:loader',
     test_suite='tests.everything',

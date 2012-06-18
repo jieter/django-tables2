@@ -196,7 +196,7 @@ class NoSpacelessNode(Node):
         self.nodelist = nodelist
 
     def render(self, context):
-        return mark_safe(re.sub(r'>\s+<', '>&nbsp;<',
+        return mark_safe(re.sub(r'>\s+<', '>&#32;<',
                                 self.nodelist.render(context)))
 
 @register.tag

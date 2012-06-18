@@ -9,21 +9,19 @@ from django.utils.safestring import mark_safe
 from urlparse import parse_qs
 import django_tables2 as tables
 from StringIO import StringIO
-from xml.etree import ElementTree as ET
+import lxml.etree
+import lxml.html
 
 
 def parse(html):
-    parser = ET.XMLParser()
-    parser.parser.UseForeignDTD(True)
-    parser.entity['nbsp'] = ' '
-    return ET.parse(StringIO(html), parser=parser).getroot()
+    return lxml.html.fromstring(html)
 
 
 def attrs(xml):
     """
     Helper function that returns a dict of XML attributes, given an element.
     """
-    return ET.fromstring(xml).attrib
+    return lxml.html.fromstring(xml).attrib
 
 
 templates = Tests()
@@ -202,7 +200,7 @@ def title_should_only_apply_to_words_without_uppercase_letters():
 def nospaceless_works():
     template = Template("{% load nospaceless from django_tables2 %}"
                         "{% spaceless %}<b>a</b> <i>b {% nospaceless %}<b>c</b>  <b>d</b> {% endnospaceless %}lic</i>{% endspaceless %}")
-    assert template.render(Context()) == "<b>a</b><i>b <b>c</b>&nbsp;<b>d</b> lic</i>"
+    assert template.render(Context()) == "<b>a</b><i>b <b>c</b>&#32;<b>d</b> lic</i>"
 
 
 @templates.test
@@ -214,5 +212,5 @@ def whitespace_is_preserved():
 
     tree = parse(html)
 
-    assert "<b>foo</b> <i>bar</i>" in ET.tostring(tree.findall('.//thead/tr/th')[0])
-    assert "<b>foo</b> <i>bar</i>" in ET.tostring(tree.findall('.//tbody/tr/td')[0])
+    assert "<b>foo</b> <i>bar</i>" in lxml.etree.tostring(tree.findall('.//thead/tr/th')[0])
+    assert "<b>foo</b> <i>bar</i>" in lxml.etree.tostring(tree.findall('.//tbody/tr/td')[0])
