@@ -24,21 +24,12 @@ class Sequence(list):
 
         :raises: ``ValueError`` if the sequence is invalid for the columns.
         """
-        # validation
-        if self.count("...") > 1:
+        ellipses = self.count("...")
+        if ellipses > 1:
             raise ValueError("'...' must be used at most once in a sequence.")
-        elif "..." in self:
-            # Check for columns in the sequence that don't exist in *columns*
-            extra = (set(self) - set(("...", ))).difference(columns)
-            if extra:
-                raise ValueError("sequence contains columns that do not exist"
-                                 " in the table. Remove '%s'."
-                                 % "', '".join(extra))
-        else:
-            diff = set(self) ^ set(columns)
-            if diff:
-                raise ValueError("sequence does not match columns. Fix '%s' "
-                                 "or possibly add '...'." % "', '".join(diff))
+        elif ellipses == 0:
+            self.append("...")
+
         # everything looks good, let's expand the "..." item
         columns = columns[:]  # don't modify
         head = []
@@ -49,9 +40,10 @@ class Sequence(list):
                 # now we'll start adding elements to the tail
                 target = tail
                 continue
-            else:
-                target.append(columns.pop(columns.index(name)))
-        self[:] = list(chain(head, columns, tail))
+            target.append(name)
+            if name in columns:
+                columns.pop(columns.index(name))
+        self[:] = chain(head, columns, tail)
 
 
 class OrderBy(str):

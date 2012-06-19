@@ -214,3 +214,15 @@ def fields_should_implicitly_set_sequence():
             fields = ('last_name', 'first_name')
     table = PersonTable(Person.objects.all())
     assert table.columns.names() == ['last_name', 'first_name', 'extra']
+
+
+@models.test
+def model_properties_should_be_useable_for_columns():
+    class PersonTable(tables.Table):
+        class Meta:
+            model = Person
+            fields = ('name', 'first_name')
+
+    Person.objects.create(first_name='Bradley', last_name='Ayers')
+    table = PersonTable(Person.objects.all())
+    assert list(table.rows[0]) == ['Bradley Ayers', 'Bradley']

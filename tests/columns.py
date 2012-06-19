@@ -221,16 +221,12 @@ def sequence():
     assert ["b", "a", "c"] == TestTable2([]).columns.names()
     assert ["a", "b", "c"] == TestTable2([], sequence=("a", "b", "c")).columns.names()
 
-    # BAD, all columns must be specified, or must use "..."
-    with raises(ValueError):
-        class TestTable3(TestTable):
-            class Meta:
-                sequence = ("a", )
-    with raises(ValueError):
-        TestTable([], sequence=("a", ))
+    class TestTable3(TestTable):
+        class Meta:
+            sequence = ("c", )
+    assert ["c", "a", "b"] == TestTable3([]).columns.names()
+    assert ["c", "a", "b"] == TestTable([], sequence=("c", )).columns.names()
 
-    # GOOD, using a single "..." allows you to only specify some columns. The
-    # remaining columns are ordered based on their definition order
     class TestTable4(TestTable):
         class Meta:
             sequence = ("...", )

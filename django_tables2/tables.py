@@ -118,15 +118,15 @@ class DeclarativeColumnsMetaclass(type):
         attrs["base_columns"] = SortedDict(parent_columns)
         # Possibly add some generated columns based on a model
         if opts.model:
-            fields = opts.model._meta.fields
-            if opts.fields:
-                fields = filter(lambda f: f.name in opts.fields, fields)
+            extra = SortedDict()
+            for field in (opts.fields or opts.model._meta.fields):
+                name = getattr(field, 'name', field)
+                # We explicitly pass in verbose_name, so that if the table is
+                # instantiated with non-queryset data, model field
+                # verbose_names are used anyway.
+                verbose_name = getattr(field, 'verbose_name', None)
+                extra[name] = Column(verbose_name=verbose_name)
 
-            # We explicitly pass in verbose_name, so that if the table is
-            # instantiated with non-queryset data, model field verbose_names
-            # are used anyway.
-            extra = SortedDict(((f.name, Column(verbose_name=f.verbose_name))
-                                for f in fields))
             attrs["base_columns"].update(extra)
         # Explicit columns override both parent and generated columns
         attrs["base_columns"].update(SortedDict(columns))
