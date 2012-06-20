@@ -250,7 +250,7 @@ class Accessor(str):
     """
     SEPARATOR = '.'
 
-    def resolve(self, context):
+    def resolve(self, context, safe=True):
         """
         Return an object described by the accessor by traversing the attributes
         of *context*.
@@ -299,6 +299,9 @@ class Accessor(str):
                                          ', when resolving the accessor %s'
                                           % (bit, current, self))
             if callable(current):
+                if safe and getattr(current, 'alters_data', False):
+                    raise ValueError('refusing to call %s() because `.alters_data = True`'
+                                     % repr(current))
                 current = current()
             # important that we break in None case, or a relationship
             # spanning across a null-key will raise an exception in the

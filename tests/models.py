@@ -226,3 +226,14 @@ def model_properties_should_be_useable_for_columns():
     Person.objects.create(first_name='Bradley', last_name='Ayers')
     table = PersonTable(Person.objects.all())
     assert list(table.rows[0]) == ['Bradley Ayers', 'Bradley']
+
+
+@models.test
+def column_with_delete_accessor_shouldnt_delete_records():
+    class PersonTable(tables.Table):
+        delete = tables.Column()
+
+    Person.objects.create(first_name='Bradley', last_name='Ayers')
+    table = PersonTable(Person.objects.all())
+    table.as_html()
+    assert Person.objects.get(first_name='Bradley')

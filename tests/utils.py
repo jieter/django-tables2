@@ -69,6 +69,20 @@ def accessor():
 
 
 @utils.test
+def accessor_wont_honors_alters_data():
+    class Foo(object):
+        deleted = False
+        def delete(self):
+            self.deleted = True
+        delete.alters_data = True
+
+    foo = Foo()
+    with raises(ValueError):
+        Accessor('delete').resolve(foo)
+    assert foo.deleted == False
+
+
+@utils.test
 def attribute_dict_handles_escaping():
     x = AttributeDict({"x": '"\'x&'})
     assert x.as_html() == 'x="&quot;&#39;x&amp;"'
