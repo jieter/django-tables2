@@ -70,6 +70,8 @@ v0.12.0
   default value is used instead. Empty values are specified via
   `Column.empty_values`, by default is `(None, '')`. (backwards incompatible)
 - Default values can now be specified on table instances or `Table.Meta`.
+- Accessor's now honor `alters_data` during resolving. Fixes issue that would
+  delete all your data when a column had an accessor of `delete`.
 
 v0.11.0
 -------
