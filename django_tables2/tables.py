@@ -155,7 +155,7 @@ class TableOptions(object):
     def __init__(self, options=None):
         super(TableOptions, self).__init__()
         self.attrs = AttributeDict(getattr(options, "attrs", {}))
-        self.default = getattr(options, "default", u"–")
+        self.default = getattr(options, "default", u"—")
         self.empty_text = getattr(options, "empty_text", None)
         self.fields = getattr(options, "fields", ())
         self.exclude = getattr(options, "exclude", ())
