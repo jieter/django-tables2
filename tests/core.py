@@ -254,7 +254,7 @@ def ordering_different_types():
     ]
 
     table = OrderedTable(data)
-    assert u"–" == table.rows[0]['alpha']
+    assert u"—" == table.rows[0]['alpha']
 
     table = OrderedTable(data, order_by='i')
     assert 1 == table.rows[0]['i']

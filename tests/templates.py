@@ -96,8 +96,8 @@ def custom_rendering():
     # row values
     template = Template('{% for row in countries.rows %}{% for value in row %}'
                         '{{ value }} {% endfor %}{% endfor %}')
-    result = (u'Germany Berlin 83 49 France – 64 33 Netherlands Amsterdam '
-              u'– 31 Austria – 8 43 ')
+    result = (u'Germany Berlin 83 49 France — 64 33 Netherlands Amsterdam '
+              u'— 31 Austria — 8 43 ')
     assert result == template.render(context)
 
 

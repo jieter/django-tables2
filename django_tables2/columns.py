@@ -421,23 +421,26 @@ class TemplateColumn(Column):
     A subclass of :class:`.Column` that renders some template code to use as
     the cell value.
 
-    :type template_code: :class:`basestring` object
-    :type template_name: :class:`basestring` object
+    :type  template_code: `unicode`
     :param template_code: the template code to render
+    :type  template_name: `unicode`
     :param template_name: the name of the template to render
 
     A :class:`django.templates.Template` object is created from the
-    *template_code* or *template_name* and rendered with a context containing only a ``record``
-    variable. This variable is the record for the table row being rendered.
+    *template_code* or *template_name* and rendered with a context containing:
+
+    - `record` -- data record for the current row
+    - `value` -- value from `record` that corresponds to the current column
+    - `default` -- appropriate default value to use as fallback
 
     Example:
 
     .. code-block:: python
 
-        class SimpleTable(tables.Table):
-            name1 = tables.TemplateColumn('{{ record.name }}')
-            name2 = tables.TemplateColumn(template_name='myapp/name2_column.html')
-            name3 = tables.Column()
+        class ExampleTable(tables.Table):
+            foo = tables.TemplateColumn('{{ record.bar }}')
+            # contents of `myapp/bar_column.html` is `{{ value }}`
+            bar = tables.TemplateColumn(template_name='myapp/name2_column.html')
 
     Both columns will have the same output.
 
@@ -456,12 +459,13 @@ class TemplateColumn(Column):
         if not self.template_code and not self.template_name:
             raise ValueError('A template must be provided')
 
-    def render(self, record, table, **kwargs):
+    def render(self, record, table, value, bound_column, **kwargs):
         # If the table is being rendered using `render_table`, it hackily
         # attaches the context to the table as a gift to `TemplateColumn`. If
         # the table is being rendered via `Table.as_html`, this won't exist.
         context = getattr(table, 'context', Context())
-        context.update({'record': record})
+        context.update({'default': bound_column.default,
+                        'record': record, 'value': value})
         try:
             if self.template_code:
                 return Template(self.template_code).render(context)

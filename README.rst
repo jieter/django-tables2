@@ -66,12 +66,13 @@ Change log
 v0.12.0
 -------
 
-- `Column.render` is now skipped if the value is considered *empty*, the
+- ``Column.render`` is now skipped if the value is considered *empty*, the
   default value is used instead. Empty values are specified via
-  `Column.empty_values`, by default is `(None, '')`. (backwards incompatible)
-- Default values can now be specified on table instances or `Table.Meta`.
-- Accessor's now honor `alters_data` during resolving. Fixes issue that would
-  delete all your data when a column had an accessor of `delete`.
+  ``Column.empty_values``, by default is ``(None, '')`` (backward incompatible)
+- Default values can now be specified on table instances or ``Table.Meta``
+- Accessor's now honor ``alters_data`` during resolving. Fixes issue that would
+  delete all your data when a column had an accessor of ``delete``
+- Add ``default`` and ``value`` to context of ``TemplateColumn``
 
 v0.11.0
 -------

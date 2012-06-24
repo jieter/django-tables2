@@ -462,6 +462,24 @@ def should_handle_context_on_table():
     assert table.rows[0]["col_name"] == "name:brad/static/"
 
 
+@templatecolumn.test
+def should_support_default():
+    class Table(tables.Table):
+        foo = tables.TemplateColumn("default={{ default }}", default="bar")
+
+    table = Table([{}])
+    assert table.rows[0]["foo"] == "default=bar"
+
+
+@templatecolumn.test
+def should_support_value():
+    class Table(tables.Table):
+        foo = tables.TemplateColumn("value={{ value }}")
+
+    table = Table([{"foo": "bar"}])
+    assert table.rows[0]["foo"] == "value=bar"
+
+
 urlcolumn = Tests()
 
 
