@@ -47,7 +47,7 @@
 {% endblock table %}
 
 {% if table.page %}
-{% block pagination %}}
+{% block pagination %}
 <ul class="pagination">
     {% if table.page.has_previous %}
     {% nospaceless %}{% block pagination.previous %}<li class="previous"><a href="{% querystring table.prefixed_page_field=table.page.previous_page_number %}">{% trans "Previous" %}</a></li>{% endblock pagination.previous %}{% endnospaceless %}
