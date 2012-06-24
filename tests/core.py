@@ -254,7 +254,7 @@ def ordering_different_types():
     ]
 
     table = OrderedTable(data)
-    assert None == table.rows[0]['alpha']
+    assert u"–" == table.rows[0]['alpha']
 
     table = OrderedTable(data, order_by='i')
     assert 1 == table.rows[0]['i']
@@ -544,3 +544,40 @@ def should_support_rendering_multiple_times():
     # test list data
     table = MultiRenderTable([{'name': 'brad'}])
     assert table.as_html() == table.as_html()
+
+
+@core.test
+def column_defaults_are_honored():
+    class Table(tables.Table):
+        name = tables.Column(default="abcd")
+
+        class Meta:
+            default = "efgh"
+
+    table = Table([{}], default="ijkl")
+    assert table.rows[0]['name'] == "abcd"
+
+
+@core.test
+def table_meta_defaults_are_honored():
+    class Table(tables.Table):
+        name = tables.Column()
+
+        class Meta:
+            default = "abcd"
+
+    table = Table([{}])
+    assert table.rows[0]['name'] == "abcd"
+
+
+@core.test
+def table_defaults_are_honored():
+    class Table(tables.Table):
+        name = tables.Column()
+
+    table = Table([{}], default="abcd")
+    assert table.rows[0]['name'] == "abcd"
+
+    table = Table([{}], default="abcd")
+    table.default = "efgh"
+    assert table.rows[0]['name'] == "efgh"

@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# coding: utf-8
 from itertools import imap
 from django.db import models
 from django.db.models.fields import FieldDoesNotExist
@@ -102,33 +102,35 @@ class BoundRow(object):
         """
         bound_column = self.table.columns[name]
 
-        def value():
-            try:
-                # We need to take special care here to allow get_FOO_display()
-                # methods on a model to be used if available. See issue #30.
-                path, _, remainder = bound_column.accessor.rpartition('.')
-                penultimate = A(path).resolve(self.record)
-                # If the penultimate is a model and the remainder is a field
-                # using choices, use get_FOO_display().
-                if isinstance(penultimate, models.Model):
-                    try:
-                        field = penultimate._meta.get_field(remainder)
-                        display = getattr(penultimate, 'get_%s_display' % remainder, None)
-                        if field.choices and display:
-                            raw = display()
-                            remainder = None
-                    except FieldDoesNotExist:
-                        pass
-                # Fall back to just using the original accessor (we just need
-                # to follow the remainder).
-                if remainder:
-                    raw = A(remainder).resolve(penultimate)
-            except (TypeError, AttributeError, KeyError, ValueError):
-                raw = None
-            return raw if raw is not None else bound_column.default
+        value = None
+        try:
+            # We need to take special care here to allow get_FOO_display()
+            # methods on a model to be used if available. See issue #30.
+            path, _, remainder = bound_column.accessor.rpartition('.')
+            penultimate = A(path).resolve(self.record)
+            # If the penultimate is a model and the remainder is a field
+            # using choices, use get_FOO_display().
+            if isinstance(penultimate, models.Model):
+                try:
+                    field = penultimate._meta.get_field(remainder)
+                    display = getattr(penultimate, 'get_%s_display' % remainder, None)
+                    if field.choices and display:
+                        value = display()
+                        remainder = None
+                except FieldDoesNotExist:
+                    pass
+            # Fall back to just using the original accessor (we just need
+            # to follow the remainder).
+            if remainder:
+                value = A(remainder).resolve(penultimate)
+        except (TypeError, AttributeError, KeyError, ValueError):
+            pass
+
+        if value in bound_column.column.empty_values:
+            return bound_column.default
 
         kwargs = {
-            'value':        value,  # already a function, no need to wrap
+            'value':        lambda: value,
             'record':       lambda: self.record,
             'column':       lambda: bound_column.column,
             'bound_column': lambda: bound_column,

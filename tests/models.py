@@ -4,7 +4,7 @@ from django.conf import settings
 from django.template import Template, Context
 import django_tables2 as tables
 from django_attest import TestContext
-from attest import Tests, Assert
+from attest import assert_hook, Tests
 from .app.models import Person, Occupation
 
 

@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# coding: utf-8
 from __future__ import absolute_import, unicode_literals
 from django.utils.html import escape
 from django.utils.safestring import mark_safe

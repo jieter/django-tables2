@@ -63,6 +63,14 @@ globally, use::
 Change log
 ==========
 
+v0.12.0
+-------
+
+- `Column.render` is now skipped if the value is considered *empty*, the
+  default value is used instead. Empty values are specified via
+  `Column.empty_values`, by default is `(None, '')`. (backwards incompatible)
+- Default values can now be specified on table instances or `Table.Meta`.
+
 v0.11.0
 -------
 

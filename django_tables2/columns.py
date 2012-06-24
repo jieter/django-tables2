@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# coding: utf-8
 from __future__ import absolute_import, unicode_literals
 from django.core.urlresolvers import reverse
 from django.db.models.fields import FieldDoesNotExist
@@ -71,10 +71,11 @@ class Column(object):  # pylint: disable=R0902
     """
     #: Tracks each time a Column instance is created. Used to retain order.
     creation_counter = 0
+    empty_values = (None, '')
 
     def __init__(self, verbose_name=None, accessor=None, default=None,
                  visible=True, orderable=None, attrs=None, order_by=None,
-                 sortable=None):
+                 sortable=None, empty_values=None):
         if not (accessor is None or isinstance(accessor, basestring) or
                 callable(accessor)):
             raise TypeError('accessor must be a string or callable, not %s' %
@@ -101,18 +102,15 @@ class Column(object):  # pylint: disable=R0902
         # massage order_by into an OrderByTuple or None
         order_by = (order_by, ) if isinstance(order_by, basestring) else order_by
         self.order_by = OrderByTuple(order_by) if order_by is not None else None
+        if empty_values is not None:
+            self.empty_values = empty_values
 
         self.creation_counter = Column.creation_counter
         Column.creation_counter += 1
 
     @property
     def default(self):
-        """
-        The default value for cells in this column.
-
-        The default value passed into ``Column.default`` property may be a
-        callable, this function handles access.
-        """
+        # handle callables
         return self._default() if callable(self._default) else self._default
 
     @property
@@ -147,6 +145,13 @@ class Column(object):  # pylint: disable=R0902
 
         This method can be overridden by :meth:`render_FOO` methods on the
         table or by subclassing :class:`Column`.
+
+        :returns: `unicode`
+
+        If the value for this cell is in `self.empty_values`, this method is
+        skipped and an appropriate default value is rendered instead.
+        Subclasses should set `empty_values` to `()` if they want to handle
+        all values in `render`.
         """
         return value
 
@@ -325,16 +330,6 @@ class LinkColumn(BaseLinkColumn):
         self.current_app = current_app
 
     def render(self, value, record, bound_column):  # pylint: disable=W0221
-        # Remember that value is actually what would have normally been put
-        # into the cell. i.e. it *already* takes into consideration the
-        # column's *default* property, thus we must check the actual data value
-        # and use that to decide whether to render a link or just the default
-        try:
-            raw = bound_column.accessor.resolve(record)
-        except (TypeError, AttributeError, KeyError, ValueError):
-            raw = None
-        if raw is None:
-            return self.default
         # The following params + if statements create the arguments required to
         # pass to Django's reverse() function.
         params = {}
@@ -452,6 +447,8 @@ class TemplateColumn(Column):
         ``RequestContext``, the table **must** be rendered via
         :ref:`{% render_table %} <template-tags.render_table>`.
     """
+    empty_values = ()
+
     def __init__(self, template_code=None, template_name=None, **extra):
         super(TemplateColumn, self).__init__(**extra)
         self.template_code = template_code
@@ -500,9 +497,9 @@ class BoundColumn(object):
 
     """
     def __init__(self, table, column, name):
-        self._table = table
-        self._column = column
-        self._name = name
+        self.table = table
+        self.column = column
+        self.name = name
 
     def __unicode__(self):
         return unicode(self.header)
@@ -550,18 +547,14 @@ class BoundColumn(object):
         return attrs
 
     @property
-    def column(self):
-        """
-        Returns the :class:`.Column` object for this column.
-        """
-        return self._column
-
-    @property
     def default(self):
         """
         Returns the default value for this column.
         """
-        return self.column.default
+        value = self.column.default
+        if value is None:
+            value = self.table.default
+        return value
 
     @property
     def header(self):
@@ -580,13 +573,6 @@ class BoundColumn(object):
             # this is the case, we leave it verbatim.
             return verbose_name
         return title(verbose_name)
-
-    @property
-    def name(self):
-        """
-        Returns the string used to identify this column.
-        """
-        return self._name
 
     @property
     def order_by(self):
@@ -679,13 +665,6 @@ class BoundColumn(object):
         if self.column.orderable is not None:
             return self.column.orderable
         return self.table.orderable
-
-    @property
-    def table(self):
-        """
-        Return the :class:`Table` object that this column is part of.
-        """
-        return self._table
 
     @property
     def verbose_name(self):

@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# coding: utf-8
 import copy
 from django.conf import settings
 from django.core.paginator import Paginator
@@ -155,6 +155,7 @@ class TableOptions(object):
     def __init__(self, options=None):
         super(TableOptions, self).__init__()
         self.attrs = AttributeDict(getattr(options, "attrs", {}))
+        self.default = getattr(options, "default", u"–")
         self.empty_text = getattr(options, "empty_text", None)
         self.fields = getattr(options, "fields", ())
         self.exclude = getattr(options, "exclude", ())
@@ -230,6 +231,10 @@ class Table(StrAndUnicode):
     :type  empty_text: string
     :param empty_text: Empty text to render when the table has no data.
             (default :attr:`.Table.Meta.empty_text`)
+
+    :type  default: unicode
+    :param default: Text to render in empty cells (determined by
+            :attr:`Column.empty_values`, default :attrs:`.Table.Meta.default`)
     """
     __metaclass__ = DeclarativeColumnsMetaclass
     TableDataClass = TableData
@@ -237,11 +242,14 @@ class Table(StrAndUnicode):
     def __init__(self, data, order_by=None, orderable=None, empty_text=None,
                  exclude=None, attrs=None, sequence=None, prefix=None,
                  order_by_field=None, page_field=None, per_page_field=None,
-                 template=None, sortable=None):
+                 template=None, sortable=None, default=None):
         super(Table, self).__init__()
         self.exclude = exclude or ()
         self.sequence = sequence
         self.data = self.TableDataClass(data=data, table=self)
+        if default is None:
+            default = self._meta.default
+        self.default = default
         self.rows = BoundRows(self.data)
         self.attrs = attrs
         self.empty_text = empty_text

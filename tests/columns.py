@@ -345,6 +345,14 @@ def th_are_given_sortable_class_if_column_is_orderable():
     assert "sortable" not in classes(root.findall('.//thead/tr/th')[1])
 
 
+@general.test
+def empty_values_triggers_default():
+    class Table(tables.Table):
+        a = tables.Column(empty_values=(1, 2), default="--")
+
+    table = Table([{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}])
+    assert [x["a"] for x in table.rows] == ["--", "--", 3, 4]
+
 
 linkcolumn = Tests()
 linkcolumn.context(TestContext())
@@ -426,6 +434,15 @@ def a_attrs_should_be_supported():
     table = TestTable([{"col": 0}])
     assert attrs(table.rows[0]["col"]) == {"href": reverse("occupation", kwargs={"pk": 0}),
                                            "title": "Occupation Title"}
+
+
+@linkcolumn.test
+def defaults():
+    class Table(tables.Table):
+        link = tables.LinkColumn('occupation', kwargs={"pk": 1}, default="xyz")
+
+    table = Table([{}])
+    assert table.rows[0]['link'] == 'xyz'
 
 
 templatecolumn = Tests()
