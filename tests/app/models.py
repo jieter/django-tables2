@@ -30,7 +30,7 @@ class Person(models.Model):
 
     @property
     def name(self):
-        return "{} {}".format(self.first_name, self.last_name)
+        return u"%s %s" % (self.first_name, self.last_name)
 
 
 class Occupation(models.Model):
