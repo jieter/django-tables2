@@ -362,3 +362,42 @@ class Attrs(dict):
     By using the `Attrs` class your intention to use the new mechanism is
     explicit.
     """
+
+
+def segment(sequence, aliases):
+    """
+    Translates a flat sequence of items into a set of prefixed aliases.
+
+    This allows the value set by `QuerySet.order_by()` to be translated into
+    a list of columns that would have the same result. These are called
+    "order by aliases" which are optionally prefixed column names.
+
+    e.g.
+
+        >>> list(segment(("a", "-b", "c"),
+        ...              {"x": ("a"),
+        ...               "y": ("b", "-c"),
+        ...               "z": ("-b", "c")}))
+        [["x", "-y"], ["x", "z"]]
+
+    """
+    if not (sequence or aliases):
+        return
+    for alias, parts in aliases.items():
+        variants = {
+            # prefix: order by tuple
+            "":  OrderByTuple(parts),
+            "-": OrderByTuple(parts).opposite,
+        }
+        for prefix, variant in variants.items():
+            if list(sequence[:len(variant)]) == list(variant):
+                tail_aliases = dict(aliases)
+                del tail_aliases[alias]
+                tail_sequence = sequence[len(variant):]
+                if tail_sequence:
+                    for tail in segment(tail_sequence, tail_aliases):
+                        yield [prefix + alias] + tail
+                    else:
+                        continue
+                else:
+                    yield [prefix + alias]

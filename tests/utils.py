@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from attest import assert_hook, raises, Tests
-from django_tables2.utils import Accessor, AttributeDict, OrderByTuple, OrderBy
+from django_tables2.utils import (Accessor, AttributeDict, OrderByTuple,
+                                  OrderBy, segment)
 
 
 utils = Tests()
@@ -86,3 +87,15 @@ def accessor_wont_honors_alters_data():
 def attribute_dict_handles_escaping():
     x = AttributeDict({"x": '"\'x&'})
     assert x.as_html() == 'x="&quot;&#39;x&amp;"'
+
+
+@utils.test
+def segment_should_return_all_candidates():
+    assert list(segment(("a", "-b", "c"), {
+            "x": ("a"),
+            "y": ("b", "-c"),
+            "z": ("-b", "c"),
+        })) == [
+            ["x", "-y"],
+            ["x", "z"],
+        ]
