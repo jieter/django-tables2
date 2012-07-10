@@ -93,20 +93,23 @@ def set_url_param(parser, token):
 
 
 class QuerystringNode(Node):
-    def __init__(self, params):
+    def __init__(self, updates, removals):
         super(QuerystringNode, self).__init__()
-        self.params = params
+        self.updates = updates
+        self.removals = removals
 
     def render(self, context):
         request = context.get('request', None)
         if not request:
             return ""
         params = dict(request.GET)
-        for key, value in self.params.iteritems():
+        for key, value in self.updates.iteritems():
             key = key.resolve(context)
             value = value.resolve(context)
             if key not in ("", None):
                 params[key] = value
+        for removal in self.removals:
+            params.pop(removal.resolve(context), None)
         return escape("?" + urlencode(params, doseq=True))
 
 
@@ -122,17 +125,19 @@ def querystring(parser, token):
 
         {% querystring "name"="Ayers" "age"=20 %}
         ?name=Ayers&gender=male&age=20
+        {% querystring "name"="Ayers" without "gender" %}
+        ?name=Ayers
 
     """
     bits = token.split_contents()
     tag = bits.pop(0)
-    try:
-        return QuerystringNode(token_kwargs(bits, parser))
-    finally:
-        # ``bits`` should now be empty, if this is not the case, it means there
-        # was some junk arguments that token_kwargs couldn't handle.
-        if bits:
-            raise TemplateSyntaxError("Malformed arguments to '%s'" % tag)
+    updates = token_kwargs(bits, parser)
+    # ``bits`` should now be empty of a=b pairs, it should either be empty, or
+    # have ``without`` arguments.
+    if bits and bits.pop(0) != "without":
+        raise TemplateSyntaxError("Malformed arguments to '%s'" % tag)
+    removals = map(parser.compile_filter, bits)
+    return QuerystringNode(updates, removals)
 
 
 class RenderTableNode(Node):

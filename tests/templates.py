@@ -160,13 +160,12 @@ def render_table_should_support_template_argument():
 
 @templates.test
 def querystring_templatetag():
-    factory = RequestFactory()
     template = Template('{% load django_tables2 %}'
                         '<b>{% querystring "name"="Brad" foo.bar=value %}</b>')
 
     # Should be something like: <root>?name=Brad&amp;a=b&amp;c=5&amp;age=21</root>
     xml = template.render(Context({
-        "request": factory.get('/?a=b&name=dog&c=5'),
+        "request": RequestFactory().get('/?a=b&name=dog&c=5'),
         "foo": {"bar": "age"},
         "value": 21,
     }))
@@ -179,6 +178,27 @@ def querystring_templatetag():
     assert qs["age"] == ["21"]
     assert qs["a"] == ["b"]
     assert qs["c"] == ["5"]
+
+
+@templates.test
+def querystring_templatetag_supports_without():
+    context = Context({
+        "request": RequestFactory().get('/?a=b&name=dog&c=5'),
+        "a_var": "a",
+    })
+
+    template = Template('{% load django_tables2 %}'
+                        '<b>{% querystring "name"="Brad" without a_var %}</b>')
+    url = parse(template.render(context)).text
+    qs = parse_qs(url[1:])  # trim the ? pylint: disable=C0103
+    assert set(qs.keys()) == set(["name", "c"])
+
+    # Try with only exclusions
+    template = Template('{% load django_tables2 %}'
+                        '<b>{% querystring without "a" "name" %}</b>')
+    url = parse(template.render(context)).text
+    qs = parse_qs(url[1:])  # trim the ? pylint: disable=C0103
+    assert set(qs.keys()) == set(["c"])
 
 
 @templates.test
