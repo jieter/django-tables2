@@ -237,3 +237,20 @@ def column_with_delete_accessor_shouldnt_delete_records():
     table = PersonTable(Person.objects.all())
     table.as_html()
     assert Person.objects.get(first_name='Bradley')
+
+
+@models.test
+def order_by_derived_from_queryset():
+    queryset = Person.objects.order_by("first_name", "last_name", "-occupation__name")
+
+    class PersonTable(tables.Table):
+        name = tables.Column(order_by=("first_name", "last_name"))
+        occupation = tables.Column(order_by=("occupation__name",))
+
+    assert PersonTable(queryset.all()).order_by == ("name", "-occupation")
+
+    class PersonTable(PersonTable):
+        class Meta:
+            order_by = ("occupation", )
+
+    assert PersonTable(queryset.all()).order_by == ("occupation", )
