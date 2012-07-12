@@ -94,7 +94,7 @@ def segment_should_return_all_candidates():
     assert list(segment(("a", "-b", "c"), {
             "x": ("a"),
             "y": ("b", "-c"),
-            "z": ("-b", "c"),
+            "-z": ("b", "-c"),
         })) == [
             ["x", "-y"],
             ["x", "z"],

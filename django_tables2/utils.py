@@ -385,19 +385,19 @@ def segment(sequence, aliases):
         return
     for alias, parts in aliases.items():
         variants = {
-            # prefix: order by tuple
-            "":  OrderByTuple(parts),
-            "-": OrderByTuple(parts).opposite,
+            # alias: order by tuple
+            alias:  OrderByTuple(parts),
+            OrderBy(alias).opposite: OrderByTuple(parts).opposite,
         }
-        for prefix, variant in variants.items():
-            if list(sequence[:len(variant)]) == list(variant):
+        for valias, vparts in variants.items():
+            if list(sequence[:len(vparts)]) == list(vparts):
                 tail_aliases = dict(aliases)
                 del tail_aliases[alias]
-                tail_sequence = sequence[len(variant):]
+                tail_sequence = sequence[len(vparts):]
                 if tail_sequence:
                     for tail in segment(tail_sequence, tail_aliases):
-                        yield [prefix + alias] + tail
+                        yield [valias] + tail
                     else:
                         continue
                 else:
-                    yield [prefix + alias]
+                    yield [valias]
