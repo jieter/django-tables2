@@ -59,7 +59,7 @@ class TableData(object):
         :type  aliases: :class:`~.utils.OrderByTuple`
         """
         accessors = self._translate_aliases_to_accessors(aliases)
-        if hasattr(self, 'queryset'):
+        if hasattr(self, "queryset"):
             translate = lambda accessor: accessor.replace(Accessor.SEPARATOR, QUERYSET_ACCESSOR_SEPARATOR)
             self.queryset = self.queryset.order_by(*(translate(a) for a in accessors))
         else:
@@ -340,8 +340,9 @@ class Table(StrAndUnicode):
     @order_by.setter
     def order_by(self, value):
         """
-        Order the rows of the table based columns. ``value`` must be a sequence
-        of column names.
+        Order the rows of the table based on columns.
+
+        :param value: iterable of order by aliases.
         """
         # collapse empty values to ()
         order_by = () if not value else value

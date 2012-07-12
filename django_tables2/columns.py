@@ -589,7 +589,7 @@ class BoundColumn(object):
         if self.column.order_by is not None:
             order_by = self.column.order_by
         else:
-            # default to using column name as data source sort key
+            # default to using column accessor as data source sort key
             order_by = OrderByTuple((self.accessor, ))
         return order_by.opposite if self.order_by_alias.is_descending else order_by
 
@@ -606,7 +606,7 @@ class BoundColumn(object):
         the *name* of the column, rather than the keys used to order the table
         data. Understanding the difference is essential.
 
-        Having an alias *and* a normal version is necessary because an N-tuple
+        Having an alias *and* a keys version is necessary because an N-tuple
         (of data source keys) can be used by the column to order the data, and
         it's ambiguous when mapping from N-tuple to column (since multiple
         columns could use the same N-tuple).
