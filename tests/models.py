@@ -247,7 +247,7 @@ def order_by_derived_from_queryset():
         name = tables.Column(order_by=("first_name", "last_name"))
         occupation = tables.Column(order_by=("occupation__name",))
 
-    assert PersonTable(queryset.all()).order_by == ("name", "-occupation")
+    assert PersonTable(queryset.order_by("first_name", "last_name", "-occupation__name")).order_by == ("name", "-occupation")
 
     class PersonTable(PersonTable):
         class Meta:

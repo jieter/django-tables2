@@ -134,6 +134,17 @@ def datasource_untouched():
 
 
 @core.test
+def datasource_alias_to_accessor_translation():
+    class Table(tables.Table):
+        a = tables.Column(order_by=("b", "-c"))
+
+    table = Table([])
+    translate = table.data._translate_aliases_to_accessors
+    assert list(translate(["a"])) == ["b", "-c"]
+    assert list(translate(["-a"])) == ["-b", "c"]
+
+
+@core.test
 def should_support_tuple_data_source():
     class SimpleTable(tables.Table):
         name = tables.Column()
@@ -163,14 +174,6 @@ def ordering():
     assert OrderedTable([], order_by='alpha').order_by   == ('alpha', )
     assert OrderedTable([], order_by=('beta',)).order_by == ('beta', )
 
-    class NoOrderByQuerySet(QuerySet):
-        def order_by(self, *args, **kwargs):
-            raise NotImplementedError
-
-    # "no ordering"
-    table = UnorderedTable(NoOrderByQuerySet())
-    assert table.order_by == None
-
     table = OrderedTable([])
     table.order_by = []
     assert () == table.order_by == OrderedTable([], order_by=[]).order_by
@@ -195,6 +198,9 @@ def ordering():
     # let's check the data
     table = OrderedTable(MEMORY_DATA, order_by='beta')
     assert 3 == table.rows[0]['i']
+
+    table = OrderedTable(MEMORY_DATA, order_by='-beta')
+    assert 1 == table.rows[0]['i']
 
     # allow fallback to Table.Meta.order_by
     table = OrderedTable(MEMORY_DATA)

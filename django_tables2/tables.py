@@ -10,7 +10,8 @@ from django.utils.encoding import StrAndUnicode
 import itertools
 import sys
 import warnings
-from .utils import Accessor, AttributeDict, OrderBy, OrderByTuple, Sequence
+from .utils import (Accessor, AttributeDict, OrderBy, OrderByTuple, segment,
+                    Sequence)
 from .rows import BoundRows
 from .columns import BoundColumns, Column
 
@@ -48,6 +49,28 @@ class TableData(object):
         return (self.queryset.count() if hasattr(self, 'queryset')
                                       else len(self.list))
 
+    @property
+    def ordering(self):
+        """
+        Returns the list of order by aliases that are enforcing ordering on the
+        data.
+
+        If the data is unordered, an empty sequence is returned. If the
+        ordering can not be determined, `None` is returned.
+
+        This works by inspecting the actual underlying data. As such it's only
+        supported for querysets.
+        """
+        if hasattr(self, "queryset"):
+            aliases = {}
+            translate = lambda accessor: accessor.replace(QUERYSET_ACCESSOR_SEPARATOR, Accessor.SEPARATOR)
+            for bound_column in self.table.columns:
+                aliases[bound_column.order_by_alias] = bound_column.order_by
+            try:
+                return segment(self.queryset.query.order_by, aliases).next()
+            except StopIteration:
+                pass
+
     def order_by(self, aliases):
         """
         Order the data based on order by aliases (prefixed column names) in the
@@ -58,19 +81,22 @@ class TableData(object):
                         regard to data ordering.
         :type  aliases: :class:`~.utils.OrderByTuple`
         """
-        accessors = self._translate_aliases_to_accessors(aliases)
+        accessors = []
+        for alias in aliases:
+            bound_column = self.table.columns[OrderBy(alias).bare]
+            # bound_column.order_by reflects the current ordering applied to
+            # the table. As such we need to check the current ordering on the
+            # column and use the opposite if it doesn't match the alias prefix.
+            if alias[0] != bound_column.order_by_alias[0]:
+                accessors += bound_column.order_by.opposite
+            else:
+                accessors += bound_column.order_by
+
         if hasattr(self, "queryset"):
             translate = lambda accessor: accessor.replace(Accessor.SEPARATOR, QUERYSET_ACCESSOR_SEPARATOR)
             self.queryset = self.queryset.order_by(*(translate(a) for a in accessors))
         else:
-            self.list.sort(cmp=accessors.cmp)
-
-    def _translate_aliases_to_accessors(self, aliases):
-        """
-        Translate from order by aliases to column accessors.
-        """
-        columns = (self.table.columns[OrderBy(alias).bare] for alias in aliases)
-        return OrderByTuple(itertools.chain(*(c.order_by for c in columns)))
+            self.list.sort(cmp=OrderByTuple(accessors).cmp)
 
     def __iter__(self):
         """
@@ -289,6 +315,11 @@ class Table(StrAndUnicode):
             order_by = self._meta.order_by
         if order_by is None:
             self._order_by = None
+            # If possible inspect the ordering on the data we were given and
+            # update the table to reflect that.
+            order_by = self.data.ordering
+            if order_by is not None:
+                self.order_by = order_by
         else:
             self.order_by = order_by
         self.template = template
@@ -350,10 +381,10 @@ class Table(StrAndUnicode):
         order_by = order_by.split(',') if isinstance(order_by, basestring) else order_by
         valid = []
         # everything's been converted to a iterable, accept iterable!
-        for o in order_by:
-            name = OrderBy(o).bare
+        for alias in order_by:
+            name = OrderBy(alias).bare
             if name in self.columns and self.columns[name].orderable:
-                valid.append(o)
+                valid.append(alias)
         self._order_by = OrderByTuple(valid)
         self.data.order_by(self._order_by)
 
