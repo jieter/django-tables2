@@ -134,17 +134,6 @@ def datasource_untouched():
 
 
 @core.test
-def datasource_alias_to_accessor_translation():
-    class Table(tables.Table):
-        a = tables.Column(order_by=("b", "-c"))
-
-    table = Table([])
-    translate = table.data._translate_aliases_to_accessors
-    assert list(translate(["a"])) == ["b", "-c"]
-    assert list(translate(["-a"])) == ["-b", "c"]
-
-
-@core.test
 def should_support_tuple_data_source():
     class SimpleTable(tables.Table):
         name = tables.Column()
