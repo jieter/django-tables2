@@ -233,7 +233,7 @@ class TableOptions(object):
         self.orderable = self.sortable = getattr(options, "orderable", getattr(options, "sortable", True))
         if getattr(options, "orderable", getattr(options, "sortable", None)) is None:
             self._is_defaulted.append('orderable')
-            
+
         self.model = getattr(options, "model", None)
         self.template = getattr(options, "template", "django_tables2/table.html")
         if getattr(options, "template", None) is None:
@@ -407,6 +407,23 @@ class Table(StrAndUnicode):
         request = RequestFactory().get('/')
         template = get_template(self.template)
         return template.render(RequestContext(request, {'table': self}))
+
+    def get_tr_attrs(self, record, bound_row):
+        """
+        Prepares the `AttributeDict` to be applied to the current row.
+
+        This method can be overriden by sub-classes to customize the attributes
+        (like 'class') applied to rows, on per row basis.
+
+        The default implementation adds a 'class' attribute set to CSS class 'odd'
+        or 'even' depnding on row's index. It gets the row index using `bound_row.key`.
+
+        :param record: the model row from table data.
+        :param bound_row: the bound_row instance from table.
+
+        :rtype: :class:`~.utils.AttributeDict` object. Note that it is not `~.utils.Attrs`.
+        """
+        return AttributeDict({'class': 'even' if bound_row.key % 2 == 0 else 'odd'})
 
     @property
     def attrs(self):
