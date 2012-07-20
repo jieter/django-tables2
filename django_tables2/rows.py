@@ -64,11 +64,13 @@ class BoundRow(object):
     :param record: a single record from the :term:`table data` that is used to
         populate the row. A record could be a :class:`Model` object, a
         :class:`dict`, or something else.
+    :param key: is the index of the row, starting from 0.
 
     """
-    def __init__(self, table, record):
+    def __init__(self, table, record, key):
         self._table = table
         self._record = record
+        self.key = key
 
     @property
     def table(self):
@@ -82,6 +84,10 @@ class BoundRow(object):
         with data.
         """
         return self._record
+
+    @property
+    def attrs(self):
+        return self._table.get_tr_attrs(self._record, self)
 
     def __iter__(self):
         """
@@ -175,8 +181,8 @@ class BoundRows(object):
 
     def __iter__(self):
         table = self.data.table  # avoid repeated lookups
-        for record in self.data:
-            yield BoundRow(table, record)
+        for key, record in enumerate(self.data):
+            yield BoundRow(table, record, key)
 
     def __len__(self):
         return len(self.data)
@@ -189,4 +195,4 @@ class BoundRows(object):
         if isinstance(key, slice):
             return BoundRows(self.data[key])
         else:
-            return BoundRow(self.data.table, self.data[key])
+            return BoundRow(self.data.table, self.data[key], key)

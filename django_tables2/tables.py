@@ -126,7 +126,7 @@ class DeclarativeColumnsMetaclass(type):
     """
     def __new__(cls, name, bases, attrs):
 
-        attrs["_meta"] = opts = TableOptions(attrs.get("Meta", None))
+        opts = TableOptions(attrs.get("Meta", None))
         # extract declared columns
         columns = [(name_, attrs.pop(name_)) for name_, column in attrs.items()
                                              if isinstance(column, Column)]
@@ -140,6 +140,17 @@ class DeclarativeColumnsMetaclass(type):
         for base in bases[::-1]:
             if hasattr(base, "base_columns"):
                 parent_columns = base.base_columns.items() + parent_columns
+
+        # Pull in parent Meta options
+        table_options = TableOptions()
+        immediate_parent = bases[-1] # The immediate parent will already have the merged table options.
+        if hasattr(immediate_parent, "_meta"):
+            table_options.update(immediate_parent._meta)
+            table_options.update(opts)
+        else:
+            table_options = opts
+        attrs["_meta"] = opts = table_options
+
         # Start with the parent columns
         attrs["base_columns"] = SortedDict(parent_columns)
         # Possibly add some generated columns based on a model
@@ -180,8 +191,12 @@ class TableOptions(object):
     """
     def __init__(self, options=None):
         super(TableOptions, self).__init__()
+        self._is_defaulted = []
         self.attrs = AttributeDict(getattr(options, "attrs", {}))
         self.default = getattr(options, "default", u"—")
+        if getattr(options, "default", None) is None:
+            self._is_defaulted.append('default')
+
         self.empty_text = getattr(options, "empty_text", None)
         self.fields = getattr(options, "fields", ())
         self.exclude = getattr(options, "exclude", ())
@@ -190,17 +205,69 @@ class TableOptions(object):
             order_by = (order_by, )
         self.order_by = OrderByTuple(order_by) if order_by is not None else None
         self.order_by_field = getattr(options, "order_by_field", "sort")
+        if getattr(options, "order_by_field", None) is None:
+            self._is_defaulted.append('order_by_field')
+
         self.page_field = getattr(options, "page_field", "page")
+        if getattr(options, "page_field", None) is None:
+            self._is_defaulted.append('page_field')
+
         self.per_page = getattr(options, "per_page", 25)
+        if getattr(options, "per_page", None) is None:
+            self._is_defaulted.append('per_page')
+
         self.per_page_field = getattr(options, "per_page_field", "per_page")
+        if getattr(options, "per_page_field", None) is None:
+            self._is_defaulted.append('per_page_field')
+
         self.prefix = getattr(options, "prefix", "")
+        if getattr(options, "prefix", None) is None:
+            self._is_defaulted.append('prefix')
+
         self.sequence = Sequence(getattr(options, "sequence", ()))
+        self._original_sequence = Sequence(self.sequence) # This to keep a non-expanded copy.
+
         if hasattr(options, "sortable"):
             warnings.warn("`Table.Meta.sortable` is deprecated, use `orderable` instead",
                           DeprecationWarning)
         self.orderable = self.sortable = getattr(options, "orderable", getattr(options, "sortable", True))
+        if getattr(options, "orderable", getattr(options, "sortable", None)) is None:
+            self._is_defaulted.append('orderable')
+
         self.model = getattr(options, "model", None)
         self.template = getattr(options, "template", "django_tables2/table.html")
+        if getattr(options, "template", None) is None:
+            self._is_defaulted.append('template')
+
+    def update(self, table_option):
+        self.attrs.update(table_option.attrs)
+        if "default" not in table_option._is_defaulted:
+            self.default = table_option.default
+        if table_option.empty_text is not None:
+            self.empty_text = table_option.empty_text
+        self.fields += table_option.fields
+        self.exclude += table_option.exclude
+        if "order_by_field" not in table_option._is_defaulted:
+            self.order_by_field = table_option.order_by_field
+        if "page_field" not in table_option._is_defaulted:
+            self.page_field = table_option.page_field
+        if "prefix" not in table_option._is_defaulted:
+            self.prefix = table_option.prefix
+        if table_option._original_sequence:
+            self._original_sequence = table_option._original_sequence
+            self.sequence = Sequence(self._original_sequence)
+        if "orderable" not in table_option._is_defaulted:
+            self.orderable = self.sortable = table_option.orderable
+        if table_option.model is not None:
+            self.model = table_option.model
+        if "template" not in table_option._is_defaulted:
+            self.template = table_option.template
+
+        if self.order_by is not None:
+            if table_option.order_by is not None:
+                self.order_by += table_option.order_by
+        else:
+            self.order_by = table_option.order_by
 
 
 class Table(StrAndUnicode):
@@ -340,6 +407,23 @@ class Table(StrAndUnicode):
         request = RequestFactory().get('/')
         template = get_template(self.template)
         return template.render(RequestContext(request, {'table': self}))
+
+    def get_tr_attrs(self, record, bound_row):
+        """
+        Prepares the `AttributeDict` to be applied to the current row.
+
+        This method can be overriden by sub-classes to customize the attributes
+        (like 'class') applied to rows, on per row basis.
+
+        The default implementation adds a 'class' attribute set to CSS class 'odd'
+        or 'even' depnding on row's index. It gets the row index using `bound_row.key`.
+
+        :param record: the model row from table data.
+        :param bound_row: the bound_row instance from table.
+
+        :rtype: :class:`~.utils.AttributeDict` object. Note that it is not `~.utils.Attrs`.
+        """
+        return AttributeDict({'class': 'even' if bound_row.key % 2 == 0 else 'odd'})
 
     @property
     def attrs(self):
