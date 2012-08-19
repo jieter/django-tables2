@@ -542,8 +542,9 @@ class BoundColumn(object):
         if self.is_ordered:
             th_class.add("desc" if self.order_by_alias.is_descending else "asc")
         # Always add the column name as a class
-        th_class.add(self.name)
-        td_class.add(self.name)
+        if self.table.columns_as_css_class:
+            th_class.add(self.name)
+            td_class.add(self.name)
         if th_class:
             th['class'] = " ".join(sorted(th_class))
         if td_class:

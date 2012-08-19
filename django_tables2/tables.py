@@ -261,6 +261,10 @@ class Table(StrAndUnicode):
     :type  default: unicode
     :param default: Text to render in empty cells (determined by
             :attr:`Column.empty_values`, default :attrs:`.Table.Meta.default`)
+
+    :type  columns_as_css_class: bool
+    :param columns_as_css_class: Whether or not to add the column name as
+            a class attribute in the rendered html.
     """
     __metaclass__ = DeclarativeColumnsMetaclass
     TableDataClass = TableData
@@ -268,7 +272,8 @@ class Table(StrAndUnicode):
     def __init__(self, data, order_by=None, orderable=None, empty_text=None,
                  exclude=None, attrs=None, sequence=None, prefix=None,
                  order_by_field=None, page_field=None, per_page_field=None,
-                 template=None, sortable=None, default=None):
+                 template=None, sortable=None, default=None,
+                 columns_as_css_class=None):
         super(Table, self).__init__()
         self.exclude = exclude or ()
         self.sequence = sequence
@@ -276,6 +281,10 @@ class Table(StrAndUnicode):
         if default is None:
             default = self._meta.default
         self.default = default
+        if columns_as_css_class is None:
+            self.columns_as_css_class = True
+        else:
+            self.column_as_css_class = columns_as_css_class
         self.rows = BoundRows(self.data)
         self.attrs = attrs
         self.empty_text = empty_text
