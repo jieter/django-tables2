@@ -1,6 +1,7 @@
 # coding: utf-8
 from __future__ import absolute_import
 from django import template
+from django.core.exceptions import ImproperlyConfigured
 from django.template import TemplateSyntaxError, Variable, Node
 from django.template.loader import get_template, select_template
 from django.template.defaultfilters import stringfilter, title as old_title
@@ -17,6 +18,11 @@ import tokenize
 
 register = template.Library()
 kwarg_re = re.compile(r"(?:(.+)=)?(.+)")
+context_proccessor_error_msg = (
+    "django-tables2 requires django.core.context_processors.request "
+    "to be in your settings.TEMPLATE_CONTEXT_PROCESSORS in order for "
+    "the included template tags to function correctly."
+)
 
 
 def token_kwargs(bits, parser):
@@ -46,10 +52,9 @@ class SetUrlParamNode(Node):
         self.changes = changes
 
     def render(self, context):
-        request = context.get('request', None)
-        if not request:
-            return ""
-        params = dict(request.GET)
+        if not 'request' in context:
+            raise ImproperlyConfigured(context_proccessor_error_msg)
+        params = dict(context['request'].GET)
         for key, newvalue in self.changes.items():
             newvalue = newvalue.resolve(context)
             if newvalue == '' or newvalue is None:
@@ -100,10 +105,9 @@ class QuerystringNode(Node):
         self.removals = removals
 
     def render(self, context):
-        request = context.get('request', None)
-        if not request:
-            return ""
-        params = dict(request.GET)
+        if not 'request' in context:
+            raise ImproperlyConfigured(context_proccessor_error_msg)
+        params = dict(context['request'].GET)
         for key, value in self.updates.iteritems():
             key = key.resolve(context)
             value = value.resolve(context)
