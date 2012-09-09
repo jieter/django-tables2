@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# coding: utf-8
 from __future__ import absolute_import, unicode_literals
 import os
 os.environ['DJANGO_SETTINGS_MODULE'] = 'tests.settings'
@@ -9,7 +9,7 @@ from contextlib import contextmanager
 import django
 from django.test.simple import build_test
 import django_attest
-from django_attest import redirects, TestContext
+from django_attest import queries, redirects, TestContext
 from django_attest.reporters import ReporterMixin
 from pkg_resources import parse_version
 from tests.app.models import Thing
@@ -59,6 +59,7 @@ def template_rendering_tracking_works():
         else:
             # Django <= 1.2
             assert response.template.name == "template.html"
+
 
 @suite.test
 def reporters():
@@ -116,10 +117,25 @@ def assert_redirects():
             redirects(response, **invalid)
 
 
+@suite.test
+def assert_queries():
+    with queries(count=1):
+        list(Thing.objects.all())
+
+    with queries(count=0):
+        pass
+
+    with queries() as qs:
+        list(Thing.objects.all())
+
+    assert len(qs) == 1
+
+
 # -----------------------------------------------------------------------------
 
 
 junit = Tests()
+
 
 @junit.test
 def make_junit_output():

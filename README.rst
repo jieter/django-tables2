@@ -240,9 +240,25 @@ For details on each of these, see ``django_attest/assertion.py``.
 redirects
 ^^^^^^^^^
 
-Example::
+Assert that a response redirects to some resource::
 
     from django_attest import redirects
 
     response = client.get('/')
     redirects(response, path="/foo/")
+
+
+queries
+^^^^^^^
+
+Assert an expected set of queries took place::
+
+    from django_attest import queries
+
+    with queries() as qs:
+        User.objects.count()
+    assert len(qs) == 5
+
+    # The same could be rewritten as
+    with queries(count=5):
+        User.objects.count()

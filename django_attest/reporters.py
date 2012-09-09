@@ -3,6 +3,10 @@ from attest import reporters, Tests
 from django.utils.functional import wraps
 
 
+__all__ = ("AbstractReporter", "PlainReporter", "FancyReporter",
+           "auto_reporter", "XmlReporter", "QuickFixReporter")
+
+
 def _test_loader_factory(reporter):
     class Loader(object):
         def loadTestsFromNames(self, names, module=None):
@@ -26,6 +30,7 @@ PlainReporter    = type("PlainReporter",    (ReporterMixin, reporters.PlainRepor
 FancyReporter    = type("FancyRepoter",     (ReporterMixin, reporters.FancyReporter), {})
 XmlReporter      = type("XmlReporter",      (ReporterMixin, reporters.XmlReporter), {})
 QuickFixReporter = type("QuickFixReporter", (ReporterMixin, reporters.QuickFixReporter), {})
+
 
 @wraps(reporters.auto_reporter)
 def auto_reporter(**opts):
