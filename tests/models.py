@@ -1,10 +1,8 @@
-# -*- coding: utf-8 -*-
-import itertools
-from django.conf import settings
-from django.template import Template, Context
-import django_tables2 as tables
-from django_attest import TestContext
+# coding: utf-8
 from attest import assert_hook, Tests
+import itertools
+from django_attest import TestContext
+import django_tables2 as tables
 from .app.models import Person, Occupation
 
 
@@ -44,6 +42,7 @@ def model_table():
 
     class OccupationTable2(tables.Table):
         extra = tables.Column()
+
         class Meta:
             model = Occupation
     assert ["id", "name", "region", "extra"] == OccupationTable2.base_columns.keys()
@@ -51,6 +50,7 @@ def model_table():
     # be aware here, we already have *models* variable, but we're importing
     # over the top
     from django.db import models
+
     class ComplexModel(models.Model):
         char = models.CharField(max_length=200)
         fk = models.ForeignKey("self")
@@ -69,6 +69,7 @@ def mixins():
 
     class OccupationTable(TableMixin, tables.Table):
         extra2 = tables.Column()
+
         class Meta:
             model = Occupation
     assert ["extra", "id", "name", "region", "extra2"] == OccupationTable.base_columns.keys()

@@ -1,14 +1,13 @@
-# -*- coding: utf-8 -*-
+# coding: utf-8
 from attest import assert_hook, raises, Tests  # pylint: disable=W0611
+from django_attest import TestContext
+import django_tables2 as tables
 from django.conf import settings
-from django.http import HttpRequest
 from django.template import Template, RequestContext, Context
 from django.test.client import RequestFactory
 from django.utils.translation import ugettext_lazy
 from django.utils.safestring import mark_safe
 from urlparse import parse_qs
-import django_tables2 as tables
-from StringIO import StringIO
 import lxml.etree
 import lxml.html
 
@@ -24,6 +23,7 @@ def attrs(xml):
     return lxml.html.fromstring(xml).attrib
 
 
+factory = RequestFactory()
 templates = Tests()
 
 
@@ -53,7 +53,7 @@ MEMORY_DATA = [
 def as_html():
     table = CountryTable(MEMORY_DATA)
     root = parse(table.as_html())
-    assert len(root.findall('.//thead/tr'))== 1
+    assert len(root.findall('.//thead/tr')) == 1
     assert len(root.findall('.//thead/tr/th')) == 4
     assert len(root.findall('.//tbody/tr')) == 4
     assert len(root.findall('.//tbody/tr/td')) == 16
@@ -106,7 +106,7 @@ def render_table_templatetag():
     # ensure it works with a multi-order-by
     table = CountryTable(MEMORY_DATA, order_by=('name', 'population'))
     template = Template('{% load django_tables2 %}{% render_table table %}')
-    html = template.render(Context({'request': HttpRequest(), 'table': table}))
+    html = template.render(Context({'request': factory.get('/'), 'table': table}))
 
     root = parse(html)
     assert len(root.findall('.//thead/tr')) == 1
@@ -117,7 +117,7 @@ def render_table_templatetag():
     # no data with no empty_text
     table = CountryTable([])
     template = Template('{% load django_tables2 %}{% render_table table %}')
-    html = template.render(Context({'request': HttpRequest(), 'table': table}))
+    html = template.render(Context({'request': factory.get('/'), 'table': table}))
     root = parse(html)
     assert len(root.findall('.//thead/tr')) == 1
     assert len(root.findall('.//thead/tr/th')) == 4
@@ -126,7 +126,7 @@ def render_table_templatetag():
     # no data WITH empty_text
     table = CountryTable([], empty_text='this table is empty')
     template = Template('{% load django_tables2 %}{% render_table table %}')
-    html = template.render(Context({'request': HttpRequest(), 'table': table}))
+    html = template.render(Context({'request': factory.get('/'), 'table': table}))
     root = parse(html)
     assert len(root.findall('.//thead/tr')) == 1
     assert len(root.findall('.//thead/tr/th')) == 4

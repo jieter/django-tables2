@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# coding: utf-8
 # pylint: disable=R0912,E0102
 from attest import assert_hook, raises, Tests, warns  # pylint: disable=W0611
 from django_attest import TestContext

@@ -5,7 +5,7 @@ import django_tables2 as tables
 class CountryTable(tables.Table):
     name = tables.Column()
     population = tables.Column()
-    tz = tables.Column(verbose_name='Time Zone')
+    tz = tables.Column(verbose_name='time zone')
     visits = tables.Column()
 
 
