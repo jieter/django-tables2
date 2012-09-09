@@ -1,11 +1,11 @@
-# -*- coding: utf8 -*-
-from setuptools import setup, find_packages
+# coding: utf8
+from setuptools import setup
 
 
 setup(
     name='django-attest',
     version='0.5.0',
-    description = 'Provides Django specific testing helpers to Attest',
+    description='Provides Django specific testing helpers to Attest',
 
     author='Bradley Ayers',
     author_email='bradley.ayers@gmail.com',
@@ -18,7 +18,7 @@ setup(
     test_loader='tests:loader',
     test_suite='tests.suite',
 
-    classifiers = [
+    classifiers=[
         'Environment :: Web Environment',
         'Framework :: Django',
         'Intended Audience :: Developers',
