@@ -126,9 +126,11 @@ def assert_queries():
         pass
 
     with queries() as qs:
-        list(Thing.objects.all())
+        with queries(using='alternate') as others:
+            list(Thing.objects.all())
 
     assert len(qs) == 1
+    assert len(others) == 0
 
 
 # -----------------------------------------------------------------------------
