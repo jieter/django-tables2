@@ -32,22 +32,24 @@ class TableData(object):
         # data may be a QuerySet-like objects with count() and order_by()
         if (hasattr(data, 'count') and callable(data.count) and
             hasattr(data, 'order_by') and callable(data.order_by)):
-            self.queryset = data
+            self.data = self.queryset = data
         # otherwise it must be convertable to a list
         else:
             try:
-                self.list = list(data)
+                self.data = self.list = list(data)
             except:
                 raise ValueError('data must be QuerySet-like (have count and '
                                  'order_by) or support list(data) -- %s is '
                                  'neither' % type(data).__name__)
 
     def __len__(self):
-        # Use the queryset count() method to get the length, instead of
-        # loading all results into memory. This allows, for example,
-        # smart paginators that use len() to perform better.
-        return (self.queryset.count() if hasattr(self, 'queryset')
-                                      else len(self.list))
+        if not hasattr(self, "_length"):
+            # Use the queryset count() method to get the length, instead of
+            # loading all results into memory. This allows, for example,
+            # smart paginators that use len() to perform better.
+            self._length = (self.queryset.count() if hasattr(self, 'queryset')
+                                                  else len(self.list))
+        return self._length
 
     @property
     def ordering(self):
@@ -63,7 +65,6 @@ class TableData(object):
         """
         if hasattr(self, "queryset"):
             aliases = {}
-            translate = lambda accessor: accessor.replace(QUERYSET_ACCESSOR_SEPARATOR, Accessor.SEPARATOR)
             for bound_column in self.table.columns:
                 aliases[bound_column.order_by_alias] = bound_column.order_by
             try:
@@ -104,18 +105,14 @@ class TableData(object):
         with indexing into querysets, so this side-steps that problem (as well
         as just being a better way to iterate).
         """
-        return iter(self.list) if hasattr(self, 'list') else iter(self.queryset)
+        return iter(self.data)
 
     def __getitem__(self, key):
         """
         Slicing returns a new :class:`.TableData` instance, indexing returns a
         single record.
         """
-        data = (self.list if hasattr(self, 'list') else self.queryset)[key]
-        if isinstance(key, slice):
-            return type(self)(data, self.table)
-        else:
-            return data
+        return self.data[key]
 
 
 class DeclarativeColumnsMetaclass(type):
@@ -276,7 +273,7 @@ class Table(StrAndUnicode):
         if default is None:
             default = self._meta.default
         self.default = default
-        self.rows = BoundRows(self.data)
+        self.rows = BoundRows(data=self.data, table=self)
         self.attrs = attrs
         self.empty_text = empty_text
         if sortable is not None:
@@ -421,17 +418,21 @@ class Table(StrAndUnicode):
         per_page = per_page or self._meta.per_page
         self.paginator = klass(self.rows, per_page, *args, **kwargs)
         self._page_number = page
+        if hasattr(self, "_page"):
+            del self._page
 
     @property
     def page(self):
-        if hasattr(self, '_page_number'):
-            try:
-                return self.paginator.page(self._page_number)
-            except:
-                if settings.DEBUG:
-                    raise
-                else:
-                    raise Http404(sys.exc_info()[1])
+        if not hasattr(self, '_page'):
+            if hasattr(self, '_page_number'):
+                try:
+                    self._page = self.paginator.page(self._page_number)
+                except:
+                    if settings.DEBUG:
+                        raise
+                    else:
+                        raise Http404(sys.exc_info()[1])
+        return self._page
 
     @property
     def per_page_field(self):

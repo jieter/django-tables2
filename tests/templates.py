@@ -1,7 +1,9 @@
 # coding: utf-8
 from attest import assert_hook, raises, Tests  # pylint: disable=W0611
-from django_attest import TestContext
+from contextlib import contextmanager
+from django_attest import queries, TestContext
 import django_tables2 as tables
+from django_tables2.config import RequestConfig
 from django.conf import settings
 from django.template import Template, RequestContext, Context
 from django.test.client import RequestFactory
@@ -10,6 +12,7 @@ from django.utils.safestring import mark_safe
 from urlparse import parse_qs
 import lxml.etree
 import lxml.html
+from .app.models import Person
 
 
 def parse(html):
@@ -234,3 +237,45 @@ def whitespace_is_preserved():
 
     assert "<b>foo</b> <i>bar</i>" in lxml.etree.tostring(tree.findall('.//thead/tr/th')[0])
     assert "<b>foo</b> <i>bar</i>" in lxml.etree.tostring(tree.findall('.//tbody/tr/td')[0])
+
+
+database = contextmanager(TestContext())
+
+
+@templates.test
+def as_html_db_queries():
+    with database():
+        class PersonTable(tables.Table):
+            class Meta:
+                model = Person
+
+        with queries(count=1):
+            PersonTable(Person.objects.all()).as_html()
+
+
+@templates.test
+def render_table_db_queries():
+    render = lambda **kw: (Template('{% load django_tables2 %}{% render_table table %}')
+                            .render(Context(kw)))
+
+    with database():
+        Person.objects.create(first_name="brad", last_name="ayers")
+        Person.objects.create(first_name="stevie", last_name="armstrong")
+
+        class PersonTable(tables.Table):
+            class Meta:
+                model = Person
+                per_page = 1
+
+        with queries(count=2):
+            # one query to check if there's anything to display: .count()
+            # one query for page records: .all()[start:end]
+            render(table=PersonTable(Person.objects.all()))
+
+        with queries(count=2):
+            # one query for pagination: .count()
+            # one query for page records: .all()[start:end]
+            request = factory.get('/')
+            table = PersonTable(Person.objects.all())
+            RequestConfig(request).configure(table)
+            render(table=table, request=request)

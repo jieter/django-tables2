@@ -1,8 +1,6 @@
 # coding: utf-8
-from itertools import imap
 from django.db import models
 from django.db.models.fields import FieldDoesNotExist
-from django.utils.safestring import EscapeUnicode, SafeData
 from .utils import A
 
 
@@ -60,15 +58,15 @@ class BoundRow(object):
         ...
         KeyError: 'c'
 
-    :param table: is the :class:`Table` in which this row exists.
+    :param  table: is the :class:`Table` in which this row exists.
     :param record: a single record from the :term:`table data` that is used to
-        populate the row. A record could be a :class:`Model` object, a
-        :class:`dict`, or something else.
+                   populate the row. A record could be a :class:`Model` object,
+                   a :class:`dict`, or something else.
 
     """
-    def __init__(self, table, record):
-        self._table = table
+    def __init__(self, record, table):
         self._record = record
+        self._table = table
 
     @property
     def table(self):
@@ -165,18 +163,18 @@ class BoundRows(object):
     """
     Container for spawning :class:`.BoundRow` objects.
 
-    :type  data: :class:`.TableData` object
-    :param data: the table in which the rows exist.
+    :param  data: iterable of records
+    :param table: the table in which the rows exist
 
     This is used for :attr:`.Table.rows`.
     """
-    def __init__(self, data):
+    def __init__(self, data, table):
         self.data = data
+        self.table = table
 
     def __iter__(self):
-        table = self.data.table  # avoid repeated lookups
         for record in self.data:
-            yield BoundRow(table, record)
+            yield BoundRow(record, table=self.table)
 
     def __len__(self):
         return len(self.data)
@@ -186,7 +184,5 @@ class BoundRows(object):
         Slicing returns a new :class:`.BoundRows` instance, indexing returns
         a single :class:`.BoundRow` instance.
         """
-        if isinstance(key, slice):
-            return BoundRows(self.data[key])
-        else:
-            return BoundRow(self.data.table, self.data[key])
+        container = BoundRows if isinstance(key, slice) else BoundRow
+        return container(self.data[key], table=self.table)
