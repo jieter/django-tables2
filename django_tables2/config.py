@@ -5,12 +5,13 @@ class RequestConfig(object):
     """
     A configurator that uses request data to setup a table.
 
-    :type paginate: ``dict`` or ``bool``
+    :type  paginate: ``dict`` or ``bool``
     :param paginate: indicates whether to paginate, and if so, what default
-            values to use. If the value evaluates to ``False``, pagination
-            will be disabled. A ``dict`` can be used to specify default values
-            for the call to :meth:`.tables.Table.paginate` (e.g. to define a
-            default ``per_page`` value).
+                     values to use. If the value evaluates to ``False``,
+                     pagination will be disabled. A ``dict`` can be used to
+                     specify default values for the call to
+                     :meth:`.tables.Table.paginate` (e.g. to define a default
+                     ``per_page`` value).
 
     """
     def __init__(self, request, paginate=True):
