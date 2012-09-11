@@ -1033,8 +1033,22 @@ API Reference
     :members:
 
 
-:class:`EmailColumn` Objects:
+:class:`DateColumn` Objects:
+----------------------------
+
+.. autoclass:: django_tables2.columns.DateColumn
+    :members:
+
+
+:class:`DateTimeColumn` Objects:
 --------------------------------
+
+.. autoclass:: django_tables2.columns.DateTimeColumn
+    :members:
+
+
+:class:`EmailColumn` Objects:
+-----------------------------
 
 .. autoclass:: django_tables2.columns.EmailColumn
     :members:

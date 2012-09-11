@@ -1,14 +1,22 @@
 # coding: utf-8
 # pylint: disable=R0912,E0102
-from attest import assert_hook, raises, Tests, warns  # pylint: disable=W0611
+from __future__ import unicode_literals
+from attest import assert_hook, Tests, warns  # pylint: disable=W0611
+from datetime import date, datetime
 from django_attest import TestContext
 import django_tables2 as tables
 from django_tables2 import A, Attrs
 from django.test.client import RequestFactory
 from django.core.urlresolvers import reverse
 from django.template import Context, Template
+from django.test.utils import override_settings
 from django.utils.translation import ugettext
 from django.utils.safestring import mark_safe, SafeData
+try:
+    from django.utils import timezone
+except ImportError:
+    timezone = None
+import pytz
 from .app.models import Person
 from .templates import attrs, parse
 
@@ -504,4 +512,118 @@ def should_turn_email_address_into_hyperlink():
     assert table.rows[0]["email"] == '<a href="mailto:test@example.com">test@example.com</a>'
 
 
-columns = Tests([checkboxcolumn, emailcolumn, general, linkcolumn, templatecolumn, urlcolumn])
+datecolumn = Tests()
+
+# Format string: https://docs.djangoproject.com/en/1.4/ref/templates/builtins/#date
+# D -- Day of the week, textual, 3 letters  -- 'Fri'
+# b -- Month, textual, 3 letters, lowercase -- 'jan'
+# Y -- Year, 4 digits.                      -- '1999'
+
+@datecolumn.test
+def should_handle_explicit_format():
+    class TestTable(tables.Table):
+        date = tables.DateColumn(format="D b Y")
+
+        class Meta:
+            default = "—"
+
+    table = TestTable([{"date": date(2012, 9, 11)},
+                       {"date": None}])
+    assert table.rows[0]["date"] == "Tue sep 2012"
+    assert table.rows[1]["date"] == "—"
+
+
+@datecolumn.test
+@override_settings(DATE_FORMAT="D Y b")
+def should_handle_long_format():
+    class TestTable(tables.Table):
+        date = tables.DateColumn(short=False)
+
+        class Meta:
+            default = "—"
+
+    table = TestTable([{"date": date(2012, 9, 11)},
+                       {"date": None}])
+    assert table.rows[0]["date"] == "Tue 2012 sep"
+    assert table.rows[1]["date"] == "—"
+
+
+@datecolumn.test
+@override_settings(SHORT_DATE_FORMAT="b Y D")
+def should_handle_short_format():
+    class TestTable(tables.Table):
+        date = tables.DateColumn(short=True)
+
+        class Meta:
+            default = "—"
+
+    table = TestTable([{"date": date(2012, 9, 11)},
+                       {"date": None}])
+    assert table.rows[0]["date"] == "sep 2012 Tue"
+    assert table.rows[1]["date"] == "—"
+
+
+datetimecolumn = Tests()
+
+# Format string: https://docs.djangoproject.com/en/1.4/ref/templates/builtins/#date
+# D -- Day of the week, textual, 3 letters  -- 'Fri'
+# b -- Month, textual, 3 letters, lowercase -- 'jan'
+# Y -- Year, 4 digits.                      -- '1999'
+# A -- 'AM' or 'PM'.                        -- 'AM'
+# f -- Time, in 12-hour hours[:minutes]     -- '1', '1:30'
+
+@datetimecolumn.context
+def dt():
+    dt = datetime(2012, 9, 11, 12, 30)
+    if timezone:
+        # If the version of Django has timezone support, convert from naive to
+        # UTC, the test project uses Australia/Brisbane so regardless the
+        # output from the column should be the same.
+        dt = (dt.replace(tzinfo=pytz.timezone("Australia/Brisbane"))
+                .astimezone(pytz.UTC))
+    yield dt
+
+
+@datetimecolumn.test
+def should_handle_explicit_format(dt):
+    class TestTable(tables.Table):
+        date = tables.DateTimeColumn(format="D b Y")
+
+        class Meta:
+            default = "—"
+
+    table = TestTable([{"date": dt}, {"date": None}])
+    assert table.rows[0]["date"] == "Tue sep 2012"
+    assert table.rows[1]["date"] == "—"
+
+
+@datetimecolumn.test
+def should_handle_long_format(dt):
+    class TestTable(tables.Table):
+        date = tables.DateTimeColumn(short=False)
+
+        class Meta:
+            default = "—"
+
+    with override_settings(DATETIME_FORMAT="D Y b A f"):
+        table = TestTable([{"date": dt}, {"date": None}])
+        assert table.rows[0]["date"] == "Tue 2012 sep PM 12:30"
+        assert table.rows[1]["date"] == "—"
+
+
+@datetimecolumn.test
+def should_handle_short_format(dt):
+    class TestTable(tables.Table):
+        date = tables.DateTimeColumn(short=True)
+
+        class Meta:
+            default = "—"
+
+    with override_settings(SHORT_DATETIME_FORMAT="b Y D A f"):
+        table = TestTable([{"date": dt}, {"date": None}])
+        assert table.rows[0]["date"] == "sep 2012 Tue PM 12:30"
+        assert table.rows[1]["date"] == "—"
+
+
+columns = Tests([checkboxcolumn, datecolumn, datetimecolumn, emailcolumn,
+                 general, linkcolumn, templatecolumn, urlcolumn])
