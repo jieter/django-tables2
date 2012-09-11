@@ -1,7 +1,6 @@
 # coding: utf-8
 from attest import assert_hook, raises, Tests
 import django_tables2 as tables
-from django_tables2 import utils
 
 
 rows = Tests()

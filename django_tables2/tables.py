@@ -414,25 +414,15 @@ class Table(StrAndUnicode):
         :param per_page: how many records are displayed on each page
         :type      page: ``int``
         :param     page: which page should be displayed.
+
+        Extra arguments are passed to ``Paginator``.
+
+        Pagination exceptions (``EmptyPage`` and ``PageNotAnInteger``) may be
+        raised from this method and should be handled by the caller.
         """
         per_page = per_page or self._meta.per_page
         self.paginator = klass(self.rows, per_page, *args, **kwargs)
-        self._page_number = page
-        if hasattr(self, "_page"):
-            del self._page
-
-    @property
-    def page(self):
-        if not hasattr(self, '_page'):
-            if hasattr(self, '_page_number'):
-                try:
-                    self._page = self.paginator.page(self._page_number)
-                except:
-                    if settings.DEBUG:
-                        raise
-                    else:
-                        raise Http404(sys.exc_info()[1])
-        return self._page
+        self.page = self.paginator.page(page)
 
     @property
     def per_page_field(self):

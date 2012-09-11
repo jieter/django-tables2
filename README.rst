@@ -63,6 +63,24 @@ globally, use::
 Change log
 ==========
 
+v0.13.0
+-------
+
+- Improve performance by removing unnecessary queries
+- Simplified pagination:
+
+  - ``Table.page`` is an instance attribute (no longer ``@property``)
+  - Exceptions raised by paginators (e.g. ``EmptyPage``) are no longer
+    smothered by ``Table.page``
+  - Pagination exceptions are raised by ``Table.paginate``
+  - ``RequestConfig`` can handle pagination errors silently if ``silent=True``
+    is included in the ``paginate`` argument
+  - ``SingleTableMixin.table_pagination`` changed from ``None`` to
+    ``{"silent": True}``
+
+- Add ``DateTimeColumn`` and ``DateColumn`` to handle formatting ``datetime``
+  and timezones.
+
 v0.12.0
 -------
 

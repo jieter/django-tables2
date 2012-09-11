@@ -572,6 +572,7 @@ datetimecolumn = Tests()
 # A -- 'AM' or 'PM'.                        -- 'AM'
 # f -- Time, in 12-hour hours[:minutes]     -- '1', '1:30'
 
+
 @datetimecolumn.context
 def dt():
     dt = datetime(2012, 9, 11, 12, 30)

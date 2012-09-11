@@ -17,9 +17,9 @@ class SingleTableMixin(object):
                                "table")
     :type  context_table_name: ``string``
     :param   table_pagination: controls table pagination. If a dict, passed as
-                               keyword arguments to ``table.paginate``. Any
-                               non-False evaluated value enables pagination.
-    :type    table_pagination: non-False or dict
+                               the ``paginate`` keyword argument to
+                               ``RequestConfig()``. As such, any *non-False*
+                               value enables pagination.
 
     This mixin plays nice with the Django's ``MultipleObjectMixin`` by using
     ``get_queryset()`` as a fallback for the table data source.
@@ -27,7 +27,7 @@ class SingleTableMixin(object):
     table_class = None
     table_data = None
     context_table_name = None
-    table_pagination = True
+    table_pagination = {"silent": True}
 
     def get_table(self):
         """
