@@ -46,7 +46,7 @@ class RequestConfig(object):
                 except (ValueError, KeyError):
                     pass
 
-            silent = kwargs.pop('silent', False)
+            silent = kwargs.pop('silent', True)
             if not silent:
                 table.paginate(**kwargs)
             else:

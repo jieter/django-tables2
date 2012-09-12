@@ -73,10 +73,8 @@ v0.13.0
   - Exceptions raised by paginators (e.g. ``EmptyPage``) are no longer
     smothered by ``Table.page``
   - Pagination exceptions are raised by ``Table.paginate``
-  - ``RequestConfig`` can handle pagination errors silently if ``silent=True``
-    is included in the ``paginate`` argument
-  - ``SingleTableMixin.table_pagination`` changed from ``None`` to
-    ``{"silent": True}``
+  - ``RequestConfig`` can handles pagination errors silently, can be disabled
+    by including ``silent=False`` in the ``paginate`` argument value
 
 - Add ``DateTimeColumn`` and ``DateColumn`` to handle formatting ``datetime``
   and timezones.
