@@ -78,6 +78,8 @@ v0.13.0
 
 - Add ``DateTimeColumn`` and ``DateColumn`` to handle formatting ``datetime``
   and timezones.
+- ``render_table`` can now build and render a table for a queryset, rather than
+  needing to be passed a table instance
 
 v0.12.0
 -------

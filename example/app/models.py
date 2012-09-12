@@ -15,3 +15,17 @@ class Country(models.Model):
 
     def __unicode__(self):
         return self.name
+
+    @property
+    def summary(self):
+        return "%s (pop. %s)" % (self.name, self.population)
+
+
+class Person(models.Model):
+    name = models.CharField(max_length=200, verbose_name="full name")
+
+    class Meta:
+        verbose_name_plural = "people"
+
+    def __unicode__(self):
+        return self.name

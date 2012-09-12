@@ -9,6 +9,7 @@ from django.utils.http import urlencode
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 import django_tables2 as tables
+from django_tables2.config import RequestConfig
 import re
 import StringIO
 import tokenize
@@ -155,8 +156,24 @@ class RenderTableNode(Node):
     def render(self, context):
         table = self.table.resolve(context)
 
-        if not isinstance(table, tables.Table):
-            raise ValueError("Expected Table object, but didn't find one.")
+        if isinstance(table, tables.Table):
+            pass
+        elif hasattr(table, "model"):
+            queryset = table
+
+            # We've been given a queryset, create a table using its model and
+            # render that.
+            class OnTheFlyTable(tables.Table):
+                class Meta:
+                    model = queryset.model
+                    attrs = {"class": "paleblue"}
+            table = OnTheFlyTable(queryset)
+            request = context.get('request')
+            if request:
+                RequestConfig(request).configure(table)
+        else:
+            raise ValueError("Expected table or queryset, not '%s'." %
+                             type(table).__name__)
 
         if self.template:
             template = self.template.resolve(context)
@@ -187,11 +204,39 @@ class RenderTableNode(Node):
 
 @register.tag
 def render_table(parser, token):
+    """
+    Render a HTML table.
+
+    The tag can be given either a ``Table`` object, or a queryset. An optional
+    second argument can specify the template to use.
+
+    Example::
+
+        {% render_table table %}
+        {% render_table table "custom.html" %}
+        {% render_table user_queryset %}
+
+    When given a queryset, a ``Table`` class is generated dynamically as
+    follows::
+
+        class OnTheFlyTable(tables.Table):
+            class Meta:
+                model = queryset.model
+                attrs = {"class": "paleblue"}
+
+    For configuration beyond this, a ``Table`` class must be manually defined,
+    instantiated, and passed to this tag.
+
+    The context should include a ``request`` variable containing the current
+    request. This allows pagination URLs to be created without clobbering the
+    existing querystring.
+    """
     bits = token.split_contents()
     try:
         tag, table = bits.pop(0), parser.compile_filter(bits.pop(0))
     except ValueError:
-        raise TemplateSyntaxError(u"'%s' must be given a table." % bits[0])
+        raise TemplateSyntaxError(u"'%s' must be given a table or queryset."
+                                  % bits[0])
     template = parser.compile_filter(bits.pop(0)) if bits else None
     return RenderTableNode(table, template)
 

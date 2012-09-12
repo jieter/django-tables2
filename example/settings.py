@@ -132,7 +132,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'example.app',
     'django_tables2',
-    "debug_toolbar",
+    'debug_toolbar',
 )
 
 INTERNAL_IPS = (

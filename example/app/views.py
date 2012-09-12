@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
-from django.shortcuts import render_to_response
-from django.template import RequestContext
+from django.shortcuts import render
+from django_tables2   import RequestConfig, SingleTableView
 from .tables import CountryTable, ThemedCountryTable
-from .models import Country
-from django_tables2 import RequestConfig
-from django_tables2 import SingleTableView
+from .models import Country, Person
 
 
 def multiple(request):
@@ -26,13 +24,13 @@ def multiple(request):
     example5.template = "extended_table.html"
     RequestConfig(request, paginate={"per_page": 3}).configure(example5)
 
-    return render_to_response('multiple.html', {
+    return render(request, 'multiple.html', {
         'example1': example1,
         'example2': example2,
         'example3': example3,
         'example4': example4,
         'example5': example5,
-    }, context_instance=RequestContext(request))
+    })
 
 
 class ClassBased(SingleTableView):

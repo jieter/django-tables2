@@ -12,7 +12,7 @@ from django.utils.safestring import mark_safe
 from urlparse import parse_qs
 import lxml.etree
 import lxml.html
-from .app.models import Person
+from .app.models import Person, Region
 
 
 def parse(html):
@@ -27,6 +27,7 @@ def attrs(xml):
 
 
 factory = RequestFactory()
+database = contextmanager(TestContext())
 templates = Tests()
 
 
@@ -162,6 +163,20 @@ def render_table_should_support_template_argument():
 
 
 @templates.test
+def render_table_supports_queryset():
+    with database():
+        for name in ("Mackay", "Brisbane", "Maryborough"):
+            Region.objects.create(name=name)
+        template = Template('{% load django_tables2 %}{% render_table qs %}')
+        html = template.render(Context({'qs': Region.objects.all()}))
+        root = parse(html)
+        assert [e.text for e in root.findall('.//thead/tr/th/a')] == ["ID", "Name"]
+        td = [[td.text for td in tr.findall('td')] for tr in root.findall('.//tbody/tr')]
+        db = [map(str, v) for v in Region.objects.values_list("id", "name")]
+        assert td == db
+
+
+@templates.test
 def querystring_templatetag():
     template = Template('{% load django_tables2 %}'
                         '<b>{% querystring "name"="Brad" foo.bar=value %}</b>')
@@ -237,9 +252,6 @@ def whitespace_is_preserved():
 
     assert "<b>foo</b> <i>bar</i>" in lxml.etree.tostring(tree.findall('.//thead/tr/th')[0])
     assert "<b>foo</b> <i>bar</i>" in lxml.etree.tostring(tree.findall('.//tbody/tr/td')[0])
-
-
-database = contextmanager(TestContext())
 
 
 @templates.test
