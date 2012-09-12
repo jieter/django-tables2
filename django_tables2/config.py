@@ -1,16 +1,25 @@
 # coding: utf-8
+from django.core.paginator import EmptyPage, PageNotAnInteger
 
 
 class RequestConfig(object):
     """
     A configurator that uses request data to setup a table.
 
-    :type paginate: ``dict`` or ``bool``
+    :type  paginate: ``dict`` or ``bool``
     :param paginate: indicates whether to paginate, and if so, what default
-            values to use. If the value evaluates to ``False``, pagination
-            will be disabled. A ``dict`` can be used to specify default values
-            for the call to :meth:`.tables.Table.paginate` (e.g. to define a
-            default ``per_page`` value).
+                     values to use. If the value evaluates to ``False``,
+                     pagination will be disabled. A ``dict`` can be used to
+                     specify default values for the call to
+                     :meth:`.tables.Table.paginate` (e.g. to define a default
+                     ``per_page`` value).
+
+                     A special ``silent`` item can be used to enable automatic
+                     handling of pagination exceptions using the following
+                     algorithm:
+
+                     - If ``PageNotAnInteger`` is raised, show the first page.
+                     - If ``EmptyPage`` is raised, show the last page.
 
     """
     def __init__(self, request, paginate=True):
@@ -36,4 +45,14 @@ class RequestConfig(object):
                     kwargs[arg] = int(self.request.GET[name])
                 except (ValueError, KeyError):
                     pass
-            table.paginate(**kwargs)
+
+            silent = kwargs.pop('silent', True)
+            if not silent:
+                table.paginate(**kwargs)
+            else:
+                try:
+                    table.paginate(**kwargs)
+                except PageNotAnInteger:
+                    table.page = table.paginator.page(1)
+                except EmptyPage:
+                    table.page = table.paginator.page(table.paginator.num_pages)

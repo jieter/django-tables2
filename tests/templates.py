@@ -1,16 +1,18 @@
-# -*- coding: utf-8 -*-
+# coding: utf-8
 from attest import assert_hook, raises, Tests  # pylint: disable=W0611
+from contextlib import contextmanager
+from django_attest import queries, TestContext
+import django_tables2 as tables
+from django_tables2.config import RequestConfig
 from django.conf import settings
-from django.http import HttpRequest
 from django.template import Template, RequestContext, Context
 from django.test.client import RequestFactory
 from django.utils.translation import ugettext_lazy
 from django.utils.safestring import mark_safe
 from urlparse import parse_qs
-import django_tables2 as tables
-from StringIO import StringIO
 import lxml.etree
 import lxml.html
+from .app.models import Person
 
 
 def parse(html):
@@ -24,6 +26,7 @@ def attrs(xml):
     return lxml.html.fromstring(xml).attrib
 
 
+factory = RequestFactory()
 templates = Tests()
 
 
@@ -53,7 +56,7 @@ MEMORY_DATA = [
 def as_html():
     table = CountryTable(MEMORY_DATA)
     root = parse(table.as_html())
-    assert len(root.findall('.//thead/tr'))== 1
+    assert len(root.findall('.//thead/tr')) == 1
     assert len(root.findall('.//thead/tr/th')) == 4
     assert len(root.findall('.//tbody/tr')) == 4
     assert len(root.findall('.//tbody/tr/td')) == 16
@@ -106,7 +109,7 @@ def render_table_templatetag():
     # ensure it works with a multi-order-by
     table = CountryTable(MEMORY_DATA, order_by=('name', 'population'))
     template = Template('{% load django_tables2 %}{% render_table table %}')
-    html = template.render(Context({'request': HttpRequest(), 'table': table}))
+    html = template.render(Context({'request': factory.get('/'), 'table': table}))
 
     root = parse(html)
     assert len(root.findall('.//thead/tr')) == 1
@@ -117,7 +120,7 @@ def render_table_templatetag():
     # no data with no empty_text
     table = CountryTable([])
     template = Template('{% load django_tables2 %}{% render_table table %}')
-    html = template.render(Context({'request': HttpRequest(), 'table': table}))
+    html = template.render(Context({'request': factory.get('/'), 'table': table}))
     root = parse(html)
     assert len(root.findall('.//thead/tr')) == 1
     assert len(root.findall('.//thead/tr/th')) == 4
@@ -126,7 +129,7 @@ def render_table_templatetag():
     # no data WITH empty_text
     table = CountryTable([], empty_text='this table is empty')
     template = Template('{% load django_tables2 %}{% render_table table %}')
-    html = template.render(Context({'request': HttpRequest(), 'table': table}))
+    html = template.render(Context({'request': factory.get('/'), 'table': table}))
     root = parse(html)
     assert len(root.findall('.//thead/tr')) == 1
     assert len(root.findall('.//thead/tr/th')) == 4
@@ -234,3 +237,45 @@ def whitespace_is_preserved():
 
     assert "<b>foo</b> <i>bar</i>" in lxml.etree.tostring(tree.findall('.//thead/tr/th')[0])
     assert "<b>foo</b> <i>bar</i>" in lxml.etree.tostring(tree.findall('.//tbody/tr/td')[0])
+
+
+database = contextmanager(TestContext())
+
+
+@templates.test
+def as_html_db_queries():
+    with database():
+        class PersonTable(tables.Table):
+            class Meta:
+                model = Person
+
+        with queries(count=1):
+            PersonTable(Person.objects.all()).as_html()
+
+
+@templates.test
+def render_table_db_queries():
+    render = lambda **kw: (Template('{% load django_tables2 %}{% render_table table %}')
+                            .render(Context(kw)))
+
+    with database():
+        Person.objects.create(first_name="brad", last_name="ayers")
+        Person.objects.create(first_name="stevie", last_name="armstrong")
+
+        class PersonTable(tables.Table):
+            class Meta:
+                model = Person
+                per_page = 1
+
+        with queries(count=2):
+            # one query to check if there's anything to display: .count()
+            # one query for page records: .all()[start:end]
+            render(table=PersonTable(Person.objects.all()))
+
+        with queries(count=2):
+            # one query for pagination: .count()
+            # one query for page records: .all()[start:end]
+            request = factory.get('/')
+            table = PersonTable(Person.objects.all())
+            RequestConfig(request).configure(table)
+            render(table=table, request=request)

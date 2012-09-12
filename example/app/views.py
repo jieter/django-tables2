@@ -4,9 +4,10 @@ from django.template import RequestContext
 from .tables import CountryTable, ThemedCountryTable
 from .models import Country
 from django_tables2 import RequestConfig
+from django_tables2 import SingleTableView
 
 
-def home(request):
+def multiple(request):
     qs = Country.objects.all()
 
     example1 = CountryTable(qs, prefix="1-")
@@ -25,10 +26,18 @@ def home(request):
     example5.template = "extended_table.html"
     RequestConfig(request, paginate={"per_page": 3}).configure(example5)
 
-    return render_to_response('example.html', {
+    return render_to_response('multiple.html', {
         'example1': example1,
         'example2': example2,
         'example3': example3,
         'example4': example4,
         'example5': example5,
     }, context_instance=RequestContext(request))
+
+
+class ClassBased(SingleTableView):
+    table_class = ThemedCountryTable
+    queryset = Country.objects.all()
+    template_name = "class_based.html"
+
+class_based = ClassBased.as_view()

@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# coding: utf-8
 from attest import assert_hook, raises, Tests
 from django_tables2.utils import (Accessor, AttributeDict, OrderByTuple,
                                   OrderBy, segment)

@@ -24,3 +24,7 @@ TEMPLATE_CONTEXT_PROCESSORS = [
 
 HAYSTACK_SEARCH_ENGINE = 'simple',
 HAYSTACK_SITECONF = 'tests.app.models'
+
+TIME_ZONE = "Australia/Brisbane"
+
+USE_TZ = True

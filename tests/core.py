@@ -1,11 +1,9 @@
-# -*- coding: utf-8 -*-
+# coding: utf-8
 """Test the core table functionality."""
 from __future__ import absolute_import
 from attest import assert_hook, raises, Tests, warns
 import copy
-from django.core.paginator import Paginator
-from django.db.models.query import QuerySet
-from django.http import Http404
+from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 import django_tables2 as tables
 from django_tables2.tables import DeclarativeColumnsMetaclass
 from haystack.query import SearchQuerySet
@@ -392,13 +390,12 @@ def pagination():
     assert books.page.has_next() is True
 
     # accessing a non-existant page raises 404
-    with raises(Http404):
+    with raises(EmptyPage):
         books.paginate(Paginator, page=9999, per_page=10)
-        assert books.page
 
-    with raises(Http404):
+    with raises(PageNotAnInteger):
         books.paginate(Paginator, page='abc', per_page=10)
-        assert books.page
+
 
 @core.test
 def pagination_shouldnt_prevent_multiple_rendering():

@@ -1,18 +1,21 @@
 # coding: utf-8
 from __future__ import absolute_import, unicode_literals
+from datetime import date, datetime
 from django.core.urlresolvers import reverse
 from django.db.models.fields import FieldDoesNotExist
 from django.template import Context, Template
 from django.template.loader import render_to_string
+from django.templatetags.tz import localtime
 from django.utils.datastructures import SortedDict
 from django.utils.functional import curry
 from django.utils.html import escape
 from django.utils.safestring import mark_safe, SafeData
+from django.utils import formats
 from itertools import ifilter, islice
 import warnings
 import inspect
 from .templatetags.django_tables2 import title
-from .utils import A, AttributeDict, Attrs, OrderBy, OrderByTuple, Sequence
+from .utils import A, AttributeDict, Attrs, OrderBy, OrderByTuple
 
 
 funcs = ifilter(curry(hasattr, inspect), ('getfullargspec', 'getargspec'))
@@ -473,6 +476,41 @@ class TemplateColumn(Column):
                 return render_to_string(self.template_name, context)
         finally:
             context.pop()
+
+
+class DateColumn(TemplateColumn):
+    """
+    A column that renders dates in the local timezone.
+
+    :param format: format string in same format as Django's ``date`` template
+                   filter (optional)
+    :type  format: ``unicode``
+    :param  short: if ``format`` is not specified, use Django's
+                   ``SHORT_DATE_FORMAT`` setting, otherwise use ``DATE_FORMAT``
+    :type   short: ``bool``
+    """
+    def __init__(self, format=None, short=True, *args, **kwargs):
+        if format is None:
+            format = 'SHORT_DATE_FORMAT' if short else 'DATE_FORMAT'
+        template = '{{ value|date:"%s"|default:default }}' % format
+        super(DateColumn, self).__init__(template_code=template, *args, **kwargs)
+
+
+class DateTimeColumn(TemplateColumn):
+    """
+    A column that renders datetimes in the local timezone.
+
+    :param format: format string for datetime (optional)
+    :type  format: ``unicode``
+    :param  short: if ``format`` is not specifid, use Django's
+                   ``SHORT_DATETIME_FORMAT``, else ``DATETIME_FORMAT``
+    :type   short: ``bool``
+    """
+    def __init__(self, format=None, short=True, *args, **kwargs):
+        if format is None:
+            format = 'SHORT_DATETIME_FORMAT' if short else 'DATETIME_FORMAT'
+        template = '{{ value|date:"%s"|default:default }}' % format
+        super(DateTimeColumn, self).__init__(template_code=template, *args, **kwargs)
 
 
 class BoundColumn(object):

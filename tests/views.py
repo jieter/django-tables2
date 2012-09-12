@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# coding: utf-8
 from .app.models import Region
 from attest import assert_hook, Tests
 from django_attest import TestContext
