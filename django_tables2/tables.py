@@ -13,7 +13,7 @@ import warnings
 from .utils import (Accessor, AttributeDict, OrderBy, OrderByTuple, segment,
                     Sequence)
 from .rows import BoundRows
-from .columns import BoundColumns, Column
+from . import columns
 
 
 QUERYSET_ACCESSOR_SEPARATOR = '__'
@@ -92,7 +92,6 @@ class TableData(object):
                 accessors += bound_column.order_by.opposite
             else:
                 accessors += bound_column.order_by
-
         if hasattr(self, "queryset"):
             translate = lambda accessor: accessor.replace(Accessor.SEPARATOR, QUERYSET_ACCESSOR_SEPARATOR)
             self.queryset = self.queryset.order_by(*(translate(a) for a in accessors))
@@ -125,10 +124,9 @@ class DeclarativeColumnsMetaclass(type):
 
         attrs["_meta"] = opts = TableOptions(attrs.get("Meta", None))
         # extract declared columns
-        columns = [(name_, attrs.pop(name_)) for name_, column in attrs.items()
-                                             if isinstance(column, Column)]
-        columns.sort(lambda x, y: cmp(x[1].creation_counter,
-                                      y[1].creation_counter))
+        cols = [(name_, attrs.pop(name_)) for name_, column in attrs.items()
+                                          if isinstance(column, columns.Column)]
+        cols.sort(key=lambda x: x[1].creation_counter)
 
         # If this class is subclassing other tables, add their fields as
         # well. Note that we loop over the bases in *reverse* - this is
@@ -148,11 +146,14 @@ class DeclarativeColumnsMetaclass(type):
                 # instantiated with non-queryset data, model field
                 # verbose_names are used anyway.
                 verbose_name = getattr(field, 'verbose_name', None)
+                # Choose the column class most appropriate for the type of
+                # model field.
+                Column = columns.model_field_columns[type(field)]
                 extra[name] = Column(verbose_name=verbose_name)
 
             attrs["base_columns"].update(extra)
         # Explicit columns override both parent and generated columns
-        attrs["base_columns"].update(SortedDict(columns))
+        attrs["base_columns"].update(SortedDict(cols))
         # Apply any explicit exclude setting
         for exclusion in opts.exclude:
             if exclusion in attrs["base_columns"]:
@@ -257,7 +258,7 @@ class Table(StrAndUnicode):
 
     :type  default: unicode
     :param default: Text to render in empty cells (determined by
-            :attr:`Column.empty_values`, default :attrs:`.Table.Meta.default`)
+            :attr:`Column.empty_values`, default :attr:`.Table.Meta.default`)
     """
     __metaclass__ = DeclarativeColumnsMetaclass
     TableDataClass = TableData
@@ -303,7 +304,7 @@ class Table(StrAndUnicode):
         else:
             self._sequence = Sequence(self._meta.fields + ('...',))
             self._sequence.expand(self.base_columns.keys())
-        self.columns = BoundColumns(self)
+        self.columns = columns.BoundColumns(self)
         # `None` value for order_by means no order is specified. This means we
         # `shouldn't touch our data's ordering in any way. *However*
         # `table.order_by = None` means "remove any ordering from the data"

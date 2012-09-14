@@ -1,8 +1,10 @@
 # coding: utf-8
 from __future__ import absolute_import, unicode_literals
 from datetime import date, datetime
+from collections import defaultdict
 from django.core.urlresolvers import reverse
 from django.db.models.fields import FieldDoesNotExist
+from django.db import models
 from django.template import Context, Template
 from django.template.loader import render_to_string
 from django.templatetags.tz import localtime
@@ -910,3 +912,10 @@ class BoundColumns(object):
         else:
             raise TypeError(u'row indices must be integers or str, not %s'
                             % type(index).__name__)
+
+
+# A dict of ``{model_field: column, ...}``
+model_field_columns = defaultdict(lambda: Column, **{
+    models.DateTimeField: DateTimeColumn,
+    models.DateField: DateColumn,
+    })

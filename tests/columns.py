@@ -6,6 +6,7 @@ from datetime import date, datetime
 from django_attest import TestContext
 import django_tables2 as tables
 from django_tables2 import A, Attrs
+from django.db import models
 from django.test.client import RequestFactory
 from django.core.urlresolvers import reverse
 from django.template import Context, Template
@@ -563,6 +564,18 @@ def should_handle_short_format():
     assert table.rows[1]["date"] == "—"
 
 
+@datecolumn.test
+def should_be_used_for_datefields():
+    class DateModel(models.Model):
+        field = models.DateField()
+
+    class Table(tables.Table):
+        class Meta:
+            model = DateModel
+
+    assert type(Table.base_columns["field"]) == tables.DateColumn
+
+
 datetimecolumn = Tests()
 
 # Format string: https://docs.djangoproject.com/en/1.4/ref/templates/builtins/#date
@@ -624,6 +637,18 @@ def should_handle_short_format(dt):
         table = TestTable([{"date": dt}, {"date": None}])
         assert table.rows[0]["date"] == "sep 2012 Tue PM 12:30"
         assert table.rows[1]["date"] == "—"
+
+
+@datetimecolumn.test
+def should_be_used_for_datetimefields():
+    class DateTimeModel(models.Model):
+        field = models.DateTimeField()
+
+    class Table(tables.Table):
+        class Meta:
+            model = DateTimeModel
+
+    assert type(Table.base_columns["field"]) == tables.DateTimeColumn
 
 
 columns = Tests([checkboxcolumn, datecolumn, datetimecolumn, emailcolumn,

@@ -80,6 +80,8 @@ v0.13.0
   and timezones.
 - ``render_table`` can now build and render a table for a queryset, rather than
   needing to be passed a table instance
+- Table columns created automatically from a model now choose the most
+  appropriate column class
 
 v0.12.0
 -------
