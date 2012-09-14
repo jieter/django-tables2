@@ -191,5 +191,4 @@ class BoundRows(object):
         Slicing returns a new :class:`.BoundRows` instance, indexing returns
         a single :class:`.BoundRow` instance.
         """
-        container = BoundRows if isinstance(key, slice) else BoundRow
-        return container(self.data[key], table=self.table, key=key)
+        return BoundRows(self.data[key], table=self.table) if isinstance(key, slice) else BoundRow(self.data[key], table=self.table, key=key)
