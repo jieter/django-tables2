@@ -4,23 +4,16 @@
 django-tables2 - An app for creating HTML tables
 ================================================
 
-django-tables2 simplifies transforming data into HTML tables. It does for HTML
-tables what ``django.forms`` does for HTML forms. Features:
+django-tables2 turns data into HTML tables. Features:
 
 - Pagination
-- Column based data ordering
-- Built-in columns for common use-cases
-- Easily extendable via subclassing
-- Extendable template
-- Generic view
-- QuerySet support
-- Built-in Django admin style theme (but can be easily remove).
-- *ModelTable* support (think *django.forms.ModelForm*)
+- Ordering
+- Extendable
+- Class based view
+- Supports for queryset and list data
+- Themes
 
-It's available in a few places, feedback is always welcome.
-
-- GitHub -- http://github.com/bradleyayers/django-tables2
-- PyPI -- http://pypi.python.org/pypi/django-tables2
+Report bugs at http://github.com/bradleyayers/django-tables2/issues
 
 
 Tutorial
@@ -29,220 +22,255 @@ Tutorial
 1. ``pip install django-tables2``
 2. Add ``'django_tables2'`` to ``INSTALLED_APPS``
 
-Find some data that you'd like to render as a table. A QuerySet will work, but
-ease of demonstration we'll use a list of dicts:
+We're going to run through creating a tutorial app. Let's start with a simple model::
 
-.. code-block:: python
+    # tutorial/models.py
+    class Person(models.Model):
+        name = models.CharField(verbose_name="full name")
 
-    countries = [
-        {'name': 'Australia', 'population': 21, 'tz': 'UTC +10', 'visits': 1},
-        {'name': 'Germany', 'population': 81, 'tz': 'UTC +1', 'visits': 2},
-        {'name': 'Mexico', 'population': 107, 'tz': 'UTC -6', 'visits': 0},
-    ]
+Add some data so you have something to display in the table. Now write a view
+to pass a ``Person`` queryset into a template::
 
+    # tutorial/views.py
+    from django.shortcuts import render
 
-First step is it write a Table class to describe the structure:
+    def people(request):
+        return render(request, "people.html", {"people": Person.objects.all()})
 
-.. code-block:: python
+Finally, implement the template:
 
-    import django_tables2 as tables
+.. sourcecode:: django
 
-    class CountryTable(tables.Table):
-        name = tables.Column()
-        population = tables.Column()
-        tz = tables.Column(verbose_name='time zone')
-        visits = tables.Column()
-
-Now instantiate the table and pass in the data, then pass it to a template:
-
-.. code-block:: python
-
-    def home(request):
-        table = CountryTable(countries)
-        return render(request, 'home.html', {'table': table})
-
-Render the table in the template using the built-in template tag.
-
-.. code-block:: django
-
+    {# tutorial/templates/people.html #}
     {% load render_table from django_tables2 %}
+    <!doctype html>
+    <html>
+        <head>
+            <link rel="stylesheet" href="{{ STATIC_URL }}django_tables2/themes/paleblue/css/screen.css" />
+        </head>
+        <body>
+            {% render_table people %}
+        </body>
+    </html>
+
+Hook the view up in your URLs, and load the page, you should see:
+
+.. figure:: _static/tutorial.png
+    :align: center
+    :alt: An example table rendered using django-tables2
+
+While simple, passing a queryset directly to ``render_table`` doesn't allow for
+any customisation. For that, you must define a ``Table`` class.
+
+::
+
+    # tutorial/tables.py
+    import django_tables2 as tables
+    from tutorial.models import Person
+
+    class PersonTable(tables.Table):
+        class Meta:
+            model = Person
+            # add class="paleblue" to <table> tag
+            attrs = {"class": "paleblue"}
+
+
+You'll then need to instantiate and configure the table in the view, before
+adding it to the context.
+
+::
+
+    # tutorial/views.py
+    from django.shortcuts import render
+    from django_tables2   import RequestConfig
+    from tutorial.models  import Person
+    from tutorial.tables  import PersonTable
+
+    def people(request):
+        table = PersonTable(Person.objects.all())
+        RequestConfig(request).configure(table)
+        return render(request, 'people.html', {'table': table})
+
+Using ``RequestConfig`` automatically pulls values from ``request.GET`` and
+updates the table accordingly. This enables data ordering and pagination.
+
+Rather than passing a queryset to ``render_table``, instead pass the table.
+
+.. sourcecode:: django
+
     {% render_table table %}
-
-…which will give you somethinglike:
-
-+--------------+------------+-----------+--------+
-| Country Name | Population | Time Zone | Visit  |
-+==============+============+===========+========+
-| Australia    | 21         | UTC +10   | 1      |
-+--------------+------------+-----------+--------+
-| Germany      | 81         | UTC +1    | 2      |
-+--------------+------------+-----------+--------+
-| Mexico       | 107        | UTC -6    | 0      |
-+--------------+------------+-----------+--------+
 
 .. note::
 
-    ``{% render_table %}`` requires that the ``TEMPLATE_CONTEXT_PROCESSORS``
-    setting contains ``"django.core.context_processors.request"``. See
-    :ref:`template-tags.render_table` for details.
+    ``{% render_table %}`` works best when it's used in a template that
+    contains the current request in the context as ``request``. The easiest way
+    to enable this, is to ensure that the ``TEMPLATE_CONTEXT_PROCESSORS``
+    setting contains ``"django.core.context_processors.request"``.
 
-To enable ordering and pagination, use a ``RequestConfig`` object in the view:
-
-.. code-block:: python
-
-    from django_tables2 import RequestConfig
-
-    def home(request):
-        table = CountryTable(countries)
-        RequestConfig(request).configure(table)
-        return render(request, 'home.html', {'table': table})
-
-
-See :ref:`ordering`, and :ref:`pagination` for more information.
-
-The table will be rendered, but chances are it will still look quite ugly. An
-easy way to make it pretty is to use the built-in *paleblue* theme. For this to
-work, you must add a CSS class to the ``<table>`` tag. This can be achieved by
-adding a ``class Meta:`` to the table class and defining a ``attrs`` variable.
-
-.. code-block:: python
-
-    import django_tables2 as tables
-
-    class CountryTable(tables.Table):
-        name = tables.Column()
-        population = tables.Column()
-        tz = tables.Column(verbose_name='time zone')
-        visits = tables.Column()
-
-        class Meta:
-            attrs = {'class': 'paleblue'}
-
-The last thing to do is to include the stylesheet in the template.
-
-.. code-block:: html
-
-    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}django_tables2/themes/paleblue/css/screen.css" />
-
-Save your template and reload the page in your browser.
+At this point you haven't actually customised anything, you've merely added the
+boilerplate code that ``{% render_table %}`` does for you when given a
+queryset. The remaining sections in this document describe how to change
+various aspects of the table.
 
 
 .. _table-data:
 
-Table data
-==========
+Populating a table with data
+============================
 
-The data used to populate a table is called :term:`table data`. To provide a
-table with data, pass it in as the first argument when instantiating a table.
+Tables are compatible with a range of input data structures. If you've seen the
+tutorial you'll have seen a queryset being used, however any iterable that
+supports :func:`len` and contains items that expose key-based accessed to
+column values is fine.
 
-Each item in the :term:`table data` is called a :term:`record` and is used to
-populate a single row in the table. By default, the table uses column names
-as :term:`accessors <accessor>` to retrieve individual cell values. This can
-be changed via the :attr:`~django_tables2.columns.Column.accessor` argument.
+An an example we'll demonstrate using list of dicts. When defining a table it's
+necessary to declare each column. If your data matches the fields in a model,
+columns can be declared automatically for you via the `Table.Meta.model`
+option, but for non-queryset data you'll probably want to declare
+them manually::
 
-Any iterable can be used as table data, and there's builtin support for
-:class:`QuerySet` objects (to ensure they're handled effeciently).
+    import django_tables2 as tables
 
+    data = [
+        {"name": "Bradley"},
+        {"name": "Stevie"},
+    ]
 
-.. _ordering:
+    class NameTable(tables.Table):
+        name = tables.Column()
 
-Ordering
-========
+    table = NameTable(data)
 
-.. note::
+You can use this technique to override columns that were automatically created
+via `Table.Meta.model` too::
 
-    If you want to change the order in which columns are displayed, see
-    :attr:`Table.Meta.sequence`. Alternatively if you're interested in the
-    ordering of records within the table, read on.
-
-Changing the way records in a table are ordered is easy and can be controlled
-via the ``order_by`` option. This can be configured in three places:
-
-1. ``Table.Meta.order_by``
-2. ``Table(..., order_by=...)``
-3. ``Table(...).order_by = ...``
-
-Each of the above options takes prescendent over the previous.
-
-The value must be an iterable (or comma separated string) of :term:`order by
-alias`.
-
-Ordering preference is passed via the querystring in a variable. The name of
-the variable is determined by ``order_by_field`` (default: ``sort``). This can
-be configured in three places:
-
-1. ``Table.Meta.order_by_field``
-2. ``Table(..., order_by_field=...)``
-3. ``Table(...).order_by_field = ...``
-
-``RequestConfig`` honors these values and *does the right thing*.
-
-Specifing ordering accessors for a column
------------------------------------------
-
-In scenarios where you don't want to use the column's ``accessor`` value
-for sorting table data, it's possible to specify alternatives. e.g.::
+    # models.py
+    from django.db import models
 
     class Person(models.Model):
-        first_name = models.CharField(max_length=200)
-        last_name = models.CharField(max_length=200)
+        name = models.CharField(max_length=200)
 
-        def name(self):
-            return "{} {}".format(self.first_name, self.last_name)
 
+    # tables.py
+    import django_tables2 as tables
+    from .models import Person
 
     class PersonTable(tables.Table):
-        name = tables.Column(order_by=("last_name", "first_name"))
+        name = tables.Column(verbose_name="full name")
 
-In the above example ``order_by`` needs to be specified, else the table would
-try to execute ``.order_by('name')`` on the queryset when the table is ordered.
-This would fail because ``name`` isn't a field on the model.
+        class Meta:
+            model = Person
 
-Disabling ordering for specific columns
----------------------------------------
 
-By default all table columns support ordering. This means that all the column
-headers are rendered as links which allow the user to adjust the ordering of
-the table data.
+.. _accessors:
 
-Ordering can be disabled on a table or column basis.
+Specifying alternative data for a column
+========================================
 
-- ``Table.Meta.orderable = False`` -- default to disable ordering on columns
-- ``Column(orderable=False)`` -- disable ordering for specific column
+Each column has a "key" that describes which value to pull from each record to
+populate the column's cells. By default, this key is just the name given to the
+column, but it can be changed to allow foreign key traversal or other complex
+cases.
 
-e.g. disable columns on all but one:
+To reduce ambiguity, rather than calling it a "key", it's been given the
+special name "accessor".
 
-.. code-block:: python
+Accessors are just dotted paths that describe how an object should be traversed
+to reach a specific value. To demonstrate how they work we'll use them
+directly::
+
+    >>> from django_tables2 import A
+    >>> data = {"abc": {"one": {"two": "three"}}}
+    >>> A("abc.one.two").resolve(data)
+    "three"
+
+Dots represent a relationships, and are attempted in this order:
+
+1. Dictionary lookup ``a[b]``
+2. Attribute lookup ``a.b``
+3. List index lookup ``a[int(b)]``
+
+Then, if the value is callable, it is called and the result is used.
+
+
+.. _order-by-accessors:
+
+Specifying alternative ordering for a column
+============================================
+
+When using queryset data, it's possible for a column to present a computed
+value that doesn't correspond to a column in the database. In this situation
+attempting to order the column will cause a database exception.
+
+Example::
+
+    # models.py
+    class Person(models.Model):
+        first_name = models.CharField(max_length=200)
+        family_name = models.CharField(max_length=200)
+
+        @property
+        def name(self):
+            return u"%s %s" % (self.first_name, self.family_name)
+
+    # tables.py
+    class PersonTable(tables.Table):
+        name = tables.Column()
+
+::
+
+    >>> table = PersonTable(Person.objects.all())
+    >>> table.order_by = "name"
+    >>> table.as_html()
+    ...
+    FieldError: Cannot resolve keyword u'name' into field. Choices are: first_name, family_name
+
+The solution is to declare which fields should be used when ordering on via the
+``order_by`` argument::
+
+    # tables.py
+    class PersonTable(tables.Table):
+        name = tables.Column(order_by=("first_name", "family_name"))
+
+Accessor syntax can be used for the values, but they must terminate on a model
+field.
+
+If ordering doesn't make sense for a particular column, it can be disabled via
+the ``orderable`` argument::
 
     class SimpleTable(tables.Table):
         name = tables.Column()
-        rating = tables.Column(orderable=True)
+        actions = tables.Column(orderable=False)
+
+
+.. _swapping-columns:
+
+Swapping the position of columns
+================================
+
+By default columns are positioned in the same order as they are declared,
+however when mixing auto-generated columns (via `Table.Meta.model`) with
+manually declared columns, the column sequence becomes ambiguous.
+
+To resolve the ambiguity, columns sequence can be declard via the
+``Table.Meta.sequence`` option::
+
+    class PersonTable(tables.Table):
+        selection = tables.CheckBoxColumn(accessor="pk", orderable=False)
 
         class Meta:
-            orderable = False
+            model = Person
+            sequence = ("selection", "first_name", "last_name")
 
-Non-queryset data ordering
---------------------------
-
-Where the table is :ref:`backed by a model <tables-for-models>`, the database
-will handle the ordering. Where this is not the case, the Python ``cmp``
-function is used and the following mechanism is used as a fallback when
-comparing across different types:
-
-.. code-block:: python
-
-    def cmp_(x, y):
-        try:
-            return cmp(x, y)
-        except TypeError:
-            return cmp((repr(type(x)), id(type(x)), x),
-                       (repr(type(y)), id(type(y)), y))
+The special value ``"..."`` can be used to indicate that any omitted columns
+should inserted at that location. As such it can be used at most once.
 
 
 .. _column-headers:
 
-Column headers
-==============
+Customising column headings
+===========================
+
 
 The header cell for each column comes from the column's
 :meth:`~django_tables2.columns.BoundColumn.header` method. By default this
@@ -288,7 +316,7 @@ Pagination
 Pagination is easy, just call :meth:`.Table.paginate` and
 pass in the current page number, e.g.
 
-.. code-block:: python
+.. sourcecode:: python
 
     def people_listing(request):
         table = PeopleTable(Person.objects.all())
@@ -298,12 +326,13 @@ pass in the current page number, e.g.
 If you're using ``RequestConfig``, pass pagination options to the constructor,
 e.g.:
 
-.. code-block:: python
+.. sourcecode:: python
 
     def people_listing(request):
         table = PeopleTable(Person.objects.all())
         RequestConfig(request, paginate={"per_page": 25}).configure(table)
         return render(request, 'people_listing.html', {'table': table})
+
 
 .. _custom-rendering:
 
@@ -321,7 +350,7 @@ In order to use CSS to style a table, you'll probably want to add a
 ``class`` or ``id`` attribute to the ``<table>`` element. ``django-tables2`` has
 a hook that allows abitrary attributes to be added to the ``<table>`` tag.
 
-.. code-block:: python
+.. sourcecode:: python
 
     >>> import django_tables2 as tables
     >>> class SimpleTable(tables.Table):
@@ -417,7 +446,7 @@ Each of these can be specified in three places:
 If you're using multiple tables on a single page, you'll want to prefix these
 fields with a table-specific name. e.g.
 
-.. code-block:: python
+.. sourcecode:: python
 
     def people_listing(request):
         config = RequestConfig(request)
@@ -440,7 +469,7 @@ the column. Depending on the column, different elements are supported, however
 
 e.g.
 
-.. code-block:: python
+.. sourcecode:: python
 
     >>> from django_tables2 import Attrs
     >>> import django_tables2 as tables
@@ -465,12 +494,16 @@ Built-in columns
 
 For common use-cases the following columns are included:
 
+- :class:`.BooleanColumn` -- renders boolean values
 - :class:`.Column` -- generic column
 - :class:`.CheckBoxColumn` -- renders checkbox form inputs
+- :class:`.DateColumn` -- date formatting
+- :class:`.DateTimeColumn` -- datetime formatting in the local timezone
 - :class:`.EmailColumn` -- renders ``<a href="mailto:...">`` tags
 - :class:`.LinkColumn` -- renders ``<a href="...">`` tags (absolute url)
 - :class:`.TemplateColumn` -- renders template code
 - :class:`.URLColumn` -- renders ``<a href="...">`` tags (compose a django url)
+
 
 .. _subclassing-column:
 
@@ -483,7 +516,7 @@ create a subclass of :class:`Column` and use that when defining the table.
 To change the way cells are rendered, simply override the
 :meth:`~Column.render` method.
 
-.. code-block:: python
+.. sourcecode:: python
 
     >>> import django_tables2 as tables
     >>>
@@ -525,7 +558,7 @@ For complicated columns, it's sometimes necessary to return HTML from a
 it will be escaped when the table is rendered). This can be achieved by using
 the :func:`mark_safe` function.
 
-.. code-block:: python
+.. sourcecode:: python
 
     >>> from django.utils.safestring import mark_safe
     >>>
@@ -560,7 +593,7 @@ render_table
 Renders a :class:`~django_tables2.tables.Table` object to HTML and enables as
 many features in the output as possible.
 
-.. code-block:: django
+.. sourcecode:: django
 
     {% load django_tables2 %}
     {% render_table table %}
@@ -586,7 +619,7 @@ and the setting itself is not even defined within your project's
 ``settings.py``. To resolve this simply add the following to your
 ``settings.py``:
 
-.. code-block:: python
+.. sourcecode:: python
 
     TEMPLATE_CONTEXT_PROCESSORS = (
         "django.contrib.auth.context_processors.auth",
@@ -610,7 +643,7 @@ overwriting the entire thing.
 Let's assume we have the querystring ``?search=pirates&sort=name&page=5`` and
 we want to update the ``sort`` parameter:
 
-.. code-block:: django
+.. sourcecode:: django
 
     {% querystring "sort"="dob" %}           # ?search=pirates&sort=dob&page=5
     {% querystring "sort"="" %}              # ?search=pirates&page=5
@@ -630,7 +663,7 @@ title
 String filter that performs title case conversion on a per-word basis, leaving
 words containing upper-case letters alone.
 
-.. code-block:: django
+.. sourcecode:: django
 
     {{ "start 6PM"|title }}   # Start 6PM
     {{ "sTart 6pm"|title }}   # sTart 6pm
@@ -661,7 +694,7 @@ The following view parameters are supported:
 
 For example:
 
-.. code-block:: python
+.. sourcecode:: python
 
     from django_tables2 import SingleTableView
 
@@ -683,7 +716,7 @@ For example:
 
 The template could then be as simple as:
 
-.. code-block:: django
+.. sourcecode:: django
 
     {% load render_table from django_tables2 %}
     {% render_table table %}
@@ -1020,6 +1053,12 @@ API Reference
     :members: __init__, order_by, __getitem__, __len__
 
 
+:class:`BooleanColumn` Objects:
+-------------------------------
+
+.. autoclass:: django_tables2.columns.BooleanColumn
+
+
 :class:`Column` Objects:
 ------------------------
 
@@ -1146,25 +1185,25 @@ Upgrading from django-tables Version 1
 
 - When generating the link to order the column, instead of:
 
-  .. code-block:: django
+  .. sourcecode:: django
 
       {% set_url_param sort=column.name_toggled %}
 
   use:
 
-  .. code-block:: django
+  .. sourcecode:: django
 
       {% querystring table.order_by_field=column.order_by_alias.next %}
 
 - Replace:
 
-  .. code-block:: django
+  .. sourcecode:: django
 
       {{ column.is_ordered_reverse }} and {{ column.is_ordered_straight }}
 
   with:
 
-  .. code-block:: django
+  .. sourcecode:: django
 
       {{ column.order_by.is_descending }} and {{ column.order_by.is_ascending }}
 
@@ -1181,7 +1220,7 @@ Glossary
         The name given to a column. In the follow example, the *column name* is
         ``age``.
 
-        .. code-block:: python
+        .. sourcecode:: python
 
             class SimpleTable(tables.Table):
                 age = tables.Column()
@@ -1192,7 +1231,7 @@ Glossary
         a column affects ordering to be abstracted, which is useful (e.g. in
         querystrings).
 
-        .. code-block:: python
+        .. sourcecode:: python
 
             class ExampleTable(tables.Table):
                 name = tables.Column(order_by=('first_name', 'last_name'))
