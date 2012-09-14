@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# coding: utf-8
 from django.shortcuts import render
 from django_tables2   import RequestConfig, SingleTableView
 from .tables import CountryTable, ThemedCountryTable

@@ -1,14 +1,10 @@
 # coding: utf-8
 import copy
-from django.conf import settings
 from django.core.paginator import Paginator
-from django.http import Http404
 from django.utils.datastructures import SortedDict
 from django.template import RequestContext
 from django.template.loader import get_template
 from django.utils.encoding import StrAndUnicode
-import itertools
-import sys
 import warnings
 from .utils import (Accessor, AttributeDict, OrderBy, OrderByTuple, segment,
                     Sequence)

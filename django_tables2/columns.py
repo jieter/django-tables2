@@ -1,18 +1,15 @@
 # coding: utf-8
 from __future__ import absolute_import, unicode_literals
-from datetime import date, datetime
 from collections import defaultdict
 from django.core.urlresolvers import reverse
 from django.db.models.fields import FieldDoesNotExist
 from django.db import models
 from django.template import Context, Template
 from django.template.loader import render_to_string
-from django.templatetags.tz import localtime
 from django.utils.datastructures import SortedDict
 from django.utils.functional import curry
 from django.utils.html import escape
 from django.utils.safestring import mark_safe, SafeData
-from django.utils import formats
 from itertools import ifilter, islice
 import warnings
 import inspect
