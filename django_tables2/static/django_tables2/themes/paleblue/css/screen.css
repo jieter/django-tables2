@@ -88,6 +88,25 @@ table.paleblue + ul.pagination > li:first-child {
     margin-left: 0;
 }
 
+table.paleblue > tbody > tr > td > span.true,
+table.paleblue > tbody > tr > td > span.false {
+    background-position: top left;
+    background-repeat: no-repeat;
+    display: inline-block;
+    height: 10px;
+    overflow: hidden;
+    text-indent: -200px;
+    width: 10px;
+}
+
+table.paleblue > tbody > tr > td > span.true {
+    background-image: url(../img/true.gif);
+}
+
+table.paleblue > tbody > tr > td > span.false {
+    background-image: url(../img/false.gif);
+}
+
 div.table-container {
     display: inline-block;
 }

@@ -5,3 +5,4 @@ from .columns import (Column, CheckBoxColumn, DateColumn, DateTimeColumn,
 from .config import RequestConfig
 from .utils import A, Attrs
 from .views import SingleTableMixin, SingleTableView
+__version__ = "0.11.0"

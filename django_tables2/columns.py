@@ -22,6 +22,43 @@ getargspec = getattr(inspect, next(funcs))
 del funcs
 
 
+class Library(object):
+    """
+    A collection of columns.
+    """
+    def __init__(self):
+        self.columns = []
+
+    def register(self, column):
+        self.columns.append(column)
+        return column
+
+    def column_for_field(self, field):
+        """
+        Return a column object suitable for model field.
+
+        :returns: column object of ``None``
+        """
+        # iterate in reverse order as columns are registered in order
+        # of least to most specialised (i.e. Column is registered
+        # first). This also allows user-registered columns to be
+        # favoured.
+        for candidate in reversed(self.columns):
+            if not hasattr(candidate, "from_field"):
+                continue
+            column = candidate.from_field(field)
+            if column is None:
+                continue
+            return column
+
+
+# The library is a mechanism for announcing what columns are available. Its
+# current use is to allow the table metaclass to ask columns if they're a
+# suitable match for a model field, and if so to return an approach instance.
+library = Library()
+
+
+@library.register
 class Column(object):  # pylint: disable=R0902
     """
     Represents a single column of a table.
@@ -166,7 +203,68 @@ class Column(object):  # pylint: disable=R0902
                       DeprecationWarning)
         return self.orderable
 
+    @classmethod
+    def from_field(cls, field):
+        """
+        Return a specialised column for the model field or ``None``.
 
+        :param field: the field that needs a suitable column
+        :type  field: model field instance
+        :returns: Column object or ``None``
+
+        If the column isn't specialised for the given model field, it should
+        return ``None``. This gives other columns the opportunity to do better.
+
+        If the column is specialised, it should return an instance of itself
+        that's configured appropriately for the field.
+        """
+        # Since this method is inherited by every subclass, only prove
+        if cls is Column:
+            return cls(verbose_name=field.verbose_name)
+
+
+@library.register
+class BooleanColumn(Column):
+    """
+    A column suitable for rendering boolean data.
+
+    :param  null: is ``None`` different from ``False``?
+    :type   null: bool
+    :param yesno: text to display for True/False values, comma separated
+    :type  yesno: iterable or string
+
+    Rendered values are wrapped in a ``<span>`` to allow customisation by
+    themes. By default the span is given the class ``true``, ``false``.
+
+    In addition to ``Attrs`` keys supported by ``Column``, the following are
+    available:
+
+    - *span* -- adds attributes to the <span> tag
+    """
+    def __init__(self, null=False, yesno="✔,✘", **kwargs):
+        self.yesno = (yesno.split(',') if isinstance(yesno, basestring)
+                                       else tuple(yesno))
+        if null:
+            kwargs["empty_values"] = ()
+        super(BooleanColumn, self).__init__(**kwargs)
+
+    def render(self, value):
+        value = bool(value)
+        text = self.yesno[int(not value)]
+        html = '<span %s>%s</span>'
+        attrs = {"class": unicode(value).lower()}
+        attrs.update(self.attrs.get("span", {}))
+        return mark_safe(html % (AttributeDict(attrs).as_html(), escape(text)))
+
+    @classmethod
+    def from_field(cls, field):
+        if isinstance(field, models.BooleanField):
+            return cls(verbose_name=field.verbose_name, null=False)
+        if isinstance(field, models.NullBooleanField):
+            return cls(verbose_name=field.verbose_name, null=True)
+
+
+@library.register
 class CheckBoxColumn(Column):
     """
     A subclass of :class:`.Column` that renders as a checkbox form input.
@@ -196,8 +294,8 @@ class CheckBoxColumn(Column):
     available:
 
     - *input*     -- ``<input>`` elements in both ``<td>`` and ``<th>``.
-    - *th__input* -- If defined: used *instead of* ``input`` in table header.
-    - *td__input* -- If defined: used *instead of* ``input`` in table body.
+    - *th__input* -- Replaces *input* attrs in header cells.
+    - *td__input* -- Replaces *input* attrs in body cells.
     """
     def __init__(self, attrs=None, **extra):
         header_attrs = extra.pop('header_attrs', None)
@@ -224,7 +322,7 @@ class CheckBoxColumn(Column):
         general = self.attrs.get('input')
         specific = self.attrs.get('th__input')
         attrs = AttributeDict(default, **(specific or general or {}))
-        return mark_safe(u'<input %s/>' % attrs.as_html())
+        return mark_safe('<input %s/>' % attrs.as_html())
 
     def render(self, value, bound_column):  # pylint: disable=W0221
         default = {
@@ -235,9 +333,10 @@ class CheckBoxColumn(Column):
         general = self.attrs.get('input')
         specific = self.attrs.get('td__input')
         attrs = AttributeDict(default, **(specific or general or {}))
-        return mark_safe(u'<input %s/>' % attrs.as_html())
+        return mark_safe('<input %s/>' % attrs.as_html())
 
 
+@library.register
 class BaseLinkColumn(Column):
     """
     The base for other columns that render links.
@@ -265,7 +364,7 @@ class BaseLinkColumn(Column):
         """
         attrs = AttributeDict(attrs if attrs is not None else
                               self.attrs.get('a', {}))
-        html = u'<a href="{uri}"{attrs}>{text}</a>'.format(
+        html = '<a href="{uri}"{attrs}>{text}</a>'.format(
             uri=escape(uri),
             attrs=" %s" % attrs.as_html() if attrs else "",
             text=escape(text)
@@ -273,6 +372,7 @@ class BaseLinkColumn(Column):
         return mark_safe(html)
 
 
+@library.register
 class LinkColumn(BaseLinkColumn):
     """
     Renders a normal value as an internal hyperlink to another page.
@@ -360,6 +460,7 @@ class LinkColumn(BaseLinkColumn):
         return self.render_link(reverse(**params), value)
 
 
+@library.register
 class URLColumn(BaseLinkColumn):
     """
     A subclass of :class:`.BaseLinkColumn` that renders the cell value as a hyperlink.
@@ -384,11 +485,16 @@ class URLColumn(BaseLinkColumn):
             web = tables.URLColumn()
 
     """
-
     def render(self, value):
         return self.render_link(value, value)
 
+    @classmethod
+    def from_field(cls, field):
+        if isinstance(field, models.URLField):
+            return cls(verbose_name=field.verbose_name)
 
+
+@library.register
 class EmailColumn(BaseLinkColumn):
     """
     A subclass of :class:`.BaseLinkColumn` that renders the cell value as a hyperlink.
@@ -413,11 +519,16 @@ class EmailColumn(BaseLinkColumn):
             email = tables.EmailColumn()
 
     """
-
     def render(self, value):
         return self.render_link("mailto:%s" % value, value)
 
+    @classmethod
+    def from_field(cls, field):
+        if isinstance(field, models.EmailField):
+            return cls(verbose_name=field.verbose_name)
 
+
+@library.register
 class TemplateColumn(Column):
     """
     A subclass of :class:`.Column` that renders some template code to use as
@@ -477,6 +588,7 @@ class TemplateColumn(Column):
             context.pop()
 
 
+@library.register
 class DateColumn(TemplateColumn):
     """
     A column that renders dates in the local timezone.
@@ -494,7 +606,13 @@ class DateColumn(TemplateColumn):
         template = '{{ value|date:"%s"|default:default }}' % format
         super(DateColumn, self).__init__(template_code=template, *args, **kwargs)
 
+    @classmethod
+    def from_field(cls, field):
+        if isinstance(field, models.DateField):
+            return cls(verbose_name=field.verbose_name)
 
+
+@library.register
 class DateTimeColumn(TemplateColumn):
     """
     A column that renders datetimes in the local timezone.
@@ -510,6 +628,11 @@ class DateTimeColumn(TemplateColumn):
             format = 'SHORT_DATETIME_FORMAT' if short else 'DATETIME_FORMAT'
         template = '{{ value|date:"%s"|default:default }}' % format
         super(DateTimeColumn, self).__init__(template_code=template, *args, **kwargs)
+
+    @classmethod
+    def from_field(cls, field):
+        if isinstance(field, models.DateTimeField):
+            return cls(verbose_name=field.verbose_name)
 
 
 class BoundColumn(object):
@@ -907,7 +1030,7 @@ class BoundColumns(object):
             raise KeyError("Column with name '%s' does not exist; "
                            "choices are: %s" % (index, self.names()))
         else:
-            raise TypeError(u'row indices must be integers or str, not %s'
+            raise TypeError('row indices must be integers or str, not %s'
                             % type(index).__name__)
 
 

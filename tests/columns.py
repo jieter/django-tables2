@@ -22,6 +22,64 @@ from .app.models import Person
 from .templates import attrs, parse
 
 
+booleancolumn = Tests()
+
+
+@booleancolumn.test
+def should_be_used_for_booleanfield():
+    class BoolModel(models.Model):
+        field = models.BooleanField()
+
+    class Table(tables.Table):
+        class Meta:
+            model = BoolModel
+
+    column = Table.base_columns["field"]
+    assert type(column) == tables.BooleanColumn
+    assert column.empty_values != ()
+
+
+@booleancolumn.test
+def should_be_used_for_nullbooleanfield():
+    class NullBoolModel(models.Model):
+        field = models.NullBooleanField()
+
+    class Table(tables.Table):
+        class Meta:
+            model = NullBoolModel
+
+    column = Table.base_columns["field"]
+    assert type(column) == tables.BooleanColumn
+    assert column.empty_values == ()
+
+
+@booleancolumn.test
+def treat_none_different_from_false():
+    class Table(tables.Table):
+        col = tables.BooleanColumn(null=False, default="---")
+
+    table = Table([{"col": None}])
+    assert table.rows[0]["col"] == "---"
+
+
+@booleancolumn.test
+def treat_none_as_false():
+    class Table(tables.Table):
+        col = tables.BooleanColumn(null=True)
+
+    table = Table([{"col": None}])
+    assert table.rows[0]["col"] == '<span class="false">✘</span>'
+
+
+@booleancolumn.test
+def span_attrs():
+    class Table(tables.Table):
+        col = tables.BooleanColumn(attrs={"span": {"key": "value"}})
+
+    table = Table([{"col": True}])
+    assert table.rows[0]["col"] == '<span class="true" key="value">✔</span>'
+
+
 checkboxcolumn = Tests()
 
 
@@ -501,16 +559,49 @@ def should_turn_url_into_hyperlink():
     assert table.rows[0]["url"] == '<a href="http://example.com">http://example.com</a>'
 
 
+@urlcolumn.test
+def should_be_used_for_urlfields():
+    class URLModel(models.Model):
+        field = models.URLField()
+
+    class Table(tables.Table):
+        class Meta:
+            model = URLModel
+
+    assert type(Table.base_columns["field"]) == tables.URLColumn
+
+
 emailcolumn = Tests()
 
 
 @emailcolumn.test
 def should_turn_email_address_into_hyperlink():
-    class TestTable(tables.Table):
+    class Table(tables.Table):
         email = tables.EmailColumn()
 
-    table = TestTable([{"email": "test@example.com"}])
+    table = Table([{"email": "test@example.com"}])
     assert table.rows[0]["email"] == '<a href="mailto:test@example.com">test@example.com</a>'
+
+
+@emailcolumn.test
+def should_render_default_for_blank():
+    class Table(tables.Table):
+        email = tables.EmailColumn(default="---")
+
+    table = Table([{"email": ""}])
+    assert table.rows[0]["email"] == '---'
+
+
+@emailcolumn.test
+def should_be_used_for_datetimefields():
+    class EmailModel(models.Model):
+        field = models.EmailField()
+
+    class Table(tables.Table):
+        class Meta:
+            model = EmailModel
+
+    assert type(Table.base_columns["field"]) == tables.EmailColumn
 
 
 datecolumn = Tests()
@@ -651,5 +742,5 @@ def should_be_used_for_datetimefields():
     assert type(Table.base_columns["field"]) == tables.DateTimeColumn
 
 
-columns = Tests([checkboxcolumn, datecolumn, datetimecolumn, emailcolumn,
-                 general, linkcolumn, templatecolumn, urlcolumn])
+columns = Tests([booleancolumn, checkboxcolumn, datecolumn, datetimecolumn,
+                 emailcolumn, general, linkcolumn, templatecolumn, urlcolumn])

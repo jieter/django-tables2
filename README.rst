@@ -78,10 +78,10 @@ v0.12.0
 
 - Add ``DateTimeColumn`` and ``DateColumn`` to handle formatting ``datetime``
   and timezones.
+- Add ``BooleanColumn`` to handle bool values
 - ``render_table`` can now build and render a table for a queryset, rather than
   needing to be passed a table instance
-- Table columns created automatically from a model now choose the most
-  appropriate column class
+- Table columns created automatically from a model now use specialised columns
 - ``Column.render`` is now skipped if the value is considered *empty*, the
   default value is used instead. Empty values are specified via
   ``Column.empty_values``, by default is ``(None, '')`` (backward incompatible)

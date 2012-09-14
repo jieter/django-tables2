@@ -1,6 +1,7 @@
 # coding: utf-8
 import copy
 from django.core.paginator import Paginator
+from django.db.models.fields import FieldDoesNotExist
 from django.utils.datastructures import SortedDict
 from django.template import RequestContext
 from django.template.loader import get_template
@@ -140,18 +141,22 @@ class DeclarativeColumnsMetaclass(type):
         # Possibly add some generated columns based on a model
         if opts.model:
             extra = SortedDict()
-            for field in (opts.fields or opts.model._meta.fields):
-                name = getattr(field, 'name', field)
-                # We explicitly pass in verbose_name, so that if the table is
-                # instantiated with non-queryset data, model field
-                # verbose_names are used anyway.
-                verbose_name = getattr(field, 'verbose_name', None)
-                # Choose the column class most appropriate for the type of
-                # model field.
-                Column = columns.model_field_columns[type(field)]
-                extra[name] = Column(verbose_name=verbose_name)
-
+            # honor Table.Meta.fields, fallback to model._meta.fields
+            if opts.fields:
+                # Each item in opts.fields is the name of a model field or a
+                # normal attribute on the model
+                for name in opts.fields:
+                    try:
+                        field = opts.model._meta.get_field(name)
+                    except FieldDoesNotExist:
+                        extra[name] = columns.Column()
+                    else:
+                        extra[name] = columns.library.column_for_field(field)
+            else:
+                for field in opts.model._meta.fields:
+                    extra[field.name] = columns.library.column_for_field(field)
             attrs["base_columns"].update(extra)
+
         # Explicit columns override both parent and generated columns
         attrs["base_columns"].update(SortedDict(cols))
         # Apply any explicit exclude setting
