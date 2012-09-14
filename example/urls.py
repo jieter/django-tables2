@@ -9,6 +9,7 @@ admin.autodiscover()
 urlpatterns = patterns('example.app.views',
     url(r'^$',             'multiple'),
     url(r'^class-based/$', 'class_based'),
+    url(r'^tutorial/$',    'tutorial'),
 
     # Uncomment the admin/doc line below to enable admin documentation:
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),

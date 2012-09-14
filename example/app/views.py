@@ -39,3 +39,7 @@ class ClassBased(SingleTableView):
     template_name = "class_based.html"
 
 class_based = ClassBased.as_view()
+
+
+def tutorial(request):
+    return render(request, "tutorial.html", {"people": Person.objects.all()})

@@ -9,6 +9,7 @@ class Country(models.Model):
     population = models.PositiveIntegerField(verbose_name=u"Población")
     tz = models.CharField(max_length=50)
     visits = models.PositiveIntegerField()
+    commonwealth = models.NullBooleanField()
 
     class Meta:
         verbose_name_plural = _("Countries")
