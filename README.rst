@@ -63,7 +63,7 @@ globally, use::
 Change log
 ==========
 
-v0.13.0
+v0.12.0
 -------
 
 - Improve performance by removing unnecessary queries
@@ -82,10 +82,6 @@ v0.13.0
   needing to be passed a table instance
 - Table columns created automatically from a model now choose the most
   appropriate column class
-
-v0.12.0
--------
-
 - ``Column.render`` is now skipped if the value is considered *empty*, the
   default value is used instead. Empty values are specified via
   ``Column.empty_values``, by default is ``(None, '')`` (backward incompatible)
