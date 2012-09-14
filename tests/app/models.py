@@ -25,6 +25,10 @@ class Person(models.Model):
     safe = models.CharField(
             max_length=200, blank=True, verbose_name=mark_safe("<b>Safe</b>"))
 
+    class Meta:
+        verbose_name = "person"
+        verbose_name_plural = "people"
+
     def __unicode__(self):
         return self.first_name
 

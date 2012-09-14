@@ -1,16 +1,16 @@
 # coding: utf-8
 import copy
-from django.core.paginator import Paginator
-from django.db.models.fields import FieldDoesNotExist
+from django.core.paginator       import Paginator
+from django.db.models.fields     import FieldDoesNotExist
 from django.utils.datastructures import SortedDict
-from django.template import RequestContext
-from django.template.loader import get_template
-from django.utils.encoding import StrAndUnicode
+from django.template             import RequestContext
+from django.template.loader      import get_template
+from django.utils.encoding       import StrAndUnicode
 import warnings
-from .utils import (Accessor, AttributeDict, OrderBy, OrderByTuple, segment,
-                    Sequence)
-from .rows import BoundRows
-from . import columns
+from .utils import (Accessor, AttributeDict, cached_property, OrderBy,
+                    OrderByTuple, segment, Sequence)
+from .rows  import BoundRows
+from .      import columns
 
 
 QUERYSET_ACCESSOR_SEPARATOR = '__'
@@ -113,6 +113,30 @@ class TableData(object):
         single record.
         """
         return self.data[key]
+
+    @cached_property
+    def verbose_name(self):
+        """
+        The full (singular) name for the data.
+
+        Queryset data has its model's ``Meta.verbose_name`` honored. List data
+        is checked for a ``verbose_name`` attribute, and falls back to using
+        ``"item"``.
+        """
+        if hasattr(self, "queryset"):
+            return self.queryset.model._meta.verbose_name
+        return getattr(self.list, "verbose_name", "item")
+
+    @cached_property
+    def verbose_name_plural(self):
+        """
+        The full (plural) name of the data.
+
+        This uses the same approach as ``verbose_name``.
+        """
+        if hasattr(self, "queryset"):
+            return self.queryset.model._meta.verbose_name_plural
+        return getattr(self.list, "verbose_name_plural", "items")
 
 
 class DeclarativeColumnsMetaclass(type):

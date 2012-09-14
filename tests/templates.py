@@ -108,15 +108,18 @@ def custom_rendering():
 @templates.test
 def render_table_templatetag():
     # ensure it works with a multi-order-by
+    request = factory.get('/')
     table = CountryTable(MEMORY_DATA, order_by=('name', 'population'))
+    RequestConfig(request).configure(table)
     template = Template('{% load django_tables2 %}{% render_table table %}')
-    html = template.render(Context({'request': factory.get('/'), 'table': table}))
+    html = template.render(Context({'request': request, 'table': table}))
 
     root = parse(html)
     assert len(root.findall('.//thead/tr')) == 1
     assert len(root.findall('.//thead/tr/th')) == 4
     assert len(root.findall('.//tbody/tr')) == 4
     assert len(root.findall('.//tbody/tr/td')) == 16
+    assert root.find('ul[@class="pagination"]/li[@class="cardinality"]').text == '4 items'
 
     # no data with no empty_text
     table = CountryTable([])
@@ -128,9 +131,11 @@ def render_table_templatetag():
     assert len(root.findall('.//tbody/tr')) == 0
 
     # no data WITH empty_text
+    request = factory.get('/')
     table = CountryTable([], empty_text='this table is empty')
+    RequestConfig(request).configure(table)
     template = Template('{% load django_tables2 %}{% render_table table %}')
-    html = template.render(Context({'request': factory.get('/'), 'table': table}))
+    html = template.render(Context({'request': request, 'table': table}))
     root = parse(html)
     assert len(root.findall('.//thead/tr')) == 1
     assert len(root.findall('.//thead/tr/th')) == 4

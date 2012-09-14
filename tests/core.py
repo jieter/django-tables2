@@ -114,6 +114,13 @@ def attrs():
 
 
 @core.test
+def data_knows_its_name():
+    table = tables.Table([{}])
+    assert table.data.verbose_name == "item"
+    assert table.data.verbose_name_plural == "items"
+
+
+@core.test
 def datasource_untouched():
     """Ensure that data that is provided to the table (the datasource) is not
     modified by table operations.

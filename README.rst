@@ -89,6 +89,7 @@ v0.12.0
 - Accessor's now honor ``alters_data`` during resolving. Fixes issue that would
   delete all your data when a column had an accessor of ``delete``
 - Add ``default`` and ``value`` to context of ``TemplateColumn``
+- Add cardinality indication to the pagination area of a table
 
 v0.11.0
 -------

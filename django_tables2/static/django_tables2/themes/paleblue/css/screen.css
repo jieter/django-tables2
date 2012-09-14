@@ -88,6 +88,10 @@ table.paleblue + ul.pagination > li:first-child {
     margin-left: 0;
 }
 
+table.paleblue + ul.pagination > li.cardinality {
+    float: right;
+}
+
 table.paleblue > tbody > tr > td > span.true,
 table.paleblue > tbody > tr > td > span.false {
     background-position: top left;
