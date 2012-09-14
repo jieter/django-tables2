@@ -573,3 +573,19 @@ def table_defaults_are_honored():
     table = Table([{}], default="abcd")
     table.default = "efgh"
     assert table.rows[0]['name'] == "efgh"
+
+
+@core.test
+def list_table_data_supports_ordering():
+    class Table(tables.Table):
+        name = tables.Column()
+
+    data = [
+        {"name": "Bradley"},
+        {"name": "Stevie"},
+    ]
+
+    table = Table(data)
+    assert table.rows[0]["name"] == "Bradley"
+    table.order_by = "-name"
+    assert table.rows[0]["name"] == "Stevie"

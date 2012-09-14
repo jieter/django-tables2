@@ -32,14 +32,14 @@ class TableData(object):
         # data may be a QuerySet-like objects with count() and order_by()
         if (hasattr(data, 'count') and callable(data.count) and
             hasattr(data, 'order_by') and callable(data.order_by)):
-            self.data = self.queryset = data
+            self.queryset = data
         # otherwise it must be convertable to a list
         else:
             try:
-                self.data = self.list = list(data)
+                self.list = list(data)
             except:
                 raise ValueError('data must be QuerySet-like (have count and '
-                                 'order_by) or support list(data) -- %s is '
+                                 'order_by) or support list(data) -- %s has '
                                  'neither' % type(data).__name__)
 
     def __len__(self):
@@ -50,6 +50,10 @@ class TableData(object):
             self._length = (self.queryset.count() if hasattr(self, 'queryset')
                                                   else len(self.list))
         return self._length
+
+    @property
+    def data(self):
+        return self.queryset if hasattr(self, "queryset") else self.list
 
     @property
     def ordering(self):

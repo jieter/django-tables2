@@ -255,3 +255,19 @@ def order_by_derived_from_queryset():
             order_by = ("occupation", )
 
     assert PersonTable(queryset.all()).order_by == ("occupation", )
+
+
+@models.test
+def queryset_table_data_supports_ordering():
+    class Table(tables.Table):
+        class Meta:
+            model = Person
+
+    for name in ("Bradley Ayers", "Stevie Armstrong"):
+        first_name, last_name = name.split()
+        Person.objects.create(first_name=first_name, last_name=last_name)
+
+    table = Table(Person.objects.all())
+    assert table.rows[0]["first_name"] == "Bradley"
+    table.order_by = "-first_name"
+    assert table.rows[0]["first_name"] == "Stevie"
