@@ -1,9 +1,11 @@
 # coding: utf-8
+from contextlib  import contextmanager
+from django.conf import UserSettingsHolder
 from django.test import Client, TestCase, TransactionTestCase
-from .utils import contextdecorator
+from .signals    import setting_changed
 
 
-__all__ = ("TransactionTestContext", "TestContext")
+__all__ = ("settings", "TransactionTestContext", "TestContext")
 
 
 class TransactionTestContext(TransactionTestCase):
@@ -41,3 +43,25 @@ class TestContext(TestCase, TransactionTestContext):
     the test. You have to use TransactionTestContext, if you need transaction
     management inside a test.
     """
+
+
+@contextmanager
+def settings(**kwargs):
+    """
+    Change one or more Django settings.
+    """
+    from django.conf import settings
+    original = settings._wrapped
+    try:
+        settings._wrapped = UserSettingsHolder(settings._wrapped)
+        sender = type(settings._wrapped)
+        for key, value in kwargs.items():
+            setattr(settings._wrapped, key, value)
+            setting_changed.send(sender=sender, setting=key, value=value)
+        yield
+    finally:
+        settings._wrapped = original
+        sender = type(settings._wrapped)
+        for key, value in kwargs.items():
+            value = getattr(settings, key, None)
+            setting_changed.send(sender=sender, setting=key, value=value)
