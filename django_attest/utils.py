@@ -1,5 +1,7 @@
+# coding: utf-8
 from contextlib import contextmanager
-from functools import wraps
+from functools  import wraps
+import sys
 
 
 __all__ = ("contextdecorator", )
@@ -81,3 +83,26 @@ def contextdecorator(yielder):
             # contextlib.contextmanager(thing)
             return yielder()
     return thing
+
+
+@contextmanager
+def nested(*managers):
+    exc = None, None, None
+    args = []
+    exits = []
+    try:
+        for manager in managers:
+            args.append(manager.__enter__())
+            exits.append(manager.__exit__)
+        yield args
+    except:
+        exc = sys.exc_info()
+    finally:
+        for exit in reversed(exits):
+            try:
+                if exit(*exc):
+                    exc = None, None, None
+            except:
+                exc = sys.exc_info()
+        if exc != (None, None, None):
+            raise exc[0], exc[1], exc[2]

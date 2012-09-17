@@ -10,7 +10,6 @@ import django
 from django.test.simple import build_test
 import django_attest
 from django_attest import queries, redirects, TestContext
-from django_attest.reporters import ReporterMixin
 from pkg_resources import parse_version
 from tests.app.models import Thing
 

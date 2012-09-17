@@ -5,11 +5,11 @@ ROOT = dirname(abspath(__file__))
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': ':memory:',
+        'NAME': join(ROOT, 'default.sqlite3'),
     },
     'alternate': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': ':memory:',
+        'NAME': join(ROOT, 'alternative.sqlite3'),
     }
 }
 

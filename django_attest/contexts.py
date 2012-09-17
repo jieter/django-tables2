@@ -1,5 +1,6 @@
 # coding: utf-8
-from django.test import TestCase, TransactionTestCase
+from django.test import Client, TestCase, TransactionTestCase
+from .utils import contextdecorator
 
 
 __all__ = ("TransactionTestContext", "TestContext")
@@ -27,7 +28,7 @@ class TransactionTestContext(TransactionTestCase):
         """
         self._pre_setup()
         try:
-            yield self.client_class()
+            yield getattr(self, "client_class", Client)()
         finally:
             self._post_teardown()
 
