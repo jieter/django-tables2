@@ -7,8 +7,8 @@ from django.template             import RequestContext
 from django.template.loader      import get_template
 from django.utils.encoding       import StrAndUnicode
 import warnings
-from .utils import (Accessor, AttributeDict, cached_property, OrderBy,
-                    OrderByTuple, segment, Sequence)
+from .utils import (Accessor, AttributeDict, cached_property, build_request,
+                    OrderBy, OrderByTuple, segment, Sequence)
 from .rows  import BoundRows
 from .      import columns
 
@@ -362,10 +362,8 @@ class Table(StrAndUnicode):
         generated will clobber the querystring of the request. Use the
         ``{% render_table %}`` template tag instead.
         """
-        # minimizes Django 1.3 dependency
-        from django.test.client import RequestFactory
-        request = RequestFactory().get('/')
         template = get_template(self.template)
+        request = build_request()
         return template.render(RequestContext(request, {'table': self}))
 
     @property

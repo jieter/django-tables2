@@ -3,14 +3,13 @@
 from __future__ import unicode_literals
 from attest import assert_hook, Tests, warns  # pylint: disable=W0611
 from datetime import date, datetime
-from django_attest import TestContext
+from django_attest import settings, TestContext
 import django_tables2 as tables
+from django_tables2.utils import build_request
 from django_tables2 import A, Attrs
 from django.db import models
-from django.test.client import RequestFactory
 from django.core.urlresolvers import reverse
 from django.template import Context, Template
-from django.test.utils import override_settings
 from django.utils.translation import ugettext
 from django.utils.safestring import mark_safe, SafeData
 try:
@@ -438,7 +437,7 @@ def unicode():
     ]
 
     table = UnicodeTable(dataset)
-    request = RequestFactory().get('/some-url/')
+    request = build_request('/some-url/')
     template = Template('{% load django_tables2 %}{% render_table table %}')
     html = template.render(Context({'request': request, 'table': table}))
 
@@ -626,33 +625,33 @@ def should_handle_explicit_format():
 
 
 @datecolumn.test
-@override_settings(DATE_FORMAT="D Y b")
 def should_handle_long_format():
-    class TestTable(tables.Table):
-        date = tables.DateColumn(short=False)
+    with settings(DATE_FORMAT="D Y b"):
+        class TestTable(tables.Table):
+            date = tables.DateColumn(short=False)
 
-        class Meta:
-            default = "—"
+            class Meta:
+                default = "—"
 
-    table = TestTable([{"date": date(2012, 9, 11)},
-                       {"date": None}])
-    assert table.rows[0]["date"] == "Tue 2012 sep"
-    assert table.rows[1]["date"] == "—"
+        table = TestTable([{"date": date(2012, 9, 11)},
+                           {"date": None}])
+        assert table.rows[0]["date"] == "Tue 2012 sep"
+        assert table.rows[1]["date"] == "—"
 
 
 @datecolumn.test
-@override_settings(SHORT_DATE_FORMAT="b Y D")
 def should_handle_short_format():
-    class TestTable(tables.Table):
-        date = tables.DateColumn(short=True)
+    with settings(SHORT_DATE_FORMAT="b Y D"):
+        class TestTable(tables.Table):
+            date = tables.DateColumn(short=True)
 
-        class Meta:
-            default = "—"
+            class Meta:
+                default = "—"
 
-    table = TestTable([{"date": date(2012, 9, 11)},
-                       {"date": None}])
-    assert table.rows[0]["date"] == "sep 2012 Tue"
-    assert table.rows[1]["date"] == "—"
+        table = TestTable([{"date": date(2012, 9, 11)},
+                           {"date": None}])
+        assert table.rows[0]["date"] == "sep 2012 Tue"
+        assert table.rows[1]["date"] == "—"
 
 
 @datecolumn.test
@@ -710,7 +709,7 @@ def should_handle_long_format(dt):
         class Meta:
             default = "—"
 
-    with override_settings(DATETIME_FORMAT="D Y b A f"):
+    with settings(DATETIME_FORMAT="D Y b A f"):
         table = TestTable([{"date": dt}, {"date": None}])
         assert table.rows[0]["date"] == "Tue 2012 sep PM 12:30"
         assert table.rows[1]["date"] == "—"
@@ -724,7 +723,7 @@ def should_handle_short_format(dt):
         class Meta:
             default = "—"
 
-    with override_settings(SHORT_DATETIME_FORMAT="b Y D A f"):
+    with settings(SHORT_DATETIME_FORMAT="b Y D A f"):
         table = TestTable([{"date": dt}, {"date": None}])
         assert table.rows[0]["date"] == "sep 2012 Tue PM 12:30"
         assert table.rows[1]["date"] == "—"

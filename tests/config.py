@@ -1,13 +1,12 @@
 # coding: utf-8
 from attest import Tests
 from django_tables2 import RequestConfig
+from django_tables2.utils import build_request
 from django.core.paginator import EmptyPage, PageNotAnInteger
-from django.test.client import RequestFactory
 from fudge import Fake
 
 
 NOTSET = object()  # unique value
-factory = RequestFactory()
 requestconfig = Tests()
 
 
@@ -21,7 +20,7 @@ def faketable():
 
 @requestconfig.test
 def no_querystring(table):
-    request = factory.get("/")
+    request = build_request("/")
     table = table.has_attr(order_by=NOTSET).expects("paginate")
     RequestConfig(request).configure(table)
     assert table.order_by is NOTSET
@@ -29,7 +28,7 @@ def no_querystring(table):
 
 @requestconfig.test
 def full_querystring(table):
-    request = factory.get("/?page=1&per_page=5&sort=abc")
+    request = build_request("/?page=1&per_page=5&sort=abc")
     table = (table
              .expects("paginate").with_args(page=1, per_page=5)
              .expects("order_by").with_args("abc"))
@@ -38,7 +37,7 @@ def full_querystring(table):
 
 @requestconfig.test
 def partial_querystring(table):
-    request = factory.get("/?page=1&sort=abc")
+    request = build_request("/?page=1&sort=abc")
     table = (table
              .expects("paginate").with_args(page=1, per_page=5)
              .expects("order_by").with_args("abc"))
@@ -47,7 +46,7 @@ def partial_querystring(table):
 
 @requestconfig.test
 def silent_page_not_an_integer_error(table):
-    request = factory.get("/")
+    request = build_request("/")
     paginator = (Fake("Paginator")
                  .expects("page").with_args(1))
     table = (table
@@ -61,7 +60,7 @@ def silent_page_not_an_integer_error(table):
 
 @requestconfig.test
 def silent_empty_page_error(table):
-    request = factory.get("/")
+    request = build_request("/")
     paginator = (Fake("Paginator")
                  .has_attr(num_pages=987)
                  .expects("page").with_args(987))

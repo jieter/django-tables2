@@ -15,8 +15,8 @@ setup(
     packages=find_packages(exclude=['tests.*', 'tests', 'example.*', 'example']),
     include_package_data=True,  # declarations in MANIFEST.in
 
-    install_requires=['Django >=1.3'],
-    tests_require=['Django >=1.3', 'django-attest >=0.5.0', 'fudge', 'pylint',
+    install_requires=['Django >=1.1'],
+    tests_require=['Django >=1.2', 'django-attest >=0.6.0', 'fudge', 'pylint',
                    'django-haystack', 'unittest-xml-reporting', 'lxml', 'pytz'],
 
     test_loader='tests:loader',

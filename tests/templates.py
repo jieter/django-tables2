@@ -4,9 +4,9 @@ from contextlib import contextmanager
 from django_attest import queries, TestContext
 import django_tables2 as tables
 from django_tables2.config import RequestConfig
+from django_tables2.utils import build_request
 from django.conf import settings
 from django.template import Template, RequestContext, Context
-from django.test.client import RequestFactory
 from django.utils.translation import ugettext_lazy
 from django.utils.safestring import mark_safe
 from urlparse import parse_qs
@@ -26,7 +26,6 @@ def attrs(xml):
     return lxml.html.fromstring(xml).attrib
 
 
-factory = RequestFactory()
 database = contextmanager(TestContext())
 templates = Tests()
 
@@ -108,7 +107,7 @@ def custom_rendering():
 @templates.test
 def render_table_templatetag():
     # ensure it works with a multi-order-by
-    request = factory.get('/')
+    request = build_request('/')
     table = CountryTable(MEMORY_DATA, order_by=('name', 'population'))
     RequestConfig(request).configure(table)
     template = Template('{% load django_tables2 %}{% render_table table %}')
@@ -124,14 +123,14 @@ def render_table_templatetag():
     # no data with no empty_text
     table = CountryTable([])
     template = Template('{% load django_tables2 %}{% render_table table %}')
-    html = template.render(Context({'request': factory.get('/'), 'table': table}))
+    html = template.render(Context({'request': build_request('/'), 'table': table}))
     root = parse(html)
     assert len(root.findall('.//thead/tr')) == 1
     assert len(root.findall('.//thead/tr/th')) == 4
     assert len(root.findall('.//tbody/tr')) == 0
 
     # no data WITH empty_text
-    request = factory.get('/')
+    request = build_request('/')
     table = CountryTable([], empty_text='this table is empty')
     RequestConfig(request).configure(table)
     template = Template('{% load django_tables2 %}{% render_table table %}')
@@ -162,7 +161,7 @@ def render_table_should_support_template_argument():
     table = CountryTable(MEMORY_DATA, order_by=('name', 'population'))
     template = Template('{% load django_tables2 %}'
                         '{% render_table table "dummy.html" %}')
-    request = RequestFactory().get('/')
+    request = build_request('/')
     context = RequestContext(request, {'table': table})
     assert template.render(context) == 'dummy template contents\n'
 
@@ -188,7 +187,7 @@ def querystring_templatetag():
 
     # Should be something like: <root>?name=Brad&amp;a=b&amp;c=5&amp;age=21</root>
     xml = template.render(Context({
-        "request": RequestFactory().get('/?a=b&name=dog&c=5'),
+        "request": build_request('/?a=b&name=dog&c=5'),
         "foo": {"bar": "age"},
         "value": 21,
     }))
@@ -206,7 +205,7 @@ def querystring_templatetag():
 @templates.test
 def querystring_templatetag_supports_without():
     context = Context({
-        "request": RequestFactory().get('/?a=b&name=dog&c=5'),
+        "request": build_request('/?a=b&name=dog&c=5'),
         "a_var": "a",
     })
 
@@ -235,13 +234,13 @@ def title_should_only_apply_to_words_without_uppercase_letters():
     }
 
     for raw, expected in expectations.items():
-        template = Template("{% load title from django_tables2 %}{{ x|title }}")
+        template = Template("{% load django_tables2 %}{{ x|title }}")
         assert template.render(Context({"x": raw})) == expected
 
 
 @templates.test
 def nospaceless_works():
-    template = Template("{% load nospaceless from django_tables2 %}"
+    template = Template("{% load django_tables2 %}"
                         "{% spaceless %}<b>a</b> <i>b {% nospaceless %}<b>c</b>  <b>d</b> {% endnospaceless %}lic</i>{% endspaceless %}")
     assert template.render(Context()) == "<b>a</b><i>b <b>c</b>&#32;<b>d</b> lic</i>"
 
@@ -292,7 +291,7 @@ def render_table_db_queries():
         with queries(count=2):
             # one query for pagination: .count()
             # one query for page records: .all()[start:end]
-            request = factory.get('/')
+            request = build_request('/')
             table = PersonTable(Person.objects.all())
             RequestConfig(request).configure(table)
             render(table=table, request=request)
