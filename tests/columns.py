@@ -467,8 +467,8 @@ def kwargs():
         a = tables.LinkColumn('occupation', kwargs={"pk": A('a')})
 
     html = PersonTable([{"a": 0}, {"a": 1}]).as_html()
-    assert reverse("occupation", kwargs={"pk": 0}) in html
-    assert reverse("occupation", kwargs={"pk": 1}) in html
+    assert reverse("occupation", kwargs={b"pk": 0}) in html
+    assert reverse("occupation", kwargs={b"pk": 1}) in html
 
 
 @linkcolumn.test
@@ -488,7 +488,7 @@ def old_style_attrs_should_still_work():
                                     attrs={"title": "Occupation Title"})
 
     table = TestTable([{"col": 0}])
-    assert attrs(table.rows[0]["col"]) == {"href": reverse("occupation", kwargs={"pk": 0}),
+    assert attrs(table.rows[0]["col"]) == {"href": reverse("occupation", kwargs={b"pk": 0}),
                                            "title": "Occupation Title"}
 
 
@@ -499,7 +499,7 @@ def a_attrs_should_be_supported():
                                 attrs={"a": {"title": "Occupation Title"}})
 
     table = TestTable([{"col": 0}])
-    assert attrs(table.rows[0]["col"]) == {"href": reverse("occupation", kwargs={"pk": 0}),
+    assert attrs(table.rows[0]["col"]) == {"href": reverse("occupation", kwargs={b"pk": 0}),
                                            "title": "Occupation Title"}
 
 
