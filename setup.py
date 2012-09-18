@@ -20,7 +20,7 @@ setup(
     packages=find_packages(exclude=['tests.*', 'tests', 'example.*', 'example']),
     include_package_data=True,  # declarations in MANIFEST.in
 
-    install_requires=['Django >=1.1'],
+    install_requires=['Django >=1.2'],
     tests_require=['Django >=1.2', 'django-attest >=0.6.0', 'fudge', 'pylint',
                    'django-haystack', 'unittest-xml-reporting', 'lxml', 'pytz'],
 
