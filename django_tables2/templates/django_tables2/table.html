@@ -63,7 +63,7 @@
     {% nospaceless %}{% block pagination.next %}<li class="next"><a href="{% querystring table.prefixed_page_field=table.page.next_page_number %}">{% trans "Next" %}</a></li>{% endblock pagination.next %}{% endnospaceless %}
     {% endif %}
 
-    {% nospaceless %}{% block pagination.cardinality %}<li class="cardinality">{% if total != count %}{{ table.page|length }} of {% endif %}{{ total }} {% if total == 1 %}{{ table.data.verbose_name }}{% else %}{{ table.data.verbose_name_plural }}{% endif %}</li>{% endblock pagination.cardinality %}{% endnospaceless %}
+    {% nospaceless %}{% block pagination.cardinality %}<li class="cardinality">{% if total != count %}{% blocktrans %}{{ count }} of {{ total }}{% endblocktrans %}{% else %}{{ total }}{% endif %} {% if total == 1 %}{{ table.data.verbose_name }}{% else %}{{ table.data.verbose_name_plural }}{% endif %}</li>{% endblock pagination.cardinality %}{% endnospaceless %}
 </ul>
 {% endblock pagination %}
 {% endwith %}
