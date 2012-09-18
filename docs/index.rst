@@ -462,20 +462,19 @@ fields with a table-specific name. e.g.
 Column attributes
 =================
 
-Column attributes can be specified using the :class:`.Attrs` object. An
-``Attrs`` object defines HTML tag attributes for one of more elements within
-the column. Depending on the column, different elements are supported, however
-``th`` and ``td`` are supported universally.
+Column attributes can be specified using the :class:`dict` with specific keys.
+The dict defines HTML attributes for one of more elements within the column.
+Depending on the column, different elements are supported, however ``th``,
+``td``, and ``cell`` are supported universally.
 
 e.g.
 
 .. sourcecode:: python
 
-    >>> from django_tables2 import Attrs
     >>> import django_tables2 as tables
     >>>
     >>> class SimpleTable(tables.Table):
-    ...     name = tables.Column(attrs=Attrs(th={"id": "foo"}))
+    ...     name = tables.Column(attrs={"th": {"id": "foo"}})
     ...
     >>> SimpleTable(data).as_html()
     "{snip}<thead><tr><th id="foo" class="name">{snip}<tbody><tr><td class="name">{snip}"
@@ -854,12 +853,6 @@ API Reference
 --------------------------------
 
 .. autoclass:: django_tables2.utils.Accessor
-
-
-:class:`Attrs` Objects:
---------------------------
-
-.. autoclass:: django_tables2.utils.Attrs
 
 
 :class:`RequestConfig` Objects:

@@ -14,7 +14,7 @@ from itertools import ifilter, islice
 import warnings
 import inspect
 from .templatetags.django_tables2 import title
-from .utils import A, AttributeDict, Attrs, OrderBy, OrderByTuple
+from .utils import A, AttributeDict, OrderBy, OrderByTuple
 
 
 funcs = ifilter(curry(hasattr, inspect), ('getfullargspec', 'getargspec'))
@@ -99,10 +99,10 @@ class Column(object):  # pylint: disable=R0902
     :type    orderable: :class:`bool`
     :param   orderable: If :const:`False`, this column will not be allowed to
                         influence row ordering/sorting.
-    :type        attrs: :class:`Attrs` object
+    :type        attrs: :class:`dict` object
     :param       attrs: HTML attributes to be added to components in the column
 
-    Supported ``Attrs`` keys are:
+    Supported ``attrs`` keys are:
 
     - *th* -- ``<th>`` element in header
     - *td* -- ``<td>`` element in body
@@ -132,12 +132,7 @@ class Column(object):  # pylint: disable=R0902
             if orderable is None:
                 orderable = sortable
         self.orderable = orderable
-        attrs = attrs or Attrs()
-        if not isinstance(attrs, Attrs):
-            warnings.warn('attrs must be Attrs object, not %s'
-                          % type(attrs).__name__, DeprecationWarning)
-            attrs = Attrs(attrs)
-        self.attrs = attrs
+        self.attrs = attrs or {}
         # massage order_by into an OrderByTuple or None
         order_by = (order_by, ) if isinstance(order_by, basestring) else order_by
         self.order_by = OrderByTuple(order_by) if order_by is not None else None
@@ -236,7 +231,7 @@ class BooleanColumn(Column):
     Rendered values are wrapped in a ``<span>`` to allow customisation by
     themes. By default the span is given the class ``true``, ``false``.
 
-    In addition to ``Attrs`` keys supported by ``Column``, the following are
+    In addition to ``attrs`` keys supported by ``Column``, the following are
     available:
 
     - *span* -- adds attributes to the <span> tag
@@ -290,7 +285,7 @@ class CheckBoxColumn(Column):
         implemented. If you want something to actually happen, you'll need to
         implement that yourself.
 
-    In addition to ``Attrs`` keys supported by ``Column``, the following are
+    In addition to ``attrs`` keys supported by ``Column``, the following are
     available:
 
     - *input*     -- ``<input>`` elements in both ``<td>`` and ``<th>``.
@@ -298,19 +293,23 @@ class CheckBoxColumn(Column):
     - *td__input* -- Replaces *input* attrs in body cells.
     """
     def __init__(self, attrs=None, **extra):
-        header_attrs = extra.pop('header_attrs', None)
         # For backwards compatibility, passing in a normal dict effectively
         # should assign attributes to the `<input>` tag.
-        attrs = attrs or Attrs()
-        if not isinstance(attrs, Attrs):
-            warnings.warn('attrs must be Attrs object, not %s'
-                          % type(attrs).__name__, DeprecationWarning)
-            attrs = Attrs(td__input=attrs)
+        valid = set(("input", "th__input", "td__input", "th", "td", "cell"))
+        if attrs and not set(attrs) & set(valid):
+            # if none of the keys in attrs are actually valid, assume it's some
+            # old code that should be be interpreted as {"td__input": ...}
+            warnings.warn('attrs keys must be one of %s, interpreting as {"td__input": %s}'
+                          % (', '.join(valid), attrs), DeprecationWarning)
+            attrs = {"td__input": attrs}
         # This is done for backwards compatible too, there used to be a
         # ``header_attrs`` argument, but this has been deprecated. We'll
         # maintain it for a while by translating it into ``head.checkbox``.
-        if header_attrs:
-            attrs.setdefault('th__input', header_attrs)
+        if "header_attrs" in extra:
+            warnings.warn('header_attrs argument is deprecated, '
+                          'use attrs={"th__input": ...} instead',
+                          DeprecationWarning)
+            attrs.setdefault('th__input', {}).update(extra.pop('header_attrs'))
 
         kwargs = {b'orderable': False, b'attrs': attrs}
         kwargs.update(extra)
@@ -345,12 +344,13 @@ class BaseLinkColumn(Column):
     ``<a href="...">`` tag.
     """
     def __init__(self, attrs=None, *args, **kwargs):
-        # backwards compatible translation for naive attrs value
-        attrs = attrs or Attrs()
-        if not isinstance(attrs, Attrs):
-            warnings.warn('attrs must be Attrs object, not %s'
-                          % type(attrs).__name__, DeprecationWarning)
-            attrs = Attrs(a=attrs)
+        valid = set(("a", "th", "td", "cell"))
+        if attrs and not set(attrs) & set(valid):
+            # if none of the keys in attrs are actually valid, assume it's some
+            # old code that should be be interpreted as {"a": ...}
+            warnings.warn('attrs keys must be one of %s, interpreting as {"a": %s}'
+                          % (', '.join(valid), attrs), DeprecationWarning)
+            attrs = {"a": attrs}
         kwargs[b'attrs'] = attrs
         super(BaseLinkColumn, self).__init__(*args, **kwargs)
 
@@ -417,7 +417,7 @@ class LinkColumn(BaseLinkColumn):
         class PeopleTable(tables.Table):
             name = tables.LinkColumn('people_detail', args=[A('pk')])
 
-    In addition to ``Attrs`` keys supported by ``Column``, the following are
+    In addition to ``attrs`` keys supported by ``Column``, the following are
     available:
 
     - *a* -- ``<a>`` elements in ``<td>``.
@@ -685,7 +685,7 @@ class BoundColumn(object):
         what's actually defined in the column attrs. This makes writing
         templates easier.
         """
-        # Work on a copy of the Attrs object since we're tweaking stuff
+        # Work on a copy of the attrs object since we're tweaking stuff
         attrs = dict(self.column.attrs)
 
         # Find the relevant th attributes (fall back to cell if th isn't

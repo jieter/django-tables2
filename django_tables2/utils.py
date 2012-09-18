@@ -6,6 +6,7 @@ from django.utils.safestring import mark_safe
 from django.test.client import FakePayload
 from itertools import chain
 from StringIO import StringIO
+import warnings
 
 
 class Sequence(list):
@@ -352,19 +353,12 @@ class AttributeDict(dict):
 
 class Attrs(dict):
     """
-    A collection of :class:`AttributeDict`, each given a key.
-
-    This class is used as a container to hold differenct sets of attributes for
-    a given column. Keys indicate where the attributes should be used, and
-    support varies depending on the column.
-
-    It's used in favour of a standard `dict` to enable backwards compatibility.
-    Before it was introduced, columns had an `attrs` parameter that would be
-    given a `dict` and would assign it to a single (typically input) element.
-    The new approach allows attributes to be specified for multiple elements.
-    By using the `Attrs` class your intention to use the new mechanism is
-    explicit.
+    Backwards compatibility, deprecated.
     """
+    def __init__(self, *args, **kwargs):
+        super(Attrs, self).__init__(*args, **kwargs)
+        warnings.warn("Attrs class is deprecated, use dict instead.",
+                      DeprecationWarning)
 
 
 def segment(sequence, aliases):

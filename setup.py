@@ -1,10 +1,15 @@
 #!/usr/bin/env python
+import re
 from setuptools import setup, find_packages
+
+
+with open('django_tables2/__init__.py', 'rb') as f:
+    version = re.search('__version__ = "(.+?)"', f.read()).group(1)
 
 
 setup(
     name='django-tables2',
-    version='0.11.0',
+    version=version,
     description='Table/data-grid framework for Django',
 
     author='Bradley Ayers',

@@ -90,6 +90,7 @@ v0.12.0
   delete all your data when a column had an accessor of ``delete``
 - Add ``default`` and ``value`` to context of ``TemplateColumn``
 - Add cardinality indication to the pagination area of a table
+- ``Attrs`` is deprecated, use ``dict`` instead
 
 v0.11.0
 -------

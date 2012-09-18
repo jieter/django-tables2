@@ -96,10 +96,11 @@ def attrs_should_be_translated_for_backwards_compatibility():
 
 @checkboxcolumn.test
 def new_attrs_should_be_supported():
-    class TestTable(tables.Table):
-        col1 = tables.CheckBoxColumn(attrs=Attrs(th__input={"th_key": "th_value"},
-                                                 td__input={"td_key": "td_value"}))
-        col2 = tables.CheckBoxColumn(attrs=Attrs(input={"key": "value"}))
+    with warns(DeprecationWarning):
+        class TestTable(tables.Table):
+            col1 = tables.CheckBoxColumn(attrs=Attrs(th__input={"th_key": "th_value"},
+                                                     td__input={"td_key": "td_value"}))
+            col2 = tables.CheckBoxColumn(attrs=Attrs(input={"key": "value"}))
 
     table = TestTable([{"col1": "data", "col2": "data"}])
     assert attrs(table.columns["col1"].header) == {"type": "checkbox", "th_key": "th_value"}
@@ -368,7 +369,7 @@ def bound_columns_should_support_indexing():
 @general.test
 def cell_attrs_applies_to_td_and_th():
     class SimpleTable(tables.Table):
-        a = tables.Column(attrs=Attrs(cell={"key": "value"}))
+        a = tables.Column(attrs={"cell": {"key": "value"}})
 
     # providing data ensures 1 row is rendered
     table = SimpleTable([{"a": "value"}])
@@ -495,7 +496,7 @@ def old_style_attrs_should_still_work():
 def a_attrs_should_be_supported():
     class TestTable(tables.Table):
         col = tables.LinkColumn('occupation', kwargs={"pk": A('col')},
-                                attrs=Attrs(a={"title": "Occupation Title"}))
+                                attrs={"a": {"title": "Occupation Title"}})
 
     table = TestTable([{"col": 0}])
     assert attrs(table.rows[0]["col"]) == {"href": reverse("occupation", kwargs={"pk": 0}),
