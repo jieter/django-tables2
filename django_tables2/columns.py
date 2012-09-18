@@ -240,7 +240,7 @@ class BooleanColumn(Column):
         self.yesno = (yesno.split(',') if isinstance(yesno, basestring)
                                        else tuple(yesno))
         if null:
-            kwargs["empty_values"] = ()
+            kwargs[b"empty_values"] = ()
         super(BooleanColumn, self).__init__(**kwargs)
 
     def render(self, value):
@@ -451,8 +451,8 @@ class LinkColumn(BaseLinkColumn):
             for key, val in self.kwargs.items():
                 # If we're dealing with an Accessor (A), resolve it, otherwise
                 # use the value verbatim.
-                params[b'kwargs'][key] = (val.resolve(record)
-                                          if isinstance(val, A) else val)
+                params[b'kwargs'][str(key)] = (val.resolve(record)
+                                               if isinstance(val, A) else val)
         if self.current_app:
             params[b'current_app'] = (self.current_app.resolve(record)
                                      if isinstance(self.current_app, A)
