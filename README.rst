@@ -1,7 +1,7 @@
 django-attest
 =============
 
-Django testing for Attest. Requires Django >=1.1.
+Django testing for Attest. Requires Django >=1.2.
 
 
 Installation
@@ -147,7 +147,7 @@ setup.py
     from setuptools import setup
     setup(
         ...
-        tests_require=['Django >=1.1', 'Attest >=0.4', 'django-attest'],
+        tests_require=['Django >=1.2', 'Attest >=0.4', 'django-attest'],
         test_loader='tests:loader',
         test_suite='tests.suite',
     )
