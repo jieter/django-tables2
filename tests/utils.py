@@ -73,6 +73,7 @@ def accessor():
 def accessor_wont_honors_alters_data():
     class Foo(object):
         deleted = False
+
         def delete(self):
             self.deleted = True
         delete.alters_data = True
@@ -81,6 +82,12 @@ def accessor_wont_honors_alters_data():
     with raises(ValueError):
         Accessor('delete').resolve(foo)
     assert foo.deleted == False
+
+
+@utils.test
+def accessor_can_be_quiet():
+    foo = {}
+    assert Accessor("bar").resolve(foo, quiet=True) is None
 
 
 @utils.test

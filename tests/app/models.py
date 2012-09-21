@@ -47,6 +47,7 @@ class Occupation(models.Model):
 
 class Region(models.Model):
     name = models.CharField(max_length=200)
+    mayor = models.OneToOneField(Person, null=True)
 
     def __unicode__(self):
         return self.name

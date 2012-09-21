@@ -254,7 +254,7 @@ class Accessor(str):
     """
     SEPARATOR = '.'
 
-    def resolve(self, context, safe=True):
+    def resolve(self, context, safe=True, quiet=False):
         """
         Return an object described by the accessor by traversing the attributes
         of *context*.
@@ -270,10 +270,15 @@ class Accessor(str):
             >>> x.resolve('brad')
             'B'
 
-        :type context: :class:`object`
+        :type  context: :class:`object`
         :param context: The root/first object to traverse.
+        :type     safe: `bool`
+        :param    safe: Don't call anything with `alters_data = True`
+        :type    quiet: bool
+        :param   quiet: Smother all exceptions and instead return `None`
         :returns: target object
-        :raises: TypeError, AttributeError, KeyError, ValueError
+        :raises: anything `getattr(a, "b")` raises, e.g. `TypeError`,
+                 `AttributeError`, `KeyError`, `ValueError`
 
         :meth:`~.Accessor.resolve` attempts lookups in the following order:
 
@@ -284,35 +289,39 @@ class Accessor(str):
         Callable objects are called, and their result is used, before
         proceeding with the resolving.
         """
-        current = context
-        for bit in self.bits:
-            try:  # dictionary lookup
-                current = current[bit]
-            except (TypeError, AttributeError, KeyError):
-                try:  # attribute lookup
-                    current = getattr(current, bit)
-                except (TypeError, AttributeError):
-                    try:  # list-index lookup
-                        current = current[int(bit)]
-                    except (IndexError,  # list index out of range
-                            ValueError,  # invalid literal for int()
-                            KeyError,    # dict without `int(bit)` key
-                            TypeError,   # unsubscriptable object
-                            ):
-                        raise ValueError('Failed lookup for key [%s] in %r'
-                                         ', when resolving the accessor %s'
-                                          % (bit, current, self))
-            if callable(current):
-                if safe and getattr(current, 'alters_data', False):
-                    raise ValueError('refusing to call %s() because `.alters_data = True`'
-                                     % repr(current))
-                current = current()
-            # important that we break in None case, or a relationship
-            # spanning across a null-key will raise an exception in the
-            # next iteration, instead of defaulting.
-            if current is None:
-                break
-        return current
+        try:
+            current = context
+            for bit in self.bits:
+                try:  # dictionary lookup
+                    current = current[bit]
+                except (TypeError, AttributeError, KeyError):
+                    try:  # attribute lookup
+                        current = getattr(current, bit)
+                    except (TypeError, AttributeError):
+                        try:  # list-index lookup
+                            current = current[int(bit)]
+                        except (IndexError,  # list index out of range
+                                ValueError,  # invalid literal for int()
+                                KeyError,    # dict without `int(bit)` key
+                                TypeError,   # unsubscriptable object
+                                ):
+                            raise ValueError('Failed lookup for key [%s] in %r'
+                                             ', when resolving the accessor %s'
+                                              % (bit, current, self))
+                if callable(current):
+                    if safe and getattr(current, 'alters_data', False):
+                        raise ValueError('refusing to call %s() because `.alters_data = True`'
+                                         % repr(current))
+                    current = current()
+                # important that we break in None case, or a relationship
+                # spanning across a null-key will raise an exception in the
+                # next iteration, instead of defaulting.
+                if current is None:
+                    break
+            return current
+        except:
+            if not quiet:
+                raise
 
     @property
     def bits(self):

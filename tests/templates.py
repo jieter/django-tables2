@@ -174,9 +174,11 @@ def render_table_supports_queryset():
         template = Template('{% load django_tables2 %}{% render_table qs %}')
         html = template.render(Context({'qs': Region.objects.all()}))
         root = parse(html)
-        assert [e.text for e in root.findall('.//thead/tr/th/a')] == ["ID", "Name"]
-        td = [[td.text for td in tr.findall('td')] for tr in root.findall('.//tbody/tr')]
-        db = [map(str, v) for v in Region.objects.values_list("id", "name")]
+        assert [e.text for e in root.findall('.//thead/tr/th/a')] == ["ID", "Name", "Mayor"]
+        td = [[unicode(td.text) for td in tr.findall('td')] for tr in root.findall('.//tbody/tr')]
+        db = []
+        for region in Region.objects.all():
+            db.append([unicode(region.id), region.name, u"—"])
         assert td == db
 
 

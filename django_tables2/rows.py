@@ -101,28 +101,25 @@ class BoundRow(object):
         bound_column = self.table.columns[name]
 
         value = None
-        try:
-            # We need to take special care here to allow get_FOO_display()
-            # methods on a model to be used if available. See issue #30.
-            path, _, remainder = bound_column.accessor.rpartition('.')
-            penultimate = A(path).resolve(self.record)
-            # If the penultimate is a model and the remainder is a field
-            # using choices, use get_FOO_display().
-            if isinstance(penultimate, models.Model):
-                try:
-                    field = penultimate._meta.get_field(remainder)
-                    display = getattr(penultimate, 'get_%s_display' % remainder, None)
-                    if field.choices and display:
-                        value = display()
-                        remainder = None
-                except FieldDoesNotExist:
-                    pass
-            # Fall back to just using the original accessor (we just need
-            # to follow the remainder).
-            if remainder:
-                value = A(remainder).resolve(penultimate)
-        except (TypeError, AttributeError, KeyError, ValueError):
-            pass
+        # We need to take special care here to allow get_FOO_display()
+        # methods on a model to be used if available. See issue #30.
+        path, _, remainder = bound_column.accessor.rpartition('.')
+        penultimate = A(path).resolve(self.record, quiet=True)
+        # If the penultimate is a model and the remainder is a field
+        # using choices, use get_FOO_display().
+        if isinstance(penultimate, models.Model):
+            try:
+                field = penultimate._meta.get_field(remainder)
+                display = getattr(penultimate, 'get_%s_display' % remainder, None)
+                if field.choices and display:
+                    value = display()
+                    remainder = None
+            except FieldDoesNotExist:
+                pass
+        # Fall back to just using the original accessor (we just need
+        # to follow the remainder).
+        if remainder:
+            value = A(remainder).resolve(penultimate, quiet=True)
 
         if value in bound_column.column.empty_values:
             return bound_column.default

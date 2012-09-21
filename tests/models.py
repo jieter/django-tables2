@@ -1,5 +1,5 @@
 # coding: utf-8
-from attest import assert_hook, Tests
+from attest import assert_hook, Tests  # pylint: disable=W0611
 import itertools
 from django_attest import TestContext
 import django_tables2 as tables
@@ -278,3 +278,18 @@ def queryset_table_data_supports_ordering():
     assert table.rows[0]["first_name"] == "Bradley"
     table.order_by = "-first_name"
     assert table.rows[0]["first_name"] == "Stevie"
+
+
+@models.test
+def doesnotexist_from_accessor_should_use_default():
+    class Table(tables.Table):
+        class Meta:
+            model = Person
+            default = "abc"
+            fields = ("first_name", "last_name", "region")
+
+    Person.objects.create(first_name="Brad", last_name="Ayers")
+
+    table = Table(Person.objects.all())
+    assert table.rows[0]["first_name"] == "Brad"
+    assert table.rows[0]["region"] == "abc"
