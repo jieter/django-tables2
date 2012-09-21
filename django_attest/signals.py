@@ -1,3 +1,5 @@
+# coding: utf-8
+from django.core.urlresolvers import clear_url_caches
 from django.dispatch import Signal
 
 try:
@@ -7,3 +9,10 @@ except ImportError:
     # wants to work in Django <1.4. Having this allows code to assume
     # `setting_changed` exists, making it simpler.
     setting_changed = Signal(providing_args=["setting", "value"])
+
+
+def urlconf_caching(sender, setting, value, **kwargs):
+    if setting == "ROOT_URLCONF":
+        clear_url_caches()
+
+setting_changed.connect(urlconf_caching)

@@ -1,17 +1,7 @@
 django-attest
 =============
 
-Provides the same testing helper functionality as Django's
-``django.test.TestCase`` wrapper of ``unittest.TestCase``.
-
-``django_attest.TestContext`` provides the most of the same functionality as
-subclassing ``django.test.TestCase``, and
-``django_attest.TransactionTestContext`` does the same as
-``django.test.TransactionTestCase``.
-
-Both contexts provide a ``django.test.TestClient`` object (normally accessed
-via ``self.client`` in ``django.test.TestCase`` tests), which can be used to
-make requests to views for testing.
+Django testing for Attest. Requires Django >=1.1.
 
 
 Installation
@@ -84,6 +74,7 @@ If you need to test transaction management within your tests, use
     def some_test(client):
         # test something
         ...
+
 
 Testing a reusable Django app
 -----------------------------
@@ -262,3 +253,58 @@ Assert an expected set of queries took place::
     # The same could be rewritten as
     with queries(count=5):
         User.objects.count()
+
+
+Context managers
+----------------
+
+django-attest has some context managers to simplify common tasks:
+
+
+settings
+^^^^^^^^
+
+Change global settings within a block, same functionality as Django 1.4's
+``TestCase.settings``::
+
+    from django_attest import settings
+
+    with settings(MEDIA_ROOT="/tmp"):
+        # ...
+
+Code that's sensitive to settings changes should use the
+``django_attest.signals.setting_changed`` signal to overcome any assumptions of
+settings remaining constant.
+
+.. note::
+
+    On Django >=1.4, ``django_attest.signals.setting_changed`` is an alias of
+    ``django.test.signals.setting_changed``.
+
+
+urlconf
+^^^^^^^
+
+Takes a list of URL patterns and promotes them up as the root URLconf. This
+avoids the need to have a dedicated *test project* and ``urls.py`` for simple
+cases::
+
+    @suite.test
+    def foo(client):
+        def view(request):
+            return HttpResponse('success')
+
+        urls = patterns('', (r'view/', view))
+        with urlconf(urls):
+            assert client.get(reverse(view)).content == 'success'
+
+If you want to provide a dotted path to a ``urls.py``, use
+``settings(ROOT_URLCONF=...)`` instead, it takes care to clear URL resolver
+caches.
+
+
+Backports
+---------
+
+- ``django_attest.RequestFactory`` (from Django 1.4)
+- ``django_attest.settings`` (``override_settings`` inspired from Django 1.4)

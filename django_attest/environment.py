@@ -33,4 +33,3 @@ def testing_environment():
     # tear down environment
     runner.teardown_databases(old_config)
     runner.teardown_test_environment()
-

@@ -4,9 +4,16 @@ import attest
 from attest import assert_hook, AssertImportHook, COMPILES_AST, Tests
 from contextlib import contextmanager
 import django
+try:
+    from django.conf.urls import patterns
+except ImportError:
+    from django.conf.urls.defaults import patterns
+from django.core.urlresolvers import reverse
+from django.http import HttpResponse
+from django.test.client import Client
 from django.test.simple import build_test
 import django_attest
-from django_attest import queries, redirects, TestContext, signals
+from django_attest import queries, redirects, TestContext, signals, urlconf
 from pkg_resources import parse_version
 from tests.app.models import Thing
 
@@ -145,6 +152,29 @@ def changed_settings():
 
     assert settings.DEBUG == original
     assert catcher == [{"setting": "DEBUG", "value": sentinel},
-                       {"setting": "DEBUG", "value": original},]
+                       {"setting": "DEBUG", "value": original}]
 
     signals.setting_changed.disconnect(pitcher)
+
+
+@suite.test
+def urlconf_overrides_global():
+    view = "tests.app.views.bouncer"
+    assert reverse(view) == "/bouncer/"
+    with urlconf(patterns("", (r'^outer/', view))):
+        assert reverse(view) == "/outer/"
+        with urlconf(patterns("", (r'^inner/', view))):
+            assert reverse(view) == "/inner/"
+        assert reverse(view) == "/outer/"
+    assert reverse(view) == "/bouncer/"
+
+
+@suite.test
+def urlconf_allows_local_view():
+    def view(request):
+        return HttpResponse('success')
+
+    client = Client()
+    urls = patterns('', (r'view/', view))
+    with urlconf(urls):
+        assert client.get(reverse(view)).content == 'success'

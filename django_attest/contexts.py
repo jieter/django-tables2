@@ -1,11 +1,11 @@
 # coding: utf-8
 from contextlib  import contextmanager
-from django.conf import UserSettingsHolder
+from django.conf import settings, UserSettingsHolder
 from django.test import Client, TestCase, TransactionTestCase
 from .signals    import setting_changed
 
 
-__all__ = ("settings", "TransactionTestContext", "TestContext")
+__all__ = ("settings", "TransactionTestContext", "TestContext", "urlconf")
 
 
 class TransactionTestContext(TransactionTestCase):
@@ -65,3 +65,34 @@ def settings(**kwargs):
         for key, value in kwargs.items():
             value = getattr(settings, key, None)
             setting_changed.send(sender=sender, setting=key, value=value)
+
+
+@contextmanager
+def urlconf(patterns):
+    """
+    A context manager that turns URL patterns into the global URLconf.
+
+    This is useful when you have a local variable of URL patterns that
+
+    :param patterns: list of `RegexURLPattern` or `RegexURLResolver` (what you
+                     get from `patterns`)
+
+    .. note:: Not thread safe
+    """
+    NOTSET = object()
+    global urlpatterns
+    # The extravagent effort here to preserve the current value of urlpatterns
+    # is done to ensure nesting of `urlconf`.
+    try:
+        old = urlpatterns
+    except NameError:
+        old = NOTSET
+    urlpatterns = patterns
+    try:
+        with settings(ROOT_URLCONF=__name__):
+            yield
+    finally:
+        if old is NOTSET:
+            del urlpatterns
+        else:
+            urlpatterns = old
