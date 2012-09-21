@@ -63,6 +63,11 @@ globally, use::
 Change log
 ==========
 
+v0.12.1
+-------
+
+- When resolving an accessor, *all* exceptions are smothered into ``None``.
+
 v0.12.0
 -------
 
