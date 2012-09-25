@@ -2,8 +2,8 @@
 # pylint: disable=W0611
 from .tables  import Table
 from .columns import (BooleanColumn, Column, CheckBoxColumn, DateColumn,
-                      DateTimeColumn, LinkColumn, TemplateColumn, EmailColumn,
-                      URLColumn)
+                      DateTimeColumn, EmailColumn, FileColumn, LinkColumn,
+                      TemplateColumn, URLColumn)
 from .config  import RequestConfig
 from .utils   import A, Attrs
 try:

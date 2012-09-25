@@ -36,9 +36,9 @@ class BaseLinkColumn(Column):
         """
         attrs = AttributeDict(attrs if attrs is not None else
                               self.attrs.get('a', {}))
-        html = '<a href="{uri}"{attrs}>{text}</a>'.format(
-            uri=escape(uri),
-            attrs=" %s" % attrs.as_html() if attrs else "",
+        attrs['href'] = uri
+        html = '<a {attrs}>{text}</a>'.format(
+            attrs=attrs.as_html(),
             text=escape(text)
         )
         return mark_safe(html)

@@ -63,6 +63,11 @@ globally, use::
 Change log
 ==========
 
+v0.13.0
+-------
+
+- Add FileColumn.
+
 v0.12.1
 -------
 

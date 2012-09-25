@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns="http://www.w3.org/2000/svg" version="1.0" xmlns:xlink="http://www.w3.org/1999/xlink" width="960" height="480" viewBox="0 0 240 120">
+<title>Flag of New Zealand</title>
+
+<rect fill="#00247d" width="240" height="120"/>
+<svg width="120" height="60" viewBox="0 0 12 6">
+	<clipPath id="t">
+		<path d="M6,3 h6 v3 z v3 h-6 z h-6 v-3 z v-3 h6 z"/>
+	</clipPath>
+	<g stroke="#cf142b" stroke-width="1.2">
+	<path d="M0,0 L12,6 M12,0 L0,6" stroke="#fff"/>
+	<path d="M0,0 L12,6 M12,0 L0,6" clip-path="url(#t)" stroke-width="0.8"/>
+	<path d="M6,0 v6 M0,3 h12" stroke="#fff" stroke-width="2"/>
+	<path d="M6,0 v6 M0,3 h12"/>
+</g>
+</svg>
+<polygon id="star" points="0,-513674 301930,415571 -488533,-158734 488533,-158734 -301930,415571" transform="scale(0.00000102347231405)"/>
+<g transform="translate(180,24)">
+<use xlink:href="#star" fill="#fff" transform="scale(18.472135955)"/>
+<use xlink:href="#star" fill="#cc142b" transform="scale(12)"/>
+</g>
+<g transform="translate(180,96)">
+<use xlink:href="#star" fill="#fff" transform="scale(20.472135955)"/>
+<use xlink:href="#star" fill="#cc142b" transform="scale(14)"/>
+</g>
+<g transform="rotate(-8,180,48) translate(204,48) rotate(8)">
+<use xlink:href="#star" fill="#fff" transform="scale(16.472135955)"/>
+<use xlink:href="#star" fill="#cc142b" transform="scale(10)"/>
+</g>
+<g transform="rotate(-8,180,48) translate(152,48) rotate(8)">
+<use xlink:href="#star" fill="#fff" transform="scale(18.472135955)"/>
+<use xlink:href="#star" fill="#cc142b" transform="scale(12)"/>
+</g>
+</svg>

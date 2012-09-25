@@ -90,6 +90,7 @@ table.paleblue + ul.pagination > li:first-child {
 
 table.paleblue + ul.pagination > li.cardinality {
     float: right;
+    color: #8d8d8d;
 }
 
 table.paleblue > tbody > tr > td > span.true,
@@ -101,6 +102,16 @@ table.paleblue > tbody > tr > td > span.false {
     overflow: hidden;
     text-indent: -200px;
     width: 10px;
+}
+
+table.paleblue > tbody > tr > td > .missing {
+    background: transparent url(../img/missing.png) right center no-repeat;
+    color: #717171;
+    padding-right: 20px;
+}
+
+table.paleblue > tbody > tr > td > .missing:hover {
+    color: #333;
 }
 
 table.paleblue > tbody > tr > td > span.true {

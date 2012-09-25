@@ -8,7 +8,10 @@ import django_tables2 as tables
 from django_tables2.utils import build_request
 from django_tables2 import A, Attrs
 from django.db import models
+from django.db.models.fields.files import FieldFile
 from django.core.urlresolvers import reverse
+from django.core.files.base import ContentFile
+from django.core.files.storage import FileSystemStorage
 from django.template import Context, Template
 from django.utils.translation import ugettext
 from django.utils.safestring import mark_safe, SafeData
@@ -16,6 +19,7 @@ try:
     from django.utils import timezone
 except ImportError:
     timezone = None
+from os.path import dirname, join
 import pytz
 from .app.models import Person
 from .templates import attrs, parse
@@ -742,5 +746,73 @@ def should_be_used_for_datetimefields():
     assert type(Table.base_columns["field"]) == tables.DateTimeColumn
 
 
+filecolumn = Tests()
+
+
+@filecolumn.context
+def template_storage_and_column():
+    """Provide a storage that exposes the test templates"""
+    root = join(dirname(__file__), "app", "templates")
+    storage = FileSystemStorage(location=root, base_url="/baseurl/")
+    column = tables.FileColumn(attrs={"span": {"class": "span"},
+                                      "a":    {"class": "a"}})
+    yield column, storage
+
+
+@filecolumn.test
+def should_be_used_for_filefields():
+    class FileModel(models.Model):
+        field = models.FileField()
+
+    class Table(tables.Table):
+        class Meta:
+            model = FileModel
+
+    assert type(Table.base_columns["field"]) == tables.FileColumn
+
+
+@filecolumn.test
+def filecolumn_supports_storage_file(column, storage):
+    with storage.open("child/foo.html") as file_:
+        root = parse(column.render(value=file_))
+        path = file_.name
+    assert root.tag == "span"
+    assert root.attrib == {"class": "span exists", "title": path}
+    assert root.text == "foo.html"
+
+
+@filecolumn.test
+def filecolumn_supports_contentfile(column):
+    name = "foobar.html"
+    file_ = ContentFile('', name=name)
+    root = parse(column.render(value=file_))
+    assert root.tag == "span"
+    assert root.attrib == {"title": name, "class": "span"}
+    assert root.text == "foobar.html"
+
+
+@filecolumn.test
+def filecolumn_supports_fieldfile(column, storage):
+    field = models.FileField(storage=storage)
+    name = "child/foo.html"
+    fieldfile = FieldFile(instance=None, field=field, name=name)
+    root = parse(column.render(value=fieldfile))
+    assert root.tag == "a"
+    assert root.attrib == {"class": "a exists", "title": name,
+                           "href": "/baseurl/child/foo.html"}
+    assert root.text == "foo.html"
+
+    # Now try a file that doesn't exist
+    name = "child/does_not_exist.html"
+    fieldfile = FieldFile(instance=None, field=field, name=name)
+    html = column.render(value=fieldfile)
+    root = parse(html)
+    assert root.tag == "a"
+    assert root.attrib == {"class": "a missing", "title": name,
+                           "href": "/baseurl/child/does_not_exist.html"}
+    assert root.text == "does_not_exist.html"
+
+
 columns = Tests([booleancolumn, checkboxcolumn, datecolumn, datetimecolumn,
-                 emailcolumn, general, linkcolumn, templatecolumn, urlcolumn])
+                 emailcolumn, filecolumn, general, linkcolumn, templatecolumn,
+                 urlcolumn])

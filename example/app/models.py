@@ -11,6 +11,7 @@ class Country(models.Model):
     tz = models.CharField(max_length=50)
     visits = models.PositiveIntegerField()
     commonwealth = models.NullBooleanField()
+    flag = models.FileField(upload_to="country/flags/")
 
     class Meta:
         verbose_name_plural = _("countries")

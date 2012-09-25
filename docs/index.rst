@@ -498,6 +498,7 @@ For common use-cases the following columns are included:
 - :class:`.CheckBoxColumn` -- renders checkbox form inputs
 - :class:`.DateColumn` -- date formatting
 - :class:`.DateTimeColumn` -- datetime formatting in the local timezone
+- :class:`.FileColumn` -- renders files as links
 - :class:`.EmailColumn` -- renders ``<a href="mailto:...">`` tags
 - :class:`.LinkColumn` -- renders ``<a href="...">`` tags (absolute url)
 - :class:`.TemplateColumn` -- renders template code
@@ -1083,6 +1084,13 @@ API Reference
 -----------------------------
 
 .. autoclass:: django_tables2.columns.EmailColumn
+    :members:
+
+
+:class:`FileColumn` Objects:
+----------------------------
+
+.. autoclass:: django_tables2.columns.FileColumn
     :members:
 
 
