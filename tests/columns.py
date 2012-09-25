@@ -773,9 +773,12 @@ def should_be_used_for_filefields():
 
 @filecolumn.test
 def filecolumn_supports_storage_file(column, storage):
-    with storage.open("child/foo.html") as file_:
+    file_ = storage.open("child/foo.html")
+    try:
         root = parse(column.render(value=file_))
-        path = file_.name
+    finally:
+        file_.close()
+    path = file_.name
     assert root.tag == "span"
     assert root.attrib == {"class": "span exists", "title": path}
     assert root.text == "foo.html"
