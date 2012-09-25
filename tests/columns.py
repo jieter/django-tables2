@@ -784,7 +784,8 @@ def filecolumn_supports_storage_file(column, storage):
 @filecolumn.test
 def filecolumn_supports_contentfile(column):
     name = "foobar.html"
-    file_ = ContentFile('', name=name)
+    file_ = ContentFile('')
+    file_.name = name  # Django <1.4 compatible
     root = parse(column.render(value=file_))
     assert root.tag == "span"
     assert root.attrib == {"title": name, "class": "span"}
