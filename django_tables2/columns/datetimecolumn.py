@@ -16,7 +16,7 @@ class DateTimeColumn(TemplateColumn):
                    ``SHORT_DATETIME_FORMAT``, else ``DATETIME_FORMAT``
     :type   short: ``bool``
     """
-    def __init__(self, format=None, short=True, *args, **kwargs):
+    def __init__(self, format=None, short=True, *args, **kwargs):  # pylint: disable=W0622
         if format is None:
             format = 'SHORT_DATETIME_FORMAT' if short else 'DATETIME_FORMAT'
         template = '{{ value|date:"%s"|default:default }}' % format

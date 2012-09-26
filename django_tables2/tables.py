@@ -145,7 +145,7 @@ class DeclarativeColumnsMetaclass(type):
     called ``base_columns``, taking into account parent class ``base_columns``
     as well.
     """
-    def __new__(cls, name, bases, attrs):
+    def __new__(mcs, name, bases, attrs):
 
         attrs["_meta"] = opts = TableOptions(attrs.get("Meta", None))
         # extract declared columns
@@ -193,7 +193,7 @@ class DeclarativeColumnsMetaclass(type):
             # Table's sequence defaults to sequence declared in Meta
             #attrs['_sequence'] = opts.sequence
             attrs["base_columns"] = SortedDict(((x, attrs["base_columns"][x]) for x in opts.sequence))
-        return super(DeclarativeColumnsMetaclass, cls).__new__(cls, name, bases, attrs)
+        return super(DeclarativeColumnsMetaclass, mcs).__new__(mcs, name, bases, attrs)
 
 
 class TableOptions(object):
@@ -205,6 +205,7 @@ class TableOptions(object):
     :param options: options for a table
     :type  options: :class:`Meta` on a :class:`.Table`
     """
+    # pylint: disable=R0902
     def __init__(self, options=None):
         super(TableOptions, self).__init__()
         self.attrs = AttributeDict(getattr(options, "attrs", {}))

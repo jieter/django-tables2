@@ -137,7 +137,7 @@ def querystring(parser, token):
     # have ``without`` arguments.
     if bits and bits.pop(0) != "without":
         raise TemplateSyntaxError("Malformed arguments to '%s'" % tag)
-    removals = map(parser.compile_filter, bits)
+    removals = [parser.compile_filter(bit) for bit in bits]
     return QuerystringNode(updates, removals)
 
 
@@ -244,6 +244,7 @@ def render_table(parser, token):
 class NoSpacelessNode(Node):
     def __init__(self, nodelist):
         self.nodelist = nodelist
+        super(NoSpacelessNode, self).__init__()
 
     def render(self, context):
         return mark_safe(re.sub(r'>\s+<', '>&#32;<',

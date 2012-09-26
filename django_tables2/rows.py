@@ -133,10 +133,10 @@ class BoundRow(object):
             'table':        lambda: self._table,
         }
 
-        kw = {}
+        expected_kwargs = {}
         for arg_name in bound_column._render_args:
-            kw[arg_name] = kwargs[arg_name]()
-        return bound_column.render(**kw)
+            expected_kwargs[arg_name] = kwargs[arg_name]()
+        return bound_column.render(**expected_kwargs)
 
     def __contains__(self, item):
         """Check by both row object and column name."""

@@ -1,12 +1,9 @@
 # coding: utf-8
 from __future__ import absolute_import, unicode_literals
-from django.core.urlresolvers import reverse
 from django.db import models
-from django.utils.html import escape
 from django.utils.safestring import mark_safe
-from django_tables2.utils import A, AttributeDict
+from django_tables2.utils import AttributeDict
 import os
-import warnings
 from .base import Column, library
 
 
@@ -37,7 +34,6 @@ class FileColumn(Column):
         url = None
         if storage:
             # we'll assume value is a `django.db.models.fields.files.FieldFile`
-            fieldfile = value
             if self.verify_exists:
                 exists = storage.exists(value.name)
             url = storage.url(value.name)
@@ -63,7 +59,7 @@ class FileColumn(Column):
             classes.append("missing")
         attrs['class'] = " ".join(classes)
 
-        html ='<{tag} {attrs}>{text}</{tag}>'.format(
+        html = '<{tag} {attrs}>{text}</{tag}>'.format(
             tag=tag,
             attrs=attrs.as_html(),
             text=os.path.basename(value.name))
