@@ -1,8 +1,8 @@
 # coding: utf-8
 from contextlib import contextmanager
 from functools  import wraps
+import six
 import sys
-
 
 
 __all__ = ("contextdecorator", "nested", "RequestFactory")
@@ -106,7 +106,7 @@ def nested(*managers):
             except:
                 exc = sys.exc_info()
         if exc != (None, None, None):
-            raise exc[0], exc[1], exc[2]
+            six.reraise(*exc)
 
 
 try:

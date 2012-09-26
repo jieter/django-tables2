@@ -3,7 +3,10 @@ from attest import assert_hook
 from contextlib import contextmanager
 from django.core.signals import request_started
 from django.db import connections, DEFAULT_DB_ALIAS, reset_queries
-import urlparse
+try:
+    from urllib.parse import urlsplit
+except ImportError:  # Python 2
+    from urlparse import urlsplit
 from . import hacks, utils
 
 
@@ -19,7 +22,7 @@ def redirects(response, url=None, scheme=None, domain=None, port=None,
     assert response.status_code == 302
     if url:
         assert response["Location"] == url
-    parts = urlparse.urlsplit(response["Location"])
+    parts = urlsplit(response["Location"])
     if scheme:
         assert parts.scheme == scheme
     if domain:
