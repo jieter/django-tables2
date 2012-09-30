@@ -117,6 +117,23 @@ general = Tests()
 
 
 @general.test
+def column_render_supports_kwargs():
+    class TestColumn(tables.Column):
+        def render(self, **kwargs):
+            expected = set(("record", "value", "column", "bound_column",
+                           "bound_row", "table"))
+            actual = set(kwargs.keys())
+            assert actual == expected
+            return "success"
+
+    class TestTable(tables.Table):
+        foo = TestColumn()
+
+    table = TestTable([{"foo": "bar"}])
+    assert table.rows[0]["foo"] == "success"
+
+
+@general.test
 def column_header_should_use_titlised_verbose_name():
     class SimpleTable(tables.Table):
         basic = tables.Column()

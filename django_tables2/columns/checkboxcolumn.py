@@ -9,7 +9,7 @@ from .base import Column, library
 @library.register
 class CheckBoxColumn(Column):
     """
-    A subclass of :class:`.Column` that renders as a checkbox form input.
+    A subclass of `.Column` that renders as a checkbox form input.
 
     This column allows a user to *select* a set of rows. The selection
     information can then be used to apply some operation (e.g. "delete") onto
@@ -22,8 +22,8 @@ class CheckBoxColumn(Column):
     This class implements some sensible defaults:
 
     - HTML input's ``name`` attribute is the :term:`column name` (can override
-      via ``attrs`` argument).
-    - ``orderable`` defaults to :const:`False`.
+      via *attrs* argument).
+    - *orderable* defaults to `False`.
 
     .. note::
 
@@ -32,7 +32,7 @@ class CheckBoxColumn(Column):
         implemented. If you want something to actually happen, you'll need to
         implement that yourself.
 
-    In addition to ``attrs`` keys supported by ``Column``, the following are
+    In addition to *attrs* keys supported by `.Column`, the following are
     available:
 
     - *input*     -- ``<input>`` elements in both ``<td>`` and ``<th>``.

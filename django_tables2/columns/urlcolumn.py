@@ -8,26 +8,19 @@ from .linkcolumn import BaseLinkColumn
 @library.register
 class URLColumn(BaseLinkColumn):
     """
-    A subclass of :class:`.BaseLinkColumn` that renders the cell value as a hyperlink.
+    Renders URL values as hyperlinks.
 
-    It's common to have a URL value in a row hyperlinked to other page.
+    Example::
 
-    :param  attrs: a :class:`dict` of HTML attributes that are added to
-                   the rendered ``<a href="...">...</a>`` tag
+        >>> class CompaniesTable(tables.Table):
+        ...     www = tables.URLColumn()
+        ...
+        >>> table = CompaniesTable([{"www": "http://google.com"}])
+        >>> table.rows[0]["www"]
+        u'<a href="http://google.com">http://google.com</a>'
 
-    Example:
-
-    .. code-block:: python
-
-        # models.py
-        class Person(models.Model):
-            name = models.CharField(max_length=200)
-            web =  models.URLField()
-
-        # tables.py
-        class PeopleTable(tables.Table):
-            name = tables.Column()
-            web = tables.URLColumn()
+    Additional attributes for the ``<a>`` tag can be specified via
+    ``attrs['a']``.
 
     """
     def render(self, value):

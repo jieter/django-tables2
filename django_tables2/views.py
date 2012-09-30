@@ -7,22 +7,23 @@ from .config import RequestConfig
 class SingleTableMixin(object):
     """
     Adds a Table object to the context. Typically used with
-    ``TemplateResponseMixin``.
+    `.TemplateResponseMixin`.
 
     :param        table_class: table class
-    :type         table_class: subclass of ``django_tables2.Table``
+    :type         table_class: subclass of `.Table`
     :param         table_data: data used to populate the table
     :type          table_data: any compatible data source
     :param context_table_name: name of the table's template variable (default:
                                "table")
-    :type  context_table_name: ``string``
-    :param   table_pagination: controls table pagination. If a dict, passed as
-                               the ``paginate`` keyword argument to
-                               ``RequestConfig()``. As such, any *non-False*
+    :type  context_table_name: `unicode`
+    :param   table_pagination: controls table pagination. If a `dict`, passed as
+                               the *paginate* keyword argument to
+                               `.RequestConfig`. As such, any non-`False`
                                value enables pagination.
 
-    This mixin plays nice with the Django's ``MultipleObjectMixin`` by using
-    ``get_queryset()`` as a fallback for the table data source.
+    This mixin plays nice with the Django's`.MultipleObjectMixin` by using
+    `.get_queryset`` as a fallback for the table data source.
+
     """
     table_class = None
     table_data = None
@@ -80,7 +81,7 @@ class SingleTableMixin(object):
 
     def get_context_data(self, **kwargs):
         """
-        Overriden version of ``TemplateResponseMixin`` to inject the table into
+        Overriden version of `.TemplateResponseMixin` to inject the table into
         the template's context.
         """
         context = super(SingleTableMixin, self).get_context_data(**kwargs)
@@ -91,5 +92,5 @@ class SingleTableMixin(object):
 
 class SingleTableView(SingleTableMixin, ListView):
     """
-    Generic view that renders a template and passes in a ``Table`` object.
+    Generic view that renders a template and passes in a `.Table` object.
     """

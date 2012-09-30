@@ -1,17 +1,17 @@
 # coding: utf-8
 from django.db import models
 from django.db.models.fields import FieldDoesNotExist
-from .utils import A
+from .utils import A, getargspec
 
 
 class BoundRow(object):
     """
     Represents a *specific* row in a table.
 
-    :class:`.BoundRow` objects are a container that make it easy to access the
+    `.BoundRow` objects are a container that make it easy to access the
     final 'rendered' values for cells in a row. You can simply iterate over a
-    :class:`.BoundRow` object and it will take care to return values rendered
-    using the correct method (e.g. :meth:`.Column.render_FOO`)
+    `.BoundRow` object and it will take care to return values rendered
+    using the correct method (e.g. :ref:`table.render_FOO`)
 
     To access the rendered value of each cell in a row, just iterate over it:
 
@@ -58,10 +58,10 @@ class BoundRow(object):
         ...
         KeyError: 'c'
 
-    :param  table: is the :class:`Table` in which this row exists.
+    :param  table: is the `.Table` in which this row exists.
     :param record: a single record from the :term:`table data` that is used to
-                   populate the row. A record could be a :class:`Model` object,
-                   a :class:`dict`, or something else.
+                   populate the row. A record could be a `~django.db.Model`
+                   object, a `dict`, or something else.
 
     """
     def __init__(self, record, table):
@@ -70,7 +70,7 @@ class BoundRow(object):
 
     @property
     def table(self):
-        """The associated :class:`.Table` object."""
+        """The associated `.Table` object."""
         return self._table
 
     @property
@@ -86,7 +86,7 @@ class BoundRow(object):
         Iterate over the rendered values for cells in the row.
 
         Under the hood this method just makes a call to
-        :meth:`.BoundRow.__getitem__` for each cell.
+        `.BoundRow.__getitem__` for each cell.
         """
         for column, value in self.items():
             # this uses __getitem__, using the name (rather than the accessor)
@@ -124,19 +124,26 @@ class BoundRow(object):
         if value in bound_column.column.empty_values:
             return bound_column.default
 
-        kwargs = {
-            'value':        lambda: value,
-            'record':       lambda: self.record,
-            'column':       lambda: bound_column.column,
-            'bound_column': lambda: bound_column,
-            'bound_row':    lambda: self,
-            'table':        lambda: self._table,
+        available = {
+            'value':        value,
+            'record':       self.record,
+            'column':       bound_column.column,
+            'bound_column': bound_column,
+            'bound_row':    self,
+            'table':        self._table,
         }
+        expected = {}
 
-        expected_kwargs = {}
-        for arg_name in bound_column._render_args:
-            expected_kwargs[arg_name] = kwargs[arg_name]()
-        return bound_column.render(**expected_kwargs)
+        # provide only the arguments expected by `render`
+        argspec = getargspec(bound_column.render)
+        if argspec.keywords:
+            expected = available
+        else:
+            for key, value in available.items():
+                if key in argspec.args[1:]:
+                    expected[key] = value
+
+        return bound_column.render(**expected)
 
     def __contains__(self, item):
         """Check by both row object and column name."""
@@ -149,7 +156,7 @@ class BoundRow(object):
         """
         Returns iterator yielding ``(bound_column, cell)`` pairs.
 
-        ``cell`` is ``row[name]`` -- the rendered unicode value that should be
+        *cell* is ``row[name]`` -- the rendered unicode value that should be
         ``rendered within ``<td>``.
         """
         for column in self.table.columns:
@@ -158,12 +165,12 @@ class BoundRow(object):
 
 class BoundRows(object):
     """
-    Container for spawning :class:`.BoundRow` objects.
+    Container for spawning `.BoundRow` objects.
 
     :param  data: iterable of records
     :param table: the table in which the rows exist
 
-    This is used for :attr:`.Table.rows`.
+    This is used for `.Table.rows`.
     """
     def __init__(self, data, table):
         self.data = data
@@ -178,8 +185,8 @@ class BoundRows(object):
 
     def __getitem__(self, key):
         """
-        Slicing returns a new :class:`.BoundRows` instance, indexing returns
-        a single :class:`.BoundRow` instance.
+        Slicing returns a new `.BoundRows` instance, indexing returns a single
+        `.BoundRow` instance.
         """
         container = BoundRows if isinstance(key, slice) else BoundRow
         return container(self.data[key], table=self.table)

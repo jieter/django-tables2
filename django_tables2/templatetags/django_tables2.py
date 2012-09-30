@@ -21,7 +21,7 @@ kwarg_re = re.compile(r"(?:(.+)=)?(.+)")
 
 def token_kwargs(bits, parser):
     """
-    Based on Django's ``django.template.defaulttags.token_kwargs``, but with a
+    Based on Django's `~django.template.defaulttags.token_kwargs`, but with a
     few changes:
 
     - No legacy mode.
@@ -70,7 +70,7 @@ def set_url_param(parser, token):
         {% set_url_param name="help" age=20 %}
         ?name=help&age=20
 
-    **Deprecated** as of 0.7.0, use ``querystring``.
+    **Deprecated** as of 0.7.0, use `querystring`.
     """
     bits = token.contents.split()
     qschanges = {}
@@ -207,7 +207,7 @@ def render_table(parser, token):
     """
     Render a HTML table.
 
-    The tag can be given either a ``Table`` object, or a queryset. An optional
+    The tag can be given either a `.Table` object, or a queryset. An optional
     second argument can specify the template to use.
 
     Example::
@@ -216,7 +216,7 @@ def render_table(parser, token):
         {% render_table table "custom.html" %}
         {% render_table user_queryset %}
 
-    When given a queryset, a ``Table`` class is generated dynamically as
+    When given a queryset, a `.Table` class is generated dynamically as
     follows::
 
         class OnTheFlyTable(tables.Table):
@@ -224,10 +224,10 @@ def render_table(parser, token):
                 model = queryset.model
                 attrs = {"class": "paleblue"}
 
-    For configuration beyond this, a ``Table`` class must be manually defined,
+    For configuration beyond this, a `.Table` class must be manually defined,
     instantiated, and passed to this tag.
 
-    The context should include a ``request`` variable containing the current
+    The context should include a *request* variable containing the current
     request. This allows pagination URLs to be created without clobbering the
     existing querystring.
     """
@@ -266,8 +266,9 @@ def title(value):
     """
     A slightly better title template filter.
 
-    Same as Django's builtin ``title`` filter, but operates on individual words
-    and leaves words unchanged if they already have a capital letter.
+    Same as Django's builtin `~django.template.defaultfilters.title` filter,
+    but operates on individual words and leaves words unchanged if they already
+    have a capital letter.
     """
     title_word = lambda w: w if RE_UPPERCASE.search(w) else old_title(w)
     return re.sub('(\S+)', lambda m: title_word(m.group(0)), value)

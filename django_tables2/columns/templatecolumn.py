@@ -8,7 +8,7 @@ from .base import Column, library
 @library.register
 class TemplateColumn(Column):
     """
-    A subclass of :class:`.Column` that renders some template code to use as
+    A subclass of `.Column` that renders some template code to use as
     the cell value.
 
     :type  template_code: `unicode`
@@ -16,12 +16,12 @@ class TemplateColumn(Column):
     :type  template_name: `unicode`
     :param template_name: the name of the template to render
 
-    A :class:`django.templates.Template` object is created from the
+    A `~django.template.Template` object is created from the
     *template_code* or *template_name* and rendered with a context containing:
 
-    - `record` -- data record for the current row
-    - `value` -- value from `record` that corresponds to the current column
-    - `default` -- appropriate default value to use as fallback
+    - *record* -- data record for the current row
+    - *value* -- value from `record` that corresponds to the current column
+    - *default* -- appropriate default value to use as fallback
 
     Example:
 
@@ -37,7 +37,7 @@ class TemplateColumn(Column):
     .. important::
 
         In order to use template tags or filters that require a
-        ``RequestContext``, the table **must** be rendered via
+        `~django.template.RequestContext`, the table **must** be rendered via
         :ref:`{% render_table %} <template-tags.render_table>`.
     """
     empty_values = ()

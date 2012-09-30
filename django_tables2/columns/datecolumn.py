@@ -12,10 +12,10 @@ class DateColumn(TemplateColumn):
 
     :param format: format string in same format as Django's ``date`` template
                    filter (optional)
-    :type  format: ``unicode``
-    :param  short: if ``format`` is not specified, use Django's
+    :type  format: `unicode`
+    :param  short: if *format* is not specified, use Django's
                    ``SHORT_DATE_FORMAT`` setting, otherwise use ``DATE_FORMAT``
-    :type   short: ``bool``
+    :type   short: `bool`
     """
     def __init__(self, format=None, short=True, *args, **kwargs):  # pylint: disable=W0622
         if format is None:

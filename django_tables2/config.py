@@ -6,20 +6,22 @@ class RequestConfig(object):
     """
     A configurator that uses request data to setup a table.
 
-    :type  paginate: ``dict`` or ``bool``
+    :type  paginate: `dict` or `bool`
     :param paginate: indicates whether to paginate, and if so, what default
-                     values to use. If the value evaluates to ``False``,
-                     pagination will be disabled. A ``dict`` can be used to
+                     values to use. If the value evaluates to `False`,
+                     pagination will be disabled. A `dict` can be used to
                      specify default values for the call to
-                     :meth:`.tables.Table.paginate` (e.g. to define a default
-                     ``per_page`` value).
+                     `~.tables.Table.paginate` (e.g. to define a default
+                     *per_page* value).
 
-                     A special ``silent`` item can be used to enable automatic
+                     A special *silent* item can be used to enable automatic
                      handling of pagination exceptions using the following
                      algorithm:
 
-                     - If ``PageNotAnInteger`` is raised, show the first page.
-                     - If ``EmptyPage`` is raised, show the last page.
+                     - If `~django.core.paginator.PageNotAnInteger`` is raised,
+                       show the first page.
+                     - If `~django.core.paginator.EmptyPage` is raised, show
+                       the last page.
 
     """
     def __init__(self, request, paginate=True):

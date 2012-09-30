@@ -1,20 +1,22 @@
 # coding: utf-8
 from __future__ import absolute_import, unicode_literals
 from django.core.handlers.wsgi import WSGIRequest
+from django.utils.functional import curry
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.test.client import FakePayload
-from itertools import chain
+from itertools import chain, ifilter
+import inspect
 from StringIO import StringIO
 import warnings
 
 
 class Sequence(list):
     """
-    Represents a column sequence, e.g. ("first_name", "...", "last_name")
+    Represents a column sequence, e.g. ``("first_name", "...", "last_name")``
 
-    This is used to represent ``Table.Meta.sequence`` or the Table
-    constructors's ``sequence`` keyword argument.
+    This is used to represent `.Table.Meta.sequence` or the `.Table`
+    constructors's *sequence* keyword argument.
 
     The sequence must be a list of column names and is used to specify the
     order of the columns on a table. Optionally a "..." item can be inserted,
@@ -23,10 +25,10 @@ class Sequence(list):
     """
     def expand(self, columns):
         """
-        Expands the "..." item in the sequence into the appropriate column
+        Expands the ``"..."`` item in the sequence into the appropriate column
         names that should be placed there.
 
-        :raises: ``ValueError`` if the sequence is invalid for the columns.
+        :raises: `ValueError` if the sequence is invalid for the columns.
         """
         ellipses = self.count("...")
         if ellipses > 1:
@@ -52,8 +54,8 @@ class Sequence(list):
 
 class OrderBy(str):
     """
-    A single item in an :class:`.OrderByTuple` object. This class is
-    essentially just a :class:`str` with some extra properties.
+    A single item in an `.OrderByTuple` object. This class is
+    essentially just a `str` with some extra properties.
     """
     @property
     def bare(self):
@@ -65,14 +67,14 @@ class OrderBy(str):
 
         Example: ``age`` is the bare form of ``-age``
 
-        :rtype: :class:`.OrderBy` object
+        :rtype: `.OrderBy` object
         """
         return OrderBy(self[1:]) if self[:1] == '-' else self
 
     @property
     def opposite(self):
         """
-        Return an :class:`.OrderBy` object with an opposite sort influence.
+        Return an `.OrderBy` object with an opposite sort influence.
 
         Example:
 
@@ -82,35 +84,35 @@ class OrderBy(str):
             >>> order_by.opposite
             '-name'
 
-        :rtype: :class:`.OrderBy` object
+        :rtype: `.OrderBy` object
         """
         return OrderBy(self[1:]) if self.is_descending else OrderBy('-' + self)
 
     @property
     def is_descending(self):
         """
-        Return :const:`True` if this object induces *descending* ordering
+        Return `True` if this object induces *descending* ordering
 
-        :rtype: :class:`bool`
+        :rtype: `bool`
         """
         return self.startswith('-')
 
     @property
     def is_ascending(self):
         """
-        Return :const:`True` if this object induces *ascending* ordering.
+        Return `True` if this object induces *ascending* ordering.
 
-        :returns: :class:`bool`
+        :returns: `bool`
         """
         return not self.is_descending
 
 
 class OrderByTuple(tuple):
-    """Stores ordering as (as :class:`.OrderBy` objects). The
-    :attr:`django_tables2.tables.Table.order_by` property is always converted
-    to an :class:`.OrderByTuple` object.
+    """Stores ordering as (as `.OrderBy` objects). The
+    `~django_tables2.tables.Table.order_by` property is always converted
+    to an `.OrderByTuple` object.
 
-    This class is essentially just a :class:`tuple` with some useful extras.
+    This class is essentially just a `tuple` with some useful extras.
 
     Example:
 
@@ -156,7 +158,7 @@ class OrderByTuple(tuple):
             True
 
         :param name: The name of a column. (optionally prefixed)
-        :returns: :class:`bool`
+        :returns: `bool`
         """
         name = OrderBy(name).bare
         for order_by in self:
@@ -166,7 +168,7 @@ class OrderByTuple(tuple):
 
     def __getitem__(self, index):
         """
-        Allows an :class:`.OrderBy` object to be extracted via named or integer
+        Allows an `.OrderBy` object to be extracted via named or integer
         based indexing.
 
         When using named based indexing, it's fine to used a prefixed named.
@@ -181,7 +183,7 @@ class OrderByTuple(tuple):
             >>> x['-age']
             '-age'
 
-        :rtype: :class:`.OrderBy` object
+        :rtype: `.OrderBy` object
         """
         if isinstance(index, basestring):
             for order_by in self:
@@ -193,8 +195,8 @@ class OrderByTuple(tuple):
     @property
     def cmp(self):
         """
-        Return a function for use with :meth:`list.sort()` that implements this
-        object's ordering. This is used to sort non-:class:`QuerySet` based
+        Return a function for use with `list.sort` that implements this
+        object's ordering. This is used to sort non-`.QuerySet` based
         :term:`table data`.
 
         :rtype: function
@@ -232,7 +234,7 @@ class OrderByTuple(tuple):
     @property
     def opposite(self):
         """
-        Return version with each :class:`OrderBy` prefix toggled.
+        Return version with each `.OrderBy` prefix toggled.
 
         Example:
 
@@ -248,7 +250,7 @@ class OrderByTuple(tuple):
 class Accessor(str):
     """
     A string describing a path from one object to another via attribute/index
-    accesses. For convenience, the class has an alias ``A`` to allow for more concise code.
+    accesses. For convenience, the class has an alias `.A` to allow for more concise code.
 
     Relations are separated by a ``.`` character.
     """
@@ -263,24 +265,25 @@ class Accessor(str):
 
         .. code-block:: python
 
-            >>> x = Accessor('__len__`')
+            >>> x = Accessor('__len__')
             >>> x.resolve('brad')
             4
             >>> x = Accessor('0.upper')
             >>> x.resolve('brad')
             'B'
 
-        :type  context: :class:`object`
+        :type  context: `object`
         :param context: The root/first object to traverse.
         :type     safe: `bool`
-        :param    safe: Don't call anything with `alters_data = True`
+        :param    safe: Don't call anything with ``alters_data = True``
         :type    quiet: bool
         :param   quiet: Smother all exceptions and instead return `None`
         :returns: target object
-        :raises: anything `getattr(a, "b")` raises, e.g. `TypeError`,
-                 `AttributeError`, `KeyError`, `ValueError`
+        :raises: anything ``getattr(a, "b")`` raises, e.g. `TypeError`,
+                 `AttributeError`, `KeyError`, `ValueError` (unless *quiet* ==
+                 `True`)
 
-        :meth:`~.Accessor.resolve` attempts lookups in the following order:
+        `~.Accessor.resolve` attempts lookups in the following order:
 
         - dictionary (e.g. ``obj[related]``)
         - attribute (e.g. ``obj.related``)
@@ -334,11 +337,11 @@ A = Accessor  # alias
 
 class AttributeDict(dict):
     """
-    A wrapper around :class:`dict` that knows how to render itself as HTML
+    A wrapper around `dict` that knows how to render itself as HTML
     style tag attributes.
 
     The returned string is marked safe, so it can be used safely in a template.
-    See :meth:`.as_html` for a usage example.
+    See `.as_html` for a usage example.
     """
     def as_html(self):
         """
@@ -353,7 +356,7 @@ class AttributeDict(dict):
             >>> attrs.as_html()
             'class="mytable" id="someid"'
 
-        :rtype: :class:`~django.utils.safestring.SafeUnicode` object
+        :rtype: `~django.utils.safestring.SafeUnicode` object
 
         """
         return mark_safe(' '.join(['%s="%s"' % (k, escape(v))
@@ -374,7 +377,7 @@ def segment(sequence, aliases):
     """
     Translates a flat sequence of items into a set of prefixed aliases.
 
-    This allows the value set by `QuerySet.order_by()` to be translated into
+    This allows the value set by `.QuerySet.order_by` to be translated into
     a list of columns that would have the same result. These are called
     "order by aliases" which are optionally prefixed column names.
 
@@ -417,6 +420,8 @@ class cached_property(object):  # pylint: disable=C0103
     Taken directly from Django 1.4.
     """
     def __init__(self, func):
+        from functools import wraps
+        wraps(func)(self)
         self.func = func
 
     def __get__(self, instance, cls):
@@ -424,12 +429,17 @@ class cached_property(object):  # pylint: disable=C0103
         return res
 
 
+funcs = ifilter(curry(hasattr, inspect), ('getfullargspec', 'getargspec'))
+getargspec = getattr(inspect, next(funcs))
+del funcs
+
+
 def build_request(uri='/'):
     """
     Return a fresh HTTP GET / request.
 
     This is essentially a heavily cutdown version of Django 1.3's
-    ``django.test.client.RequestFactory``.
+    `~django.test.client.RequestFactory`.
     """
     path, _, querystring = uri.partition('?')
     return WSGIRequest({

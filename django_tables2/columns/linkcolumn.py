@@ -12,7 +12,7 @@ class BaseLinkColumn(Column):
     """
     The base for other columns that render links.
 
-    Adds support for an ``a`` key in ``attrs`` which is added to the rendered
+    Adds support for an ``a`` key in *attrs** which is added to the rendered
     ``<a href="...">`` tag.
     """
     def __init__(self, attrs=None, *args, **kwargs):
@@ -53,22 +53,22 @@ class LinkColumn(BaseLinkColumn):
     dedicated to that record.
 
     The first arguments are identical to that of
-    :func:`django.core.urlresolvers.reverse` and allows an internal URL to be
-    described. The last argument ``attrs`` allows custom HTML attributes to
+    `~django.core.urlresolvers.reverse` and allows an internal URL to be
+    described. The last argument *attrs* allows custom HTML attributes to
     be added to the rendered ``<a href="...">`` tag.
 
-    :param    viewname: See :func:`django.core.urlresolvers.reverse`.
-    :param     urlconf: See :func:`django.core.urlresolvers.reverse`.
-    :param        args: See :func:`django.core.urlresolvers.reverse`. **
-    :param      kwargs: See :func:`django.core.urlresolvers.reverse`. **
-    :param current_app: See :func:`django.core.urlresolvers.reverse`.
-    :param       attrs: a :class:`dict` of HTML attributes that are added to
+    :param    viewname: See `~django.core.urlresolvers.reverse`.
+    :param     urlconf: See `~django.core.urlresolvers.reverse`.
+    :param        args: See `~django.core.urlresolvers.reverse`. **
+    :param      kwargs: See `~django.core.urlresolvers.reverse`. **
+    :param current_app: See `~django.core.urlresolvers.reverse`.
+    :param       attrs: a `dict` of HTML attributes that are added to
                         the rendered ``<input type="checkbox" .../>`` tag
 
     ** In order to create a link to a URL that relies on information in the
-    current row, :class:`.Accessor` objects can be used in the ``args`` or
-    ``kwargs`` arguments. The accessor will be resolved using the row's record
-    before ``reverse()`` is called.
+    current row, `.Accessor` objects can be used in the *args* or
+    *kwargs* arguments. The accessor will be resolved using the row's record
+    before `~django.core.urlresolvers.reverse` is called.
 
     Example:
 
@@ -89,7 +89,7 @@ class LinkColumn(BaseLinkColumn):
         class PeopleTable(tables.Table):
             name = tables.LinkColumn('people_detail', args=[A('pk')])
 
-    In addition to ``attrs`` keys supported by ``Column``, the following are
+    In addition to *attrs* keys supported by `.Column`, the following are
     available:
 
     - *a* -- ``<a>`` elements in ``<td>``.

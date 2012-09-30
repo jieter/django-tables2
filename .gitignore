@@ -14,4 +14,4 @@
 /docs/_build/
 /example/database.sqlite
 /example/.env
-/pylint_*
+/report.pylint

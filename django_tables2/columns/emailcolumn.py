@@ -8,11 +8,11 @@ from .linkcolumn import BaseLinkColumn
 @library.register
 class EmailColumn(BaseLinkColumn):
     """
-    A subclass of :class:`.BaseLinkColumn` that renders the cell value as a hyperlink.
+    A subclass of `.BaseLinkColumn` that renders the cell value as a hyperlink.
 
     It's common to have a email value in a row hyperlinked to other page.
 
-    :param  attrs: a :class:`dict` of HTML attributes that are added to
+    :param  attrs: a `dict` of HTML attributes that are added to
                    the rendered ``<a href="...">...</a>`` tag
 
     Example:

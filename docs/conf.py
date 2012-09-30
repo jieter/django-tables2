@@ -19,6 +19,9 @@ with open('../django_tables2/__init__.py', 'rb') as f:
 version = release.rpartition('.')[0]
 
 
+default_role = "py:obj"
+
+
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.intersphinx',

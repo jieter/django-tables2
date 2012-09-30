@@ -12,15 +12,15 @@ class BooleanColumn(Column):
     """
     A column suitable for rendering boolean data.
 
-    :param  null: is ``None`` different from ``False``?
-    :type   null: bool
+    :param  null: is `None` different from `False`?
+    :type   null: `bool`
     :param yesno: text to display for True/False values, comma separated
     :type  yesno: iterable or string
 
     Rendered values are wrapped in a ``<span>`` to allow customisation by
     themes. By default the span is given the class ``true``, ``false``.
 
-    In addition to ``attrs`` keys supported by ``Column``, the following are
+    In addition to *attrs* keys supported by `.Column`, the following are
     available:
 
     - *span* -- adds attributes to the <span> tag

@@ -2,18 +2,11 @@
 from __future__ import absolute_import, unicode_literals
 from django.db.models.fields import FieldDoesNotExist
 from django.utils.datastructures import SortedDict
-from django.utils.functional import curry
 from django.utils.safestring import SafeData
 from django_tables2.templatetags.django_tables2 import title
 from django_tables2.utils import A, AttributeDict, OrderBy, OrderByTuple
 from itertools import ifilter, islice
 import warnings
-import inspect
-
-
-funcs = ifilter(curry(hasattr, inspect), ('getfullargspec', 'getargspec'))
-getargspec = getattr(inspect, next(funcs))
-del funcs
 
 
 class Library(object):
@@ -31,7 +24,7 @@ class Library(object):
         """
         Return a column object suitable for model field.
 
-        :returns: column object of ``None``
+        :returns: column object of `None`
         """
         # iterate in reverse order as columns are registered in order
         # of least to most specialised (i.e. Column is registered
@@ -57,50 +50,80 @@ class Column(object):  # pylint: disable=R0902
     """
     Represents a single column of a table.
 
-    :class:`Column` objects control the way a column (including the cells that
+    `.Column` objects control the way a column (including the cells that
     fall within it) are rendered.
 
-    :param verbose_name: A human readable version of the column name. This
-                         should not be title case. It is converted to title
-                         case for use in column headers.
-    :type  verbose_name: ``unicode``
-    :type      accessor: :class:`basestring` or :class:`~.utils.Accessor`
-    :param     accessor: An accessor that describes how to extract values for
-                         this column from the :term:`table data`.
-    :param      default: The default value for the column. This can be a value
-                         or a callable object [1]_. If an object in the data
-                         provides :const:`None` for a column, the default will
-                         be used instead.
 
-                         The default value may affect ordering, depending on
-                         the type of data the table is using. The only case
-                         where ordering is not affected is when a
-                         :class:`QuerySet` is used as the table data (since
-                         sorting is performed by the database).
+    .. attribute:: attrs
 
-                         .. [1] The provided callable object must not expect to
-                                receive any arguments.
-    :param    order_by: Allows one or more accessors to be used for ordering
-                        rather than ``accessor``.
-    :type     order_by: :class:`unicode`, :class:`tuple`, :class:`~utils.Accessor`
-    :type      visible: :class:`bool`
-    :param     visible: If :const:`False`, this column will not be in HTML from
-                        output generators (e.g. :meth:`as_html` or
-                        ``{% render_table %}``).
+        HTML attributes for elements that make up the column.
 
-                        When a field is not visible, it is removed from the
-                        table's :attr:`~Column.columns` iterable.
-    :type    orderable: :class:`bool`
-    :param   orderable: If :const:`False`, this column will not be allowed to
-                        influence row ordering/sorting.
-    :type        attrs: :class:`dict` object
-    :param       attrs: HTML attributes to be added to components in the column
+        :type: `dict`
 
-    Supported ``attrs`` keys are:
+        This API is extended by subclasses to allow arbitrary HTML attributes
+        to be added to the output.
 
-    - *th* -- ``<th>`` element in header
-    - *td* -- ``<td>`` element in body
-    - *cell* -- fall back for ``<th>`` and ``<td>`` should they not be specified
+        By default `.Column` supports:
+
+        - *th* -- ``table/thead/th`` elements
+        - *td* -- ``table/tbody/tr/td`` elements
+        - *cell* -- fallback if *th* or *td* isn't defined
+
+
+    .. attribute:: accessor
+
+        An accessor that describes how to extract values for this column from
+        the :term:`table data`.
+
+        :type: `basestring` or `~.Accessor`
+
+
+    .. attribute:: default
+
+        The default value for the column. This can be a value or a callable
+        object [1]_. If an object in the data provides `None` for a column, the
+        default will be used instead.
+
+        The default value may affect ordering, depending on the type of data
+        the table is using. The only case where ordering is not affected is
+        when a `.QuerySet` is used as the table data (since sorting is
+        performed by the database).
+
+        .. [1] The provided callable object must not expect to receive any
+               arguments.
+
+
+    .. attribute:: order_by
+
+        Allows one or more accessors to be used for ordering rather than
+        *accessor*.
+
+        :type: `unicode`, `tuple`, `~.Accessor`
+
+
+    .. attribute:: orderable
+
+        If `False`, this column will not be allowed to influence row
+        ordering/sorting.
+
+        :type: `bool`
+
+
+    .. attribute:: verbose_name
+
+        A human readable version of the column name.
+
+        :type: `unicode`
+
+        This should not defined in title case, but rather natural case. It is
+        converted to title case for use in column headers.
+
+
+    .. attribute:: visible
+
+        If `True`, this column will be included in the HTML output.
+
+        :type: `bool`
     """
     #: Tracks each time a Column instance is created. Used to retain order.
     creation_counter = 0
@@ -146,19 +169,20 @@ class Column(object):  # pylint: disable=R0902
         """
         The value used for the column heading (e.g. inside the ``<th>`` tag).
 
-        By default this titlises the column's :attr:`verbose_name`. If
-        ``verbose_name`` is an instance of ``SafeData``, it's used unmodified.
+        By default this titlises the `~.Column.verbose_name`. If
+        `~.Column.verbose_name` is an instance of `~.safestring.SafeData`, it's
+        used unmodified.
 
-        :returns: ``unicode`` or ``None``
+        :returns: `unicode` or `None`
 
         .. note::
 
             This property typically isn't accessed directly when a table is
-            rendered. Instead, :attr:`.BoundColumn.header` is accessed which
-            in turn accesses this property. This allows the header to fallback
-            to the column name (it's only available on a :class:`.BoundColumn`
-            object hence accessing that first) when this property doesn't
-            return something useful.
+            rendered. Instead, `.BoundColumn.header` is accessed which in turn
+            accesses this property. This allows the header to fallback to the
+            column name (it's only available on a `.BoundColumn` object hence
+            accessing that first) when this property doesn't return something
+            useful.
         """
         if self.verbose_name:
             if isinstance(self.verbose_name, SafeData):
@@ -171,22 +195,22 @@ class Column(object):  # pylint: disable=R0902
         """
         Returns the content for a specific cell.
 
-        This method can be overridden by :meth:`render_FOO` methods on the
-        table or by subclassing :class:`Column`.
+        This method can be overridden by :ref:`table.render_FOO` methods on the
+        table or by subclassing `.Column`.
 
         :returns: `unicode`
 
-        If the value for this cell is in `self.empty_values`, this method is
+        If the value for this cell is in `.empty_values`, this method is
         skipped and an appropriate default value is rendered instead.
-        Subclasses should set `empty_values` to `()` if they want to handle
-        all values in `render`.
+        Subclasses should set `.empty_values` to ``()`` if they want to handle
+        all values in `.render`.
         """
         return value
 
     @property
     def sortable(self):
         """
-        *deprecated* -- use `orderable` instead.
+        *deprecated* -- use `.orderable` instead.
         """
         warnings.warn('`sortable` is deprecated, use `orderable` instead.',
                       DeprecationWarning)
@@ -195,14 +219,14 @@ class Column(object):  # pylint: disable=R0902
     @classmethod
     def from_field(cls, field):
         """
-        Return a specialised column for the model field or ``None``.
+        Return a specialised column for the model field or `None`.
 
         :param field: the field that needs a suitable column
         :type  field: model field instance
-        :returns: Column object or ``None``
+        :returns: `.Column` object or `None`
 
         If the column isn't specialised for the given model field, it should
-        return ``None``. This gives other columns the opportunity to do better.
+        return `None`. This gives other columns the opportunity to do better.
 
         If the column is specialised, it should return an instance of itself
         that's configured appropriately for the field.
@@ -215,22 +239,21 @@ class Column(object):  # pylint: disable=R0902
 
 class BoundColumn(object):
     """
-    A *run-time* version of :class:`.Column`. The difference between
-    ``BoundColumn`` and ``Column``, is that ``BoundColumn`` objects include the
-    relationship between a ``Column`` and a :class:`.Table`. In practice, this
-    means that a ``BoundColumn`` knows the *"variable name"* given to the
-    ``Column`` when it was declared on the ``Table``.
+    A *run-time* version of `.Column`. The difference between
+    `.BoundColumn` and `.Column`, is that `.BoundColumn` objects include the
+    relationship between a `.Column` and a `.Table`. In practice, this
+    means that a `.BoundColumn` knows the *"variable name"* given to the
+    `.Column` when it was declared on the `.Table`.
 
-    For convenience, all :class:`.Column` properties are available from this
-    class.
+    For convenience, all `.Column` properties are available from thisclass.
 
-    :type   table: :class:`.Table` object
+    :type   table: `.Table` object
     :param  table: the table in which this column exists
-    :type  column: :class:`.Column` object
+    :type  column: `.Column` object
     :param column: the type of column
-    :type    name: ``basestring`` object
+    :type    name: `basestring` object
     :param   name: the variable name of the column used to when defining the
-                   :class:`.Table`. In this example the name is ``age``:
+                   `.Table`. In this example the name is ``age``:
 
                        .. code-block:: python
 
@@ -257,7 +280,7 @@ class BoundColumn(object):
     @property
     def attrs(self):
         """
-        Proxy to ``Column.attrs`` but injects some values of our own.
+        Proxy to `.Column.attrs` but injects some values of our own.
 
         A ``th`` and ``td`` are guaranteed to be defined (irrespective of
         what's actually defined in the column attrs. This makes writing
@@ -319,10 +342,10 @@ class BoundColumn(object):
     @property
     def order_by(self):
         """
-        Returns an :class:`OrderByTuple` of appropriately prefixed data source
+        Returns an `.OrderByTuple` of appropriately prefixed data source
         keys used to sort this column.
 
-        See :meth:`.order_by_alias` for details.
+        See `.order_by_alias` for details.
         """
         if self.column.order_by is not None:
             order_by = self.column.order_by
@@ -334,13 +357,13 @@ class BoundColumn(object):
     @property
     def order_by_alias(self):
         """
-        Returns an :class:`OrderBy` describing the current state of ordering
-        for this column.
+        Returns an `OrderBy` describing the current state of ordering for this
+        column.
 
-        The following attempts to explain the difference between ``order_by``
-        and ``order_by_alias``.
+        The following attempts to explain the difference between `order_by`
+        and `.order_by_alias`.
 
-        ``order_by_alias`` returns and ``OrderBy`` instance that's based on
+        `.order_by_alias` returns and `.OrderBy` instance that's based on
         the *name* of the column, rather than the keys used to order the table
         data. Understanding the difference is essential.
 
@@ -365,7 +388,7 @@ class BoundColumn(object):
             >>> table.columns["name"].order_by
             ("-first_name", "-last_name")
 
-        The ``OrderBy`` returned has been patched to include an extra attribute
+        The `OrderBy` returned has been patched to include an extra attribute
         ``next``, which returns a version of the alias that would be
         transitioned to if the user toggles sorting on this column, e.g.::
 
@@ -402,7 +425,7 @@ class BoundColumn(object):
     @property
     def orderable(self):
         """
-        Return a ``bool`` depending on whether this column supports ordering.
+        Return a `bool` depending on whether this column supports ordering.
         """
         if self.column.orderable is not None:
             return self.column.orderable
@@ -414,14 +437,14 @@ class BoundColumn(object):
         Return the verbose name for this column, or fallback to prettified
         column name.
 
-        If the table is using queryset data, then use the corresponding
-        model field's ``verbose_name``. If it's traversing a relationship,
+        If the table is using queryset data, then use the corresponding model
+        field's `~.db.Field.verbose_name`. If it's traversing a relationship,
         then get the last field in the accessor (i.e. stop when the
         relationship turns from ORM relationships to object attributes [e.g.
         person.upper should stop at person]).
 
-        If the model field's ``verbose_name`` is a ``SafeData``, it's used
-        unmodified.
+        If the model field's `~.db.Field.verbose_name` is a
+        `~.safestring.SafeData`, it's used unmodified.
         """
         # Favor an explicit defined verbose_name
         if self.column.verbose_name:
@@ -452,44 +475,37 @@ class BoundColumn(object):
     @property
     def visible(self):
         """
-        Returns a :class:`bool` depending on whether this column is visible.
+        Returns a `bool` depending on whether this column is visible.
         """
         return self.column.visible
 
 
 class BoundColumns(object):
     """
-    Container for spawning :class:`.BoundColumn` objects.
+    Container for spawning `.BoundColumn` objects.
 
-    This is bound to a table and provides its :attr:`.Table.columns` property.
+    This is bound to a table and provides its `.Table.columns` property.
     It provides access to those columns in different ways (iterator,
     item-based, filtered and unfiltered etc), stuff that would not be possible
     with a simple iterator in the table class.
 
-    A ``BoundColumns`` object is a container for holding
-    ``BoundColumn`` objects. It provides methods that make accessing
-    columns easier than if they were stored in a ``list`` or
-    ``dict``. ``Columns`` has a similar API to a ``dict`` (it
-    actually uses a ``SortedDict`` interally).
+    A `BoundColumns` object is a container for holding `BoundColumn` objects.
+    It provides methods that make accessing columns easier than if they were
+    stored in a `list` or `dict`. `Columns` has a similar API to a `dict` (it
+    actually uses a `~django.utils.datastructures.SortedDict` interally).
 
     At the moment you'll only come across this class when you access a
-    :attr:`.Table.columns` property.
+    `.Table.columns` property.
 
-    :type  table: :class:`.Table` object
+    :type  table: `.Table` object
     :param table: the table containing the columns
     """
     def __init__(self, table):
         self.table = table
         self.columns = SortedDict()
-        for name, column in self.table.base_columns.iteritems():
-            self.columns[name] = BoundColumn(self.table, column, name)
-
-        # Prepare each column's ``render`` function and its expected argument
-        # so they can be easily called when each row is iterated.
-        for name, bound_column in self.iteritems():
-            bound_column.render = getattr(self.table, 'render_' + bound_column.name,
-                                          bound_column.column.render)
-            bound_column._render_args = getargspec(bound_column.render).args[1:]
+        for name, column in table.base_columns.iteritems():
+            self.columns[name] = bc = BoundColumn(table, column, name)
+            bc.render = getattr(table, 'render_' + name, column.render)
 
     def iternames(self):
         return (name for name, column in self.iteritems())
@@ -499,7 +515,7 @@ class BoundColumns(object):
 
     def iterall(self):
         """
-        Return an iterator that exposes all :class:`.BoundColumn` objects,
+        Return an iterator that exposes all `.BoundColumn` objects,
         regardless of visiblity or sortability.
         """
         return (column for name, column in self.iteritems())
@@ -510,11 +526,11 @@ class BoundColumns(object):
     def iteritems(self):
         """
         Return an iterator of ``(name, column)`` pairs (where ``column`` is a
-        :class:`.BoundColumn` object).
+        `BoundColumn`).
 
         This method is the mechanism for retrieving columns that takes into
         consideration all of the ordering and filtering modifiers that a table
-        supports (e.g. ``exclude`` and ``sequence``).
+        supports (e.g. `~Table.Meta.exclude` and `~Table.Meta.sequence`).
         """
         for name in self.table.sequence:
             if name not in self.table.exclude:
@@ -525,7 +541,7 @@ class BoundColumns(object):
 
     def iterorderable(self):
         """
-        Same as :meth:`.BoundColumns.all` but only returns orderable columns.
+        Same as `BoundColumns.all` but only returns orderable columns.
 
         This is useful in templates, where iterating over the full
         set and checking ``{% if column.sortable %}`` can be problematic in
@@ -549,8 +565,8 @@ class BoundColumns(object):
 
     def itervisible(self):
         """
-        Same as :meth:`.iterorderable` but only returns visible
-        :class:`.BoundColumn` objects.
+        Same as `.iterorderable` but only returns visible `.BoundColumn`
+        objects.
 
         This is geared towards table rendering.
         """
@@ -561,16 +577,15 @@ class BoundColumns(object):
 
     def __iter__(self):
         """
-        Convenience API, alias of :meth:`.itervisible`.
+        Convenience API, alias of `.itervisible`.
         """
         return self.itervisible()
 
     def __contains__(self, item):
         """
-        Check if a column is contained within a :class:`.Columns` object.
+        Check if a column is contained within a `Columns` object.
 
-        *item* can either be a :class:`.BoundColumn` object, or the name of a
-        column.
+        *item* can either be a `BoundColumn` object, or the name of a column.
         """
         if isinstance(item, basestring):
             return item in self.iternames()
@@ -587,7 +602,7 @@ class BoundColumns(object):
 
     def __getitem__(self, index):
         """
-        Retrieve a specific :class:`BoundColumn` object.
+        Retrieve a specific `BoundColumn` object.
 
         *index* can either be 0-indexed or the name of a column
 

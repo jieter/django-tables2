@@ -10,19 +10,25 @@ from .base import Column, library
 @library.register
 class FileColumn(Column):
     """
-    Renders a FieldFile (or other storage backend File) as a link.
+    Attempts to render `.FieldFile` (or other storage backend `.File`) as a
+    hyperlink.
 
-    In addition to ``attrs`` keys supported by ``Column``, the following are
-    available:
+    When the file is accessible via a URL, the file is rendered as a
+    hyperlink. The `.basename` is used as the text::
+
+        <a href="/media/path/to/receipt.pdf" title="path/to/receipt.pdf">receipt.pdf</a>
+
+    When unable to determine the URL, a ``span`` is used instead::
+
+        <span title="path/to/receipt.pdf">receipt.pdf</span>
+
+    `.Column.attrs` keys ``a`` and ``span`` can be used to add additional attributes.
 
     :type  verify_exists: bool
-    :param verify_exists: *try* to determine if the file actually exists.
+    :param verify_exists: attempt to determine if the file exists
 
-    - *a* -- ``<a>`` elements in ``<td>``
-    - *span* -- ``<span>`` elements in ``<td>`` (missing files)
-
-    if *verify_exists*, the HTML class ``exists`` or ``missing`` is added to
-    the element.
+    If *verify_exists*, the HTML class ``exists`` or ``missing`` is added to
+    the element to indicate the integrity of the storage.
     """
     def __init__(self, verify_exists=True, **kwargs):
         self.verify_exists = True

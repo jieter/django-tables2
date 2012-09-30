@@ -21,8 +21,8 @@ class TableData(object):
     Exposes a consistent API for :term:`table data`.
 
     :param  data: iterable containing data for each row
-    :type   data: :class:`QuerySet` or :class:`list` of :class:`dict`
-    :param table: :class:`.Table` object
+    :type   data: `~django.db.query.QuerySet` or `list` of `dict`
+    :param table: `.Table` object
     """
     def __init__(self, data, table):
         self.table = table
@@ -81,7 +81,7 @@ class TableData(object):
         :param aliases: optionally prefixed names of columns ('-' indicates
                         descending order) in order of significance with
                         regard to data ordering.
-        :type  aliases: :class:`~.utils.OrderByTuple`
+        :type  aliases: `~.utils.OrderByTuple`
         """
         accessors = []
         for alias in aliases:
@@ -109,7 +109,7 @@ class TableData(object):
 
     def __getitem__(self, key):
         """
-        Slicing returns a new :class:`.TableData` instance, indexing returns a
+        Slicing returns a new `.TableData` instance, indexing returns a
         single record.
         """
         return self.data[key]
@@ -119,9 +119,9 @@ class TableData(object):
         """
         The full (singular) name for the data.
 
-        Queryset data has its model's ``Meta.verbose_name`` honored. List data
-        is checked for a ``verbose_name`` attribute, and falls back to using
-        ``"item"``.
+        Queryset data has its model's `~django.db.Model.Meta.verbose_name`
+        honored. List data is checked for a ``verbose_name`` attribute, and
+        falls back to using ``"item"``.
         """
         if hasattr(self, "queryset"):
             return self.queryset.model._meta.verbose_name
@@ -132,7 +132,7 @@ class TableData(object):
         """
         The full (plural) name of the data.
 
-        This uses the same approach as ``verbose_name``.
+        This uses the same approach as `.verbose_name`.
         """
         if hasattr(self, "queryset"):
             return self.queryset.model._meta.verbose_name_plural
@@ -141,9 +141,9 @@ class TableData(object):
 
 class DeclarativeColumnsMetaclass(type):
     """
-    Metaclass that converts Column attributes on the class to a dictionary
-    called ``base_columns``, taking into account parent class ``base_columns``
-    as well.
+    Metaclass that converts `.Column` objects defined on a class to the
+    dictionary `.Table.base_columns`, taking into account parent class
+    ``base_columns`` as well.
     """
     def __new__(mcs, name, bases, attrs):
 
@@ -198,12 +198,12 @@ class DeclarativeColumnsMetaclass(type):
 
 class TableOptions(object):
     """
-    Extracts and exposes options for a :class:`.Table` from a ``class Meta``
-    when the table is defined. See ``Table`` for documentation on the impact of
+    Extracts and exposes options for a `.Table` from a `.Table.Meta`
+    when the table is defined. See `.Table` for documentation on the impact of
     variables in this class.
 
     :param options: options for a table
-    :type  options: :class:`Meta` on a :class:`.Table`
+    :type  options: `.Table.Meta` on a `.Table`
     """
     # pylint: disable=R0902
     def __init__(self, options=None):
@@ -233,62 +233,125 @@ class TableOptions(object):
 
 class Table(StrAndUnicode):
     """
-    A collection of columns, plus their associated data rows.
+    A representation of a table.
 
-    :type  attrs: dict
-    :param attrs: A mapping of attributes to values that will be added to the
-            HTML ``<table>`` tag.
 
-    :type  data:  list or QuerySet-like
-    :param data: The :term:`table data`.
+    .. attribute:: attrs
 
-    :type  exclude: iterable
-    :param exclude: A list of columns to be excluded from this table.
+        HTML attributes to add to the ``<table>`` tag.
 
-    :type  order_by: None, tuple or string
-    :param order_by: sort the table based on these columns prior to display.
-            (default :attr:`.Table.Meta.order_by`)
+        :type: `dict`
 
-    :type  order_by_field: string or None
-    :param order_by_field: The name of the querystring field used to control
-            the table ordering.
+        When accessing the attribute, the value is always returned as an
+        `.AttributeDict` to allow easily conversion to HTML.
 
-    :type  page_field: string or None
-    :param page_field: The name of the querystring field used to control which
-            page of the table is displayed (used when a table is paginated).
 
-    :type  per_page_field: string or None
-    :param per_page_field: The name of the querystring field used to control
-            how many records are displayed on each page of the table.
+    .. attribute:: columns
 
-    :type  prefix: string
-    :param prefix: A prefix used on querystring arguments to allow multiple
-            tables to be used on a single page, without having conflicts
-            between querystring arguments. Depending on how the table is
-            rendered, will determine how the prefix is used. For example ``{%
-            render_table %}`` uses ``<prefix>-<argument>``.
+        The columns in the table.
 
-    :type  sequence: iterable
-    :param sequence: The sequence/order of columns the columns (from left to
-            right). Items in the sequence must be column names, or the
-            *remaining items* symbol marker ``"..."`` (string containing three
-            periods). If this marker is used, not all columns need to be
-            defined.
+        :type: `.BoundColumns`
 
-    :type  orderable: bool
-    :param orderable: Enable/disable column ordering on this table
 
-    :type  template: string
-    :param template: the template to render when using {% render_table %}
-            (default ``django_tables2/table.html``)
+    .. attribute:: default
 
-    :type  empty_text: string
-    :param empty_text: Empty text to render when the table has no data.
-            (default :attr:`.Table.Meta.empty_text`)
+        Text to render in empty cells (determined by `.Column.empty_values`,
+        default `.Table.Meta.default`)
 
-    :type  default: unicode
-    :param default: Text to render in empty cells (determined by
-            :attr:`Column.empty_values`, default :attr:`.Table.Meta.default`)
+        :type: `unicode`
+
+
+    .. attribute:: empty_text
+
+        Empty text to render when the table has no data. (default
+        `.Table.Meta.empty_text`)
+
+        :type: `unicode`
+
+
+    .. attribute:: exclude
+
+        The names of columns that shouldn't be included in the table.
+
+        :type: iterable of `unicode`
+
+
+    .. attribute:: order_by_field
+
+        If not `None`, defines the name of the *order by* querystring field.
+
+        :type: `unicode`
+
+
+    .. attribute:: page
+
+        The current page in the context of pagination.
+
+        Added during the call to `.Table.paginate`.
+
+
+    .. attribute:: page_field
+
+        If not `None`, defines the name of the *current page* querystring
+        field.
+
+        :type: `unicode`
+
+
+    .. attribute:: paginator
+
+        The current paginator for the table.
+
+        Added during the call to `.Table.paginate`.
+
+
+    .. attribute:: per_page_field
+
+        If not `None`, defines the name of the *per page* querystring field.
+
+        :type: `unicode`
+
+
+    .. attribute:: prefix
+
+        A prefix for querystring fields to avoid name-clashes when using
+        multiple tables on a single page.
+
+        :type: `unicode`
+
+
+    .. attribute:: rows
+
+        The rows of the table (ignoring pagination).
+
+        :type: `.BoundRows`
+
+
+    .. attribute:: sequence
+
+        The sequence/order of columns the columns (from left to right).
+
+        :type: iterable
+
+        Items in the sequence must be :term:`column names <column name>`, or
+        ``"..."`` (string containing three periods). ``...`` can be used as a
+        catch-all for columns that aren't specified.
+
+
+    .. attribute:: orderable
+
+        Enable/disable column ordering on this table
+
+        :type: `bool`
+
+
+    .. attribute:: template
+
+        The template to render when using ``{% render_table %}`` (default
+        ``"django_tables2/table.html"``)
+
+        :type: `unicode`
+
     """
     __metaclass__ = DeclarativeColumnsMetaclass
     TableDataClass = TableData
@@ -369,12 +432,6 @@ class Table(StrAndUnicode):
 
     @property
     def attrs(self):
-        """
-        The attributes that should be applied to the ``<table>`` tag when
-        rendering HTML.
-
-        :rtype: :class:`~.utils.AttributeDict` object.
-        """
         return self._attrs if self._attrs is not None else self._meta.attrs
 
     @attrs.setter
@@ -437,17 +494,18 @@ class Table(StrAndUnicode):
         Paginates the table using a paginator and creates a ``page`` property
         containing information for the current page.
 
-        :type     klass: Paginator ``class``
+        :type     klass: Paginator class
         :param    klass: a paginator class to paginate the results
-        :type  per_page: ``int``
+        :type  per_page: `int`
         :param per_page: how many records are displayed on each page
-        :type      page: ``int``
+        :type      page: `int`
         :param     page: which page should be displayed.
 
-        Extra arguments are passed to ``Paginator``.
+        Extra arguments are passed to the paginator.
 
-        Pagination exceptions (``EmptyPage`` and ``PageNotAnInteger``) may be
-        raised from this method and should be handled by the caller.
+        Pagination exceptions (`~django.core.paginator.EmptyPage` and
+        `~django.core.paginator.PageNotAnInteger`) may be raised from this
+        method and should be handled by the caller.
         """
         per_page = per_page or self._meta.per_page
         self.paginator = klass(self.rows, per_page, *args, **kwargs)
