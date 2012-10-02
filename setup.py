@@ -4,7 +4,7 @@ from setuptools import setup
 
 setup(
     name='django-attest',
-    version='0.7.1',
+    version='0.8.0',
     description='Provides Django specific testing helpers to Attest',
 
     author='Bradley Ayers',

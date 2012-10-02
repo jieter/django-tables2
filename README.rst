@@ -11,6 +11,9 @@ Use pip::
 
     pip install django-attest
 
+Update settings::
+
+    TEST_RUNNER = "django_attest.Runner"
 
 Usage
 =====
@@ -31,7 +34,7 @@ allows you to make HTTP requests to your project.
     @tests.test
     def can_add(client):
         client.get('/some-url/')  # same as self.client.get() if you were using
-                                  # the standard django.test.TestCase approach
+                                  # django.test.TestCase
 
 See the `TestCase.client documentation`__ for more details.
 

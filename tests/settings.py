@@ -24,6 +24,8 @@ SECRET_KEY = 'abcdefghiljklmnopqrstuvwxyz'
 
 ROOT_URLCONF = 'tests.urls'
 
+TEST_RUNNER = 'django_attest.Runner'
+
 TEMPLATE_DIRS = (
     join(ROOT, "templates"),
 )
