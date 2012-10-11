@@ -14,6 +14,7 @@ setup(
 
     packages=['django_attest'],
     install_requires=['Django >=1.2', 'Attest >=0.5', 'distribute', 'six'],
+    use_2to3=True,
 
     test_loader='tests:loader',
     test_suite='tests.suite',

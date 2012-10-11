@@ -1,0 +1,8 @@
+[run]
+source =
+    django_attest
+    tests
+
+
+[html]
+directory = reports/htmlcov

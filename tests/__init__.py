@@ -22,5 +22,5 @@ junit = Tests()
 @junit.test
 def make_junit_output():
     import xmlrunner
-    runner = xmlrunner.XMLTestRunner(output=b'reports')
+    runner = xmlrunner.XMLTestRunner(output=str('reports'))
     runner.run(suite.test_suite())
