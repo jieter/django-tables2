@@ -320,6 +320,7 @@ v0.8.1
 ------
 
 - Make test runner compatible with Python 2.6
+- Add support for Python 3.2
 
 v0.8.0
 ------
