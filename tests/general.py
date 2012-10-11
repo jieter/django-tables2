@@ -54,7 +54,7 @@ def template_rendering_tracking_works():
     manager = contextmanager(TestContext())
     with manager() as client:
         response = client.get('/')
-        assert response.content == "rendered from template.html\n"
+        assert response.content == b"rendered from template.html\n"
         if hasattr(response, "templates"):
             # Django >= 1.3
             assert [t.name for t in response.templates] == ["template.html"]
@@ -177,4 +177,4 @@ def urlconf_allows_local_view():
     client = Client()
     urls = patterns('', (r'view/', view))
     with urlconf(urls):
-        assert client.get(reverse(view)).content == 'success'
+        assert client.get(reverse(view)).content == b'success'
