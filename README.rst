@@ -1,7 +1,7 @@
 django-attest
 =============
 
-Django testing for Attest. Requires Django >=1.2.
+Django testing for Attest. Requires Django ≥1.2.
 
 
 Installation
@@ -11,7 +11,7 @@ Use pip::
 
     pip install django-attest
 
-Update settings::
+On Django ≥1.3, a custom test runner can be used::
 
     TEST_RUNNER = "django_attest.Runner"
 
@@ -311,3 +311,17 @@ Backports
 
 - ``django_attest.RequestFactory`` (from Django 1.4)
 - ``django_attest.settings`` (``override_settings`` inspired from Django 1.4)
+
+
+Changelog
+=========
+
+v0.8.1
+------
+
+- Make test runner compatible with Python 2.6
+
+v0.8.0
+------
+
+- Add test runner to show proper Attest formatting of assertion errors
