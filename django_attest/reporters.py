@@ -1,39 +1,41 @@
-from .environment import testing_environment
-from attest import reporters, Tests
-from django.utils.functional import wraps
+# coding: utf-8
+from .environment import setup
+from attest import reporters
+import sys
 
 
-__all__ = ("AbstractReporter", "PlainReporter", "FancyReporter",
-           "auto_reporter", "XmlReporter", "QuickFixReporter")
-
-
-def _test_loader_factory(reporter):
-    class Loader(object):
-        def loadTestsFromNames(self, names, module=None):
-            with testing_environment():
-                Tests(names).run(reporter)
-            raise SystemExit
-    return Loader()
+__all__ = ("auto_reporter", "AbstractReporter", "FancyReporter",
+           "PlainReporter", "QuickFixReporter", "XmlReporter")
 
 
 class ReporterMixin(object):
     """
-    Patch :meth:`test_loader` to perform Django environment configuration.
+    A mixin for reporters that handles setting up a Django environment.
     """
-    @classmethod
-    def test_loader(cls):
-        return _test_loader_factory(cls)
+    def begin(self, tests):
+        self.teardown = setup()
+        return super(ReporterMixin, self).begin(tests)
+
+    def finished(self):
+        self.teardown()
+        return super(ReporterMixin, self).finished()
 
 
-AbstractReporter = type("AbstractReporter", (ReporterMixin, reporters.AbstractReporter), {})
-PlainReporter    = type("PlainReporter",    (ReporterMixin, reporters.PlainReporter), {})
-FancyReporter    = type("FancyRepoter",     (ReporterMixin, reporters.FancyReporter), {})
-XmlReporter      = type("XmlReporter",      (ReporterMixin, reporters.XmlReporter), {})
-QuickFixReporter = type("QuickFixReporter", (ReporterMixin, reporters.QuickFixReporter), {})
+def patched(reporter):
+    return type(reporter.__name__,
+                (ReporterMixin, reporter),
+                {})
 
 
-@wraps(reporters.auto_reporter)
+AbstractReporter = patched(reporters.AbstractReporter)
+PlainReporter    = patched(reporters.PlainReporter)
+FancyReporter    = patched(reporters.FancyReporter)
+XmlReporter      = patched(reporters.XmlReporter)
+QuickFixReporter = patched(reporters.QuickFixReporter)
+
+
 def auto_reporter(**opts):
-    return reporters.auto_reporter(**opts)
-
-auto_reporter.test_loader = lambda: _test_loader_factory(auto_reporter)
+    # Let Attest make the decision, then return our own version. This only
+    # works because we name our reporters the same as Attest
+    suggested = reporters.auto_reporter(**opts)
+    return getattr(sys.modules[__name__], type(suggested).__name__)

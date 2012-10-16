@@ -1,5 +1,5 @@
 # coding: utf-8
-from .environment import testing_environment  # enables assert import hook
+from .environment import *
 from .assertion   import *
 from .contexts    import *
 from .reporters   import *

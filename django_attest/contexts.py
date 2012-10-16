@@ -9,6 +9,7 @@ __all__ = ("settings", "TransactionTestContext", "TestContext", "urlconf")
 
 
 class TransactionTestContext(TransactionTestCase):
+    # Avoid this class from being treated as a TestCase by Django's collector
     __name__ = 'blah_bada_boom'
 
     def __init__(self, fixtures=None, urls=None, client_class=None,

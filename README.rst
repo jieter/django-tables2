@@ -92,13 +92,11 @@ tests/__init__.py
 
 ::
 
-    from attest import assert_hook, Tests
-    import os
-    os.environ['DJANGO_SETTINGS_MODULE'] = 'tests.settings'
-    from django_attest import auto_loader
+    from attest import Tests
 
-    loader = autor_loader.test_loader
+
     suite = Tests()
+
 
     @suite.test
     def example():
@@ -142,26 +140,12 @@ tests/urls.py
     urlpatterns = patterns('')
 
 
-setup.py
-^^^^^^^^
-
-::
-
-    from setuptools import setup
-    setup(
-        ...
-        tests_require=['Django >=1.2', 'Attest >=0.4', 'django-attest'],
-        test_loader='tests:loader',
-        test_suite='tests.suite',
-    )
-
-
 Running the tests
 ^^^^^^^^^^^^^^^^^
 
 ::
 
-    python setup.py test
+    DJANGO_SETTINGS_MODULE=tests.settings attest -r django
 
 
 Testing non-reusable apps in a Django project
@@ -212,10 +196,6 @@ doesn't support running individual tests::
 
 assert hook
 -----------
-
-Prior to Attest 0.5, the assert hook was enabled on first import of ``attest``.
-As of Attest 0.6, this is no longer the case – instead it occurs when you use
-the ``attest`` command line program to execute tests.
 
 Since Django uses ``manage.py`` as its entry point, django-attest enables the
 assert hook automatically when it's first imported.
@@ -315,6 +295,13 @@ Backports
 
 Changelog
 =========
+
+v0.9.0
+------
+
+- Setting up the Django environment is no longer part of the distuils loader,
+  rather it's builtin to the django-attest reporters.
+- Declare reporter entry points (named ``django-...``)
 
 v0.8.1
 ------

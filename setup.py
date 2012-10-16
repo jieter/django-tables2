@@ -4,7 +4,7 @@ from setuptools import setup
 
 setup(
     name='django-attest',
-    version='0.8.1',
+    version='0.9.0',
     description='Provides Django specific testing helpers to Attest',
 
     author='Bradley Ayers',
@@ -18,6 +18,17 @@ setup(
 
     test_loader='tests:loader',
     test_suite='tests.suite',
+
+    entry_points={
+        'attest.reporters': [
+            'django-xml = django_attest:XmlReporter',
+            'django-xunit = django_attest:XUnitReporter',
+            'django-quickfix = django_attest:QuickFixReporter',
+            'django-plain = django_attest:PlainReporter',
+            'django-fancy = django_attest:FancyReporter',
+            'django = django_attest:auto_reporter',
+        ],
+    },
 
     classifiers=[
         'Environment :: Web Environment',
