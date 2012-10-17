@@ -39,3 +39,6 @@ def auto_reporter(**opts):
     # works because we name our reporters the same as Attest
     suggested = reporters.auto_reporter(**opts)
     return getattr(sys.modules[__name__], type(suggested).__name__)
+
+auto_reporter.test_loader = \
+    lambda: reporters._test_loader_factory(auto_reporter)

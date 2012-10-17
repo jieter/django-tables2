@@ -1,3 +1,4 @@
+# coding: utf-8
 from attest import AssertImportHook, COMPILES_AST
 from contextlib import contextmanager
 import django

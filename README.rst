@@ -1,11 +1,21 @@
+=============
 django-attest
 =============
 
-Django testing for Attest. Requires Django ≥1.2.
+An alternative testing framework for Django, based on Attest.
+
+Attempts to provide a more Pythonic testing API than `unittest`. Useful
+testing features in recent version of Django have been included for use with
+older version.
 
 
 Installation
 ============
+
+Requires:
+
+- Django ≥1.2.
+- Attest >= 0.6 (use master)
 
 Use pip::
 
@@ -17,6 +27,10 @@ On Django ≥1.3, a custom test runner can be used::
 
 Usage
 =====
+
+Create some tests, then run them (replace ``tests.settings`` with your own)::
+
+    DJANGO_SETTINGS_MODULE=tests.settings attest -r django
 
 Create a test collection and optionally include one of ``django-attest``'s test
 contexts. The result is that a ``client`` argument is passed to each test
@@ -138,14 +152,6 @@ tests/urls.py
 
     from django.conf.urls import patterns
     urlpatterns = patterns('')
-
-
-Running the tests
-^^^^^^^^^^^^^^^^^
-
-::
-
-    DJANGO_SETTINGS_MODULE=tests.settings attest -r django
 
 
 Testing non-reusable apps in a Django project

@@ -13,11 +13,8 @@ setup(
     url='https://github.com/bradleyayers/django-attest/',
 
     packages=['django_attest'],
-    install_requires=['Django >=1.2', 'Attest >=0.5', 'distribute', 'six'],
+    install_requires=['Django >=1.2', 'Attest >=0.6', 'distribute', 'six'],
     use_2to3=True,
-
-    test_loader='tests:loader',
-    test_suite='tests.suite',
 
     entry_points={
         'attest.reporters': [

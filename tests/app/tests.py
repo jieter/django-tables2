@@ -12,3 +12,4 @@ def change_global():
 
 
 test_case = suite.test_case()
+del suite  # stop attest collecting and running it prematurely
