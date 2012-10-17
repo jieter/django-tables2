@@ -13,7 +13,7 @@ setup(
     url='https://github.com/bradleyayers/django-attest/',
 
     packages=['django_attest'],
-    install_requires=['Django >=1.2', 'Attest >=0.6', 'distribute', 'six'],
+    install_requires=['Django >=1.2', 'Attest >=0.6dev', 'distribute', 'six'],
     use_2to3=True,
 
     entry_points={
