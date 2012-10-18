@@ -302,6 +302,11 @@ Backports
 Changelog
 =========
 
+v0.9.1
+------
+
+- Fix requirements for Attest
+
 v0.9.0
 ------
 
