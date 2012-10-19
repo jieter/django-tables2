@@ -27,6 +27,7 @@ Tutorial
 
 1. ``pip install django-tables2``
 2. Add ``'django_tables2'`` to ``INSTALLED_APPS``
+3. Add ``'django.core.context_processors.request'`` to ``TEMPLATE_CONTEXT_PROCESSORS``
 
 We're going to run through creating a tutorial app. Let's start with a simple model::
 
@@ -592,30 +593,21 @@ with a `.RequestContext` and the table will be in the variable ``table``.
 
 .. note::
 
-    This tag temporarily modifies the `.Table` object while it is being
-    rendered. It adds a ``request`` attribute to the table, which allows
-    `.Column` objects to have access to a `.RequestContext`. See
-    `.TemplateColumn` for an example.
+    This tag temporarily modifies the `.Table` object during rendering. A
+    ``context`` attribute is added to the table, providing columns with access
+    to the current context for their own rendering (e.g. `.TemplateColumn`).
 
 This tag requires that the template in which it's rendered contains the
-`~.http.HttpRequest` inside a ``request`` variable. This can be achieved by ensuring
-the ``TEMPLATE_CONTEXT_PROCESSORS`` setting contains
+`~.http.HttpRequest` inside a ``request`` variable. This can be achieved by
+ensuring the ``TEMPLATE_CONTEXT_PROCESSORS`` setting contains
 ``"django.core.context_processors.request"``. By default it is not included,
 and the setting itself is not even defined within your project's
-``settings.py``. To resolve this simply add the following to your
-``settings.py``:
+``settings.py``. To resolve this add the following to your ``settings.py``:
 
 .. sourcecode:: python
 
-    TEMPLATE_CONTEXT_PROCESSORS = (
-        "django.contrib.auth.context_processors.auth",
-        "django.core.context_processors.debug",
-        "django.core.context_processors.i18n",
-        "django.core.context_processors.media",
-        "django.core.context_processors.static",
-        "django.contrib.messages.context_processors.messages",
-        "django.core.context_processors.request",
-    )
+    from django.conf.global_settings import TEMPLATE_CONTEXT_PROCESSORS
+    TEMPLATE_CONTEXT_PROCESSORS += ('django.core.context_processors.request',)
 
 
 .. _template-tags.querystring:
