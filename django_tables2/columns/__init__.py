@@ -8,3 +8,4 @@ from .filecolumn import FileColumn
 from .linkcolumn import LinkColumn
 from .templatecolumn import TemplateColumn
 from .urlcolumn import URLColumn
+from .timecolumn import TimeColumn
