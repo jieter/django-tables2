@@ -7,6 +7,7 @@ from django.template             import RequestContext
 from django.template.loader      import get_template
 from django.utils.encoding       import StrAndUnicode
 import warnings
+from .config import RequestConfig
 from .utils import (Accessor, AttributeDict, cached_property, build_request,
                     OrderBy, OrderByTuple, segment, Sequence)
 from .rows  import BoundRows
@@ -359,7 +360,7 @@ class Table(StrAndUnicode):
     def __init__(self, data, order_by=None, orderable=None, empty_text=None,
                  exclude=None, attrs=None, sequence=None, prefix=None,
                  order_by_field=None, page_field=None, per_page_field=None,
-                 template=None, sortable=None, default=None):
+                 template=None, sortable=None, default=None, request=None):
         super(Table, self).__init__()
         self.exclude = exclude or ()
         self.sequence = sequence
@@ -414,6 +415,9 @@ class Table(StrAndUnicode):
         else:
             self.order_by = order_by
         self.template = template
+        # If a request is passed, configure for request
+        if request:
+            RequestConfig(request).configure(self)
 
     def __unicode__(self):
         return unicode(repr(self))
