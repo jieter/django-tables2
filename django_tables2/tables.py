@@ -12,6 +12,7 @@ from .utils import (Accessor, AttributeDict, cached_property, build_request,
                     OrderBy, OrderByTuple, segment, Sequence)
 from .rows  import BoundRows
 from .      import columns
+import unicodecsv as csv
 
 
 QUERYSET_ACCESSOR_SEPARATOR = '__'
@@ -449,6 +450,37 @@ class Table(StrAndUnicode):
         template = get_template(self.template)
         request = build_request()
         return template.render(RequestContext(request, {'table': self}))
+
+    def as_csv(self, fp, **kwargs):
+        """
+        Render the table as csv.
+
+        .. code-block:: python
+
+            response = HttpResponse(mimetype='text/csv')
+            response['Content-Disposition'] = 'attachment; filename="myfile.csv"'
+
+            data = {}
+            table = SimpleTable(data, empty_text='', default='')
+
+            table.as_csv(response)
+            return response
+
+        :param fp: file pointer like object to write the csv table to
+        """
+        include_header = True
+        csv_args = dict(kwargs)
+        if 'include_header' in kwargs:
+            include_header = kwargs['include_header']
+            del csv_args['include_header']
+
+        csv_writer = csv.writer(fp, **csv_args)
+        write = csv_writer.writerow
+
+        if include_header:
+            write(map(lambda x: x.header, filter(lambda x: x.orderable, self.columns)))
+        for row in self.rows:
+            write(map(lambda c: row._get_value(c[0]), row.items()))
 
     @property
     def attrs(self):

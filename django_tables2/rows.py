@@ -99,27 +99,7 @@ class BoundRow(object):
         of a column.
         """
         bound_column = self.table.columns[name]
-
-        value = None
-        # We need to take special care here to allow get_FOO_display()
-        # methods on a model to be used if available. See issue #30.
-        path, _, remainder = bound_column.accessor.rpartition('.')
-        penultimate = A(path).resolve(self.record, quiet=True)
-        # If the penultimate is a model and the remainder is a field
-        # using choices, use get_FOO_display().
-        if isinstance(penultimate, models.Model):
-            try:
-                field = penultimate._meta.get_field(remainder)
-                display = getattr(penultimate, 'get_%s_display' % remainder, None)
-                if field.choices and display:
-                    value = display()
-                    remainder = None
-            except FieldDoesNotExist:
-                pass
-        # Fall back to just using the original accessor (we just need
-        # to follow the remainder).
-        if remainder:
-            value = A(remainder).resolve(penultimate, quiet=True)
+        value = self._get_value(bound_column)
 
         if value in bound_column.column.empty_values:
             return bound_column.default
@@ -161,6 +141,32 @@ class BoundRow(object):
         """
         for column in self.table.columns:
             yield (column, self[column.name])
+
+    def _get_value(self, bound_column):
+        """
+        Returns the value for a given BoundColumn
+        """
+        value = None
+        # We need to take special care here to allow get_FOO_display()
+        # methods on a model to be used if available. See issue #30.
+        path, _, remainder = bound_column.accessor.rpartition('.')
+        penultimate = A(path).resolve(self.record, quiet=True)
+        # If the penultimate is a model and the remainder is a field
+        # using choices, use get_FOO_display().
+        if isinstance(penultimate, models.Model):
+            try:
+                field = penultimate._meta.get_field(remainder)
+                display = getattr(penultimate, 'get_%s_display' % remainder, None)
+                if field.choices and display:
+                    value = display()
+                    remainder = None
+            except FieldDoesNotExist:
+                pass
+        # Fall back to just using the original accessor (we just need
+        # to follow the remainder).
+        if remainder:
+            value = A(remainder).resolve(penultimate, quiet=True)
+        return value
 
 
 class BoundRows(object):
