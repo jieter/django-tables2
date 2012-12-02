@@ -99,7 +99,7 @@ class BoundRow(object):
         of a column.
         """
         bound_column = self.table.columns[name]
-        value = self._get_value(bound_column)
+        value = self._get_value(name)
 
         if value in bound_column.column.empty_values:
             return bound_column.default
@@ -142,11 +142,13 @@ class BoundRow(object):
         for column in self.table.columns:
             yield (column, self[column.name])
 
-    def _get_value(self, bound_column):
+    def _get_value(self, column_name):
         """
-        Returns the value for a given BoundColumn
+        Return the value for a given column by name from the table.
         """
         value = None
+        bound_column = self.table.columns[column_name]
+
         # We need to take special care here to allow get_FOO_display()
         # methods on a model to be used if available. See issue #30.
         path, _, remainder = bound_column.accessor.rpartition('.')

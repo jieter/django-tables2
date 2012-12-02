@@ -12,7 +12,10 @@ from .utils import (Accessor, AttributeDict, cached_property, build_request,
                     OrderBy, OrderByTuple, segment, Sequence)
 from .rows  import BoundRows
 from .      import columns
-import unicodecsv as csv
+try:
+    import unicodecsv as csv
+except ImportError:
+    import csv
 
 
 QUERYSET_ACCESSOR_SEPARATOR = '__'
@@ -453,7 +456,7 @@ class Table(StrAndUnicode):
 
     def as_csv(self, fp, **kwargs):
         """
-        Render the table as csv.
+        Render the table in csv format to a file like object.
 
         .. code-block:: python
 
@@ -466,21 +469,29 @@ class Table(StrAndUnicode):
             table.as_csv(response)
             return response
 
-        :param fp: file pointer like object to write the csv table to
+        :param fp: file like object to write the csv table to
         """
+        column_index = 0
         include_header = True
         csv_args = dict(kwargs)
+
         if 'include_header' in kwargs:
             include_header = kwargs['include_header']
             del csv_args['include_header']
 
         csv_writer = csv.writer(fp, **csv_args)
-        write = csv_writer.writerow
+        write_row = csv_writer.writerow
+
+        def should_include_column(column):
+            return column.orderable and column.visible
+
+        def should_include_row(row_item):
+            return should_include_column(row_item[column_index])
 
         if include_header:
-            write(map(lambda x: x.header, filter(lambda x: x.orderable, self.columns)))
+            write_row(map(lambda c: c.header, filter(should_include_column, self.columns)))
         for row in self.rows:
-            write(map(lambda c: row._get_value(c[0]), row.items()))
+            write_row(map(lambda c: row._get_value(c[column_index].name), filter(should_include_row, row.items())))
 
     @property
     def attrs(self):

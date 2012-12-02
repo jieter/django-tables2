@@ -13,6 +13,10 @@ from urlparse import parse_qs
 import lxml.etree
 import lxml.html
 from .app.models import Person, Region
+try:
+    from cStringIO import StringIO
+except ImportError:
+    from StringIO import StringIO
 
 
 def parse(html):
@@ -420,3 +424,78 @@ def localization_check_in_meta():
                 # test unlocalize higher precedence
                 html = TableLocalizePrecedence(simple_test_data).as_html()
                 assert '<td class="name">{0}</td>'.format(expected_reults[False]) in html
+
+
+@templates.test
+def as_csv():
+    table = CountryTable(MEMORY_DATA)
+    import csv
+
+    fp = StringIO()
+    table.as_csv(fp, include_header=False)
+
+    fp.seek(0)
+    reader = csv.reader(fp)
+
+    csv_record_count = 0
+    for row in reader:
+        csv_record_count += 1
+    assert len(table.rows) == csv_record_count
+    fp.close()
+
+
+@templates.test
+def as_csv_header():
+    table = CountryTable(MEMORY_DATA)
+    import csv
+
+    fp = StringIO()
+    table.as_csv(fp)
+
+    fp.seek(0)
+    reader = csv.reader(fp)
+    csv_header = reader.next()
+    table_column_names = map(lambda c: c.header, table.columns)
+    for column in csv_header:
+        assert column in table_column_names
+    fp.close()
+
+
+@templates.test
+def as_csv_header_exclude_columns():
+    table = CountryTable(MEMORY_DATA, exclude=['name'])
+    import csv
+
+    fp = StringIO()
+    table.as_csv(fp)
+
+    fp.seek(0)
+    reader = csv.reader(fp)
+    csv_header = reader.next()
+    assert not 'Name' in csv_header
+    row = reader.next()
+    assert len(row) == len(csv_header)
+    fp.close()
+
+
+@templates.test
+def as_csv_rows():
+    table = CountryTable([MEMORY_DATA[0]])
+    import csv
+
+    fp = StringIO()
+    table.as_csv(fp)
+
+    fp.seek(0)
+    reader = csv.DictReader(fp)
+    csv_row = reader.next()
+    table_row = table.rows[0]
+
+    assert table_row._get_value('name') == csv_row['Name']
+    assert table_row._get_value('calling_code') == int(csv_row['Phone Ext.'])
+    assert table_row._get_value('population') == int(csv_row['Population Size'])
+
+    with raises(KeyError):
+        # non visible column
+        csv_row['Currency']
+    fp.close()
