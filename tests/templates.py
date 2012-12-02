@@ -297,3 +297,53 @@ def render_table_db_queries():
             table = PersonTable(Person.objects.all())
             RequestConfig(request).configure(table)
             render(table=table, request=request)
+
+
+@templates.test
+def localization_check():
+    import django
+    if django.VERSION < (1, 3):
+        # there's no `l10n` library tag prior to Django 1.3
+        pass
+    else:
+
+        from django_tables2.utils import override_settings, override_translation
+
+        def get_cond_localized_table(localizeit=None):
+            '''
+            helper function for defining Table class conditionally
+            '''
+            class TestTable(tables.Table):
+                name = tables.Column(verbose_name="my column", localize=localizeit)
+            return TestTable
+
+        simple_test_data = [{ 'name' : 1234.5 }]
+        expected_reults = {
+            None : '1234.5',
+            False: '1234.5',
+            True :  u'1{0}234,5'.format(u' ')  # non-breaking space
+        }
+
+        html = get_cond_localized_table(None)(simple_test_data).as_html()
+        assert '<td class="name">{0}</td>'.format(expected_reults[None]) in html
+
+        html = get_cond_localized_table(False)(simple_test_data).as_html()
+        assert '<td class="name">{0}</td>'.format(expected_reults[False]) in html
+
+        with override_settings(USE_L10N = True, USE_THOUSAND_SEPARATOR = True):
+
+            with override_translation("pl"):
+
+                # with default polish locales and enabled thousand separator
+                # 1234.5 is formatted as "1 234,5" with nbsp
+                html = get_cond_localized_table(True)(simple_test_data).as_html()
+                assert u'<td class="name">{0}</td>'.format(expected_reults[True]) in html
+
+                # with localize = False there should be no formatting
+                html = get_cond_localized_table(False)(simple_test_data).as_html()
+                assert u'<td class="name">{0}</td>'.format(expected_reults[False]) in html
+
+                # with localize = None and USE_L10N = True
+                # there should be the same formatting as with localize = True
+                html = get_cond_localized_table(None)(simple_test_data).as_html()
+                assert u'<td class="name">{0}</td>'.format(expected_reults[True]) in html

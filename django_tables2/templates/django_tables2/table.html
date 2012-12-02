@@ -26,7 +26,7 @@
         {% block table.tbody.row %}
         <tr class="{% cycle "odd" "even" %}">
             {% for column, cell in row.items %}
-                <td {{ column.attrs.td.as_html }}>{{ cell }}</td>
+                <td {{ column.attrs.td.as_html }}>{% if column.localize == None %}{{ cell }}{% else %}{% with column.localize as do_localize %}{% include "django_tables2/cell_l10n.html" %}{% endwith %}{% endif %}</td>
             {% endfor %}
         </tr>
         {% endblock table.tbody.row %}

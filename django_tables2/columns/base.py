@@ -124,6 +124,22 @@ class Column(object):  # pylint: disable=R0902
         If `True`, this column will be included in the HTML output.
 
         :type: `bool`
+
+
+    .. attribute:: localize
+
+        This attribute doesn't work in Django 1.2
+
+        *   If `True`, cells of this column will be localized in the HTML output
+            by the localize filter.
+
+        *   If `False`, cells of this column will be unlocalized in the HTML output
+            by the unlocalize filter.
+
+        *   If `None` (the default), cell will be rendered as is and localization will depend
+            on ``USE_L10N`` setting.
+
+        :type: `bool`
     """
     #: Tracks each time a Column instance is created. Used to retain order.
     creation_counter = 0
@@ -131,7 +147,7 @@ class Column(object):  # pylint: disable=R0902
 
     def __init__(self, verbose_name=None, accessor=None, default=None,
                  visible=True, orderable=None, attrs=None, order_by=None,
-                 sortable=None, empty_values=None):
+                 sortable=None, empty_values=None, localize=None):
         if not (accessor is None or isinstance(accessor, basestring) or
                 callable(accessor)):
             raise TypeError('accessor must be a string or callable, not %s' %
@@ -155,6 +171,8 @@ class Column(object):  # pylint: disable=R0902
         self.order_by = OrderByTuple(order_by) if order_by is not None else None
         if empty_values is not None:
             self.empty_values = empty_values
+
+        self.localize = localize
 
         self.creation_counter = Column.creation_counter
         Column.creation_counter += 1
@@ -478,6 +496,13 @@ class BoundColumn(object):
         Returns a `bool` depending on whether this column is visible.
         """
         return self.column.visible
+
+    @property
+    def localize(self):
+        '''
+        Returns `True`, `False` or `None` as described in ``Column.localize``
+        '''
+        return self.column.localize
 
 
 class BoundColumns(object):

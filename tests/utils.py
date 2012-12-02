@@ -106,3 +106,4 @@ def segment_should_return_all_candidates():
             ["x", "-y"],
             ["x", "z"],
         ]
+
