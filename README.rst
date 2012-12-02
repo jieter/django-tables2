@@ -225,7 +225,18 @@ Assert that a response redirects to some resource::
     from django_attest import redirects
 
     response = client.get('/')
+    redirects(response, url="http://example.com:8000/foo/?key=value#frag")
+    redirects(response, scheme="http")
+    redirects(response, domain="example.com")
+    redirects(response, port="8000")
     redirects(response, path="/foo/")
+    redirects(response, query="key=value")
+    redirects(response, fragment="frag")
+
+Each component can only be asserted if it exists explicitly in the URL, e.g.
+
+    with attest.raises(AssertionError):
+        redirects(client.get('/'), port=80)  # port is rarely explicit
 
 
 queries
