@@ -349,3 +349,74 @@ def localization_check():
                 # there should be the same formatting as with localize = True
                 html = get_cond_localized_table(None)(simple_test_data).as_html()
                 assert u'<td class="name">{0}</td>'.format(expected_reults[True]) in html
+
+
+@templates.test
+def localization_check_in_meta():
+    import django
+    if django.VERSION < (1, 3):
+        # there's no `l10n` library tag prior to Django 1.3
+        pass
+    else:
+
+        from django_tables2.utils import override_settings, override_translation
+
+        class TableNoLocalize(tables.Table):
+            name = tables.Column(verbose_name="my column")
+
+            class Meta:
+                default = "---"
+
+        class TableLocalize(tables.Table):
+            name = tables.Column(verbose_name="my column")
+
+            class Meta:
+                default = "---"
+                localize = ('name',)
+
+        class TableUnlocalize(tables.Table):
+            name = tables.Column(verbose_name="my column")
+
+            class Meta:
+                default = "---"
+                unlocalize = ('name',)
+
+        class TableLocalizePrecedence(tables.Table):
+            name = tables.Column(verbose_name="my column")
+
+            class Meta:
+                default = "---"
+                unlocalize = ('name',)
+                localize = ('name',)
+
+        simple_test_data = [{ 'name' : 1234.5 }]
+        expected_reults = {
+            None : '1234.5',
+            False: '1234.5',
+            True :  u'1{0}234,5'.format(u' ')  # non-breaking space
+        }
+
+        # No localize
+        html = TableNoLocalize(simple_test_data).as_html()
+        assert '<td class="name">{0}</td>'.format(expected_reults[None]) in html
+
+        with override_settings(USE_L10N = True, USE_THOUSAND_SEPARATOR = True):
+
+            with override_translation("pl"):
+
+                # the same as in localization_check.
+                # with localization and polish locale we get formatted output
+                html = TableNoLocalize(simple_test_data).as_html()
+                assert u'<td class="name">{0}</td>'.format(expected_reults[True]) in html
+
+                # localize
+                html = TableLocalize(simple_test_data).as_html()
+                assert u'<td class="name">{0}</td>'.format(expected_reults[True]) in html
+
+                # unlocalize
+                html = TableUnlocalize(simple_test_data).as_html()
+                assert '<td class="name">{0}</td>'.format(expected_reults[False]) in html
+
+                # test unlocalize higher precedence
+                html = TableLocalizePrecedence(simple_test_data).as_html()
+                assert '<td class="name">{0}</td>'.format(expected_reults[False]) in html
