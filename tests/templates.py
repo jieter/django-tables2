@@ -324,9 +324,11 @@ def localization_check():
             True :  u'1{0}234,5'.format(u' ')  # non-breaking space
         }
 
+        # no localization
         html = get_cond_localized_table(None)(simple_test_data).as_html()
         assert '<td class="name">{0}</td>'.format(expected_reults[None]) in html
 
+        # unlocalize
         html = get_cond_localized_table(False)(simple_test_data).as_html()
         assert '<td class="name">{0}</td>'.format(expected_reults[False]) in html
 
