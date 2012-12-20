@@ -104,13 +104,13 @@ class LinkColumn(BaseLinkColumn):
         self.current_app = current_app
 
     def render(self, value, record, bound_column):  # pylint: disable=W0221
-        # The following params + if statements create the arguments required to
+        viewname = (self.viewname.resolve(record)
+                   if isinstance(self.viewname, A)
+                   else self.viewname)
+
+        # The following params + if statements create optional arguments to
         # pass to Django's reverse() function.
         params = {}
-        if self.viewname:
-            params[b'viewname'] = (self.viewname.resolve(record)
-                                 if isinstance(self.viewname, A)
-                                 else self.viewname)
         if self.urlconf:
             params[b'urlconf'] = (self.urlconf.resolve(record)
                                  if isinstance(self.urlconf, A)
@@ -129,4 +129,4 @@ class LinkColumn(BaseLinkColumn):
             params[b'current_app'] = (self.current_app.resolve(record)
                                      if isinstance(self.current_app, A)
                                      else self.current_app)
-        return self.render_link(reverse(**params), text=value)
+        return self.render_link(reverse(viewname, **params), text=value)
