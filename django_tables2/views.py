@@ -1,7 +1,7 @@
 # coding: utf-8
 from __future__ import unicode_literals
 from django.core.exceptions import ImproperlyConfigured
-from django.views.generic.list import ListView
+from django.views.generic import ListView, TemplateView
 from .config import RequestConfig
 
 
@@ -94,4 +94,95 @@ class SingleTableMixin(object):
 class SingleTableView(SingleTableMixin, ListView):
     """
     Generic view that renders a template and passes in a `.Table` object.
+    """
+
+
+class MultiTableMixin(object):
+    """
+    Adds multiple Table objects to the context. Typically used with
+    `.TemplateResponseMixin`. Table pagination is not supported.
+
+    :param       table_classes: table classes
+    :type        table_classes: dict of name -> `.Table`
+    :param          table_data: data used to populate the table
+    :type           table_data: dict of name -> any compatible data source
+    :param        table_models: models of objects to use in table, if no
+                                "get_<name>_queryset" method is defined
+    :type         table_models: dict of name -> `.Model`
+    :param context_table_names: name of the table's template variable
+                                (default: "<name>_table")
+    :type  context_table_names: dict of name -> `unicode`
+    """
+    table_classes = {}
+    table_data = {}
+    table_models = {}
+    context_table_names = {}
+
+    def get_tables(self):
+        """
+        Return a dict of table objects to use.
+        """
+        table_classes = self.get_table_classes()
+        tables = {}
+        for name, table_class in table_classes.iteritems():
+            table = table_class(self.get_table_data(name))
+            # TODO: handle collision on sorting parameters for multiple tables
+            RequestConfig(self.request).configure(table)
+            tables[name] = table
+        return tables
+
+    def get_table_classes(self):
+        """
+        Return the classes to use for the tables.
+        """
+        if self.table_classes:
+            return self.table_classes
+        raise ImproperlyConfigured(u"Table classes were not specified. Define "
+                                   u"%(cls)s.table_classes"
+                                   % {"cls": type(self).__name__})
+
+    def get_context_table_name(self, table_name):
+        """
+        Get the name to use for the table's template variable.
+        """
+        default = '%s_table' % table_name
+        return self.context_table_names.get(table_name, default)
+
+    def get_table_data(self, table_name):
+        """
+        Return the table data that should be used to populate the rows.
+        """
+        if table_name in self.table_data:
+            return self.table_data[table_name]
+        if hasattr(self, 'get_%s_queryset' % table_name):
+            return getattr(self, 'get_%s_queryset' % table_name)()
+        if table_name in self.table_models:
+            return self.table_models[table_name].objects.all()
+        raise ImproperlyConfigured(u"Table data for %(name)s not specified. "
+                                   u"Define %(cls)s.table_data[%(name)s], "
+                                   u"%(cls)s.get_%(name)s_queryset(), or "
+                                   u"%(cls)s.table_models[%(name)s]."
+                                   % {
+                                       "cls": type(self).__name__,
+                                       "name": table_name,
+                                   })
+
+    def get_context_data(self, **kwargs):
+        """
+        Overriden version of `.TemplateResponseMixin` to inject the table into
+        the template's context.
+        """
+        context = super(MultiTableMixin, self).get_context_data(**kwargs)
+        tables = self.get_tables()
+        context.update(dict(
+            (self.get_context_table_name(table_name), table)
+            for table_name, table in tables.iteritems()
+        ))
+        return context
+
+
+class MultiTableView(MultiTableMixin, TemplateView):
+    """
+    Generic view that renders a template and passes in a set of
+    `.Table` objects.
     """
