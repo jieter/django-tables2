@@ -30,14 +30,14 @@ class SingleTableMixin(object):
     context_table_name = None
     table_pagination = None
 
-    def get_table(self):
+    def get_table(self, **kwargs):
         """
         Return a table object to use. The table has automatic support for
         sorting and pagination.
         """
         options = {}
         table_class = self.get_table_class()
-        table = table_class(self.get_table_data())
+        table = table_class(self.get_table_data(), **kwargs)
         paginate = self.get_table_pagination()  # pylint: disable=E1102
         if paginate is not None:
             options['paginate'] = paginate
