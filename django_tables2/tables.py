@@ -12,6 +12,10 @@ from .utils import (Accessor, AttributeDict, cached_property, build_request,
                     OrderBy, OrderByTuple, segment, Sequence)
 from .rows  import BoundRows
 from .      import columns
+try:
+    import unicodecsv as csv
+except ImportError:
+    import csv
 
 
 QUERYSET_ACCESSOR_SEPARATOR = '__'
@@ -449,6 +453,45 @@ class Table(StrAndUnicode):
         template = get_template(self.template)
         request = build_request()
         return template.render(RequestContext(request, {'table': self}))
+
+    def as_csv(self, fp, **kwargs):
+        """
+        Render the table in csv format to a file like object.
+
+        .. code-block:: python
+
+            response = HttpResponse(mimetype='text/csv')
+            response['Content-Disposition'] = 'attachment; filename="myfile.csv"'
+
+            data = {}
+            table = SimpleTable(data, empty_text='', default='')
+
+            table.as_csv(response)
+            return response
+
+        :param fp: file like object to write the csv table to
+        """
+        column_index = 0
+        include_header = True
+        csv_args = dict(kwargs)
+
+        if 'include_header' in kwargs:
+            include_header = kwargs['include_header']
+            del csv_args['include_header']
+
+        csv_writer = csv.writer(fp, **csv_args)
+        write_row = csv_writer.writerow
+
+        def should_include_column(column):
+            return column.orderable and column.visible
+
+        def should_include_row(row_item):
+            return should_include_column(row_item[column_index])
+
+        if include_header:
+            write_row(map(lambda c: c.header, filter(should_include_column, self.columns)))
+        for row in self.rows:
+            write_row(map(lambda c: row._get_value(c[column_index].name), filter(should_include_row, row.items())))
 
     @property
     def attrs(self):
