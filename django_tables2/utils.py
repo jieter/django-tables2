@@ -460,3 +460,61 @@ def build_request(uri='/'):
             'wsgi.multithread':  False,
             'wsgi.run_once':     False,
         })
+
+
+# helper context managers to support older Djangos
+# for testing purposes only. borrowed from Django 1.4 with some modifications
+
+from django.conf import settings
+from django.conf import UserSettingsHolder
+from django.utils import translation
+
+
+class override_settings(object):
+    """
+    Acts as either a decorator, or a context manager. If it's a decorator it
+    takes a function and returns a wrapped function. If it's a contextmanager
+    it's used with the ``with`` statement. In either event entering/exiting
+    are called before and after, respectively, the function/block is executed.
+    """
+    def __init__(self, **kwargs):
+        self.options = kwargs
+        self.wrapped = settings._wrapped
+
+    def __enter__(self):
+        self.enable()
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.disable()
+
+    # we don't need __call__ since we're using this as a contextmanager only
+
+    def enable(self):
+        override = UserSettingsHolder(settings._wrapped)
+        for key, new_value in self.options.items():
+            setattr(override, key, new_value)
+        settings._wrapped = override
+        # we dont need to send signal "setting_changed"
+
+    def disable(self):
+        settings._wrapped = self.wrapped
+        # we dont need to send signal "setting_changed"
+
+
+class override_translation(object):
+    def __init__(self, language, deactivate=False):
+        self.language = language
+        self.deactivate = deactivate
+        self.old_language = translation.get_language()
+
+    def __enter__(self):
+        if self.language is not None:
+            translation.activate(self.language)
+        else:
+            translation.deactivate_all()
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        if self.deactivate:
+            translation.deactivate()
+        else:
+            translation.activate(self.old_language)
