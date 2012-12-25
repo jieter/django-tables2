@@ -177,6 +177,7 @@ class DeclarativeColumnsMetaclass(type):
                         extra[name] = columns.Column()
                     else:
                         extra[name] = columns.library.column_for_field(field)
+
             else:
                 for field in opts.model._meta.fields:
                     extra[field.name] = columns.library.column_for_field(field)
@@ -194,6 +195,19 @@ class DeclarativeColumnsMetaclass(type):
             # Table's sequence defaults to sequence declared in Meta
             #attrs['_sequence'] = opts.sequence
             attrs["base_columns"] = SortedDict(((x, attrs["base_columns"][x]) for x in opts.sequence))
+
+        # set localize on columns
+        for col_name in attrs["base_columns"].keys():
+            localize_column = None
+            if col_name in opts.localize:
+                localize_column = True
+            # unlocalize gets higher precedence
+            if col_name in opts.unlocalize:
+                localize_column = False
+
+            if localize_column is not None:
+                attrs["base_columns"][col_name].localize = localize_column
+
         return super(DeclarativeColumnsMetaclass, mcs).__new__(mcs, name, bases, attrs)
 
 
@@ -230,6 +244,8 @@ class TableOptions(object):
         self.orderable = self.sortable = getattr(options, "orderable", getattr(options, "sortable", True))
         self.model = getattr(options, "model", None)
         self.template = getattr(options, "template", "django_tables2/table.html")
+        self.localize = getattr(options, "localize", ())
+        self.unlocalize = getattr(options, "unlocalize", ())
 
 
 class Table(StrAndUnicode):
