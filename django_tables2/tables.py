@@ -5,7 +5,6 @@ from django.db.models.fields     import FieldDoesNotExist
 from django.utils.datastructures import SortedDict
 from django.template             import RequestContext
 from django.template.loader      import get_template
-from django.utils.encoding       import StrAndUnicode
 import warnings
 from .config import RequestConfig
 from .utils import (Accessor, AttributeDict, cached_property, build_request,
@@ -248,7 +247,7 @@ class TableOptions(object):
         self.unlocalize = getattr(options, "unlocalize", ())
 
 
-class Table(StrAndUnicode):
+class Table(object):
     """
     A representation of a table.
 
@@ -434,9 +433,6 @@ class Table(StrAndUnicode):
         # If a request is passed, configure for request
         if request:
             RequestConfig(request).configure(self)
-
-    def __unicode__(self):
-        return unicode(repr(self))
 
     def as_html(self):
         """
