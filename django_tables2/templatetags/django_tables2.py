@@ -18,8 +18,8 @@ import tokenize
 
 register = template.Library()
 kwarg_re = re.compile(r"(?:(.+)=)?(.+)")
-context_proccessor_error_msg = (
-    "django-tables2 requires django.core.context_processors.request "
+context_processor_error_msg = (
+    "{%% %s %%} requires django.core.context_processors.request "
     "to be in your settings.TEMPLATE_CONTEXT_PROCESSORS in order for "
     "the included template tags to function correctly."
 )
@@ -53,7 +53,8 @@ class SetUrlParamNode(Node):
 
     def render(self, context):
         if not 'request' in context:
-            raise ImproperlyConfigured(context_proccessor_error_msg)
+            raise ImproperlyConfigured(context_processor_error_msg
+                                       % 'set_url_param')
         params = dict(context['request'].GET)
         for key, newvalue in self.changes.items():
             newvalue = newvalue.resolve(context)
@@ -106,7 +107,8 @@ class QuerystringNode(Node):
 
     def render(self, context):
         if not 'request' in context:
-            raise ImproperlyConfigured(context_proccessor_error_msg)
+            raise ImproperlyConfigured(context_processor_error_msg
+                                       % 'querystring')
         params = dict(context['request'].GET)
         for key, value in self.updates.iteritems():
             key = key.resolve(context)

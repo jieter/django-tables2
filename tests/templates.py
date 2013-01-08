@@ -172,7 +172,8 @@ def render_table_supports_queryset():
         for name in ("Mackay", "Brisbane", "Maryborough"):
             Region.objects.create(name=name)
         template = Template('{% load django_tables2 %}{% render_table qs %}')
-        html = template.render(Context({'qs': Region.objects.all()}))
+        html = template.render(Context({'qs': Region.objects.all(),
+                                        'request': build_request('/')}))
         root = parse(html)
         assert [e.text for e in root.findall('.//thead/tr/th/a')] == ["ID", "Name", "Mayor"]
         td = [[unicode(td.text) for td in tr.findall('td')] for tr in root.findall('.//tbody/tr')]
@@ -273,9 +274,6 @@ def as_html_db_queries():
 
 @templates.test
 def render_table_db_queries():
-    render = lambda **kw: (Template('{% load django_tables2 %}{% render_table table %}')
-                            .render(Context(kw)))
-
     with database():
         Person.objects.create(first_name="brad", last_name="ayers")
         Person.objects.create(first_name="stevie", last_name="armstrong")
@@ -286,17 +284,14 @@ def render_table_db_queries():
                 per_page = 1
 
         with queries(count=2):
-            # one query to check if there's anything to display: .count()
-            # one query for page records: .all()[start:end]
-            render(table=PersonTable(Person.objects.all()))
-
-        with queries(count=2):
             # one query for pagination: .count()
             # one query for page records: .all()[start:end]
             request = build_request('/')
             table = PersonTable(Person.objects.all())
             RequestConfig(request).configure(table)
-            render(table=table, request=request)
+            # render
+            (Template('{% load django_tables2 %}{% render_table table %}')
+             .render(Context({'table': table, 'request': request})))
 
 
 @templates.test

@@ -63,6 +63,12 @@ globally, use::
 Change log
 ==========
 
+v0.14.0
+-------
+
+- ``querystring`` and ``seturlparam`` template tags now require the request to
+  be in the context (backwards incompatible) -- #127
+
 v0.13.0
 -------
 
