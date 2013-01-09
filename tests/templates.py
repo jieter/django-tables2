@@ -6,6 +6,7 @@ import django_tables2 as tables
 from django_tables2.config import RequestConfig
 from django_tables2.utils import build_request
 from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
 from django.template import Template, RequestContext, Context
 from django.utils.translation import ugettext_lazy
 from django.utils.safestring import mark_safe
@@ -203,6 +204,13 @@ def querystring_templatetag():
     assert qs["age"] == ["21"]
     assert qs["a"] == ["b"]
     assert qs["c"] == ["5"]
+
+
+@templates.test
+def querystring_templatetag_requires_request():
+    with raises(ImproperlyConfigured):
+        (Template('{% load django_tables2 %}{% querystring "name"="Brad" %}')
+         .render(Context()))
 
 
 @templates.test
