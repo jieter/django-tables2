@@ -1,11 +1,10 @@
 # coding: utf-8
 from attest import assert_hook, raises, Tests  # pylint: disable=W0611
 from contextlib import contextmanager
-from django_attest import queries, TestContext
+from django_attest import queries, settings, TestContext
 import django_tables2 as tables
 from django_tables2.config import RequestConfig
 from django_tables2.utils import build_request
-from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.template import Template, RequestContext, Context
 from django.utils.translation import ugettext_lazy
@@ -148,13 +147,13 @@ def render_table_templatetag():
     template = Template('{% load django_tables2 %}'
                         '{% render_table this_doesnt_exist %}')
     with raises(ValueError):
-        settings.DEBUG = True
-        template.render(Context())
+        with settings(DEBUG=True):
+            template.render(Context())
 
     # Should still be noisy with debug off
     with raises(ValueError):
-        settings.DEBUG = False
-        template.render(Context())
+        with settings(DEBUG=False):
+            template.render(Context())
 
 
 @templates.test
@@ -310,7 +309,7 @@ def localization_check():
         pass
     else:
 
-        from django_tables2.utils import override_settings, override_translation
+        from django_tables2.utils import override_translation
 
         def get_cond_localized_table(localizeit=None):
             '''
@@ -335,10 +334,8 @@ def localization_check():
         html = get_cond_localized_table(False)(simple_test_data).as_html()
         assert '<td class="name">{0}</td>'.format(expected_reults[False]) in html
 
-        with override_settings(USE_L10N = True, USE_THOUSAND_SEPARATOR = True):
-
+        with settings(USE_L10N=True, USE_THOUSAND_SEPARATOR=True):
             with override_translation("pl"):
-
                 # with default polish locales and enabled thousand separator
                 # 1234.5 is formatted as "1 234,5" with nbsp
                 html = get_cond_localized_table(True)(simple_test_data).as_html()
@@ -362,7 +359,7 @@ def localization_check_in_meta():
         pass
     else:
 
-        from django_tables2.utils import override_settings, override_translation
+        from django_tables2.utils import override_translation
 
         class TableNoLocalize(tables.Table):
             name = tables.Column(verbose_name="my column")
@@ -403,10 +400,8 @@ def localization_check_in_meta():
         html = TableNoLocalize(simple_test_data).as_html()
         assert '<td class="name">{0}</td>'.format(expected_reults[None]) in html
 
-        with override_settings(USE_L10N = True, USE_THOUSAND_SEPARATOR = True):
-
+        with settings(USE_L10N=True, USE_THOUSAND_SEPARATOR=True):
             with override_translation("pl"):
-
                 # the same as in localization_check.
                 # with localization and polish locale we get formatted output
                 html = TableNoLocalize(simple_test_data).as_html()
