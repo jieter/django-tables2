@@ -68,6 +68,7 @@ v0.14.0
 
 - ``querystring`` and ``seturlparam`` template tags now require the request to
   be in the context (backwards incompatible) -- #127
+- Add Travis CI support
 
 v0.13.0
 -------
