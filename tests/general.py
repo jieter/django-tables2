@@ -12,8 +12,10 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.test.client import Client
 from django.test.simple import build_test
+from django.utils.translation import ugettext
 import django_attest
-from django_attest import queries, redirects, TestContext, signals, urlconf
+from django_attest import (
+    queries, redirects, TestContext, translation, signals, urlconf)
 from pkg_resources import parse_version
 from tests.app.models import Thing
 
@@ -178,3 +180,12 @@ def urlconf_allows_local_view():
     urls = patterns('', (r'view/', view))
     with urlconf(urls):
         assert client.get(reverse(view)).content == b'success'
+
+
+@suite.test
+def translation_works():
+    assert ugettext('the apple') == 'the apple'
+    with translation('de'):
+        assert ugettext('the apple') == 'der Apfel'
+        with translation('en'):
+            assert ugettext('the apple') == 'the apple'

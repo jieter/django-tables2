@@ -29,3 +29,8 @@ TEST_RUNNER = 'django_attest.Runner'
 TEMPLATE_DIRS = (
     join(ROOT, "templates"),
 )
+
+LANGUAGES = (
+    ('de', 'German'),
+    ('en', 'English'),
+)

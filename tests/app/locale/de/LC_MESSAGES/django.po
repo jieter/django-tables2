@@ -1,0 +1,16 @@
+# This file is distributed under the same license as the django-tables2 package
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: django-attest\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2013-01-10 09:29+1000\n"
+"PO-Revision-Date: 2013-01-10 09:29+1000\n"
+"Last-Translator: Bradley Ayers <bradley.ayers@gmail.com>\n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "the apple"
+msgstr "der Apfel"

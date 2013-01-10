@@ -261,8 +261,8 @@ Context managers
 django-attest has some context managers to simplify common tasks:
 
 
-settings
-^^^^^^^^
+settings(**settings)
+^^^^^^^^^^^^^^^^^^^^
 
 Change global settings within a block, same functionality as Django 1.4's
 ``TestCase.settings``::
@@ -282,8 +282,21 @@ settings remaining constant.
     ``django.test.signals.setting_changed``.
 
 
-urlconf
-^^^^^^^
+translation(language_code, deactivate=False)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Activate a specific translation/language. The semantics are the same as Django
+1.4's ``django.utils.translation.override``::
+
+    from django_attest import translation
+    from django.utils.translation import ugettext
+
+    with translation('de'):
+        assert ugettext('the apple') == 'der Apfel'
+
+
+urlconf(patterns)
+^^^^^^^^^^^^^^^^^
 
 Takes a list of URL patterns and promotes them up as the root URLconf. This
 avoids the need to have a dedicated *test project* and ``urls.py`` for simple
@@ -317,6 +330,7 @@ Changelog
 v0.10.0
 -------
 
+- Add ``translation`` context manager
 - Add Travis CI testing
 
 v0.9.1
