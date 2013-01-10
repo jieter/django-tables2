@@ -308,10 +308,16 @@ Backports
 
 - ``django_attest.RequestFactory`` (from Django 1.4)
 - ``django_attest.settings`` (``override_settings`` inspired from Django 1.4)
+- ``django_attest.translation`` (``django.utils.translation.override`` port from Django 1.4)
 
 
 Changelog
 =========
+
+v0.10.0
+-------
+
+- Add Travis CI testing
 
 v0.9.1
 ------
