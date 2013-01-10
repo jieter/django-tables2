@@ -472,27 +472,3 @@ def build_request(uri='/'):
             'wsgi.multithread':  False,
             'wsgi.run_once':     False,
         })
-
-
-# helper context managers to support older Djangos
-# for testing purposes only. borrowed from Django 1.4 with some modifications
-from django.utils import translation
-
-
-class override_translation(object):
-    def __init__(self, language, deactivate=False):
-        self.language = language
-        self.deactivate = deactivate
-        self.old_language = translation.get_language()
-
-    def __enter__(self):
-        if self.language is not None:
-            translation.activate(self.language)
-        else:
-            translation.deactivate_all()
-
-    def __exit__(self, exc_type, exc_value, traceback):
-        if self.deactivate:
-            translation.deactivate()
-        else:
-            translation.activate(self.old_language)
