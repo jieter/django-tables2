@@ -2,9 +2,11 @@
 django-attest
 =============
 
+.. figure:: https://travis-ci.org/bradleyayers/django-tables2.png
+
 An alternative testing framework for Django, based on Attest.
 
-Attempts to provide a more Pythonic testing API than `unittest`. Useful
+Attempts to provide a more Pythonic testing API than ``unittest``. Useful
 testing features in recent version of Django have been included for use with
 older version.
 
