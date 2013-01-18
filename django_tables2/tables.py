@@ -1,5 +1,6 @@
 # coding: utf-8
 import copy
+import sys
 from django.core.paginator       import Paginator
 from django.db.models.fields     import FieldDoesNotExist
 from django.utils.datastructures import SortedDict
@@ -34,10 +35,12 @@ class TableData(object):
         else:
             try:
                 self.list = list(data)
-            except:
-                raise ValueError('data must be QuerySet-like (have count and '
-                                 'order_by) or support list(data) -- %s has '
-                                 'neither' % type(data).__name__)
+            except Exception as err:
+                import sys
+                raise ValueError ("data won't behave like a list or QuerySet." +
+                " Got this error when attempting to convert to list: %s" %
+                str(err)), None, sys.exc_info()[2]
+
 
     def __len__(self):
         if not hasattr(self, "_length"):
