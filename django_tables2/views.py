@@ -100,7 +100,11 @@ class SingleTableView(SingleTableMixin, ListView):
 class MultiTableMixin(object):
     """
     Adds multiple Table objects to the context. Typically used with
-    `.TemplateResponseMixin`. Table pagination is not supported.
+    `.TemplateResponseMixin`.
+
+    If enabling pagination for multiple tables (the default), to avoid a
+    collision on pagination parameters uniquely defined table.prefix for
+    each of your tables.
 
     :param       table_classes: valuees are table classes
     :type        table_classes: dict of table_id -> `.Table`
@@ -109,6 +113,11 @@ class MultiTableMixin(object):
     :param        table_models: models of objects to use in table, if no
                                 "get_<table_id>_queryset" method is defined
     :type         table_models: dict of table_id -> `.Model`
+    :param   table_paginations: controls table pagination for each table.
+                                Value is passed as the *paginate* keyword
+                                argument to `.RequestConfig`. As such,
+                                any non-`False` value enables pagination.
+    :type    table_paginations: dict of table_id -> pagination options
     :param context_table_names: name of the table's template variable
                                 (default: "<table_id>_table")
     :type  context_table_names: dict of table_id -> `unicode`
@@ -116,6 +125,7 @@ class MultiTableMixin(object):
     table_classes = {}
     table_data = {}
     table_models = {}
+    table_paginations = {}
     context_table_names = {}
 
     def get_tables(self):
@@ -125,7 +135,12 @@ class MultiTableMixin(object):
         table_classes = self.get_table_classes()
         tables = {}
         for table_id, table_class in table_classes.iteritems():
+            options = {}
             table = table_class(self.get_table_data(table_id))
+            paginate = self.get_table_pagination(table_id)
+            if paginate is not None:
+                options['paginate'] = paginate
+            RequestConfig(self.request, **options).configure(table)
             tables[table_id] = table
         return tables
 
@@ -164,6 +179,14 @@ class MultiTableMixin(object):
                                        "cls": type(self).__name__,
                                        "table_id": table_id,
                                    })
+
+    def get_table_pagination(self, table_id):
+        """
+        Returns pagination options for the requested table:
+        True for standard pagination (default),
+        False for no pagination, and a dictionary for custom pagination.
+        """
+        return self.table_paginations.get(table_id, True)
 
     def get_context_data(self, **kwargs):
         """
