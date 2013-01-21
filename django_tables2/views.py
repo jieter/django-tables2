@@ -102,16 +102,16 @@ class MultiTableMixin(object):
     Adds multiple Table objects to the context. Typically used with
     `.TemplateResponseMixin`. Table pagination is not supported.
 
-    :param       table_classes: table classes
-    :type        table_classes: dict of name -> `.Table`
+    :param       table_classes: valuees are table classes
+    :type        table_classes: dict of table_id -> `.Table`
     :param          table_data: data used to populate the table
-    :type           table_data: dict of name -> any compatible data source
+    :type           table_data: dict of table_id -> compatible data source
     :param        table_models: models of objects to use in table, if no
-                                "get_<name>_queryset" method is defined
-    :type         table_models: dict of name -> `.Model`
+                                "get_<table_id>_queryset" method is defined
+    :type         table_models: dict of table_id -> `.Model`
     :param context_table_names: name of the table's template variable
-                                (default: "<name>_table")
-    :type  context_table_names: dict of name -> `unicode`
+                                (default: "<table_id>_table")
+    :type  context_table_names: dict of table_id -> `unicode`
     """
     table_classes = {}
     table_data = {}
@@ -124,11 +124,9 @@ class MultiTableMixin(object):
         """
         table_classes = self.get_table_classes()
         tables = {}
-        for name, table_class in table_classes.iteritems():
-            table = table_class(self.get_table_data(name))
-            # TODO: handle collision on sorting parameters for multiple tables
-            RequestConfig(self.request).configure(table)
-            tables[name] = table
+        for table_id, table_class in table_classes.iteritems():
+            table = table_class(self.get_table_data(table_id))
+            tables[table_id] = table
         return tables
 
     def get_table_classes(self):
@@ -141,30 +139,30 @@ class MultiTableMixin(object):
                                    u"%(cls)s.table_classes"
                                    % {"cls": type(self).__name__})
 
-    def get_context_table_name(self, table_name):
+    def get_context_table_name(self, table_id):
         """
         Get the name to use for the table's template variable.
         """
-        default = '%s_table' % table_name
-        return self.context_table_names.get(table_name, default)
+        default = '%s_table' % table_id
+        return self.context_table_names.get(table_id, default)
 
-    def get_table_data(self, table_name):
+    def get_table_data(self, table_id):
         """
         Return the table data that should be used to populate the rows.
         """
-        if table_name in self.table_data:
-            return self.table_data[table_name]
-        if hasattr(self, 'get_%s_queryset' % table_name):
-            return getattr(self, 'get_%s_queryset' % table_name)()
-        if table_name in self.table_models:
-            return self.table_models[table_name].objects.all()
-        raise ImproperlyConfigured(u"Table data for %(name)s not specified. "
-                                   u"Define %(cls)s.table_data[%(name)s], "
-                                   u"%(cls)s.get_%(name)s_queryset(), or "
-                                   u"%(cls)s.table_models[%(name)s]."
+        if table_id in self.table_data:
+            return self.table_data[table_id]
+        if hasattr(self, 'get_%s_queryset' % table_id):
+            return getattr(self, 'get_%s_queryset' % table_id)()
+        if table_id in self.table_models:
+            return self.table_models[table_id].objects.all()
+        raise ImproperlyConfigured(u"Table data for %(table_id)s not specified. "
+                                   u"Define %(cls)s.table_data[%(table_id)s], "
+                                   u"%(cls)s.get_%(table_id)s_queryset(), or "
+                                   u"%(cls)s.table_models[%(table_id)s]."
                                    % {
                                        "cls": type(self).__name__,
-                                       "name": table_name,
+                                       "table_id": table_id,
                                    })
 
     def get_context_data(self, **kwargs):
@@ -175,8 +173,8 @@ class MultiTableMixin(object):
         context = super(MultiTableMixin, self).get_context_data(**kwargs)
         tables = self.get_tables()
         context.update(dict(
-            (self.get_context_table_name(table_name), table)
-            for table_name, table in tables.iteritems()
+            (self.get_context_table_name(table_id), table)
+            for table_id, table in tables.iteritems()
         ))
         return context
 
