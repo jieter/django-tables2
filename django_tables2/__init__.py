@@ -7,7 +7,8 @@ from .columns import (BooleanColumn, Column, CheckBoxColumn, DateColumn,
 from .config  import RequestConfig
 from .utils   import A, Attrs
 try:
-    from .views   import SingleTableMixin, SingleTableView
+    from .views   import (SingleTableMixin, SingleTableView, MultiTableMixin,
+                          MultiTableView)
 except ImportError:
     pass
 
