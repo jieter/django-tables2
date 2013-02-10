@@ -24,7 +24,9 @@ Its features include:
 - Template tag to enable trivial rendering to HTML.
 - Generic view mixin for use in Django 1.3.
 
-Creating a table is as simple as::
+Creating a table is as simple as:
+
+.. code-block:: python
 
     import django_tables2 as tables
 
@@ -32,7 +34,9 @@ Creating a table is as simple as::
         class Meta:
             model = Simple
 
-This would then be used in a view::
+This would then be used in a view:
+
+.. code-block:: python
 
     def simple_list(request):
         queryset = Simple.objects.all()
