@@ -1,7 +1,7 @@
 # coding: utf-8
 from django.db import models
 from django.db.models.fields import FieldDoesNotExist
-from .utils import A, getargspec
+from .utils import A, basestring, getargspec
 
 
 class BoundRow(object):

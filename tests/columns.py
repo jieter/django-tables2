@@ -451,11 +451,11 @@ def unicode():
     # test unicode values + headings
     class UnicodeTable(tables.Table):
         first_name = tables.LinkColumn('person', args=[A('pk')])
-        last_name = tables.LinkColumn('person', args=[A('pk')], verbose_name=u'äÚ¨´ˆÁ˜¨ˆ˜˘Ú…Ò˚ˆπ∆ˆ´')
+        last_name = tables.LinkColumn('person', args=[A('pk')], verbose_name='äÚ¨´ˆÁ˜¨ˆ˜˘Ú…Ò˚ˆπ∆ˆ´')
 
     dataset = [
-        {'pk': 1, 'first_name': u'Brädley', 'last_name': u'∆yers'},
-        {'pk': 2, 'first_name': u'Chr…s', 'last_name': u'DÒble'},
+        {'pk': 1, 'first_name': 'Brädley', 'last_name': '∆yers'},
+        {'pk': 2, 'first_name': 'Chr…s', 'last_name': 'DÒble'},
     ]
 
     table = UnicodeTable(dataset)
@@ -463,10 +463,10 @@ def unicode():
     template = Template('{% load django_tables2 %}{% render_table table %}')
     html = template.render(Context({'request': request, 'table': table}))
 
-    assert u'Brädley' in html
-    assert u'∆yers' in html
-    assert u'Chr…s' in html
-    assert u'DÒble' in html
+    assert 'Brädley' in html
+    assert '∆yers' in html
+    assert 'Chr…s' in html
+    assert 'DÒble' in html
 
 
 @linkcolumn.test

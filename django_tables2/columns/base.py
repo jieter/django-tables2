@@ -4,8 +4,9 @@ from django.db.models.fields import FieldDoesNotExist
 from django.utils.datastructures import SortedDict
 from django.utils.safestring import SafeData
 from django_tables2.templatetags.django_tables2 import title
-from django_tables2.utils import A, AttributeDict, OrderBy, OrderByTuple
-from itertools import ifilter, islice
+from django_tables2.utils import (A, AttributeDict, basestring, OrderBy,
+                                  OrderByTuple)
+from itertools import islice
 import warnings
 
 
@@ -573,7 +574,7 @@ class BoundColumns(object):
         conjunction with e.g. ``{{ forloop.last }}`` (the last column might not
         be the actual last that is rendered).
         """
-        return ifilter(lambda x: x.orderable, self.iterall())
+        return (x for x in self.iterall() if x.orderable)
 
     def itersortable(self):
         warnings.warn('`itersortable` is deprecated, use `iterorderable` instead.',
@@ -595,7 +596,7 @@ class BoundColumns(object):
 
         This is geared towards table rendering.
         """
-        return ifilter(lambda x: x.visible, self.iterall())
+        return (x for x in self.iterall() if x.visible)
 
     def visible(self):
         return list(self.itervisible())

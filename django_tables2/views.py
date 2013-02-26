@@ -1,4 +1,5 @@
 # coding: utf-8
+from __future__ import unicode_literals
 from django.core.exceptions import ImproperlyConfigured
 from django.views.generic.list import ListView
 from .config import RequestConfig
@@ -50,8 +51,8 @@ class SingleTableMixin(object):
         """
         if self.table_class:
             return self.table_class
-        raise ImproperlyConfigured(u"A table class was not specified. Define "
-                                   u"%(cls)s.table_class"
+        raise ImproperlyConfigured("A table class was not specified. Define "
+                                   "%(cls)s.table_class"
                                    % {"cls": type(self).__name__})
 
     def get_context_table_name(self, table):
@@ -68,8 +69,8 @@ class SingleTableMixin(object):
             return self.table_data
         elif hasattr(self, "get_queryset"):
             return self.get_queryset()
-        raise ImproperlyConfigured(u"Table data was not specified. Define "
-                                   u"%(cls)s.table_data"
+        raise ImproperlyConfigured("Table data was not specified. Define "
+                                   "%(cls)s.table_data"
                                    % {"cls": type(self).__name__})
 
     def get_table_pagination(self):

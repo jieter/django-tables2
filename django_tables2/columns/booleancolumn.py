@@ -3,7 +3,7 @@ from __future__ import absolute_import, unicode_literals
 from django.db import models
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
-from django_tables2.utils import AttributeDict
+from django_tables2.utils import AttributeDict, basestring
 from .base import Column, library
 
 

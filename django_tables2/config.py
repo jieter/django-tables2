@@ -1,4 +1,5 @@
 # coding: utf-8
+from __future__ import unicode_literals
 from django.core.paginator import EmptyPage, PageNotAnInteger
 
 
@@ -42,7 +43,7 @@ class RequestConfig(object):
                 kwargs = {}
             # extract some options from the request
             for arg in ("page", "per_page"):
-                name = getattr(table, u"prefixed_%s_field" % arg)
+                name = getattr(table, "prefixed_%s_field" % arg)
                 try:
                     kwargs[arg] = int(self.request.GET[name])
                 except (ValueError, KeyError):

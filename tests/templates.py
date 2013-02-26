@@ -1,4 +1,5 @@
 # coding: utf-8
+from __future__ import unicode_literals
 from attest import assert_hook, raises, Tests  # pylint: disable=W0611
 from contextlib import contextmanager
 from django_attest import queries, settings, TestContext
@@ -9,7 +10,10 @@ from django.core.exceptions import ImproperlyConfigured
 from django.template import Template, RequestContext, Context
 from django.utils.translation import ugettext_lazy
 from django.utils.safestring import mark_safe
-from urlparse import parse_qs
+try:
+    from urlparse import parse_qs
+except ImportError:
+    from urllib.parse import parse_qs
 import lxml.etree
 import lxml.html
 from .app.models import Person, Region
@@ -99,8 +103,8 @@ def custom_rendering():
     # row values
     template = Template('{% for row in countries.rows %}{% for value in row %}'
                         '{{ value }} {% endfor %}{% endfor %}')
-    result = (u'Germany Berlin 83 49 France — 64 33 Netherlands Amsterdam '
-              u'— 31 Austria — 8 43 ')
+    result = ('Germany Berlin 83 49 France — 64 33 Netherlands Amsterdam '
+              '— 31 Austria — 8 43 ')
     assert result == template.render(context)
 
 
@@ -179,7 +183,7 @@ def render_table_supports_queryset():
         td = [[unicode(td.text) for td in tr.findall('td')] for tr in root.findall('.//tbody/tr')]
         db = []
         for region in Region.objects.all():
-            db.append([unicode(region.id), region.name, u"—"])
+            db.append([unicode(region.id), region.name, "—"])
         assert td == db
 
 
@@ -323,7 +327,7 @@ def localization_check():
         expected_reults = {
             None : '1234.5',
             False: '1234.5',
-            True :  u'1{0}234,5'.format(u' ')  # non-breaking space
+            True :  '1{0}234,5'.format(' ')  # non-breaking space
         }
 
         # no localization
@@ -339,16 +343,16 @@ def localization_check():
                 # with default polish locales and enabled thousand separator
                 # 1234.5 is formatted as "1 234,5" with nbsp
                 html = get_cond_localized_table(True)(simple_test_data).as_html()
-                assert u'<td class="name">{0}</td>'.format(expected_reults[True]) in html
+                assert '<td class="name">{0}</td>'.format(expected_reults[True]) in html
 
                 # with localize = False there should be no formatting
                 html = get_cond_localized_table(False)(simple_test_data).as_html()
-                assert u'<td class="name">{0}</td>'.format(expected_reults[False]) in html
+                assert '<td class="name">{0}</td>'.format(expected_reults[False]) in html
 
                 # with localize = None and USE_L10N = True
                 # there should be the same formatting as with localize = True
                 html = get_cond_localized_table(None)(simple_test_data).as_html()
-                assert u'<td class="name">{0}</td>'.format(expected_reults[True]) in html
+                assert '<td class="name">{0}</td>'.format(expected_reults[True]) in html
 
 
 @templates.test
@@ -393,7 +397,7 @@ def localization_check_in_meta():
         expected_reults = {
             None : '1234.5',
             False: '1234.5',
-            True :  u'1{0}234,5'.format(u' ')  # non-breaking space
+            True :  '1{0}234,5'.format(' ')  # non-breaking space
         }
 
         # No localize
@@ -405,11 +409,11 @@ def localization_check_in_meta():
                 # the same as in localization_check.
                 # with localization and polish locale we get formatted output
                 html = TableNoLocalize(simple_test_data).as_html()
-                assert u'<td class="name">{0}</td>'.format(expected_reults[True]) in html
+                assert '<td class="name">{0}</td>'.format(expected_reults[True]) in html
 
                 # localize
                 html = TableLocalize(simple_test_data).as_html()
-                assert u'<td class="name">{0}</td>'.format(expected_reults[True]) in html
+                assert '<td class="name">{0}</td>'.format(expected_reults[True]) in html
 
                 # unlocalize
                 html = TableUnlocalize(simple_test_data).as_html()

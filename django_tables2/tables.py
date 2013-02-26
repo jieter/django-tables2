@@ -1,4 +1,5 @@
 # coding: utf-8
+from __future__ import unicode_literals
 import copy
 from django.core.paginator       import Paginator
 from django.db.models.fields     import FieldDoesNotExist
@@ -7,8 +8,8 @@ from django.template             import RequestContext
 from django.template.loader      import get_template
 import warnings
 from .config import RequestConfig
-from .utils import (Accessor, AttributeDict, cached_property, build_request,
-                    OrderBy, OrderByTuple, segment, Sequence)
+from .utils import (Accessor, AttributeDict, basestring, build_request,
+                    cached_property, OrderBy, OrderByTuple, segment, Sequence)
 from .rows  import BoundRows
 from .      import columns
 
@@ -223,7 +224,7 @@ class TableOptions(object):
     def __init__(self, options=None):
         super(TableOptions, self).__init__()
         self.attrs = AttributeDict(getattr(options, "attrs", {}))
-        self.default = getattr(options, "default", u"—")
+        self.default = getattr(options, "default", "—")
         self.empty_text = getattr(options, "empty_text", None)
         self.fields = getattr(options, "fields", ())
         self.exclude = getattr(options, "exclude", ())
@@ -547,15 +548,15 @@ class Table(object):
 
     @property
     def prefixed_order_by_field(self):
-        return u"%s%s" % (self.prefix, self.order_by_field)
+        return "%s%s" % (self.prefix, self.order_by_field)
 
     @property
     def prefixed_page_field(self):
-        return u"%s%s" % (self.prefix, self.page_field)
+        return "%s%s" % (self.prefix, self.page_field)
 
     @property
     def prefixed_per_page_field(self):
-        return u"%s%s" % (self.prefix, self.per_page_field)
+        return "%s%s" % (self.prefix, self.per_page_field)
 
     @property
     def sequence(self):

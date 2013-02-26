@@ -1,5 +1,5 @@
 # coding: utf-8
-from __future__ import absolute_import
+from __future__ import absolute_import, unicode_literals
 from django import template
 from django.core.exceptions import ImproperlyConfigured
 from django.template import TemplateSyntaxError, Variable, Node
@@ -11,8 +11,12 @@ from django.utils.html import escape
 from django.utils.safestring import mark_safe
 import django_tables2 as tables
 from django_tables2.config import RequestConfig
+from django_tables2.utils import basestring
 import re
-import StringIO
+try:
+    from io import StringIO
+except ImportError:
+    from StringIO import StringIO
 import tokenize
 
 
@@ -85,7 +89,7 @@ def set_url_param(parser, token):
             key, value = i.split('=', 1)
             key = key.strip()
             value = value.strip()
-            key_line_iter = StringIO.StringIO(key).readline
+            key_line_iter = StringIO(key).readline
             keys = list(tokenize.generate_tokens(key_line_iter))
             if keys[0][0] == tokenize.NAME:
                 # workaround bug #5270
@@ -241,7 +245,7 @@ def render_table(parser, token):
     try:
         tag, table = bits.pop(0), parser.compile_filter(bits.pop(0))
     except ValueError:
-        raise TemplateSyntaxError(u"'%s' must be given a table or queryset."
+        raise TemplateSyntaxError("'%s' must be given a table or queryset."
                                   % bits[0])
     template = parser.compile_filter(bits.pop(0)) if bits else None
     return RenderTableNode(table, template)

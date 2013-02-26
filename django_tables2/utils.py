@@ -5,10 +5,21 @@ from django.utils.functional import curry
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.test.client import FakePayload
-from itertools import chain, ifilter
+from itertools import chain
 import inspect
-from StringIO import StringIO
+try:
+    from io import StringIO
+except ImportError:
+    # Python 2 fallback
+    from StringIO import StringIO
 import warnings
+
+
+try:
+    basestring
+except NameError:
+    # Python 3 compatibility
+    basestring = str
 
 
 class Sequence(list):
@@ -429,7 +440,8 @@ class cached_property(object):  # pylint: disable=C0103
         return res
 
 
-funcs = ifilter(curry(hasattr, inspect), ('getfullargspec', 'getargspec'))
+funcs = (name for name in ('getfullargspec', 'getargspec')
+                       if hasattr(inspect, name))
 getargspec = getattr(inspect, next(funcs))
 del funcs
 
