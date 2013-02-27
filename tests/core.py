@@ -1,6 +1,6 @@
 # coding: utf-8
 """Test the core table functionality."""
-from __future__ import absolute_import
+from __future__ import absolute_import, unicode_literals
 from attest import assert_hook, raises, Tests, warns
 import copy
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator

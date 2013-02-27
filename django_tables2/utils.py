@@ -16,7 +16,7 @@ import warnings
 
 
 try:
-    basestring
+    basestring = basestring
 except NameError:
     # Python 3 compatibility
     basestring = str
