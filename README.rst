@@ -75,6 +75,7 @@ v0.14.0
   be in the context (backwards incompatible) -- #127
 - Add Travis CI support
 - Add support for Django 1.5
+- Add L10N control for columns #120 (no-op in < Django 1.3)
 
 v0.13.0
 -------

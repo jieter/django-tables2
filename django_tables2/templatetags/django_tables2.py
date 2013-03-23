@@ -284,3 +284,17 @@ def title(value):
     return re.sub('(\S+)', lambda m: title_word(m.group(0)), value)
 title.is_safe = True
 
+
+# Django 1.2 doesn't include the l10n template tag library (and it's non-
+# trivial to implement) so for Django 1.2 the localize functionality is
+# disabled.
+try:
+    from django.templatetags.l10n import register as l10n_register
+except ImportError:
+    localize = unlocalize = lambda x: x  # no-op
+else:
+    localize = l10n_register.filters['localize']
+    unlocalize = l10n_register.filters['unlocalize']
+
+register.filter('localize', localize)
+register.filter('unlocalize', unlocalize)
