@@ -1,7 +1,8 @@
 # coding: utf-8
+from .utils import A, getargspec
 from django.db import models
 from django.db.models.fields import FieldDoesNotExist
-from .utils import A, basestring, getargspec
+import six
 
 
 class BoundRow(object):
@@ -136,18 +137,19 @@ class BoundRow(object):
 
         # provide only the arguments expected by `render`
         argspec = getargspec(bound_column.render)
-        if argspec.keywords:
+        args, varkw = argspec[0], argspec[2]
+        if varkw:
             expected = available
         else:
             for key, value in available.items():
-                if key in argspec.args[1:]:
+                if key in args[1:]:
                     expected[key] = value
 
         return bound_column.render(**expected)
 
     def __contains__(self, item):
         """Check by both row object and column name."""
-        if isinstance(item, basestring):
+        if isinstance(item, six.string_types):
             return item in self.table._columns
         else:
             return item in self

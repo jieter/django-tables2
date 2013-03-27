@@ -1,25 +1,30 @@
 # coding: utf-8
 from __future__ import absolute_import, unicode_literals
 from django.core.handlers.wsgi import WSGIRequest
-from django.utils.functional import curry
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.test.client import FakePayload
 from itertools import chain
 import inspect
-try:
-    from io import StringIO
-except ImportError:
-    # Python 2 fallback
-    from StringIO import StringIO
+import operator
+import six
 import warnings
 
 
-try:
-    basestring = basestring
-except NameError:
-    # Python 3 compatibility
-    basestring = str
+def python_2_unicode_compatible(klass):
+    """
+    A decorator that defines __unicode__ and __str__ methods under Python 2.
+    Under Python 3 it does nothing.
+
+    To support Python 2 and 3 with a single code base, define a __str__ method
+    returning text and apply this decorator to the class.
+
+    Taken directly from Django.
+    """
+    if not six.PY3:
+        klass.__unicode__ = klass.__str__
+        klass.__str__ = lambda self: self.__unicode__().encode('utf-8')
+    return klass
 
 
 class Sequence(list):
@@ -48,7 +53,7 @@ class Sequence(list):
             self.append("...")
 
         # everything looks good, let's expand the "..." item
-        columns = columns[:]  # don't modify
+        columns = list(columns)  # take a copy and exhaust the generator
         head = []
         tail = []
         target = head  # start by adding things to the head
@@ -63,7 +68,7 @@ class Sequence(list):
         self[:] = chain(head, columns, tail)
 
 
-class OrderBy(str):
+class OrderBy(six.text_type):
     """
     A single item in an `.OrderByTuple` object. This class is
     essentially just a `str` with some extra properties.
@@ -118,6 +123,7 @@ class OrderBy(str):
         return not self.is_descending
 
 
+@python_2_unicode_compatible
 class OrderByTuple(tuple):
     """Stores ordering as (as `.OrderBy` objects). The
     `~django_tables2.tables.Table.order_by` property is always converted
@@ -147,11 +153,7 @@ class OrderByTuple(tuple):
         return super(OrderByTuple, cls).__new__(cls, transformed)
 
     def __unicode__(self):
-        """Human readable format."""
         return ','.join(self)
-
-    def __str__(self):
-        return unicode(self).encode('utf-8')
 
     def __contains__(self, name):
         """
@@ -196,12 +198,59 @@ class OrderByTuple(tuple):
 
         :rtype: `.OrderBy` object
         """
-        if isinstance(index, basestring):
+        if isinstance(index, six.string_types):
             for order_by in self:
                 if order_by == index or order_by.bare == index:
                     return order_by
             raise KeyError
         return super(OrderByTuple, self).__getitem__(index)
+
+    @property
+    def key(self):
+        accessors = []
+        reversing = []
+        for order_by in self:
+            accessors.append(Accessor(order_by.bare))
+            reversing.append(order_by.is_descending)
+
+        @total_ordering
+        class Comparator(object):
+            def __init__(self, obj):
+                self.obj = obj
+
+            def __eq__(self, other):
+                for accessor in accessors:
+                    a = accessor.resolve(self.obj, quiet=True)
+                    b = accessor.resolve(other.obj, quiet=True)
+                    if not a == b:
+                        return False
+                return True
+
+            def __lt__(self, other):
+                for accessor, reverse in six.moves.zip(accessors, reversing):
+                    a = accessor.resolve(self.obj, quiet=True)
+                    b = accessor.resolve(other.obj, quiet=True)
+                    if a == b:
+                        continue
+                    if reverse:
+                        a, b = b, a
+                    # The rest of this should be refactored out into a util
+                    # function 'compare' that handles different types.
+                    try:
+                        return a < b
+                    except TypeError:
+                        # If the truth values differ, it's a good way to
+                        # determine ordering.
+                        if bool(a) is not bool(b):
+                            return bool(a) < bool(b)
+                        # Handle comparing different types, by falling back to
+                        # the string and id of the type. This at least groups
+                        # different types together.
+                        a_type = type(a)
+                        b_type = type(b)
+                        return (repr(a_type), id(a_type)) < (repr(b_type), id(b_type))
+                return False
+        return Comparator
 
     @property
     def cmp(self):
@@ -212,6 +261,9 @@ class OrderByTuple(tuple):
 
         :rtype: function
         """
+        warnings.warn('`cmp` is deprecated, use `key` instead.',
+                      DeprecationWarning)
+
         # pylint: disable=C0103
         def _cmp(a, b):
             for accessor, reverse in instructions:
@@ -371,7 +423,7 @@ class AttributeDict(dict):
 
         """
         return mark_safe(' '.join(['%s="%s"' % (k, escape(v))
-                                   for k, v in self.iteritems()]))
+                                   for k, v in six.iteritems(self)]))
 
 
 class Attrs(dict):
@@ -467,8 +519,36 @@ def build_request(uri='/'):
             'wsgi.version':      (1, 0),
             'wsgi.url_scheme':   'http',
             'wsgi.input':        FakePayload(b''),
-            'wsgi.errors':       StringIO(),
+            'wsgi.errors':       six.StringIO(),
             'wsgi.multiprocess': True,
             'wsgi.multithread':  False,
             'wsgi.run_once':     False,
         })
+
+
+def total_ordering(cls):
+    """Class decorator that fills in missing ordering methods"""
+    convert = {
+        '__lt__': [('__gt__', lambda self, other: not (self < other or self == other)),
+                   ('__le__', lambda self, other: self < other or self == other),
+                   ('__ge__', lambda self, other: not self < other)],
+        '__le__': [('__ge__', lambda self, other: not self <= other or self == other),
+                   ('__lt__', lambda self, other: self <= other and not self == other),
+                   ('__gt__', lambda self, other: not self <= other)],
+        '__gt__': [('__lt__', lambda self, other: not (self > other or self == other)),
+                   ('__ge__', lambda self, other: self > other or self == other),
+                   ('__le__', lambda self, other: not self > other)],
+        '__ge__': [('__le__', lambda self, other: (not self >= other) or self == other),
+                   ('__gt__', lambda self, other: self >= other and not self == other),
+                   ('__lt__', lambda self, other: not self >= other)]
+    }
+    roots = set(dir(cls)) & set(convert)
+    if not roots:
+        raise ValueError('must define at least one ordering operation: < > <= >=')
+    root = max(roots)       # prefer __lt__ to __le__ to __gt__ to __ge__
+    for opname, opfunc in convert[root]:
+        if opname not in roots:
+            opfunc.__name__ = opname
+            opfunc.__doc__ = getattr(int, opname).__doc__
+            setattr(cls, opname, opfunc)
+    return cls

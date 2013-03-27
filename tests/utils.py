@@ -22,9 +22,9 @@ def orderbytuple():
 
     # .get
     sentinel = object()
-    assert obt.get('b', sentinel) is obt['b'] # keying
+    assert obt.get('b', sentinel) is obt['b']  # keying
     assert obt.get('-', sentinel) is sentinel
-    assert obt.get(0,   sentinel) is obt['a'] # indexing
+    assert obt.get(0,   sentinel) is obt['a']  # indexing
     assert obt.get(3,   sentinel) is sentinel
 
     # .opposite
@@ -33,6 +33,33 @@ def orderbytuple():
     # in
     assert 'a' in obt and '-a' in obt
 
+
+@utils.test
+def orderbytuple_sort_key_multiple():
+    obt = OrderByTuple(('a', '-b'))
+    items = [
+        {"a": 1, "b": 2},
+        {"a": 1, "b": 3},
+    ]
+    assert sorted(items, key=obt.key) == [
+        {"a": 1, "b": 3},
+        {"a": 1, "b": 2},
+    ]
+
+
+@utils.test
+def orderbytuple_sort_key_empty_comes_first():
+    obt = OrderByTuple(('a'))
+    items = [
+        {"a": 1},
+        {"a": ""},
+        {"a": 2},
+    ]
+    assert sorted(items, key=obt.key) == [
+        {"a": ""},
+        {"a": 1},
+        {"a": 2},
+    ]
 
 @utils.test
 def orderby():

@@ -58,7 +58,7 @@ class CheckBoxColumn(Column):
                           DeprecationWarning)
             attrs.setdefault('th__input', {}).update(extra.pop('header_attrs'))
 
-        kwargs = {b'orderable': False, b'attrs': attrs}
+        kwargs = {'orderable': False, 'attrs': attrs}
         kwargs.update(extra)
         super(CheckBoxColumn, self).__init__(**kwargs)
 

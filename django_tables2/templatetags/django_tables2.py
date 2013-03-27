@@ -11,12 +11,8 @@ from django.utils.html import escape
 from django.utils.safestring import mark_safe
 import django_tables2 as tables
 from django_tables2.config import RequestConfig
-from django_tables2.utils import basestring
 import re
-try:
-    from io import StringIO
-except ImportError:
-    from StringIO import StringIO
+import six
 import tokenize
 
 
@@ -65,7 +61,7 @@ class SetUrlParamNode(Node):
             if newvalue == '' or newvalue is None:
                 params.pop(key, False)
             else:
-                params[key] = unicode(newvalue)
+                params[key] = six.text_type(newvalue)
         return "?" + urlencode(params, doseq=True)
 
 
@@ -89,7 +85,7 @@ def set_url_param(parser, token):
             key, value = i.split('=', 1)
             key = key.strip()
             value = value.strip()
-            key_line_iter = StringIO(key).readline
+            key_line_iter = six.StringIO(key).readline
             keys = list(tokenize.generate_tokens(key_line_iter))
             if keys[0][0] == tokenize.NAME:
                 # workaround bug #5270
@@ -114,7 +110,7 @@ class QuerystringNode(Node):
             raise ImproperlyConfigured(context_processor_error_msg
                                        % 'querystring')
         params = dict(context['request'].GET)
-        for key, value in self.updates.iteritems():
+        for key, value in self.updates.items():
             key = key.resolve(context)
             value = value.resolve(context)
             if key not in ("", None):
@@ -190,7 +186,7 @@ class RenderTableNode(Node):
         else:
             template = table.template
 
-        if isinstance(template, basestring):
+        if isinstance(template, six.string_types):
             template = get_template(template)
         else:
             # assume some iterable was given

@@ -23,7 +23,7 @@ class BaseLinkColumn(Column):
             warnings.warn('attrs keys must be one of %s, interpreting as {"a": %s}'
                           % (', '.join(valid), attrs), DeprecationWarning)
             attrs = {"a": attrs}
-        kwargs[b'attrs'] = attrs
+        kwargs['attrs'] = attrs
         super(BaseLinkColumn, self).__init__(*args, **kwargs)
 
     def render_link(self, uri, text, attrs=None):
@@ -105,28 +105,28 @@ class LinkColumn(BaseLinkColumn):
 
     def render(self, value, record, bound_column):  # pylint: disable=W0221
         viewname = (self.viewname.resolve(record)
-                   if isinstance(self.viewname, A)
-                   else self.viewname)
+                    if isinstance(self.viewname, A)
+                    else self.viewname)
 
         # The following params + if statements create optional arguments to
         # pass to Django's reverse() function.
         params = {}
         if self.urlconf:
-            params[b'urlconf'] = (self.urlconf.resolve(record)
+            params['urlconf'] = (self.urlconf.resolve(record)
                                  if isinstance(self.urlconf, A)
                                  else self.urlconf)
         if self.args:
-            params[b'args'] = [a.resolve(record) if isinstance(a, A) else a
+            params['args'] = [a.resolve(record) if isinstance(a, A) else a
                               for a in self.args]
         if self.kwargs:
-            params[b'kwargs'] = {}
+            params['kwargs'] = {}
             for key, val in self.kwargs.items():
                 # If we're dealing with an Accessor (A), resolve it, otherwise
                 # use the value verbatim.
-                params[b'kwargs'][str(key)] = (val.resolve(record)
-                                               if isinstance(val, A) else val)
+                params['kwargs'][str(key)] = (val.resolve(record)
+                                              if isinstance(val, A) else val)
         if self.current_app:
-            params[b'current_app'] = (self.current_app.resolve(record)
+            params['current_app'] = (self.current_app.resolve(record)
                                      if isinstance(self.current_app, A)
                                      else self.current_app)
         return self.render_link(reverse(viewname, **params), text=value)

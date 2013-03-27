@@ -4,9 +4,9 @@ from django.db.models.fields import FieldDoesNotExist
 from django.utils.datastructures import SortedDict
 from django.utils.safestring import SafeData
 from django_tables2.templatetags.django_tables2 import title
-from django_tables2.utils import (A, AttributeDict, basestring, OrderBy,
-                                  OrderByTuple)
+from django_tables2.utils import A, AttributeDict, OrderBy, OrderByTuple
 from itertools import islice
+import six
 import warnings
 
 
@@ -76,7 +76,7 @@ class Column(object):  # pylint: disable=R0902
         An accessor that describes how to extract values for this column from
         the :term:`table data`.
 
-        :type: `basestring` or `~.Accessor`
+        :type: string or `~.Accessor`
 
 
     .. attribute:: default
@@ -149,7 +149,7 @@ class Column(object):  # pylint: disable=R0902
     def __init__(self, verbose_name=None, accessor=None, default=None,
                  visible=True, orderable=None, attrs=None, order_by=None,
                  sortable=None, empty_values=None, localize=None):
-        if not (accessor is None or isinstance(accessor, basestring) or
+        if not (accessor is None or isinstance(accessor, six.string_types) or
                 callable(accessor)):
             raise TypeError('accessor must be a string or callable, not %s' %
                             type(accessor).__name__)
@@ -168,7 +168,7 @@ class Column(object):  # pylint: disable=R0902
         self.orderable = orderable
         self.attrs = attrs or {}
         # massage order_by into an OrderByTuple or None
-        order_by = (order_by, ) if isinstance(order_by, basestring) else order_by
+        order_by = (order_by, ) if isinstance(order_by, six.string_types) else order_by
         self.order_by = OrderByTuple(order_by) if order_by is not None else None
         if empty_values is not None:
             self.empty_values = empty_values
@@ -270,7 +270,7 @@ class BoundColumn(object):
     :param  table: the table in which this column exists
     :type  column: `.Column` object
     :param column: the type of column
-    :type    name: `basestring` object
+    :type    name: string object
     :param   name: the variable name of the column used to when defining the
                    `.Table`. In this example the name is ``age``:
 
@@ -286,7 +286,7 @@ class BoundColumn(object):
         self.name = name
 
     def __unicode__(self):
-        return unicode(self.header)
+        return six.text_type(self.header)
 
     @property
     def accessor(self):
@@ -529,7 +529,7 @@ class BoundColumns(object):
     def __init__(self, table):
         self.table = table
         self.columns = SortedDict()
-        for name, column in table.base_columns.iteritems():
+        for name, column in six.iteritems(table.base_columns):
             self.columns[name] = bc = BoundColumn(table, column, name)
             bc.render = getattr(table, 'render_' + name, column.render)
 
@@ -613,7 +613,7 @@ class BoundColumns(object):
 
         *item* can either be a `BoundColumn` object, or the name of a column.
         """
-        if isinstance(item, basestring):
+        if isinstance(item, six.string_types):
             return item in self.iternames()
         else:
             # let's assume we were given a column
@@ -642,7 +642,7 @@ class BoundColumns(object):
                 return next(islice(self.iterall(), index, index + 1))
             except StopIteration:
                 raise IndexError
-        elif isinstance(index, basestring):
+        elif isinstance(index, six.string_types):
             for column in self.iterall():
                 if column.name == index:
                     return column

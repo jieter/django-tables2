@@ -1,5 +1,6 @@
 # coding: utf-8
 from __future__ import unicode_literals
+from .app.models import Person, Region
 from attest import assert_hook, raises, Tests  # pylint: disable=W0611
 from contextlib import contextmanager
 from django_attest import queries, settings, TestContext, translation
@@ -17,7 +18,7 @@ except ImportError:
     from urllib.parse import parse_qs
 import lxml.etree
 import lxml.html
-from .app.models import Person, Region
+import six
 
 
 def parse(html):
@@ -181,10 +182,10 @@ def render_table_supports_queryset():
                                         'request': build_request('/')}))
         root = parse(html)
         assert [e.text for e in root.findall('.//thead/tr/th/a')] == ["ID", "Name", "Mayor"]
-        td = [[unicode(td.text) for td in tr.findall('td')] for tr in root.findall('.//tbody/tr')]
+        td = [[six.text_type(td.text) for td in tr.findall('td')] for tr in root.findall('.//tbody/tr')]
         db = []
         for region in Region.objects.all():
-            db.append([unicode(region.id), region.name, "—"])
+            db.append([six.text_type(region.id), region.name, "—"])
         assert td == db
 
 
@@ -269,8 +270,8 @@ def whitespace_is_preserved():
 
     tree = parse(html)
 
-    assert "<b>foo</b> <i>bar</i>" in lxml.etree.tostring(tree.findall('.//thead/tr/th')[0])
-    assert "<b>foo</b> <i>bar</i>" in lxml.etree.tostring(tree.findall('.//tbody/tr/td')[0])
+    assert "<b>foo</b> <i>bar</i>" in lxml.etree.tostring(tree.findall('.//thead/tr/th')[0], encoding='unicode')
+    assert "<b>foo</b> <i>bar</i>" in lxml.etree.tostring(tree.findall('.//tbody/tr/td')[0], encoding='unicode')
 
 
 @templates.test

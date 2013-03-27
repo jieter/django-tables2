@@ -1,17 +1,18 @@
 # coding: utf-8
 from __future__ import unicode_literals
+from . import columns
+from .config import RequestConfig
+from .rows import BoundRows
+from .utils import (Accessor, AttributeDict, build_request, cached_property,
+                    OrderBy, OrderByTuple, segment, Sequence)
 import copy
 from django.core.paginator       import Paginator
 from django.db.models.fields     import FieldDoesNotExist
 from django.utils.datastructures import SortedDict
 from django.template             import RequestContext
 from django.template.loader      import get_template
+import six
 import warnings
-from .config import RequestConfig
-from .utils import (Accessor, AttributeDict, basestring, build_request,
-                    cached_property, OrderBy, OrderByTuple, segment, Sequence)
-from .rows  import BoundRows
-from .      import columns
 
 
 QUERYSET_ACCESSOR_SEPARATOR = '__'
@@ -70,7 +71,7 @@ class TableData(object):
             for bound_column in self.table.columns:
                 aliases[bound_column.order_by_alias] = bound_column.order_by
             try:
-                return segment(self.queryset.query.order_by, aliases).next()
+                return next(segment(self.queryset.query.order_by, aliases))
             except StopIteration:
                 pass
 
@@ -98,7 +99,7 @@ class TableData(object):
             translate = lambda accessor: accessor.replace(Accessor.SEPARATOR, QUERYSET_ACCESSOR_SEPARATOR)
             self.queryset = self.queryset.order_by(*(translate(a) for a in accessors))
         else:
-            self.list.sort(cmp=OrderByTuple(accessors).cmp)
+            self.list.sort(key=OrderByTuple(accessors).key)
 
     def __iter__(self):
         """
@@ -147,11 +148,16 @@ class DeclarativeColumnsMetaclass(type):
     ``base_columns`` as well.
     """
     def __new__(mcs, name, bases, attrs):
-
         attrs["_meta"] = opts = TableOptions(attrs.get("Meta", None))
         # extract declared columns
-        cols = [(name_, attrs.pop(name_)) for name_, column in attrs.items()
-                                          if isinstance(column, columns.Column)]
+        cols, remainder = [], {}
+        for attr_name, attr in attrs.items():
+            if isinstance(attr, columns.Column):
+                cols.append((attr_name, attr))
+            else:
+                remainder[attr_name] = attr
+        attrs = remainder
+
         cols.sort(key=lambda x: x[1].creation_counter)
 
         # If this class is subclassing other tables, add their fields as
@@ -160,7 +166,7 @@ class DeclarativeColumnsMetaclass(type):
         parent_columns = []
         for base in bases[::-1]:
             if hasattr(base, "base_columns"):
-                parent_columns = base.base_columns.items() + parent_columns
+                parent_columns = list(base.base_columns.items()) + parent_columns
         # Start with the parent columns
         attrs["base_columns"] = SortedDict(parent_columns)
         # Possibly add some generated columns based on a model
@@ -229,7 +235,7 @@ class TableOptions(object):
         self.fields = getattr(options, "fields", ())
         self.exclude = getattr(options, "exclude", ())
         order_by = getattr(options, "order_by", None)
-        if isinstance(order_by, basestring):
+        if isinstance(order_by, six.string_types):
             order_by = (order_by, )
         self.order_by = OrderByTuple(order_by) if order_by is not None else None
         self.order_by_field = getattr(options, "order_by_field", "sort")
@@ -248,7 +254,7 @@ class TableOptions(object):
         self.unlocalize = getattr(options, "unlocalize", ())
 
 
-class Table(object):
+class TableBase(object):
     """
     A representation of a table.
 
@@ -370,14 +376,13 @@ class Table(object):
         :type: `unicode`
 
     """
-    __metaclass__ = DeclarativeColumnsMetaclass
     TableDataClass = TableData
 
     def __init__(self, data, order_by=None, orderable=None, empty_text=None,
                  exclude=None, attrs=None, sequence=None, prefix=None,
                  order_by_field=None, page_field=None, per_page_field=None,
                  template=None, sortable=None, default=None, request=None):
-        super(Table, self).__init__()
+        super(TableBase, self).__init__()
         self.exclude = exclude or ()
         self.sequence = sequence
         self.data = self.TableDataClass(data=data, table=self)
@@ -478,7 +483,7 @@ class Table(object):
         # collapse empty values to ()
         order_by = () if not value else value
         # accept string
-        order_by = order_by.split(',') if isinstance(order_by, basestring) else order_by
+        order_by = order_by.split(',') if isinstance(order_by, six.string_types) else order_by
         valid = []
         # everything's been converted to a iterable, accept iterable!
         for alias in order_by:
@@ -598,3 +603,6 @@ class Table(object):
     @template.setter
     def template(self, value):
         self._template = value
+
+# Python 2/3 compatible way to enable the metaclass
+Table = DeclarativeColumnsMetaclass('Table', (TableBase, ), {})

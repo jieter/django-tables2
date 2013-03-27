@@ -1,9 +1,10 @@
 # coding: utf-8
+from .app.models import Person, Occupation
 from attest import assert_hook, Tests  # pylint: disable=W0611
 import itertools
 from django_attest import TestContext
 import django_tables2 as tables
-from .app.models import Person, Occupation
+import six
 
 
 models = Tests()
@@ -25,7 +26,7 @@ def boundrows_iteration():
     table = PersonTable(Person.objects.all())
     records = [row.record for row in table.rows]
     expecteds = Person.objects.all()
-    for expected, actual in itertools.izip(expecteds, records):
+    for expected, actual in six.moves.zip(expecteds, records):
         assert expected == actual
 
 
@@ -38,14 +39,14 @@ def model_table():
     class OccupationTable(tables.Table):
         class Meta:
             model = Occupation
-    assert ["id", "name", "region"] == OccupationTable.base_columns.keys()
+    assert ["id", "name", "region"] == list(OccupationTable.base_columns.keys())
 
     class OccupationTable2(tables.Table):
         extra = tables.Column()
 
         class Meta:
             model = Occupation
-    assert ["id", "name", "region", "extra"] == OccupationTable2.base_columns.keys()
+    assert ["id", "name", "region", "extra"] == list(OccupationTable2.base_columns.keys())
 
     # be aware here, we already have *models* variable, but we're importing
     # over the top
@@ -59,7 +60,7 @@ def model_table():
     class ComplexTable(tables.Table):
         class Meta:
             model = ComplexModel
-    assert ["id", "char", "fk"] == ComplexTable.base_columns.keys()
+    assert ["id", "char", "fk"] == list(ComplexTable.base_columns.keys())
 
 
 @models.test
@@ -72,7 +73,7 @@ def mixins():
 
         class Meta:
             model = Occupation
-    assert ["extra", "id", "name", "region", "extra2"] == OccupationTable.base_columns.keys()
+    assert ["extra", "id", "name", "region", "extra2"] == list(OccupationTable.base_columns.keys())
 
 
 @models.test

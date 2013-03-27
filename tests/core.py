@@ -69,9 +69,11 @@ def metaclass_inheritance():
     class Meta(Tweaker, DeclarativeColumnsMetaclass):
         pass
 
-    class TweakedTable(tables.Table):
+    class TweakedTableBase(tables.Table):
         __metaclass__ = Meta
         name = tables.Column()
+
+    TweakedTable = Meta('TweakedTable', (TweakedTableBase, ), {})
 
     table = TweakedTable([])
     assert 'name' in table.columns
@@ -81,9 +83,10 @@ def metaclass_inheritance():
     class FlippedMeta(DeclarativeColumnsMetaclass, Tweaker):
         pass
 
-    class FlippedTweakedTable(tables.Table):
-        __metaclass__ = FlippedMeta
+    class FlippedTweakedTableBase(tables.Table):
         name = tables.Column()
+
+    FlippedTweakedTable = FlippedMeta('FlippedTweakedTable', (FlippedTweakedTableBase, ), {})
 
     table = FlippedTweakedTable([])
     assert 'name' in table.columns
@@ -260,7 +263,7 @@ def ordering_different_types():
     assert "—" == table.rows[0]['alpha']
 
     table = OrderedTable(data, order_by='i')
-    assert 1 == table.rows[0]['i']
+    assert {} == table.rows[0]['i']
 
     table = OrderedTable(data, order_by='beta')
     assert [] == table.rows[0]['beta']
