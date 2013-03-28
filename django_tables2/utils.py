@@ -507,23 +507,23 @@ def build_request(uri='/'):
     """
     path, _, querystring = uri.partition('?')
     return WSGIRequest({
-            'CONTENT_TYPE':      'text/html; charset=utf-8',
-            'PATH_INFO':         path,
-            'QUERY_STRING':      querystring,
-            'REMOTE_ADDR':       '127.0.0.1',
-            'REQUEST_METHOD':    'GET',
-            'SCRIPT_NAME':       '',
-            'SERVER_NAME':       'testserver',
-            'SERVER_PORT':       '80',
-            'SERVER_PROTOCOL':   'HTTP/1.1',
-            'wsgi.version':      (1, 0),
-            'wsgi.url_scheme':   'http',
-            'wsgi.input':        FakePayload(b''),
-            'wsgi.errors':       six.StringIO(),
-            'wsgi.multiprocess': True,
-            'wsgi.multithread':  False,
-            'wsgi.run_once':     False,
-        })
+        'CONTENT_TYPE':      'text/html; charset=utf-8',
+        'PATH_INFO':         path,
+        'QUERY_STRING':      querystring,
+        'REMOTE_ADDR':       '127.0.0.1',
+        'REQUEST_METHOD':    'GET',
+        'SCRIPT_NAME':       '',
+        'SERVER_NAME':       'testserver',
+        'SERVER_PORT':       '80',
+        'SERVER_PROTOCOL':   'HTTP/1.1',
+        'wsgi.version':      (1, 0),
+        'wsgi.url_scheme':   'http',
+        'wsgi.input':        FakePayload(b''),
+        'wsgi.errors':       six.StringIO(),
+        'wsgi.multiprocess': True,
+        'wsgi.multithread':  False,
+        'wsgi.run_once':     False,
+    })
 
 
 def total_ordering(cls):
@@ -548,7 +548,7 @@ def total_ordering(cls):
     root = max(roots)       # prefer __lt__ to __le__ to __gt__ to __ge__
     for opname, opfunc in convert[root]:
         if opname not in roots:
-            opfunc.__name__ = opname
+            opfunc.__name__ = str(opname)  # Py2 requires non-unicode, Py3 requires unicode.
             opfunc.__doc__ = getattr(int, opname).__doc__
             setattr(cls, opname, opfunc)
     return cls

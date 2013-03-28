@@ -605,4 +605,4 @@ class TableBase(object):
         self._template = value
 
 # Python 2/3 compatible way to enable the metaclass
-Table = DeclarativeColumnsMetaclass('Table', (TableBase, ), {})
+Table = DeclarativeColumnsMetaclass(str('Table'), (TableBase, ), {})

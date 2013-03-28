@@ -2,6 +2,7 @@
 from attest import assert_hook, raises, Tests
 from django_tables2.utils import (Accessor, AttributeDict, OrderByTuple,
                                   OrderBy, segment)
+import six
 
 
 utils = Tests()
@@ -55,11 +56,18 @@ def orderbytuple_sort_key_empty_comes_first():
         {"a": ""},
         {"a": 2},
     ]
-    assert sorted(items, key=obt.key) == [
-        {"a": ""},
-        {"a": 1},
-        {"a": 2},
-    ]
+    if six.PY3:
+        assert sorted(items, key=obt.key) == [
+            {"a": ""},
+            {"a": 1},
+            {"a": 2},
+        ]
+    else:
+        assert sorted(items, key=obt.key) == [
+            {"a": 1},
+            {"a": 2},
+            {"a": ""},
+        ]
 
 @utils.test
 def orderby():
@@ -108,7 +116,7 @@ def accessor_wont_honors_alters_data():
     foo = Foo()
     with raises(ValueError):
         Accessor('delete').resolve(foo)
-    assert foo.deleted == False
+    assert foo.deleted is False
 
 
 @utils.test
@@ -126,11 +134,10 @@ def attribute_dict_handles_escaping():
 @utils.test
 def segment_should_return_all_candidates():
     assert list(segment(("a", "-b", "c"), {
-            "x": ("a"),
-            "y": ("b", "-c"),
-            "-z": ("b", "-c"),
-        })) == [
-            ["x", "-y"],
-            ["x", "z"],
-        ]
-
+        "x": ("a"),
+        "y": ("b", "-c"),
+        "-z": ("b", "-c"),
+    })) == [
+        ["x", "-y"],
+        ["x", "z"],
+    ]

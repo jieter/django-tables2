@@ -7,6 +7,7 @@ from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 import django_tables2 as tables
 from django_tables2.tables import DeclarativeColumnsMetaclass
 import os
+import six
 
 
 core = Tests()
@@ -73,7 +74,8 @@ def metaclass_inheritance():
         __metaclass__ = Meta
         name = tables.Column()
 
-    TweakedTable = Meta('TweakedTable', (TweakedTableBase, ), {})
+    # Python 2/3 compatible way to enable the metaclass
+    TweakedTable = Meta(str('TweakedTable'), (TweakedTableBase, ), {})
 
     table = TweakedTable([])
     assert 'name' in table.columns
@@ -86,7 +88,8 @@ def metaclass_inheritance():
     class FlippedTweakedTableBase(tables.Table):
         name = tables.Column()
 
-    FlippedTweakedTable = FlippedMeta('FlippedTweakedTable', (FlippedTweakedTableBase, ), {})
+    # Python 2/3 compatible way to enable the metaclass
+    FlippedTweakedTable = FlippedMeta(str('FlippedTweakedTable'), (FlippedTweakedTableBase, ), {})
 
     table = FlippedTweakedTable([])
     assert 'name' in table.columns
@@ -263,7 +266,11 @@ def ordering_different_types():
     assert "—" == table.rows[0]['alpha']
 
     table = OrderedTable(data, order_by='i')
-    assert {} == table.rows[0]['i']
+    if six.PY3:
+        assert {} == table.rows[0]['i']
+    else:
+        assert 1 == table.rows[0]['i']
+
 
     table = OrderedTable(data, order_by='beta')
     assert [] == table.rows[0]['beta']

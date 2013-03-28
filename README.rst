@@ -75,7 +75,7 @@ v0.14.0
   be in the context (backwards incompatible) -- #127
 - Add Travis CI support
 - Add support for Django 1.5
-- Add L10N control for columns #120 (no-op in < Django 1.3)
+- Add L10N control for columns #120 (ignored in < Django 1.3)
 - Drop Python 2.6.4 support in favour of Python 3.2 support
 - Non-queryset data ordering is different between Python 3 and 2. When
   comparing different types, their truth values are now compared before falling
