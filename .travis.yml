@@ -23,4 +23,4 @@ install:
   - pip install -q https://github.com/dag/attest/tarball/master coverage django-attest django-haystack fudge lxml pytz $DJANGO --use-mirrors
   - pip install -q -e . --use-mirrors
 script:
-  - python -W error setup.py test
+  - python -W error -W ignore::PendingDeprecationWarning setup.py test
