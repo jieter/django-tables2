@@ -1,5 +1,5 @@
 from django.conf import global_settings
-import os
+import six
 
 
 DATABASES = {
@@ -26,7 +26,7 @@ TIME_ZONE = "Australia/Brisbane"
 
 USE_TZ = True
 
-if 'SKIP_HAYSTACK' not in os.environ:
+if not six.PY3:  # Haystack isn't compatible with Python 3
     INSTALLED_APPS += [
         'haystack',
     ]

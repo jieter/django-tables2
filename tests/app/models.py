@@ -4,7 +4,7 @@ from django.db import models
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy
 from django.utils.translation import ugettext
-import os
+import six
 
 
 class Person(models.Model):
@@ -57,7 +57,7 @@ class Region(models.Model):
 
 # -- haystack -----------------------------------------------------------------
 
-if 'SKIP_HAYSTACK' not in os.environ:
+if not six.PY3:  # Haystack isn't compatible with Python 3
     from haystack import site
     from haystack.indexes import CharField, SearchIndex
 

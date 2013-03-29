@@ -6,7 +6,6 @@ import copy
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 import django_tables2 as tables
 from django_tables2.tables import DeclarativeColumnsMetaclass
-import os
 import six
 
 
@@ -157,7 +156,7 @@ def should_support_tuple_data_source():
     assert len(table.rows) == 2
 
 
-@core.test_if('SKIP_HAYSTACK' not in os.environ)
+@core.test_if(not six.PY3)  # Haystack isn't compatible with Python 3
 def should_support_haystack_data_source():
     from haystack.query import SearchQuerySet
 
