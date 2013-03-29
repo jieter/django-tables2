@@ -22,7 +22,7 @@ import six
 
 
 def parse(html):
-    return lxml.html.fromstring(html)
+    return lxml.etree.fromstring(html)
 
 
 def attrs(xml):
@@ -180,9 +180,10 @@ def render_table_supports_queryset():
         template = Template('{% load django_tables2 %}{% render_table qs %}')
         html = template.render(Context({'qs': Region.objects.all(),
                                         'request': build_request('/')}))
+
         root = parse(html)
         assert [e.text for e in root.findall('.//thead/tr/th/a')] == ["ID", "Name", "Mayor"]
-        td = [[six.text_type(td.text) for td in tr.findall('td')] for tr in root.findall('.//tbody/tr')]
+        td = [[td.text for td in tr.findall('td')] for tr in root.findall('.//tbody/tr')]
         db = []
         for region in Region.objects.all():
             db.append([six.text_type(region.id), region.name, "—"])

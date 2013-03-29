@@ -6,7 +6,6 @@ from django.utils.safestring import mark_safe
 from django.test.client import FakePayload
 from itertools import chain
 import inspect
-import operator
 import six
 import warnings
 
@@ -450,7 +449,7 @@ def segment(sequence, aliases):
         ...              {"x": ("a"),
         ...               "y": ("b", "-c"),
         ...               "z": ("-b", "c")}))
-        [["x", "-y"], ["x", "z"]]
+        [("x", "-y"), ("x", "z")]
 
     """
     if not (sequence or aliases):
@@ -468,11 +467,11 @@ def segment(sequence, aliases):
                 tail_sequence = sequence[len(vparts):]
                 if tail_sequence:
                     for tail in segment(tail_sequence, tail_aliases):
-                        yield [valias] + tail
+                        yield tuple(chain([valias], tail))
                     else:
                         continue
                 else:
-                    yield [valias]
+                    yield tuple([valias])
 
 
 class cached_property(object):  # pylint: disable=C0103

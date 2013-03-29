@@ -133,11 +133,11 @@ def attribute_dict_handles_escaping():
 
 @utils.test
 def segment_should_return_all_candidates():
-    assert list(segment(("a", "-b", "c"), {
+    assert set(segment(("a", "-b", "c"), {
         "x": ("a"),
         "y": ("b", "-c"),
         "-z": ("b", "-c"),
-    })) == [
-        ["x", "-y"],
-        ["x", "z"],
-    ]
+    })) == set((
+        ("x", "-y"),
+        ("x", "z"),
+    ))

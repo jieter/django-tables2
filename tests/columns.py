@@ -80,7 +80,7 @@ def span_attrs():
         col = tables.BooleanColumn(attrs={"span": {"key": "value"}})
 
     table = Table([{"col": True}])
-    assert table.rows[0]["col"] == '<span class="true" key="value">✔</span>'
+    assert attrs(table.rows[0]["col"]) == {"class": "true", "key": "value"}
 
 
 checkboxcolumn = Tests()
