@@ -25,7 +25,8 @@ matrix:
     - python: 3.2
       env: "DJANGO='Django>=1.2,<1.3'"
 install:
-  - pip install http://github.com/dag/attest/tarball/master coverage django-attest django-haystack fudge lxml pytz $DJANGO http://github.com/bradleyayers/python-progressbar/tarball/master --use-mirrors
+  - pip install http://github.com/bradleyayers/python-progressbar/tarball/master
+  - pip install http://github.com/dag/attest/tarball/master coverage django-attest django-haystack fudge lxml pytz $DJANGO --use-mirrors
   - pip install -e . --use-mirrors
 script:
   - python -W error -W ignore::PendingDeprecationWarning setup.py test
