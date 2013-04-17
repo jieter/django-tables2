@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 from django.core.exceptions import ImproperlyConfigured
 from django.views.generic import ListView, TemplateView
 from .config import RequestConfig
+import six
 
 
 class SingleTableMixin(object):
@@ -134,7 +135,7 @@ class MultiTableMixin(object):
         """
         table_classes = self.get_table_classes()
         tables = {}
-        for table_id, table_class in table_classes.iteritems():
+        for table_id, table_class in six.iteritems(table_classes):
             options = {}
             table = table_class(self.get_table_data(table_id))
             paginate = self.get_table_pagination(table_id)
@@ -150,8 +151,8 @@ class MultiTableMixin(object):
         """
         if self.table_classes:
             return self.table_classes
-        raise ImproperlyConfigured(u"Table classes were not specified. Define "
-                                   u"%(cls)s.table_classes"
+        raise ImproperlyConfigured("Table classes were not specified. Define "
+                                   "%(cls)s.table_classes"
                                    % {"cls": type(self).__name__})
 
     def get_context_table_name(self, table_id):
@@ -171,10 +172,10 @@ class MultiTableMixin(object):
             return getattr(self, 'get_%s_queryset' % table_id)()
         if table_id in self.table_models:
             return self.table_models[table_id].objects.all()
-        raise ImproperlyConfigured(u"Table data for %(table_id)s not specified. "
-                                   u"Define %(cls)s.table_data[%(table_id)s], "
-                                   u"%(cls)s.get_%(table_id)s_queryset(), or "
-                                   u"%(cls)s.table_models[%(table_id)s]."
+        raise ImproperlyConfigured("Table data for %(table_id)s not given. "
+                                   "Define %(cls)s.table_data[%(table_id)s], "
+                                   "%(cls)s.get_%(table_id)s_queryset(), or "
+                                   "%(cls)s.table_models[%(table_id)s]."
                                    % {
                                        "cls": type(self).__name__,
                                        "table_id": table_id,
@@ -197,7 +198,7 @@ class MultiTableMixin(object):
         tables = self.get_tables()
         context.update(dict(
             (self.get_context_table_name(table_id), table)
-            for table_id, table in tables.iteritems()
+            for table_id, table in six.iteritems(tables)
         ))
         return context
 
