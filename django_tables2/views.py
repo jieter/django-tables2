@@ -67,6 +67,8 @@ class SingleTableMixin(object):
         """
         if self.table_data:
             return self.table_data
+        elif hasattr(self, "object_list"):
+            return self.object_list
         elif hasattr(self, "get_queryset"):
             return self.get_queryset()
         raise ImproperlyConfigured("Table data was not specified. Define "
