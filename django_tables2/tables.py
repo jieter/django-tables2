@@ -377,8 +377,8 @@ class TableBase(object):
 
     .. attribute:: fields
 
-        A subset of the tables columns to be displayed. Inverted behaviour of
-        exclude. Does not add any new columns to the table
+        Specifies a subset of the tables columns to be displayed. Does not add
+        any new columns to the table
 
         :type: iterable
 
