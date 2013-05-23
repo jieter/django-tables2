@@ -375,13 +375,21 @@ class TableBase(object):
 
         :type: `unicode`
 
+    .. attribute:: fields
+
+        A subset of the tables columns to be displayed. Inverted behaviour of
+        exclude. Does not add any new columns to the table
+
+        :type: iterable
+
     """
     TableDataClass = TableData
 
     def __init__(self, data, order_by=None, orderable=None, empty_text=None,
                  exclude=None, attrs=None, sequence=None, prefix=None,
                  order_by_field=None, page_field=None, per_page_field=None,
-                 template=None, sortable=None, default=None, request=None):
+                 template=None, sortable=None, default=None, request=None,
+                 fields=None):
         super(TableBase, self).__init__()
         self.exclude = exclude or ()
         self.sequence = sequence
@@ -406,6 +414,12 @@ class TableBase(object):
         # definition. Note that this is different from forms, where the
         # copy is made available in a ``fields`` attribute.
         self.base_columns = copy.deepcopy(type(self).base_columns)
+        
+        # If the fields value is defined, remove all fields from the table
+        # that are not in the fields list. Does, however, not add any new
+        # columns.
+        if fields is not None:
+            self.base_columns = dict( [(x,y) for x,y in self.base_columns.items() if x in fields] )
         # Keep fully expanded ``sequence`` at _sequence so it's easily accessible
         # during render. The priority is as follows:
         # 1. sequence passed in as an argument
