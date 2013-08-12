@@ -12,4 +12,4 @@ except ImportError:
     pass
 
 
-__version__ = "0.14.0.alpha"
+__version__ = "0.14.0"
