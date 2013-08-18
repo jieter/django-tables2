@@ -58,10 +58,13 @@ class Region(models.Model):
 # -- haystack -----------------------------------------------------------------
 
 if not six.PY3:  # Haystack isn't compatible with Python 3
-    from haystack import site
-    from haystack.indexes import CharField, SearchIndex
+    from haystack import indexes
 
-    class PersonIndex(SearchIndex):
-        first_name = CharField(document=True)
+    class PersonIndex(indexes.SearchIndex, indexes.Indexable):
+        first_name = indexes.CharField(document=True)
 
-    site.register(Person, PersonIndex)
+        def get_model(self):
+            return Person
+
+        def index_queryset(self, using=None):
+            return self.get_model().objects.all()
