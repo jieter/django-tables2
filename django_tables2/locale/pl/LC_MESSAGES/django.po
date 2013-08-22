@@ -1,0 +1,38 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: 0.1\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2013-08-22 09:55+0200\n"
+"PO-Revision-Date: 2013-08-22 09:57+0100\n"
+"Last-Translator: Michał Pasternak <michal.dtz@gmail.com>\n"
+"Language-Team: PL <michal.dtz@gmail.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
+"|| n%100>=20) ? 1 : 2);\n"
+"X-Generator: Poedit 1.5.5\n"
+"Language: polish\n"
+
+#: .\templates\django_tables2\table.html.py:55
+msgid "Previous"
+msgstr "Poprzednia"
+
+#: .\templates\django_tables2\table.html.py:59
+#, python-format
+msgid "Page %(current)s of %(total)s"
+msgstr "Strona %(current)s z %(total)s"
+
+#: .\templates\django_tables2\table.html.py:63
+msgid "Next"
+msgstr "Następna"
+
+#: .\templates\django_tables2\table.html.py:66
+#, python-format
+msgid "%(count)s of %(total)s"
+msgstr "%(count)s z %(total)s"
