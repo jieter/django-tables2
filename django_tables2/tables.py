@@ -35,22 +35,15 @@ class TableData(object):
             self.queryset = data
         # otherwise it must be convertable to a list
         else:
-            try:
+            # do some light validation
+            if hasattr(data, '__iter__') or (hasattr(data, '__len__') and hasattr(data, '__getitem__')):
                 self.list = list(data)
-            except Exception as ex:
-                if six.PY3:
-                    raise ValueError(
-                        'data must be QuerySet-like (have count and '
-                        'order_by) or support list(data) -- %s has '
-                        'neither' % type(data).__name__
-                    )
-                else:
-                    # really horrible, but this syntax is not supported on PY3 and would not work otherwise
-                    exec("""raise ValueError, (
-                        'data must be QuerySet-like (have count and '
-                        'order_by) or support list(data) -- %s has '
-                        'neither. Original exception: %s' % (type(data).__name__, ex)
-                    ), sys.exc_info()[2]""")
+            else:
+                raise ValueError(
+                    'data must be QuerySet-like (have count and '
+                    'order_by) or support list(data) -- %s has '
+                    'neither' % type(data).__name__
+                )
 
     def __len__(self):
         if not hasattr(self, "_length"):
