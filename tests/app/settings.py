@@ -30,5 +30,8 @@ if not six.PY3:  # Haystack isn't compatible with Python 3
     INSTALLED_APPS += [
         'haystack',
     ]
-    HAYSTACK_SEARCH_ENGINE = 'simple',
-    HAYSTACK_SITECONF = 'tests.app.models'
+    HAYSTACK_CONNECTIONS = {
+        'default': {
+            'ENGINE': 'haystack.backends.simple_backend.SimpleEngine',
+        }
+    }

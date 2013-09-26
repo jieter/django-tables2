@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 
 with open('django_tables2/__init__.py', 'rb') as f:
-    version = re.search('__version__ = "(.+?)"', f.read().decode('utf-8')).group(1)
+    version = str(re.search('__version__ = "(.+?)"', f.read().decode('utf-8')).group(1))
 
 
 setup(
