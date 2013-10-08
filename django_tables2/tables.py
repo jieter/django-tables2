@@ -604,5 +604,15 @@ class TableBase(object):
     def template(self, value):
         self._template = value
 
+    def configure_request(self, request):
+        """
+        To be called when executing RequestConfig.configure() on the table.
+        For custom configuration needing the request object.
+
+        :type   request: HttpRequest object
+        :param  request: the django request object sent to RequestConfig
+        """
+        pass
+
 # Python 2/3 compatible way to enable the metaclass
 Table = DeclarativeColumnsMetaclass(str('Table'), (TableBase, ), {})
