@@ -8,6 +8,7 @@
 <table{% if table.attrs %} {{ table.attrs.as_html }}{% endif %}>
     {% nospaceless %}
     {% block table.thead %}
+    {% if table.show_table_header %}
     <thead>
         <tr>
         {% for column in table.columns %}
@@ -19,6 +20,7 @@
         {% endfor %}
         </tr>
     </thead>
+    {% endif %}
     {% endblock table.thead %}
     {% block table.tbody %}
     <tbody>

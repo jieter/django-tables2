@@ -84,6 +84,13 @@ def as_html():
     assert int(root.find('.//tbody/tr/td').attrib['colspan']) == len(root.findall('.//thead/tr/th'))
     assert root.find('.//tbody/tr/td').text == 'this table is empty'
 
+    # data without header
+    table = CountryTable(MEMORY_DATA, show_table_header=False)
+    root = parse(table.as_html())
+    assert len(root.findall('.//thead')) == 0
+    assert len(root.findall('.//tbody/tr')) == 4
+    assert len(root.findall('.//tbody/tr/td')) == 16
+
     # with custom template
     table = CountryTable([], template="django_tables2/table.html")
     table.as_html()
