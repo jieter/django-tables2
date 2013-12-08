@@ -478,7 +478,6 @@ class TableBase(object):
 
     @show_table_header.setter
     def show_table_header(self, value):
-        print "ketto"
         self._show_table_header = value
 
     @property
