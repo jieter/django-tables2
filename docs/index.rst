@@ -260,7 +260,7 @@ By default columns are positioned in the same order as they are declared,
 however when mixing auto-generated columns (via `Table.Meta.model`) with
 manually declared columns, the column sequence becomes ambiguous.
 
-To resolve the ambiguity, columns sequence can be declard via the
+To resolve the ambiguity, columns sequence can be declared via the
 `.Table.Meta.sequence` option::
 
     class PersonTable(tables.Table):
@@ -562,9 +562,9 @@ For common use-cases the following columns are included:
 - `.DateTimeColumn` -- datetime formatting in the local timezone
 - `.FileColumn` -- renders files as links
 - `.EmailColumn` -- renders ``<a href="mailto:...">`` tags
-- `.LinkColumn` -- renders ``<a href="...">`` tags (absolute url)
+- `.LinkColumn` -- renders ``<a href="...">`` tags (compose a django url)
 - `.TemplateColumn` -- renders template code
-- `.URLColumn` -- renders ``<a href="...">`` tags (compose a django url)
+- `.URLColumn` -- renders ``<a href="...">`` tags (absolute url)
 
 
 .. _template_tags:
@@ -782,7 +782,7 @@ When using this approach, the following options are useful:
 
 - `~.Table.Meta.sequence` -- reorder columns
 - `~.Table.Meta.fields` -- specify model fields to *include*
-- `~.Table.Meta.exclude` -- specify model fields to *excluse*
+- `~.Table.Meta.exclude` -- specify model fields to *exclude*
 
 
 .. _localization-control:
