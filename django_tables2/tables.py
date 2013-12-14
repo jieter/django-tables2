@@ -214,7 +214,7 @@ class DeclarativeColumnsMetaclass(type):
             if localize_column is not None:
                 attrs["base_columns"][col_name].localize = localize_column
 
-        return super(DeclarativeColumnsMetaclass, mcs).__new__(mcs, name, bases, attrs)
+        return super(DeclarativeColumnsMetaclass, mcs).__new__(mcs, str(name), bases, attrs)
 
 
 class TableOptions(object):
