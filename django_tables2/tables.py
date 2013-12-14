@@ -176,13 +176,13 @@ class DeclarativeColumnsMetaclass(type):
             if opts.fields:
                 # Each item in opts.fields is the name of a model field or a
                 # normal attribute on the model
-                for name in opts.fields:
+                for field_name in opts.fields:
                     try:
-                        field = opts.model._meta.get_field(name)
+                        field = opts.model._meta.get_field(field_name)
                     except FieldDoesNotExist:
-                        extra[name] = columns.Column()
+                        extra[field_name] = columns.Column()
                     else:
-                        extra[name] = columns.library.column_for_field(field)
+                        extra[field_name] = columns.library.column_for_field(field)
 
             else:
                 for field in opts.model._meta.fields:
