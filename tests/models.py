@@ -294,3 +294,16 @@ def doesnotexist_from_accessor_should_use_default():
     table = Table(Person.objects.all())
     assert table.rows[0]["first_name"] == "Brad"
     assert table.rows[0]["region"] == "abc"
+
+
+@models.test
+def unicode_field_names():
+    class Table(tables.Table):
+        class Meta:
+            model = Person
+            fields = (six.text_type("first_name"),)
+
+    Person.objects.create(first_name="Brad")
+
+    table = Table(Person.objects.all())
+    assert table.rows[0]["first_name"] == "Brad"
