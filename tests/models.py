@@ -307,3 +307,14 @@ def unicode_field_names():
 
     table = Table(Person.objects.all())
     assert table.rows[0]["first_name"] == "Brad"
+
+
+@models.test
+def fields_empty_list_means_no_fields():
+    class Table(tables.Table):
+        class Meta:
+            model = Person
+            fields = ()
+
+    table = Table(Person.objects.all())
+    assert len(table.columns.names()) == 0
