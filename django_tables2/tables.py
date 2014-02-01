@@ -26,6 +26,11 @@ class TableData(object):
     :type   data: `~django.db.query.QuerySet` or `list` of `dict`
     :param table: `.Table` object
     """
+    
+    # Tracks each time a TableData instance is created. Used to 
+    # generate unique id.
+    _creation_counter = 0
+        
     def __init__(self, data, table):
         self.table = table
         # data may be a QuerySet-like objects with count() and order_by()
@@ -40,6 +45,9 @@ class TableData(object):
                 raise ValueError('data must be QuerySet-like (have count and '
                                  'order_by) or support list(data) -- %s has '
                                  'neither' % type(data).__name__)
+        # Increase the creation counter, and save our local copy.
+        self._creation_counter = TableData._creation_counter
+        TableData._creation_counter += 1
 
     def __len__(self):
         if not hasattr(self, "_length"):
@@ -454,7 +462,11 @@ class TableBase(object):
 
     @property
     def attrs(self):
-        return self._attrs if self._attrs is not None else self._meta.attrs
+        tmp_attrs = self._attrs if self._attrs is not None else self._meta.attrs
+        if not tmp_attrs.get('id'):
+            tmp_attrs['id'] = u'%s_%s' %(str(self.__class__.__name__).lower(), 
+                                         self.data._creation_counter)
+        return tmp_attrs
 
     @attrs.setter
     def attrs(self, value):
