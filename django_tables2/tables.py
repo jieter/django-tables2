@@ -377,6 +377,10 @@ class TableBase(object):
 
     """
     TableDataClass = TableData
+    
+    # Tracks each time a TableData instance is created. Used to
+    # generate unique id.
+    _creation_counter = 0
 
     def __init__(self, data, order_by=None, orderable=None, empty_text=None,
                  exclude=None, attrs=None, sequence=None, prefix=None,
@@ -436,6 +440,10 @@ class TableBase(object):
         else:
             self.order_by = order_by
         self.template = template
+        if issubclass(self.__class__, TableBase):
+            # Increase the creation counter, and save our local copy.
+            self._creation_counter = self.__class__._creation_counter
+            self.__class__._creation_counter += 1
         # If a request is passed, configure for request
         if request:
             RequestConfig(request).configure(self)
@@ -454,7 +462,18 @@ class TableBase(object):
 
     @property
     def attrs(self):
-        return self._attrs if self._attrs is not None else self._meta.attrs
+        tmp_attrs = self._attrs if self._attrs is not None else self._meta.attrs
+        if not tmp_attrs.get('id'):
+            tmp_attrs.update( {'id': '%s_%s' %(str(self.__class__.__name__).lower(),
+                                         self._creation_counter)})
+        else:
+            tmp_attrs['id'] = '%s_%s' % (tmp_attrs.get('id').split('_')[0],
+                                         self._creation_counter)
+        return tmp_attrs
+    
+    @property
+    def table_id(self):
+        return self.attrs.get('id')
 
     @attrs.setter
     def attrs(self, value):
