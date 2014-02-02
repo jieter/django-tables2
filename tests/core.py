@@ -100,22 +100,27 @@ def attrs():
     class TestTable(tables.Table):
         class Meta:
             attrs = {}
-    assert {} == TestTable([]).attrs
+    testTableInstance = TestTable([])
+    assert {"id": "testtable_%s" % (testTableInstance._creation_counter ) } == testTableInstance.attrs
 
     class TestTable2(tables.Table):
         class Meta:
             attrs = {"a": "b"}
-    assert {"a": "b"} == TestTable2([]).attrs
+    testTable2Instance = TestTable2([])
+    assert {"a": "b", "id": "testtable2_%s" % (testTable2Instance._creation_counter ) } == testTable2Instance.attrs
 
     class TestTable3(tables.Table):
         pass
-    assert {} == TestTable3([]).attrs
-    assert {"a": "b"} == TestTable3([], attrs={"a": "b"}).attrs
+    testTable3Instance1 = TestTable3([])
+    assert {"id": "testtable3_%s" % (testTable3Instance1._creation_counter ) } == testTable3Instance1.attrs
+    testTable3Instance2 = TestTable3([], attrs={"a": "b"})
+    assert {"a": "b", "id": "testtable3_%s" % (testTable3Instance2._creation_counter ) } == testTable3Instance2.attrs
 
     class TestTable4(tables.Table):
         class Meta:
             attrs = {"a": "b"}
-    assert {"c": "d"} == TestTable4([], attrs={"c": "d"}).attrs
+    testTable4Instance = TestTable4([], attrs={"c": "d"})
+    assert {"c": "d", "id": "testtable4_%s" % (testTable4Instance._creation_counter ) } == testTable4Instance.attrs
 
 
 @core.test
