@@ -886,6 +886,25 @@ API Reference
                 class Meta:
                     attrs = {"class": "paleblue"}
 
+        .. versionadded:: 0.15.0
+
+        It's possible to use callables to create *dynamic* values. A few caveats:
+
+        - It's not supported for ``dict`` keys, i.e. only values.
+        - All values will be resolved on table instantiation.
+
+        Consider this example where a unique ``id`` is given to each instance
+        of the table::
+
+            import itertools
+            counter = itertools.count()
+
+            class UniqueIdTable(tables.Table):
+                name = tables.Column()
+
+                class Meta:
+                    attrs = {"id": lambda: "table_%d" % next(counter)}
+
         .. note::
 
             This functionality is also available via the ``attrs`` keyword

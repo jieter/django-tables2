@@ -1,7 +1,8 @@
 # coding: utf-8
 from attest import assert_hook, raises, Tests
-from django_tables2.utils import (Accessor, AttributeDict, OrderByTuple,
-                                  OrderBy, segment)
+from django_tables2.utils import (Accessor, AttributeDict, computed_values,
+                                  OrderByTuple, OrderBy, segment)
+import itertools
 import six
 
 
@@ -129,6 +130,18 @@ def accessor_can_be_quiet():
 def attribute_dict_handles_escaping():
     x = AttributeDict({"x": '"\'x&'})
     assert x.as_html() == 'x="&quot;&#39;x&amp;"'
+
+
+@utils.test
+def compute_values_supports_shallow_structures():
+    x = computed_values({"foo": lambda: "bar"})
+    assert x == {"foo": "bar"}
+
+
+@utils.test
+def compute_values_supports_shallow_structures():
+    x = computed_values({"foo": lambda: {"bar": lambda: "baz"}})
+    assert x == {"foo": {"bar": "baz"}}
 
 
 @utils.test
