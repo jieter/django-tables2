@@ -464,7 +464,7 @@ class TableBase(object):
     def attrs(self):
         tmp_attrs = self._attrs if self._attrs is not None else self._meta.attrs
         if not tmp_attrs.get('id'):
-            tmp_attrs.update( {'id': u'%s_%s' %(str(self.__class__.__name__).lower(),
+            tmp_attrs.update( {'id': '%s_%s' %(str(self.__class__.__name__).lower(),
                                          self._creation_counter)})
         else:
             tmp_attrs['id'] = '%s_%s' % (tmp_attrs.get('id').split('_')[0],
@@ -473,7 +473,7 @@ class TableBase(object):
     
     @property
     def table_id(self):
-        return self.attrs['id']
+        return self.attrs.get('id')
 
     @attrs.setter
     def attrs(self, value):
