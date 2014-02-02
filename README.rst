@@ -68,6 +68,12 @@ globally, use::
 Change log
 ==========
 
+v0.15.0
+-------
+
+- Add UK, Russian, Spanish, Portuguese, and Polish translations
+- Add support for computed table ``attrs``.
+
 v0.14.0
 -------
 
