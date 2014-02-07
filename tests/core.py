@@ -7,6 +7,7 @@ from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 import django_tables2 as tables
 from django_tables2.tables import DeclarativeColumnsMetaclass
 import six
+import itertools
 
 
 core = Tests()
@@ -116,6 +117,18 @@ def attrs():
         class Meta:
             attrs = {"a": "b"}
     assert {"c": "d"} == TestTable4([], attrs={"c": "d"}).attrs
+
+
+@core.test
+def attrs_support_computed_values():
+    counter = itertools.count()
+
+    class TestTable(tables.Table):
+        class Meta:
+            attrs = {"id": lambda: "test_table_%d" % next(counter)}
+
+    assert {"id": "test_table_0"} == TestTable([]).attrs
+    assert {"id": "test_table_1"} == TestTable([]).attrs
 
 
 @core.test

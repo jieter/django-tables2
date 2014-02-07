@@ -4,7 +4,7 @@ from . import columns
 from .config import RequestConfig
 from .rows import BoundRows
 from .utils import (Accessor, AttributeDict, build_request, cached_property,
-                    OrderBy, OrderByTuple, segment, Sequence)
+                    computed_values, OrderBy, OrderByTuple, segment, Sequence)
 import copy
 from django.core.paginator       import Paginator
 from django.db.models.fields     import FieldDoesNotExist
@@ -393,8 +393,9 @@ class TableBase(object):
             default = self._meta.default
         self.default = default
         self.rows = BoundRows(data=self.data, table=self)
-        self.attrs = attrs
-        self.empty_text = empty_text
+        self.attrs = AttributeDict(computed_values(attrs if attrs is not None
+                                                         else self._meta.attrs))
+        self.empty_text = empty_text if empty_text is not None else self._meta.empty_text
         if sortable is not None:
             warnings.warn("`sortable` is deprecated, use `orderable` instead.",
                           DeprecationWarning)
@@ -457,7 +458,7 @@ class TableBase(object):
 
     @property
     def attrs(self):
-        return self._attrs if self._attrs is not None else self._meta.attrs
+        return self._attrs
 
     @attrs.setter
     def attrs(self, value):
@@ -465,8 +466,7 @@ class TableBase(object):
 
     @property
     def empty_text(self):
-        return (self._empty_text if self._empty_text is not None
-                                 else self._meta.empty_text)
+        return self._empty_text
 
     @empty_text.setter
     def empty_text(self, value):

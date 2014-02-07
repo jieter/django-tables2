@@ -421,7 +421,7 @@ class AttributeDict(dict):
         :rtype: `~django.utils.safestring.SafeUnicode` object
 
         """
-        return mark_safe(' '.join(['%s="%s"' % (k, escape(v))
+        return mark_safe(' '.join(['%s="%s"' % (k, escape(v if not callable(v) else v()))
                                    for k, v in six.iteritems(self)]))
 
 
@@ -551,3 +551,45 @@ def total_ordering(cls):
             opfunc.__doc__ = getattr(int, opname).__doc__
             setattr(cls, opname, opfunc)
     return cls
+
+
+def computed_values(d):
+    """
+    Computes a new `dict` that has callable values replaced with the return values.
+
+    Simple example:
+
+        >>> compute_values({"foo": lambda: "bar"})
+        {"foo": "bar"}
+
+    Arbitrarily deep structures are supported. The logic is as follows:
+
+    1. If the value is callable, call it and make that the new value.
+    2. If the value is an instance of dict, use ComputableDict to compute its keys.
+
+    Example:
+
+        >>> def parents():
+        ...     return {
+        ...         "father": lambda: "Foo",
+        ...         "mother": "Bar"
+        ...      }
+        ...
+        >>> a = {
+        ...     "name": "Brad",
+        ...     "parents": parents
+        ... }
+        ...
+        >>> computed_values(a)
+        {"name": "Brad", "parents": {"father": "Foo", "mother": "Bar"}}
+
+    :rtype: dict
+    """
+    result = {}
+    for k, v in six.iteritems(d):
+        if callable(v):
+            v = v()
+        if isinstance(v, dict):
+            v = computed_values(v)
+        result[k] = v
+    return result
