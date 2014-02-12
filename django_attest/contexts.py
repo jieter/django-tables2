@@ -59,14 +59,16 @@ def settings(**kwargs):
         sender = type(settings._wrapped)
         for key, value in kwargs.items():
             setattr(settings._wrapped, key, value)
-            setting_changed.send(sender=sender, setting=key, value=value)
+            setting_changed.send(sender=sender, setting=key, value=value,
+                                 enter=True)
         yield
     finally:
         settings._wrapped = original
         sender = type(settings._wrapped)
         for key, value in kwargs.items():
             value = getattr(settings, key, None)
-            setting_changed.send(sender=sender, setting=key, value=value)
+            setting_changed.send(sender=sender, setting=key, value=value,
+                                 enter=False)
 
 
 @contextmanager
