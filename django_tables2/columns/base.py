@@ -2,7 +2,6 @@
 from __future__ import absolute_import, unicode_literals
 from django.db.models.fields import FieldDoesNotExist
 from django.utils.datastructures import SortedDict
-from django.utils.safestring import SafeData
 from django_tables2.templatetags.django_tables2 import title
 from django_tables2.utils import A, AttributeDict, OrderBy, OrderByTuple
 from itertools import islice
@@ -116,9 +115,6 @@ class Column(object):  # pylint: disable=R0902
 
         :type: `unicode`
 
-        This should not defined in title case, but rather natural case. It is
-        converted to title case for use in column headers.
-
 
     .. attribute:: visible
 
@@ -188,9 +184,7 @@ class Column(object):  # pylint: disable=R0902
         """
         The value used for the column heading (e.g. inside the ``<th>`` tag).
 
-        By default this titlises the `~.Column.verbose_name`. If
-        `~.Column.verbose_name` is an instance of `~.safestring.SafeData`, it's
-        used unmodified.
+        By default this returns `~.Column.verbose_name`.
 
         :returns: `unicode` or `None`
 
@@ -203,12 +197,7 @@ class Column(object):  # pylint: disable=R0902
             accessing that first) when this property doesn't return something
             useful.
         """
-        if self.verbose_name:
-            if isinstance(self.verbose_name, SafeData):
-                # If the author has used mark_safe, we're going to assume the
-                # author wants the value used verbatim.
-                return self.verbose_name
-            return title(self.verbose_name)
+        return self.verbose_name
 
     def render(self, value):
         """
@@ -350,13 +339,7 @@ class BoundColumn(object):
         if column_header:
             return column_header
         # fall back to automatic best guess
-        verbose_name = self.verbose_name  # avoid calculating multiple times
-        if isinstance(verbose_name, SafeData):
-            # If the verbose_name has come from a model field, it's possible
-            # that the author used mark_safe to include HTML in the value. If
-            # this is the case, we leave it verbatim.
-            return verbose_name
-        return title(verbose_name)
+        return self.verbose_name
 
     @property
     def order_by(self):
@@ -453,7 +436,7 @@ class BoundColumn(object):
     @property
     def verbose_name(self):
         """
-        Return the verbose name for this column, or fallback to prettified
+        Return the verbose name for this column, or fallback to the titlised
         column name.
 
         If the table is using queryset data, then use the corresponding model
@@ -461,9 +444,6 @@ class BoundColumn(object):
         then get the last field in the accessor (i.e. stop when the
         relationship turns from ORM relationships to object attributes [e.g.
         person.upper should stop at person]).
-
-        If the model field's `~.db.Field.verbose_name` is a
-        `~.safestring.SafeData`, it's used unmodified.
         """
         # Favor an explicit defined verbose_name
         if self.column.verbose_name:
@@ -471,7 +451,7 @@ class BoundColumn(object):
 
         # This is our reasonable fallback, should the next section not result
         # in anything useful.
-        name = self.name.replace('_', ' ')
+        name = title(self.name.replace('_', ' '))
 
         # Try to use a tmodel field's verbose_name
         if hasattr(self.table.data, 'queryset'):

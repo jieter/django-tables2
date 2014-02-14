@@ -280,7 +280,8 @@ Customising column headings
 ===========================
 
 The header cell for each column comes from `~.Column.header`. By default this
-method returns a titlised version of the `~.Column.verbose_name`.
+method returns `~.Column.verbose_name`, falling back to the titlised attribute
+name of the column in the table class.
 
 When using queryset data and a verbose name hasn't been explicitly
 defined for a column, the corresponding model field's verbose name will be
