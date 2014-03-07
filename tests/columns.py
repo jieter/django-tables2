@@ -134,14 +134,14 @@ def column_render_supports_kwargs():
 
 
 @general.test
-def column_header_should_use_titlised_verbose_name():
+def column_header_should_use_titlised_verbose_name_unless_given_explicitly():
     class SimpleTable(tables.Table):
         basic = tables.Column()
         acronym = tables.Column(verbose_name="has FBI help")
 
     table = SimpleTable([])
     assert table.columns["basic"].header == "Basic"
-    assert table.columns["acronym"].header == "Has FBI Help"
+    assert table.columns["acronym"].header == "has FBI help"
 
 
 @general.test

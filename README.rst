@@ -68,6 +68,9 @@ globally, use::
 Change log
 ==========
 
+- `BoundColumn.verbose_name` now titlises only if no verbose_name was given.
+  ``verbose_name`` is used verbatim.
+
 v0.15.0
 -------
 

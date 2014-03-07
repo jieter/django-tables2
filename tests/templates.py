@@ -39,12 +39,12 @@ templates = Tests()
 class CountryTable(tables.Table):
     name = tables.Column()
     capital = tables.Column(orderable=False,
-                            verbose_name=ugettext_lazy("capital"))
-    population = tables.Column(verbose_name='population size')
+                            verbose_name=ugettext_lazy("Capital"))
+    population = tables.Column(verbose_name='Population Size')
     currency = tables.Column(visible=False)
-    tld = tables.Column(visible=False, verbose_name='domain')
+    tld = tables.Column(visible=False, verbose_name='Domain')
     calling_code = tables.Column(accessor='cc',
-                                 verbose_name='phone ext.')
+                                 verbose_name='Phone Ext.')
 
 
 MEMORY_DATA = [
@@ -182,7 +182,7 @@ def render_table_supports_queryset():
                                         'request': build_request('/')}))
 
         root = parse(html)
-        assert [e.text for e in root.findall('.//thead/tr/th/a')] == ["ID", "Name", "Mayor"]
+        assert [e.text for e in root.findall('.//thead/tr/th/a')] == ["ID", "name", "mayor"]
         td = [[td.text for td in tr.findall('td')] for tr in root.findall('.//tbody/tr')]
         db = []
         for region in Region.objects.all():
