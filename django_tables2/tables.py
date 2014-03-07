@@ -34,12 +34,15 @@ class TableData(object):
             self.queryset = data
         # otherwise it must be convertable to a list
         else:
-            try:
-                self.list = list(data)
-            except:
-                raise ValueError('data must be QuerySet-like (have count and '
-                                 'order_by) or support list(data) -- %s has '
-                                 'neither' % type(data).__name__)
+            if isinstance(data, list):
+                self.list = data
+            else:
+                try:
+                    self.list = list(data)
+                except:
+                    raise ValueError('data must be QuerySet-like (have count and '
+                                    'order_by) or support list(data) -- %s has '
+                                    'neither' % type(data).__name__)
 
     def __len__(self):
         if not hasattr(self, "_length"):
