@@ -181,6 +181,29 @@ def should_support_haystack_data_source():
 
 
 @core.test
+def data_validation():
+    with raises(ValueError):
+        table = OrderedTable(None)
+    
+    class Bad:
+        def __len__(self):
+            pass
+      
+    with raises(ValueError):
+        table = OrderedTable(Bad())
+
+    class Ok:
+        def __len__(self):
+            return 1
+        def __getitem__(self, pos):
+            if pos != 0:
+                raise IndexError()
+            return {'a': 1}
+    
+    table = OrderedTable(Ok())
+    assert len(table.rows) == 1
+
+@core.test
 def ordering():
     # fallback to Table.Meta
     assert ('alpha', ) == OrderedTable([], order_by=None).order_by == OrderedTable([]).order_by

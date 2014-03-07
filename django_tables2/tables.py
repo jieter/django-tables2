@@ -6,6 +6,7 @@ from .rows import BoundRows
 from .utils import (Accessor, AttributeDict, build_request, cached_property,
                     computed_values, OrderBy, OrderByTuple, segment, Sequence)
 import copy
+import sys
 from django.core.paginator       import Paginator
 from django.db.models.fields     import FieldDoesNotExist
 from django.utils.datastructures import SortedDict
@@ -34,12 +35,15 @@ class TableData(object):
             self.queryset = data
         # otherwise it must be convertable to a list
         else:
-            try:
+            # do some light validation
+            if hasattr(data, '__iter__') or (hasattr(data, '__len__') and hasattr(data, '__getitem__')):
                 self.list = list(data)
-            except:
-                raise ValueError('data must be QuerySet-like (have count and '
-                                 'order_by) or support list(data) -- %s has '
-                                 'neither' % type(data).__name__)
+            else:
+                raise ValueError(
+                    'data must be QuerySet-like (have count and '
+                    'order_by) or support list(data) -- %s has '
+                    'neither' % type(data).__name__
+                )
 
     def __len__(self):
         if not hasattr(self, "_length"):
