@@ -907,7 +907,7 @@ API Reference
             This functionality is also available via the ``empty_text`` keyword
             argument to a table's constructor.
 
-    .. attribute:: show_table_header
+    .. attribute:: show_header
 
         Defines whether the table header (``<thead>``) should be displayed or
         not.
@@ -917,7 +917,7 @@ API Reference
 
         .. note::
 
-            This functionality is also available via the ``show_table_header`` 
+            This functionality is also available via the ``show_header`` 
             keyword argument to a table's constructor.
 
     .. attribute:: exclude
