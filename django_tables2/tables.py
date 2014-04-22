@@ -445,7 +445,7 @@ class TableBase(object):
         if request:
             RequestConfig(request).configure(self)
 
-    def as_html(self):
+    def as_html(self, request=None):
         """
         Render the table to a simple HTML table.
 
@@ -454,7 +454,8 @@ class TableBase(object):
         ``{% render_table %}`` template tag instead.
         """
         template = get_template(self.template)
-        request = build_request()
+        if request is None:
+            request = build_request()
         return template.render(RequestContext(request, {'table': self}))
 
     @property
