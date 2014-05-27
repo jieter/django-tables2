@@ -383,7 +383,7 @@ Here's an example where the first column displays the current row number::
     ...         self.counter = itertools.count()
     ...
     ...     def render_row_number(self):
-    ...         return 'Row %d' % next(self.counter)
+    ...         return 'Row %d' % next(self.counter) + 1
     ...
     ...     def render_id(self, value):
     ...         return '<%s>' % value
@@ -392,7 +392,7 @@ Here's an example where the first column displays the current row number::
     >>> for cell in table.rows[0]:
     ...     print cell
     ...
-    Row 0
+    Row 1
     <10>
     31
 
