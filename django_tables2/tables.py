@@ -101,7 +101,8 @@ class TableData(object):
                 accessors += bound_column.order_by
         if hasattr(self, "queryset"):
             translate = lambda accessor: accessor.replace(Accessor.SEPARATOR, QUERYSET_ACCESSOR_SEPARATOR)
-            self.queryset = self.queryset.order_by(*(translate(a) for a in accessors))
+            if accessors:
+                self.queryset = self.queryset.order_by(*(translate(a) for a in accessors))
         else:
             self.list.sort(key=OrderByTuple(accessors).key)
 
