@@ -91,6 +91,75 @@ class SingleTableMixin(object):
         return context
 
 
+class MultiTableMixin(object):
+    tables = None
+
+    def get_tables(self):
+        if not self.tables:
+            raise ImproperlyConfigured("No tables were specified. Define "
+                                       "%(cls)s.tables"
+                                       % {"cls": type(self).__name__})
+
+        return self.tables
+
+    def get_table(self, table_def):
+        options = {}
+        table_class = self.get_table_class(table_def)
+        table = table_class(self.get_table_data(table_def))
+        paginate = self.get_table_pagination(table_def)
+        if paginate is not None:
+            options['paginate'] = paginate
+        RequestConfig(self.request, **options).configure(table)
+        return table
+
+    def get_table_class(self, table_def):
+        if hasattr(table_def, 'get_table_class'):
+            return table_def.get_table_class(self)
+
+        if table_def.table_class:
+            return table_def.table_class
+
+        raise ImproperlyConfigured("A table class was not specified. Define "
+                                   "%(cls)s.table_class"
+                                   % {"cls": type(self).__name__})
+
+    def get_context_table_name(self, table_def):
+        if not hasattr(table_def, 'context_table_name'):
+            raise ImproperlyConfigured("Table name for template context was "
+                                       "not specified. Define "
+                                       "%(cls)s.context_table_name"
+                                       % {"cls": type(self).__name__})
+
+        return table_def.context_table_name
+
+    def get_table_data(self, table_def):
+        if hasattr(table_def, 'get_table_data'):
+            return table_def.get_table_data(self)
+
+        if not table_def.table_data:
+            return table_def.table_data
+
+        raise ImproperlyConfigured("Table data was not specified. Define "
+                                   "%(cls)s.table_data"
+                                   % {"cls": type(self).__name__})
+
+    def get_table_pagination(self, table_def):
+        if hasattr(table_def, 'table_pagination'):
+            return table_def.table_pagination
+
+        return None
+
+    def get_context_data(self, **kwargs):
+        context = super(MultiTableMixin, self).get_context_data(**kwargs)
+
+        for table_def_class in self.get_tables():
+            table_def = table_def_class()
+            table = self.get_table(table_def)
+            context[self.get_context_table_name(table_def)] = table
+
+        return context
+
+
 class SingleTableView(SingleTableMixin, ListView):
     """
     Generic view that renders a template and passes in a `.Table` object.
