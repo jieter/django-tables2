@@ -43,7 +43,7 @@ class CheckBoxColumn(Column):
     If `checked` is a non-falsey value, the checkbox will render checked.
     """
     def __init__(self, attrs=None, checked=None, **extra):
-        self.checked = A(checked) if checked else None
+        self.checked = checked
         # For backwards compatibility, passing in a normal dict effectively
         # should assign attributes to the `<input>` tag.
         valid = set(("input", "th__input", "td__input", "th", "td", "cell"))
@@ -80,7 +80,7 @@ class CheckBoxColumn(Column):
             'name': bound_column.name,
             'value': value
         }
-        if self.checked and getattr(record, self.checked, False):
+        if self.is_checked(value, record):
             default.update({
                 'checked': 'checked',
             })
@@ -88,3 +88,19 @@ class CheckBoxColumn(Column):
         specific = self.attrs.get('td__input')
         attrs = AttributeDict(default, **(specific or general or {}))
         return mark_safe('<input %s/>' % attrs.as_html())
+
+    def is_checked(self, value, record):
+        """
+        Determine if the checkbox should be checked
+        :return bool
+        """
+        checked_value = False
+        if self.checked:
+            # Check for a callback
+            if hasattr(self.checked, '__call__'):
+                checked_value = self.checked(value, record)
+            else:
+                checked = A(self.checked)
+                if checked in record:
+                    checked_value = record[checked]
+        return bool(checked_value)
