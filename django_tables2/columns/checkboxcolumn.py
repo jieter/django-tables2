@@ -1,7 +1,7 @@
 # coding: utf-8
 from __future__ import absolute_import, unicode_literals
 from django.utils.safestring import mark_safe
-from django_tables2.utils import AttributeDict
+from django_tables2.utils import AttributeDict, A
 import warnings
 from .base import Column, library
 
@@ -38,8 +38,12 @@ class CheckBoxColumn(Column):
     - *input*     -- ``<input>`` elements in both ``<td>`` and ``<th>``.
     - *th__input* -- Replaces *input* attrs in header cells.
     - *td__input* -- Replaces *input* attrs in body cells.
+    
+    Use :term:`checked` to mark a column as the 'checkable' column for data set.
+    If `checked` is a non-falsey value, the checkbox will render checked.
     """
-    def __init__(self, attrs=None, **extra):
+    def __init__(self, attrs=None, checked=None, **extra):
+        self.checked = A(checked) if checked else None
         # For backwards compatibility, passing in a normal dict effectively
         # should assign attributes to the `<input>` tag.
         valid = set(("input", "th__input", "td__input", "th", "td", "cell"))
@@ -70,12 +74,16 @@ class CheckBoxColumn(Column):
         attrs = AttributeDict(default, **(specific or general or {}))
         return mark_safe('<input %s/>' % attrs.as_html())
 
-    def render(self, value, bound_column):  # pylint: disable=W0221
+    def render(self, value, bound_column, record):  # pylint: disable=W0221
         default = {
             'type': 'checkbox',
             'name': bound_column.name,
             'value': value
         }
+        if self.checked and getattr(record, self.checked, False):
+            default.update({
+                'checked': 'checked',
+            })
         general = self.attrs.get('input')
         specific = self.attrs.get('td__input')
         attrs = AttributeDict(default, **(specific or general or {}))
