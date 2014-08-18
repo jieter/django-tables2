@@ -113,6 +113,33 @@ def new_attrs_should_be_supported():
     assert attrs(table.rows[0]["col2"])        == {"type": "checkbox", "key": "value", "value": "data", "name": "col2"}
 
 
+@checkboxcolumn.test
+def column_is_checked():
+    with warns(DeprecationWarning):
+        class TestTable(tables.Table):
+            col = tables.CheckBoxColumn(attrs={"name": "col"}, checked='is_selected')
+
+    table = TestTable([{'col': '1', 'is_selected': True}, {'col': '2', 'is_selected': False}])
+    assert attrs(table.rows[0]["col"]) == {"type": "checkbox", "value": "1", "name": "col", "checked": "checked"}
+    assert attrs(table.rows[1]["col"]) == {"type": "checkbox", "value": "2", "name": "col"}
+
+
+@checkboxcolumn.test
+def column_is_checked_callback():
+    with warns(DeprecationWarning):
+        def is_selected(value, record):
+            if value == '1':
+                return True
+            return False
+
+        class TestTable(tables.Table):
+            col = tables.CheckBoxColumn(attrs={"name": "col"}, checked=is_selected)
+
+    table = TestTable([{'col': '1'}, {'col': '2'}])
+    assert attrs(table.rows[0]["col"]) == {"type": "checkbox", "value": "1", "name": "col", "checked": "checked"}
+    assert attrs(table.rows[1]["col"]) == {"type": "checkbox", "value": "2", "name": "col"}
+
+
 general = Tests()
 
 
