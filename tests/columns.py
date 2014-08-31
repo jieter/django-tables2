@@ -568,6 +568,15 @@ def should_support_value():
     assert table.rows[0]["foo"] == "value=bar"
 
 
+@templatecolumn.test
+def should_support_column():
+    class Table(tables.Table):
+        tcol = tables.TemplateColumn("column={{ column }}")
+
+    table = Table([{"foo": "bar"}])
+    assert table.rows[0]["foo"] == "column=tcol"
+
+
 urlcolumn = Tests()
 
 
