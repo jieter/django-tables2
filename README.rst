@@ -2,7 +2,8 @@
 django-tables2 - An app for creating HTML tables
 ================================================
 
-.. figure:: https://travis-ci.org/bradleyayers/django-tables2.png
+.. image:: https://travis-ci.org/bradleyayers/django-tables2.svg
+    :target: https://travis-ci.org/bradleyayers/django-tables2
 
 django-tables2 simplifies the task of turning sets of data into HTML tables. It
 has native support for pagination and sorting. It does for HTML tables what
