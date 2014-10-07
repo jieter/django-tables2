@@ -377,7 +377,8 @@ class Accessor(str):
                     if safe and getattr(current, 'alters_data', False):
                         raise ValueError('refusing to call %s() because `.alters_data = True`'
                                          % repr(current))
-                    current = current()
+                    if not getattr(current, 'do_not_call_in_templates', False):
+                        current = current()
                 # important that we break in None case, or a relationship
                 # spanning across a null-key will raise an exception in the
                 # next iteration, instead of defaulting.
