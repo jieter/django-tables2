@@ -1,0 +1,32 @@
+# This file is distributed under the same license as the django-tables2 package
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: django-tables2\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2012-09-18 03:12+0200\n"
+"PO-Revision-Date: 2014-12-04 10:25+0100\n"
+"Last-Translator: Petter Jönsson <pjr+git@petr.se>\n"
+"Language-Team: Swedish <sv@li.org>\n"
+"Language: sv\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: templates/django_tables2/table.html:55
+msgid "Previous"
+msgstr "Föregående"
+
+#: templates/django_tables2/table.html:59
+#, python-format
+msgid "Page %(current)s of %(total)s"
+msgstr "Sida %(current)s av %(total)s"
+
+#: templates/django_tables2/table.html:63
+msgid "Next"
+msgstr "Nästa"
+
+#: templates/django_tables2/table.html:66
+#, python-format
+msgid "%(count)s of %(total)s"
+msgstr "%(count)s av %(total)s"
