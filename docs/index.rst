@@ -33,7 +33,7 @@ We're going to run through creating a tutorial app. Let's start with a simple mo
 
     # tutorial/models.py
     class Person(models.Model):
-        name = models.CharField(verbose_name="full name")
+        name = models.CharField(verbose_name="full name", max_length=200)
 
 Add some data so you have something to display in the table. Now write a view
 to pass a ``Person`` queryset into a template::
