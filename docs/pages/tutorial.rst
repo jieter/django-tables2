@@ -1,0 +1,97 @@
+Tutorial
+========
+
+1. ``pip install django-tables2``
+2. Add ``'django_tables2'`` to ``INSTALLED_APPS``
+3. Add ``'django.core.context_processors.request'`` to ``TEMPLATE_CONTEXT_PROCESSORS``
+
+We're going to run through creating a tutorial app. Let's start with a simple model::
+
+    # tutorial/models.py
+    class Person(models.Model):
+        name = models.CharField(verbose_name="full name")
+
+Add some data so you have something to display in the table. Now write a view
+to pass a ``Person`` queryset into a template::
+
+    # tutorial/views.py
+    from django.shortcuts import render
+
+    def people(request):
+        return render(request, "people.html", {"people": Person.objects.all()})
+
+Finally, implement the template:
+
+.. sourcecode:: django
+
+    {# tutorial/templates/people.html #}
+    {% load render_table from django_tables2 %}
+    <!doctype html>
+    <html>
+        <head>
+            <link rel="stylesheet" href="{{ STATIC_URL }}django_tables2/themes/paleblue/css/screen.css" />
+        </head>
+        <body>
+            {% render_table people %}
+        </body>
+    </html>
+
+Hook the view up in your URLs, and load the page, you should see:
+
+.. figure:: /_static/tutorial.png
+    :align: center
+    :alt: An example table rendered using django-tables2
+
+While simple, passing a queryset directly to ``{% render_table %}`` doesn't
+allow for any customisation. For that, you must define a `.Table` class.
+
+::
+
+    # tutorial/tables.py
+    import django_tables2 as tables
+    from tutorial.models import Person
+
+    class PersonTable(tables.Table):
+        class Meta:
+            model = Person
+            # add class="paleblue" to <table> tag
+            attrs = {"class": "paleblue"}
+
+
+You'll then need to instantiate and configure the table in the view, before
+adding it to the context.
+
+::
+
+    # tutorial/views.py
+    from django.shortcuts import render
+    from django_tables2   import RequestConfig
+    from tutorial.models  import Person
+    from tutorial.tables  import PersonTable
+
+    def people(request):
+        table = PersonTable(Person.objects.all())
+        RequestConfig(request).configure(table)
+        return render(request, 'people.html', {'table': table})
+
+Using `.RequestConfig` automatically pulls values from ``request.GET`` and
+updates the table accordingly. This enables data ordering and pagination.
+
+Rather than passing a queryset to ``{% render_table %}``, instead pass the
+table.
+
+.. sourcecode:: django
+
+    {% render_table table %}
+
+.. note::
+
+    ``{% render_table %}`` works best when it's used in a template that
+    contains the current request in the context as ``request``. The easiest way
+    to enable this, is to ensure that the ``TEMPLATE_CONTEXT_PROCESSORS``
+    setting contains ``"django.core.context_processors.request"``.
+
+At this point you haven't actually customised anything, you've merely added the
+boilerplate code that ``{% render_table %}`` does for you when given a
+queryset. The remaining sections in this document describe how to change
+various aspects of the table.
