@@ -3,7 +3,7 @@
 Tables for models
 =================
 
-If you build use tables to display `.QuerySet` data, rather than defining each
+If you use tables to display `.QuerySet` data, rather than defining each
 column manually in the table, the `.Table.Meta.model` option allows tables to
 be dynamically created based on a model::
 
