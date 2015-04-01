@@ -20,7 +20,8 @@ class TemplateColumn(Column):
     *template_code* or *template_name* and rendered with a context containing:
 
     - *record* -- data record for the current row
-    - *value* -- value from `record` that corresponds to the current column
+    - *column* -- name of the current column
+    - *value* -- value from `record` that corresponds to `column`
     - *default* -- appropriate default value to use as fallback
 
     Example:
@@ -55,6 +56,7 @@ class TemplateColumn(Column):
         # the table is being rendered via `Table.as_html`, this won't exist.
         context = getattr(table, 'context', Context())
         context.update({'default': bound_column.default,
+                        'column': bound_column.name,
                         'record': record, 'value': value})
         try:
             if self.template_code:
