@@ -54,10 +54,11 @@ class LinkColumn(BaseLinkColumn):
 
     The first arguments are identical to that of
     `~django.core.urlresolvers.reverse` and allows an internal URL to be
-    described. The last argument *attrs* allows custom HTML attributes to
+    described. If this argument is None, then "get_absolute_url". (see Django references) will be used.
+    The last argument *attrs* allows custom HTML attributes to
     be added to the rendered ``<a href="...">`` tag.
 
-    :param    viewname: See `~django.core.urlresolvers.reverse`.
+    :param    viewname: See `~django.core.urlresolvers.reverse`. or None to use get_absolute_url
     :param     urlconf: See `~django.core.urlresolvers.reverse`.
     :param        args: See `~django.core.urlresolvers.reverse`. **
     :param      kwargs: See `~django.core.urlresolvers.reverse`. **
@@ -94,7 +95,7 @@ class LinkColumn(BaseLinkColumn):
 
     - *a* -- ``<a>`` elements in ``<td>``.
     """
-    def __init__(self, viewname, urlconf=None, args=None, kwargs=None,
+    def __init__(self, viewname=None, urlconf=None, args=None, kwargs=None,
                  current_app=None, attrs=None, **extra):
         super(LinkColumn, self).__init__(attrs, **extra)
         self.viewname = viewname
@@ -104,10 +105,25 @@ class LinkColumn(BaseLinkColumn):
         self.current_app = current_app
 
     def render(self, value, record, bound_column):  # pylint: disable=W0221
+        if self.viewname:  # Use view if we have it
+            uri = self.__get_url_by_view(record)
+        else:
+            try:  # Use get_absolute_url otherwise
+                uri = record.get_absolute_url()
+            except AttributeError:
+                raise ValueError("No view name provided and record does not have get_absolute_url()")
+        return self.render_link(uri, text=value)
+
+    def __get_url_by_view(self, record):
+        """
+        Returns URL for certain record using view name passed to init.
+
+        :param record: record to get url for (using view)
+        :return: url
+        """
         viewname = (self.viewname.resolve(record)
                     if isinstance(self.viewname, A)
                     else self.viewname)
-
         # The following params + if statements create optional arguments to
         # pass to Django's reverse() function.
         params = {}
@@ -129,4 +145,5 @@ class LinkColumn(BaseLinkColumn):
             params['current_app'] = (self.current_app.resolve(record)
                                      if isinstance(self.current_app, A)
                                      else self.current_app)
-        return self.render_link(reverse(viewname, **params), text=value)
+        uri = reverse(viewname, **params)
+        return uri
