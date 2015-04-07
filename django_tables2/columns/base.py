@@ -242,6 +242,9 @@ class Column(object):  # pylint: disable=R0902
         # Since this method is inherited by every subclass, only provide a
         # column if this class was asked directly.
         if cls is Column:
+             # django 1.8 fix, but maintain compatibility
+            if 'django.db.models.fields.related.ManyToOneRel' in str(field.__class__):
+                return cls(verbose_name=field.get_related_field().verbose_name)
             return cls(verbose_name=field.verbose_name)
 
 
