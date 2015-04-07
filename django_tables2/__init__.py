@@ -12,4 +12,4 @@ except ImportError:
     pass
 
 
-__version__ = "0.16.0.dev"
+__version__ = "0.16.0"

@@ -69,8 +69,16 @@ globally, use::
 Change log
 ==========
 
+v0.16.0
+-------
+
+- Django 1.8 fixes
 - `BoundColumn.verbose_name` now titlises only if no verbose_name was given.
   ``verbose_name`` is used verbatim.
+- Add max_length attribute to person CharField
+- Add Swedish translation
+- Update docs presentation on readthedocs
+
 
 v0.15.0
 -------
