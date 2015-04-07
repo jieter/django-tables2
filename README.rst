@@ -66,6 +66,13 @@ globally, use::
     make html SPHINXBUILD="python $(which sphinx-build)"
 
 
+Publishing a release
+====================
+
+1. Bump the version in `django-tables2/__init__.py`.
+2. Update `README.rst`.
+3. Run `python setup.py sdist upload --sign --identity=<your gpg identity>`.
+
 Change log
 ==========
 
