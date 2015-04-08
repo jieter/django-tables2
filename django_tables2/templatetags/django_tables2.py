@@ -5,7 +5,6 @@ from django.core.exceptions import ImproperlyConfigured
 from django.template import TemplateSyntaxError, Variable, Node
 from django.template.loader import get_template, select_template
 from django.template.defaultfilters import stringfilter, title as old_title
-from django.utils.datastructures import SortedDict
 from django.utils.http import urlencode
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
@@ -14,6 +13,7 @@ from django_tables2.config import RequestConfig
 import re
 import six
 import tokenize
+import collections
 
 
 register = template.Library()
@@ -35,7 +35,7 @@ def token_kwargs(bits, parser):
     """
     if not bits:
         return {}
-    kwargs = SortedDict()
+    kwargs = collections.OrderedDict()
     while bits:
         match = kwarg_re.match(bits[0])
         if not match or not match.group(1):
