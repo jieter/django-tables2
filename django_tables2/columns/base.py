@@ -1,12 +1,12 @@
 # coding: utf-8
 from __future__ import absolute_import, unicode_literals
 from django.db.models.fields import FieldDoesNotExist
-from django.utils.datastructures import SortedDict
 from django_tables2.templatetags.django_tables2 import title
 from django_tables2.utils import A, AttributeDict, OrderBy, OrderByTuple
 from itertools import islice
 import six
 import warnings
+import collections
 
 
 class Library(object):
@@ -501,7 +501,7 @@ class BoundColumns(object):
     A `BoundColumns` object is a container for holding `BoundColumn` objects.
     It provides methods that make accessing columns easier than if they were
     stored in a `list` or `dict`. `Columns` has a similar API to a `dict` (it
-    actually uses a `~django.utils.datastructures.SortedDict` interally).
+    actually uses a `~collections.OrderedDict interally).
 
     At the moment you'll only come across this class when you access a
     `.Table.columns` property.
@@ -511,7 +511,7 @@ class BoundColumns(object):
     """
     def __init__(self, table):
         self.table = table
-        self.columns = SortedDict()
+        self.columns = collections.OrderedDict()
         for name, column in six.iteritems(table.base_columns):
             self.columns[name] = bc = BoundColumn(table, column, name)
             bc.render = getattr(table, 'render_' + name, column.render)
