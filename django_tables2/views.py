@@ -1,8 +1,9 @@
 # coding: utf-8
 from __future__ import unicode_literals
 from django.core.exceptions import ImproperlyConfigured
-from django.views.generic.list import ListView
+from django.views.generic import ListView, TemplateView
 from .config import RequestConfig
+import six
 
 
 class SingleTableMixin(object):
@@ -94,4 +95,116 @@ class SingleTableMixin(object):
 class SingleTableView(SingleTableMixin, ListView):
     """
     Generic view that renders a template and passes in a `.Table` object.
+    """
+
+
+class MultiTableMixin(object):
+    """
+    Adds multiple Table objects to the context. Typically used with
+    `.TemplateResponseMixin`.
+
+    If enabling pagination for multiple tables (the default), to avoid a
+    collision on pagination parameters uniquely defined table.prefix for
+    each of your tables.
+
+    :param       table_classes: valuees are table classes
+    :type        table_classes: dict of table_id -> `.Table`
+    :param          table_data: data used to populate the table
+    :type           table_data: dict of table_id -> compatible data source
+    :param        table_models: models of objects to use in table, if no
+                                "get_<table_id>_queryset" method is defined
+    :type         table_models: dict of table_id -> `.Model`
+    :param   table_paginations: controls table pagination for each table.
+                                Value is passed as the *paginate* keyword
+                                argument to `.RequestConfig`. As such,
+                                any non-`False` value enables pagination.
+    :type    table_paginations: dict of table_id -> pagination options
+    :param context_table_names: name of the table's template variable
+                                (default: "<table_id>_table")
+    :type  context_table_names: dict of table_id -> `unicode`
+    """
+    table_classes = {}
+    table_data = {}
+    table_models = {}
+    table_paginations = {}
+    context_table_names = {}
+
+    def get_tables(self):
+        """
+        Return a dict of table objects to use.
+        """
+        table_classes = self.get_table_classes()
+        tables = {}
+        for table_id, table_class in six.iteritems(table_classes):
+            options = {}
+            table = table_class(self.get_table_data(table_id))
+            paginate = self.get_table_pagination(table_id)
+            if paginate is not None:
+                options['paginate'] = paginate
+            RequestConfig(self.request, **options).configure(table)
+            tables[table_id] = table
+        return tables
+
+    def get_table_classes(self):
+        """
+        Return the classes to use for the tables.
+        """
+        if self.table_classes:
+            return self.table_classes
+        raise ImproperlyConfigured("Table classes were not specified. Define "
+                                   "%(cls)s.table_classes"
+                                   % {"cls": type(self).__name__})
+
+    def get_context_table_name(self, table_id):
+        """
+        Get the name to use for the table's template variable.
+        """
+        default = '%s_table' % table_id
+        return self.context_table_names.get(table_id, default)
+
+    def get_table_data(self, table_id):
+        """
+        Return the table data that should be used to populate the rows.
+        """
+        if table_id in self.table_data:
+            return self.table_data[table_id]
+        if hasattr(self, 'get_%s_queryset' % table_id):
+            return getattr(self, 'get_%s_queryset' % table_id)()
+        if table_id in self.table_models:
+            return self.table_models[table_id].objects.all()
+        raise ImproperlyConfigured("Table data for %(table_id)s not given. "
+                                   "Define %(cls)s.table_data[%(table_id)s], "
+                                   "%(cls)s.get_%(table_id)s_queryset(), or "
+                                   "%(cls)s.table_models[%(table_id)s]."
+                                   % {
+                                       "cls": type(self).__name__,
+                                       "table_id": table_id,
+                                   })
+
+    def get_table_pagination(self, table_id):
+        """
+        Returns pagination options for the requested table:
+        True for standard pagination (default),
+        False for no pagination, and a dictionary for custom pagination.
+        """
+        return self.table_paginations.get(table_id, True)
+
+    def get_context_data(self, **kwargs):
+        """
+        Overriden version of `.TemplateResponseMixin` to inject the table into
+        the template's context.
+        """
+        context = super(MultiTableMixin, self).get_context_data(**kwargs)
+        tables = self.get_tables()
+        context.update(dict(
+            (self.get_context_table_name(table_id), table)
+            for table_id, table in six.iteritems(tables)
+        ))
+        return context
+
+
+class MultiTableView(MultiTableMixin, TemplateView):
+    """
+    Generic view that renders a template and passes in a set of
+    `.Table` objects.
     """
