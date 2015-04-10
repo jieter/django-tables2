@@ -11,7 +11,9 @@ The following view parameters are supported:
 - ``table_class`` –- the table class to use, e.g. ``SimpleTable``
 - ``table_data`` (or ``get_table_data()``) -- the data used to populate the table
 - ``context_table_name`` -- the name of template variable containing the table object
-- ``table_pagination`` -- pagination options to pass to `.RequestConfig`
+- ``table_pagination`` (or ``get_table_pagination``) -- pagination
+  options to pass to `.RequestConfig`. Set ``table_pagination=False``
+  to disable pagination.
 
 .. __: https://docs.djangoproject.com/en/1.3/topics/class-based-views/
 
