@@ -9,9 +9,9 @@ import copy
 import sys
 from django.core.paginator       import Paginator
 from django.db.models.fields     import FieldDoesNotExist
-from django.utils.datastructures import SortedDict
 from django.template             import RequestContext
 from django.template.loader      import get_template
+from collections import OrderedDict
 import six
 import warnings
 
@@ -172,10 +172,10 @@ class DeclarativeColumnsMetaclass(type):
             if hasattr(base, "base_columns"):
                 parent_columns = list(base.base_columns.items()) + parent_columns
         # Start with the parent columns
-        attrs["base_columns"] = SortedDict(parent_columns)
+        attrs["base_columns"] = OrderedDict(parent_columns)
         # Possibly add some generated columns based on a model
         if opts.model:
-            extra = SortedDict()
+            extra = OrderedDict()
             # honor Table.Meta.fields, fallback to model._meta.fields
             if opts.fields:
                 # Each item in opts.fields is the name of a model field or a
@@ -194,7 +194,7 @@ class DeclarativeColumnsMetaclass(type):
             attrs["base_columns"].update(extra)
 
         # Explicit columns override both parent and generated columns
-        attrs["base_columns"].update(SortedDict(cols))
+        attrs["base_columns"].update(OrderedDict(cols))
         # Apply any explicit exclude setting
         for exclusion in opts.exclude:
             if exclusion in attrs["base_columns"]:
@@ -204,7 +204,7 @@ class DeclarativeColumnsMetaclass(type):
             opts.sequence.expand(attrs["base_columns"].keys())
             # Table's sequence defaults to sequence declared in Meta
             #attrs['_sequence'] = opts.sequence
-            attrs["base_columns"] = SortedDict(((x, attrs["base_columns"][x]) for x in opts.sequence))
+            attrs["base_columns"] = OrderedDict(((x, attrs["base_columns"][x]) for x in opts.sequence))
 
         # set localize on columns
         for col_name in attrs["base_columns"].keys():
