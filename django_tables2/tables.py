@@ -177,7 +177,7 @@ class DeclarativeColumnsMetaclass(type):
         if opts.model:
             extra = OrderedDict()
             # honor Table.Meta.fields, fallback to model._meta.fields
-            if opts.fields:
+            if opts.fields is not None:
                 # Each item in opts.fields is the name of a model field or a
                 # normal attribute on the model
                 for field_name in opts.fields:
@@ -236,7 +236,7 @@ class TableOptions(object):
         self.attrs = AttributeDict(getattr(options, "attrs", {}))
         self.default = getattr(options, "default", "—")
         self.empty_text = getattr(options, "empty_text", None)
-        self.fields = getattr(options, "fields", ())
+        self.fields = getattr(options, "fields", None)
         self.exclude = getattr(options, "exclude", ())
         order_by = getattr(options, "order_by", None)
         if isinstance(order_by, six.string_types):
@@ -422,7 +422,10 @@ class TableBase(object):
         elif self._meta.sequence:
             self._sequence = self._meta.sequence
         else:
-            self._sequence = Sequence(self._meta.fields + ('...',))
+            if self._meta.fields is not None:
+                self._sequence = Sequence(self._meta.fields + ('...',))
+            else:
+                self._sequence = Sequence(('...',))
             self._sequence.expand(self.base_columns.keys())
         self.columns = columns.BoundColumns(self)
         # `None` value for order_by means no order is specified. This means we
