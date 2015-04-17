@@ -700,13 +700,12 @@ datetimecolumn = Tests()
 
 @datetimecolumn.context
 def dt():
-    dt = datetime(2012, 9, 11, 12, 30)
+    dt = datetime(2012, 9, 11, 12, 30, 0)
     if timezone:
         # If the version of Django has timezone support, convert from naive to
         # UTC, the test project uses Australia/Brisbane so regardless the
         # output from the column should be the same.
-        dt = (dt.replace(tzinfo=pytz.timezone("Australia/Brisbane"))
-                .astimezone(pytz.UTC))
+        dt = pytz.timezone("Australia/Brisbane").localize(dt)
     yield dt
 
 
