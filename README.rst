@@ -76,6 +76,14 @@ Publishing a release
 Change log
 ==========
 
+v1.0.0
+------
+
+- Travis CI builds pass.
+- Added Python 3.4 support.
+- Added Django 1.7 and Django 1.8 support.
+- Dropped Python 2.6 support.
+
 v0.16.0
 -------
 
