@@ -242,10 +242,11 @@ class Column(object):  # pylint: disable=R0902
         # Since this method is inherited by every subclass, only provide a
         # column if this class was asked directly.
         if cls is Column:
-             # django 1.8 fix, but maintain compatibility
-            if 'django.db.models.fields.related.ManyToOneRel' in str(field.__class__):
-                return cls(verbose_name=field.get_related_field().verbose_name)
-            return cls(verbose_name=field.verbose_name)
+            if hasattr(field, "get_related_field"):
+                verbose_name = field.get_related_field().verbose_name
+            else:
+                verbose_name = field.verbose_name
+            return cls(verbose_name=verbose_name)
 
 
 class BoundColumn(object):
@@ -456,8 +457,8 @@ class BoundColumn(object):
         # in anything useful.
         name = title(self.name.replace('_', ' '))
 
-        # Try to use a tmodel field's verbose_name
-        if hasattr(self.table.data, 'queryset'):
+        # Try to use a model field's verbose_name
+        if hasattr(self.table.data, 'queryset') and hasattr(self.table.data.queryset, 'model'):
             model = self.table.data.queryset.model
             parts = self.accessor.split('.')
             field = None

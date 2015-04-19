@@ -1,16 +1,14 @@
 # coding: utf-8
 """Test the core table functionality."""
 from __future__ import absolute_import, unicode_literals
-from attest import assert_hook, raises, Tests, warns
 import copy
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 import django_tables2 as tables
 from django_tables2.tables import DeclarativeColumnsMetaclass
 import six
 import itertools
-
-
-core = Tests()
+import pytest
+from .utils import warns
 
 
 class UnorderedTable(tables.Table):
@@ -31,8 +29,7 @@ MEMORY_DATA = [
 ]
 
 
-@core.test
-def declarations():
+def test_declarations():
     """Test defining tables by declaration."""
     class GeoAreaTable(tables.Table):
         name = tables.Column()
@@ -59,8 +56,7 @@ def declarations():
     assert 'added' in CityTable.base_columns
 
 
-@core.test
-def metaclass_inheritance():
+def test_metaclass_inheritance():
     class Tweaker(type):
         """Adds an attribute "tweaked" to all classes"""
         def __new__(cls, name, bases, attrs):
@@ -96,8 +92,7 @@ def metaclass_inheritance():
     assert table.tweaked
 
 
-@core.test
-def attrs():
+def test_attrs():
     class TestTable(tables.Table):
         class Meta:
             attrs = {}
@@ -119,8 +114,7 @@ def attrs():
     assert {"c": "d"} == TestTable4([], attrs={"c": "d"}).attrs
 
 
-@core.test
-def attrs_support_computed_values():
+def test_attrs_support_computed_values():
     counter = itertools.count()
 
     class TestTable(tables.Table):
@@ -131,15 +125,13 @@ def attrs_support_computed_values():
     assert {"id": "test_table_1"} == TestTable([]).attrs
 
 
-@core.test
-def data_knows_its_name():
+def test_data_knows_its_name():
     table = tables.Table([{}])
     assert table.data.verbose_name == "item"
     assert table.data.verbose_name_plural == "items"
 
 
-@core.test
-def datasource_untouched():
+def test_datasource_untouched():
     """Ensure that data that is provided to the table (the datasource) is not
     modified by table operations.
     """
@@ -156,21 +148,20 @@ def datasource_untouched():
     assert MEMORY_DATA == original_data
 
 
-@core.test
-def should_support_tuple_data_source():
+def test_should_support_tuple_data_source():
     class SimpleTable(tables.Table):
         name = tables.Column()
 
     table = SimpleTable((
         {'name': 'brad'},
-        {'name': 'stevie'},
+        {'name': 'davina'},
     ))
 
     assert len(table.rows) == 2
 
 
-@core.test_if(not six.PY3)  # Haystack isn't compatible with Python 3
-def should_support_haystack_data_source():
+@pytest.mark.skipif(six.PY3, reason="Haystack requires Python 2.x")
+def test_should_support_haystack_data_source():
     from haystack.query import SearchQuerySet
 
     class PersonTable(tables.Table):
@@ -180,16 +171,15 @@ def should_support_haystack_data_source():
     table.as_html()
 
 
-@core.test
-def data_validation():
-    with raises(ValueError):
+def test_data_validation():
+    with pytest.raises(ValueError):
         table = OrderedTable(None)
     
     class Bad:
         def __len__(self):
             pass
       
-    with raises(ValueError):
+    with pytest.raises(ValueError):
         table = OrderedTable(Bad())
 
     class Ok:
@@ -203,8 +193,8 @@ def data_validation():
     table = OrderedTable(Ok())
     assert len(table.rows) == 1
 
-@core.test
-def ordering():
+
+def test_ordering():
     # fallback to Table.Meta
     assert ('alpha', ) == OrderedTable([], order_by=None).order_by == OrderedTable([]).order_by
 
@@ -287,8 +277,7 @@ def ordering():
     assert len(captured) == 4
 
 
-@core.test
-def ordering_different_types():
+def test_ordering_different_types():
     from datetime import datetime
 
     data = [
@@ -311,25 +300,24 @@ def ordering_different_types():
     assert [] == table.rows[0]['beta']
 
 
-@core.test
-def multi_column_ordering():
+def test_multi_column_ordering():
     brad   = {"first_name": "Bradley", "last_name": "Ayers"}
     brad2  = {"first_name": "Bradley", "last_name": "Fake"}
     chris  = {"first_name": "Chris",   "last_name": "Doble"}
-    stevie = {"first_name": "Stevie",  "last_name": "Armstrong"}
+    davina = {"first_name": "Davina",  "last_name": "Adisusila"}
     ross   = {"first_name": "Ross",    "last_name": "Ayers"}
 
-    people = [brad, brad2, chris, stevie, ross]
+    people = [brad, brad2, chris, davina, ross]
 
     class PersonTable(tables.Table):
         first_name = tables.Column()
         last_name = tables.Column()
 
     table = PersonTable(people, order_by=("first_name", "last_name"))
-    assert [brad, brad2, chris, ross, stevie] == [r.record for r in table.rows]
+    assert [brad, brad2, chris, davina, ross] == [r.record for r in table.rows]
 
     table = PersonTable(people, order_by=("first_name", "-last_name"))
-    assert [brad2, brad, chris, ross, stevie] == [r.record for r in table.rows]
+    assert [brad2, brad, chris, davina, ross] == [r.record for r in table.rows]
 
     # let's try column order_by using multiple keys
     class PersonTable(tables.Table):
@@ -341,14 +329,13 @@ def multi_column_ordering():
     assert brad['name'] == "Bradley Ayers"
 
     table = PersonTable(people, order_by="name")
-    assert [brad, brad2, chris, ross, stevie] == [r.record for r in table.rows]
+    assert [brad, brad2, chris, davina, ross] == [r.record for r in table.rows]
 
     table = PersonTable(people, order_by="-name")
-    assert [stevie, ross, chris, brad2, brad] == [r.record for r in table.rows]
+    assert [ross, davina, chris, brad2, brad] == [r.record for r in table.rows]
 
 
-@core.test
-def column_count():
+def test_column_count():
     class SimpleTable(tables.Table):
         visible = tables.Column(visible=True)
         hidden = tables.Column(visible=False)
@@ -357,8 +344,7 @@ def column_count():
     assert len(SimpleTable([]).columns) == 1
 
 
-@core.test
-def column_accessor():
+def test_column_accessor():
     class SimpleTable(UnorderedTable):
         col1 = tables.Column(accessor='alpha.upper.isupper')
         col2 = tables.Column(accessor='alpha.upper')
@@ -368,8 +354,7 @@ def column_accessor():
     assert row['col2'] == 'B'
 
 
-@core.test
-def exclude_columns():
+def test_exclude_columns():
     """
     Defining ``Table.Meta.exclude`` or providing an ``exclude`` argument when
     instantiating a table should have the same effect -- exclude those columns
@@ -402,8 +387,7 @@ def exclude_columns():
     assert [c.name for c in table.columns] == ["i", "alpha", "added"]
 
 
-@core.test
-def table_exclude_property_should_override_constructor_argument():
+def test_table_exclude_property_should_override_constructor_argument():
     class SimpleTable(tables.Table):
         a = tables.Column()
         b = tables.Column()
@@ -414,8 +398,7 @@ def table_exclude_property_should_override_constructor_argument():
     assert [c.name for c in table.columns] == ['b']
 
 
-@core.test
-def pagination():
+def test_pagination():
     class BookTable(tables.Table):
         name = tables.Column()
 
@@ -445,15 +428,14 @@ def pagination():
     assert books.page.has_next() is True
 
     # accessing a non-existant page raises 404
-    with raises(EmptyPage):
+    with pytest.raises(EmptyPage):
         books.paginate(Paginator, page=9999, per_page=10)
 
-    with raises(PageNotAnInteger):
+    with pytest.raises(PageNotAnInteger):
         books.paginate(Paginator, page='abc', per_page=10)
 
 
-@core.test
-def pagination_shouldnt_prevent_multiple_rendering():
+def test_pagination_shouldnt_prevent_multiple_rendering():
     class SimpleTable(tables.Table):
         name = tables.Column()
 
@@ -463,8 +445,7 @@ def pagination_shouldnt_prevent_multiple_rendering():
     assert table.as_html() == table.as_html()
 
 
-@core.test
-def empty_text():
+def test_empty_text():
     class TestTable(tables.Table):
         a = tables.Column()
 
@@ -484,8 +465,7 @@ def empty_text():
     assert table.empty_text == 'still nothing'
 
 
-@core.test
-def prefix():
+def test_prefix():
     """Test that table prefixes affect the names of querystring parameters"""
     class TableA(tables.Table):
         name = tables.Column()
@@ -506,8 +486,7 @@ def prefix():
     assert "x" == table.prefix
 
 
-@core.test
-def field_names():
+def test_field_names():
     class TableA(tables.Table):
         class Meta:
             order_by_field = "abc"
@@ -520,8 +499,7 @@ def field_names():
     assert "ghi" == table.per_page_field
 
 
-@core.test
-def field_names_with_prefix():
+def test_field_names_with_prefix():
     class TableA(tables.Table):
         class Meta:
             order_by_field = "sort"
@@ -552,8 +530,7 @@ def field_names_with_prefix():
     assert "1-per_page" == table.prefixed_per_page_field
 
 
-@core.test
-def should_support_a_template_to_be_specified():
+def test_should_support_a_template_to_be_specified():
     class MetaDeclarationSpecifiedTemplateTable(tables.Table):
         name = tables.Column()
 
@@ -583,8 +560,7 @@ def should_support_a_template_to_be_specified():
     assert table.template == "django_tables2/table.html"
 
 
-@core.test
-def should_support_rendering_multiple_times():
+def test_should_support_rendering_multiple_times():
     class MultiRenderTable(tables.Table):
         name = tables.Column()
 
@@ -593,8 +569,7 @@ def should_support_rendering_multiple_times():
     assert table.as_html() == table.as_html()
 
 
-@core.test
-def column_defaults_are_honored():
+def test_column_defaults_are_honored():
     class Table(tables.Table):
         name = tables.Column(default="abcd")
 
@@ -605,8 +580,7 @@ def column_defaults_are_honored():
     assert table.rows[0]['name'] == "abcd"
 
 
-@core.test
-def table_meta_defaults_are_honored():
+def test_table_meta_defaults_are_honored():
     class Table(tables.Table):
         name = tables.Column()
 
@@ -617,8 +591,7 @@ def table_meta_defaults_are_honored():
     assert table.rows[0]['name'] == "abcd"
 
 
-@core.test
-def table_defaults_are_honored():
+def test_table_defaults_are_honored():
     class Table(tables.Table):
         name = tables.Column()
 
@@ -630,17 +603,16 @@ def table_defaults_are_honored():
     assert table.rows[0]['name'] == "efgh"
 
 
-@core.test
-def list_table_data_supports_ordering():
+def test_list_table_data_supports_ordering():
     class Table(tables.Table):
         name = tables.Column()
 
     data = [
         {"name": "Bradley"},
-        {"name": "Stevie"},
+        {"name": "Davina"},
     ]
 
     table = Table(data)
     assert table.rows[0]["name"] == "Bradley"
     table.order_by = "-name"
-    assert table.rows[0]["name"] == "Stevie"
+    assert table.rows[0]["name"] == "Davina"

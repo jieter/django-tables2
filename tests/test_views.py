@@ -1,13 +1,10 @@
 # coding: utf-8
 from .app.models import Region
-from attest import assert_hook, Tests
-from django_attest import TestContext
 import django_tables2 as tables
 from django_tables2.utils import build_request
+import pytest
 
 
-views = Tests()
-views.context(TestContext())
 USING_CBV = hasattr(tables, "SingleTableView")
 
 
@@ -24,8 +21,9 @@ class SimpleTable(tables.Table):
         model = Region
 
 
-@views.test_if(USING_CBV)
-def view_should_support_pagination_options():
+@pytest.mark.skipif(not USING_CBV, reason="requires class based views")
+@pytest.mark.django_db
+def test_view_should_support_pagination_options():
     for name in ("Queensland", "New South Wales", "Victoria", "Tasmania"):
         Region.objects.create(name=name)
 
@@ -39,8 +37,8 @@ def view_should_support_pagination_options():
     assert view.get_table().paginator.num_pages == 4
 
 
-@views.test_if(USING_CBV)
-def should_support_explicit_table_data():
+@pytest.mark.skipif(not USING_CBV, reason="requires class based views")
+def test_should_support_explicit_table_data():
     class SimpleView(DispatchHookMixin, tables.SingleTableView):
         table_class = SimpleTable
         table_data = [

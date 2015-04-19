@@ -1,17 +1,18 @@
 # coding: utf-8
 from __future__ import unicode_literals
-from .app.models import Person, Region
-from attest import assert_hook, raises, Tests  # pylint: disable=W0611
-from contextlib import contextmanager
-from django_attest import queries, settings, TestContext, translation
-import django_tables2 as tables
-from django_tables2.config import RequestConfig
-from django_tables2.utils import build_request
+
+from django.test import TransactionTestCase
 import django
 from django.core.exceptions import ImproperlyConfigured
 from django.template import Template, RequestContext, Context
 from django.utils.translation import ugettext_lazy
 from django.utils.safestring import mark_safe
+
+from .app.models import Person, Region
+import django_tables2 as tables
+from django_tables2.config import RequestConfig
+from django_tables2.utils import build_request
+
 try:
     from urlparse import parse_qs
 except ImportError:
@@ -19,21 +20,8 @@ except ImportError:
 import lxml.etree
 import lxml.html
 import six
-
-
-def parse(html):
-    return lxml.etree.fromstring(html)
-
-
-def attrs(xml):
-    """
-    Helper function that returns a dict of XML attributes, given an element.
-    """
-    return lxml.html.fromstring(xml).attrib
-
-
-database = contextmanager(TestContext())
-templates = Tests()
+from .utils import parse, translation
+import pytest
 
 
 class CountryTable(tables.Table):
@@ -58,8 +46,7 @@ MEMORY_DATA = [
 ]
 
 
-@templates.test
-def as_html():
+def test_as_html():
     table = CountryTable(MEMORY_DATA)
     root = parse(table.as_html())
     assert len(root.findall('.//thead/tr')) == 1
@@ -89,8 +76,7 @@ def as_html():
     table.as_html()
 
 
-@templates.test
-def custom_rendering():
+def test_custom_rendering():
     """For good measure, render some actual templates."""
     countries = CountryTable(MEMORY_DATA)
     context = Context({'countries': countries})
@@ -110,8 +96,7 @@ def custom_rendering():
     assert result == template.render(context)
 
 
-@templates.test
-def render_table_templatetag():
+def test_render_table_templatetag(settings):
     # ensure it works with a multi-order-by
     request = build_request('/')
     table = CountryTable(MEMORY_DATA, order_by=('name', 'population'))
@@ -152,18 +137,17 @@ def render_table_templatetag():
     # variable that doesn't exist (issue #8)
     template = Template('{% load django_tables2 %}'
                         '{% render_table this_doesnt_exist %}')
-    with raises(ValueError):
-        with settings(DEBUG=True):
-            template.render(Context())
+    with pytest.raises(ValueError):
+        settings.DEBUG = True
+        template.render(Context())
 
     # Should still be noisy with debug off
-    with raises(ValueError):
-        with settings(DEBUG=False):
-            template.render(Context())
+    with pytest.raises(ValueError):
+        settings.DEBUG = False
+        template.render(Context())
 
 
-@templates.test
-def render_table_should_support_template_argument():
+def test_render_table_should_support_template_argument():
     table = CountryTable(MEMORY_DATA, order_by=('name', 'population'))
     template = Template('{% load django_tables2 %}'
                         '{% render_table table "dummy.html" %}')
@@ -172,26 +156,24 @@ def render_table_should_support_template_argument():
     assert template.render(context) == 'dummy template contents\n'
 
 
-@templates.test
-def render_table_supports_queryset():
-    with database():
-        for name in ("Mackay", "Brisbane", "Maryborough"):
-            Region.objects.create(name=name)
-        template = Template('{% load django_tables2 %}{% render_table qs %}')
-        html = template.render(Context({'qs': Region.objects.all(),
-                                        'request': build_request('/')}))
+@pytest.mark.django_db
+def test_render_table_supports_queryset():
+    for name in ("Mackay", "Brisbane", "Maryborough"):
+        Region.objects.create(name=name)
+    template = Template('{% load django_tables2 %}{% render_table qs %}')
+    html = template.render(Context({'qs': Region.objects.all(),
+                                    'request': build_request('/')}))
 
-        root = parse(html)
-        assert [e.text for e in root.findall('.//thead/tr/th/a')] == ["ID", "name", "mayor"]
-        td = [[td.text for td in tr.findall('td')] for tr in root.findall('.//tbody/tr')]
-        db = []
-        for region in Region.objects.all():
-            db.append([six.text_type(region.id), region.name, "—"])
-        assert td == db
+    root = parse(html)
+    assert [e.text for e in root.findall('.//thead/tr/th/a')] == ["ID", "name", "mayor"]
+    td = [[td.text for td in tr.findall('td')] for tr in root.findall('.//tbody/tr')]
+    db = []
+    for region in Region.objects.all():
+        db.append([six.text_type(region.id), region.name, "—"])
+    assert td == db
 
 
-@templates.test
-def querystring_templatetag():
+def test_querystring_templatetag():
     template = Template('{% load django_tables2 %}'
                         '<b>{% querystring "name"="Brad" foo.bar=value %}</b>')
 
@@ -212,15 +194,13 @@ def querystring_templatetag():
     assert qs["c"] == ["5"]
 
 
-@templates.test
-def querystring_templatetag_requires_request():
-    with raises(ImproperlyConfigured):
+def test_querystring_templatetag_requires_request():
+    with pytest.raises(ImproperlyConfigured):
         (Template('{% load django_tables2 %}{% querystring "name"="Brad" %}')
          .render(Context()))
 
 
-@templates.test
-def querystring_templatetag_supports_without():
+def test_querystring_templatetag_supports_without():
     context = Context({
         "request": build_request('/?a=b&name=dog&c=5'),
         "a_var": "a",
@@ -240,8 +220,7 @@ def querystring_templatetag_supports_without():
     assert set(qs.keys()) == set(["c"])
 
 
-@templates.test
-def title_should_only_apply_to_words_without_uppercase_letters():
+def test_title_should_only_apply_to_words_without_uppercase_letters():
     expectations = {
         "a brown fox": "A Brown Fox",
         "a brown foX": "A Brown foX",
@@ -255,15 +234,13 @@ def title_should_only_apply_to_words_without_uppercase_letters():
         assert template.render(Context({"x": raw})) == expected
 
 
-@templates.test
-def nospaceless_works():
+def test_nospaceless_works():
     template = Template("{% load django_tables2 %}"
                         "{% spaceless %}<b>a</b> <i>b {% nospaceless %}<b>c</b>  <b>d</b> {% endnospaceless %}lic</i>{% endspaceless %}")
     assert template.render(Context()) == "<b>a</b><i>b <b>c</b>&#32;<b>d</b> lic</i>"
 
 
-@templates.test
-def whitespace_is_preserved():
+def test_whitespace_is_preserved():
     class TestTable(tables.Table):
         name = tables.Column(verbose_name=mark_safe("<b>foo</b> <i>bar</i>"))
 
@@ -275,29 +252,35 @@ def whitespace_is_preserved():
     assert "<b>foo</b> <i>bar</i>" in lxml.etree.tostring(tree.findall('.//tbody/tr/td')[0], encoding='unicode')
 
 
-@templates.test
-def as_html_db_queries():
-    with database():
+@pytest.mark.django_db
+def test_as_html_db_queries(transactional_db):
+    class PersonTable(tables.Table):
+        class Meta:
+            model = Person
+
+    # with queries(count=1):
+    #     PersonTable(Person.objects.all()).as_html()
+
+
+class TestQueries(TransactionTestCase):
+    def test_as_html_db_queries(self):
         class PersonTable(tables.Table):
             class Meta:
                 model = Person
 
-        with queries(count=1):
+        with self.assertNumQueries(1):
             PersonTable(Person.objects.all()).as_html()
 
-
-@templates.test
-def render_table_db_queries():
-    with database():
+    def test_render_table_db_queries(self):
         Person.objects.create(first_name="brad", last_name="ayers")
-        Person.objects.create(first_name="stevie", last_name="armstrong")
+        Person.objects.create(first_name="davina", last_name="adisusila")
 
         class PersonTable(tables.Table):
             class Meta:
                 model = Person
                 per_page = 1
 
-        with queries(count=2):
+        with self.assertNumQueries(2):
             # one query for pagination: .count()
             # one query for page records: .all()[start:end]
             request = build_request('/')
@@ -308,8 +291,8 @@ def render_table_db_queries():
              .render(Context({'table': table, 'request': request})))
 
 
-@templates.test_if(django.VERSION >= (1, 3))
-def localization_check():
+@pytest.mark.skipif(django.VERSION < (1, 3), reason="requires Django >= 1.3")
+def test_localization_check(settings):
     def get_cond_localized_table(localizeit=None):
         '''
         helper function for defining Table class conditionally
@@ -333,25 +316,27 @@ def localization_check():
     html = get_cond_localized_table(False)(simple_test_data).as_html()
     assert '<td class="name">{0}</td>'.format(expected_reults[False]) in html
 
-    with settings(USE_L10N=True, USE_THOUSAND_SEPARATOR=True):
-        with translation("pl"):
-            # with default polish locales and enabled thousand separator
-            # 1234.5 is formatted as "1 234,5" with nbsp
-            html = get_cond_localized_table(True)(simple_test_data).as_html()
-            assert '<td class="name">{0}</td>'.format(expected_reults[True]) in html
+    settings.USE_L10N = True
+    settings.USE_THOUSAND_SEPARATOR = True
 
-            # with localize = False there should be no formatting
-            html = get_cond_localized_table(False)(simple_test_data).as_html()
-            assert '<td class="name">{0}</td>'.format(expected_reults[False]) in html
+    with translation("pl"):
+        # with default polish locales and enabled thousand separator
+        # 1234.5 is formatted as "1 234,5" with nbsp
+        html = get_cond_localized_table(True)(simple_test_data).as_html()
+        assert '<td class="name">{0}</td>'.format(expected_reults[True]) in html
 
-            # with localize = None and USE_L10N = True
-            # there should be the same formatting as with localize = True
-            html = get_cond_localized_table(None)(simple_test_data).as_html()
-            assert '<td class="name">{0}</td>'.format(expected_reults[True]) in html
+        # with localize = False there should be no formatting
+        html = get_cond_localized_table(False)(simple_test_data).as_html()
+        assert '<td class="name">{0}</td>'.format(expected_reults[False]) in html
+
+        # with localize = None and USE_L10N = True
+        # there should be the same formatting as with localize = True
+        html = get_cond_localized_table(None)(simple_test_data).as_html()
+        assert '<td class="name">{0}</td>'.format(expected_reults[True]) in html
 
 
-@templates.test_if(django.VERSION >= (1, 3))
-def localization_check_in_meta():
+@pytest.mark.skipif(django.VERSION < (1, 3), reason="requires Django >= 1.3")
+def test_localization_check_in_meta(settings):
     class TableNoLocalize(tables.Table):
         name = tables.Column(verbose_name="my column")
 
@@ -391,21 +376,23 @@ def localization_check_in_meta():
     html = TableNoLocalize(simple_test_data).as_html()
     assert '<td class="name">{0}</td>'.format(expected_reults[None]) in html
 
-    with settings(USE_L10N=True, USE_THOUSAND_SEPARATOR=True):
-        with translation("pl"):
-            # the same as in localization_check.
-            # with localization and polish locale we get formatted output
-            html = TableNoLocalize(simple_test_data).as_html()
-            assert '<td class="name">{0}</td>'.format(expected_reults[True]) in html
+    settings.USE_L10N = True
+    settings.USE_THOUSAND_SEPARATOR = True
 
-            # localize
-            html = TableLocalize(simple_test_data).as_html()
-            assert '<td class="name">{0}</td>'.format(expected_reults[True]) in html
+    with translation("pl"):
+        # the same as in localization_check.
+        # with localization and polish locale we get formatted output
+        html = TableNoLocalize(simple_test_data).as_html()
+        assert '<td class="name">{0}</td>'.format(expected_reults[True]) in html
 
-            # unlocalize
-            html = TableUnlocalize(simple_test_data).as_html()
-            assert '<td class="name">{0}</td>'.format(expected_reults[False]) in html
+        # localize
+        html = TableLocalize(simple_test_data).as_html()
+        assert '<td class="name">{0}</td>'.format(expected_reults[True]) in html
 
-            # test unlocalize higher precedence
-            html = TableLocalizePrecedence(simple_test_data).as_html()
-            assert '<td class="name">{0}</td>'.format(expected_reults[False]) in html
+        # unlocalize
+        html = TableUnlocalize(simple_test_data).as_html()
+        assert '<td class="name">{0}</td>'.format(expected_reults[False]) in html
+
+        # test unlocalize higher precedence
+        html = TableLocalizePrecedence(simple_test_data).as_html()
+        assert '<td class="name">{0}</td>'.format(expected_reults[False]) in html

@@ -83,6 +83,7 @@ v1.0.0
 - Added Python 3.4 support.
 - Added Django 1.7 and Django 1.8 support.
 - Dropped Python 2.6 and 3.2 support.
+- Convert tests to using py.test.
 
 v0.16.0
 -------

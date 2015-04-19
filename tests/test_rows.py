@@ -1,20 +1,17 @@
 # coding: utf-8
-from attest import assert_hook, raises, Tests
+import pytest
+
 import django_tables2 as tables
 
 
-rows = Tests()
-
-
-@rows.test
-def bound_rows():
+def test_bound_rows():
     class SimpleTable(tables.Table):
         name = tables.Column()
 
     data = [
         {'name': 'Bradley'},
         {'name': 'Chris'},
-        {'name': 'Peter'},
+        {'name': 'Davina'},
     ]
 
     table = SimpleTable(data)
@@ -26,8 +23,7 @@ def bound_rows():
     assert records == data
 
 
-@rows.test
-def bound_row():
+def test_bound_row():
     class SimpleTable(tables.Table):
         name = tables.Column()
         occupation = tables.Column()
@@ -43,13 +39,13 @@ def bound_row():
     assert row[1] == record['occupation']
     assert row[2] == record['age']
 
-    with raises(IndexError):
+    with pytest.raises(IndexError):
         row[3]
 
     # column name indexing into a row
-    assert row['name']       == record['name']
+    assert row['name'] == record['name']
     assert row['occupation'] == record['occupation']
-    assert row['age']        == record['age']
+    assert row['age'] == record['age']
 
-    with raises(KeyError):
+    with pytest.raises(KeyError):
         row['gamma']

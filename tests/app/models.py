@@ -2,8 +2,7 @@
 from __future__ import unicode_literals
 from django.db import models
 from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext_lazy
-from django.utils.translation import ugettext
+from django.utils.translation import ugettext, ugettext_lazy
 import six
 
 

@@ -1,0 +1,2 @@
+-r common.pip
+http://github.com/django/django/tarball/master

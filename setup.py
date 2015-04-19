@@ -22,9 +22,6 @@ setup(
 
     install_requires=['Django >=1.2', 'six'],
 
-    test_loader='tests:loader',
-    test_suite='tests.everything',
-
     classifiers=[
         'Environment :: Web Environment',
         'Framework :: Django',
