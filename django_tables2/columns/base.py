@@ -128,8 +128,6 @@ class Column(object):  # pylint: disable=R0902
 
     .. attribute:: localize
 
-        This attribute doesn't work in Django 1.2
-
         *   If `True`, cells of this column will be localized in the HTML output
             by the localize filter.
 

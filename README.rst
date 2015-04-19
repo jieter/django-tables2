@@ -23,7 +23,7 @@ Its features include:
 - Pagination.
 - Column based table sorting.
 - Template tag to enable trivial rendering to HTML.
-- Generic view mixin for use in Django 1.3.
+- Generic view mixin.
 
 Creating a table is as simple as:
 
@@ -83,6 +83,7 @@ v1.0.0
 - Added Python 3.4 support.
 - Added Django 1.7 and Django 1.8 support.
 - Dropped Python 2.6 and 3.2 support.
+- Drop Django 1.2 support
 - Convert tests to using py.test.
 
 v0.16.0
