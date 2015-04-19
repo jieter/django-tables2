@@ -151,7 +151,7 @@ class OrderByTuple(tuple):
             transformed.append(item)
         return super(OrderByTuple, cls).__new__(cls, transformed)
 
-    def __unicode__(self):
+    def __str__(self):
         return ','.join(self)
 
     def __contains__(self, name):

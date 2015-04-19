@@ -1,12 +1,15 @@
 # coding: utf-8
 from __future__ import absolute_import, unicode_literals
-from django.db.models.fields import FieldDoesNotExist
-from django_tables2.templatetags.django_tables2 import title
-from django_tables2.utils import A, AttributeDict, OrderBy, OrderByTuple
 from collections import OrderedDict
 from itertools import islice
-import six
 import warnings
+
+from django.db.models.fields import FieldDoesNotExist
+import six
+
+from django_tables2.templatetags.django_tables2 import title
+from django_tables2.utils import A, AttributeDict, OrderBy, OrderByTuple
+from ..utils import python_2_unicode_compatible
 
 
 class Library(object):
@@ -249,6 +252,7 @@ class Column(object):  # pylint: disable=R0902
             return cls(verbose_name=verbose_name)
 
 
+@python_2_unicode_compatible
 class BoundColumn(object):
     """
     A *run-time* version of `.Column`. The difference between
@@ -278,7 +282,7 @@ class BoundColumn(object):
         self.column = column
         self.name = name
 
-    def __unicode__(self):
+    def __str__(self):
         return six.text_type(self.header)
 
     @property

@@ -261,7 +261,7 @@ def test_as_html_db_queries(transactional_db):
     # with queries(count=1):
     #     PersonTable(Person.objects.all()).as_html()
 
-
+@pytest.mark.django_db
 class TestQueries(TransactionTestCase):
     def test_as_html_db_queries(self):
         class PersonTable(tables.Table):
