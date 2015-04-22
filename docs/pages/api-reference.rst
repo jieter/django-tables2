@@ -94,7 +94,7 @@ API Reference
         :type: `unicode`
         :default: `None`
 
-        If set, it prevents raising django.core.paginator.EmptyText.
+        If set, it prevents raising django.core.paginator.EmptyPage.
         Otherwise, the exception is raised.
 
         .. note::
