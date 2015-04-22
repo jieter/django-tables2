@@ -22,8 +22,8 @@
     {% endblock table.thead %}
     {% block table.tbody %}
     <tbody>
-        {% if table.out_of_range_text and table.page_out_of_range %}
-            <tr><td colspan="{{ table.columns|length }}">{{ table.out_of_range_text }}</td></tr>
+        {% if table.missing_page_text and table.page_out_of_range %}
+            <tr><td colspan="{{ table.columns|length }}">{{ table.missing_page_text }}</td></tr>
         {% else %}
             {% for row in table.page.object_list|default:table.rows %} {# support pagination #}
             {% block table.tbody.row %}
