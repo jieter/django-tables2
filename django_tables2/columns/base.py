@@ -5,6 +5,7 @@ from itertools import islice
 import warnings
 
 from django.db.models.fields import FieldDoesNotExist
+from django import VERSION as django_version
 import six
 
 from django_tables2.templatetags.django_tables2 import title
@@ -465,8 +466,13 @@ class BoundColumn(object):
             parts = self.accessor.split('.')
             field = None
             for part in parts:
+
                 try:
-                    field = model._meta.get_field(part)
+                    if django_version < (1, 8, 0):
+                        field, _, _, _ = model._meta.get_field_by_name(part)
+                    else:
+                        field = model._meta.get_field(part)
+
                 except FieldDoesNotExist:
                     break
                 if hasattr(field, 'rel') and hasattr(field.rel, 'to'):
@@ -474,7 +480,10 @@ class BoundColumn(object):
                     continue
                 break
             if field:
-                name = field.verbose_name
+                if hasattr(field, 'field'):
+                    name = field.field.verbose_name
+                else:
+                    name = field.verbose_name
         return name
 
     @property

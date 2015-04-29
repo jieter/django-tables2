@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 
 from django.utils.translation import ugettext_lazy
 from django.utils.safestring import mark_safe, SafeData
+import pytest
 
 import django_tables2 as tables
 from ..app.models import Person
@@ -49,6 +50,17 @@ def test_should_support_safe_verbose_name_via_model():
 
     table = PersonTable(Person.objects.all())
     assert isinstance(table.columns["safe"].header, SafeData)
+
+
+@pytest.mark.django_db
+def test_handle_verbose_name_of_many2onerel():
+
+    class Table(tables.Table):
+        count = tables.Column(accessor='info_list.count')
+
+    Person.objects.create(first_name='bradley', last_name='ayers')
+    table = Table(Person.objects.all())
+    assert table.columns['count'].verbose_name == 'Information'
 
 
 def test_sortable_backwards_compatibility():
