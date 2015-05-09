@@ -531,15 +531,6 @@ def test_field_names_with_prefix():
 
 
 def test_should_support_a_template_to_be_specified():
-    class MetaDeclarationSpecifiedTemplateTable(tables.Table):
-        name = tables.Column()
-
-        class Meta:
-            template = "dummy.html"
-
-    table = MetaDeclarationSpecifiedTemplateTable([])
-    assert table.template == "dummy.html"
-
     class ConstructorSpecifiedTemplateTable(tables.Table):
         name = tables.Column()
 
@@ -558,6 +549,18 @@ def test_should_support_a_template_to_be_specified():
 
     table = DefaultTable([])
     assert table.template == "django_tables2/table.html"
+
+
+def test_template_in_meta_class_declaration_should_be_honored():
+    class MetaDeclarationSpecifiedTemplateTable(tables.Table):
+        name = tables.Column()
+
+        class Meta:
+            template = "dummy.html"
+
+    table = MetaDeclarationSpecifiedTemplateTable([])
+    assert table.template == "dummy.html"
+    assert table.as_html() == "dummy template contents\n"
 
 
 def test_should_support_rendering_multiple_times():
