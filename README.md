@@ -65,6 +65,11 @@ Publishing a release
 Change log
 ==========
 
+v1.0.4
+------
+
+- Fix bug in retrieving `field.verbose_name` under Django 1.8.
+
 v1.0.3
 ------
 
