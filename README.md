@@ -1,17 +1,13 @@
-================================================
 django-tables2 - An app for creating HTML tables
 ================================================
 
-.. image:: https://travis-ci.org/bradleyayers/django-tables2.svg
-    :target: https://travis-ci.org/bradleyayers/django-tables2
+[![Build status](https://travis-ci.org/bradleyayers/django-tables2.svg)](https://travis-ci.org/bradleyayers/django-tables2)
 
 django-tables2 simplifies the task of turning sets of data into HTML tables. It
 has native support for pagination and sorting. It does for HTML tables what
-``django.forms`` does for HTML forms. e.g.
+`django.forms` does for HTML forms. e.g.
 
-.. figure:: http://dl.dropbox.com/u/33499139/django-tables2/example.png
-    :align: center
-    :alt: An example table rendered using django-tables2
+![An example table rendered using django-tables2](http://dl.dropbox.com/u/33499139/django-tables2/example.png)
 
 Its features include:
 
@@ -27,8 +23,6 @@ Its features include:
 
 Creating a table is as simple as:
 
-.. code-block:: python
-
     import django_tables2 as tables
 
     class SimpleTable(tables.Table):
@@ -37,31 +31,26 @@ Creating a table is as simple as:
 
 This would then be used in a view:
 
-.. code-block:: python
-
     def simple_list(request):
         queryset = Simple.objects.all()
         table = SimpleTable(queryset)
         return render_to_response("simple_list.html", {"table": table},
                                   context_instance=RequestContext(request))
 
-And finally in the template::
+And finally in the template:
 
     {% load django_tables2 %}
     {% render_table table %}
 
-
 This example shows one of the simplest cases, but django-tables2 can do a lot
-more! Check out the `documentation`__ for more details.
-
-.. __: http://django-tables2.readthedocs.org/en/latest/
+more! Check out the [documentation](http://django-tables2.readthedocs.org/en/latest/) for more details.
 
 
 Building the documentation
 ==========================
 
 If you want to build the docs from within a virtualenv, and Sphinx is installed
-globally, use::
+globally, use:
 
     make html SPHINXBUILD="python $(which sphinx-build)"
 
@@ -91,7 +80,7 @@ v0.16.0
 
 - Django 1.8 fixes
 - `BoundColumn.verbose_name` now titlises only if no verbose_name was given.
-  ``verbose_name`` is used verbatim.
+  `verbose_name` is used verbatim.
 - Add max_length attribute to person CharField
 - Add Swedish translation
 - Update docs presentation on readthedocs
@@ -101,12 +90,12 @@ v0.15.0
 -------
 
 - Add UK, Russian, Spanish, Portuguese, and Polish translations
-- Add support for computed table ``attrs``.
+- Add support for computed table `attrs`.
 
 v0.14.0
 -------
 
-- ``querystring`` and ``seturlparam`` template tags now require the request to
+- `querystring` and `seturlparam` template tags now require the request to
   be in the context (backwards incompatible) -- #127
 - Add Travis CI support
 - Add support for Django 1.5
@@ -124,7 +113,7 @@ v0.13.0
 v0.12.1
 -------
 
-- When resolving an accessor, *all* exceptions are smothered into ``None``.
+- When resolving an accessor, *all* exceptions are smothered into `None`.
 
 v0.12.0
 -------
@@ -132,35 +121,35 @@ v0.12.0
 - Improve performance by removing unnecessary queries
 - Simplified pagination:
 
-  - ``Table.page`` is an instance attribute (no longer ``@property``)
-  - Exceptions raised by paginators (e.g. ``EmptyPage``) are no longer
-    smothered by ``Table.page``
-  - Pagination exceptions are raised by ``Table.paginate``
-  - ``RequestConfig`` can handles pagination errors silently, can be disabled
-    by including ``silent=False`` in the ``paginate`` argument value
+   - `Table.page` is an instance attribute (no longer `@property`)
+   - Exceptions raised by paginators (e.g. `EmptyPage`) are no longer
+     smothered by `Table.page`
+   - Pagination exceptions are raised by `Table.paginate`
+   - `RequestConfig` can handles pagination errors silently, can be disabled
+     by including `silent=False` in the `paginate` argument value
 
-- Add ``DateTimeColumn`` and ``DateColumn`` to handle formatting ``datetime``
+- Add `DateTimeColumn` and `DateColumn` to handle formatting `datetime`
   and timezones.
-- Add ``BooleanColumn`` to handle bool values
-- ``render_table`` can now build and render a table for a queryset, rather than
+- Add `BooleanColumn` to handle bool values
+- `render_table` can now build and render a table for a queryset, rather than
   needing to be passed a table instance
 - Table columns created automatically from a model now use specialised columns
-- ``Column.render`` is now skipped if the value is considered *empty*, the
+- `Column.render` is now skipped if the value is considered *empty*, the
   default value is used instead. Empty values are specified via
-  ``Column.empty_values``, by default is ``(None, '')`` (backward incompatible)
-- Default values can now be specified on table instances or ``Table.Meta``
-- Accessor's now honor ``alters_data`` during resolving. Fixes issue that would
-  delete all your data when a column had an accessor of ``delete``
-- Add ``default`` and ``value`` to context of ``TemplateColumn``
+  `Column.empty_values`, by default is `(None, '')` (backward incompatible)
+- Default values can now be specified on table instances or `Table.Meta`
+- Accessor's now honor `alters_data` during resolving. Fixes issue that would
+  delete all your data when a column had an accessor of `delete`
+- Add `default` and `value` to context of `TemplateColumn`
 - Add cardinality indication to the pagination area of a table
-- ``Attrs`` is deprecated, use ``dict`` instead
+- `Attrs` is deprecated, use `dict` instead
 
 v0.11.0
 -------
 
-- Add ``URLColumn`` to render URLs in a data source into hyperlinks
-- Add ``EmailColumn`` to render email addresses into hyperlinks
-- ``TemplateColumn`` can now Django's template loaders to render from a file
+- Add `URLColumn` to render URLs in a data source into hyperlinks
+- Add `EmailColumn` to render email addresses into hyperlinks
+- `TemplateColumn` can now Django's template loaders to render from a file
 
 v0.10.4
 -------
@@ -193,7 +182,7 @@ v0.10.1
 v0.10.0
 -------
 
-- Renamed `BoundColumn.order_by` to `order_by_alias` and never returns ``None``
+- Renamed `BoundColumn.order_by` to `order_by_alias` and never returns `None`
  (**Backwards incompatible**). Templates are affected if they use something
  like:
 
@@ -239,14 +228,14 @@ v0.9.4
 v0.9.3
 ------
 
-- Fix regression in ``SingleTableMixin``.
+- Fix regression in `SingleTableMixin`.
 - Remove stray `print` statement.
 
 v0.9.2
 ------
 
 - `SingleTableView` now uses `RequestConfig`. This fixes issues with
-  ``order_by_field`, `page_field`, and `per_page_field` not being honored.
+  `order_by_field`, `page_field`, and `per_page_field` not being honored.
 - Add `Table.Meta.per_page` and change `Table.paginate` to use it as default.
 - Add `title` template filter. It differs from Django's built-in `title` filter
   because it operates on an individual word basis and leaves words containing
@@ -322,9 +311,9 @@ v0.8.0
 v0.7.8
 ------
 
-- Tables now support using both ``sequence`` and ``exclude`` (issue #32).
-- ``Sequence`` class moved to ``django_tables2/utils.py``.
-- Table instances now support modification to the ``exclude`` property.
-- Removed ``BoundColumns._spawn_columns``.
-- ``Table.data``, ``Table.rows``, and ``Table.columns`` are now attributes
+- Tables now support using both `sequence` and `exclude` (issue #32).
+- `Sequence` class moved to `django_tables2/utils.py`.
+- Table instances now support modification to the `exclude` property.
+- Removed `BoundColumns._spawn_columns`.
+- `Table.data`, `Table.rows`, and `Table.columns` are now attributes
   rather than properties.
