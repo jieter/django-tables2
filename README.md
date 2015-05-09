@@ -65,6 +65,11 @@ Publishing a release
 Change log
 ==========
 
+v1.0.3
+------
+
+- Remove setup.cfg as PyPI doesn't actually support it, instead it's a distutils2 thing that's been discontinued.
+
 v1.0.2
 ------
 
