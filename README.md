@@ -65,6 +65,11 @@ Publishing a release
 Change log
 ==========
 
+v1.0.1
+------
+
+- Convert README to markdown so it's formatted nicely on PyPI.
+
 v1.0.0
 ------
 
