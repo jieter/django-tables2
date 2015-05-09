@@ -65,6 +65,11 @@ Publishing a release
 Change log
 ==========
 
+v1.0.2
+------
+
+- Add setup.cfg to declare README.md for PyPI.
+
 v1.0.1
 ------
 
