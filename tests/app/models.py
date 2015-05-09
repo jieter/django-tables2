@@ -54,6 +54,11 @@ class Region(models.Model):
         return self.name
 
 
+class PersonInformation(models.Model):
+    person = models.ForeignKey(
+        Person, related_name='info_list', verbose_name='Information')
+
+
 # -- haystack -----------------------------------------------------------------
 
 if not six.PY3:  # Haystack isn't compatible with Python 3
