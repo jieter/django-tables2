@@ -22,21 +22,25 @@
     {% endblock table.thead %}
     {% block table.tbody %}
     <tbody>
-        {% for row in table.page.object_list|default:table.rows %} {# support pagination #}
-        {% block table.tbody.row %}
-        <tr class="{{ forloop.counter|divisibleby:2|yesno:"even,odd" }}"> {# avoid cycle for Django 1.2-1.6 compatibility #}
-            {% for column, cell in row.items %}
-                <td {{ column.attrs.td.as_html }}>{% if column.localize == None %}{{ cell }}{% else %}{% if column.localize %}{{ cell|localize }}{% else %}{{ cell|unlocalize }}{% endif %}{% endif %}</td>
+        {% if table.missing_page_text and table.page_out_of_range %}
+            <tr><td colspan="{{ table.columns|length }}">{{ table.missing_page_text }}</td></tr>
+        {% else %}
+            {% for row in table.page.object_list|default:table.rows %} {# support pagination #}
+            {% block table.tbody.row %}
+            <tr class="{{ forloop.counter|divisibleby:2|yesno:"even,odd" }}"> {# avoid cycle for Django 1.2-1.6 compatibility #}
+                {% for column, cell in row.items %}
+                    <td {{ column.attrs.td.as_html }}>{% if column.localize == None %}{{ cell }}{% else %}{% if column.localize %}{{ cell|localize }}{% else %}{{ cell|unlocalize }}{% endif %}{% endif %}</td>
+                {% endfor %}
+            </tr>
+            {% endblock table.tbody.row %}
+            {% empty %}
+            {% if table.empty_text %}
+            {% block table.tbody.empty_text %}
+            <tr><td colspan="{{ table.columns|length }}">{{ table.empty_text }}</td></tr>
+            {% endblock table.tbody.empty_text %}
+            {% endif %}
             {% endfor %}
-        </tr>
-        {% endblock table.tbody.row %}
-        {% empty %}
-        {% if table.empty_text %}
-        {% block table.tbody.empty_text %}
-        <tr><td colspan="{{ table.columns|length }}">{{ table.empty_text }}</td></tr>
-        {% endblock table.tbody.empty_text %}
         {% endif %}
-        {% endfor %}
     </tbody>
     {% endblock table.tbody %}
     {% block table.tfoot %}

@@ -86,6 +86,21 @@ API Reference
 
             This functionality is also available via the ``empty_text`` keyword
             argument to a table's constructor.
+            
+    .. attribute:: missing_page_text
+
+        Defines the text to display when the page accessed is missing.
+        
+        :type: `unicode`
+        :default: `None`
+
+        If set, it prevents raising django.core.paginator.EmptyPage.
+        Otherwise, the exception is raised.
+
+        .. note::
+
+            This functionality is also available via the ``missing_page_text`` keyword
+            argument to a table's constructor.
 
     .. attribute:: exclude
 
