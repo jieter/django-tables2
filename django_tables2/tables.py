@@ -422,7 +422,7 @@ class TableBase(object):
         elif self._meta.sequence:
             self._sequence = self._meta.sequence
         else:
-            self._sequence = Sequence(self._meta.fields + ('...',))
+            self._sequence = Sequence(tuple(self._meta.fields) + ('...',))
             self._sequence.expand(self.base_columns.keys())
         self.columns = columns.BoundColumns(self)
         # `None` value for order_by means no order is specified. This means we
