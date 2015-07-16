@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # coding: utf-8
 from __future__ import unicode_literals
 from django.db import models
@@ -68,3 +69,14 @@ if not six.PY3:  # Haystack isn't compatible with Python 3
 
         def index_queryset(self, using=None):
             return self.get_model().objects.all()
+=======
+from __future__ import unicode_literals
+from django.db import models
+
+
+class Thing(models.Model):
+    name = models.CharField(max_length=200)
+
+    def __unicode__(self):
+        return self.name
+>>>>>>> upstream/master

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 *.pyc
 /.env
 /reports
@@ -15,3 +16,14 @@
 /example/database.sqlite
 /example/.env
 /report.pylint
+=======
+/.tox
+*.pyc
+*.komodoproject
+/*.sublime-*
+*.egg-info/
+/dist/
+/build/
+/reports
+.coverage
+>>>>>>> upstream/master

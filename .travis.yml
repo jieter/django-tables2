@@ -1,5 +1,6 @@
 language: python
 python:
+<<<<<<< HEAD
   - 2.7
 env:
   - TOX_ENV=py33-dj16
@@ -20,3 +21,18 @@ install:
   - pip install tox
 script:
   - tox -e $TOX_ENV
+=======
+  - 2.6
+  - 2.7
+  - 3.2
+env:
+  - "DJANGO='https://github.com/django/django/tarball/master'"
+  - "DJANGO='Django>=1.4,<1.5'"
+  - "DJANGO='Django>=1.3,<1.4'"
+  - "DJANGO='Django>=1.2,<1.3'"
+install:
+  - pip install -q https://github.com/dag/attest/tarball/master six $DJANGO --use-mirrors
+  - pip install -q -e . --use-mirrors
+script:
+  - DJANGO_SETTINGS_MODULE=tests.settings attest -r django tests
+>>>>>>> upstream/master

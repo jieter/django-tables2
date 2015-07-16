@@ -1,6 +1,6 @@
 [run]
 source =
-    django_tables2
+    django_attest
     tests
 
 

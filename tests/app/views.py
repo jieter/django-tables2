@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # coding: utf-8
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
@@ -16,3 +17,14 @@ def occupation(request, pk):
     """
     occupation = get_object_or_404(Occupation, pk=pk)
     return HttpResponse('Occupation: %s' % occupation)
+=======
+from django.shortcuts import redirect, render_to_response
+
+
+def view(request):
+    return render_to_response("template.html")
+
+
+def bouncer(request):
+    return redirect("https://example.com:1234/foo/?a=b#bar")
+>>>>>>> upstream/master
