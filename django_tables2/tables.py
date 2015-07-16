@@ -7,9 +7,9 @@ from .utils import (Accessor, AttributeDict, build_request, cached_property,
                     computed_values, OrderBy, OrderByTuple, segment, Sequence)
 import copy
 import sys
-from django.core.paginator       import Paginator
+from django.core.paginator       import Paginator, EmptyPage
 from django.db.models.fields     import FieldDoesNotExist
-from django.template             import RequestContext
+from django.template             import RequestContext, TemplateDoesNotExist, Context
 from django.template.loader      import get_template
 from collections import OrderedDict
 import six
@@ -236,6 +236,7 @@ class TableOptions(object):
         self.attrs = AttributeDict(getattr(options, "attrs", {}))
         self.default = getattr(options, "default", "—")
         self.empty_text = getattr(options, "empty_text", None)
+        self.missing_page_text = getattr(options, "missing_page_text", None)
         self.fields = getattr(options, "fields", ())
         self.exclude = getattr(options, "exclude", ())
         order_by = getattr(options, "order_by", None)
@@ -292,6 +293,14 @@ class TableBase(object):
 
         Empty text to render when the table has no data. (default
         `.Table.Meta.empty_text`)
+
+        :type: `unicode`
+
+
+    .. attribute:: missing_page_text
+
+        Text to render when the page is out of range. (default
+        `.Table.Meta.missing_page_text`)
 
         :type: `unicode`
 
@@ -385,7 +394,8 @@ class TableBase(object):
     def __init__(self, data, order_by=None, orderable=None, empty_text=None,
                  exclude=None, attrs=None, sequence=None, prefix=None,
                  order_by_field=None, page_field=None, per_page_field=None,
-                 template=None, sortable=None, default=None, request=None):
+                 template=None, sortable=None, default=None, request=None,
+                 missing_page_text=None):
         super(TableBase, self).__init__()
         self.exclude = exclude or ()
         self.sequence = sequence
@@ -397,6 +407,11 @@ class TableBase(object):
         self.attrs = AttributeDict(computed_values(attrs if attrs is not None
                                                          else self._meta.attrs))
         self.empty_text = empty_text if empty_text is not None else self._meta.empty_text
+        if missing_page_text:
+            self.missing_page_text = missing_page_text
+        else:
+            self.missing_page_text = self._meta.missing_page_text
+
         if sortable is not None:
             warnings.warn("`sortable` is deprecated, use `orderable` instead.",
                           DeprecationWarning)
@@ -464,6 +479,14 @@ class TableBase(object):
     @attrs.setter
     def attrs(self, value):
         self._attrs = value
+
+    @property
+    def missing_page_text(self):
+        return self._missing_page_text
+
+    @missing_page_text.setter
+    def missing_page_text(self, value):
+        self._missing_page_text = value
 
     @property
     def empty_text(self):
@@ -535,7 +558,22 @@ class TableBase(object):
         """
         per_page = per_page or self._meta.per_page
         self.paginator = klass(self.rows, per_page, *args, **kwargs)
-        self.page = self.paginator.page(page)
+
+        try:
+            self.page = self.paginator.page(page)
+        except EmptyPage as e:
+            if self.missing_page_text:
+                if self.missing_page_text.endswith('.html') or self.missing_page_text.endswith('.txt'):
+                    try:
+                        tpl = get_template(self.missing_page_text)
+                        self.missing_page_text = tpl.render(Context({'table': self, 'page': page}))
+                    except TemplateDoesNotExist:
+                        pass
+
+                self.page_out_of_range = True
+                self.page = self.paginator.page(1)
+            else:
+                raise e
 
     @property
     def per_page_field(self):
