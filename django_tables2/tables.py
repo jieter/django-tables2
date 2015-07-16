@@ -10,7 +10,7 @@ import sys
 from django.core.paginator       import Paginator, EmptyPage
 from django.db.models.fields     import FieldDoesNotExist
 from django.utils.datastructures import SortedDict
-from django.template             import RequestContext
+from django.template             import RequestContext, TemplateDoesNotExist, Context
 from django.template.loader      import get_template
 import six
 import warnings
@@ -563,6 +563,13 @@ class TableBase(object):
             self.page = self.paginator.page(page)
         except EmptyPage as e:
             if self.missing_page_text:
+                if self.missing_page_text.endswith('.html') or self.missing_page_text.endswith('.txt'):
+                    try:
+                        tpl = get_template(self.missing_page_text)
+                        self.missing_page_text = tpl.render(Context({'table': self, 'page': page}))
+                    except TemplateDoesNotExist:
+                        pass
+
                 self.page_out_of_range = True
                 self.page = self.paginator.page(1)
             else:
