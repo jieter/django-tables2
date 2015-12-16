@@ -6,6 +6,15 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext, ugettext_lazy
+from django.contrib.contenttypes.models import ContentType
+try:
+    # Django >= 1.7
+    from django.contrib.contenttypes.fields import GenericForeignKey, \
+                        GenericRelation
+except ImportError:
+    # Django < 1.7
+    from django.contrib.contenttypes.generic import GenericForeignKey, \
+                        GenericRelation
 
 
 class Person(models.Model):
@@ -27,6 +36,10 @@ class Person(models.Model):
 
     safe = models.CharField(
             max_length=200, blank=True, verbose_name=mark_safe("<b>Safe</b>"))
+
+    content_type = models.ForeignKey(ContentType, null=True, blank=True)
+    object_id = models.PositiveIntegerField(null=True, blank=True)
+    foreign_key = GenericForeignKey()
 
     class Meta:
         verbose_name = "person"

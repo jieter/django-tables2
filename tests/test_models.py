@@ -304,3 +304,10 @@ def test_unicode_field_names():
 
     table = Table(Person.objects.all())
     assert table.rows[0]["first_name"] == "Brad"
+
+
+def test_foreign_key():
+    class PersonTable(tables.Table):
+        class Meta:
+            model = Person
+            fields = ('foreign_key',)
