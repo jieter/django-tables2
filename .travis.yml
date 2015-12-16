@@ -1,22 +1,32 @@
 language: python
-python:
-  - 2.7
-env:
-  - TOX_ENV=py34-dj18
-  - TOX_ENV=py34-dj17
-  - TOX_ENV=py34-dj16
-  - TOX_ENV=py34-dj15
-  - TOX_ENV=py33-dj18
-  - TOX_ENV=py33-dj17
-  - TOX_ENV=py33-dj16
-  - TOX_ENV=py33-dj15
-  - TOX_ENV=py27-dj18
-  - TOX_ENV=py27-dj17
-  - TOX_ENV=py27-dj16
-  - TOX_ENV=py27-dj15
-  - TOX_ENV=py27-dj14
-  - TOX_ENV=py27-dj13
+
+# django 1.9 is only supported on py27 and py35
+# django 1.8 is the first realease supporting py35
+matrix:
+  include:
+    - python: 2.7
+      env: TOXENV=py27-1.7
+    - python: 2.7
+      env: TOXENV=py27-1.8
+    - python: 3.2
+      env: TOXENV=py32-1.7
+    - python: 3.2
+      env: TOXENV=py32-1.8
+    - python: 3.3
+      env: TOXENV=py33-1.7
+    - python: 3.3
+      env: TOXENV=py33-1.8
+    - python: 3.4
+      env: TOXENV=py34-1.7
+    - python: 3.4
+      env: TOXENV=py34-1.8
+    - python: 3.4
+      env: TOXENV=py34-1.9
+    - python: 3.5
+      env: TOXENV=py35-1.8
+    - python: 3.5
+      env: TOXENV=py35-1.9
 install:
   - pip install tox
 script:
-  - tox -e $TOX_ENV
+  - tox
