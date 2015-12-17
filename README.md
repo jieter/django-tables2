@@ -1,5 +1,7 @@
 # django-tables2 - An app for creating HTML tables
 
+[![Join the chat at https://gitter.im/bradleyayers/django-tables2](https://badges.gitter.im/bradleyayers/django-tables2.svg)](https://gitter.im/bradleyayers/django-tables2?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 [![Build status](https://travis-ci.org/bradleyayers/django-tables2.svg)](https://travis-ci.org/bradleyayers/django-tables2)
 
 django-tables2 simplifies the task of turning sets of data into HTML tables. It
