@@ -1,4 +1,6 @@
-include README.rst
+include README.md
+include LICENSE
+recursive-include docs *
 recursive-include django_tables2/templates *
 recursive-include django_tables2/static *
 recursive-include django_tables2/locale *
