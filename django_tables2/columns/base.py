@@ -247,7 +247,7 @@ class Column(object):  # pylint: disable=R0902
             if hasattr(field, "get_related_field"):
                 verbose_name = field.get_related_field().verbose_name
             else:
-                verbose_name = field.verbose_name
+                verbose_name = getattr(field, 'verbose_name', field.name)
             return cls(verbose_name=verbose_name)
 
 
@@ -483,7 +483,7 @@ class BoundColumn(object):
                 if hasattr(field, 'field'):
                     name = field.field.verbose_name
                 else:
-                    name = field.verbose_name
+                    name = getattr(field, 'verbose_name', field.name)
         return name
 
     @property
