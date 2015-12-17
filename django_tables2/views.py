@@ -1,7 +1,9 @@
 # coding: utf-8
 from __future__ import unicode_literals
+
 from django.core.exceptions import ImproperlyConfigured
 from django.views.generic.list import ListView
+
 from .config import RequestConfig
 
 
@@ -67,6 +69,8 @@ class SingleTableMixin(object):
         """
         if self.table_data:
             return self.table_data
+        elif hasattr(self, "object_list"):
+            return self.object_list
         elif hasattr(self, "get_queryset"):
             return self.get_queryset()
         raise ImproperlyConfigured("Table data was not specified. Define "
