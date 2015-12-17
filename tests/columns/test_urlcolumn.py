@@ -18,6 +18,8 @@ def test_should_turn_url_into_hyperlink():
 def test_should_be_used_for_urlfields():
     class URLModel(models.Model):
         field = models.URLField()
+        class Meta:
+            app_label = 'django_tables2_test'
 
     class Table(tables.Table):
         class Meta:

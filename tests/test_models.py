@@ -1,10 +1,10 @@
 # coding: utf-8
 import six
+
+import django_tables2 as tables
 import pytest
 
-from .app.models import Person, Occupation
-import django_tables2 as tables
-
+from .app.models import Occupation, Person
 
 pytestmark = pytest.mark.django_db
 
@@ -52,6 +52,8 @@ def test_model_table():
         char = models.CharField(max_length=200)
         fk = models.ForeignKey("self")
         m2m = models.ManyToManyField("self")
+        class Meta:
+            app_label = 'django_tables2_test'
 
     class ComplexTable(tables.Table):
         class Meta:
@@ -158,6 +160,9 @@ def test_field_choices_used_to_translated_value():
     class Article(models.Model):
         name = models.CharField(max_length=200)
         language = models.CharField(max_length=200, choices=LANGUAGES)
+
+        class Meta:
+            app_label = 'django_tables2_test'
 
         def __unicode__(self):
             return self.name

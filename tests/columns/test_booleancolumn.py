@@ -1,14 +1,19 @@
 # coding: utf-8
 # pylint: disable=R0912,E0102
 from __future__ import unicode_literals
-import django_tables2 as tables
+
 from django.db import models
+
+import django_tables2 as tables
+
 from ..utils import attrs
 
 
 def test_should_be_used_for_booleanfield():
     class BoolModel(models.Model):
         field = models.BooleanField()
+        class Meta:
+            app_label = 'django_tables2_test'
 
     class Table(tables.Table):
         class Meta:
@@ -22,6 +27,8 @@ def test_should_be_used_for_booleanfield():
 def test_should_be_used_for_nullbooleanfield():
     class NullBoolModel(models.Model):
         field = models.NullBooleanField()
+        class Meta:
+            app_label = 'django_tables2_test'
 
     class Table(tables.Table):
         class Meta:

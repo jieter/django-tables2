@@ -4,13 +4,14 @@ from __future__ import unicode_literals
 
 from os.path import dirname, join
 
-from django.db import models
-from django.db.models.fields.files import FieldFile
 from django.core.files.base import ContentFile
 from django.core.files.storage import FileSystemStorage
-import pytest
+from django.db import models
+from django.db.models.fields.files import FieldFile
 
 import django_tables2 as tables
+import pytest
+
 from ..utils import parse
 
 
@@ -30,6 +31,8 @@ def column():
 def test_should_be_used_for_filefields():
     class FileModel(models.Model):
         field = models.FileField()
+        class Meta:
+            app_label = 'django_tables2_test'
 
     class Table(tables.Table):
         class Meta:

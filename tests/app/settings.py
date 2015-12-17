@@ -1,6 +1,7 @@
-from django.conf import global_settings
-import six
+import os
 
+import six
+from django.conf import global_settings
 
 DATABASES = {
     'default': {
@@ -11,6 +12,8 @@ DATABASES = {
 
 INSTALLED_APPS = [
     'tests.app',
+    'django.contrib.contenttypes',
+    'django.contrib.auth',
     'django_tables2',
 ]
 

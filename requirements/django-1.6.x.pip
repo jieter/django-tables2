@@ -1,2 +1,0 @@
--r common.pip
-Django>=1.6,<1.7
