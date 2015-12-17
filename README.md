@@ -1,5 +1,4 @@
-django-tables2 - An app for creating HTML tables
-================================================
+# django-tables2 - An app for creating HTML tables
 
 [![Build status](https://travis-ci.org/bradleyayers/django-tables2.svg)](https://travis-ci.org/bradleyayers/django-tables2)
 
@@ -21,33 +20,40 @@ Its features include:
 - Template tag to enable trivial rendering to HTML.
 - Generic view mixin.
 
-Creating a table is as simple as:
+# Example
 
-    import django_tables2 as tables
+Creating a table for a model `Simple` is as simple as:
 
-    class SimpleTable(tables.Table):
-        class Meta:
-            model = Simple
+```python
+import django_tables2 as tables
+
+class SimpleTable(tables.Table):
+    class Meta:
+        model = Simple
+```
 
 This would then be used in a view:
 
-    def simple_list(request):
-        queryset = Simple.objects.all()
-        table = SimpleTable(queryset)
-        return render_to_response("simple_list.html", {"table": table},
-                                  context_instance=RequestContext(request))
+```python
+def simple_list(request):
+    queryset = Simple.objects.all()
+    table = SimpleTable(queryset)
+    return render_to_response("simple_list.html", {"table": table},
+                              context_instance=RequestContext(request))
+```
 
 And finally in the template:
 
-    {% load django_tables2 %}
-    {% render_table table %}
+```
+{% load django_tables2 %}
+{% render_table table %}
+```
 
 This example shows one of the simplest cases, but django-tables2 can do a lot
 more! Check out the [documentation](http://django-tables2.readthedocs.org/en/latest/) for more details.
 
 
-Building the documentation
-==========================
+# Building the documentation
 
 If you want to build the docs from within a virtualenv, and Sphinx is installed
 globally, use:
@@ -55,19 +61,21 @@ globally, use:
     make html SPHINXBUILD="python $(which sphinx-build)"
 
 
-Publishing a release
-====================
+# Publishing a release
 
 1. Bump the version in `django-tables2/__init__.py`.
-2. Update `README.rst`.
+2. Update `README.md`.
 3. Run `python setup.py sdist upload --sign --identity=<your gpg identity>`.
 
-Change log
-==========
+# Change log
 
-v1.0.4
-------
+## v1.0.5
+- First version released by new maintainer [@jieter](https://github.com/jieter)
+- Dropped support for django 1.5 and 1.6, add python 3.5 with django 1.8 and 1.9 to the build matrix (#273)
+- Prevent `SingleTableView` from calling `get_queryset` twice. (fixes #155)
+- Don't call managers when resolving accessors. (#214 by [@mbertheau](https://github.com/mbertheau), fixes #211)
 
+## v1.0.4
 - Fix bug in retrieving `field.verbose_name` under Django 1.8.
 
 v1.0.3

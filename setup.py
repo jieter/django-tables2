@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import re
-from setuptools import setup, find_packages
 
+from setuptools import find_packages, setup
 
 with open('django_tables2/__init__.py', 'rb') as f:
     version = str(re.search('__version__ = "(.+?)"', f.read().decode('utf-8')).group(1))
@@ -20,7 +20,7 @@ setup(
     packages=find_packages(exclude=['tests.*', 'tests', 'example.*', 'example']),
     include_package_data=True,  # declarations in MANIFEST.in
 
-    install_requires=['Django >=1.2', 'six'],
+    install_requires=['Django >=1.7', 'six'],
 
     classifiers=[
         'Environment :: Web Environment',
