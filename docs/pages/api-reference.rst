@@ -250,6 +250,13 @@ API Reference
         :type: tuple of `unicode`
         :default: empty tuple
 
+    .. attribute:: missing_page_text
+
+        Specify a text to return, in case user tries to acces a page which does not exist (instead of raising an exception).
+        A template can also be provided, which will receive  two context variables: `table` and `page` which was attempted to access.
+
+        :type: `string` or `unicode`
+        :default: None
 
 `.BooleanColumn`
 ----------------
