@@ -4,7 +4,7 @@ import six
 import django_tables2 as tables
 import pytest
 
-from .app.models import Occupation, Person
+from .app.models import Occupation, Person, PersonProxy
 
 pytestmark = pytest.mark.django_db
 
@@ -205,6 +205,15 @@ def test_ordering():
 
     table = SimpleTable(Person.objects.all(), order_by="name")
     assert table.as_html()
+
+
+def test_default_order():
+    # 204
+    table = PersonTable(PersonProxy.objects.all())
+    Person.objects.create(first_name='Foo', last_name='Bar')
+    Person.objects.create(first_name='Bradley', last_name='Ayers')
+    table.data.order_by([])
+    assert list(table.rows[0])[1] == 'Ayers'
 
 
 def test_fields_should_implicitly_set_sequence():
