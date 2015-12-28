@@ -92,7 +92,7 @@ class LinkColumn(BaseLinkColumn):
         class PeopleTable(tables.Table):
             name = tables.LinkColumn('people_detail', args=[A('pk')])
 
-    In order to override the text value (i.e. <a ... >text</a>) concider 
+    In order to override the text value (i.e. <a ... >text</a>) consider 
     the following example:
 
     .. code-block:: python
