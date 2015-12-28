@@ -64,7 +64,7 @@ class LinkColumn(BaseLinkColumn):
     :param current_app: See `~django.core.urlresolvers.reverse`.
     :param       attrs: a `dict` of HTML attributes that are added to
                         the rendered ``<input type="checkbox" .../>`` tag
-    :param  text_value: Either static text, or a callable. If set, this
+    :param        text: Either static text, or a callable. If set, this
                         value will be used to render the text inside link
                         instead of value (default)
 
