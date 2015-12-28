@@ -64,6 +64,9 @@ class LinkColumn(BaseLinkColumn):
     :param current_app: See `~django.core.urlresolvers.reverse`.
     :param       attrs: a `dict` of HTML attributes that are added to
                         the rendered ``<input type="checkbox" .../>`` tag
+    :param  text_value: Either static text, or a callable. If set, this
+                        value will be used to render the text inside link
+                        instead of value (default)
 
     ** In order to create a link to a URL that relies on information in the
     current row, `.Accessor` objects can be used in the *args* or
@@ -89,19 +92,36 @@ class LinkColumn(BaseLinkColumn):
         class PeopleTable(tables.Table):
             name = tables.LinkColumn('people_detail', args=[A('pk')])
 
+    In order to override the text value (i.e. <a ... >text</a>) concider 
+    the following example:
+
+    .. code-block:: python
+
+        # tables.py
+        from django_tables2.utils import A  # alias for Accessor
+
+        class PeopleTable(tables.Table):
+            name = tables.LinkColumn('people_detail', text='static text', args=[A('pk')])
+            age  = tables.LinkColumn('people_detail', text=lambda record: record.name, args=[A('pk')])
+
+    In the first example, a static text would be rendered ('static text')
+    In the second example, you can specify a callable which accepts a record object (and thus
+    can return anything from it)
+
     In addition to *attrs* keys supported by `.Column`, the following are
     available:
 
     - *a* -- ``<a>`` elements in ``<td>``.
     """
     def __init__(self, viewname, urlconf=None, args=None, kwargs=None,
-                 current_app=None, attrs=None, **extra):
+                 current_app=None, attrs=None, text=None, **extra):
         super(LinkColumn, self).__init__(attrs, **extra)
         self.viewname = viewname
         self.urlconf = urlconf
         self.args = args
         self.kwargs = kwargs
         self.current_app = current_app
+        self.text_value = text
 
     def render(self, value, record, bound_column):  # pylint: disable=W0221
         viewname = (self.viewname.resolve(record)
@@ -129,4 +149,10 @@ class LinkColumn(BaseLinkColumn):
             params['current_app'] = (self.current_app.resolve(record)
                                      if isinstance(self.current_app, A)
                                      else self.current_app)
-        return self.render_link(reverse(viewname, **params), text=value)
+        text_value = value
+        if self.text_value:
+            text_value = self.text_value
+            if callable(text_value):
+                text_value = text_value(record)
+
+        return self.render_link(reverse(viewname, **params), text=text_value)
