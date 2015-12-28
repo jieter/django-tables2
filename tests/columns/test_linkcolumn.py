@@ -35,6 +35,22 @@ def test_unicode():
     assert 'Chr…s' in html
     assert 'DÒble' in html
 
+def test_link_text_custom_value():
+    class CustomLinkTable(tables.Table):
+        first_name = tables.LinkColumn('person', text='foo::bar', args=[A('pk')])
+        last_name = tables.LinkColumn('person', text=lambda row: '%s %s' % (row['last_name'], row['first_name']), args=[A('pk')])
+
+    dataset = [
+        {'pk': 1, 'first_name': 'John', 'last_name': 'Doe'}
+    ]
+
+    table = CustomLinkTable(dataset)
+    request = build_request('/some-url/')
+    template = Template('{% load django_tables2 %}{% render_table table %}')
+    html = template.render(Context({'request': request, 'table': table}))
+
+    assert 'foo::bar' in html
+    assert 'Doe John' in html
 
 @pytest.mark.django_db
 def test_null_foreign_key():
