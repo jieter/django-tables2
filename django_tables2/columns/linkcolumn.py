@@ -1,16 +1,18 @@
 # coding: utf-8
 from __future__ import absolute_import, unicode_literals
-from django.core.urlresolvers import reverse
-from django.utils.html import escape
-from django.utils.safestring import mark_safe
+
 import warnings
-from .base import Column, library
+
+from django.core.urlresolvers import reverse
+from django.utils.html import format_html
 from django_tables2.utils import A, AttributeDict
+
+from .base import Column, library
 
 
 class BaseLinkColumn(Column):
     """
-    The base for other columns that render links.
+    The base for other columnjs that render links.
 
     Adds support for an ``a`` key in *attrs** which is added to the rendered
     ``<a href="...">`` tag.
@@ -37,11 +39,11 @@ class BaseLinkColumn(Column):
         attrs = AttributeDict(attrs if attrs is not None else
                               self.attrs.get('a', {}))
         attrs['href'] = uri
-        html = '<a {attrs}>{text}</a>'.format(
+
+        return format_html('<a {attrs}>{text}</a>',
             attrs=attrs.as_html(),
-            text=escape(text)
+            text=text
         )
-        return mark_safe(html)
 
 
 @library.register
@@ -92,7 +94,7 @@ class LinkColumn(BaseLinkColumn):
         class PeopleTable(tables.Table):
             name = tables.LinkColumn('people_detail', args=[A('pk')])
 
-    In order to override the text value (i.e. <a ... >text</a>) consider 
+    In order to override the text value (i.e. <a ... >text</a>) consider
     the following example:
 
     .. code-block:: python
