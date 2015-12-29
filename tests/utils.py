@@ -1,7 +1,12 @@
+import warnings
 from contextlib import contextmanager
+
 import lxml.etree
 import lxml.html
-import warnings
+import six
+from django.core.handlers.wsgi import WSGIRequest
+from django.template import RequestContext
+from django.test.client import FakePayload
 
 
 def parse(html):
@@ -48,3 +53,31 @@ def translation(language_code, deactivate=False):
             translation.deactivate()
         else:
             translation.activate(original)
+
+
+def build_request(uri='/'):
+    """
+    Return a fresh HTTP GET / request.
+
+    This is essentially a heavily cutdown version of Django 1.3's
+    `~django.test.client.RequestFactory`.
+    """
+    path, _, querystring = uri.partition('?')
+    return WSGIRequest({
+        'CONTENT_TYPE':      'text/html; charset=utf-8',
+        'PATH_INFO':         path,
+        'QUERY_STRING':      querystring,
+        'REMOTE_ADDR':       '127.0.0.1',
+        'REQUEST_METHOD':    'GET',
+        'SCRIPT_NAME':       '',
+        'SERVER_NAME':       'testserver',
+        'SERVER_PORT':       '80',
+        'SERVER_PROTOCOL':   'HTTP/1.1',
+        'wsgi.version':      (1, 0),
+        'wsgi.url_scheme':   'http',
+        'wsgi.input':        FakePayload(b''),
+        'wsgi.errors':       six.StringIO(),
+        'wsgi.multiprocess': True,
+        'wsgi.multithread':  False,
+        'wsgi.run_once':     False,
+    })

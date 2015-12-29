@@ -1,14 +1,20 @@
 # coding: utf-8
 """Test the core table functionality."""
 from __future__ import absolute_import, unicode_literals
+
 import copy
+import itertools
+
+import pytest
+import six
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
+
 import django_tables2 as tables
 from django_tables2.tables import DeclarativeColumnsMetaclass
-import six
-import itertools
-import pytest
-from .utils import warns
+
+from .utils import build_request, warns
+
+request = build_request('/')
 
 
 class UnorderedTable(tables.Table):
@@ -168,17 +174,17 @@ def test_should_support_haystack_data_source():
         first_name = tables.Column()
 
     table = PersonTable(SearchQuerySet().all())
-    table.as_html()
+    table.as_html(request)
 
 
 def test_data_validation():
     with pytest.raises(ValueError):
         table = OrderedTable(None)
-    
+
     class Bad:
         def __len__(self):
             pass
-      
+
     with pytest.raises(ValueError):
         table = OrderedTable(Bad())
 
@@ -189,7 +195,7 @@ def test_data_validation():
             if pos != 0:
                 raise IndexError()
             return {'a': 1}
-    
+
     table = OrderedTable(Ok())
     assert len(table.rows) == 1
 
@@ -442,7 +448,7 @@ def test_pagination_shouldnt_prevent_multiple_rendering():
     table = SimpleTable([{'name': 'brad'}])
     table.paginate()
 
-    assert table.as_html() == table.as_html()
+    assert table.as_html(request) == table.as_html(request)
 
 
 def test_empty_text():
@@ -560,7 +566,7 @@ def test_template_in_meta_class_declaration_should_be_honored():
 
     table = MetaDeclarationSpecifiedTemplateTable([])
     assert table.template == "dummy.html"
-    assert table.as_html() == "dummy template contents\n"
+    assert table.as_html(request) == "dummy template contents\n"
 
 
 def test_should_support_rendering_multiple_times():
@@ -569,7 +575,7 @@ def test_should_support_rendering_multiple_times():
 
     # test list data
     table = MultiRenderTable([{'name': 'brad'}])
-    assert table.as_html() == table.as_html()
+    assert table.as_html(request) == table.as_html(request)
 
 
 def test_column_defaults_are_honored():

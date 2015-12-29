@@ -7,12 +7,11 @@ from django.core.urlresolvers import reverse
 from django.template import Context, Template
 from django.utils.html import mark_safe
 from django_tables2 import A
-from django_tables2.utils import build_request
 
 import pytest
 
 from ..app.models import Person
-from ..utils import attrs, warns
+from ..utils import attrs, build_request, warns
 
 
 def test_unicode():
@@ -81,15 +80,17 @@ def test_null_foreign_key():
 
     Person.objects.create(first_name='bradley', last_name='ayers')
 
+    request = build_request()
     table = PersonTable(Person.objects.all())
-    table.as_html()
+    table.as_html(request)
 
 
 def test_kwargs():
     class PersonTable(tables.Table):
         a = tables.LinkColumn('occupation', kwargs={"pk": A('a')})
 
-    html = PersonTable([{"a": 0}, {"a": 1}]).as_html()
+    request = build_request('/')
+    html = PersonTable([{"a": 0}, {"a": 1}]).as_html(request)
     assert reverse("occupation", kwargs={"pk": 0}) in html
     assert reverse("occupation", kwargs={"pk": 1}) in html
 
@@ -154,4 +155,4 @@ def test_get_absolute_url_not_defined():
     ])
 
     with pytest.raises(TypeError):
-        table.as_html()
+        table.as_html(build_request('/'))

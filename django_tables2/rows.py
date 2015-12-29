@@ -1,8 +1,9 @@
 # coding: utf-8
-from .utils import A, getargspec
+import six
 from django.db import models
 from django.db.models.fields import FieldDoesNotExist
-import six
+
+from .utils import A, getargspec
 
 
 class BoundRow(object):
@@ -26,7 +27,7 @@ class BoundRow(object):
         >>> table = SimpleTable([{'a': 1, 'b': 2}])
         >>> row = table.rows[0]  # we only have one row, so let's use it
         >>> for cell in row:
-        ...     print cell
+        ...     print(cell)
         ...
         1
         <input type="checkbox" name="my_chkbox" value="2" />

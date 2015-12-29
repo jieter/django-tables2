@@ -1,13 +1,14 @@
 # coding: utf-8
+import pytest
 import six
 
 import django_tables2 as tables
-import pytest
 
 from .app.models import Occupation, Person, PersonProxy
+from .utils import build_request
 
 pytestmark = pytest.mark.django_db
-
+request = build_request('/')
 
 class PersonTable(tables.Table):
     first_name = tables.Column()
@@ -187,7 +188,7 @@ def test_column_mapped_to_nonexistant_field():
         missing = tables.Column()
 
     table = FaultyPersonTable(Person.objects.all())
-    table.as_html()  # the bug would cause this to raise FieldDoesNotExist
+    table.as_html(request)  # the bug would cause this to raise FieldDoesNotExist
 
 
 def test_should_support_rendering_multiple_times():
@@ -196,7 +197,7 @@ def test_should_support_rendering_multiple_times():
 
     # test queryset data
     table = MultiRenderTable(Person.objects.all())
-    assert table.as_html() == table.as_html()
+    assert table.as_html(request) == table.as_html(request)
 
 
 def test_ordering():
@@ -204,7 +205,7 @@ def test_ordering():
         name = tables.Column(order_by=("first_name", "last_name"))
 
     table = SimpleTable(Person.objects.all(), order_by="name")
-    assert table.as_html()
+    assert table.as_html(request)
 
 
 def test_default_order():
@@ -244,7 +245,7 @@ def test_column_with_delete_accessor_shouldnt_delete_records():
 
     Person.objects.create(first_name='Bradley', last_name='Ayers')
     table = PersonTable(Person.objects.all())
-    table.as_html()
+    table.as_html(request)
     assert Person.objects.get(first_name='Bradley')
 
 

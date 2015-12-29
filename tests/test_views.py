@@ -1,9 +1,10 @@
 # coding: utf-8
-from .app.models import Region
 import django_tables2 as tables
-from django_tables2.utils import build_request
+
 import pytest
 
+from .app.models import Region
+from .utils import build_request
 
 USING_CBV = hasattr(tables, "SingleTableView")
 

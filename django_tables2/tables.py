@@ -6,16 +6,20 @@ import warnings
 from collections import OrderedDict
 
 import six
-from django.core.paginator import Paginator
-from django.db.models.fields import FieldDoesNotExist
-from django.template import RequestContext
-from django.template.loader import get_template
+from django import VERSION
+from django.core.paginator       import Paginator
+from django.db.models.fields     import FieldDoesNotExist
+from django.template             import RequestContext
+from django.template.loader      import get_template
+from collections import OrderedDict
+import six
+import warnings
 
 from . import columns
 from .config import RequestConfig
 from .rows import BoundRows
 from .utils import (Accessor, AttributeDict, OrderBy, OrderByTuple, Sequence,
-                    build_request, cached_property, computed_values, segment)
+                    cached_property, computed_values, segment)
 
 QUERYSET_ACCESSOR_SEPARATOR = '__'
 
@@ -458,7 +462,7 @@ class TableBase(object):
         if request:
             RequestConfig(request).configure(self)
 
-    def as_html(self):
+    def as_html(self, request=None):
         """
         Render the table to a simple HTML table.
 
@@ -467,8 +471,16 @@ class TableBase(object):
         ``{% render_table %}`` template tag instead.
         """
         template = get_template(self.template)
-        request = build_request()
-        return template.render(RequestContext(request, {'table': self}))
+
+        context = {'table': self}
+
+        if request:
+            if VERSION < (1, 8):
+                context = RequestContext(request, context)
+            else:
+                context['request'] = request
+
+        return template.render(context)
 
     @property
     def attrs(self):
