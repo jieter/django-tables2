@@ -1,12 +1,13 @@
 # coding: utf-8
 # import django_tables2
-from os.path import dirname, join, abspath
 import sys
+from os.path import abspath, dirname, join
+
+from django import VERSION
 
 ROOT = dirname(abspath(__file__))
 
 DEBUG = True
-TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
@@ -90,22 +91,38 @@ STATICFILES_FINDERS = (
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = '=nzw@mkqk)tz+_#vf%li&8sn7yn8z7!2-4njuyf1rxs*^muhvh'
 
-# List of callables that know how to import templates from various sources.
-TEMPLATE_LOADERS = (
-    'django.template.loaders.filesystem.Loader',
-    'django.template.loaders.app_directories.Loader',
-#     'django.template.loaders.eggs.Loader',
-)
+if VERSION < (1, 8):
+    TEMPLATE_DEBUG = DEBUG
 
-TEMPLATE_CONTEXT_PROCESSORS = (
-    "django.contrib.auth.context_processors.auth",
-    "django.core.context_processors.debug",
-    "django.core.context_processors.i18n",
-    "django.core.context_processors.media",
-    "django.core.context_processors.static",
-    "django.contrib.messages.context_processors.messages",
-    "django.core.context_processors.request",
-)
+    # List of callables that know how to import templates from various sources.
+    TEMPLATE_LOADERS = (
+        'django.template.loaders.filesystem.Loader',
+        'django.template.loaders.app_directories.Loader',
+    )
+
+    TEMPLATE_CONTEXT_PROCESSORS = [
+        'django.core.context_processors.request'
+    ] + list(global_settings.TEMPLATE_CONTEXT_PROCESSORS)
+
+    TEMPLATE_DIRS = (
+        join(ROOT, 'templates'),
+    )
+
+else:
+    TEMPLATES = [
+        {
+            'BACKEND': 'django.template.backends.django.DjangoTemplates',
+            'DIRS': ['templates'],
+            'APP_DIRS': True,
+            'OPTIONS': {
+                'context_processors': [
+                    'django.core.context_processors.request',
+                    'django.contrib.auth.context_processors.auth',
+                ],
+            }
+        }
+    ]
+
 
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
@@ -118,9 +135,6 @@ MIDDLEWARE_CLASSES = (
 
 ROOT_URLCONF = 'example.urls'
 
-TEMPLATE_DIRS = (
-    join(ROOT, 'templates'),
-)
 
 INSTALLED_APPS = (
     'django.contrib.admin',
@@ -131,6 +145,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'example.app',
+
     'django_tables2',
     'debug_toolbar',
 )
