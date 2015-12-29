@@ -10,8 +10,7 @@ has native support for pagination and sorting. It does for HTML tables what
 
 Its features include:
 
-- Any iterable can be a data-source, but special support for Django querysets
-  is included.
+- Any iterable can be a data-source, but special support for Django querysets is included.
 - The builtin UI does not rely on JavaScript.
 - Support for automatic table generation based on a Django model.
 - Supports custom column functionality via subclassing.
@@ -68,6 +67,11 @@ globally, use:
 3. Run `python setup.py sdist upload --sign --identity=<your gpg identity>`.
 
 # Change log
+
+## v1.0.6
+- Support for custom text value in LinkColumn (#277 by [@toudi](https://github.com/toudi))
+- Refactor LinkColumn.render_link() to not escape twice #279
+- Removed `Attrs` (wrapper for dict), deprecated on 2012-09-18
 
 ## v1.0.5
 - First version released by new maintainer [@jieter](https://github.com/jieter)
