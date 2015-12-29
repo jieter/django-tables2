@@ -248,6 +248,7 @@ class TableOptions(object):
         self.per_page = getattr(options, "per_page", 25)
         self.per_page_field = getattr(options, "per_page_field", "per_page")
         self.prefix = getattr(options, "prefix", "")
+        self.show_header = getattr(options, "show_header", True)
         self.sequence = Sequence(getattr(options, "sequence", ()))
         if hasattr(options, "sortable"):
             warnings.warn("`Table.Meta.sortable` is deprecated, use `orderable` instead",
@@ -257,7 +258,6 @@ class TableOptions(object):
         self.template = getattr(options, "template", "django_tables2/table.html")
         self.localize = getattr(options, "localize", ())
         self.unlocalize = getattr(options, "unlocalize", ())
-
 
 class TableBase(object):
     """
@@ -340,6 +340,15 @@ class TableBase(object):
         :type: `unicode`
 
 
+    .. attribute:: show_header
+
+        If `False`, the table will not have a header (`<thead>`), default
+        value is `True`
+
+        :type: `bool`
+
+
+
     .. attribute:: prefix
 
         A prefix for querystring fields to avoid name-clashes when using
@@ -386,7 +395,8 @@ class TableBase(object):
     def __init__(self, data, order_by=None, orderable=None, empty_text=None,
                  exclude=None, attrs=None, sequence=None, prefix=None,
                  order_by_field=None, page_field=None, per_page_field=None,
-                 template=None, sortable=None, default=None, request=None):
+                 template=None, sortable=None, default=None, request=None,
+                 show_header=None):
         super(TableBase, self).__init__()
         self.exclude = exclude or ()
         self.sequence = sequence
@@ -408,6 +418,7 @@ class TableBase(object):
         self.order_by_field = order_by_field
         self.page_field = page_field
         self.per_page_field = per_page_field
+        self.show_header = show_header
         # Make a copy so that modifying this will not touch the class
         # definition. Note that this is different from forms, where the
         # copy is made available in a ``fields`` attribute.
@@ -465,6 +476,15 @@ class TableBase(object):
     @attrs.setter
     def attrs(self, value):
         self._attrs = value
+
+    @property
+    def show_header(self):
+        return (self._show_header if self._show_header is not None
+                else self._meta.show_header)
+
+    @show_header.setter
+    def show_header(self, value):
+        self._show_header = value
 
     @property
     def empty_text(self):
