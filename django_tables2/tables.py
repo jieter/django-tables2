@@ -1,20 +1,21 @@
 # coding: utf-8
 from __future__ import unicode_literals
+
+import copy
+import warnings
+from collections import OrderedDict
+
+import six
+from django.core.paginator import Paginator
+from django.db.models.fields import FieldDoesNotExist
+from django.template import RequestContext
+from django.template.loader import get_template
+
 from . import columns
 from .config import RequestConfig
 from .rows import BoundRows
-from .utils import (Accessor, AttributeDict, build_request, cached_property,
-                    computed_values, OrderBy, OrderByTuple, segment, Sequence)
-import copy
-import sys
-from django.core.paginator       import Paginator
-from django.db.models.fields     import FieldDoesNotExist
-from django.template             import RequestContext
-from django.template.loader      import get_template
-from collections import OrderedDict
-import six
-import warnings
-
+from .utils import (Accessor, AttributeDict, OrderBy, OrderByTuple, Sequence,
+                    build_request, cached_property, computed_values, segment)
 
 QUERYSET_ACCESSOR_SEPARATOR = '__'
 

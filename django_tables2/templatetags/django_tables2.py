@@ -1,20 +1,23 @@
 # coding: utf-8
 from __future__ import absolute_import, unicode_literals
+
+import re
+import tokenize
+from collections import OrderedDict
+
+import six
 from django import template
 from django.core.exceptions import ImproperlyConfigured
-from django.template import TemplateSyntaxError, Variable, Node
+from django.template import Node, TemplateSyntaxError, Variable
+from django.template.defaultfilters import title as old_title
+from django.template.defaultfilters import stringfilter
 from django.template.loader import get_template, select_template
-from django.template.defaultfilters import stringfilter, title as old_title
-from django.utils.http import urlencode
 from django.utils.html import escape
+from django.utils.http import urlencode
 from django.utils.safestring import mark_safe
+
 import django_tables2 as tables
 from django_tables2.config import RequestConfig
-from collections import OrderedDict
-import re
-import six
-import tokenize
-
 
 register = template.Library()
 kwarg_re = re.compile(r"(?:(.+)=)?(.+)")
@@ -239,7 +242,8 @@ def render_table(parser, token):
     """
     bits = token.split_contents()
     try:
-        tag, table = bits.pop(0), parser.compile_filter(bits.pop(0))
+        print bits.pop(0)
+        table = parser.compile_filter(bits.pop(0))
     except ValueError:
         raise TemplateSyntaxError("'%s' must be given a table or queryset."
                                   % bits[0])
