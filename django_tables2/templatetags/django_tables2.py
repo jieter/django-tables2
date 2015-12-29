@@ -242,7 +242,7 @@ def render_table(parser, token):
     """
     bits = token.split_contents()
     try:
-        print bits.pop(0)
+        bits.pop(0)
         table = parser.compile_filter(bits.pop(0))
     except ValueError:
         raise TemplateSyntaxError("'%s' must be given a table or queryset."
