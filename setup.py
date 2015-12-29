@@ -6,11 +6,21 @@ from setuptools import find_packages, setup
 with open('django_tables2/__init__.py', 'rb') as f:
     version = str(re.search('__version__ = "(.+?)"', f.read().decode('utf-8')).group(1))
 
+try:
+    # Verify output using
+    # ./setup.py --long-description | rst2html.py > output.html
+    import pypandoc
+    long_description = pypandoc.convert('README.md', 'rst')
+except(IOError, ImportError):
+    print('PyPI needs .rst and README is in .md.')
+    print('Use `pip install pypandoc` to enable conversion')
+    long_description = open('README.md').read()
 
 setup(
     name='django-tables2',
     version=version,
     description='Table/data-grid framework for Django',
+    long_description=long_description,
 
     author='Bradley Ayers',
     author_email='bradley.ayers@gmail.com',
