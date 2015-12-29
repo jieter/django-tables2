@@ -11,7 +11,7 @@ try:
     # ./setup.py --long-description | rst2html.py > output.html
     import pypandoc
     long_description = pypandoc.convert('README.md', 'rst')
-except(IOError, ImportError):
+except ImportError:
     print('PyPI needs .rst and README is in .md.')
     print('Use `pip install pypandoc` to enable conversion')
     long_description = open('README.md').read()
