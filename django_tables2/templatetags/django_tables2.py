@@ -206,7 +206,7 @@ class RenderTableNode(Node):
             # achieved is to temporarily attach the context to the table,
             # which TemplateColumn then looks for and uses.
             table.context = context
-            return template.render(context)
+            return template.render(context.flatten())
         finally:
             del table.context
             context.pop()
