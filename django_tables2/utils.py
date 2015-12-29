@@ -428,16 +428,6 @@ class AttributeDict(dict):
                                    for k, v in six.iteritems(self)]))
 
 
-class Attrs(dict):
-    """
-    Backwards compatibility, deprecated.
-    """
-    def __init__(self, *args, **kwargs):
-        super(Attrs, self).__init__(*args, **kwargs)
-        warnings.warn("Attrs class is deprecated, use dict instead.",
-                      DeprecationWarning)
-
-
 def segment(sequence, aliases):
     """
     Translates a flat sequence of items into a set of prefixed aliases.

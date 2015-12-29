@@ -1,8 +1,9 @@
 # coding: utf-8
 # pylint: disable=R0912,E0102
 from __future__ import unicode_literals
+
 import django_tables2 as tables
-from django_tables2 import Attrs
+
 from ..utils import attrs, warns
 
 
@@ -20,9 +21,9 @@ def test_attrs_should_be_translated_for_backwards_compatibility():
 def new_attrs_should_be_supported():
     with warns(DeprecationWarning):
         class TestTable(tables.Table):
-            col1 = tables.CheckBoxColumn(attrs=Attrs(th__input={"th_key": "th_value"},
+            col1 = tables.CheckBoxColumn(attrs=dict(th__input={"th_key": "th_value"},
                                                      td__input={"td_key": "td_value"}))
-            col2 = tables.CheckBoxColumn(attrs=Attrs(input={"key": "value"}))
+            col2 = tables.CheckBoxColumn(attrs=dict(input={"key": "value"}))
 
     table = TestTable([{"col1": "data", "col2": "data"}])
     assert attrs(table.columns["col1"].header) == {"type": "checkbox", "th_key": "th_value"}
