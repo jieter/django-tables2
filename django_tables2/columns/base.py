@@ -1,15 +1,16 @@
 # coding: utf-8
 from __future__ import absolute_import, unicode_literals
+
+import warnings
 from collections import OrderedDict
 from itertools import islice
-import warnings
 
-from django.db.models.fields import FieldDoesNotExist
-from django import VERSION as django_version
 import six
-
+from django import VERSION as django_version
+from django.db.models.fields import FieldDoesNotExist
 from django_tables2.templatetags.django_tables2 import title
 from django_tables2.utils import A, AttributeDict, OrderBy, OrderByTuple
+
 from ..utils import python_2_unicode_compatible
 
 
@@ -453,7 +454,7 @@ class BoundColumn(object):
         person.upper should stop at person]).
         """
         # Favor an explicit defined verbose_name
-        if self.column.verbose_name:
+        if self.column.verbose_name is not None:
             return self.column.verbose_name
 
         # This is our reasonable fallback, should the next section not result

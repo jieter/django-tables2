@@ -1,5 +1,8 @@
 # Change log
 
+## unreleased
+- Explicitly check if `column.verbose_name` is not None to support empty column headers (fixes #280)
+
 ## v1.0.6
 - Support for custom text value in LinkColumn (#277 by [@toudi](https://github.com/toudi))
 - Refactor LinkColumn.render_link() to not escape twice #279

@@ -2,11 +2,12 @@
 # pylint: disable=R0912,E0102
 from __future__ import unicode_literals
 
+import django_tables2 as tables
+from django.utils.safestring import SafeData, mark_safe
 from django.utils.translation import ugettext_lazy
-from django.utils.safestring import mark_safe, SafeData
+
 import pytest
 
-import django_tables2 as tables
 from ..app.models import Person
 from ..utils import parse, warns
 
@@ -50,6 +51,14 @@ def test_should_support_safe_verbose_name_via_model():
 
     table = PersonTable(Person.objects.all())
     assert isinstance(table.columns["safe"].header, SafeData)
+
+
+def test_should_support_empty_string_as_explicit_verbose_name():
+    class SimpleTable(tables.Table):
+        acronym = tables.Column(verbose_name="")
+
+    table = SimpleTable([])
+    assert table.columns["acronym"].header == ""
 
 
 @pytest.mark.django_db
