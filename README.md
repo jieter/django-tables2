@@ -63,5 +63,5 @@ globally, use:
 # Publishing a release
 
 1. Bump the version in `django-tables2/__init__.py`.
-2. Update `README.md`.
+2. Update `CHANGELOG.md`.
 3. Run `python setup.py sdist upload --sign --identity=<your gpg identity>`.

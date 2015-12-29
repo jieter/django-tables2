@@ -2,6 +2,8 @@
 
 ## unreleased
 - Explicitly check if `column.verbose_name` is not None to support empty column headers (fixes #280)
+- Cleanup the example project to make it work with modern Django versions.
+- Do not sort queryset when orderable=False (#204 by [@bmihelac](https://github.com/bmihelac))
 
 ## v1.0.6
 - Support for custom text value in LinkColumn (#277 by [@toudi](https://github.com/toudi))
