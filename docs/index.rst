@@ -44,15 +44,3 @@ Report bugs at http://github.com/bradleyayers/django-tables2/issues
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
