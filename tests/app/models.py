@@ -38,6 +38,13 @@ class Person(models.Model):
         return "%s %s" % (self.first_name, self.last_name)
 
 
+class PersonProxy(Person):
+
+    class Meta:
+        proxy = True
+        ordering = ('last_name',)
+
+
 class Occupation(models.Model):
     name = models.CharField(max_length=200)
     region = models.ForeignKey('Region', null=True)
