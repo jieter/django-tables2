@@ -2,13 +2,15 @@
 # pylint: disable=R0912,E0102
 from __future__ import unicode_literals
 
+import django_tables2 as tables
 from django.core.urlresolvers import reverse
 from django.template import Context, Template
+from django.utils.html import mark_safe
+from django_tables2 import A
+from django_tables2.utils import build_request
+
 import pytest
 
-import django_tables2 as tables
-from django_tables2.utils import build_request
-from django_tables2 import A
 from ..app.models import Person
 from ..utils import attrs, warns
 
@@ -35,6 +37,7 @@ def test_unicode():
     assert 'Chr…s' in html
     assert 'DÒble' in html
 
+
 def test_link_text_custom_value():
     class CustomLinkTable(tables.Table):
         first_name = tables.LinkColumn('person', text='foo::bar', args=[A('pk')])
@@ -51,6 +54,23 @@ def test_link_text_custom_value():
 
     assert 'foo::bar' in html
     assert 'Doe John' in html
+
+
+def test_link_text_excaping():
+    class CustomLinkTable(tables.Table):
+        last_name = tables.LinkColumn('person', text=mark_safe('<i class="glyphicon glyphicon-pencil"></i>'), args=[A('pk')])
+
+    dataset = [
+        {'pk': 1, 'first_name': 'John', 'last_name': 'Doe'}
+    ]
+
+    table = CustomLinkTable(dataset)
+    request = build_request('/some-url/')
+    template = Template('{% load django_tables2 %}{% render_table table %}')
+    html = template.render(Context({'request': request, 'table': table}))
+
+    assert '><i class="glyphicon glyphicon-pencil"></i></a>' in html
+
 
 @pytest.mark.django_db
 def test_null_foreign_key():
