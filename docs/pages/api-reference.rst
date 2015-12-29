@@ -87,6 +87,19 @@ API Reference
             This functionality is also available via the ``empty_text`` keyword
             argument to a table's constructor.
 
+    .. attribute:: show_header
+
+        Defines whether the table header (``<thead>``) should be displayed or
+        not.
+
+        :type: `bool`
+        :default: `True`
+
+        .. note::
+
+            This functionality is also available via the ``show_header``
+            keyword argument to a table's constructor.
+            
     .. attribute:: exclude
 
         Defines which columns should be excluded from the table. This is useful
