@@ -61,6 +61,7 @@ class LinkColumn(BaseLinkColumn):
     rendered ``<a href="...">`` tag.
 
     :param    viewname: See `~django.core.urlresolvers.reverse`.
+                        Or use `None` to use Model's `get_absolute_url`
     :param     urlconf: See `~django.core.urlresolvers.reverse`.
     :param        args: See `~django.core.urlresolvers.reverse`. **
     :param      kwargs: See `~django.core.urlresolvers.reverse`. **
