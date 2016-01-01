@@ -12,7 +12,7 @@ from .base import Column, library
 
 class BaseLinkColumn(Column):
     """
-    The base for other columnjs that render links.
+    The base for other columns that render links.
 
     Adds support for an ``a`` key in *attrs** which is added to the rendered
     ``<a href="...">`` tag.
@@ -41,9 +41,8 @@ class BaseLinkColumn(Column):
         attrs['href'] = uri
 
         return format_html('<a {attrs}>{text}</a>',
-            attrs=attrs.as_html(),
-            text=text
-        )
+                           attrs=attrs.as_html(),
+                           text=text)
 
 
 @library.register
@@ -56,8 +55,10 @@ class LinkColumn(BaseLinkColumn):
 
     The first arguments are identical to that of
     `~django.core.urlresolvers.reverse` and allows an internal URL to be
-    described. The last argument *attrs* allows custom HTML attributes to
-    be added to the rendered ``<a href="...">`` tag.
+    described. If this argument is `None`, then `get_absolute_url`.
+    (see Django references) will be used.
+    The last argument *attrs* allows custom HTML attributes to be added to the
+    rendered ``<a href="...">`` tag.
 
     :param    viewname: See `~django.core.urlresolvers.reverse`.
     :param     urlconf: See `~django.core.urlresolvers.reverse`.
@@ -115,7 +116,7 @@ class LinkColumn(BaseLinkColumn):
 
     - *a* -- ``<a>`` elements in ``<td>``.
     """
-    def __init__(self, viewname, urlconf=None, args=None, kwargs=None,
+    def __init__(self, viewname=None, urlconf=None, args=None, kwargs=None,
                  current_app=None, attrs=None, text=None, **extra):
         super(LinkColumn, self).__init__(attrs, **extra)
         self.viewname = viewname
@@ -125,10 +126,12 @@ class LinkColumn(BaseLinkColumn):
         self.current_app = current_app
         self.text_value = text
 
-    def render(self, value, record, bound_column):  # pylint: disable=W0221
-        viewname = (self.viewname.resolve(record)
-                    if isinstance(self.viewname, A)
-                    else self.viewname)
+    def compose_url(self, record):
+        '''Compose the url if the column is constructed with a viewname.'''
+        if isinstance(self.viewname, A):
+            viewname = self.viewname.resolve(record)
+        else:
+            viewname = self.viewname
 
         # The following params + if statements create optional arguments to
         # pass to Django's reverse() function.
@@ -151,10 +154,21 @@ class LinkColumn(BaseLinkColumn):
             params['current_app'] = (self.current_app.resolve(record)
                                      if isinstance(self.current_app, A)
                                      else self.current_app)
+
+        return reverse(viewname, **params)
+
+    def render(self, value, record, bound_column):  # pylint: disable=W0221
+        if self.viewname is None:
+            if not hasattr(record, 'get_absolute_url'):
+                raise TypeError('if viewname=None, record must define a get_absolute_url')
+            url = record.get_absolute_url()
+        else:
+            url = self.compose_url(record)
+
         text_value = value
         if self.text_value:
             text_value = self.text_value
             if callable(text_value):
                 text_value = text_value(record)
 
-        return self.render_link(reverse(viewname, **params), text=text_value)
+        return self.render_link(url, text=text_value)
