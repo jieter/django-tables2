@@ -7,19 +7,19 @@
 - `show_header` attribute on `Table` allows disabling the header (#175 by [@kviktor](https://github.com/kviktor))
 - `LinkColumn` now tries to call `get_absolute_url` on a record if no `viewname` is provided (#283, fixes #231).
 
-## v1.0.6
+## v1.0.6 (2015-12-29)
 - Support for custom text value in LinkColumn (#277 by [@toudi](https://github.com/toudi))
 - Refactor LinkColumn.render_link() to not escape twice #279
 - Removed `Attrs` (wrapper for dict), deprecated on 2012-09-18
 - Convert README.md to rst in setup.py to make PyPI look nice (fixes #97)
 
-## v1.0.5
+## v1.0.5 (2015-12-17)
 - First version released by new maintainer [@jieter](https://github.com/jieter)
 - Dropped support for django 1.5 and 1.6, add python 3.5 with django 1.8 and 1.9 to the build matrix (#273)
 - Prevent `SingleTableView` from calling `get_queryset` twice. (fixes #155)
 - Don't call managers when resolving accessors. (#214 by [@mbertheau](https://github.com/mbertheau), fixes #211)
 
-## v1.0.4
+## v1.0.4 (2015-05-09)
 - Fix bug in retrieving `field.verbose_name` under Django 1.8.
 
 v1.0.3
