@@ -115,17 +115,43 @@ def test_old_style_attrs_should_still_work():
 
 def test_a_attrs_should_be_supported():
     class TestTable(tables.Table):
-        col = tables.LinkColumn('occupation', kwargs={"pk": A('col')},
+        col = tables.LinkColumn('occupation', kwargs={'pk': A('col')},
                                 attrs={"a": {"title": "Occupation Title"}})
 
-    table = TestTable([{"col": 0}])
-    assert attrs(table.rows[0]["col"]) == {"href": reverse("occupation", kwargs={"pk": 0}),
-                                           "title": "Occupation Title"}
+    table = TestTable([{'col': 0}])
+    assert attrs(table.rows[0]['col']) == {'href': reverse('occupation', kwargs={'pk': 0}),
+                                           'title': 'Occupation Title'}
 
 
 def test_defaults():
     class Table(tables.Table):
-        link = tables.LinkColumn('occupation', kwargs={"pk": 1}, default="xyz")
+        link = tables.LinkColumn('occupation', kwargs={'pk': 1}, default='xyz')
 
     table = Table([{}])
     assert table.rows[0]['link'] == 'xyz'
+
+
+@pytest.mark.django_db
+def test_get_absolute_url():
+    class PersonTable(tables.Table):
+        first_name = tables.Column()
+        last_name = tables.LinkColumn()
+
+    person = Person.objects.create(first_name='Jan Pieter', last_name='Waagmeester', )
+    table = PersonTable(Person.objects.all())
+
+    expected = '<a href="/people/%d/">Waagmeester</a>' % person.pk
+    assert table.rows[0]['last_name'] == expected
+
+
+def test_get_absolute_url_not_defined():
+    class Table(tables.Table):
+        first_name = tables.Column()
+        last_name = tables.LinkColumn()
+
+    table = Table([
+        dict(first_name='Jan Pieter', last_name='Waagmeester')
+    ])
+
+    with pytest.raises(TypeError):
+        table.as_html()

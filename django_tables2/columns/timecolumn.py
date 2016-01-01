@@ -1,9 +1,12 @@
 # coding: utf-8
 from __future__ import absolute_import, unicode_literals
+
+from django.conf import settings
 from django.db import models
+
 from .base import library
 from .templatecolumn import TemplateColumn
-from django.conf import settings
+
 
 @library.register
 class TimeColumn(TemplateColumn):

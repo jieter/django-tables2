@@ -1,9 +1,11 @@
 # coding: utf-8
 from __future__ import unicode_literals
+
+import six
+from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext, ugettext_lazy
-import six
 
 
 class Person(models.Model):
@@ -36,6 +38,9 @@ class Person(models.Model):
     @property
     def name(self):
         return "%s %s" % (self.first_name, self.last_name)
+
+    def get_absolute_url(self):
+        return reverse('person', args=(self.pk, ))
 
 
 class PersonProxy(Person):
