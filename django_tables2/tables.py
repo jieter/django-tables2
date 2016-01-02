@@ -457,6 +457,7 @@ class TableBase(object):
         # If a request is passed, configure for request
         if request:
             RequestConfig(request).configure(self)
+        self.request = request
 
     def as_html(self):
         """
@@ -467,7 +468,7 @@ class TableBase(object):
         ``{% render_table %}`` template tag instead.
         """
         template = get_template(self.template)
-        request = build_request()
+        request = self.request or build_request()
         return template.render(RequestContext(request, {'table': self}))
 
     @property
