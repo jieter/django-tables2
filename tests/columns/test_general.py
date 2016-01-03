@@ -2,14 +2,16 @@
 # pylint: disable=R0912,E0102
 from __future__ import unicode_literals
 
-import django_tables2 as tables
+import pytest
 from django.utils.safestring import SafeData, mark_safe
 from django.utils.translation import ugettext_lazy
 
-import pytest
+import django_tables2 as tables
 
 from ..app.models import Person
-from ..utils import parse, warns
+from ..utils import build_request, parse, warns
+
+request = build_request('/')
 
 
 def test_column_render_supports_kwargs():
@@ -274,7 +276,7 @@ def test_should_support_both_meta_sequence_and_constructor_exclude():
             sequence = ('a', '...')
 
     table = SequencedTable([], exclude=('c', ))
-    table.as_html()
+    table.as_html(request)
 
 
 def test_bound_columns_should_support_indexing():
@@ -293,7 +295,7 @@ def test_cell_attrs_applies_to_td_and_th():
 
     # providing data ensures 1 row is rendered
     table = SimpleTable([{"a": "value"}])
-    root = parse(table.as_html())
+    root = parse(table.as_html(request))
 
     assert root.findall('.//thead/tr/th')[0].attrib == {"key": "value", "class": "a orderable sortable"}
     assert root.findall('.//tbody/tr/td')[0].attrib == {"key": "value", "class": "a"}
@@ -304,7 +306,7 @@ def test_cells_are_automatically_given_column_name_as_class():
         a = tables.Column()
 
     table = SimpleTable([{"a": "value"}])
-    root = parse(table.as_html())
+    root = parse(table.as_html(request))
     assert root.findall('.//thead/tr/th')[0].attrib == {"class": "a orderable sortable"}
     assert root.findall('.//tbody/tr/td')[0].attrib == {"class": "a"}
 
@@ -315,7 +317,7 @@ def test_th_are_given_sortable_class_if_column_is_orderable():
         b = tables.Column(orderable=False)
 
     table = SimpleTable([{"a": "value"}])
-    root = parse(table.as_html())
+    root = parse(table.as_html(request))
     # return classes of an element as a set
     classes = lambda x: set(x.attrib["class"].split())
     assert "sortable" in classes(root.findall('.//thead/tr/th')[0])
@@ -323,7 +325,7 @@ def test_th_are_given_sortable_class_if_column_is_orderable():
 
     # Now try with an ordered table
     table = SimpleTable([], order_by="a")
-    root = parse(table.as_html())
+    root = parse(table.as_html(request))
     # return classes of an element as a set
     assert "sortable" in classes(root.findall('.//thead/tr/th')[0])
     assert "asc" in classes(root.findall('.//thead/tr/th')[0])

@@ -1,10 +1,10 @@
 # coding: utf-8
 # from attest import assert_hook, raises, Tests
 import six
-import pytest
+from django_tables2.utils import (Accessor, AttributeDict, OrderBy,
+                                  OrderByTuple, computed_values, segment)
 
-from django_tables2.utils import (Accessor, AttributeDict, computed_values,
-                                  OrderByTuple, OrderBy, segment)
+import pytest
 
 
 def test_orderbytuple():
@@ -128,7 +128,7 @@ def test_compute_values_supports_shallow_structures():
     assert x == {"foo": "bar"}
 
 
-def test_compute_values_supports_shallow_structures():
+def test_compute_values_supports_nested_structures():
     x = computed_values({"foo": lambda: {"bar": lambda: "baz"}})
     assert x == {"foo": {"bar": "baz"}}
 

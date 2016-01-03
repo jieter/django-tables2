@@ -1,10 +1,11 @@
 # coding: utf-8
-from django_tables2 import RequestConfig
-from django_tables2.utils import build_request
+import pytest
 from django.core.paginator import EmptyPage, PageNotAnInteger
 from fudge import Fake
-import pytest
 
+from django_tables2 import RequestConfig
+
+from .utils import build_request
 
 NOTSET = object()  # unique value
 

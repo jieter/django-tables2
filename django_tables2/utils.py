@@ -6,8 +6,6 @@ import warnings
 from itertools import chain
 
 import six
-from django.core.handlers.wsgi import WSGIRequest
-from django.test.client import FakePayload
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 
@@ -488,34 +486,6 @@ funcs = (name for name in ('getfullargspec', 'getargspec')
                        if hasattr(inspect, name))
 getargspec = getattr(inspect, next(funcs))
 del funcs
-
-
-def build_request(uri='/'):
-    """
-    Return a fresh HTTP GET / request.
-
-    This is essentially a heavily cutdown version of Django 1.3's
-    `~django.test.client.RequestFactory`.
-    """
-    path, _, querystring = uri.partition('?')
-    return WSGIRequest({
-        'CONTENT_TYPE':      'text/html; charset=utf-8',
-        'PATH_INFO':         path,
-        'QUERY_STRING':      querystring,
-        'REMOTE_ADDR':       '127.0.0.1',
-        'REQUEST_METHOD':    'GET',
-        'SCRIPT_NAME':       '',
-        'SERVER_NAME':       'testserver',
-        'SERVER_PORT':       '80',
-        'SERVER_PROTOCOL':   'HTTP/1.1',
-        'wsgi.version':      (1, 0),
-        'wsgi.url_scheme':   'http',
-        'wsgi.input':        FakePayload(b''),
-        'wsgi.errors':       six.StringIO(),
-        'wsgi.multiprocess': True,
-        'wsgi.multithread':  False,
-        'wsgi.run_once':     False,
-    })
 
 
 def total_ordering(cls):
