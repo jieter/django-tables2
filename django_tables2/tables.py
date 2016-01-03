@@ -7,13 +7,10 @@ from collections import OrderedDict
 
 import six
 from django import VERSION
-from django.core.paginator       import Paginator
-from django.db.models.fields     import FieldDoesNotExist
-from django.template             import RequestContext
-from django.template.loader      import get_template
-from collections import OrderedDict
-import six
-import warnings
+from django.core.paginator import Paginator
+from django.db.models.fields import FieldDoesNotExist
+from django.template import RequestContext
+from django.template.loader import get_template
 
 from . import columns
 from .config import RequestConfig
@@ -464,11 +461,7 @@ class TableBase(object):
 
     def as_html(self, request=None):
         """
-        Render the table to a simple HTML table.
-
-        If this method is used in the request/response cycle, any links
-        generated will clobber the querystring of the request. Use the
-        ``{% render_table %}`` template tag instead.
+        Render the table to a simple HTML table, adding `request` to the context.
         """
         template = get_template(self.template)
 
