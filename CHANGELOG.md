@@ -6,6 +6,10 @@
 - Do not sort queryset when orderable=False (#204 by [@bmihelac](https://github.com/bmihelac))
 - `show_header` attribute on `Table` allows disabling the header (#175 by [@kviktor](https://github.com/kviktor))
 - `LinkColumn` now tries to call `get_absolute_url` on a record if no `viewname` is provided (#283, fixes #231).
+- Add `request` argument to `Table.as_html()` to allow passing correct request objects instead of poorly generated ones #282
+- Add coverage reporting to build #282
+- Drop support for python 3.2 (because of coverage), support ends feb 2016 #282
+- move `build_request` from `django_table2.utils` to `tests.utils` and amend tests #282
 
 ## v1.0.6 (2015-12-29)
 - Support for custom text value in LinkColumn (#277 by [@toudi](https://github.com/toudi))
