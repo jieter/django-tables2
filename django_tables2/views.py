@@ -67,7 +67,7 @@ class SingleTableMixin(object):
         """
         Return the table data that should be used to populate the rows.
         """
-        if self.table_data:
+        if self.table_data is not None:
             return self.table_data
         elif hasattr(self, "object_list"):
             return self.object_list
