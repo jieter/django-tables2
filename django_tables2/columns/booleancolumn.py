@@ -1,11 +1,13 @@
 # coding: utf-8
 from __future__ import absolute_import, unicode_literals
-from .base import Column, library
-from django.db import models
-from django.utils.html import escape
-from django.utils.safestring import mark_safe
-from django_tables2.utils import AttributeDict
+
 import six
+from django.db import models
+from django.utils.html import escape, format_html
+
+from django_tables2.utils import AttributeDict
+
+from .base import Column, library
 
 
 @library.register
@@ -36,10 +38,14 @@ class BooleanColumn(Column):
     def render(self, value):
         value = bool(value)
         text = self.yesno[int(not value)]
-        html = '<span %s>%s</span>'
         attrs = {"class": six.text_type(value).lower()}
         attrs.update(self.attrs.get("span", {}))
-        return mark_safe(html % (AttributeDict(attrs).as_html(), escape(text)))
+
+        return format_html(
+            '<span {}>{}</span>',
+            AttributeDict(attrs).as_html(),
+            escape(text)
+        )
 
     @classmethod
     def from_field(cls, field):

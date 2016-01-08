@@ -61,3 +61,25 @@ def test_span_attrs():
 
     table = Table([{"col": True}])
     assert attrs(table.rows[0]["col"]) == {"class": "true", "key": "value"}
+
+
+def test_boolean_field_choices():
+    class BoolModel(models.Model):
+        field = models.BooleanField(choices=(
+            (True, 'yes'),
+            (False, 'no')
+        ))
+        class Meta:
+            app_label = 'django_tables2_test'
+
+    class Table(tables.Table):
+        class Meta:
+            model = BoolModel
+
+    table = Table([
+        {'field': True},
+        {'field': False},
+    ])
+
+    assert table.rows[0]['field'] == '<span class="true">✔</span>'
+    assert table.rows[1]['field'] == '<span class="false">✘</span>'
