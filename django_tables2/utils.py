@@ -251,39 +251,6 @@ class OrderByTuple(tuple):
                 return False
         return Comparator
 
-    @property
-    def cmp(self):
-        """
-        Return a function for use with `list.sort` that implements this
-        object's ordering. This is used to sort non-`.QuerySet` based
-        :term:`table data`.
-
-        :rtype: function
-        """
-        warnings.warn('`cmp` is deprecated, use `key` instead.',
-                      DeprecationWarning)
-
-        # pylint: disable=C0103
-        def _cmp(a, b):
-            for accessor, reverse in instructions:
-                x = accessor.resolve(a)
-                y = accessor.resolve(b)
-                try:
-                    res = cmp(x, y)
-                except TypeError:
-                    res = cmp((repr(type(x)), id(type(x)), x),
-                              (repr(type(y)), id(type(y)), y))
-                if res != 0:
-                    return -res if reverse else res
-            return 0
-        instructions = []
-        for order_by in self:
-            if order_by.startswith('-'):
-                instructions.append((Accessor(order_by[1:]), True))
-            else:
-                instructions.append((Accessor(order_by), False))
-        return _cmp
-
     def get(self, key, fallback):
         """
         Identical to __getitem__, but supports fallback value.
