@@ -191,6 +191,7 @@ def test_data_validation():
     class Ok:
         def __len__(self):
             return 1
+
         def __getitem__(self, pos):
             if pos != 0:
                 raise IndexError()
@@ -205,8 +206,8 @@ def test_ordering():
     assert ('alpha', ) == OrderedTable([], order_by=None).order_by == OrderedTable([]).order_by
 
     # values of order_by are wrapped in tuples before being returned
-    assert OrderedTable([], order_by='alpha').order_by   == ('alpha', )
-    assert OrderedTable([], order_by=('beta',)).order_by == ('beta', )
+    assert OrderedTable([], order_by='alpha').order_by == ('alpha', )
+    assert OrderedTable([], order_by=('beta', )).order_by == ('beta', )
 
     table = OrderedTable([])
     table.order_by = []
@@ -227,7 +228,7 @@ def test_ordering():
 
     table = OrderedTable([])
     table.order_by = 'alpha'
-    assert ('alpha', ) == OrderedTable([], order_by='alpha').order_by  == table.order_by
+    assert ('alpha', ) == OrderedTable([], order_by='alpha').order_by == table.order_by
 
     # let's check the data
     table = OrderedTable(MEMORY_DATA, order_by='beta')
@@ -287,17 +288,16 @@ def test_ordering_different_types():
     else:
         assert 1 == table.rows[0]['i']
 
-
     table = OrderedTable(data, order_by='beta')
     assert [] == table.rows[0]['beta']
 
 
 def test_multi_column_ordering():
-    brad   = {"first_name": "Bradley", "last_name": "Ayers"}
-    brad2  = {"first_name": "Bradley", "last_name": "Fake"}
-    chris  = {"first_name": "Chris",   "last_name": "Doble"}
-    davina = {"first_name": "Davina",  "last_name": "Adisusila"}
-    ross   = {"first_name": "Ross",    "last_name": "Ayers"}
+    brad = {"first_name": "Bradley", "last_name": "Ayers"}
+    brad2 = {"first_name": "Bradley", "last_name": "Fake"}
+    chris = {"first_name": "Chris", "last_name": "Doble"}
+    davina = {"first_name": "Davina", "last_name": "Adisusila"}
+    ross = {"first_name": "Ross", "last_name": "Ayers"}
 
     people = [brad, brad2, chris, davina, ross]
 
@@ -373,6 +373,7 @@ def test_exclude_columns():
     # Inheritence -- exclude in child
     class ExcludeTable(UnorderedTable):
         added = tables.Column()
+
         class Meta:
             exclude = ("beta", )
     table = ExcludeTable([])

@@ -31,6 +31,7 @@ def test_should_render_default_for_blank():
 def test_should_be_used_for_datetimefields():
     class EmailModel(models.Model):
         field = models.EmailField()
+
         class Meta:
             app_label = 'django_tables2_test'
 

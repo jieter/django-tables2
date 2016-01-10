@@ -60,8 +60,10 @@ def test_should_handle_short_format(settings):
 def test_should_be_used_for_datefields():
     class DateModel(models.Model):
         field = models.DateField()
+
         class Meta:
             app_label = 'django_tables2_test'
+
     class Table(tables.Table):
         class Meta:
             model = DateModel

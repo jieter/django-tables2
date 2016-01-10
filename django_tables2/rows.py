@@ -127,12 +127,12 @@ class BoundRow(object):
             return bound_column.default
 
         available = {
-            'value':        value,
-            'record':       self.record,
-            'column':       bound_column.column,
+            'value': value,
+            'record': self.record,
+            'column': bound_column.column,
             'bound_column': bound_column,
-            'bound_row':    self,
-            'table':        self._table,
+            'bound_row': self,
+            'table': self._table,
         }
         expected = {}
 

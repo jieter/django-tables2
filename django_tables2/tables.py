@@ -33,7 +33,7 @@ class TableData(object):
         self.table = table
         # data may be a QuerySet-like objects with count() and order_by()
         if (hasattr(data, 'count') and callable(data.count) and
-            hasattr(data, 'order_by') and callable(data.order_by)):
+                hasattr(data, 'order_by') and callable(data.order_by)):
             self.queryset = data
         # otherwise it must be convertable to a list
         else:
@@ -52,8 +52,9 @@ class TableData(object):
             # Use the queryset count() method to get the length, instead of
             # loading all results into memory. This allows, for example,
             # smart paginators that use len() to perform better.
-            self._length = (self.queryset.count() if hasattr(self, 'queryset')
-                                                  else len(self.list))
+            self._length = (
+                self.queryset.count() if hasattr(self, 'queryset') else len(self.list)
+            )
         return self._length
 
     @property
@@ -206,7 +207,7 @@ class DeclarativeColumnsMetaclass(type):
         if opts.sequence:
             opts.sequence.expand(attrs["base_columns"].keys())
             # Table's sequence defaults to sequence declared in Meta
-            #attrs['_sequence'] = opts.sequence
+            # attrs['_sequence'] = opts.sequence
             attrs["base_columns"] = OrderedDict(((x, attrs["base_columns"][x]) for x in opts.sequence))
 
         # set localize on columns
@@ -257,6 +258,7 @@ class TableOptions(object):
         self.template = getattr(options, "template", "django_tables2/table.html")
         self.localize = getattr(options, "localize", ())
         self.unlocalize = getattr(options, "unlocalize", ())
+
 
 class TableBase(object):
     """
@@ -403,8 +405,8 @@ class TableBase(object):
             default = self._meta.default
         self.default = default
         self.rows = BoundRows(data=self.data, table=self)
-        self.attrs = AttributeDict(computed_values(attrs if attrs is not None
-                                                         else self._meta.attrs))
+        attrs = computed_values(attrs if attrs is not None else self._meta.attrs)
+        self.attrs = AttributeDict(attrs)
         self.empty_text = empty_text if empty_text is not None else self._meta.empty_text
         self.orderable = orderable
         self.prefix = prefix
@@ -598,8 +600,10 @@ class TableBase(object):
 
     @property
     def orderable(self):
-        return (self._orderable if self._orderable is not None
-                                else self._meta.orderable)
+        if self._orderable is not None:
+            return self._orderable
+        else:
+            return self._meta.orderable
 
     @orderable.setter
     def orderable(self, value):
@@ -607,8 +611,10 @@ class TableBase(object):
 
     @property
     def template(self):
-        return (self._template if self._template is not None
-                               else self._meta.template)
+        if self._template is not None:
+            return self._template
+        else:
+            return self._meta.template
 
     @template.setter
     def template(self, value):

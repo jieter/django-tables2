@@ -10,6 +10,7 @@ from .utils import build_request
 pytestmark = pytest.mark.django_db
 request = build_request('/')
 
+
 class PersonTable(tables.Table):
     first_name = tables.Column()
     last_name = tables.Column()
@@ -19,7 +20,7 @@ class PersonTable(tables.Table):
 def test_boundrows_iteration():
     occupation = Occupation.objects.create(name='Programmer')
     Person.objects.create(first_name='Bradley', last_name='Ayers', occupation=occupation)
-    Person.objects.create(first_name='Chris',   last_name='Doble', occupation=occupation)
+    Person.objects.create(first_name='Chris', last_name='Doble', occupation=occupation)
 
     table = PersonTable(Person.objects.all())
     records = [row.record for row in table.rows]
@@ -53,6 +54,7 @@ def test_model_table():
         char = models.CharField(max_length=200)
         fk = models.ForeignKey("self")
         m2m = models.ManyToManyField("self")
+
         class Meta:
             app_label = 'django_tables2_test'
 
@@ -256,7 +258,9 @@ def test_order_by_derived_from_queryset():
         name = tables.Column(order_by=("first_name", "last_name"))
         occupation = tables.Column(order_by=("occupation__name",))
 
-    assert PersonTable(queryset.order_by("first_name", "last_name", "-occupation__name")).order_by == ("name", "-occupation")
+    assert PersonTable(
+        queryset.order_by("first_name", "last_name", "-occupation__name")
+    ).order_by == ("name", "-occupation")
 
     class PersonTable(PersonTable):
         class Meta:

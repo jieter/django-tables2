@@ -1,10 +1,10 @@
 # coding: utf-8
 # from attest import assert_hook, raises, Tests
+import pytest
 import six
+
 from django_tables2.utils import (Accessor, AttributeDict, OrderBy,
                                   OrderByTuple, computed_values, segment)
-
-import pytest
 
 
 def test_orderbytuple():
@@ -23,8 +23,8 @@ def test_orderbytuple():
     sentinel = object()
     assert obt.get('b', sentinel) is obt['b']  # keying
     assert obt.get('-', sentinel) is sentinel
-    assert obt.get(0,   sentinel) is obt['a']  # indexing
-    assert obt.get(3,   sentinel) is sentinel
+    assert obt.get(0, sentinel) is obt['a']  # indexing
+    assert obt.get(3, sentinel) is sentinel
 
     # .opposite
     assert OrderByTuple(('a', '-b', 'c')).opposite == ('-a', 'b', '-c')

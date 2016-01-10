@@ -245,7 +245,8 @@ def test_title_should_only_apply_to_words_without_uppercase_letters():
 
 def test_nospaceless_works():
     template = Template("{% load django_tables2 %}"
-                        "{% spaceless %}<b>a</b> <i>b {% nospaceless %}<b>c</b>  <b>d</b> {% endnospaceless %}lic</i>{% endspaceless %}")
+                        "{% spaceless %}<b>a</b> <i>b {% nospaceless %}<b>c</b>"
+                        "  <b>d</b> {% endnospaceless %}lic</i>{% endspaceless %}")
     assert template.render(Context()) == "<b>a</b><i>b <b>c</b>&#32;<b>d</b> lic</i>"
 
 
@@ -313,19 +314,19 @@ def test_localization_check(settings):
         return TestTable
 
     simple_test_data = [{'name': 1234.5}]
-    expected_reults = {
+    expected_results = {
         None: '1234.5',
         False: '1234.5',
-        True:  '1 234,5'  # non-breaking space
+        True: '1 234,5'  # non-breaking space
     }
 
     # no localization
     html = get_cond_localized_table(None)(simple_test_data).as_html(request)
-    assert '<td class="name">{0}</td>'.format(expected_reults[None]) in html
+    assert '<td class="name">{0}</td>'.format(expected_results[None]) in html
 
     # unlocalize
     html = get_cond_localized_table(False)(simple_test_data).as_html(request)
-    assert '<td class="name">{0}</td>'.format(expected_reults[False]) in html
+    assert '<td class="name">{0}</td>'.format(expected_results[False]) in html
 
     settings.USE_L10N = True
     settings.USE_THOUSAND_SEPARATOR = True
@@ -334,16 +335,16 @@ def test_localization_check(settings):
         # with default polish locales and enabled thousand separator
         # 1234.5 is formatted as "1 234,5" with nbsp
         html = get_cond_localized_table(True)(simple_test_data).as_html(request)
-        assert '<td class="name">{0}</td>'.format(expected_reults[True]) in html
+        assert '<td class="name">{0}</td>'.format(expected_results[True]) in html
 
         # with localize = False there should be no formatting
         html = get_cond_localized_table(False)(simple_test_data).as_html(request)
-        assert '<td class="name">{0}</td>'.format(expected_reults[False]) in html
+        assert '<td class="name">{0}</td>'.format(expected_results[False]) in html
 
         # with localize = None and USE_L10N = True
         # there should be the same formatting as with localize = True
         html = get_cond_localized_table(None)(simple_test_data).as_html(request)
-        assert '<td class="name">{0}</td>'.format(expected_reults[True]) in html
+        assert '<td class="name">{0}</td>'.format(expected_results[True]) in html
 
 
 @pytest.mark.skipif(django.VERSION < (1, 3), reason="requires Django >= 1.3")
@@ -377,15 +378,15 @@ def test_localization_check_in_meta(settings):
             localize = ('name',)
 
     simple_test_data = [{'name': 1234.5}]
-    expected_reults = {
+    expected_results = {
         None: '1234.5',
         False: '1234.5',
-        True:  '1{0}234,5'.format(' ')  # non-breaking space
+        True: '1{0}234,5'.format(' ')  # non-breaking space
     }
 
     # No localize
     html = TableNoLocalize(simple_test_data).as_html(request)
-    assert '<td class="name">{0}</td>'.format(expected_reults[None]) in html
+    assert '<td class="name">{0}</td>'.format(expected_results[None]) in html
 
     settings.USE_L10N = True
     settings.USE_THOUSAND_SEPARATOR = True
@@ -394,16 +395,16 @@ def test_localization_check_in_meta(settings):
         # the same as in localization_check.
         # with localization and polish locale we get formatted output
         html = TableNoLocalize(simple_test_data).as_html(request)
-        assert '<td class="name">{0}</td>'.format(expected_reults[True]) in html
+        assert '<td class="name">{0}</td>'.format(expected_results[True]) in html
 
         # localize
         html = TableLocalize(simple_test_data).as_html(request)
-        assert '<td class="name">{0}</td>'.format(expected_reults[True]) in html
+        assert '<td class="name">{0}</td>'.format(expected_results[True]) in html
 
         # unlocalize
         html = TableUnlocalize(simple_test_data).as_html(request)
-        assert '<td class="name">{0}</td>'.format(expected_reults[False]) in html
+        assert '<td class="name">{0}</td>'.format(expected_results[False]) in html
 
         # test unlocalize higher precedence
         html = TableLocalizePrecedence(simple_test_data).as_html(request)
-        assert '<td class="name">{0}</td>'.format(expected_reults[False]) in html
+        assert '<td class="name">{0}</td>'.format(expected_results[False]) in html

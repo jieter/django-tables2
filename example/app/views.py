@@ -1,8 +1,10 @@
 # coding: utf-8
 from django.shortcuts import render
-from django_tables2   import RequestConfig, SingleTableView
-from .tables import CountryTable, ThemedCountryTable
+
+from django_tables2 import RequestConfig, SingleTableView
+
 from .models import Country, Person
+from .tables import CountryTable, ThemedCountryTable
 
 
 def multiple(request):

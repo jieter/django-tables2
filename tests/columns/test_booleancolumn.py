@@ -12,6 +12,7 @@ from ..utils import attrs
 def test_should_be_used_for_booleanfield():
     class BoolModel(models.Model):
         field = models.BooleanField()
+
         class Meta:
             app_label = 'django_tables2_test'
 
@@ -27,6 +28,7 @@ def test_should_be_used_for_booleanfield():
 def test_should_be_used_for_nullbooleanfield():
     class NullBoolModel(models.Model):
         field = models.NullBooleanField()
+
         class Meta:
             app_label = 'django_tables2_test'
 
@@ -69,6 +71,7 @@ def test_boolean_field_choices():
             (True, 'yes'),
             (False, 'no')
         ))
+
         class Meta:
             app_label = 'django_tables2_test'
 

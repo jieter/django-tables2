@@ -2,13 +2,13 @@
 # pylint: disable=R0912,E0102
 from __future__ import unicode_literals
 
-import django_tables2 as tables
+import pytest
 from django.core.urlresolvers import reverse
 from django.template import Context, Template
 from django.utils.html import mark_safe
-from django_tables2 import A
 
-import pytest
+import django_tables2 as tables
+from django_tables2 import A
 
 from ..app.models import Person
 from ..utils import attrs, build_request, warns
@@ -24,7 +24,7 @@ def test_unicode():
     dataset = [
         {'pk': 1, 'first_name': 'Brädley', 'last_name': '∆yers'},
         {'pk': 2, 'first_name': 'Chr…s', 'last_name': 'DÒble'},
-        ]
+    ]
 
     table = UnicodeTable(dataset)
     request = build_request('/some-url/')
@@ -40,7 +40,9 @@ def test_unicode():
 def test_link_text_custom_value():
     class CustomLinkTable(tables.Table):
         first_name = tables.LinkColumn('person', text='foo::bar', args=[A('pk')])
-        last_name = tables.LinkColumn('person', text=lambda row: '%s %s' % (row['last_name'], row['first_name']), args=[A('pk')])
+        last_name = tables.LinkColumn('person',
+                                      text=lambda row: '%s %s' % (row['last_name'], row['first_name']),
+                                      args=[A('pk')])
 
     dataset = [
         {'pk': 1, 'first_name': 'John', 'last_name': 'Doe'}
@@ -57,7 +59,11 @@ def test_link_text_custom_value():
 
 def test_link_text_excaping():
     class CustomLinkTable(tables.Table):
-        last_name = tables.LinkColumn('person', text=mark_safe('<i class="glyphicon glyphicon-pencil"></i>'), args=[A('pk')])
+        last_name = tables.LinkColumn(
+            'person',
+            text=mark_safe('<i class="glyphicon glyphicon-pencil"></i>'),
+            args=[A('pk')]
+        )
 
     dataset = [
         {'pk': 1, 'first_name': 'John', 'last_name': 'Doe'}

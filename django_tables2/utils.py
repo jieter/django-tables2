@@ -338,8 +338,8 @@ class Accessor(str):
                                 TypeError,   # unsubscriptable object
                                 ):
                             raise ValueError('Failed lookup for key [%s] in %r'
-                                             ', when resolving the accessor %s'
-                                              % (bit, current, self))
+                                             ', when resolving the accessor %s' % (bit, current, self)
+                                             )
                 if callable(current):
                     if safe and getattr(current, 'alters_data', False):
                         raise ValueError('refusing to call %s() because `.alters_data = True`'
@@ -364,6 +364,7 @@ class Accessor(str):
 
 
 A = Accessor  # alias
+
 
 class AttributeDict(dict):
     """
@@ -415,7 +416,7 @@ def segment(sequence, aliases):
     for alias, parts in aliases.items():
         variants = {
             # alias: order by tuple
-            alias:  OrderByTuple(parts),
+            alias: OrderByTuple(parts),
             OrderBy(alias).opposite: OrderByTuple(parts).opposite,
         }
         for valias, vparts in variants.items():
@@ -449,8 +450,7 @@ class cached_property(object):  # pylint: disable=C0103
         return res
 
 
-funcs = (name for name in ('getfullargspec', 'getargspec')
-                       if hasattr(inspect, name))
+funcs = (name for name in ('getfullargspec', 'getargspec') if hasattr(inspect, name))
 getargspec = getattr(inspect, next(funcs))
 del funcs
 

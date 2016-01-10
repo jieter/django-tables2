@@ -55,9 +55,9 @@ class SetUrlParamNode(Node):
         self.changes = changes
 
     def render(self, context):
-        if not 'request' in context:
-            raise ImproperlyConfigured(context_processor_error_msg
-                                       % 'set_url_param')
+        if 'request' not in context:
+            raise ImproperlyConfigured(context_processor_error_msg % 'set_url_param')
+
         params = dict(context['request'].GET)
         for key, newvalue in self.changes.items():
             newvalue = newvalue.resolve(context)
@@ -97,8 +97,7 @@ def set_url_param(parser, token):
             else:
                 raise ValueError
         except ValueError:
-            raise TemplateSyntaxError("Argument syntax wrong: should be"
-                                      "key=value")
+            raise TemplateSyntaxError("Argument syntax wrong: should be key=value")
     return SetUrlParamNode(qschanges)
 
 
@@ -109,9 +108,9 @@ class QuerystringNode(Node):
         self.removals = removals
 
     def render(self, context):
-        if not 'request' in context:
-            raise ImproperlyConfigured(context_processor_error_msg
-                                       % 'querystring')
+        if 'request' not in context:
+            raise ImproperlyConfigured(context_processor_error_msg % 'querystring')
+
         params = dict(context['request'].GET)
         for key, value in self.updates.items():
             key = key.resolve(context)
@@ -211,6 +210,7 @@ class RenderTableNode(Node):
             del table.context
             context.pop()
 
+
 @register.tag
 def render_table(parser, token):
     """
@@ -245,8 +245,8 @@ def render_table(parser, token):
         bits.pop(0)
         table = parser.compile_filter(bits.pop(0))
     except ValueError:
-        raise TemplateSyntaxError("'%s' must be given a table or queryset."
-                                  % bits[0])
+        raise TemplateSyntaxError("'%s' must be given a table or queryset." % bits[0])
+
     template = parser.compile_filter(bits.pop(0)) if bits else None
     return RenderTableNode(table, template)
 
@@ -257,8 +257,8 @@ class NoSpacelessNode(Node):
         super(NoSpacelessNode, self).__init__()
 
     def render(self, context):
-        return mark_safe(re.sub(r'>\s+<', '>&#32;<',
-                                self.nodelist.render(context)))
+        return mark_safe(re.sub(r'>\s+<', '>&#32;<', self.nodelist.render(context)))
+
 
 @register.tag
 def nospaceless(parser, token):

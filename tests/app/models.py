@@ -2,19 +2,20 @@
 from __future__ import unicode_literals
 
 import six
+from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext, ugettext_lazy
-from django.contrib.contenttypes.models import ContentType
+
 try:
     # Django >= 1.7
-    from django.contrib.contenttypes.fields import GenericForeignKey, \
-                        GenericRelation
+    from django.contrib.contenttypes.fields import (GenericForeignKey,
+                                                    GenericRelation)
 except ImportError:
-    # Django < 1.7
-    from django.contrib.contenttypes.generic import GenericForeignKey, \
-                        GenericRelation
+    # Django < 1.7, TODO: remove if we drop support for 1.7
+    from django.contrib.contenttypes.generic import (GenericForeignKey,
+                                                     GenericRelation)
 
 
 class Person(models.Model):
@@ -23,19 +24,19 @@ class Person(models.Model):
     last_name = models.CharField(max_length=200, verbose_name='surname')
 
     occupation = models.ForeignKey(
-            'Occupation', related_name='people',
-            null=True, verbose_name='occupation')
+        'Occupation', related_name='people',
+        null=True, verbose_name='occupation')
 
     trans_test = models.CharField(
-            max_length=200, blank=True,
-            verbose_name=ugettext("translation test"))
+        max_length=200, blank=True,
+        verbose_name=ugettext("translation test"))
 
     trans_test_lazy = models.CharField(
-            max_length=200, blank=True,
-            verbose_name=ugettext_lazy("translation test lazy"))
+        max_length=200, blank=True,
+        verbose_name=ugettext_lazy("translation test lazy"))
 
     safe = models.CharField(
-            max_length=200, blank=True, verbose_name=mark_safe("<b>Safe</b>"))
+        max_length=200, blank=True, verbose_name=mark_safe("<b>Safe</b>"))
 
     content_type = models.ForeignKey(ContentType, null=True, blank=True)
     object_id = models.PositiveIntegerField(null=True, blank=True)

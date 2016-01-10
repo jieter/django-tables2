@@ -28,6 +28,7 @@ def test_should_handle_explicit_format():
 def test_should_be_used_for_timefields():
     class TimeModel(models.Model):
         field = models.TimeField()
+
         class Meta:
             app_label = 'django_tables2_test'
 

@@ -6,3 +6,5 @@ pytz>0
 six
 pytest
 pytest-django
+flake8
+pytest-cov
