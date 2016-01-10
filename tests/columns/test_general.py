@@ -259,7 +259,7 @@ def test_cell_attrs_applies_to_td_and_th():
     table = SimpleTable([{"a": "value"}])
     root = parse(table.as_html(request))
 
-    assert root.findall('.//thead/tr/th')[0].attrib == {"key": "value", "class": "a orderable sortable"}
+    assert root.findall('.//thead/tr/th')[0].attrib == {"key": "value", "class": "a orderable"}
     assert root.findall('.//tbody/tr/td')[0].attrib == {"key": "value", "class": "a"}
 
 
@@ -269,11 +269,11 @@ def test_cells_are_automatically_given_column_name_as_class():
 
     table = SimpleTable([{"a": "value"}])
     root = parse(table.as_html(request))
-    assert root.findall('.//thead/tr/th')[0].attrib == {"class": "a orderable sortable"}
+    assert root.findall('.//thead/tr/th')[0].attrib == {"class": "a orderable"}
     assert root.findall('.//tbody/tr/td')[0].attrib == {"class": "a"}
 
 
-def test_th_are_given_sortable_class_if_column_is_orderable():
+def test_th_are_given_orderable_class_if_column_is_orderable():
     class SimpleTable(tables.Table):
         a = tables.Column()
         b = tables.Column(orderable=False)
@@ -282,16 +282,16 @@ def test_th_are_given_sortable_class_if_column_is_orderable():
     root = parse(table.as_html(request))
     # return classes of an element as a set
     classes = lambda x: set(x.attrib["class"].split())
-    assert "sortable" in classes(root.findall('.//thead/tr/th')[0])
-    assert "sortable" not in classes(root.findall('.//thead/tr/th')[1])
+    assert "orderable" in classes(root.findall('.//thead/tr/th')[0])
+    assert "orderable" not in classes(root.findall('.//thead/tr/th')[1])
 
     # Now try with an ordered table
     table = SimpleTable([], order_by="a")
     root = parse(table.as_html(request))
     # return classes of an element as a set
-    assert "sortable" in classes(root.findall('.//thead/tr/th')[0])
+    assert "orderable" in classes(root.findall('.//thead/tr/th')[0])
     assert "asc" in classes(root.findall('.//thead/tr/th')[0])
-    assert "sortable" not in classes(root.findall('.//thead/tr/th')[1])
+    assert "orderable" not in classes(root.findall('.//thead/tr/th')[1])
 
 
 def test_empty_values_triggers_default():
