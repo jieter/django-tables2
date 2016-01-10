@@ -2,7 +2,10 @@
 
 ## unreleased
 - Add tests for TimeColumn
-- 
+- Remove `sortable` argument for `Table` and Column constructors and its associated methods. Deprecated since 2012.
+- Remove deprecated aliases for `attrs` in `CheckboxColumn`.
+- Remove deprecated `OrderByTuple` `cmp` method (deprecated since 2013).
+
 
 ## v1.0.7 (2016-01-03)
 - Explicitly check if `column.verbose_name` is not None to support empty column headers (fixes #280)
