@@ -6,10 +6,7 @@ from .columns import (BooleanColumn, Column, CheckBoxColumn, DateColumn,
                       TemplateColumn, URLColumn, TimeColumn)
 from .config import RequestConfig
 from .utils import A
-try:
-    from .views import SingleTableMixin, SingleTableView
-except ImportError:
-    pass
+from .views import SingleTableMixin, SingleTableView
 
 
 __version__ = "1.0.7"
