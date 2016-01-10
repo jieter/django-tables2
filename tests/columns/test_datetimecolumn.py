@@ -4,18 +4,18 @@ from __future__ import unicode_literals
 
 from datetime import datetime
 
+import pytest
 import pytz
 from django.db import models
 
 import django_tables2 as tables
-import pytest
 
 try:
     from django.utils import timezone
 except ImportError:
     timezone = None
 
-# Format string: https://docs.djangoproject.com/en/1.4/ref/templates/builtins/#date
+# Format string: https://docs.djangoproject.com/en/stable/ref/templates/builtins/#date
 # D -- Day of the week, textual, 3 letters  -- 'Fri'
 # b -- Month, textual, 3 letters, lowercase -- 'jan'
 # Y -- Year, 4 digits.                      -- '1999'
