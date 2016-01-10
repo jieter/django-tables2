@@ -32,5 +32,9 @@ matrix:
       - env: TOXENV=py35-master
 install:
   - pip install tox
+  - pip install python-coveralls
 script:
   - tox
+
+after_success:
+    coveralls
