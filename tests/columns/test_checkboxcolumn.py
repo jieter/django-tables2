@@ -7,23 +7,11 @@ import django_tables2 as tables
 from ..utils import attrs, warns
 
 
-def test_attrs_should_be_translated_for_backwards_compatibility():
-    with warns(DeprecationWarning):
-        class TestTable(tables.Table):
-            col = tables.CheckBoxColumn(header_attrs={"th_key": "th_value"},
-                                        attrs={"td_key": "td_value"})
-
-    table = TestTable([{"col": "data"}])
-    assert attrs(table.columns["col"].header) == {"type": "checkbox", "th_key": "th_value"}
-    assert attrs(table.rows[0]["col"]) == {"type": "checkbox", "td_key": "td_value", "value": "data", "name": "col"}
-
-
-def new_attrs_should_be_supported():
-    with warns(DeprecationWarning):
-        class TestTable(tables.Table):
-            col1 = tables.CheckBoxColumn(attrs=dict(th__input={"th_key": "th_value"},
-                                                     td__input={"td_key": "td_value"}))
-            col2 = tables.CheckBoxColumn(attrs=dict(input={"key": "value"}))
+def test_new_attrs_should_be_supported():
+    class TestTable(tables.Table):
+        col1 = tables.CheckBoxColumn(attrs=dict(th__input={"th_key": "th_value"},
+                                                td__input={"td_key": "td_value"}))
+        col2 = tables.CheckBoxColumn(attrs=dict(input={"key": "value"}))
 
     table = TestTable([{"col1": "data", "col2": "data"}])
     assert attrs(table.columns["col1"].header) == {"type": "checkbox", "th_key": "th_value"}

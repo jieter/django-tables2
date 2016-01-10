@@ -1,8 +1,12 @@
 # coding: utf-8
 from __future__ import absolute_import, unicode_literals
-from django.utils.safestring import mark_safe
-from django_tables2.utils import AttributeDict
+
 import warnings
+
+from django.utils.safestring import mark_safe
+
+from django_tables2.utils import AttributeDict
+
 from .base import Column, library
 
 
@@ -40,24 +44,6 @@ class CheckBoxColumn(Column):
     - *td__input* -- Replaces *input* attrs in body cells.
     """
     def __init__(self, attrs=None, **extra):
-        # For backwards compatibility, passing in a normal dict effectively
-        # should assign attributes to the `<input>` tag.
-        valid = set(("input", "th__input", "td__input", "th", "td", "cell"))
-        if attrs and not set(attrs) & set(valid):
-            # if none of the keys in attrs are actually valid, assume it's some
-            # old code that should be be interpreted as {"td__input": ...}
-            warnings.warn('attrs keys must be one of %s, interpreting as {"td__input": %s}'
-                          % (', '.join(valid), attrs), DeprecationWarning)
-            attrs = {"td__input": attrs}
-        # This is done for backwards compatible too, there used to be a
-        # ``header_attrs`` argument, but this has been deprecated. We'll
-        # maintain it for a while by translating it into ``head.checkbox``.
-        if "header_attrs" in extra:
-            warnings.warn('header_attrs argument is deprecated, '
-                          'use attrs={"th__input": ...} instead',
-                          DeprecationWarning)
-            attrs.setdefault('th__input', {}).update(extra.pop('header_attrs'))
-
         kwargs = {'orderable': False, 'attrs': attrs}
         kwargs.update(extra)
         super(CheckBoxColumn, self).__init__(**kwargs)
