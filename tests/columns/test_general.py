@@ -74,39 +74,6 @@ def test_handle_verbose_name_of_many2onerel():
     assert table.columns['count'].verbose_name == 'Information'
 
 
-def test_sortable_backwards_compatibility():
-    # Table.Meta.sortable (not set)
-    class SimpleTable(tables.Table):
-        name = tables.Column()
-    table = SimpleTable([])
-    with warns(DeprecationWarning):
-        assert table.columns['name'].sortable is True
-
-    # Table.Meta.sortable = False
-    with warns(DeprecationWarning):
-        class SimpleTable(tables.Table):
-            name = tables.Column()
-
-            class Meta:
-                sortable = False
-    table = SimpleTable([])
-    with warns(DeprecationWarning):
-        assert table.columns['name'].sortable is False  # backwards compatible
-    assert table.columns['name'].orderable is False
-
-    # Table.Meta.sortable = True
-    with warns(DeprecationWarning):
-        class SimpleTable(tables.Table):
-            name = tables.Column()
-
-            class Meta:
-                sortable = True
-    table = SimpleTable([])
-    with warns(DeprecationWarning):
-        assert table.columns['name'].sortable is True  # backwards compatible
-    assert table.columns['name'].orderable is True
-
-
 def test_orderable():
     # Table.Meta.orderable = False
     class SimpleTable(tables.Table):
@@ -123,9 +90,6 @@ def test_orderable():
     table = SimpleTable([])
     assert table.columns['name'].orderable is False
 
-    with warns(DeprecationWarning):
-        assert table.columns['name'].sortable is False  # backwards compatible
-
     # Table.Meta.orderable = True
     class SimpleTable(tables.Table):
         name = tables.Column()
@@ -133,8 +97,6 @@ def test_orderable():
         class Meta:
             orderable = True
     table = SimpleTable([])
-    with warns(DeprecationWarning):
-        assert table.columns['name'].sortable is True  # backwards compatible
     assert table.columns['name'].orderable is True
 
 

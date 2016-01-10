@@ -252,10 +252,7 @@ class TableOptions(object):
         self.prefix = getattr(options, "prefix", "")
         self.show_header = getattr(options, "show_header", True)
         self.sequence = Sequence(getattr(options, "sequence", ()))
-        if hasattr(options, "sortable"):
-            warnings.warn("`Table.Meta.sortable` is deprecated, use `orderable` instead",
-                          DeprecationWarning)
-        self.orderable = self.sortable = getattr(options, "orderable", getattr(options, "sortable", True))
+        self.orderable = getattr(options, "orderable", True)
         self.model = getattr(options, "model", None)
         self.template = getattr(options, "template", "django_tables2/table.html")
         self.localize = getattr(options, "localize", ())
@@ -397,8 +394,7 @@ class TableBase(object):
     def __init__(self, data, order_by=None, orderable=None, empty_text=None,
                  exclude=None, attrs=None, sequence=None, prefix=None,
                  order_by_field=None, page_field=None, per_page_field=None,
-                 template=None, sortable=None, default=None, request=None,
-                 show_header=None):
+                 template=None, default=None, request=None, show_header=None):
         super(TableBase, self).__init__()
         self.exclude = exclude or ()
         self.sequence = sequence
@@ -410,11 +406,6 @@ class TableBase(object):
         self.attrs = AttributeDict(computed_values(attrs if attrs is not None
                                                          else self._meta.attrs))
         self.empty_text = empty_text if empty_text is not None else self._meta.empty_text
-        if sortable is not None:
-            warnings.warn("`sortable` is deprecated, use `orderable` instead.",
-                          DeprecationWarning)
-            if orderable is None:
-                orderable = sortable
         self.orderable = orderable
         self.prefix = prefix
         self.order_by_field = order_by_field
@@ -613,18 +604,6 @@ class TableBase(object):
     @orderable.setter
     def orderable(self, value):
         self._orderable = value
-
-    @property
-    def sortable(self):
-        warnings.warn("`sortable` is deprecated, use `orderable` instead.",
-                      DeprecationWarning)
-        return self.orderable
-
-    @sortable.setter
-    def sortable(self, value):
-        warnings.warn("`sortable` is deprecated, use `orderable` instead.",
-                      DeprecationWarning)
-        self.orderable = value
 
     @property
     def template(self):

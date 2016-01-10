@@ -268,20 +268,6 @@ def test_ordering():
     table = TestTable3([], orderable=True, order_by='b')
     assert table.order_by == ('b', )
 
-    with warns(DeprecationWarning) as captured:
-        tables.Column(sortable=True)
-        tables.Column(sortable=False)
-
-        class TestTable4(tables.Table):
-            class Meta:
-                sortable = True
-
-        class TestTable4(tables.Table):
-            class Meta:
-                sortable = False
-
-    assert len(captured) == 4
-
 
 def test_ordering_different_types():
     from datetime import datetime
