@@ -303,7 +303,6 @@ class TestQueries(TransactionTestCase):
              .render(Context({'table': table, 'request': request})))
 
 
-@pytest.mark.skipif(django.VERSION < (1, 3), reason="requires Django >= 1.3")
 def test_localization_check(settings):
     def get_cond_localized_table(localizeit=None):
         '''
@@ -347,7 +346,6 @@ def test_localization_check(settings):
         assert '<td class="name">{0}</td>'.format(expected_results[True]) in html
 
 
-@pytest.mark.skipif(django.VERSION < (1, 3), reason="requires Django >= 1.3")
 def test_localization_check_in_meta(settings):
     class TableNoLocalize(tables.Table):
         name = tables.Column(verbose_name="my column")
