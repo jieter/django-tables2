@@ -4,7 +4,8 @@ import pytest
 import six
 
 from django_tables2.utils import (Accessor, AttributeDict, OrderBy,
-                                  OrderByTuple, computed_values, segment)
+                                  OrderByTuple, Sequence, computed_values,
+                                  segment)
 
 
 def test_orderbytuple():
@@ -142,3 +143,10 @@ def test_segment_should_return_all_candidates():
         ("x", "-y"),
         ("x", "z"),
     }
+
+
+def test_sequence_multiple_ellipsis():
+    sequence = Sequence(['foo', '...', 'bar', '...'])
+
+    with pytest.raises(ValueError):
+        sequence.expand(['foo'])
