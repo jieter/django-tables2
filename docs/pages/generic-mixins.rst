@@ -47,7 +47,7 @@ The template could then be as simple as:
     {% render_table table %}
 
 Such little code is possible due to the example above taking advantage of
-default values and `.SimpleTableMixin`'s eagarness at finding data sources
+default values and `.SingleTableMixin`'s eagerness at finding data sources
 when one isn't explicitly defined.
 
 .. note::
@@ -60,4 +60,3 @@ when one isn't explicitly defined.
 
     You don't have to base your view on `ListView`, you're able to mix
     `SingleTableMixin` directly.
-
