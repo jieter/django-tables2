@@ -2,13 +2,12 @@
 from __future__ import absolute_import, unicode_literals
 
 import re
-import tokenize
 from collections import OrderedDict
 
 import six
 from django import template
 from django.core.exceptions import ImproperlyConfigured
-from django.template import Node, TemplateSyntaxError, Variable
+from django.template import Node, TemplateSyntaxError
 from django.template.defaultfilters import title as old_title
 from django.template.defaultfilters import stringfilter
 from django.template.loader import get_template, select_template

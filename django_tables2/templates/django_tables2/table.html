@@ -1,9 +1,8 @@
 {% spaceless %}
 {% load django_tables2 %}
 {% load i18n %}
-{% if table.page %}
+
 <div class="table-container">
-{% endif %}
 {% block table %}
 <table{% if table.attrs %} {{ table.attrs.as_html }}{% endif %}>
     {% nospaceless %}
@@ -70,6 +69,6 @@
 {% endblock pagination %}
 {% endwith %}
 {% endwith %}
-</div>
 {% endif %}
+</div>
 {% endspaceless %}

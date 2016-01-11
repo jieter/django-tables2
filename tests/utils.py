@@ -5,7 +5,6 @@ import lxml.etree
 import lxml.html
 import six
 from django.core.handlers.wsgi import WSGIRequest
-from django.template import RequestContext
 from django.test.client import FakePayload
 
 

@@ -12,7 +12,7 @@ from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 import django_tables2 as tables
 from django_tables2.tables import DeclarativeColumnsMetaclass
 
-from .utils import build_request, warns
+from .utils import build_request
 
 request = build_request('/')
 

@@ -1,15 +1,13 @@
 # coding: utf-8
 import os
-from os.path import abspath, dirname, join
 import re
 import sys
+from os.path import abspath
 
 os.environ["DJANGO_SETTINGS_MODULE"] = "example.settings"
 
 # import project
 sys.path.insert(0, abspath('..'))
-import example
-import django_tables2
 sys.path.pop(0)
 
 

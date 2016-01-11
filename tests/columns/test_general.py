@@ -9,7 +9,7 @@ from django.utils.translation import ugettext_lazy
 import django_tables2 as tables
 
 from ..app.models import Person
-from ..utils import build_request, parse, warns
+from ..utils import build_request, parse
 
 request = build_request('/')
 
