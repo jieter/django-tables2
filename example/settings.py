@@ -97,6 +97,7 @@ if VERSION < (1, 8):
     )
 
     TEMPLATE_CONTEXT_PROCESSORS = [
+        'django.core.context_processors.static',
         'django.core.context_processors.request'
     ]
 
@@ -112,8 +113,9 @@ else:
             'APP_DIRS': True,
             'OPTIONS': {
                 'context_processors': [
-                    'django.templates.context_processors.request',
                     'django.contrib.auth.context_processors.auth',
+                    'django.template.context_processors.request',
+                    'django.template.context_processors.static',
                 ],
             }
         }

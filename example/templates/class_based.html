@@ -2,8 +2,12 @@
 
 {% block body %}
 <h3>class based view via render_table</h3>
-<pre>{{ "{%" }} load django_tables2 {{ "%}" }}
-{{ "{%" }} render_table example3 {{ "%}" }}</pre>
+<pre>
+{{ "{%" }} load django_tables2 {{ "%}" }}
+{{ "{%" }} render_table example {{ "%}" }}
+</pre>
+
 {% load django_tables2 %}
 {% render_table table %}
+
 {% endblock %}
