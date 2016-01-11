@@ -151,7 +151,7 @@ class BoundRow(object):
     def __contains__(self, item):
         """Check by both row object and column name."""
         if isinstance(item, six.string_types):
-            return item in self.table._columns
+            return item in self.table.columns
         else:
             return item in self
 

@@ -49,3 +49,8 @@ def test_bound_row():
 
     with pytest.raises(KeyError):
         row['gamma']
+
+    # row should support contains check
+    assert 'name' in row
+    assert 'occupation' in row
+    assert 'gamma' not in row
