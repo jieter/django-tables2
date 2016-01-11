@@ -50,58 +50,6 @@ def token_kwargs(bits, parser):
     return kwargs
 
 
-class SetUrlParamNode(Node):
-    def __init__(self, changes):
-        super(SetUrlParamNode, self).__init__()
-        self.changes = changes
-
-    def render(self, context):
-        if 'request' not in context:
-            raise ImproperlyConfigured(context_processor_error_msg % 'set_url_param')
-
-        params = dict(context['request'].GET)
-        for key, newvalue in self.changes.items():
-            newvalue = newvalue.resolve(context)
-            if newvalue == '' or newvalue is None:
-                params.pop(key, False)
-            else:
-                params[key] = six.text_type(newvalue)
-        return "?" + urlencode(params, doseq=True)
-
-
-@register.tag
-def set_url_param(parser, token):
-    """
-    Creates a URL (containing only the querystring [including "?"]) based on
-    the current URL, but updated with the provided keyword arguments.
-
-    Example::
-
-        {% set_url_param name="help" age=20 %}
-        ?name=help&age=20
-
-    **Deprecated** as of 0.7.0, use `querystring`.
-    """
-    bits = token.contents.split()
-    qschanges = {}
-    for i in bits[1:]:
-        try:
-            key, value = i.split('=', 1)
-            key = key.strip()
-            value = value.strip()
-            key_line_iter = six.StringIO(key).readline
-            keys = list(tokenize.generate_tokens(key_line_iter))
-            if keys[0][0] == tokenize.NAME:
-                # workaround bug #5270
-                value = Variable(value) if value == '""' else parser.compile_filter(value)
-                qschanges[str(key)] = value
-            else:
-                raise ValueError
-        except ValueError:
-            raise TemplateSyntaxError("Argument syntax wrong: should be key=value")
-    return SetUrlParamNode(qschanges)
-
-
 class QuerystringNode(Node):
     def __init__(self, updates, removals):
         super(QuerystringNode, self).__init__()
