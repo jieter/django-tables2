@@ -1,11 +1,13 @@
 # Change log
 
-## unreleased
-- Add tests for TimeColumn
+## v1.1.0 (unreleased)
+- Add tests for `TimeColumn`
 - Remove `sortable` argument for `Table` and Column constructors and its associated methods. Deprecated since 2012.
 - Remove deprecated aliases for `attrs` in `CheckboxColumn`.
 - Remove deprecated `OrderByTuple` `cmp` method (deprecated since 2013).
-
+- Add bootstrap template and (#293, fixes #141, #285)
+- Fix different html for tables with and without pagination (#293, fixes #149, #285)
+- Remove `{% nospaceless %}` template tag and remove wrapping template in `{% spaceless %}` **Possible breaking change**, if you use custom templates.
 
 ## v1.0.7 (2016-01-03)
 - Explicitly check if `column.verbose_name` is not None to support empty column headers (fixes #280)
