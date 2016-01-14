@@ -1,16 +1,16 @@
 # coding: utf-8
 from __future__ import unicode_literals
 
+import django_tables2 as tables
 import lxml.etree
 import lxml.html
-import pytest
 import six
 from django.core.exceptions import ImproperlyConfigured
 from django.template import Context, RequestContext, Template
 from django.utils.safestring import mark_safe
-
-import django_tables2 as tables
 from django_tables2.config import RequestConfig
+
+import pytest
 from six.moves.urllib.parse import parse_qs
 
 from .app.models import Person, Region
@@ -31,7 +31,7 @@ def test_render_table_templatetag(settings):
     assert len(root.findall('.//thead/tr/th')) == 4
     assert len(root.findall('.//tbody/tr')) == 4
     assert len(root.findall('.//tbody/tr/td')) == 16
-    assert root.find('ul[@class="pagination"]/li[@class="cardinality"]').text == '4 items'
+    assert root.find('ul[@class="pagination"]/li[@class="cardinality"]').text.strip() == '4 items'
 
     # no data with no empty_text
     table = CountryTable([])
@@ -154,26 +154,6 @@ def test_title_should_only_apply_to_words_without_uppercase_letters():
     for raw, expected in expectations.items():
         template = Template("{% load django_tables2 %}{{ x|title }}")
         assert template.render(Context({"x": raw})) == expected
-
-
-def test_nospaceless_works():
-    template = Template("{% load django_tables2 %}"
-                        "{% spaceless %}<b>a</b> <i>b {% nospaceless %}<b>c</b>"
-                        "  <b>d</b> {% endnospaceless %}lic</i>{% endspaceless %}")
-    assert template.render(Context()) == "<b>a</b><i>b <b>c</b>&#32;<b>d</b> lic</i>"
-
-
-def test_whitespace_is_preserved():
-    class TestTable(tables.Table):
-        name = tables.Column(verbose_name=mark_safe("<b>foo</b> <i>bar</i>"))
-
-    request = build_request('/')
-    html = TestTable([{"name": mark_safe("<b>foo</b> <i>bar</i>")}]).as_html(request)
-
-    tree = parse(html)
-
-    assert "<b>foo</b> <i>bar</i>" in lxml.etree.tostring(tree.findall('.//thead/tr/th')[0], encoding='unicode')
-    assert "<b>foo</b> <i>bar</i>" in lxml.etree.tostring(tree.findall('.//tbody/tr/td')[0], encoding='unicode')
 
 
 @pytest.mark.django_db
