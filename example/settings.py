@@ -1,6 +1,4 @@
 # coding: utf-8
-# import django_tables2
-import sys
 from os.path import abspath, dirname, join
 
 from django import VERSION
@@ -97,6 +95,7 @@ if VERSION < (1, 8):
     )
 
     TEMPLATE_CONTEXT_PROCESSORS = [
+        'django.contrib.auth.context_processors.auth',
         'django.core.context_processors.static',
         'django.core.context_processors.request'
     ]

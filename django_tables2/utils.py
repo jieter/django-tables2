@@ -2,7 +2,6 @@
 from __future__ import absolute_import, unicode_literals
 
 import inspect
-import warnings
 from functools import total_ordering
 from itertools import chain
 

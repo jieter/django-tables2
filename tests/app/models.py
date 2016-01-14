@@ -10,12 +10,11 @@ from django.utils.translation import ugettext, ugettext_lazy
 
 try:
     # Django >= 1.7
-    from django.contrib.contenttypes.fields import (GenericForeignKey,
-                                                    GenericRelation)
+    from django.contrib.contenttypes.fields import GenericForeignKey
+
 except ImportError:
     # Django < 1.7, TODO: remove if we drop support for 1.7
-    from django.contrib.contenttypes.generic import (GenericForeignKey,
-                                                     GenericRelation)
+    from django.contrib.contenttypes.generic import GenericForeignKey
 
 
 class Person(models.Model):

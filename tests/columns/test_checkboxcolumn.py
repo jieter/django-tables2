@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 
 import django_tables2 as tables
 
-from ..utils import attrs, warns
+from ..utils import attrs
 
 
 def test_new_attrs_should_be_supported():

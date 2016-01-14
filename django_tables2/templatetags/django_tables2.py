@@ -2,13 +2,13 @@
 from __future__ import absolute_import, unicode_literals
 
 import re
-import tokenize
 from collections import OrderedDict
 
+import django_tables2 as tables
 import six
 from django import template
 from django.core.exceptions import ImproperlyConfigured
-from django.template import Node, TemplateSyntaxError, Variable
+from django.template import Node, TemplateSyntaxError
 from django.template.defaultfilters import title as old_title
 from django.template.defaultfilters import stringfilter
 from django.template.loader import get_template, select_template
@@ -16,8 +16,6 @@ from django.templatetags.l10n import register as l10n_register
 from django.utils.html import escape
 from django.utils.http import urlencode
 from django.utils.safestring import mark_safe
-
-import django_tables2 as tables
 from django_tables2.config import RequestConfig
 
 register = template.Library()
@@ -198,22 +196,6 @@ def render_table(parser, token):
 
     template = parser.compile_filter(bits.pop(0)) if bits else None
     return RenderTableNode(table, template)
-
-
-class NoSpacelessNode(Node):
-    def __init__(self, nodelist):
-        self.nodelist = nodelist
-        super(NoSpacelessNode, self).__init__()
-
-    def render(self, context):
-        return mark_safe(re.sub(r'>\s+<', '>&#32;<', self.nodelist.render(context)))
-
-
-@register.tag
-def nospaceless(parser, token):
-    nodelist = parser.parse(('endnospaceless',))
-    parser.delete_first_token()
-    return NoSpacelessNode(nodelist)
 
 
 RE_UPPERCASE = re.compile('[A-Z]')

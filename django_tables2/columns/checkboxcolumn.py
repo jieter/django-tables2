@@ -1,8 +1,6 @@
 # coding: utf-8
 from __future__ import absolute_import, unicode_literals
 
-import warnings
-
 from django.utils.safestring import mark_safe
 
 from django_tables2.utils import AttributeDict

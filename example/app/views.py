@@ -4,7 +4,13 @@ from django.shortcuts import render
 from django_tables2 import RequestConfig, SingleTableView
 
 from .models import Country, Person
-from .tables import CountryTable, ThemedCountryTable
+from .tables import BootstrapTable, CountryTable, ThemedCountryTable
+
+try:
+    from django.utils.lorem_ipsum import words
+except ImportError:
+    # django 1.7 has lorem_ipsum in contrib.webdisign, moved in 1.8
+    from django.contrib.webdesign.lorem_ipsum import words
 
 
 def multiple(request):
@@ -32,6 +38,20 @@ def multiple(request):
         'example3': example3,
         'example4': example4,
         'example5': example5,
+    })
+
+
+def bootstrap(request):
+    '''Demonstrate the use of the bootstrap template'''
+    # create some fake data to make sure we need to paginate
+    if Person.objects.all().count() < 50:
+        Person.objects.create_bulk([Person(name=words(3, common=False)) for i in range(50)])
+
+    table = BootstrapTable(Person.objects.all())
+    RequestConfig(request, paginate={"per_page": 10}).configure(table)
+
+    return render(request, 'bootstrap_template.html', {
+        'table': table
     })
 
 

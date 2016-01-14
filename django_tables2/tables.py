@@ -2,7 +2,6 @@
 from __future__ import unicode_literals
 
 import copy
-import warnings
 from collections import OrderedDict
 
 import six

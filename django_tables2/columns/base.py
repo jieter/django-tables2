@@ -1,7 +1,6 @@
 # coding: utf-8
 from __future__ import absolute_import, unicode_literals
 
-import warnings
 from collections import OrderedDict
 from itertools import islice
 
