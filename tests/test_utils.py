@@ -1,11 +1,11 @@
 # coding: utf-8
 # from attest import assert_hook, raises, Tests
-import pytest
 import six
-
 from django_tables2.utils import (Accessor, AttributeDict, OrderBy,
                                   OrderByTuple, Sequence, computed_values,
                                   segment)
+
+import pytest
 
 
 def test_orderbytuple():
@@ -72,15 +72,15 @@ def test_orderby():
     assert 'a' == a
     assert 'a' == a.bare
     assert '-a' == a.opposite
-    assert True == a.is_ascending
-    assert False == a.is_descending
+    assert True is a.is_ascending
+    assert False is a.is_descending
 
     b = OrderBy('-b')
     assert '-b' == b
     assert 'b' == b.bare
     assert 'b' == b.opposite
-    assert True == b.is_descending
-    assert False == b.is_ascending
+    assert True is b.is_descending
+    assert False is b.is_ascending
 
 
 def test_accessor():
