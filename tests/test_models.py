@@ -241,6 +241,17 @@ def test_model_properties_should_be_useable_for_columns():
     assert list(table.rows[0]) == ['Bradley Ayers', 'Bradley']
 
 
+def test_meta_fields_may_be_list():
+    class PersonTable(tables.Table):
+        class Meta:
+            model = Person
+            fields = ['name', 'first_name']
+
+    Person.objects.create(first_name='Bradley', last_name='Ayers')
+    table = PersonTable(Person.objects.all())
+    assert list(table.rows[0]) == ['Bradley Ayers', 'Bradley']
+
+
 def test_column_with_delete_accessor_shouldnt_delete_records():
     class PersonTable(tables.Table):
         delete = tables.Column()
