@@ -1,6 +1,6 @@
 # Change log
 
-## v1.1.0 (unreleased)
+## v1.1.0 (2016-01-19)
 - Add tests for `TimeColumn`
 - Remove `sortable` argument for `Table` and Column constructors and its associated methods. Deprecated since 2012.
 - Remove deprecated aliases for `attrs` in `CheckboxColumn`.
