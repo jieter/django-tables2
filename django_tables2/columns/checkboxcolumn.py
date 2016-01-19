@@ -7,7 +7,6 @@ from django_tables2.utils import AttributeDict
 
 from .base import Column, library
 
-
 @library.register
 class CheckBoxColumn(Column):
     """
@@ -40,10 +39,18 @@ class CheckBoxColumn(Column):
     - *input*     -- ``<input>`` elements in both ``<td>`` and ``<th>``.
     - *th__input* -- Replaces *input* attrs in header cells.
     - *td__input* -- Replaces *input* attrs in body cells.
+
+    .. attribute:: th__before_input
+
+        Is added to add content before the header input element:
+        ``'<th>'+th__before_input+'<input ...>``
+
+        :type: `unicode`
     """
     def __init__(self, attrs=None, **extra):
         kwargs = {'orderable': False, 'attrs': attrs}
         kwargs.update(extra)
+        self.th__before_input = kwargs.pop('th__before_input','')
         super(CheckBoxColumn, self).__init__(**kwargs)
 
     @property
@@ -52,7 +59,7 @@ class CheckBoxColumn(Column):
         general = self.attrs.get('input')
         specific = self.attrs.get('th__input')
         attrs = AttributeDict(default, **(specific or general or {}))
-        return mark_safe('<input %s/>' % attrs.as_html())
+        return mark_safe(self.th__before_input+'<input %s/>' % attrs.as_html())
 
     def render(self, value, bound_column):  # pylint: disable=W0221
         default = {
