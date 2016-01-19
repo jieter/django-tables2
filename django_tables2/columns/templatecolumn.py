@@ -1,7 +1,9 @@
 # coding: utf-8
 from __future__ import absolute_import, unicode_literals
+
 from django.template import Context, Template
 from django.template.loader import render_to_string
+
 from .base import Column, library
 
 
@@ -46,6 +48,7 @@ class TemplateColumn(Column):
         super(TemplateColumn, self).__init__(**extra)
         self.template_code = template_code
         self.template_name = template_name
+
         if not self.template_code and not self.template_name:
             raise ValueError('A template must be provided')
 
@@ -54,8 +57,12 @@ class TemplateColumn(Column):
         # attaches the context to the table as a gift to `TemplateColumn`. If
         # the table is being rendered via `Table.as_html`, this won't exist.
         context = getattr(table, 'context', Context())
-        context.update({'default': bound_column.default,
-                        'record': record, 'value': value})
+        context.update({
+            'default': bound_column.default,
+            'column': bound_column,
+            'record': record,
+            'value': value
+        })
         try:
             if self.template_code:
                 return Template(self.template_code).render(context)
