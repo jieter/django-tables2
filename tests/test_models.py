@@ -219,22 +219,30 @@ def test_default_order():
     assert list(table.rows[0])[1] == 'Ayers'
 
 
-def test_fields_should_implicitly_set_sequence():
+_first_last = ('last_name', 'first_name')
+
+
+@pytest.mark.parametrize('table_fields', (_first_last, list(_first_last)))
+def test_fields_should_implicitly_set_sequence(table_fields):
     class PersonTable(tables.Table):
         extra = tables.Column()
 
         class Meta:
             model = Person
-            fields = ('last_name', 'first_name')
+            fields = table_fields
     table = PersonTable(Person.objects.all())
     assert table.columns.names() == ['last_name', 'first_name', 'extra']
 
 
-def test_model_properties_should_be_useable_for_columns():
+_name_first = ('name', 'first_name')
+
+
+@pytest.mark.parametrize('table_fields', (_name_first, list(_name_first)))
+def test_model_properties_should_be_useable_for_columns(table_fields):
     class PersonTable(tables.Table):
         class Meta:
             model = Person
-            fields = ('name', 'first_name')
+            fields = table_fields
 
     Person.objects.create(first_name='Bradley', last_name='Ayers')
     table = PersonTable(Person.objects.all())
