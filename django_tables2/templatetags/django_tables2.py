@@ -4,9 +4,8 @@ from __future__ import absolute_import, unicode_literals
 import re
 from collections import OrderedDict
 
-import django_tables2 as tables
 import six
-from django import template
+from django import VERSION, template
 from django.core.exceptions import ImproperlyConfigured
 from django.template import Node, TemplateSyntaxError
 from django.template.defaultfilters import title as old_title
@@ -16,6 +15,8 @@ from django.templatetags.l10n import register as l10n_register
 from django.utils.html import escape
 from django.utils.http import urlencode
 from django.utils.safestring import mark_safe
+
+import django_tables2 as tables
 from django_tables2.config import RequestConfig
 
 register = template.Library()
@@ -152,7 +153,11 @@ class RenderTableNode(Node):
             # achieved is to temporarily attach the context to the table,
             # which TemplateColumn then looks for and uses.
             table.context = context
-            return template.render(context)
+            if VERSION < (1, 8):
+                # TODO: remove after 1.7 support ends.
+                return template.render(context)
+            else:
+                return template.render(context.flatten())
         finally:
             del table.context
             context.pop()
