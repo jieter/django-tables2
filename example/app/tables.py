@@ -21,6 +21,9 @@ class ThemedCountryTable(CountryTable):
 
 
 class BootstrapTable(tables.Table):
+
+    country = tables.RelatedLinkColumn()
+
     class Meta:
         model = Person
         template = 'django_tables2/bootstrap.html'

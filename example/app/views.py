@@ -1,4 +1,6 @@
 # coding: utf-8
+from random import choice
+
 from django.shortcuts import render
 
 from django_tables2 import RequestConfig, SingleTableView
@@ -45,7 +47,11 @@ def bootstrap(request):
     '''Demonstrate the use of the bootstrap template'''
     # create some fake data to make sure we need to paginate
     if Person.objects.all().count() < 50:
-        Person.objects.create_bulk([Person(name=words(3, common=False)) for i in range(50)])
+        countries = list(Country.objects.all()) + [None]
+        Person.objects.bulk_create([
+            Person(name=words(3, common=False), country=choice(countries))
+            for i in range(50)
+        ])
 
     table = BootstrapTable(Person.objects.all())
     RequestConfig(request, paginate={"per_page": 10}).configure(table)
