@@ -159,7 +159,9 @@ class LinkColumn(BaseLinkColumn):
 
 @library.register
 class RelatedLinkColumn(LinkColumn):
-    '''render a link to a related object using get_absolute_url for the related object'''
+    '''
+    Render a link to a related object using related object's ``get_absolute_url``
+    '''
 
     def compose_url(self, record, bound_column):
         accessor = self.accessor if self.accessor else Accessor(bound_column)

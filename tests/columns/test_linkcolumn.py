@@ -9,7 +9,7 @@ import django_tables2 as tables
 import pytest
 from django_tables2 import A
 
-from ..app.models import Person
+from ..app.models import Occupation, Person
 from ..utils import attrs, build_request, warns
 
 
@@ -150,3 +150,18 @@ def test_get_absolute_url_not_defined():
 
     with pytest.raises(TypeError):
         table.as_html(build_request('/'))
+
+
+@pytest.mark.django_db
+def test_RelatedLinkColumn():
+    carpenter = Occupation.objects.create(name='Carpenter')
+    Person.objects.create(first_name='Bob', last_name='Builder', occupation=carpenter)
+
+    class Table(tables.Table):
+        first_name = tables.LinkColumn()
+        last_name = tables.Column()
+        occupation = tables.RelatedLinkColumn()
+
+    table = Table(Person.objects.all())
+
+    assert table.rows[0]['occupation'] == '<a href="/occupations/%d/">Carpenter</a>' % carpenter.pk

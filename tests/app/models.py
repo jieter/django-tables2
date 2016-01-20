@@ -17,6 +17,7 @@ except ImportError:
     from django.contrib.contenttypes.generic import GenericForeignKey
 
 
+@six.python_2_unicode_compatible
 class Person(models.Model):
     first_name = models.CharField(max_length=200)
 
@@ -45,7 +46,7 @@ class Person(models.Model):
         verbose_name = "person"
         verbose_name_plural = "people"
 
-    def __unicode__(self):
+    def __str__(self):
         return self.first_name
 
     @property
@@ -57,25 +58,29 @@ class Person(models.Model):
 
 
 class PersonProxy(Person):
-
     class Meta:
         proxy = True
-        ordering = ('last_name',)
+        ordering = ('last_name', )
 
 
+@six.python_2_unicode_compatible
 class Occupation(models.Model):
     name = models.CharField(max_length=200)
     region = models.ForeignKey('Region', null=True)
 
-    def __unicode__(self):
+    def get_absolute_url(self):
+        return reverse('occupation', args=(self.pk, ))
+
+    def __str__(self):
         return self.name
 
 
+@six.python_2_unicode_compatible
 class Region(models.Model):
     name = models.CharField(max_length=200)
     mayor = models.OneToOneField(Person, null=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 
