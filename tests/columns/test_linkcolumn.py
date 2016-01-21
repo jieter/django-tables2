@@ -1,16 +1,15 @@
 # coding: utf-8
-# pylint: disable=R0912,E0102
 from __future__ import unicode_literals
 
-import pytest
 from django.core.urlresolvers import reverse
 from django.template import Context, Template
 from django.utils.html import mark_safe
 
 import django_tables2 as tables
+import pytest
 from django_tables2 import A
 
-from ..app.models import Person
+from ..app.models import Occupation, Person
 from ..utils import attrs, build_request, warns
 
 
@@ -109,17 +108,6 @@ def test_html_escape_value():
     assert table.rows[0]["name"] == '<a href="/&amp;&#39;%22/1/">&lt;brad&gt;</a>'
 
 
-def test_old_style_attrs_should_still_work():
-    with warns(DeprecationWarning):
-        class TestTable(tables.Table):
-            col = tables.LinkColumn('occupation', kwargs={"pk": A('col')},
-                                    attrs={"title": "Occupation Title"})
-
-    table = TestTable([{"col": 0}])
-    assert attrs(table.rows[0]["col"]) == {"href": reverse("occupation", kwargs={"pk": 0}),
-                                           "title": "Occupation Title"}
-
-
 def test_a_attrs_should_be_supported():
     class TestTable(tables.Table):
         col = tables.LinkColumn('occupation', kwargs={'pk': A('col')},
@@ -162,3 +150,18 @@ def test_get_absolute_url_not_defined():
 
     with pytest.raises(TypeError):
         table.as_html(build_request('/'))
+
+
+@pytest.mark.django_db
+def test_RelatedLinkColumn():
+    carpenter = Occupation.objects.create(name='Carpenter')
+    Person.objects.create(first_name='Bob', last_name='Builder', occupation=carpenter)
+
+    class Table(tables.Table):
+        first_name = tables.LinkColumn()
+        last_name = tables.Column()
+        occupation = tables.RelatedLinkColumn()
+
+    table = Table(Person.objects.all())
+
+    assert table.rows[0]['occupation'] == '<a href="/occupations/%d/">Carpenter</a>' % carpenter.pk

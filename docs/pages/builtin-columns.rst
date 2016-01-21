@@ -13,6 +13,6 @@ For common use-cases the following columns are included:
 - `.FileColumn` -- renders files as links
 - `.EmailColumn` -- renders ``<a href="mailto:...">`` tags
 - `.LinkColumn` -- renders ``<a href="...">`` tags (compose a django url)
+- `.RelatedLinkColumn` -- renders ``<a href="...">`` tags linking related objects
 - `.TemplateColumn` -- renders template code
 - `.URLColumn` -- renders ``<a href="...">`` tags (absolute url)
-

@@ -5,7 +5,8 @@ import warnings
 
 from django.core.urlresolvers import reverse
 from django.utils.html import format_html
-from django_tables2.utils import A, AttributeDict
+
+from django_tables2.utils import Accessor, AttributeDict
 
 from .base import Column, library
 
@@ -18,13 +19,6 @@ class BaseLinkColumn(Column):
     ``<a href="...">`` tag.
     """
     def __init__(self, attrs=None, *args, **kwargs):
-        valid = set(("a", "th", "td", "cell"))
-        if attrs and not set(attrs) & set(valid):
-            # if none of the keys in attrs are actually valid, assume it's some
-            # old code that should be be interpreted as {"a": ...}
-            warnings.warn('attrs keys must be one of %s, interpreting as {"a": %s}'
-                          % (', '.join(valid), attrs), DeprecationWarning)
-            attrs = {"a": attrs}
         kwargs['attrs'] = attrs
         super(BaseLinkColumn, self).__init__(*args, **kwargs)
 
@@ -127,49 +121,49 @@ class LinkColumn(BaseLinkColumn):
         self.current_app = current_app
         self.text_value = text
 
-    def compose_url(self, record):
+    def compose_url(self, record, *args, **kwargs):
         '''Compose the url if the column is constructed with a viewname.'''
-        if isinstance(self.viewname, A):
-            viewname = self.viewname.resolve(record)
-        else:
-            viewname = self.viewname
 
-        # The following params + if statements create optional arguments to
-        # pass to Django's reverse() function.
-        params = {}
-        if self.urlconf:
-            params['urlconf'] = (self.urlconf.resolve(record)
-                                 if isinstance(self.urlconf, A)
-                                 else self.urlconf)
-        if self.args:
-            params['args'] = [a.resolve(record) if isinstance(a, A) else a
-                              for a in self.args]
-        if self.kwargs:
-            params['kwargs'] = {}
-            for key, val in self.kwargs.items():
-                # If we're dealing with an Accessor (A), resolve it, otherwise
-                # use the value verbatim.
-                params['kwargs'][str(key)] = (val.resolve(record)
-                                              if isinstance(val, A) else val)
-        if self.current_app:
-            params['current_app'] = (self.current_app.resolve(record)
-                                     if isinstance(self.current_app, A)
-                                     else self.current_app)
-
-        return reverse(viewname, **params)
-
-    def render(self, value, record, bound_column):  # pylint: disable=W0221
         if self.viewname is None:
             if not hasattr(record, 'get_absolute_url'):
                 raise TypeError('if viewname=None, record must define a get_absolute_url')
-            url = record.get_absolute_url()
-        else:
-            url = self.compose_url(record)
+            return record.get_absolute_url()
 
+        def resolve_if_accessor(val):
+            return val.resolve(record) if isinstance(val, Accessor) else val
+
+        viewname = resolve_if_accessor(self.viewname)
+
+        # Collect the optional arguments for django's reverse()
+        params = {}
+        if self.urlconf:
+            params['urlconf'] = resolve_if_accessor(self.urlconf)
+        if self.args:
+            params['args'] = [resolve_if_accessor(a) for a in self.args]
+        if self.kwargs:
+            params['kwargs'] = {key: resolve_if_accessor(val) for key, val in self.kwargs.items()}
+        if self.current_app:
+            params['current_app'] = resolve_if_accessor(self.current_app)
+
+        return reverse(viewname, **params)
+
+    def render(self, value, record, bound_column):
         text_value = value
         if self.text_value:
             text_value = self.text_value
             if callable(text_value):
                 text_value = text_value(record)
 
-        return self.render_link(url, text=text_value)
+        return self.render_link(self.compose_url(record, bound_column), text=text_value)
+
+
+@library.register
+class RelatedLinkColumn(LinkColumn):
+    '''
+    Render a link to a related object using related object's ``get_absolute_url``
+    '''
+
+    def compose_url(self, record, bound_column):
+        accessor = self.accessor if self.accessor else Accessor(bound_column)
+
+        return accessor.resolve(record).get_absolute_url()
