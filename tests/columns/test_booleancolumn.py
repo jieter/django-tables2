@@ -86,3 +86,30 @@ def test_boolean_field_choices():
 
     assert table.rows[0]['field'] == '<span class="true">✔</span>'
     assert table.rows[1]['field'] == '<span class="false">✘</span>'
+
+
+def test_boolean_field_choices_with_real_model_instances():
+    BOOL_CHOICES=((True, "Yes"),
+                  (False, "No"))
+    
+    class BoolModel(models.Model):
+        field = models.BooleanField(
+            choices=BOOL_CHOICES
+        )
+
+    class Meta:
+        app_label = 'django_tables2_test'
+
+    class Table(tables.Table):
+        class Meta:
+            model = BoolModel
+
+    tb_true=BoolModel(field=True)
+    tb_false=BoolModel(field=False)
+    
+    table = Table(data=[tb_true, tb_false])
+
+    assert table.rows[0]['field'] == '<span class="true">✔</span>'
+    assert table.rows[1]['field'] == '<span class="false">✘</span>'
+
+    
