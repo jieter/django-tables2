@@ -35,7 +35,14 @@ class BooleanColumn(Column):
             kwargs["empty_values"] = ()
         super(BooleanColumn, self).__init__(**kwargs)
 
-    def render(self, value):
+    def render(self, value, record, bound_column):
+        # if the model field has choices defined, we need to inverse lookup the
+        # value to convert to boolean correctly
+        if hasattr(record, '_meta'):
+            field = record._meta.get_field(bound_column.name)
+            if hasattr(field, 'choices'):
+                value = next(val for val, name in field.choices if name == value)
+
         value = bool(value)
         text = self.yesno[int(not value)]
         attrs = {"class": six.text_type(value).lower()}
