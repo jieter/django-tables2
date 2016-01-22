@@ -458,12 +458,10 @@ class TableBase(object):
         template = get_template(self.template)
 
         context = {'table': self}
-
-        if request:
-            if VERSION < (1, 8):
-                context = RequestContext(request, context)
-            else:
-                context['request'] = request
+        if VERSION < (1, 8):
+            context = RequestContext(request, context)
+        else:
+            context['request'] = request
 
         return template.render(context)
 
