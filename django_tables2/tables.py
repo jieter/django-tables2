@@ -451,7 +451,7 @@ class TableBase(object):
         if request:
             RequestConfig(request).configure(self)
 
-    def as_html(self, request=None):
+    def as_html(self, request):
         """
         Render the table to a simple HTML table, adding `request` to the context.
         """
