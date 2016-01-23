@@ -10,12 +10,13 @@ from django.core.paginator import Paginator
 from django.db.models.fields import FieldDoesNotExist
 from django.template import RequestContext
 from django.template.loader import get_template
+from django.utils.functional import cached_property
 
 from . import columns
 from .config import RequestConfig
 from .rows import BoundRows
 from .utils import (Accessor, AttributeDict, OrderBy, OrderByTuple, Sequence,
-                    cached_property, computed_values, segment)
+                    computed_values, segment)
 
 QUERYSET_ACCESSOR_SEPARATOR = '__'
 

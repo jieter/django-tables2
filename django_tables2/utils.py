@@ -417,23 +417,6 @@ def segment(sequence, aliases):
                     yield tuple([valias])
 
 
-class cached_property(object):  # pylint: disable=C0103
-    """
-    Decorator that creates converts a method with a single
-    self argument into a property cached on the instance.
-
-    Taken directly from Django 1.4.
-    """
-    def __init__(self, func):
-        from functools import wraps
-        wraps(func)(self)
-        self.func = func
-
-    def __get__(self, instance, cls):
-        res = instance.__dict__[self.func.__name__] = self.func(instance)
-        return res
-
-
 funcs = (name for name in ('getfullargspec', 'getargspec') if hasattr(inspect, name))
 getargspec = getattr(inspect, next(funcs))
 del funcs
