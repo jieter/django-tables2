@@ -1,11 +1,12 @@
 # coding: utf-8
-# pylint: disable=R0912,E0102
 from __future__ import unicode_literals
 
 from django.db import models
 
 import django_tables2 as tables
+import pytest
 
+from ..app.models import Occupation, Person
 from ..utils import attrs
 
 
@@ -65,30 +66,11 @@ def test_span_attrs():
     assert attrs(table.rows[0]["col"]) == {"class": "true", "key": "value"}
 
 
-def test_boolean_field_choices():
-    class BoolModel(models.Model):
-        field = models.BooleanField(choices=(
-            (True, 'yes'),
-            (False, 'no')
-        ))
-
-        class Meta:
-            app_label = 'django_tables2_test'
-
-    class Table(tables.Table):
-        class Meta:
-            model = BoolModel
-
-    table = Table([
-        {'field': True},
-        {'field': False},
-    ])
-
-    assert table.rows[0]['field'] == '<span class="true">✔</span>'
-    assert table.rows[1]['field'] == '<span class="false">✘</span>'
-
-
 def test_boolean_field_choices_with_real_model_instances():
+    '''
+    If a booleanField has choices defined, the value argument passed to
+    BooleanColumn.render() is the rendered value, not a bool.
+    '''
     class BoolModel(models.Model):
         field = models.BooleanField(choices=(
             (True, 'Yes'),
@@ -102,10 +84,29 @@ def test_boolean_field_choices_with_real_model_instances():
         class Meta:
             model = BoolModel
 
-    table = Table(data=[
-        BoolModel(field=True),
-        BoolModel(field=False)
-    ])
+    table = Table([BoolModel(field=True), BoolModel(field=False)])
 
     assert table.rows[0]['field'] == '<span class="true">✔</span>'
     assert table.rows[1]['field'] == '<span class="false">✘</span>'
+
+
+@pytest.mark.django_db
+def test_boolean_field_choices_spanning_relations():
+    'The inverse lookup voor boolean choices should also work on related models'
+
+    class Table(tables.Table):
+        boolean = tables.BooleanColumn(accessor='occupation.boolean')
+        class Meta:
+            model = Person
+
+
+    model_true = Occupation.objects.create(name='true-name', boolean=True)
+    model_false = Occupation.objects.create(name='false-name', boolean=False)
+
+    table = Table([
+        Person(first_name='True', last_name='False', occupation=model_true),
+        Person(first_name='True', last_name='False',  occupation=model_false)
+    ])
+
+    assert table.rows[0]['occupation'] == '<span class="true">✔</span>'
+    assert table.rows[1]['occupation'] == '<span class="false">✘</span>'

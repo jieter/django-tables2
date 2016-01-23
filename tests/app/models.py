@@ -60,7 +60,10 @@ class PersonProxy(Person):
 class Occupation(models.Model):
     name = models.CharField(max_length=200)
     region = models.ForeignKey('Region', null=True)
-
+    boolean = models.BooleanField(default=True, choices=(
+        (True, 'Yes'),
+        (False, 'No')
+    ))
     def get_absolute_url(self):
         return reverse('occupation', args=(self.pk, ))
 

@@ -37,14 +37,16 @@ def test_model_table():
     class OccupationTable(tables.Table):
         class Meta:
             model = Occupation
-    assert ["id", "name", "region"] == list(OccupationTable.base_columns.keys())
+
+    assert ['id', 'name', 'region', 'boolean'] == list(OccupationTable.base_columns.keys())
 
     class OccupationTable2(tables.Table):
         extra = tables.Column()
 
         class Meta:
             model = Occupation
-    assert ["id", "name", "region", "extra"] == list(OccupationTable2.base_columns.keys())
+
+    assert ['id', 'name', 'region', 'boolean', 'extra'] == list(OccupationTable2.base_columns.keys())
 
     # be aware here, we already have *models* variable, but we're importing
     # over the top
@@ -52,8 +54,8 @@ def test_model_table():
 
     class ComplexModel(models.Model):
         char = models.CharField(max_length=200)
-        fk = models.ForeignKey("self")
-        m2m = models.ManyToManyField("self")
+        fk = models.ForeignKey('self')
+        m2m = models.ManyToManyField('self')
 
         class Meta:
             app_label = 'django_tables2_test'
@@ -61,7 +63,7 @@ def test_model_table():
     class ComplexTable(tables.Table):
         class Meta:
             model = ComplexModel
-    assert ["id", "char", "fk"] == list(ComplexTable.base_columns.keys())
+    assert ['id', 'char', 'fk'] == list(ComplexTable.base_columns.keys())
 
 
 def test_mixins():
@@ -73,7 +75,7 @@ def test_mixins():
 
         class Meta:
             model = Occupation
-    assert ["extra", "id", "name", "region", "extra2"] == list(OccupationTable.base_columns.keys())
+    assert ['extra', 'id', 'name', 'region', 'boolean', 'extra2'] == list(OccupationTable.base_columns.keys())
 
 
 def test_column_verbose_name():
