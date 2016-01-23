@@ -1,16 +1,17 @@
 # coding: utf-8
 from __future__ import unicode_literals
 
-import django_tables2 as tables
 import lxml.etree
 import lxml.html
 import six
 from django.core.exceptions import ImproperlyConfigured
-from django.template import Context, RequestContext, Template
+from django.template import (Context, RequestContext, Template,
+                             TemplateSyntaxError)
 from django.utils.safestring import mark_safe
-from django_tables2.config import RequestConfig
 
+import django_tables2 as tables
 import pytest
+from django_tables2.config import RequestConfig
 from six.moves.urllib.parse import parse_qs
 
 from .app.models import Person, Region
@@ -117,9 +118,9 @@ def test_querystring_templatetag():
 
 
 def test_querystring_templatetag_requires_request():
+    template = Template('{% load django_tables2 %}{% querystring "name"="Brad" %}')
     with pytest.raises(ImproperlyConfigured):
-        (Template('{% load django_tables2 %}{% querystring "name"="Brad" %}')
-         .render(Context()))
+        template.render(Context())
 
 
 def test_querystring_templatetag_supports_without():
@@ -140,6 +141,11 @@ def test_querystring_templatetag_supports_without():
     url = parse(template.render(context)).text
     qs = parse_qs(url[1:])  # trim the ?
     assert set(qs.keys()) == set(["c"])
+
+
+def test_querystring_syntax_error():
+    with pytest.raises(TemplateSyntaxError):
+        Template('{% load django_tables2 %}{% querystring foo= %}')
 
 
 def test_title_should_only_apply_to_words_without_uppercase_letters():
