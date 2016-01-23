@@ -77,6 +77,7 @@ def test_should_pass_kwargs_to_table_constructor():
 
     class PassKwargsView(SimpleView):
         table_data = []
+
         def get_table(self, **kwargs):
             kwargs.update({'orderable': False})
             return super(PassKwargsView, self).get_table(**kwargs)

@@ -36,17 +36,15 @@ def test_should_support_value():
     assert table.rows[0]["foo"] == "value=bar"
 
 
-def should_support_column():
+def test_should_support_column():
     class Table(tables.Table):
         tcol = tables.TemplateColumn("column={{ column.name }}")
 
-    table = Table([{"foo": "bar"}])
-    assert table.rows[0]["foo"] == "column=tcol"
+    table = Table([{'foo': 'bar'}])
+    assert table.rows[0]['tcol'] == 'column=tcol'
 
 
-def should_raise_when_called_without_template():
-    class Table(tables.Table):
-        col = tables.TemplateColumn()
-
+def test_should_raise_when_called_without_template():
     with pytest.raises(ValueError):
-        Table([])
+        class Table(tables.Table):
+            col = tables.TemplateColumn()
