@@ -2,11 +2,11 @@
 # pylint: disable=R0912,E0102
 from __future__ import unicode_literals
 
-import django_tables2 as tables
+import pytest
 from django.utils.safestring import SafeData, mark_safe
 from django.utils.translation import ugettext_lazy
 
-import pytest
+import django_tables2 as tables
 
 from ..app.models import Person
 from ..utils import build_request, parse
@@ -300,3 +300,17 @@ def test_empty_values_triggers_default():
 
     table = Table([{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}])
     assert [x["a"] for x in table.rows] == ["--", "--", 3, 4]
+
+
+def test_register_skips_non_columns():
+    from django_tables2.columns.base import library
+
+    @library.register
+    class Klass(object):
+        pass
+
+    class Table(tables.Table):
+        class Meta:
+            model = Person
+
+    Table([])
