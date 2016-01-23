@@ -41,8 +41,7 @@ class BooleanColumn(Column):
         # a boolean.
         if hasattr(record, '_meta'):
             try:
-                accessor = self.accessor or Accessor(bound_column.name)
-                field = accessor.get_field(record)
+                field = bound_column.accessor.get_field(record)
 
                 if hasattr(field, 'choices') and field.choices is not None:
                     value = next(val for val, name in field.choices if name == value)

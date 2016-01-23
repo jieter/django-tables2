@@ -131,10 +131,14 @@ def test_accessor_can_return_field():
     assert type(Accessor('foo').get_field(context)) == models.CharField
 
 
-def test_accessor_raises_when_doesnt_exist():
+def test_accessor_returns_None_when_doesnt_exist():
     context = AccessorTestModel(foo='bar')
-    with pytest.raises(ValueError):
-        Accessor('bar').get_field(context)
+    assert Accessor('bar').get_field(context) is None
+
+
+def test_accessor_returns_None_if_not_a_model():
+    context = {'bar': 234}
+    assert Accessor('bar').get_field(context) is None
 
 
 def test_attribute_dict_handles_escaping():
