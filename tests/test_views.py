@@ -1,5 +1,6 @@
 # coding: utf-8
 import pytest
+from django.core.exceptions import ImproperlyConfigured
 
 import django_tables2 as tables
 
@@ -20,32 +21,66 @@ class SimpleTable(tables.Table):
         model = Region
 
 
+class SimpleView(DispatchHookMixin, tables.SingleTableView):
+    table_class = SimpleTable
+    table_pagination = {"per_page": 1}
+    model = Region  # needed for ListView
+
+
 @pytest.mark.django_db
 def test_view_should_support_pagination_options():
-    for name in ("Queensland", "New South Wales", "Victoria", "Tasmania"):
+    for name in ('Queensland', 'New South Wales', 'Victoria', 'Tasmania'):
         Region.objects.create(name=name)
 
-    class SimpleView(DispatchHookMixin, tables.SingleTableView):
-        table_class = SimpleTable
-        table_pagination = {"per_page": 1}
-        model = Region  # needed for ListView
-
-    request = build_request('/')
-    response, view = SimpleView.as_view()(request)
+    response, view = SimpleView.as_view()(build_request('/'))
     assert view.get_table().paginator.num_pages == 4
 
 
-def test_should_support_explicit_table_data():
-    class SimpleView(DispatchHookMixin, tables.SingleTableView):
-        table_class = SimpleTable
-        table_data = [
-            {"name": "Queensland"},
-            {"name": "New South Wales"},
-            {"name": "Victoria"},
-        ]
-        table_pagination = {"per_page": 1}
-        model = Region  # needed for ListView
+@pytest.mark.django_db
+def test_view_from_get_queryset():
+    for name in ('Queensland', 'New South Wales', 'Victoria', 'Tasmania'):
+        Region.objects.create(name=name)
 
-    request = build_request('/')
-    response, view = SimpleView.as_view()(request)
+    class GetQuerysetView(SimpleView):
+        def get_queryset(self):
+            return Region.objects.filter(name__startswith='Q')
+
+    response, view = GetQuerysetView.as_view()(build_request('/'))
+    table = view.get_table()
+
+    assert len(table.rows) == 1
+    assert table.rows[0]['name'] == 'Queensland'
+
+
+def test_should_raise_without_tableclass():
+    class WithoutTableclassView(tables.SingleTableView):
+        model = Region
+
+    with pytest.raises(ImproperlyConfigured):
+        WithoutTableclassView.as_view()(build_request('/'))
+
+
+def test_should_support_explicit_table_data():
+    class ExplicitDataView(SimpleView):
+        table_data = [
+            {'name': 'Queensland'},
+            {'name': 'New South Wales'},
+            {'name': 'Victoria'},
+        ]
+
+    response, view = ExplicitDataView.as_view()(build_request('/'))
     assert view.get_table().paginator.num_pages == 3
+
+@pytest.mark.django_db
+def test_should_pass_kwargs_to_table_constructor():
+    class PassKwargsView(SimpleView):
+        table_data = []
+        def get_table(self, **kwargs):
+            kwargs.update({'orderable': False})
+            return super(PassKwargsView, self).get_table(**kwargs)
+
+    response, view = SimpleView.as_view()(build_request('/'))
+    assert view.get_table().orderable == True
+
+    response, view = PassKwargsView.as_view()(build_request('/'))
+    assert view.get_table().orderable == False

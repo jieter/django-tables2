@@ -41,6 +41,7 @@ class SingleTableMixin(object):
         options = {}
         table_class = self.get_table_class()
         table = table_class(self.get_table_data(), **kwargs)
+
         paginate = self.get_table_pagination()
         if paginate is not None:
             options['paginate'] = paginate
@@ -69,13 +70,18 @@ class SingleTableMixin(object):
         """
         if self.table_data is not None:
             return self.table_data
-        elif hasattr(self, "object_list"):
+        elif hasattr(self, 'object_list'):
             return self.object_list
-        elif hasattr(self, "get_queryset"):
+
+        # it seems this is never going to happen because django wil raise
+        # ImproperlyConfigured if no model is defined and
+        # SingleTableMixin.get_table_class will raise if no table_data was specified...
+        # TODO: consider removing
+        elif hasattr(self, 'get_queryset'):  # pragma: nocover
             return self.get_queryset()
         raise ImproperlyConfigured("Table data was not specified. Define "
                                    "%(cls)s.table_data"
-                                   % {"cls": type(self).__name__})
+                                   % {"cls": type(self).__name__})  # pragma: nocover
 
     def get_table_pagination(self):
         """
