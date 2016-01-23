@@ -51,6 +51,19 @@ And finally in the template:
 This example shows one of the simplest cases, but django-tables2 can do a lot
 more! Check out the [documentation](http://django-tables2.readthedocs.org/en/latest/) for more details.
 
+# running the tests
+
+With `tox` installed, you can run the test suite by typing `tox`. It will take
+care of installing the correct dependencies. During development, you might not
+want to wait for the tests to run in all environments. In that case, use the `-e`
+argument to specify an environment like this:
+
+`tox -e py27-1.9` to run the tests in python 2.7 with Django 1.9.
+
+To generate a html coverage report:
+
+`PYTHONPATH=~/workspace/django-tables2 py.test -s --cov=django_tables2 --cov-report html`
+
 
 # Building the documentation
 
