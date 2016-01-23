@@ -2,19 +2,12 @@
 from __future__ import unicode_literals
 
 import six
+from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext, ugettext_lazy
-
-try:
-    # Django >= 1.7
-    from django.contrib.contenttypes.fields import GenericForeignKey
-
-except ImportError:
-    # Django < 1.7, TODO: remove if we drop support for 1.7
-    from django.contrib.contenttypes.generic import GenericForeignKey
 
 
 @six.python_2_unicode_compatible
