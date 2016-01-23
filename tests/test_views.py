@@ -71,8 +71,10 @@ def test_should_support_explicit_table_data():
     response, view = ExplicitDataView.as_view()(build_request('/'))
     assert view.get_table().paginator.num_pages == 3
 
+
 @pytest.mark.django_db
 def test_should_pass_kwargs_to_table_constructor():
+
     class PassKwargsView(SimpleView):
         table_data = []
         def get_table(self, **kwargs):
@@ -80,7 +82,7 @@ def test_should_pass_kwargs_to_table_constructor():
             return super(PassKwargsView, self).get_table(**kwargs)
 
     response, view = SimpleView.as_view()(build_request('/'))
-    assert view.get_table().orderable == True
+    assert view.get_table().orderable is True
 
     response, view = PassKwargsView.as_view()(build_request('/'))
-    assert view.get_table().orderable == False
+    assert view.get_table().orderable is False
