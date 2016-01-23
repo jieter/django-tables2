@@ -10,22 +10,6 @@ from django.utils.html import escape
 from django.utils.safestring import mark_safe
 
 
-def python_2_unicode_compatible(klass):
-    """
-    A decorator that defines __unicode__ and __str__ methods under Python 2.
-    Under Python 3 it does nothing.
-
-    To support Python 2 and 3 with a single code base, define a __str__ method
-    returning text and apply this decorator to the class.
-
-    Taken directly from Django.
-    """
-    if not six.PY3:
-        klass.__unicode__ = klass.__str__
-        klass.__str__ = lambda self: self.__unicode__().encode('utf-8')
-    return klass
-
-
 class Sequence(list):
     """
     Represents a column sequence, e.g. ``("first_name", "...", "last_name")``
@@ -122,7 +106,7 @@ class OrderBy(six.text_type):
         return not self.is_descending
 
 
-@python_2_unicode_compatible
+@six.python_2_unicode_compatible
 class OrderByTuple(tuple):
     """Stores ordering as (as `.OrderBy` objects). The
     `~django_tables2.tables.Table.order_by` property is always converted

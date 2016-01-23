@@ -11,8 +11,6 @@ from django.db.models.fields import FieldDoesNotExist
 from django_tables2.templatetags.django_tables2 import title
 from django_tables2.utils import A, AttributeDict, OrderBy, OrderByTuple
 
-from ..utils import python_2_unicode_compatible
-
 
 class Library(object):
     """
@@ -237,7 +235,7 @@ class Column(object):  # pylint: disable=R0902
             return cls(verbose_name=verbose_name)
 
 
-@python_2_unicode_compatible
+@six.python_2_unicode_compatible
 class BoundColumn(object):
     """
     A *run-time* version of `.Column`. The difference between
