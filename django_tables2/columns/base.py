@@ -49,7 +49,7 @@ library = Library()
 
 
 @library.register
-class Column(object):  # pylint: disable=R0902
+class Column(object):
     """
     Represents a single column of a table.
 
@@ -290,23 +290,25 @@ class BoundColumn(object):
 
         # Find the relevant th attributes (fall back to cell if th isn't
         # explicitly specified).
-        attrs["td"] = td = AttributeDict(attrs.get('td', attrs.get('cell', {})))
-        attrs["th"] = th = AttributeDict(attrs.get("th", attrs.get("cell", {})))
+        attrs['th'] = AttributeDict(attrs.get('th', attrs.get('cell', {})))
+        attrs['td'] = AttributeDict(attrs.get('td', attrs.get('cell', {})))
+
         # make set of existing classes.
-        th_class = set((c for c in th.get("class", "").split(" ") if c))  # pylint: disable=C0103
-        td_class = set((c for c in td.get("class", "").split(" ") if c))  # pylint: disable=C0103
+        th_class = set((c for c in attrs['th'].get('class', '').split(' ') if c))
+        td_class = set((c for c in attrs['td'].get('class', '').split(' ') if c))
+
         # add classes for ordering
         if self.orderable:
-            th_class.add("orderable")
+            th_class.add('orderable')
         if self.is_ordered:
-            th_class.add("desc" if self.order_by_alias.is_descending else "asc")
+            th_class.add('desc' if self.order_by_alias.is_descending else 'asc')
+
         # Always add the column name as a class
         th_class.add(self.name)
         td_class.add(self.name)
-        if th_class:
-            th['class'] = " ".join(sorted(th_class))
-        if td_class:
-            td['class'] = " ".join(sorted(td_class))
+
+        attrs['th']['class'] = ' '.join(sorted(th_class))
+        attrs['td']['class'] = ' '.join(sorted(td_class))
         return attrs
 
     @property

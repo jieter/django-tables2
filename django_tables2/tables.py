@@ -234,7 +234,6 @@ class TableOptions(object):
     :param options: options for a table
     :type  options: `.Table.Meta` on a `.Table`
     """
-    # pylint: disable=R0902
     def __init__(self, options=None):
         super(TableOptions, self).__init__()
         self.attrs = AttributeDict(getattr(options, "attrs", {}))

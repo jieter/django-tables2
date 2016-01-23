@@ -54,7 +54,7 @@ class CheckBoxColumn(Column):
         attrs = AttributeDict(default, **(specific or general or {}))
         return mark_safe('<input %s/>' % attrs.as_html())
 
-    def render(self, value, bound_column):  # pylint: disable=W0221
+    def render(self, value, bound_column):
         default = {
             'type': 'checkbox',
             'name': bound_column.name,

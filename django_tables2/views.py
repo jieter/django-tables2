@@ -41,7 +41,7 @@ class SingleTableMixin(object):
         options = {}
         table_class = self.get_table_class()
         table = table_class(self.get_table_data(), **kwargs)
-        paginate = self.get_table_pagination()  # pylint: disable=E1102
+        paginate = self.get_table_pagination()
         if paginate is not None:
             options['paginate'] = paginate
         RequestConfig(self.request, **options).configure(table)
