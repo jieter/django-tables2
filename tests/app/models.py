@@ -64,6 +64,7 @@ class Occupation(models.Model):
         (True, 'Yes'),
         (False, 'No')
     ))
+
     def get_absolute_url(self):
         return reverse('occupation', args=(self.pk, ))
 

@@ -96,17 +96,17 @@ def test_boolean_field_choices_spanning_relations():
 
     class Table(tables.Table):
         boolean = tables.BooleanColumn(accessor='occupation.boolean')
+
         class Meta:
             model = Person
-
 
     model_true = Occupation.objects.create(name='true-name', boolean=True)
     model_false = Occupation.objects.create(name='false-name', boolean=False)
 
     table = Table([
         Person(first_name='True', last_name='False', occupation=model_true),
-        Person(first_name='True', last_name='False',  occupation=model_false)
+        Person(first_name='True', last_name='False', occupation=model_false)
     ])
 
-    assert table.rows[0]['occupation'] == '<span class="true">✔</span>'
-    assert table.rows[1]['occupation'] == '<span class="false">✘</span>'
+    assert table.rows[0]['boolean'] == '<span class="true">✔</span>'
+    assert table.rows[1]['boolean'] == '<span class="false">✘</span>'

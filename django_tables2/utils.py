@@ -346,6 +346,25 @@ class Accessor(str):
             return ()
         return self.split(self.SEPARATOR)
 
+    def get_field(self, context, quiet=False):
+        '''Return the django model field for model in context, following relations'''
+        try:
+            current = context
+            for bit in self.bits:
+                try:  # attribute lookup
+                    current = getattr(current, bit)
+                except (TypeError, AttributeError):
+                    raise ValueError(
+                        'Failed lookup for key [%s] in %r, when trying to call '
+                        'get_field for the accessor %s' % (bit, current, self)
+                    )
+                if hasattr(current, '_meta'):
+                    context = current
+            return context._meta.get_field(bit)
+        except:
+            if not quiet:
+                raise
+
 
 A = Accessor  # alias
 

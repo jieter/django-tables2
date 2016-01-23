@@ -1,11 +1,11 @@
 # coding: utf-8
-# from attest import assert_hook, raises, Tests
+import pytest
 import six
+from django.db import models
+
 from django_tables2.utils import (Accessor, AttributeDict, OrderBy,
                                   OrderByTuple, Sequence, computed_values,
                                   segment)
-
-import pytest
 
 
 def test_orderbytuple():
@@ -116,22 +116,40 @@ def test_accessor_wont_honors_alters_data():
 
 def test_accessor_can_be_quiet():
     foo = {}
-    assert Accessor("bar").resolve(foo, quiet=True) is None
+    assert Accessor('bar').resolve(foo, quiet=True) is None
+
+
+class AccessorTestModel(models.Model):
+    foo = models.CharField(max_length=20)
+
+    class Meta:
+        app_label = 'django_tables2_test'
+
+
+def test_accessor_can_return_field():
+    context = AccessorTestModel(foo='bar')
+    assert type(Accessor('foo').get_field(context)) == models.CharField
+
+
+def test_accessor_raises_when_doesnt_exist():
+    context = AccessorTestModel(foo='bar')
+    with pytest.raises(ValueError):
+        Accessor('bar').get_field(context)
 
 
 def test_attribute_dict_handles_escaping():
-    x = AttributeDict({"x": '"\'x&'})
+    x = AttributeDict({'x': '"\'x&'})
     assert x.as_html() == 'x="&quot;&#39;x&amp;"'
 
 
 def test_compute_values_supports_shallow_structures():
-    x = computed_values({"foo": lambda: "bar"})
-    assert x == {"foo": "bar"}
+    x = computed_values({'foo': lambda: 'bar'})
+    assert x == {'foo': 'bar'}
 
 
 def test_compute_values_supports_nested_structures():
-    x = computed_values({"foo": lambda: {"bar": lambda: "baz"}})
-    assert x == {"foo": {"bar": "baz"}}
+    x = computed_values({'foo': lambda: {'bar': lambda: 'baz'}})
+    assert x == {'foo': {'bar': 'baz'}}
 
 
 def test_segment_should_return_all_candidates():
