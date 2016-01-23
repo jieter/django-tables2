@@ -1,8 +1,8 @@
 # coding: utf-8
+import pytest
 import six
 
 import django_tables2 as tables
-import pytest
 
 from .app.models import Occupation, Person, PersonProxy
 from .utils import build_request
@@ -328,7 +328,7 @@ def test_foreign_key():
             fields = ('foreign_key', )
 
 
-def fields_empty_list_means_no_fields():
+def test_fields_empty_list_means_no_fields():
     class Table(tables.Table):
         class Meta:
             model = Person
