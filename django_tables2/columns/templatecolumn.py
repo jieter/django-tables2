@@ -2,7 +2,7 @@
 from __future__ import absolute_import, unicode_literals
 
 from django.template import Context, Template
-from django.template.loader import render_to_string
+from django.template.loader import get_template
 
 from .base import Column, library
 
@@ -52,10 +52,14 @@ class TemplateColumn(Column):
         if not self.template_code and not self.template_name:
             raise ValueError('A template must be provided')
 
+        if self.template_code:
+            self.template = Template(template_code)
+        else:
+            self.template = get_template(template_name)
+
     def render(self, record, table, value, bound_column, **kwargs):
         # If the table is being rendered using `render_table`, it hackily
-        # attaches the context to the table as a gift to `TemplateColumn`. If
-        # the table is being rendered via `Table.as_html`, this won't exist.
+        # attaches the context to the table as a gift to `TemplateColumn`.
         context = getattr(table, 'context', Context())
         context.update({
             'default': bound_column.default,
@@ -63,10 +67,8 @@ class TemplateColumn(Column):
             'record': record,
             'value': value
         })
+
         try:
-            if self.template_code:
-                return Template(self.template_code).render(context)
-            else:
-                return render_to_string(self.template_name, context)
+            return self.template.render(context)
         finally:
             context.pop()
