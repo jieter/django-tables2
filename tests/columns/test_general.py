@@ -47,6 +47,18 @@ def test_should_support_safe_verbose_name():
     assert isinstance(table.columns["safe"].header, SafeData)
 
 
+def test_should_raise_on_invalid_accessor():
+    with pytest.raises(TypeError):
+        class SimpleTable(tables.Table):
+            column = tables.Column(accessor={})
+
+
+def test_column_with_callable_accessor_should_not_have_default():
+    with pytest.raises(TypeError):
+        class SimpleTable(tables.Table):
+            column = tables.Column(accessor=lambda: 'foo', default='bar')
+
+
 def test_should_support_safe_verbose_name_via_model():
     class PersonTable(tables.Table):
         safe = tables.Column()
