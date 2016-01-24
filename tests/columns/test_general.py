@@ -56,7 +56,7 @@ def test_should_raise_on_invalid_accessor():
 def test_column_with_callable_accessor_should_not_have_default():
     with pytest.raises(TypeError):
         class SimpleTable(tables.Table):
-            column = tables.Column(accessor=lambda: 'foo', default='bar')
+            column = tables.Column(accessor=lambda: 'foo', default='')
 
 
 def test_should_support_safe_verbose_name_via_model():
@@ -326,3 +326,14 @@ def test_register_skips_non_columns():
             model = Person
 
     Table([])
+
+
+def test_raises_when_using_non_supported_index():
+    class Table(tables.Table):
+        column = tables.Column()
+
+    table = Table([{'column': 'foo'}])
+
+    row = table.rows[0]
+    with pytest.raises(TypeError):
+        row[table]

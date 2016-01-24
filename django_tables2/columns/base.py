@@ -610,5 +610,5 @@ class BoundColumns(object):
             raise KeyError("Column with name '%s' does not exist; "
                            "choices are: %s" % (index, self.names()))
         else:
-            raise TypeError('row indices must be integers or str, not %s'
+            raise TypeError('Column indices must be integers or str, not %s'
                             % type(index).__name__)
