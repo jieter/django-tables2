@@ -2,7 +2,7 @@ django-tables2 - An app for creating HTML tables
 ------------------------------------------------
 
 .. image:: https://img.shields.io/pypi/v/django_tables2.svg
-    :target: https://crate.io/packages/django_tables2/
+    :target: https://pypi.python.org/pypi/django-tables2
     :alt: Latest PyPI version
 
 .. image:: https://travis-ci.org/bradleyayers/django-tables2.svg
