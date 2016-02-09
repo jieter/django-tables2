@@ -1,11 +1,14 @@
 # Change log
 
+## unreleased
+- Fix BooleanColumn with choices set will always render as if `True` (#301)
+
+
 ## v1.1.1 (2016-01-26)
 - Allow Meta.fields to be a list as well as a tuple (#250)
 - Call template.render with a dict in Django >= 1.8. (#298)
 - Added `RelatedLinkColumn()` to render links to related objects (#297)
 - Remove default value from request param to table.as_html()
-
 
 ## v1.1.0 (2016-01-19)
 - Add tests for `TimeColumn`
