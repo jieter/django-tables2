@@ -1,7 +1,7 @@
 django-tables2 - An app for creating HTML tables
 ------------------------------------------------
 
-.. image:: https://img.shields.io/pypi/v/django_tables2.svg
+.. image:: https://badge.fury.io/py/django-tables2.svg
     :target: https://pypi.python.org/pypi/django-tables2
     :alt: Latest PyPI version
 
@@ -71,7 +71,7 @@ argument to specify an environment:
 
 To generate a html coverage report:
 
-    PYTHONPATH=~/workspace/django-tables2 py.test -s --cov=django_tables2 --cov-report html
+    PYTHONPATH=. py.test -s --cov=django_tables2 --cov-report html
 
 
 Building the documentation

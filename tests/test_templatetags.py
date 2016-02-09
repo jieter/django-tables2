@@ -1,13 +1,10 @@
 # coding: utf-8
 from __future__ import unicode_literals
 
-import lxml.etree
-import lxml.html
 import six
 from django.core.exceptions import ImproperlyConfigured
 from django.template import (Context, RequestContext, Template,
                              TemplateSyntaxError)
-from django.utils.safestring import mark_safe
 
 import django_tables2 as tables
 import pytest
