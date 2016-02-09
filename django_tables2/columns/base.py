@@ -5,11 +5,9 @@ from collections import OrderedDict
 from itertools import islice
 
 import six
-from django import VERSION as django_version
-from django.db.models.fields import FieldDoesNotExist
 
 from django_tables2.templatetags.django_tables2 import title
-from django_tables2.utils import A, AttributeDict, OrderBy, OrderByTuple
+from django_tables2.utils import Accessor, AttributeDict, OrderBy, OrderByTuple
 
 
 class Library(object):
@@ -152,7 +150,7 @@ class Column(object):
                             type(accessor).__name__)
         if callable(accessor) and default is not None:
             raise TypeError('accessor must be string when default is used, not callable')
-        self.accessor = A(accessor) if accessor else None
+        self.accessor = Accessor(accessor) if accessor else None
         self._default = default
         self.verbose_name = verbose_name
         self.visible = visible
@@ -274,7 +272,7 @@ class BoundColumn(object):
         Returns the string used to access data for this column out of the data
         source.
         """
-        return self.column.accessor or A(self.name)
+        return self.column.accessor or Accessor(self.name)
 
     @property
     def attrs(self):
@@ -439,22 +437,7 @@ class BoundColumn(object):
         # Try to use a model field's verbose_name
         if hasattr(self.table.data, 'queryset') and hasattr(self.table.data.queryset, 'model'):
             model = self.table.data.queryset.model
-            parts = self.accessor.split('.')
-            field = None
-            for part in parts:
-
-                try:
-                    if django_version < (1, 8, 0):
-                        field, _, _, _ = model._meta.get_field_by_name(part)
-                    else:
-                        field = model._meta.get_field(part)
-
-                except FieldDoesNotExist:
-                    break
-                if hasattr(field, 'rel') and hasattr(field.rel, 'to'):
-                    model = field.rel.to
-                    continue
-                break
+            field = Accessor(self.accessor).get_field(model)
             if field:
                 if hasattr(field, 'field'):
                     name = field.field.verbose_name
