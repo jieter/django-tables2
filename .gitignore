@@ -16,3 +16,5 @@
 /example/.env
 /report.pylint
 .cache/
+.ropeproject
+*.ipynb
