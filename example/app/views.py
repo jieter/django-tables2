@@ -6,10 +6,11 @@ from django.shortcuts import render
 from django_tables2 import RequestConfig, SingleTableView
 
 from .models import Country, Person
-from .tables import BootstrapTable, CountryTable, ThemedCountryTable
+from .tables import BootstrapTable, CountryTable, ThemedCountryTable, SimpleCountryTable
 
 try:
     from django.utils.lorem_ipsum import words
+    import pandas as pd
 except ImportError:
     # django 1.7 has lorem_ipsum in contrib.webdisign, moved in 1.8
     from django.contrib.webdesign.lorem_ipsum import words
@@ -70,4 +71,22 @@ class_based = ClassBased.as_view()
 
 
 def tutorial(request):
-    return render(request, "tutorial.html", {"people": Person.objects.all()})
+    return render(request, "tutorial.html", {"table": Person.objects.all()})
+
+
+def pandas_tutorial(request):
+    ndf = pd.DataFrame([
+        {'name': 'china',
+         'population': 1,
+         'tz': 'Asia/Shanghai',
+         'visits': 12,
+         'summary': 'nice place'},
+        {'name': 'usa',
+         'population': 12,
+         'tz': 'whatever',
+         'visits': 12,
+         'summary': 'nice place'}
+    ])
+    table = SimpleCountryTable(ndf, orderable=True)
+    RequestConfig(request, paginate=True).configure(table)
+    return render(request, "tutorial.html", {"table": table})
