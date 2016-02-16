@@ -1,9 +1,9 @@
 # coding: utf-8
-import pytest
 from django.core.paginator import EmptyPage, PageNotAnInteger
-from fudge import Fake
 
-from django_tables2 import RequestConfig
+import pytest
+from django_tables2 import Column, RequestConfig, Table
+from fudge import Fake
 
 from .utils import build_request
 
@@ -66,3 +66,19 @@ def test_silent_empty_page_error(table):
 
     RequestConfig(request, paginate={"page": 123,
                                      "silent": True}).configure(table)
+
+
+def test_passing_request_to_constructor():
+    '''Table constructor should call RequestConfig if a request is passed.'''
+
+    request = build_request('/?page=1&sort=abc')
+
+    class SimpleTable(Table):
+        abc = Column()
+
+    table = SimpleTable([
+        {'abc': 'bar'},
+        {'abc': 'rab'}
+    ], request=request)
+
+    assert table.columns['abc'].is_ordered

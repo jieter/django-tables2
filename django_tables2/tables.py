@@ -461,6 +461,7 @@ class TableBase(object):
 
         context = {'table': self}
         if VERSION < (1, 8):
+            # TODO: remove if we drop support for django 1.7
             context = RequestContext(request, context)
         else:
             context['request'] = request

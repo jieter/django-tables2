@@ -153,7 +153,7 @@ class RenderTableNode(Node):
             # achieved is to temporarily attach the context to the table,
             # which TemplateColumn then looks for and uses.
             table.context = context
-            if VERSION < (1, 8):  # pragma: nocover
+            if VERSION < (1, 8):  # pragma: no cover
                 # TODO: remove after 1.7 support ends.
                 return template.render(context)
             else:
