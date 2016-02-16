@@ -52,11 +52,6 @@ class TemplateColumn(Column):
         if not self.template_code and not self.template_name:
             raise ValueError('A template must be provided')
 
-        if self.template_code:
-            self.template = Template(template_code)
-        else:
-            self.template = get_template(template_name)
-
     def render(self, record, table, value, bound_column, **kwargs):
         # If the table is being rendered using `render_table`, it hackily
         # attaches the context to the table as a gift to `TemplateColumn`.
@@ -69,6 +64,10 @@ class TemplateColumn(Column):
         })
 
         try:
-            return self.template.render(context)
+            if self.template_code:
+                template = Template(self.template_code)
+            else:
+                template = get_template(self.template_name)
+            return template.render(context)
         finally:
             context.pop()
