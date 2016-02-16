@@ -17,9 +17,9 @@ be localized. For example you may want to use this feature in following use case
 
 This control is done by using two filter functions in Django's `l10n` library
 named `localize` and `unlocalize`. Check out Django docs about
-:ref:`localization <django:format-localization>` for more information about them.
+`localization <https://docs.djangoproject.com/en/stable/topics/i18n/formatting/>` for more information about them.
 
-There are two ways of controling localization in your columns.
+There are two ways of controlling localization in your columns.
 
 First one is setting the `~.Column.localize` attribute in your column definition
 to `True` or `False`. Like so::

@@ -142,7 +142,7 @@ class TableData(object):
         """
         The full (plural) name of the data.
 
-        This uses the same approach as `.verbose_name`.
+        This uses the same approach as `TableData.verbose_name`.
         """
         if hasattr(self, "queryset"):
             return self.queryset.model._meta.verbose_name_plural
