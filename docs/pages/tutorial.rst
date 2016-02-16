@@ -1,6 +1,10 @@
 Tutorial
 ========
 
+.. note::
+    For this tutorial, we'll assume you use Django version 1.8.0 or greater. For
+    Django 1.7, refer to the `Django 1.7 documentation <https://docs.djangoproject.com/en/1.7/ref/templates/api/#django-core-context-processors-request>`
+
 1. ``pip install django-tables2``
 2. Add ``'django_tables2'`` to ``INSTALLED_APPS``
 3. Add ``'django.core.context_processors.request'`` to the ``context_preprocessors`` in your template setting ``OPTIONS``.
