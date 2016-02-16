@@ -1,8 +1,8 @@
 # Change log
 
-## unreleased
-- Fix BooleanColumn with choices set will always render as if `True` (#301)
-
+## v1.1.2 (2016-02-16)
+- Fix `BooleanColumn` with choices set will always render as if `True` (#301)
+- Fix a bug with `TemplateColumn` while using cached template loader (#75)
 
 ## v1.1.1 (2016-01-26)
 - Allow Meta.fields to be a list as well as a tuple (#250)
