@@ -8,16 +8,15 @@ import six
 from django import VERSION, template
 from django.core.exceptions import ImproperlyConfigured
 from django.template import Node, TemplateSyntaxError
-from django.template.defaultfilters import title as old_title
-from django.template.defaultfilters import stringfilter
+from django.template.defaultfilters import title as old_title, stringfilter
 from django.template.loader import get_template, select_template
 from django.templatetags.l10n import register as l10n_register
 from django.utils.html import escape
 from django.utils.http import urlencode
-from django.utils.safestring import mark_safe
 
 import django_tables2 as tables
 from django_tables2.config import RequestConfig
+
 
 register = template.Library()
 kwarg_re = re.compile(r"(?:(.+)=)?(.+)")

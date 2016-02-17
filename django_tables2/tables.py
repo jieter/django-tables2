@@ -15,10 +15,19 @@ from django.utils.functional import cached_property
 from . import columns
 from .config import RequestConfig
 from .rows import BoundRows
-from .utils import (Accessor, AttributeDict, OrderBy, OrderByTuple, Sequence,
-                    computed_values, segment)
+from .utils import Accessor, AttributeDict, OrderBy, OrderByTuple, Sequence, computed_values, segment, has_callable_attr
+
 
 QUERYSET_ACCESSOR_SEPARATOR = '__'
+
+
+class TableDataType(object):
+    """
+    used as a enum to represent the internal data type of a TableData instance
+    """
+    QUERYSET = 'queryset'
+    LIST = 'list'
+    DATAFRAME = 'dataframe'
 
 
 class TableData(object):
@@ -26,40 +35,39 @@ class TableData(object):
     Exposes a consistent API for :term:`table data`.
 
     :param  data: iterable containing data for each row
-    :type   data: `~django.db.query.QuerySet` or `list` of `dict`
+    :type   data: `~django.db.query.QuerySet` or `list` of `dict`, or `pandas.DataFrame`
     :param table: `.Table` object
     """
+
+    supported_data_type = TableDataType
+
     def __init__(self, data, table):
         self.table = table
-        # data may be a QuerySet-like objects with count() and order_by()
-        if (hasattr(data, 'count') and callable(data.count) and
-                hasattr(data, 'order_by') and callable(data.order_by)):
-            self.queryset = data
-        # otherwise it must be convertable to a list
+        self.data, internal_data_type = self._decide_data_type(data)
+        self.internal_data_type = internal_data_type
+
+        if internal_data_type is self.supported_data_type.QUERYSET:
+            self._length = data.count()
         else:
-            # do some light validation
-            if hasattr(data, '__iter__') or (hasattr(data, '__len__') and hasattr(data, '__getitem__')):
-                self.list = list(data)
-            else:
-                raise ValueError(
-                    'data must be QuerySet-like (have count and '
-                    'order_by) or support list(data) -- %s has '
-                    'neither' % type(data).__name__
-                )
+            self._length = len(data)
+
+    def _decide_data_type(self, data):
+        # data may be a QuerySet-like objects with count() and order_by()
+        if has_callable_attr(data, 'count') and has_callable_attr(data, 'order_by'):
+            return data, self.supported_data_type.QUERYSET
+        elif has_callable_attr(data, 'reset_index') and has_callable_attr(data, 'iterrows'):
+            # if dataframe.index has name, will treat as a regular column
+            return data.reset_index() if data.index.name else data, self.supported_data_type.DATAFRAME
+        elif hasattr(data, '__iter__') or (hasattr(data, '__len__') and hasattr(data, '__getitem__')):
+            # if data is neither a QuerySet or DataFrame, fallback to dictlist
+            return list(data), self.supported_data_type.LIST
+        else:
+            raise ValueError('data must be QuerySet-like (have count and '
+                             'order_by) or support list(data) or '
+                             'pandas.DataFrame -- %s has neither'.format(type(data).__name__))
 
     def __len__(self):
-        if not hasattr(self, "_length"):
-            # Use the queryset count() method to get the length, instead of
-            # loading all results into memory. This allows, for example,
-            # smart paginators that use len() to perform better.
-            self._length = (
-                self.queryset.count() if hasattr(self, 'queryset') else len(self.list)
-            )
         return self._length
-
-    @property
-    def data(self):
-        return self.queryset if hasattr(self, "queryset") else self.list
 
     @property
     def ordering(self):
@@ -73,14 +81,12 @@ class TableData(object):
         This works by inspecting the actual underlying data. As such it's only
         supported for querysets.
         """
-        if hasattr(self, "queryset"):
+        if self.internal_data_type is self.supported_data_type.QUERYSET:
             aliases = {}
             for bound_column in self.table.columns:
                 aliases[bound_column.order_by_alias] = bound_column.order_by
-            try:
-                return next(segment(self.queryset.query.order_by, aliases))
-            except StopIteration:
-                pass
+
+            return next(segment(self.data.query.order_by, aliases), None)
 
     def order_by(self, aliases):
         """
@@ -102,12 +108,18 @@ class TableData(object):
                 accessors += bound_column.order_by.opposite
             else:
                 accessors += bound_column.order_by
-        if hasattr(self, "queryset"):
-            translate = lambda accessor: accessor.replace(Accessor.SEPARATOR, QUERYSET_ACCESSOR_SEPARATOR)
-            if accessors:
-                self.queryset = self.queryset.order_by(*(translate(a) for a in accessors))
-        else:
-            self.list.sort(key=OrderByTuple(accessors).key)
+
+        if accessors:
+            internal_data_type, supported_data_type = self.internal_data_type, self.supported_data_type
+            if internal_data_type is supported_data_type.QUERYSET:
+                translate = lambda accessor: accessor.replace(Accessor.SEPARATOR, QUERYSET_ACCESSOR_SEPARATOR)
+                self.data = self.data.order_by(*(translate(a) for a in accessors))
+            elif internal_data_type is supported_data_type.LIST:
+                self.data.sort(key=OrderByTuple(accessors).key)
+            elif internal_data_type is supported_data_type.DATAFRAME:
+                by = [n.lstrip('-') for n in accessors]
+                is_ascending_list = [not n.startswith('-') for n in accessors]
+                self.data.sort_values(by=by, ascending=is_ascending_list, inplace=True)
 
     def __iter__(self):
         """
@@ -115,14 +127,23 @@ class TableData(object):
         with indexing into querysets, so this side-steps that problem (as well
         as just being a better way to iterate).
         """
-        return iter(self.data)
+        if self.internal_data_type is self.supported_data_type.DATAFRAME:
+            return (dict(t[1]) for t in self.data.iterrows())
+        else:
+            return iter(self.data)
 
     def __getitem__(self, key):
         """
         Slicing returns a new `.TableData` instance, indexing returns a
         single record.
         """
-        return self.data[key]
+        if self.internal_data_type is self.supported_data_type.DATAFRAME:
+            if isinstance(key, slice):
+                return self.data.iloc[key].to_dict('record')
+            else:
+                return self.data.iloc[key]
+        else:
+            return self.data[key]
 
     @cached_property
     def verbose_name(self):
@@ -133,9 +154,9 @@ class TableData(object):
         honored. List data is checked for a ``verbose_name`` attribute, and
         falls back to using ``"item"``.
         """
-        if hasattr(self, "queryset"):
-            return self.queryset.model._meta.verbose_name
-        return getattr(self.list, "verbose_name", "item")
+        if self.internal_data_type is self.supported_data_type.QUERYSET:
+            return self.data.model._meta.verbose_name
+        return getattr(self.data, "verbose_name", "item")
 
     @cached_property
     def verbose_name_plural(self):
@@ -144,9 +165,9 @@ class TableData(object):
 
         This uses the same approach as `TableData.verbose_name`.
         """
-        if hasattr(self, "queryset"):
-            return self.queryset.model._meta.verbose_name_plural
-        return getattr(self.list, "verbose_name_plural", "items")
+        if self.internal_data_type is self.supported_data_type.QUERYSET:
+            return self.data.model._meta.verbose_name_plural
+        return getattr(self.data, "verbose_name_plural", "items")
 
 
 class DeclarativeColumnsMetaclass(type):
@@ -619,6 +640,7 @@ class TableBase(object):
     @template.setter
     def template(self, value):
         self._template = value
+
 
 # Python 2/3 compatible way to enable the metaclass
 Table = DeclarativeColumnsMetaclass(str('Table'), (TableBase, ), {})

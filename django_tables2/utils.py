@@ -6,7 +6,7 @@ from functools import total_ordering
 from itertools import chain
 
 import six
-from django import VERSION
+from django import VERSION as django_version
 from django.db.models.fields import FieldDoesNotExist
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
@@ -356,7 +356,7 @@ class Accessor(str):
         field = None
         for bit in self.bits:
             try:
-                if VERSION < (1, 8):
+                if django_version < (1, 8):
                     # remove if support for django 1.7 is dropped.
                     field, _, _, _ = model._meta.get_field_by_name(bit)
                 else:
@@ -485,3 +485,23 @@ def computed_values(d):
             v = computed_values(v)
         result[k] = v
     return result
+
+
+def has_callable_attr(obj, attr_name):
+    attr = getattr(obj, attr_name, None)
+    if callable(attr):
+        return True
+    else:
+        return False
+
+
+def get_model_meta_field(model, part):
+    """
+    compatible across django 1.8
+    """
+    if django_version < (1, 8, 0):
+        field, _, _, _ = model._meta.get_field_by_name(part)
+    else:
+        field = model._meta.get_field(part)
+
+    return field

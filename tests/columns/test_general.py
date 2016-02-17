@@ -7,9 +7,9 @@ from django.utils.safestring import SafeData, mark_safe
 from django.utils.translation import ugettext_lazy
 
 import django_tables2 as tables
-
 from ..app.models import Person
 from ..utils import build_request, parse
+
 
 request = build_request('/')
 
@@ -59,6 +59,7 @@ def test_column_with_callable_accessor_should_not_have_default():
             column = tables.Column(accessor=lambda: 'foo', default='')
 
 
+@pytest.mark.django_db
 def test_should_support_safe_verbose_name_via_model():
     class PersonTable(tables.Table):
         safe = tables.Column()

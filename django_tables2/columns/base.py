@@ -430,20 +430,25 @@ class BoundColumn(object):
         if self.column.verbose_name is not None:
             return self.column.verbose_name
 
-        # This is our reasonable fallback, should the next section not result
-        # in anything useful.
-        name = title(self.name.replace('_', ' '))
+        name = None
 
         # Try to use a model field's verbose_name
-        if hasattr(self.table.data, 'queryset') and hasattr(self.table.data.queryset, 'model'):
-            model = self.table.data.queryset.model
+        table_data = self.table.data
+        internal_data = table_data.data
+        type_, supported_data_type = table_data.internal_data_type, table_data.supported_data_type
+
+        if type_ is supported_data_type.QUERYSET and hasattr(internal_data, 'model'):
+            model = internal_data.model
             field = Accessor(self.accessor).get_field(model)
             if field:
                 if hasattr(field, 'field'):
                     name = field.field.verbose_name
                 else:
                     name = getattr(field, 'verbose_name', field.name)
-        return name
+
+        # if above section didn't get a field verbose_name, fallback to
+        # titlecase
+        return name or title(self.name.replace('_', ' '))
 
     @property
     def visible(self):
