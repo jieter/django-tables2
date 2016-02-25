@@ -6,7 +6,6 @@ from functools import total_ordering
 from itertools import chain
 
 import six
-from django import VERSION
 from django.db.models.fields import FieldDoesNotExist
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
@@ -356,11 +355,7 @@ class Accessor(str):
         field = None
         for bit in self.bits:
             try:
-                if VERSION < (1, 8):
-                    # remove if support for django 1.7 is dropped.
-                    field, _, _, _ = model._meta.get_field_by_name(bit)
-                else:
-                    field = model._meta.get_field(bit)
+                field = model._meta.get_field(bit)
             except FieldDoesNotExist:
                 break
             if hasattr(field, 'rel') and hasattr(field.rel, 'to'):

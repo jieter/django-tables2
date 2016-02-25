@@ -2,17 +2,12 @@
 from random import choice
 
 from django.shortcuts import render
+from django.utils.lorem_ipsum import words
 
 from django_tables2 import RequestConfig, SingleTableView
 
 from .models import Country, Person
 from .tables import BootstrapTable, CountryTable, ThemedCountryTable
-
-try:
-    from django.utils.lorem_ipsum import words
-except ImportError:
-    # django 1.7 has lorem_ipsum in contrib.webdisign, moved in 1.8
-    from django.contrib.webdesign.lorem_ipsum import words
 
 
 def multiple(request):

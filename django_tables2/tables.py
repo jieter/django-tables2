@@ -5,10 +5,8 @@ import copy
 from collections import OrderedDict
 
 import six
-from django import VERSION
 from django.core.paginator import Paginator
 from django.db.models.fields import FieldDoesNotExist
-from django.template import RequestContext
 from django.template.loader import get_template
 from django.utils.functional import cached_property
 
@@ -459,12 +457,10 @@ class TableBase(object):
         """
         template = get_template(self.template)
 
-        context = {'table': self}
-        if VERSION < (1, 8):
-            # TODO: remove if we drop support for django 1.7
-            context = RequestContext(request, context)
-        else:
-            context['request'] = request
+        context = {
+            'table': self,
+            'request': request
+        }
 
         return template.render(context)
 
