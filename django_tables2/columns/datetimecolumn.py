@@ -12,9 +12,10 @@ class DateTimeColumn(TemplateColumn):
     """
     A column that renders datetimes in the local timezone.
 
-    :param format: format string for datetime (optional)
+    :param format: format string for datetime (optional).
+                   Note that *format* uses Django's `date` template tag syntax.
     :type  format: `unicode`
-    :param  short: if *format* is not specifid, use Django's
+    :param  short: if *format* is not specified, use Django's
                    ``SHORT_DATETIME_FORMAT``, else ``DATETIME_FORMAT``
     :type   short: `bool`
     """
