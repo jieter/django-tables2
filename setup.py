@@ -19,7 +19,7 @@ setup(
     packages=find_packages(exclude=['tests.*', 'tests', 'example.*', 'example']),
     include_package_data=True,  # declarations in MANIFEST.in
 
-    install_requires=['Django >=1.7', 'six'],
+    install_requires=['Django>=1.8', 'six'],
 
     classifiers=[
         'Environment :: Web Environment',
