@@ -49,6 +49,15 @@ This would then be used in a view:
         table = SimpleTable(queryset)
         return render(request, 'simple_list.html', {'table': table})
 
+Add "django_tables2" to your INSTALLED_APPS setting like this:
+
+.. code:: python
+
+        INSTALLED_APPS = (
+            ...,
+            'django_tables2',
+        )
+
 And finally in the template:
 
 .. code::
