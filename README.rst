@@ -30,6 +30,15 @@ Its features include:
 Example
 -------
 
+Start by adding "django_tables2" to your INSTALLED_APPS setting like this:
+
+.. code:: python
+
+        INSTALLED_APPS = (
+            ...,
+            'django_tables2',
+        )
+
 Creating a table for a model `Simple` is as simple as:
 
 .. code:: python
