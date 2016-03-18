@@ -1,15 +1,15 @@
 # coding: utf-8
 from __future__ import unicode_literals
 
-import six
 from django.core.exceptions import ImproperlyConfigured
 from django.template import (Context, RequestContext, Template,
                              TemplateSyntaxError)
+from django.utils import six
+from django.utils.six.moves.urllib.parse import parse_qs
 
 import django_tables2 as tables
 import pytest
 from django_tables2.config import RequestConfig
-from six.moves.urllib.parse import parse_qs
 
 from .app.models import Person, Region
 from .test_templates import MEMORY_DATA, CountryTable

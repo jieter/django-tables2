@@ -5,8 +5,8 @@ import inspect
 from functools import total_ordering
 from itertools import chain
 
-import six
 from django.db.models.fields import FieldDoesNotExist
+from django.utils import six
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 

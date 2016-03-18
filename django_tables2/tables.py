@@ -4,10 +4,10 @@ from __future__ import unicode_literals
 import copy
 from collections import OrderedDict
 
-import six
 from django.core.paginator import Paginator
 from django.db.models.fields import FieldDoesNotExist
 from django.template.loader import get_template
+from django.utils import six
 from django.utils.functional import cached_property
 
 from . import columns

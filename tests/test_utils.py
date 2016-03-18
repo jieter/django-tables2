@@ -1,8 +1,8 @@
 # coding: utf-8
-import pytest
-import six
 from django.db import models
+from django.utils import six
 
+import pytest
 from django_tables2.utils import (Accessor, AttributeDict, OrderBy,
                                   OrderByTuple, Sequence, computed_values,
                                   segment)

@@ -4,7 +4,6 @@ from __future__ import absolute_import, unicode_literals
 import re
 from collections import OrderedDict
 
-import six
 from django import template
 from django.core.exceptions import ImproperlyConfigured
 from django.template import Node, TemplateSyntaxError
@@ -12,6 +11,7 @@ from django.template.defaultfilters import title as old_title
 from django.template.defaultfilters import stringfilter
 from django.template.loader import get_template, select_template
 from django.templatetags.l10n import register as l10n_register
+from django.utils import six
 from django.utils.html import escape
 from django.utils.http import urlencode
 

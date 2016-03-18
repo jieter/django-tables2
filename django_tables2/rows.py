@@ -1,7 +1,7 @@
 # coding: utf-8
-import six
 from django.db import models
 from django.db.models.fields import FieldDoesNotExist
+from django.utils import six
 
 from .utils import A, getargspec
 
