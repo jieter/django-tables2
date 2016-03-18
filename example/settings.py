@@ -1,8 +1,6 @@
 # coding: utf-8
 from os.path import abspath, dirname, join
 
-from django import VERSION
-
 ROOT = dirname(abspath(__file__))
 
 DEBUG = True
@@ -85,40 +83,20 @@ STATICFILES_FINDERS = (
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = '=nzw@mkqk)tz+_#vf%li&8sn7yn8z7!2-4njuyf1rxs*^muhvh'
 
-if VERSION < (1, 8):
-    TEMPLATE_DEBUG = DEBUG
-
-    # List of callables that know how to import templates from various sources.
-    TEMPLATE_LOADERS = (
-        'django.template.loaders.filesystem.Loader',
-        'django.template.loaders.app_directories.Loader',
-    )
-
-    TEMPLATE_CONTEXT_PROCESSORS = [
-        'django.contrib.auth.context_processors.auth',
-        'django.core.context_processors.static',
-        'django.core.context_processors.request'
-    ]
-
-    TEMPLATE_DIRS = (
-        join(ROOT, 'templates'),
-    )
-
-else:
-    TEMPLATES = [
-        {
-            'BACKEND': 'django.template.backends.django.DjangoTemplates',
-            'DIRS': ['templates'],
-            'APP_DIRS': True,
-            'OPTIONS': {
-                'context_processors': [
-                    'django.contrib.auth.context_processors.auth',
-                    'django.template.context_processors.request',
-                    'django.template.context_processors.static',
-                ],
-            }
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': ['templates'],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.contrib.auth.context_processors.auth',
+                'django.template.context_processors.request',
+                'django.template.context_processors.static',
+            ],
         }
-    ]
+    }
+]
 
 
 MIDDLEWARE_CLASSES = (
