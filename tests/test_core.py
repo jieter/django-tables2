@@ -166,7 +166,6 @@ def test_should_support_tuple_data_source():
     assert len(table.rows) == 2
 
 
-@pytest.mark.skipif(six.PY3, reason="Haystack requires Python 2.x")
 def test_should_support_haystack_data_source():
     from haystack.query import SearchQuerySet
 

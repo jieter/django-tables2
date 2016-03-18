@@ -1,6 +1,5 @@
 from django import VERSION
 from django.conf import global_settings
-from django.utils import six
 
 DATABASES = {
     'default': {
@@ -14,6 +13,7 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.auth',
     'django_tables2',
+    'haystack',
 ]
 
 ROOT_URLCONF = 'tests.app.urls'
@@ -41,12 +41,8 @@ TIME_ZONE = "Australia/Brisbane"
 
 USE_TZ = True
 
-if not six.PY3:  # Haystack isn't compatible with Python 3
-    INSTALLED_APPS += [
-        'haystack',
-    ]
-    HAYSTACK_CONNECTIONS = {
-        'default': {
-            'ENGINE': 'haystack.backends.simple_backend.SimpleEngine',
-        }
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        'ENGINE': 'haystack.backends.simple_backend.SimpleEngine',
     }
+}
