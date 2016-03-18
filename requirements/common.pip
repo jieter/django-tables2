@@ -3,7 +3,6 @@ fudge
 lxml
 pylint
 pytz>0
-six
 pytest
 pytest-django
 flake8

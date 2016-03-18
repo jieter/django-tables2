@@ -1,8 +1,8 @@
 # coding: utf-8
 from __future__ import absolute_import, unicode_literals
 
-import six
 from django.db import models
+from django.utils import six
 from django.utils.html import escape, format_html
 
 from django_tables2.utils import Accessor, AttributeDict

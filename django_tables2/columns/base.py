@@ -4,7 +4,7 @@ from __future__ import absolute_import, unicode_literals
 from collections import OrderedDict
 from itertools import islice
 
-import six
+from django.utils import six
 
 from django_tables2.templatetags.django_tables2 import title
 from django_tables2.utils import Accessor, AttributeDict, OrderBy, OrderByTuple

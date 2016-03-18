@@ -3,9 +3,9 @@ from contextlib import contextmanager
 
 import lxml.etree
 import lxml.html
-import six
 from django.core.handlers.wsgi import WSGIRequest
 from django.test.client import FakePayload
+from django.utils import six
 
 
 def parse(html):

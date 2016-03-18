@@ -1,8 +1,8 @@
 # coding: utf-8
-import pytest
-import six
+from django.utils import six
 
 import django_tables2 as tables
+import pytest
 
 from .app.models import Occupation, Person, PersonProxy
 from .utils import build_request

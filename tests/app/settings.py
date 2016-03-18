@@ -1,6 +1,6 @@
-import six
 from django import VERSION
 from django.conf import global_settings
+from django.utils import six
 
 DATABASES = {
     'default': {
