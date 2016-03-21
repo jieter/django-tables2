@@ -1,14 +1,25 @@
 #!/usr/bin/env python
+import os
 import re
+import sys
 
 from setuptools import find_packages, setup
 
-with open('django_tables2/__init__.py', 'rb') as f:
-    version = str(re.search('__version__ = "(.+?)"', f.read().decode('utf-8')).group(1))
+from django_tables2 import __version__ as VERSION
+
+if sys.argv[-1] == 'publish':
+    os.system('python setup.py sdist upload')
+    sys.exit()
+
+if sys.argv[-1] == 'tag':
+    os.system("git tag -a v{} -m 'tagging v{}'".format(VERSION, VERSION))
+    os.system('git push --tags')
+    sys.exit()
+
 
 setup(
     name='django-tables2',
-    version=version,
+    version=VERSION,
     description='Table/data-grid framework for Django',
 
     author='Bradley Ayers',

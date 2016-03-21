@@ -89,6 +89,7 @@ Building the documentation
 If you want to build the docs from within a virtualenv, and Sphinx is installed
 globally, use:
 
+    cd docs/
     make html SPHINXBUILD="python $(which sphinx-build)"
 
 
