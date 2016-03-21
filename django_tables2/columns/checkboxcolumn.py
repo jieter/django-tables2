@@ -3,7 +3,7 @@ from __future__ import absolute_import, unicode_literals
 
 from django.utils.safestring import mark_safe
 
-from django_tables2.utils import AttributeDict
+from django_tables2.utils import Accessor, AttributeDict
 
 from .base import Column, library
 
@@ -40,8 +40,12 @@ class CheckBoxColumn(Column):
     - *input*     -- ``<input>`` elements in both ``<td>`` and ``<th>``.
     - *th__input* -- Replaces *input* attrs in header cells.
     - *td__input* -- Replaces *input* attrs in body cells.
+
+    - *checked*   -- boolean or callable returning boolean: if truthy render
+                     checkbox as checked.
     """
-    def __init__(self, attrs=None, **extra):
+    def __init__(self, attrs=None, checked=None, **extra):
+        self.checked = checked
         kwargs = {'orderable': False, 'attrs': attrs}
         kwargs.update(extra)
         super(CheckBoxColumn, self).__init__(**kwargs)
@@ -54,13 +58,35 @@ class CheckBoxColumn(Column):
         attrs = AttributeDict(default, **(specific or general or {}))
         return mark_safe('<input %s/>' % attrs.as_html())
 
-    def render(self, value, bound_column):
+    def render(self, value, bound_column, record):
         default = {
             'type': 'checkbox',
             'name': bound_column.name,
             'value': value
         }
+        if self.is_checked(value, record):
+            default.update({
+                'checked': 'checked',
+            })
+
         general = self.attrs.get('input')
         specific = self.attrs.get('td__input')
         attrs = AttributeDict(default, **(specific or general or {}))
         return mark_safe('<input %s/>' % attrs.as_html())
+
+    def is_checked(self, value, record):
+        """
+        Determine if the checkbox should be checked
+        :return bool
+        """
+
+        if not self.checked:
+            return False
+
+        if callable(self.checked):
+            return bool(self.checked(value, record))
+
+        checked = Accessor(self.checked)
+        if checked in record:
+            return bool(record[checked])
+        return False

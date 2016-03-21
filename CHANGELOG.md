@@ -2,6 +2,8 @@
 
 ## unreleased
 - Drop support for Django 1.7
+- Add argument to CheckBoxColumn to render it as checked (original PR: #208)
+
 
 ## v1.1.2 (2016-02-16)
 - Fix `BooleanColumn` with choices set will always render as if `True` (#301)
