@@ -41,8 +41,9 @@ class CheckBoxColumn(Column):
     - *th__input* -- Replaces *input* attrs in header cells.
     - *td__input* -- Replaces *input* attrs in body cells.
 
-    - *checked*   -- boolean or callable returning boolean: if truthy render
-                     checkbox as checked.
+    To render the checkbox as checked, use the *checked* argument with a
+    accessor, boolean or callable returning boolean. If it resolves to a truthy
+    value, the checkbox will be rendered as checked.
     """
     def __init__(self, attrs=None, checked=None, **extra):
         self.checked = checked
@@ -77,11 +78,11 @@ class CheckBoxColumn(Column):
     def is_checked(self, value, record):
         """
         Determine if the checkbox should be checked
-        :return bool
         """
-
-        if not self.checked:
+        if self.checked is None:
             return False
+        if self.checked is True:
+            return True
 
         if callable(self.checked):
             return bool(self.checked(value, record))
