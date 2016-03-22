@@ -1,9 +1,11 @@
 # Change log
 
-## unreleased
+## v1.1.4 (2016-03-22)
+- Fix broken `setup.py` if Django is not installed before django-tables2 (fixes #312)
+
+## v1.1.3 (2016-03-21)
 - Drop support for Django 1.7
 - Add argument to CheckBoxColumn to render it as checked (original PR: #208)
-
 
 ## v1.1.2 (2016-02-16)
 - Fix `BooleanColumn` with choices set will always render as if `True` (#301)
