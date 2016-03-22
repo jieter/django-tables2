@@ -5,7 +5,9 @@ import sys
 
 from setuptools import find_packages, setup
 
-from django_tables2 import __version__ as VERSION
+# get version without importing
+with open('django_tables2/__init__.py', 'rb') as f:
+    VERSION = str(re.search('__version__ = "(.+?)"', f.read().decode('utf-8')).group(1))
 
 if sys.argv[-1] == 'publish':
     os.system('python setup.py sdist upload')
