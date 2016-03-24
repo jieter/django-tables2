@@ -1,16 +1,17 @@
 # coding: utf-8
 from __future__ import unicode_literals
 
-import pytest
 from django.template import Context, Template
 from django.test import TransactionTestCase
+from django.utils.translation import override as translation_override
 from django.utils.translation import ugettext_lazy
 
 import django_tables2 as tables
+import pytest
 from django_tables2.config import RequestConfig
 
 from .app.models import Person
-from .utils import build_request, parse, translation
+from .utils import build_request, parse
 
 
 class CountryTable(tables.Table):
@@ -69,7 +70,7 @@ def test_as_html():
     assert len(root.findall('.//tbody/tr/td')) == 16
 
     # with custom template
-    table = CountryTable([], template="django_tables2/table.html")
+    table = CountryTable([], template='django_tables2/table.html')
     table.as_html(request)
 
 
@@ -106,8 +107,8 @@ class TestQueries(TransactionTestCase):
             PersonTable(Person.objects.all()).as_html(request)
 
     def test_render_table_db_queries(self):
-        Person.objects.create(first_name="brad", last_name="ayers")
-        Person.objects.create(first_name="davina", last_name="adisusila")
+        Person.objects.create(first_name='brad', last_name='ayers')
+        Person.objects.create(first_name='davina', last_name='adisusila')
 
         class PersonTable(tables.Table):
             class Meta:
@@ -154,7 +155,7 @@ def test_localization_check(settings):
     settings.USE_L10N = True
     settings.USE_THOUSAND_SEPARATOR = True
 
-    with translation("pl"):
+    with translation_override('pl'):
         # with default polish locales and enabled thousand separator
         # 1234.5 is formatted as "1 234,5" with nbsp
         html = get_cond_localized_table(True)(simple_test_data).as_html(request)
@@ -172,32 +173,32 @@ def test_localization_check(settings):
 
 def test_localization_check_in_meta(settings):
     class TableNoLocalize(tables.Table):
-        name = tables.Column(verbose_name="my column")
+        name = tables.Column(verbose_name='my column')
 
         class Meta:
-            default = "---"
+            default = '---'
 
     class TableLocalize(tables.Table):
-        name = tables.Column(verbose_name="my column")
+        name = tables.Column(verbose_name='my column')
 
         class Meta:
-            default = "---"
-            localize = ('name',)
+            default = '---'
+            localize = ('name', )
 
     class TableUnlocalize(tables.Table):
-        name = tables.Column(verbose_name="my column")
+        name = tables.Column(verbose_name='my column')
 
         class Meta:
-            default = "---"
-            unlocalize = ('name',)
+            default = '---'
+            unlocalize = ('name', )
 
     class TableLocalizePrecedence(tables.Table):
-        name = tables.Column(verbose_name="my column")
+        name = tables.Column(verbose_name='my column')
 
         class Meta:
-            default = "---"
-            unlocalize = ('name',)
-            localize = ('name',)
+            default = '---'
+            unlocalize = ('name', )
+            localize = ('name', )
 
     simple_test_data = [{'name': 1234.5}]
     expected_results = {
@@ -213,7 +214,7 @@ def test_localization_check_in_meta(settings):
     settings.USE_L10N = True
     settings.USE_THOUSAND_SEPARATOR = True
 
-    with translation("pl"):
+    with translation_override('pl'):
         # the same as in localization_check.
         # with localization and polish locale we get formatted output
         html = TableNoLocalize(simple_test_data).as_html(request)

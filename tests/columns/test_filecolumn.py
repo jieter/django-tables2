@@ -17,7 +17,7 @@ from ..utils import parse
 
 @pytest.yield_fixture
 def storage():
-    """Provide a storage that exposes the test templates"""
+    '''Provide a storage that exposes the test templates'''
     root = join(dirname(__file__), '..', 'app', 'templates')
     yield FileSystemStorage(location=root, base_url='/baseurl/')
 
@@ -57,7 +57,7 @@ def test_filecolumn_supports_storage_file(column, storage):
 
 
 def test_filecolumn_supports_contentfile(column):
-    name = "foobar.html"
+    name = 'foobar.html'
     file_ = ContentFile('')
     file_.name = name
     root = parse(column.render(value=file_))
@@ -68,7 +68,7 @@ def test_filecolumn_supports_contentfile(column):
 
 def test_filecolumn_supports_fieldfile(column, storage):
     field = models.FileField(storage=storage)
-    name = "child/foo.html"
+    name = 'child/foo.html'
     fieldfile = FieldFile(instance=None, field=field, name=name)
     root = parse(column.render(value=fieldfile))
     assert root.tag == 'a'
