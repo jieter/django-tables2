@@ -56,7 +56,7 @@ def test_link_text_custom_value():
     assert 'Doe John' in html
 
 
-def test_link_text_excaping():
+def test_link_text_escaping():
     class CustomLinkTable(tables.Table):
         last_name = tables.LinkColumn(
             'person',
@@ -92,26 +92,26 @@ def test_null_foreign_key():
 
 def test_kwargs():
     class PersonTable(tables.Table):
-        a = tables.LinkColumn('occupation', kwargs={"pk": A('a')})
+        a = tables.LinkColumn('occupation', kwargs={'pk': A('a')})
 
     request = build_request('/')
-    html = PersonTable([{"a": 0}, {"a": 1}]).as_html(request)
-    assert reverse("occupation", kwargs={"pk": 0}) in html
-    assert reverse("occupation", kwargs={"pk": 1}) in html
+    html = PersonTable([{'a': 0}, {'a': 1}]).as_html(request)
+    assert reverse('occupation', kwargs={'pk': 0}) in html
+    assert reverse('occupation', kwargs={'pk': 1}) in html
 
 
 def test_html_escape_value():
     class PersonTable(tables.Table):
-        name = tables.LinkColumn("escaping", kwargs={"pk": A("pk")})
+        name = tables.LinkColumn('escaping', kwargs={'pk': A('pk')})
 
-    table = PersonTable([{"name": "<brad>", "pk": 1}])
-    assert table.rows[0]["name"] == '<a href="/&amp;&#39;%22/1/">&lt;brad&gt;</a>'
+    table = PersonTable([{'name': '<brad>', 'pk': 1}])
+    assert table.rows[0]['name'] == '<a href="/&amp;&#39;%22/1/">&lt;brad&gt;</a>'
 
 
 def test_a_attrs_should_be_supported():
     class TestTable(tables.Table):
         col = tables.LinkColumn('occupation', kwargs={'pk': A('col')},
-                                attrs={"a": {"title": "Occupation Title"}})
+                                attrs={'a': {'title': 'Occupation Title'}})
 
     table = TestTable([{'col': 0}])
     assert attrs(table.rows[0]['col']) == {'href': reverse('occupation', kwargs={'pk': 0}),
