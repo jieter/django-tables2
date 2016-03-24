@@ -226,7 +226,7 @@ class Column(object):
         # Since this method is inherited by every subclass, only provide a
         # column if this class was asked directly.
         if cls is Column:
-            if hasattr(field, "get_related_field"):
+            if hasattr(field, 'get_related_field'):
                 verbose_name = field.get_related_field().verbose_name
             else:
                 verbose_name = getattr(field, 'verbose_name', field.name)

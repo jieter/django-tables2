@@ -1,8 +1,6 @@
 # coding: utf-8
 from __future__ import absolute_import, unicode_literals
 
-import warnings
-
 from django.core.urlresolvers import reverse
 from django.utils.html import format_html
 
@@ -34,9 +32,11 @@ class BaseLinkColumn(Column):
                               self.attrs.get('a', {}))
         attrs['href'] = uri
 
-        return format_html('<a {attrs}>{text}</a>',
-                           attrs=attrs.as_html(),
-                           text=text)
+        return format_html(
+            '<a {attrs}>{text}</a>',
+            attrs=attrs.as_html(),
+            text=text
+        )
 
 
 @library.register

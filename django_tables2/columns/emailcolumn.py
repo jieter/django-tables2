@@ -1,6 +1,8 @@
 # coding: utf-8
 from __future__ import absolute_import, unicode_literals
+
 from django.db import models
+
 from .base import library
 from .linkcolumn import BaseLinkColumn
 
@@ -31,7 +33,7 @@ class EmailColumn(BaseLinkColumn):
 
     """
     def render(self, value):
-        return self.render_link("mailto:%s" % value, text=value)
+        return self.render_link('mailto:%s' % value, text=value)
 
     @classmethod
     def from_field(cls, field):

@@ -1,9 +1,14 @@
 # coding: utf-8
 from __future__ import absolute_import, unicode_literals
-from django.db import models
-from django.utils.safestring import mark_safe
-from django_tables2.utils import AttributeDict
+
 import os
+
+from django.db import models
+from django.utils.html import format_html
+from django.utils.safestring import mark_safe
+
+from django_tables2.utils import AttributeDict
+
 from .base import Column, library
 
 
@@ -35,7 +40,7 @@ class FileColumn(Column):
         super(FileColumn, self).__init__(**kwargs)
 
     def render(self, value):
-        storage = getattr(value, "storage", None)
+        storage = getattr(value, 'storage', None)
         exists = None
         url = None
         if storage:
@@ -45,7 +50,7 @@ class FileColumn(Column):
             url = storage.url(value.name)
 
         else:
-            if self.verify_exists and hasattr(value, "name"):
+            if self.verify_exists and hasattr(value, 'name'):
                 # ignore negatives, perhaps the file has a name but it doesn't
                 # represent a local path... better to stay neutral than give a
                 # false negative.
@@ -57,19 +62,17 @@ class FileColumn(Column):
         if url:
             attrs['href'] = url
 
-        # add "exists" or "missing" to the class list
         classes = [c for c in attrs.get('class', '').split(' ') if c]
-        if exists is True:
-            classes.append("exists")
-        elif exists is False:
-            classes.append("missing")
-        attrs['class'] = " ".join(classes)
+        if exists is not None:
+            classes.append('exists' if exists else 'missing')
+        attrs['class'] = ' '.join(classes)
 
-        html = '<{tag} {attrs}>{text}</{tag}>'.format(
+        return format_html(
+            '<{tag} {attrs}>{text}</{tag}>',
             tag=tag,
             attrs=attrs.as_html(),
-            text=os.path.basename(value.name))
-        return mark_safe(html)
+            text=os.path.basename(value.name)
+        )
 
     @classmethod
     def from_field(cls, field):
