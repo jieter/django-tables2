@@ -10,7 +10,7 @@ import pytest
 from django_tables2 import A
 
 from ..app.models import Occupation, Person
-from ..utils import attrs, build_request, warns
+from ..utils import attrs, build_request
 
 
 def test_unicode():
@@ -39,9 +39,11 @@ def test_unicode():
 def test_link_text_custom_value():
     class CustomLinkTable(tables.Table):
         first_name = tables.LinkColumn('person', text='foo::bar', args=[A('pk')])
-        last_name = tables.LinkColumn('person',
-                                      text=lambda row: '%s %s' % (row['last_name'], row['first_name']),
-                                      args=[A('pk')])
+        last_name = tables.LinkColumn(
+            'person',
+            text=lambda row: '%s %s' % (row['last_name'], row['first_name']),
+            args=[A('pk')]
+        )
 
     dataset = [
         {'pk': 1, 'first_name': 'John', 'last_name': 'Doe'}
@@ -114,8 +116,10 @@ def test_a_attrs_should_be_supported():
                                 attrs={'a': {'title': 'Occupation Title'}})
 
     table = TestTable([{'col': 0}])
-    assert attrs(table.rows[0]['col']) == {'href': reverse('occupation', kwargs={'pk': 0}),
-                                           'title': 'Occupation Title'}
+    assert attrs(table.rows[0]['col']) == {
+        'href': reverse('occupation', kwargs={'pk': 0}),
+        'title': 'Occupation Title'
+    }
 
 
 def test_defaults():
