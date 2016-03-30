@@ -27,9 +27,9 @@ Its features include:
 - Template tag to enable trivial rendering to HTML.
 - Generic view mixin.
 
-- .. _Available on pypi: https://pypi.python.org/pypi/django-tables2
-- .. _Tested with python 2.7, 3.3, 3.4, 3.5 and Django 1.8, 1.9: https://travis-ci.org/bradleyayers/django-tables2
-- .. _Documentation on readthedocs.org: http://django-tables2.readthedocs.org/en/latest/
+- _Available on pypi: https://pypi.python.org/pypi/django-tables2
+- _Tested with python 2.7, 3.3, 3.4, 3.5 and Django 1.8, 1.9: https://travis-ci.org/bradleyayers/django-tables2
+- _Documentation on readthedocs.org: http://django-tables2.readthedocs.org/en/latest/
 
 Example
 -------
