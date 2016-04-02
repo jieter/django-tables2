@@ -21,9 +21,10 @@ from django_tables2.config import RequestConfig
 register = template.Library()
 kwarg_re = re.compile(r"(?:(.+)=)?(.+)")
 context_processor_error_msg = (
-    "{%% %s %%} requires django.core.context_processors.request "
-    "to be in your settings.TEMPLATE_CONTEXT_PROCESSORS in order for "
-    "the included template tags to function correctly."
+    "Tat {%% %s %%} requires django.template.context_processors.request to be "
+    "in the template configuration in "
+    "settings.TEMPLATES[]OPTIONS.context_processors) in order for the included "
+    "template tags to function correctly."
 )
 
 
