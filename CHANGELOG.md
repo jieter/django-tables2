@@ -1,7 +1,8 @@
 # Change log
 
-## v1.1.5 (2016-04-02)
+## v1.1.6 (2016-04-02)
 - Correct error message about request context processors for current Django (#314)
+- Skipped 1.1.5 due to an error while creating the tag.
 
 ## v1.1.4 (2016-03-22)
 - Fix broken `setup.py` if Django is not installed before django-tables2 (fixes #312)
