@@ -233,6 +233,28 @@ def test_localization_check_in_meta(settings):
         assert '<td class="name">{0}</td>'.format(expected_results[False]) in html
 
 
+def test_localization_of_pagination_string():
+    class Table(tables.Table):
+        foo = tables.Column(verbose_name='my column')
+        bar = tables.Column()
+
+        class Meta:
+            default = '---'
+
+    table = Table(map(lambda x: [x, x + 100], range(40)))
+    request = build_request('/')
+    RequestConfig(request, paginate={'per_page': 10}).configure(table)
+
+    with translation_override('en'):
+        assert 'Page 1 of 4' in table.as_html(request)
+
+    with translation_override('nl'):
+        assert 'Pagina 1 van 4' in table.as_html(request)
+
+    with translation_override('it'):
+        assert 'Pagina 1 di 4' in table.as_html(request)
+
+
 class BootstrapTable(CountryTable):
     class Meta:
         template = 'django_tables2/bootstrap.html'

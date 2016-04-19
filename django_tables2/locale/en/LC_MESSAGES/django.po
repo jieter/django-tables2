@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: django-tables2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-09-18 03:12+0200\n"
+"POT-Creation-Date: 2016-04-19 10:22+0200\n"
 "PO-Revision-Date: 2011-11-06 10:41+1000\n"
 "Last-Translator: Bradley Ayers <bradley.ayers@gmail.com>\n"
 "Language-Team: English <en@li.org>\n"
@@ -13,20 +13,35 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: templates/django_tables2/table.html:55
-msgid "Previous"
+#: templates/django_tables2/bootstrap.html:35
+msgid "no results"
 msgstr ""
 
-#: templates/django_tables2/table.html:59
+#: templates/django_tables2/bootstrap.html:55
+#, fuzzy
+#| msgid "Previous"
+msgid "previous"
+msgstr "Previous"
+
+#: templates/django_tables2/bootstrap.html:59
+#: templates/django_tables2/table.html:64
 #, python-format
 msgid "Page %(current)s of %(total)s"
+msgstr "Page %(current)s of %(total)s"
+
+#: templates/django_tables2/bootstrap.html:64
+msgid "next"
 msgstr ""
 
-#: templates/django_tables2/table.html:63
+#: templates/django_tables2/table.html:56
+msgid "Previous"
+msgstr "Previous"
+
+#: templates/django_tables2/table.html:72
 msgid "Next"
-msgstr ""
+msgstr "Next"
 
-#: templates/django_tables2/table.html:66
+#: templates/django_tables2/table.html:78
 #, python-format
 msgid "%(count)s of %(total)s"
-msgstr ""
+msgstr "%(count)s of %(total)s"
