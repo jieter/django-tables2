@@ -1,5 +1,10 @@
 # Change log
 
+## unreleased
+- Added Italian translation (#315 by [@paolodina](https://github.com/paolodina)
+- Added Dutch translation.
+- Fixed {% blocktrans %} template whitespace issues
+
 ## v1.1.6 (2016-04-02)
 - Correct error message about request context processors for current Django (#314)
 - Skipped 1.1.5 due to an error while creating the tag.
