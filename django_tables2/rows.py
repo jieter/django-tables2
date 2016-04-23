@@ -95,7 +95,7 @@ class BoundRow(object):
             # is correct – it's what __getitem__ expects.
             yield value
 
-    def __getitem__(self, name):
+    def get_cell(self, name):
         """
         Returns the final rendered value for a cell in the row, given the name
         of a column.
@@ -163,7 +163,7 @@ class BoundRow(object):
         ``rendered within ``<td>``.
         """
         for column in self.table.columns:
-            yield (column, self[column.name])
+            yield (column, self.get_cell(column.name))
 
 
 class BoundRows(object):
