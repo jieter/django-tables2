@@ -11,8 +11,9 @@ def test_should_turn_url_into_hyperlink():
     class TestTable(tables.Table):
         url = tables.URLColumn()
 
-    table = TestTable([{"url": "http://example.com"}])
-    assert table.rows[0]["url"] == '<a href="http://example.com">http://example.com</a>'
+    table = TestTable([{'url': 'http://example.com'}])
+
+    assert table.rows[0].get_cell('url') == '<a href="http://example.com">http://example.com</a>'
 
 
 def test_should_be_used_for_urlfields():

@@ -16,16 +16,16 @@ def test_should_turn_email_address_into_hyperlink():
     class Table(tables.Table):
         email = tables.EmailColumn()
 
-    table = Table([{"email": "test@example.com"}])
-    assert table.rows[0]["email"] == '<a href="mailto:test@example.com">test@example.com</a>'
+    table = Table([{'email': 'test@example.com'}])
+    assert table.rows[0].get_cell('email') == '<a href="mailto:test@example.com">test@example.com</a>'
 
 
 def test_should_render_default_for_blank():
     class Table(tables.Table):
-        email = tables.EmailColumn(default="---")
+        email = tables.EmailColumn(default='---')
 
-    table = Table([{"email": ""}])
-    assert table.rows[0]["email"] == '---'
+    table = Table([{'email': ''}])
+    assert table.rows[0].get_cell('email') == '---'
 
 
 def test_should_be_used_for_datetimefields():
@@ -39,4 +39,4 @@ def test_should_be_used_for_datetimefields():
         class Meta:
             model = EmailModel
 
-    assert type(Table.base_columns["field"]) == tables.EmailColumn
+    assert type(Table.base_columns['field']) == tables.EmailColumn

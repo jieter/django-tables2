@@ -49,7 +49,7 @@ def test_view_from_get_queryset():
     table = view.get_table()
 
     assert len(table.rows) == 1
-    assert table.rows[0]['name'] == 'Queensland'
+    assert table.rows[0].get_cell('name') == 'Queensland'
 
 
 def test_should_raise_without_tableclass():

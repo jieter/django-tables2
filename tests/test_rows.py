@@ -35,20 +35,20 @@ def test_bound_row():
     row = table.rows[0]
 
     # integer indexing into a row
-    assert row[0] == record['name']
-    assert row[1] == record['occupation']
-    assert row[2] == record['age']
+    assert row.get_cell(0) == record['name']
+    assert row.get_cell(1) == record['occupation']
+    assert row.get_cell(2) == record['age']
 
     with pytest.raises(IndexError):
-        row[3]
+        row.get_cell(3)
 
     # column name indexing into a row
-    assert row['name'] == record['name']
-    assert row['occupation'] == record['occupation']
-    assert row['age'] == record['age']
+    assert row.get_cell('name') == record['name']
+    assert row.get_cell('occupation') == record['occupation']
+    assert row.get_cell('age') == record['age']
 
     with pytest.raises(KeyError):
-        row['gamma']
+        row.get_cell('gamma')
 
     # row should support contains check
     assert 'name' in row

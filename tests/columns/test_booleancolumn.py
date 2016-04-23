@@ -1,10 +1,10 @@
 # coding: utf-8
 from __future__ import unicode_literals
 
+import pytest
 from django.db import models
 
 import django_tables2 as tables
-import pytest
 
 from ..app.models import Occupation, Person
 from ..utils import attrs
@@ -21,7 +21,7 @@ def test_should_be_used_for_booleanfield():
         class Meta:
             model = BoolModel
 
-    column = Table.base_columns["field"]
+    column = Table.base_columns['field']
     assert type(column) == tables.BooleanColumn
     assert column.empty_values != ()
 
@@ -37,33 +37,33 @@ def test_should_be_used_for_nullbooleanfield():
         class Meta:
             model = NullBoolModel
 
-    column = Table.base_columns["field"]
+    column = Table.base_columns['field']
     assert type(column) == tables.BooleanColumn
     assert column.empty_values == ()
 
 
 def test_treat_none_different_from_false():
     class Table(tables.Table):
-        col = tables.BooleanColumn(null=False, default="---")
+        col = tables.BooleanColumn(null=False, default='---')
 
-    table = Table([{"col": None}])
-    assert table.rows[0]["col"] == "---"
+    table = Table([{'col': None}])
+    assert table.rows[0].get_cell('col') == '---'
 
 
 def test_treat_none_as_false():
     class Table(tables.Table):
         col = tables.BooleanColumn(null=True)
 
-    table = Table([{"col": None}])
-    assert table.rows[0]["col"] == '<span class="false">✘</span>'
+    table = Table([{'col': None}])
+    assert table.rows[0].get_cell('col') == '<span class="false">✘</span>'
 
 
 def test_span_attrs():
     class Table(tables.Table):
-        col = tables.BooleanColumn(attrs={"span": {"key": "value"}})
+        col = tables.BooleanColumn(attrs={'span': {'key': 'value'}})
 
-    table = Table([{"col": True}])
-    assert attrs(table.rows[0]["col"]) == {"class": "true", "key": "value"}
+    table = Table([{'col': True}])
+    assert attrs(table.rows[0].get_cell('col')) == {'class': 'true', 'key': 'value'}
 
 
 def test_boolean_field_choices_with_real_model_instances():
@@ -86,8 +86,8 @@ def test_boolean_field_choices_with_real_model_instances():
 
     table = Table([BoolModel(field=True), BoolModel(field=False)])
 
-    assert table.rows[0]['field'] == '<span class="true">✔</span>'
-    assert table.rows[1]['field'] == '<span class="false">✘</span>'
+    assert table.rows[0].get_cell('field') == '<span class="true">✔</span>'
+    assert table.rows[1].get_cell('field') == '<span class="false">✘</span>'
 
 
 @pytest.mark.django_db
@@ -108,5 +108,5 @@ def test_boolean_field_choices_spanning_relations():
         Person(first_name='True', last_name='False', occupation=model_false)
     ])
 
-    assert table.rows[0]['boolean'] == '<span class="true">✔</span>'
-    assert table.rows[1]['boolean'] == '<span class="false">✘</span>'
+    assert table.rows[0].get_cell('boolean') == '<span class="true">✔</span>'
+    assert table.rows[1].get_cell('boolean') == '<span class="false">✘</span>'

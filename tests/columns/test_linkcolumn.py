@@ -1,12 +1,12 @@
 # coding: utf-8
 from __future__ import unicode_literals
 
+import pytest
 from django.core.urlresolvers import reverse
 from django.template import Context, Template
 from django.utils.html import mark_safe
 
 import django_tables2 as tables
-import pytest
 from django_tables2 import A
 
 from ..app.models import Occupation, Person
@@ -107,7 +107,7 @@ def test_html_escape_value():
         name = tables.LinkColumn('escaping', kwargs={'pk': A('pk')})
 
     table = PersonTable([{'name': '<brad>', 'pk': 1}])
-    assert table.rows[0]['name'] == '<a href="/&amp;&#39;%22/1/">&lt;brad&gt;</a>'
+    assert table.rows[0].get_cell('name') == '<a href="/&amp;&#39;%22/1/">&lt;brad&gt;</a>'
 
 
 def test_a_attrs_should_be_supported():
@@ -116,7 +116,7 @@ def test_a_attrs_should_be_supported():
                                 attrs={'a': {'title': 'Occupation Title'}})
 
     table = TestTable([{'col': 0}])
-    assert attrs(table.rows[0]['col']) == {
+    assert attrs(table.rows[0].get_cell('col')) == {
         'href': reverse('occupation', kwargs={'pk': 0}),
         'title': 'Occupation Title'
     }
@@ -127,7 +127,7 @@ def test_defaults():
         link = tables.LinkColumn('occupation', kwargs={'pk': 1}, default='xyz')
 
     table = Table([{}])
-    assert table.rows[0]['link'] == 'xyz'
+    assert table.rows[0].get_cell('link') == 'xyz'
 
 
 @pytest.mark.django_db
@@ -140,7 +140,7 @@ def test_get_absolute_url():
     table = PersonTable(Person.objects.all())
 
     expected = '<a href="/people/%d/">Waagmeester</a>' % person.pk
-    assert table.rows[0]['last_name'] == expected
+    assert table.rows[0].get_cell('last_name') == expected
 
 
 def test_get_absolute_url_not_defined():
@@ -168,4 +168,4 @@ def test_RelatedLinkColumn():
 
     table = Table(Person.objects.all())
 
-    assert table.rows[0]['occupation'] == '<a href="/occupations/%d/">Carpenter</a>' % carpenter.pk
+    assert table.rows[0].get_cell('occupation') == '<a href="/occupations/%d/">Carpenter</a>' % carpenter.pk

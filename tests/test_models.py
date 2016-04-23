@@ -1,8 +1,8 @@
 # coding: utf-8
+import pytest
 from django.utils import six
 
 import django_tables2 as tables
-import pytest
 
 from .app.models import Occupation, Person, PersonProxy
 from .utils import build_request
@@ -179,8 +179,8 @@ def test_field_choices_used_to_translated_value():
     table = ArticleTable([Article(name='English article', language='en'),
                           Article(name='Russian article', language='ru')])
 
-    assert 'English' == table.rows[0]['language']
-    assert 'Russian' == table.rows[1]['language']
+    assert 'English' == table.rows[0].get_cell('language')
+    assert 'Russian' == table.rows[1].get_cell('language')
 
 
 def test_column_mapped_to_nonexistant_field():
@@ -206,9 +206,9 @@ def test_should_support_rendering_multiple_times():
 
 def test_ordering():
     class SimpleTable(tables.Table):
-        name = tables.Column(order_by=("first_name", "last_name"))
+        name = tables.Column(order_by=('first_name', 'last_name'))
 
-    table = SimpleTable(Person.objects.all(), order_by="name")
+    table = SimpleTable(Person.objects.all(), order_by='name')
     assert table.as_html(request)
 
 
@@ -287,40 +287,40 @@ def test_queryset_table_data_supports_ordering():
         class Meta:
             model = Person
 
-    for name in ("Bradley Ayers", "Stevie Armstrong"):
+    for name in ('Bradley Ayers', 'Stevie Armstrong'):
         first_name, last_name = name.split()
         Person.objects.create(first_name=first_name, last_name=last_name)
 
     table = Table(Person.objects.all())
-    assert table.rows[0]["first_name"] == "Bradley"
-    table.order_by = "-first_name"
-    assert table.rows[0]["first_name"] == "Stevie"
+    assert table.rows[0].get_cell('first_name') == 'Bradley'
+    table.order_by = '-first_name'
+    assert table.rows[0].get_cell('first_name') == 'Stevie'
 
 
 def test_doesnotexist_from_accessor_should_use_default():
     class Table(tables.Table):
         class Meta:
             model = Person
-            default = "abc"
-            fields = ("first_name", "last_name", "region")
+            default = 'abc'
+            fields = ('first_name', 'last_name', 'region')
 
-    Person.objects.create(first_name="Brad", last_name="Ayers")
+    Person.objects.create(first_name='Brad', last_name='Ayers')
 
     table = Table(Person.objects.all())
-    assert table.rows[0]["first_name"] == "Brad"
-    assert table.rows[0]["region"] == "abc"
+    assert table.rows[0].get_cell('first_name') == 'Brad'
+    assert table.rows[0].get_cell('region') == 'abc'
 
 
 def test_unicode_field_names():
     class Table(tables.Table):
         class Meta:
             model = Person
-            fields = (six.text_type("first_name"),)
+            fields = (six.text_type('first_name'), )
 
-    Person.objects.create(first_name="Brad")
+    Person.objects.create(first_name='Brad')
 
     table = Table(Person.objects.all())
-    assert table.rows[0]["first_name"] == "Brad"
+    assert table.rows[0].get_cell('first_name') == 'Brad'
 
 
 def test_foreign_key():
