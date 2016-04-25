@@ -32,31 +32,27 @@ class BoundRow(object):
         1
         <input type="checkbox" name="my_chkbox" value="2" />
 
-    Alternatively you can treat it like a list and use indexing to retrieve a
-    specific cell. It should be noted that this will raise an IndexError on
-    failure.
+    Alternatively you can use row.get_cell() to retrieve a specific cell.
 
     .. code-block:: python
 
-        >>> row[0]
+        >>> row.get_cell(0)
         1
-        >>> row[1]
+        >>> row.get_cell(1)
         u'<input type="checkbox" name="my_chkbox" value="2" />'
-        >>> row[2]
+        >>> row.get_cell(2)
         ...
         IndexError: list index out of range
 
-    Finally you can also treat it like a dictionary and use column names as the
-    keys. This will raise KeyError on failure (unlike the above indexing using
-    integers).
+    Finally you can also use the column names to retrieve a specific cell:
 
     .. code-block:: python
 
-        >>> row['a']
+        >>> row.get_cell('a')
         1
-        >>> row['b']
+        >>> row.get_cell('b')
         u'<input type="checkbox" name="my_chkbox" value="2" />'
-        >>> row['c']
+        >>> row.get_cell('c')
         ...
         KeyError: 'c'
 
@@ -95,7 +91,7 @@ class BoundRow(object):
             # is correct – it's what __getitem__ expects.
             yield value
 
-    def __getitem__(self, name):
+    def get_cell(self, name):
         """
         Returns the final rendered value for a cell in the row, given the name
         of a column.
@@ -163,7 +159,7 @@ class BoundRow(object):
         ``rendered within ``<td>``.
         """
         for column in self.table.columns:
-            yield (column, self[column.name])
+            yield (column, self.get_cell(column.name))
 
 
 class BoundRows(object):

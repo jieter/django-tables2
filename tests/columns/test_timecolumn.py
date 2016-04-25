@@ -21,8 +21,8 @@ def test_should_handle_explicit_format():
 
     table = TestTable([{'time': time(11, 11, 11)},
                        {'time': None}])
-    assert table.rows[0]['time'] == "11:11:11"
-    assert table.rows[1]['time'] == "—"
+    assert table.rows[0].get_cell('time') == "11:11:11"
+    assert table.rows[1].get_cell('time') == "—"
 
 
 def test_should_be_used_for_timefields():

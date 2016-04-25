@@ -30,20 +30,20 @@ def dt():
         # If the version of Django has timezone support, convert from naive to
         # UTC, the test project uses Australia/Brisbane so regardless the
         # output from the column should be the same.
-        dt = pytz.timezone("Australia/Brisbane").localize(dt)
+        dt = pytz.timezone('Australia/Brisbane').localize(dt)
     yield dt
 
 
 def test_should_handle_explicit_format(dt):
     class TestTable(tables.Table):
-        date = tables.DateTimeColumn(format="D b Y")
+        date = tables.DateTimeColumn(format='D b Y')
 
         class Meta:
-            default = "—"
+            default = '—'
 
-    table = TestTable([{"date": dt}, {"date": None}])
-    assert table.rows[0]["date"] == "Tue sep 2012"
-    assert table.rows[1]["date"] == "—"
+    table = TestTable([{'date': dt}, {'date': None}])
+    assert table.rows[0].get_cell('date') == 'Tue sep 2012'
+    assert table.rows[1].get_cell('date') == '—'
 
 
 def test_should_handle_long_format(dt, settings):
@@ -51,12 +51,12 @@ def test_should_handle_long_format(dt, settings):
         date = tables.DateTimeColumn(short=False)
 
         class Meta:
-            default = "—"
+            default = '—'
 
-    settings.DATETIME_FORMAT = "D Y b A f"
-    table = TestTable([{"date": dt}, {"date": None}])
-    assert table.rows[0]["date"] == "Tue 2012 sep PM 12:30"
-    assert table.rows[1]["date"] == "—"
+    settings.DATETIME_FORMAT = 'D Y b A f'
+    table = TestTable([{'date': dt}, {'date': None}])
+    assert table.rows[0].get_cell('date') == 'Tue 2012 sep PM 12:30'
+    assert table.rows[1].get_cell('date') == '—'
 
 
 def test_should_handle_short_format(dt, settings):
@@ -64,12 +64,12 @@ def test_should_handle_short_format(dt, settings):
         date = tables.DateTimeColumn(short=True)
 
         class Meta:
-            default = "—"
+            default = '—'
 
-    settings.SHORT_DATETIME_FORMAT = "b Y D A f"
-    table = TestTable([{"date": dt}, {"date": None}])
-    assert table.rows[0]["date"] == "sep 2012 Tue PM 12:30"
-    assert table.rows[1]["date"] == "—"
+    settings.SHORT_DATETIME_FORMAT = 'b Y D A f'
+    table = TestTable([{'date': dt}, {'date': None}])
+    assert table.rows[0].get_cell('date') == 'sep 2012 Tue PM 12:30'
+    assert table.rows[1].get_cell('date') == '—'
 
 
 def test_should_be_used_for_datetimefields():
@@ -83,4 +83,4 @@ def test_should_be_used_for_datetimefields():
         class Meta:
             model = DateTimeModel
 
-    assert type(Table.base_columns["field"]) == tables.DateTimeColumn
+    assert type(Table.base_columns['field']) == tables.DateTimeColumn

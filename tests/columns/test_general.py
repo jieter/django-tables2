@@ -17,34 +17,34 @@ request = build_request('/')
 def test_column_render_supports_kwargs():
     class TestColumn(tables.Column):
         def render(self, **kwargs):
-            expected = {"record", "value", "column", "bound_column", "bound_row", "table"}
+            expected = {'record', 'value', 'column', 'bound_column', 'bound_row', 'table'}
             actual = set(kwargs.keys())
             assert actual == expected
-            return "success"
+            return 'success'
 
     class TestTable(tables.Table):
         foo = TestColumn()
 
-    table = TestTable([{"foo": "bar"}])
-    assert table.rows[0]["foo"] == "success"
+    table = TestTable([{'foo': 'bar'}])
+    assert table.rows[0].get_cell('foo') == 'success'
 
 
 def test_column_header_should_use_titlised_verbose_name_unless_given_explicitly():
     class SimpleTable(tables.Table):
         basic = tables.Column()
-        acronym = tables.Column(verbose_name="has FBI help")
+        acronym = tables.Column(verbose_name='has FBI help')
 
     table = SimpleTable([])
-    assert table.columns["basic"].header == "Basic"
-    assert table.columns["acronym"].header == "has FBI help"
+    assert table.columns['basic'].header == 'Basic'
+    assert table.columns['acronym'].header == 'has FBI help'
 
 
 def test_should_support_safe_verbose_name():
     class SimpleTable(tables.Table):
-        safe = tables.Column(verbose_name=mark_safe("<b>Safe</b>"))
+        safe = tables.Column(verbose_name=mark_safe('<b>Safe</b>'))
 
     table = SimpleTable([])
-    assert isinstance(table.columns["safe"].header, SafeData)
+    assert isinstance(table.columns['safe'].header, SafeData)
 
 
 def test_should_raise_on_invalid_accessor():
@@ -64,15 +64,15 @@ def test_should_support_safe_verbose_name_via_model():
         safe = tables.Column()
 
     table = PersonTable(Person.objects.all())
-    assert isinstance(table.columns["safe"].header, SafeData)
+    assert isinstance(table.columns['safe'].header, SafeData)
 
 
 def test_should_support_empty_string_as_explicit_verbose_name():
     class SimpleTable(tables.Table):
-        acronym = tables.Column(verbose_name="")
+        acronym = tables.Column(verbose_name='')
 
     table = SimpleTable([])
-    assert table.columns["acronym"].header == ""
+    assert table.columns['acronym'].header == ''
 
 
 @pytest.mark.django_db
@@ -310,8 +310,8 @@ def test_empty_values_triggers_default():
     class Table(tables.Table):
         a = tables.Column(empty_values=(1, 2), default="--")
 
-    table = Table([{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}])
-    assert [x["a"] for x in table.rows] == ["--", "--", 3, 4]
+    table = Table([{'a': 1}, {'a': 2}, {'a': 3}, {'a': 4}])
+    assert [row.get_cell('a') for row in table.rows] == ['--', '--', 3, 4]
 
 
 def test_register_skips_non_columns():

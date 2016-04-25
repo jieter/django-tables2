@@ -5,11 +5,11 @@ from __future__ import absolute_import, unicode_literals
 import copy
 import itertools
 
+import pytest
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.utils import six
 
 import django_tables2 as tables
-import pytest
 from django_tables2.tables import DeclarativeColumnsMetaclass
 
 from .utils import build_request
@@ -33,6 +33,21 @@ MEMORY_DATA = [
     {'i': 1, 'alpha': 'a', 'beta': 'c'},
     {'i': 3, 'alpha': 'c', 'beta': 'a'},
 ]
+
+
+def test_column_named_items():
+    '''
+    A column named items must not make the table fail
+    https://github.com/bradleyayers/django-tables2/issues/316
+    '''
+    class ItemsTable(tables.Table):
+        items = tables.Column()
+
+    table = ItemsTable([{'items': 123}, {'items': 2345}])
+
+    html = table.as_html(request)
+    assert '123' in html
+    assert '2345' in html
 
 
 def test_declarations():
@@ -231,14 +246,14 @@ def test_ordering():
 
     # let's check the data
     table = OrderedTable(MEMORY_DATA, order_by='beta')
-    assert 3 == table.rows[0]['i']
+    assert 3 == table.rows[0].get_cell('i')
 
     table = OrderedTable(MEMORY_DATA, order_by='-beta')
-    assert 1 == table.rows[0]['i']
+    assert 1 == table.rows[0].get_cell('i')
 
     # allow fallback to Table.Meta.order_by
     table = OrderedTable(MEMORY_DATA)
-    assert 1 == table.rows[0]['i']
+    assert 1 == table.rows[0].get_cell('i')
 
     # column's can't be ordered if they're not allowed to be
     class TestTable2(tables.Table):
@@ -279,24 +294,24 @@ def test_ordering_different_types():
     ]
 
     table = OrderedTable(data)
-    assert "—" == table.rows[0]['alpha']
+    assert "—" == table.rows[0].get_cell('alpha')
 
     table = OrderedTable(data, order_by='i')
     if six.PY3:
-        assert {} == table.rows[0]['i']
+        assert {} == table.rows[0].get_cell('i')
     else:
-        assert 1 == table.rows[0]['i']
+        assert 1 == table.rows[0].get_cell('i')
 
     table = OrderedTable(data, order_by='beta')
-    assert [] == table.rows[0]['beta']
+    assert [] == table.rows[0].get_cell('beta')
 
 
 def test_multi_column_ordering():
-    brad = {"first_name": "Bradley", "last_name": "Ayers"}
-    brad2 = {"first_name": "Bradley", "last_name": "Fake"}
-    chris = {"first_name": "Chris", "last_name": "Doble"}
-    davina = {"first_name": "Davina", "last_name": "Adisusila"}
-    ross = {"first_name": "Ross", "last_name": "Ayers"}
+    brad = {'first_name': 'Bradley', 'last_name': 'Ayers'}
+    brad2 = {'first_name': 'Bradley', 'last_name': 'Fake'}
+    chris = {'first_name': 'Chris', 'last_name': 'Doble'}
+    davina = {'first_name': 'Davina', 'last_name': 'Adisusila'}
+    ross = {'first_name': 'Ross', 'last_name': 'Ayers'}
 
     people = [brad, brad2, chris, davina, ross]
 
@@ -304,25 +319,25 @@ def test_multi_column_ordering():
         first_name = tables.Column()
         last_name = tables.Column()
 
-    table = PersonTable(people, order_by=("first_name", "last_name"))
+    table = PersonTable(people, order_by=('first_name', 'last_name'))
     assert [brad, brad2, chris, davina, ross] == [r.record for r in table.rows]
 
-    table = PersonTable(people, order_by=("first_name", "-last_name"))
+    table = PersonTable(people, order_by=('first_name', '-last_name'))
     assert [brad2, brad, chris, davina, ross] == [r.record for r in table.rows]
 
     # let's try column order_by using multiple keys
     class PersonTable(tables.Table):
-        name = tables.Column(order_by=("first_name", "last_name"))
+        name = tables.Column(order_by=('first_name', 'last_name'))
 
     # add 'name' key for each person.
     for person in people:
-        person['name'] = "{p[first_name]} {p[last_name]}".format(p=person)
-    assert brad['name'] == "Bradley Ayers"
+        person['name'] = '{p[first_name]} {p[last_name]}'.format(p=person)
+    assert brad['name'] == 'Bradley Ayers'
 
-    table = PersonTable(people, order_by="name")
+    table = PersonTable(people, order_by='name')
     assert [brad, brad2, chris, davina, ross] == [r.record for r in table.rows]
 
-    table = PersonTable(people, order_by="-name")
+    table = PersonTable(people, order_by='-name')
     assert [ross, davina, chris, brad2, brad] == [r.record for r in table.rows]
 
 
@@ -340,9 +355,9 @@ def test_column_accessor():
         col1 = tables.Column(accessor='alpha.upper.isupper')
         col2 = tables.Column(accessor='alpha.upper')
     table = SimpleTable(MEMORY_DATA)
-    row = table.rows[0]
-    assert row['col1'] is True
-    assert row['col2'] == 'B'
+
+    assert table.rows[0].get_cell('col1') is True
+    assert table.rows[0].get_cell('col2') == 'B'
 
 
 def test_exclude_columns():
@@ -353,30 +368,30 @@ def test_exclude_columns():
     columns originally.
     """
     # Table(..., exclude=...)
-    table = UnorderedTable([], exclude=("i"))
-    assert [c.name for c in table.columns] == ["alpha", "beta"]
+    table = UnorderedTable([], exclude=('i'))
+    assert [c.name for c in table.columns] == ['alpha', 'beta']
 
     # Table.Meta: exclude=...
     class PartialTable(UnorderedTable):
         class Meta:
-            exclude = ("alpha", )
+            exclude = ('alpha', )
     table = PartialTable([])
-    assert [c.name for c in table.columns] == ["i", "beta"]
+    assert [c.name for c in table.columns] == ['i', 'beta']
 
     # Inheritence -- exclude in parent, add in child
     class AddonTable(PartialTable):
         added = tables.Column()
     table = AddonTable([])
-    assert [c.name for c in table.columns] == ["i", "beta", "added"]
+    assert [c.name for c in table.columns] == ['i', 'beta', 'added']
 
     # Inheritence -- exclude in child
     class ExcludeTable(UnorderedTable):
         added = tables.Column()
 
         class Meta:
-            exclude = ("beta", )
+            exclude = ('beta', )
     table = ExcludeTable([])
-    assert [c.name for c in table.columns] == ["i", "alpha", "added"]
+    assert [c.name for c in table.columns] == ['i', 'alpha', 'added']
 
 
 def test_table_exclude_property_should_override_constructor_argument():
@@ -566,13 +581,13 @@ def test_should_support_rendering_multiple_times():
 
 def test_column_defaults_are_honored():
     class Table(tables.Table):
-        name = tables.Column(default="abcd")
+        name = tables.Column(default='abcd')
 
         class Meta:
-            default = "efgh"
+            default = 'efgh'
 
-    table = Table([{}], default="ijkl")
-    assert table.rows[0]['name'] == "abcd"
+    table = Table([{}], default='ijkl')
+    assert table.rows[0].get_cell('name') == 'abcd'
 
 
 def test_table_meta_defaults_are_honored():
@@ -580,22 +595,22 @@ def test_table_meta_defaults_are_honored():
         name = tables.Column()
 
         class Meta:
-            default = "abcd"
+            default = 'abcd'
 
     table = Table([{}])
-    assert table.rows[0]['name'] == "abcd"
+    assert table.rows[0].get_cell('name') == 'abcd'
 
 
 def test_table_defaults_are_honored():
     class Table(tables.Table):
         name = tables.Column()
 
-    table = Table([{}], default="abcd")
-    assert table.rows[0]['name'] == "abcd"
+    table = Table([{}], default='abcd')
+    assert table.rows[0].get_cell('name') == 'abcd'
 
-    table = Table([{}], default="abcd")
-    table.default = "efgh"
-    assert table.rows[0]['name'] == "efgh"
+    table = Table([{}], default='abcd')
+    table.default = 'efgh'
+    assert table.rows[0].get_cell('name') == "efgh"
 
 
 def test_list_table_data_supports_ordering():
@@ -603,11 +618,11 @@ def test_list_table_data_supports_ordering():
         name = tables.Column()
 
     data = [
-        {"name": "Bradley"},
-        {"name": "Davina"},
+        {'name': 'Bradley'},
+        {'name': 'Davina'},
     ]
 
     table = Table(data)
-    assert table.rows[0]["name"] == "Bradley"
-    table.order_by = "-name"
-    assert table.rows[0]["name"] == "Davina"
+    assert table.rows[0].get_cell('name') == 'Bradley'
+    table.order_by = '-name'
+    assert table.rows[0].get_cell('name') == 'Davina'

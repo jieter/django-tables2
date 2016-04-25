@@ -1,5 +1,6 @@
 # coding: utf-8
 from __future__ import unicode_literals
+
 from django.core.paginator import EmptyPage, PageNotAnInteger
 
 
@@ -37,13 +38,13 @@ class RequestConfig(object):
         if order_by:
             table.order_by = order_by
         if self.paginate:
-            if hasattr(self.paginate, "items"):
+            if hasattr(self.paginate, 'items'):
                 kwargs = dict(self.paginate)
             else:
                 kwargs = {}
             # extract some options from the request
-            for arg in ("page", "per_page"):
-                name = getattr(table, "prefixed_%s_field" % arg)
+            for arg in ('page', 'per_page'):
+                name = getattr(table, 'prefixed_%s_field' % arg)
                 try:
                     kwargs[arg] = int(self.request.GET[name])
                 except (ValueError, KeyError):

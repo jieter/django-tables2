@@ -54,15 +54,16 @@ class SingleTableMixin(object):
         """
         if self.table_class:
             return self.table_class
-        raise ImproperlyConfigured("A table class was not specified. Define "
-                                   "%(cls)s.table_class"
-                                   % {"cls": type(self).__name__})
+        klass = type(self).__name__
+        raise ImproperlyConfigured(
+            'A table class was not specified. Define {}.table_class'.format(klass)
+        )
 
     def get_context_table_name(self, table):
         """
         Get the name to use for the table's template variable.
         """
-        return self.context_table_name or "table"
+        return self.context_table_name or 'table'
 
     def get_table_data(self):
         """
@@ -77,11 +78,13 @@ class SingleTableMixin(object):
         # ImproperlyConfigured if no model is defined and
         # SingleTableMixin.get_table_class will raise if no table_data was specified...
         # TODO: consider removing
-        elif hasattr(self, 'get_queryset'):  # pragma: nocover
+        elif hasattr(self, 'get_queryset'):
             return self.get_queryset()
-        raise ImproperlyConfigured("Table data was not specified. Define "
-                                   "%(cls)s.table_data"
-                                   % {"cls": type(self).__name__})  # pragma: nocover
+
+        klass = type(self).__name__
+        raise ImproperlyConfigured(
+            'Table data was not specified. Define {}.table_data'.format(klass)
+        )
 
     def get_table_pagination(self):
         """
