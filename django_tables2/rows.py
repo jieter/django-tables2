@@ -3,7 +3,7 @@ from django.db import models
 from django.db.models.fields import FieldDoesNotExist
 from django.utils import six
 
-from .utils import A, getargspec
+from .utils import A, signature
 
 
 class BoundRow(object):
@@ -103,26 +103,29 @@ class BoundRow(object):
         # methods on a model to be used if available. See issue #30.
         path, _, remainder = bound_column.accessor.rpartition('.')
         penultimate = A(path).resolve(self.record, quiet=True)
+
         # If the penultimate is a model and the remainder is a field
         # using choices, use get_FOO_display().
         if isinstance(penultimate, models.Model):
             try:
                 field = penultimate._meta.get_field(remainder)
-                display = getattr(penultimate, 'get_%s_display' % remainder, None)
-                if getattr(field, "choices", ()) and display:
-                    value = display()
+                display_fn = getattr(penultimate, 'get_%s_display' % remainder, None)
+                if getattr(field, 'choices', ()) and display_fn:
+                    value = display_fn()
                     remainder = None
             except FieldDoesNotExist:
                 pass
+
         # Fall back to just using the original accessor (we just need
         # to follow the remainder).
         if remainder:
             value = A(remainder).resolve(penultimate, quiet=True)
 
+        # https://github.com/bradleyayers/django-tables2/issues/257
         if value in bound_column.column.empty_values:
             return bound_column.default
 
-        available = {
+        kwargs = {
             'value': value,
             'record': self.record,
             'column': bound_column.column,
@@ -130,19 +133,20 @@ class BoundRow(object):
             'bound_row': self,
             'table': self._table,
         }
-        expected = {}
+        # inspect signature of the render()-method. If ** argument is defined,
+        # just provide all, else provide exactly the kwargs wanted.
 
-        # provide only the arguments expected by `render`
-        argspec = getargspec(bound_column.render)
-        args, varkw = argspec[0], argspec[2]
-        if varkw:
-            expected = available
-        else:
-            for key, value in available.items():
-                if key in args[1:]:
-                    expected[key] = value
+        args, keywords = signature(bound_column.render)
 
-        return bound_column.render(**expected)
+        print(args, keywords)
+        if keywords is None:
+            kwargs = {
+                key: kwargs[key]
+                for key in kwargs
+                if key in args
+            }
+
+        return bound_column.render(**kwargs)
 
     def __contains__(self, item):
         """Check by both row object and column name."""

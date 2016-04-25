@@ -1,11 +1,11 @@
 # coding: utf-8
+import pytest
 from django.db import models
 from django.utils import six
 
-import pytest
 from django_tables2.utils import (Accessor, AttributeDict, OrderBy,
                                   OrderByTuple, Sequence, computed_values,
-                                  segment)
+                                  segment, signature)
 
 
 def test_orderbytuple():
@@ -172,3 +172,46 @@ def test_sequence_multiple_ellipsis():
 
     with pytest.raises(ValueError):
         sequence.expand(['foo'])
+
+
+def test_signature():
+    def foo(bar, baz):
+        pass
+
+    args, keywords = signature(foo)
+    assert args == ('bar', 'baz')
+    assert keywords is None
+
+
+def test_signature_method():
+    class Foo(object):
+        def foo(self):
+            pass
+
+        def bar(self, bar, baz):
+            pass
+
+        def baz(self, bar, *bla, **boo):
+            pass
+
+    obj = Foo()
+    args, keywords = signature(obj.foo)
+    assert args == ()
+    assert keywords is None
+
+    args, keywords = signature(obj.bar)
+    assert args == ('bar', 'baz')
+    assert keywords is None
+
+    args, keywords = signature(obj.baz)
+    assert args == ('bar', )
+    assert keywords == 'boo'
+
+
+def test_signature_catch_all_kwargs():
+    def foo(bar, baz, **kwargs):
+        pass
+
+    args, keywords = signature(foo)
+    assert args == ('bar', 'baz')
+    assert keywords == 'kwargs'

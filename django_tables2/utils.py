@@ -1,7 +1,6 @@
 # coding: utf-8
 from __future__ import absolute_import, unicode_literals
 
-import inspect
 from functools import total_ordering
 from itertools import chain
 
@@ -435,9 +434,40 @@ def segment(sequence, aliases):
                     yield tuple([valias])
 
 
-funcs = (name for name in ('getfullargspec', 'getargspec') if hasattr(inspect, name))
-getargspec = getattr(inspect, next(funcs))
-del funcs
+def signature(fn):
+    '''
+    Returns a tuple containing:
+     - the arguments (positional or keyword)
+     - the name of the ** kwarg catch all.
+
+    The self-argument for methods is always removed.
+    '''
+    import inspect
+    # getargspec is Deprecated since version 3.0, so if not PY2, use the new
+    # inspect api.
+
+    if six.PY2:
+        argspec = inspect.getargspec(fn)
+        args = argspec.args
+        return (
+            tuple(args[1:] if args[0] == 'self' else args),
+            argspec.keywords
+        )
+    else:
+        signature = inspect.signature(fn)
+
+        args = []
+        keywords = None
+        for arg in signature.parameters.values():
+            if arg.kind == arg.VAR_KEYWORD:
+                keywords = arg.name
+            elif arg.kind == arg.VAR_POSITIONAL:
+                # skip *args catch-all
+                continue
+            else:
+                args.append(arg.name)
+
+        return tuple(args), keywords
 
 
 def computed_values(d):
