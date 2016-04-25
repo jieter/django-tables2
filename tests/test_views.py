@@ -7,6 +7,13 @@ import django_tables2 as tables
 from .app.models import Region
 from .utils import build_request
 
+MEMORY_DATA = [
+    {'name': 'Queensland'},
+    {'name': 'New South Wales'},
+    {'name': 'Victoria'},
+    {'name': 'Tasmania'}
+]
+
 
 class DispatchHookMixin(object):
     """
@@ -23,23 +30,23 @@ class SimpleTable(tables.Table):
 
 class SimpleView(DispatchHookMixin, tables.SingleTableView):
     table_class = SimpleTable
-    table_pagination = {"per_page": 1}
+    table_pagination = {'per_page': 1}
     model = Region  # needed for ListView
 
 
 @pytest.mark.django_db
 def test_view_should_support_pagination_options():
-    for name in ('Queensland', 'New South Wales', 'Victoria', 'Tasmania'):
-        Region.objects.create(name=name)
+    for region in MEMORY_DATA:
+        Region.objects.create(name=region['name'])
 
     response, view = SimpleView.as_view()(build_request('/'))
-    assert view.get_table().paginator.num_pages == 4
+    assert view.get_table().paginator.num_pages == len(MEMORY_DATA)
 
 
 @pytest.mark.django_db
 def test_view_from_get_queryset():
-    for name in ('Queensland', 'New South Wales', 'Victoria', 'Tasmania'):
-        Region.objects.create(name=name)
+    for region in MEMORY_DATA:
+        Region.objects.create(name=region['name'])
 
     class GetQuerysetView(SimpleView):
         def get_queryset(self):
@@ -62,14 +69,27 @@ def test_should_raise_without_tableclass():
 
 def test_should_support_explicit_table_data():
     class ExplicitDataView(SimpleView):
-        table_data = [
-            {'name': 'Queensland'},
-            {'name': 'New South Wales'},
-            {'name': 'Victoria'},
-        ]
+        table_data = MEMORY_DATA
 
     response, view = ExplicitDataView.as_view()(build_request('/'))
-    assert view.get_table().paginator.num_pages == 3
+    assert view.get_table().paginator.num_pages == len(MEMORY_DATA)
+
+
+@pytest.mark.django_db
+def test_paginate_by_on_view_class():
+    class Table(tables.Table):
+        class Meta:
+            model = Region
+
+    class PaginateByDefinedOnView(DispatchHookMixin, tables.SingleTableView):
+        table_class = Table
+        model = Region
+        paginate_by = 2
+
+        table_data = MEMORY_DATA
+
+    response, view = PaginateByDefinedOnView.as_view()(build_request('/'))
+    assert view.get_table().paginator.num_pages == 2
 
 
 @pytest.mark.django_db

@@ -45,6 +45,12 @@ class SingleTableMixin(object):
         paginate = self.get_table_pagination()
         if paginate is not None:
             options['paginate'] = paginate
+
+        elif self.paginate_by is not None:
+            # Since ListView knows the concept paginate_by, we use that if no
+            # other pagination is configured.
+            options['paginate'] = {'per_page': self.paginate_by}
+
         RequestConfig(self.request, **options).configure(table)
         return table
 
