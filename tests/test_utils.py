@@ -37,33 +37,33 @@ def test_orderbytuple():
 def test_orderbytuple_sort_key_multiple():
     obt = OrderByTuple(('a', '-b'))
     items = [
-        {"a": 1, "b": 2},
-        {"a": 1, "b": 3},
+        {'a': 1, 'b': 2},
+        {'a': 1, 'b': 3},
     ]
     assert sorted(items, key=obt.key) == [
-        {"a": 1, "b": 3},
-        {"a": 1, "b": 2},
+        {'a': 1, 'b': 3},
+        {'a': 1, 'b': 2},
     ]
 
 
 def test_orderbytuple_sort_key_empty_comes_first():
     obt = OrderByTuple(('a'))
     items = [
-        {"a": 1},
-        {"a": ""},
-        {"a": 2},
+        {'a': 1},
+        {'a': ''},
+        {'a': 2},
     ]
     if six.PY3:
         assert sorted(items, key=obt.key) == [
-            {"a": ""},
-            {"a": 1},
-            {"a": 2},
+            {'a': ''},
+            {'a': 1},
+            {'a': 2},
         ]
     else:
         assert sorted(items, key=obt.key) == [
-            {"a": 1},
-            {"a": 2},
-            {"a": ""},
+            {'a': 1},
+            {'a': 2},
+            {'a': ''},
         ]
 
 
@@ -158,12 +158,12 @@ def test_compute_values_supports_nested_structures():
 
 def test_segment_should_return_all_candidates():
     assert set(segment(("a", "-b", "c"), {
-        "x": "a",
-        "y": ("b", "-c"),
-        "-z": ("b", "-c"),
+        'x': 'a',
+        'y': ('b', '-c'),
+        '-z': ('b', '-c'),
     })) == {
-        ("x", "-y"),
-        ("x", "z"),
+        ('x', '-y'),
+        ('x', 'z'),
     }
 
 
