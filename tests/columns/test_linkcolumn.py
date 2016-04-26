@@ -87,9 +87,10 @@ def test_null_foreign_key():
 
     Person.objects.create(first_name='bradley', last_name='ayers')
 
-    request = build_request()
     table = PersonTable(Person.objects.all())
-    table.as_html(request)
+    html = table.as_html(build_request())
+
+    assert '<td class="occupation">—</td>' in html
 
 
 def test_kwargs():
