@@ -1,6 +1,6 @@
 # Change log
 
-## unreleased
+## v1.1.7 (2016-04-26)
 - Added Italian translation (#315 by [@paolodina](https://github.com/paolodina)
 - Added Dutch translation.
 - Fixed {% blocktrans %} template whitespace issues
