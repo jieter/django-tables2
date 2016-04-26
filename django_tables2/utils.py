@@ -346,7 +346,7 @@ class Accessor(str):
             return ()
         return self.split(self.SEPARATOR)
 
-    def get_field(self, model, quiet=False):
+    def get_field(self, model):
         '''Return the django model field for model in context, following relations'''
         if not hasattr(model, '_meta'):
             return
@@ -362,6 +362,18 @@ class Accessor(str):
                 continue
 
         return field
+
+    def penultimate(self, context, quiet=True):
+        '''
+        Split the accessor on the right-most dot '.', return a tuple with:
+         - the resolved left part.
+         - the remainder
+
+        >>> Accessor('a.b.c').penultimate({'a': {'a': 1, 'b': {'c': 2, 'd': 4}}})
+        ({'c': 2, 'd': 4}, 'c')
+        '''
+        path, _, remainder = self.rpartition('.')
+        return A(path).resolve(context, quiet=quiet), remainder
 
 
 A = Accessor  # alias

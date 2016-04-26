@@ -141,6 +141,22 @@ def test_accessor_returns_None_if_not_a_model():
     assert Accessor('bar').get_field(context) is None
 
 
+def test_accessor_penultimate():
+    context = {
+        'a': {
+            'a': 1,
+            'b': {
+                'c': 2,
+                'd': 4
+            }
+        }
+    }
+
+    assert Accessor('a.b.c').penultimate(context) == (context['a']['b'], 'c')
+
+    assert Accessor('a.b.c.d.e').penultimate(context) == (None, 'e')
+
+
 def test_attribute_dict_handles_escaping():
     x = AttributeDict({'x': '"\'x&'})
     assert x.as_html() == 'x="&quot;&#39;x&amp;"'
