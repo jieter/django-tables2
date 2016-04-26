@@ -1,5 +1,4 @@
 # coding: utf-8
-# pylint: disable=R0912,E0102
 from __future__ import unicode_literals
 
 from django.db import models

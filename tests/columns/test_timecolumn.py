@@ -1,5 +1,4 @@
 # coding: utf-8
-# pylint: disable=R0912,E0102
 from __future__ import unicode_literals
 
 from datetime import time
@@ -14,10 +13,10 @@ import django_tables2 as tables
 
 def test_should_handle_explicit_format():
     class TestTable(tables.Table):
-        time = tables.TimeColumn(format="H:i:s")
+        time = tables.TimeColumn(format='H:i:s')
 
         class Meta:
-            default = "—"
+            default = '—'
 
     table = TestTable([{'time': time(11, 11, 11)},
                        {'time': None}])
@@ -36,4 +35,4 @@ def test_should_be_used_for_timefields():
         class Meta:
             model = TimeModel
 
-    assert type(Table.base_columns["field"]) == tables.TimeColumn
+    assert type(Table.base_columns['field']) == tables.TimeColumn

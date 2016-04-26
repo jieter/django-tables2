@@ -1,16 +1,15 @@
 # coding: utf-8
-# pylint: disable=R0912,E0102
 from __future__ import unicode_literals
 
 from os.path import dirname, join
 
+import pytest
 from django.core.files.base import ContentFile
 from django.core.files.storage import FileSystemStorage
 from django.db import models
 from django.db.models.fields.files import FieldFile
 
 import django_tables2 as tables
-import pytest
 
 from ..utils import parse
 

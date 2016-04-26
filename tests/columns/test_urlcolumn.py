@@ -1,5 +1,4 @@
 # coding: utf-8
-# pylint: disable=R0912,E0102
 from __future__ import unicode_literals
 
 from django.db import models
@@ -27,4 +26,4 @@ def test_should_be_used_for_urlfields():
         class Meta:
             model = URLModel
 
-    assert type(Table.base_columns["field"]) == tables.URLColumn
+    assert type(Table.base_columns['field']) == tables.URLColumn

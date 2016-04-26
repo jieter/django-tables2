@@ -476,8 +476,8 @@ def computed_values(d):
 
     Simple example:
 
-        >>> compute_values({"foo": lambda: "bar"})
-        {"foo": "bar"}
+        >>> compute_values({'foo': lambda: 'bar'})
+        {'foo': 'bar'}
 
     Arbitrarily deep structures are supported. The logic is as follows:
 
@@ -488,17 +488,17 @@ def computed_values(d):
 
         >>> def parents():
         ...     return {
-        ...         "father": lambda: "Foo",
-        ...         "mother": "Bar"
+        ...         'father': lambda: 'Foo',
+        ...         'mother': 'Bar'
         ...      }
         ...
         >>> a = {
-        ...     "name": "Brad",
-        ...     "parents": parents
+        ...     'name': 'Brad',
+        ...     'parents': parents
         ... }
         ...
         >>> computed_values(a)
-        {"name": "Brad", "parents": {"father": "Foo", "mother": "Bar"}}
+        {'name': 'Brad', 'parents': {'father': 'Foo', 'mother': 'Bar'}}
 
     :rtype: dict
     """
