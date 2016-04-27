@@ -42,7 +42,7 @@ class SingleTableMixin(object):
         table_class = self.get_table_class()
         table = table_class(self.get_table_data(), **kwargs)
 
-        paginate = self.get_table_pagination()
+        paginate = self.get_table_pagination(table)
         if paginate is not None:
             options['paginate'] = paginate
 
@@ -92,7 +92,7 @@ class SingleTableMixin(object):
             'Table data was not specified. Define {}.table_data'.format(klass)
         )
 
-    def get_table_pagination(self):
+    def get_table_pagination(self, table):
         """
         Returns pagination options: True for standard pagination (default),
         False for no pagination, and a dictionary for custom pagination.
