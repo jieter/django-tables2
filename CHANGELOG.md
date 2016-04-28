@@ -1,5 +1,9 @@
 # Change log
 
+## unreleased
+- Pass the table instance into `SingleTableMixin.get_table_pagination()` (#320 by
+(@georgema1982)[https://github.com/georgema1982])
+
 ## v1.1.7 (2016-04-26)
 - Added Italian translation (#315 by [@paolodina](https://github.com/paolodina)
 - Added Dutch translation.

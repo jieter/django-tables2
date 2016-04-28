@@ -123,6 +123,8 @@ def test_should_override_table_pagination():
         table_data = MEMORY_DATA
 
         def get_table_pagination(self, table):
+            assert isinstance(table, tables.Table)
+
             per_page = self.request.GET.get('%s_override' % table.prefixed_per_page_field)
             if per_page is not None:
                 return {'per_page': per_page}
