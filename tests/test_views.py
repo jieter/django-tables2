@@ -107,3 +107,26 @@ def test_should_pass_kwargs_to_table_constructor():
 
     response, view = PassKwargsView.as_view()(build_request('/'))
     assert view.get_table().orderable is False
+
+
+@pytest.mark.django_db
+def test_should_override_table_pagination():
+
+    class PrefixedTable(SimpleTable):
+        class Meta(SimpleTable.Meta):
+            prefix = 'p_'
+
+    class PrefixedView(SimpleView):
+        table_class = PrefixedTable
+
+    class PaginationOverrideView(PrefixedView):
+        table_data = MEMORY_DATA
+
+        def get_table_pagination(self, table):
+            per_page = self.request.GET.get('%s_override' % table.prefixed_per_page_field)
+            if per_page is not None:
+                return {'per_page': per_page}
+            return super(PaginationOverrideView, self).get_table_pagination(table)
+
+    response, view = PaginationOverrideView.as_view()(build_request('/?p_per_page_override=2'))
+    assert view.get_table().paginator.num_pages == 2
