@@ -11,7 +11,7 @@ When contributing code or making bug fixes, we need to have unit tests to verify
 
 ## Running the tests
 
-With `tox` installed, you can run the test suite by typing `tox.
+With `tox` installed, you can run the test suite by typing `tox`.
 It will take care of installing the correct dependencies. During development,
 you might not want to wait for the tests to run in all environments.
 In that case, use the `-e` argument to specify an environment:
