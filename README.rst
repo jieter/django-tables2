@@ -34,7 +34,7 @@ Its features include:
 Example
 -------
 
-Start by adding "django_tables2" to your INSTALLED_APPS setting like this:
+Start by adding ``django_tables2`` to your ``INSTALLED_APPS`` setting like this:
 
 .. code:: python
 
@@ -69,38 +69,5 @@ And finally in the template:
     {% load django_tables2 %}
     {% render_table table %}
 
-This example shows one of the simplest cases, but django-tables2 can do a lot
-more! Check out the _documentation: http://django-tables2.readthedocs.org/en/latest/ for more details.
-
-Running the tests
------------------
-
-With ``tox`` installed, you can run the test suite by typing ``tox``. It will take
-care of installing the correct dependencies. During development, you might not
-want to wait for the tests to run in all environments. In that case, use the ``-e``
-argument to specify an environment:
-
-``tox -e py27-1.9`` to run the tests in python 2.7 with Django 1.9.
-
-To generate a html coverage report:
-
-    PYTHONPATH=. py.test -s --cov=django_tables2 --cov-report html
-
-
-Building the documentation
---------------------------
-
-If you want to build the docs from within a virtualenv, and Sphinx is installed
-globally, use:
-
-    cd docs/
-    make html SPHINXBUILD="python $(which sphinx-build)"
-
-
-Publishing a release
---------------------
-
-1. Bump the version in ``django-tables2/__init__.py``.
-2. Update ``CHANGELOG.md``.
-3. Create a tag ``git tag -a v1.0.6 -m 'tagging v1.0.6'``
-4. Run ``python setup.py sdist upload --sign --identity=<your gpg identity>``.
+This example shows one of the simplest cases, but django-tables2 can do a lot more! 
+Check out the _documentation: http://django-tables2.readthedocs.org/en/latest/ for more details.
