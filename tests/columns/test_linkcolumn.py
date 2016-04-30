@@ -58,7 +58,7 @@ def test_link_text_custom_value():
 
 def test_link_text_escaping():
     class CustomLinkTable(tables.Table):
-        last_name = tables.LinkColumn(
+        editlink = tables.LinkColumn(
             'person',
             text=mark_safe('edit'),
             args=[A('pk')]
@@ -71,7 +71,7 @@ def test_link_text_escaping():
     table = CustomLinkTable(dataset)
     html = table.as_html(build_request('/some-url/'))
 
-    expected = '<td class="last_name"><a href="{}">edit</a></td>'.format(
+    expected = '<td class="editlink"><a href="{}">edit</a></td>'.format(
         reverse('person', args=(1, ))
     )
     assert expected in html

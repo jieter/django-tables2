@@ -124,7 +124,8 @@ class BoundRow(object):
                 value = accessor.resolve(self.record)
             except Exception:
                 # we need to account for non-field based columns (issue #257)
-                if isinstance(bound_column.column, BaseLinkColumn) and isinstance(self.record, models.Model):
+                is_linkcolumn = isinstance(bound_column.column, BaseLinkColumn)
+                if is_linkcolumn and bound_column.column.text is not None:
                     return self._call_render(bound_column)
 
         if value in bound_column.column.empty_values:

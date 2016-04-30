@@ -119,7 +119,7 @@ class LinkColumn(BaseLinkColumn):
         self.args = args
         self.kwargs = kwargs
         self.current_app = current_app
-        self.text_value = text
+        self.text = text
 
     def compose_url(self, record, *args, **kwargs):
         '''Compose the url if the column is constructed with a viewname.'''
@@ -148,13 +148,12 @@ class LinkColumn(BaseLinkColumn):
         return reverse(viewname, **params)
 
     def render(self, value, record, bound_column):
-        text_value = value
-        if self.text_value:
-            text_value = self.text_value
-            if callable(text_value):
-                text_value = text_value(record)
+        if self.text:
+            value = self.text
+            if callable(value):
+                value = value(record)
 
-        return self.render_link(self.compose_url(record, bound_column), text=text_value)
+        return self.render_link(self.compose_url(record, bound_column), text=value)
 
 
 @library.register
