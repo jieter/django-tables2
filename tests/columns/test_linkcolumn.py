@@ -139,12 +139,12 @@ def test_a_attrs_should_be_supported():
     }
 
 
-# def test_defaults():
-#     class Table(tables.Table):
-#         link = tables.LinkColumn('occupation', kwargs={'pk': 1}, default='xyz')
-#
-#     table = Table([{}])
-#     assert table.rows[0].get_cell('link') == 'xyz'
+def test_defaults():
+    class Table(tables.Table):
+        link = tables.LinkColumn('occupation', kwargs={'pk': 1}, default='xyz')
+
+    table = Table([{}])
+    assert table.rows[0].get_cell('link') == 'xyz'
 
 
 @pytest.mark.django_db
