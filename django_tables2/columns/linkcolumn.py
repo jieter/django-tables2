@@ -13,20 +13,29 @@ class BaseLinkColumn(Column):
     """
     The base for other columns that render links.
 
-    Adds support for an ``a`` key in *attrs** which is added to the rendered
-    ``<a href="...">`` tag.
+    :param  text: Either static text, or a callable. If set, this value will be
+                  used to render the text inside link instead of value (default).
+                  The calleble gets the record being rendered as argument.
+    :param attrs: Additional attributes for the ``<a>`` tag
     """
-    def __init__(self, attrs=None, *args, **kwargs):
+    def __init__(self, attrs=None, text=None, *args, **kwargs):
         kwargs['attrs'] = attrs
+        self.text = text
         super(BaseLinkColumn, self).__init__(*args, **kwargs)
 
-    def render_link(self, uri, text, attrs=None):
+    def text_value(self, record, value):
+        if self.text is None:
+            return value
+        return self.text(record) if callable(self.text) else self.text
+
+    def render_link(self, uri, record, value, attrs=None):
         """
         Render a hyperlink.
 
-        :param   uri: URI for the hyperlink
-        :param  text: value wrapped in ``<a></a>``
-        :param attrs: ``<a>`` tag attributes
+        :param    uri: URI for the hyperlink
+        :param record: record currently being rendered
+        :param  value: value wrapped in ``<a></a>``, might be overridden by ``self.text``
+        :param  attrs: ``<a>`` tag attributes
         """
         attrs = AttributeDict(attrs if attrs is not None else
                               self.attrs.get('a', {}))
@@ -35,7 +44,7 @@ class BaseLinkColumn(Column):
         return format_html(
             '<a {attrs}>{text}</a>',
             attrs=attrs.as_html(),
-            text=text
+            text=self.text_value(record, value)
         )
 
 
@@ -60,11 +69,12 @@ class LinkColumn(BaseLinkColumn):
     :param        args: See `~django.core.urlresolvers.reverse`. **
     :param      kwargs: See `~django.core.urlresolvers.reverse`. **
     :param current_app: See `~django.core.urlresolvers.reverse`.
-    :param       attrs: a `dict` of HTML attributes that are added to
-                        the rendered ``<input type="checkbox" .../>`` tag
-    :param        text: Either static text, or a callable. If set, this
-                        value will be used to render the text inside link
-                        instead of value (default)
+    :param       attrs: a `dict` of HTML attributes that are added to the
+                        rendered ``<a ...>...</a>`` tag.
+    :param        text: Either static text, or a callable. If set, this value
+                        will be used to render the text inside link instead of
+                        value (default).
+                        The calleble gets the record being rendered as argument.
 
     ** In order to create a link to a URL that relies on information in the
     current row, `.Accessor` objects can be used in the *args* or
@@ -112,14 +122,13 @@ class LinkColumn(BaseLinkColumn):
     - *a* -- ``<a>`` elements in ``<td>``.
     """
     def __init__(self, viewname=None, urlconf=None, args=None, kwargs=None,
-                 current_app=None, attrs=None, text=None, **extra):
+                 current_app=None, attrs=None, **extra):
         super(LinkColumn, self).__init__(attrs, **extra)
         self.viewname = viewname
         self.urlconf = urlconf
         self.args = args
         self.kwargs = kwargs
         self.current_app = current_app
-        self.text = text
 
     def compose_url(self, record, *args, **kwargs):
         '''Compose the url if the column is constructed with a viewname.'''
@@ -148,12 +157,11 @@ class LinkColumn(BaseLinkColumn):
         return reverse(viewname, **params)
 
     def render(self, value, record, bound_column):
-        if self.text:
-            value = self.text
-            if callable(value):
-                value = value(record)
-
-        return self.render_link(self.compose_url(record, bound_column), text=value)
+        return self.render_link(
+            self.compose_url(record, bound_column),
+            record=record,
+            value=value
+        )
 
 
 @library.register

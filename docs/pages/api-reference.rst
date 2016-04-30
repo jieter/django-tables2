@@ -99,7 +99,7 @@ API Reference
 
             This functionality is also available via the ``show_header``
             keyword argument to a table's constructor.
-            
+
     .. attribute:: exclude
 
         Defines which columns should be excluded from the table. This is useful

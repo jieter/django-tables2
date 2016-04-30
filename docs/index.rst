@@ -27,7 +27,7 @@ Report bugs at http://github.com/bradleyayers/django-tables2/issues
     pages/column-headers
     pages/pagination
     pages/custom-rendering
-    pages/query-string-fields	
+    pages/query-string-fields
     pages/column-attributes
     pages/builtin-columns
     pages/template-tags
@@ -40,7 +40,3 @@ Report bugs at http://github.com/bradleyayers/django-tables2/issues
     pages/upgrading-from-v1
     pages/glossary
     pages/internal
-
-
-
-
