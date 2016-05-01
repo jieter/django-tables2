@@ -3,7 +3,8 @@ from django.db import models
 from django.db.models.fields import FieldDoesNotExist
 from django.utils import six
 
-from .utils import A, getargspec
+from .columns.linkcolumn import BaseLinkColumn
+from .utils import A, signature
 
 
 class BoundRow(object):
@@ -99,30 +100,42 @@ class BoundRow(object):
         bound_column = self.table.columns[name]
 
         value = None
+        accessor = A(bound_column.accessor)
+
         # We need to take special care here to allow get_FOO_display()
         # methods on a model to be used if available. See issue #30.
-        path, _, remainder = bound_column.accessor.rpartition('.')
-        penultimate = A(path).resolve(self.record, quiet=True)
+        penultimate, remainder = accessor.penultimate(self.record)
+
         # If the penultimate is a model and the remainder is a field
         # using choices, use get_FOO_display().
         if isinstance(penultimate, models.Model):
             try:
-                field = penultimate._meta.get_field(remainder)
-                display = getattr(penultimate, 'get_%s_display' % remainder, None)
-                if getattr(field, "choices", ()) and display:
-                    value = display()
+                field = accessor.get_field(self.record)
+                display_fn = getattr(penultimate, 'get_%s_display' % remainder, None)
+                if getattr(field, 'choices', ()) and display_fn:
+                    value = display_fn()
                     remainder = None
             except FieldDoesNotExist:
                 pass
-        # Fall back to just using the original accessor (we just need
-        # to follow the remainder).
+
+        # Fall back to just using the original accessor
         if remainder:
-            value = A(remainder).resolve(penultimate, quiet=True)
+            try:
+                value = accessor.resolve(self.record)
+            except Exception:
+                # we need to account for non-field based columns (issue #257)
+                is_linkcolumn = isinstance(bound_column.column, BaseLinkColumn)
+                if is_linkcolumn and bound_column.column.text is not None:
+                    return self._call_render(bound_column)
 
         if value in bound_column.column.empty_values:
             return bound_column.default
 
-        available = {
+        return self._call_render(bound_column, value)
+
+    def _call_render(self, bound_column, value=None):
+        '''Call the column's render method with appropriate kwargs'''
+        kwargs = {
             'value': value,
             'record': self.record,
             'column': bound_column.column,
@@ -130,19 +143,15 @@ class BoundRow(object):
             'bound_row': self,
             'table': self._table,
         }
-        expected = {}
 
-        # provide only the arguments expected by `render`
-        argspec = getargspec(bound_column.render)
-        args, varkw = argspec[0], argspec[2]
-        if varkw:
-            expected = available
-        else:
-            for key, value in available.items():
-                if key in args[1:]:
-                    expected[key] = value
+        # inspect signature of the render()-method. If the **kwargs argument is
+        # defined, pass all arguments, else provide exactly the kwargs wanted.
+        args, keywords = signature(bound_column.render)
 
-        return bound_column.render(**expected)
+        if keywords is None:
+            kwargs = {key: kwargs[key] for key in kwargs if key in args}
+
+        return bound_column.render(**kwargs)
 
     def __contains__(self, item):
         """Check by both row object and column name."""

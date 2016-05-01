@@ -1,11 +1,11 @@
 # coding: utf-8
+import pytest
 from django.db import models
 from django.utils import six
 
-import pytest
 from django_tables2.utils import (Accessor, AttributeDict, OrderBy,
                                   OrderByTuple, Sequence, computed_values,
-                                  segment)
+                                  segment, signature)
 
 
 def test_orderbytuple():
@@ -37,33 +37,33 @@ def test_orderbytuple():
 def test_orderbytuple_sort_key_multiple():
     obt = OrderByTuple(('a', '-b'))
     items = [
-        {"a": 1, "b": 2},
-        {"a": 1, "b": 3},
+        {'a': 1, 'b': 2},
+        {'a': 1, 'b': 3},
     ]
     assert sorted(items, key=obt.key) == [
-        {"a": 1, "b": 3},
-        {"a": 1, "b": 2},
+        {'a': 1, 'b': 3},
+        {'a': 1, 'b': 2},
     ]
 
 
 def test_orderbytuple_sort_key_empty_comes_first():
     obt = OrderByTuple(('a'))
     items = [
-        {"a": 1},
-        {"a": ""},
-        {"a": 2},
+        {'a': 1},
+        {'a': ''},
+        {'a': 2},
     ]
     if six.PY3:
         assert sorted(items, key=obt.key) == [
-            {"a": ""},
-            {"a": 1},
-            {"a": 2},
+            {'a': ''},
+            {'a': 1},
+            {'a': 2},
         ]
     else:
         assert sorted(items, key=obt.key) == [
-            {"a": 1},
-            {"a": 2},
-            {"a": ""},
+            {'a': 1},
+            {'a': 2},
+            {'a': ''},
         ]
 
 
@@ -141,6 +141,22 @@ def test_accessor_returns_None_if_not_a_model():
     assert Accessor('bar').get_field(context) is None
 
 
+def test_accessor_penultimate():
+    context = {
+        'a': {
+            'a': 1,
+            'b': {
+                'c': 2,
+                'd': 4
+            }
+        }
+    }
+
+    assert Accessor('a.b.c').penultimate(context) == (context['a']['b'], 'c')
+
+    assert Accessor('a.b.c.d.e').penultimate(context) == (None, 'e')
+
+
 def test_attribute_dict_handles_escaping():
     x = AttributeDict({'x': '"\'x&'})
     assert x.as_html() == 'x="&quot;&#39;x&amp;"'
@@ -158,12 +174,12 @@ def test_compute_values_supports_nested_structures():
 
 def test_segment_should_return_all_candidates():
     assert set(segment(("a", "-b", "c"), {
-        "x": "a",
-        "y": ("b", "-c"),
-        "-z": ("b", "-c"),
+        'x': 'a',
+        'y': ('b', '-c'),
+        '-z': ('b', '-c'),
     })) == {
-        ("x", "-y"),
-        ("x", "z"),
+        ('x', '-y'),
+        ('x', 'z'),
     }
 
 
@@ -172,3 +188,46 @@ def test_sequence_multiple_ellipsis():
 
     with pytest.raises(ValueError):
         sequence.expand(['foo'])
+
+
+def test_signature():
+    def foo(bar, baz):
+        pass
+
+    args, keywords = signature(foo)
+    assert args == ('bar', 'baz')
+    assert keywords is None
+
+
+def test_signature_method():
+    class Foo(object):
+        def foo(self):
+            pass
+
+        def bar(self, bar, baz):
+            pass
+
+        def baz(self, bar, *bla, **boo):
+            pass
+
+    obj = Foo()
+    args, keywords = signature(obj.foo)
+    assert args == ()
+    assert keywords is None
+
+    args, keywords = signature(obj.bar)
+    assert args == ('bar', 'baz')
+    assert keywords is None
+
+    args, keywords = signature(obj.baz)
+    assert args == ('bar', )
+    assert keywords == 'boo'
+
+
+def test_signature_catch_all_kwargs():
+    def foo(bar, baz, **kwargs):
+        pass
+
+    args, keywords = signature(foo)
+    assert args == ('bar', 'baz')
+    assert keywords == 'kwargs'

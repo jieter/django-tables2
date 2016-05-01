@@ -1,7 +1,6 @@
 # coding: utf-8
 from __future__ import absolute_import, unicode_literals
 
-import inspect
 from functools import total_ordering
 from itertools import chain
 
@@ -347,7 +346,7 @@ class Accessor(str):
             return ()
         return self.split(self.SEPARATOR)
 
-    def get_field(self, model, quiet=False):
+    def get_field(self, model):
         '''Return the django model field for model in context, following relations'''
         if not hasattr(model, '_meta'):
             return
@@ -363,6 +362,18 @@ class Accessor(str):
                 continue
 
         return field
+
+    def penultimate(self, context, quiet=True):
+        '''
+        Split the accessor on the right-most dot '.', return a tuple with:
+         - the resolved left part.
+         - the remainder
+
+        >>> Accessor('a.b.c').penultimate({'a': {'a': 1, 'b': {'c': 2, 'd': 4}}})
+        ({'c': 2, 'd': 4}, 'c')
+        '''
+        path, _, remainder = self.rpartition('.')
+        return A(path).resolve(context, quiet=quiet), remainder
 
 
 A = Accessor  # alias
@@ -435,9 +446,40 @@ def segment(sequence, aliases):
                     yield tuple([valias])
 
 
-funcs = (name for name in ('getfullargspec', 'getargspec') if hasattr(inspect, name))
-getargspec = getattr(inspect, next(funcs))
-del funcs
+def signature(fn):
+    '''
+    Returns a tuple containing:
+     - the arguments (positional or keyword)
+     - the name of the ** kwarg catch all.
+
+    The self-argument for methods is always removed.
+    '''
+    import inspect
+    # getargspec is Deprecated since version 3.0, so if not PY2, use the new
+    # inspect api.
+
+    if six.PY2:
+        argspec = inspect.getargspec(fn)
+        args = argspec.args
+        return (
+            tuple(args[1:] if args[0] == 'self' else args),
+            argspec.keywords
+        )
+    else:
+        signature = inspect.signature(fn)
+
+        args = []
+        keywords = None
+        for arg in signature.parameters.values():
+            if arg.kind == arg.VAR_KEYWORD:
+                keywords = arg.name
+            elif arg.kind == arg.VAR_POSITIONAL:
+                # skip *args catch-all
+                continue
+            else:
+                args.append(arg.name)
+
+        return tuple(args), keywords
 
 
 def computed_values(d):
@@ -446,8 +488,8 @@ def computed_values(d):
 
     Simple example:
 
-        >>> compute_values({"foo": lambda: "bar"})
-        {"foo": "bar"}
+        >>> compute_values({'foo': lambda: 'bar'})
+        {'foo': 'bar'}
 
     Arbitrarily deep structures are supported. The logic is as follows:
 
@@ -458,17 +500,17 @@ def computed_values(d):
 
         >>> def parents():
         ...     return {
-        ...         "father": lambda: "Foo",
-        ...         "mother": "Bar"
+        ...         'father': lambda: 'Foo',
+        ...         'mother': 'Bar'
         ...      }
         ...
         >>> a = {
-        ...     "name": "Brad",
-        ...     "parents": parents
+        ...     'name': 'Brad',
+        ...     'parents': parents
         ... }
         ...
         >>> computed_values(a)
-        {"name": "Brad", "parents": {"father": "Foo", "mother": "Bar"}}
+        {'name': 'Brad', 'parents': {'father': 'Foo', 'mother': 'Bar'}}
 
     :rtype: dict
     """

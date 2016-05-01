@@ -50,9 +50,7 @@ def test_link_text_custom_value():
     ]
 
     table = CustomLinkTable(dataset)
-    request = build_request('/some-url/')
-    template = Template('{% load django_tables2 %}{% render_table table %}')
-    html = template.render(Context({'request': request, 'table': table}))
+    html = table.as_html(build_request('/some-url/'))
 
     assert 'foo::bar' in html
     assert 'Doe John' in html
@@ -60,9 +58,9 @@ def test_link_text_custom_value():
 
 def test_link_text_escaping():
     class CustomLinkTable(tables.Table):
-        last_name = tables.LinkColumn(
+        editlink = tables.LinkColumn(
             'person',
-            text=mark_safe('<i class="glyphicon glyphicon-pencil"></i>'),
+            text=mark_safe('edit'),
             args=[A('pk')]
         )
 
@@ -71,11 +69,12 @@ def test_link_text_escaping():
     ]
 
     table = CustomLinkTable(dataset)
-    request = build_request('/some-url/')
-    template = Template('{% load django_tables2 %}{% render_table table %}')
-    html = template.render(Context({'request': request, 'table': table}))
+    html = table.as_html(build_request('/some-url/'))
 
-    assert '><i class="glyphicon glyphicon-pencil"></i></a>' in html
+    expected = '<td class="editlink"><a href="{}">edit</a></td>'.format(
+        reverse('person', args=(1, ))
+    )
+    assert expected in html
 
 
 @pytest.mark.django_db
@@ -87,9 +86,27 @@ def test_null_foreign_key():
 
     Person.objects.create(first_name='bradley', last_name='ayers')
 
-    request = build_request()
     table = PersonTable(Person.objects.all())
-    table.as_html(request)
+    html = table.as_html(build_request())
+
+    assert '<td class="occupation">—</td>' in html
+
+
+@pytest.mark.django_db
+def test_linkcolumn_non_field_based():
+    '''Test for issue 257, non-field based columns'''
+    class Table(tables.Table):
+        first_name = tables.Column()
+        delete_link = tables.LinkColumn('person_delete', text='delete', kwargs={'pk': tables.A('id')})
+
+    willem = Person.objects.create(first_name='Willem', last_name='Wever')
+
+    html = Table(Person.objects.all()).as_html(build_request())
+
+    expected = '<td class="delete_link"><a href="{}">delete</a></td>'.format(
+        reverse('person_delete', kwargs={'pk': willem.pk})
+    )
+    assert expected in html
 
 
 def test_kwargs():

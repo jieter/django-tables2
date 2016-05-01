@@ -12,10 +12,12 @@ class EmailColumn(BaseLinkColumn):
     """
     A subclass of `.BaseLinkColumn` that renders the cell value as a hyperlink.
 
-    It's common to have a email value in a row hyperlinked to other page.
+    It's common to have a email value in a row hyperlinked to another page.
 
-    :param  attrs: a `dict` of HTML attributes that are added to
-                   the rendered ``<a href="...">...</a>`` tag
+    :param  attrs: a `dict` of HTML attributes that are added to the rendered
+                   ``<a href="...">...</a>`` tag
+    :param   text: Either static text, or a callable. If set, this value will be
+                   used to render the text inside link instead of value (default)
 
     Example:
 
@@ -32,8 +34,12 @@ class EmailColumn(BaseLinkColumn):
             email = tables.EmailColumn()
 
     """
-    def render(self, value):
-        return self.render_link('mailto:%s' % value, text=value)
+    def render(self, record, value):
+        return self.render_link(
+            uri='mailto:{}'.format(value),
+            record=record,
+            value=value
+        )
 
     @classmethod
     def from_field(cls, field):
