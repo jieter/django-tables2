@@ -3,6 +3,8 @@
 ## unreleased
 - Pass the table instance into `SingleTableMixin.get_table_pagination()` (#320 by
 (@georgema1982)[https://github.com/georgema1982])
+- Ability to change the body of the `<a>`-tag, by passing `text` kwarg to the columns inheriting from BaseLinkColumn (#318 by [@desecho](https://github.com/desecho), #322)
+- Non-field based LinkColumn only renders default value if lookup fails and text is not set. (#322, fixes #257)
 
 ## v1.1.7 (2016-04-26)
 - Added Italian translation (#315 by [@paolodina](https://github.com/paolodina)

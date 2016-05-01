@@ -16,9 +16,10 @@ def test_should_turn_url_into_hyperlink():
     class TestTable(tables.Table):
         url = tables.URLColumn()
 
-    table = TestTable([{'url': 'http://example.com'}])
+    table = TestTable(MEMORY_DATA)
 
     assert table.rows[0].get_cell('url') == '<a href="http://example.com">http://example.com</a>'
+    assert table.rows[1].get_cell('url') == '<a href="https://example.com">https://example.com</a>'
 
 
 def test_should_be_used_for_urlfields():
@@ -39,7 +40,7 @@ def test_text_can_be_overridden():
     class Table(tables.Table):
         url = tables.URLColumn(text='link')
 
-    table = Table([{'url': 'http://example.com'}])
+    table = Table(MEMORY_DATA)
 
     assert table.rows[0].get_cell('url') == '<a href="http://example.com">link</a>'
 
@@ -51,3 +52,4 @@ def test_text_can_be_overridden_with_callable():
     table = Table(MEMORY_DATA)
 
     assert table.rows[0].get_cell('url') == '<a href="http://example.com">Example</a>'
+    assert table.rows[1].get_cell('url') == '<a href="https://example.com">Example (https)</a>'
