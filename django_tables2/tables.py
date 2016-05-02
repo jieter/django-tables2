@@ -34,20 +34,20 @@ class TableData(object):
         if (hasattr(data, 'count') and callable(data.count) and
                 hasattr(data, 'order_by') and callable(data.order_by)):
             self.queryset = data
-        # otherwise it must be convertable to a list
-        else:
-            # do some light validation
-            if hasattr(data, '__iter__') or (hasattr(data, '__len__') and hasattr(data, '__getitem__')):
-                self.list = list(data)
-            else:
-                raise ValueError(
-                    'data must be QuerySet-like (have count and '
-                    'order_by) or support list(data) -- %s has '
-                    'neither' % type(data).__name__
-                )
+            return
+
+        # do some light validation
+        if hasattr(data, '__iter__') or (hasattr(data, '__len__') and hasattr(data, '__getitem__')):
+            self.list = list(data)
+            return
+
+        raise ValueError(
+            'data must be QuerySet-like (have count() and order_by()) or support'
+            ' list(data) -- {} has neither'.format(type(data).__name__)
+        )
 
     def __len__(self):
-        if not hasattr(self, "_length"):
+        if not hasattr(self, '_length'):
             # Use the queryset count() method to get the length, instead of
             # loading all results into memory. This allows, for example,
             # smart paginators that use len() to perform better.
@@ -72,7 +72,7 @@ class TableData(object):
         This works by inspecting the actual underlying data. As such it's only
         supported for querysets.
         """
-        if hasattr(self, "queryset"):
+        if hasattr(self, 'queryset'):
             aliases = {}
             for bound_column in self.table.columns:
                 aliases[bound_column.order_by_alias] = bound_column.order_by
@@ -101,7 +101,7 @@ class TableData(object):
                 accessors += bound_column.order_by.opposite
             else:
                 accessors += bound_column.order_by
-        if hasattr(self, "queryset"):
+        if hasattr(self, 'queryset'):
             translate = lambda accessor: accessor.replace(Accessor.SEPARATOR, QUERYSET_ACCESSOR_SEPARATOR)
             if accessors:
                 self.queryset = self.queryset.order_by(*(translate(a) for a in accessors))
@@ -132,9 +132,9 @@ class TableData(object):
         honored. List data is checked for a ``verbose_name`` attribute, and
         falls back to using ``"item"``.
         """
-        if hasattr(self, "queryset"):
+        if hasattr(self, 'queryset'):
             return self.queryset.model._meta.verbose_name
-        return getattr(self.list, "verbose_name", "item")
+        return getattr(self.list, 'verbose_name', 'item')
 
     @cached_property
     def verbose_name_plural(self):
@@ -143,9 +143,9 @@ class TableData(object):
 
         This uses the same approach as `TableData.verbose_name`.
         """
-        if hasattr(self, "queryset"):
+        if hasattr(self, 'queryset'):
             return self.queryset.model._meta.verbose_name_plural
-        return getattr(self.list, "verbose_name_plural", "items")
+        return getattr(self.list, 'verbose_name_plural', 'items')
 
 
 class DeclarativeColumnsMetaclass(type):
