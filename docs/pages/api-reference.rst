@@ -91,6 +91,11 @@ API Reference
 
         .. versionadded:: 1.2.0
 
+        .. note::
+
+                This functionality is also available via the ``row_attrs`` keyword
+                argument to a table's constructor.
+
     .. attribute:: empty_text
 
         Defines the text to display when the table has no rows.
