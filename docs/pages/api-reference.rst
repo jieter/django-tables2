@@ -72,6 +72,7 @@ API Reference
             argument to a table's constructor.
 
     .. attribute:: row_attrs
+
         Allows custom HTML attributes to be specified which will be added to
         the ``<tr>`` tag of any table rendered.
 
