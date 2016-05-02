@@ -167,7 +167,8 @@ class LinkColumn(BaseLinkColumn):
 @library.register
 class RelatedLinkColumn(LinkColumn):
     '''
-    Render a link to a related object using related object's ``get_absolute_url``
+    Render a link to a related object using related object's ``get_absolute_url``,
+    same parameters as ``LinkColumn``
     '''
 
     def compose_url(self, record, bound_column):

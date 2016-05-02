@@ -17,7 +17,7 @@ Report bugs at http://github.com/bradleyayers/django-tables2/issues
 
 
 .. toctree::
-    :hidden:
+    :caption: Basic documentation
 
     pages/tutorial
     pages/table-data
@@ -29,6 +29,10 @@ Report bugs at http://github.com/bradleyayers/django-tables2/issues
     pages/custom-rendering
     pages/query-string-fields
     pages/column-attributes
+
+.. toctree::
+    :caption: Advanced documentation
+
     pages/builtin-columns
     pages/template-tags
     pages/template-filters

@@ -317,6 +317,12 @@ API Reference
 .. autoclass:: django_tables2.columns.LinkColumn
     :members:
 
+`.RelatedLinkColumn`
+--------------------
+
+.. autoclass:: django_tables2.columns.RelatedLinkColumn
+    :members:
+
 
 `.TemplateColumn`
 -----------------
