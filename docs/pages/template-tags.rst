@@ -32,9 +32,9 @@ This tag requires that the template in which it's rendered contains the
 `~.http.HttpRequest` inside a ``request`` variable. This can be achieved by
 ensuring the ``TEMPLATES[]['OPTIONS']['context_processors']`` setting contains
 ``django.template.context_processors.request``.
-Please refer to the Django documentation
+Please refer to the Django documentation for the TEMPLATES-setting_.
 
-.. _TEMPLATES setting: https://docs.djangoproject.com/en/stable/ref/settings/#std:setting-TEMPLATES
+.. _TEMPLATES-setting: https://docs.djangoproject.com/en/stable/ref/settings/#std:setting-TEMPLATES
 
 .. _template-tags.querystring:
 
