@@ -5,11 +5,11 @@ from __future__ import absolute_import, unicode_literals
 import copy
 import itertools
 
-import pytest
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.utils import six
 
 import django_tables2 as tables
+import pytest
 from django_tables2.tables import DeclarativeColumnsMetaclass
 
 from .utils import build_request
@@ -478,84 +478,84 @@ def test_prefix():
         name = tables.Column()
 
         class Meta:
-            prefix = "x"
+            prefix = 'x'
 
-    assert "x" == TableA([]).prefix
+    assert 'x' == TableA([]).prefix
 
     class TableB(tables.Table):
         name = tables.Column()
 
-    assert "" == TableB([]).prefix
-    assert "x" == TableB([], prefix="x").prefix
+    assert '' == TableB([]).prefix
+    assert 'x' == TableB([], prefix='x').prefix
 
     table = TableB([])
-    table.prefix = "x"
-    assert "x" == table.prefix
+    table.prefix = 'x'
+    assert 'x' == table.prefix
 
 
 def test_field_names():
     class TableA(tables.Table):
         class Meta:
-            order_by_field = "abc"
-            page_field = "def"
-            per_page_field = "ghi"
+            order_by_field = 'abc'
+            page_field = 'def'
+            per_page_field = 'ghi'
 
     table = TableA([])
-    assert "abc" == table.order_by_field
-    assert "def" == table.page_field
-    assert "ghi" == table.per_page_field
+    assert 'abc' == table.order_by_field
+    assert 'def' == table.page_field
+    assert 'ghi' == table.per_page_field
 
 
 def test_field_names_with_prefix():
     class TableA(tables.Table):
         class Meta:
-            order_by_field = "sort"
-            page_field = "page"
-            per_page_field = "per_page"
-            prefix = "1-"
+            order_by_field = 'sort'
+            page_field = 'page'
+            per_page_field = 'per_page'
+            prefix = '1-'
 
     table = TableA([])
-    assert "1-sort" == table.prefixed_order_by_field
-    assert "1-page" == table.prefixed_page_field
-    assert "1-per_page" == table.prefixed_per_page_field
+    assert '1-sort' == table.prefixed_order_by_field
+    assert '1-page' == table.prefixed_page_field
+    assert '1-per_page' == table.prefixed_per_page_field
 
     class TableB(tables.Table):
         class Meta:
-            order_by_field = "sort"
-            page_field = "page"
-            per_page_field = "per_page"
+            order_by_field = 'sort'
+            page_field = 'page'
+            per_page_field = 'per_page'
 
-    table = TableB([], prefix="1-")
-    assert "1-sort" == table.prefixed_order_by_field
-    assert "1-page" == table.prefixed_page_field
-    assert "1-per_page" == table.prefixed_per_page_field
+    table = TableB([], prefix='1-')
+    assert '1-sort' == table.prefixed_order_by_field
+    assert '1-page' == table.prefixed_page_field
+    assert '1-per_page' == table.prefixed_per_page_field
 
     table = TableB([])
-    table.prefix = "1-"
-    assert "1-sort" == table.prefixed_order_by_field
-    assert "1-page" == table.prefixed_page_field
-    assert "1-per_page" == table.prefixed_per_page_field
+    table.prefix = '1-'
+    assert '1-sort' == table.prefixed_order_by_field
+    assert '1-page' == table.prefixed_page_field
+    assert '1-per_page' == table.prefixed_per_page_field
 
 
 def test_should_support_a_template_to_be_specified():
     class ConstructorSpecifiedTemplateTable(tables.Table):
         name = tables.Column()
 
-    table = ConstructorSpecifiedTemplateTable([], template="dummy.html")
-    assert table.template == "dummy.html"
+    table = ConstructorSpecifiedTemplateTable([], template='dummy.html')
+    assert table.template == 'dummy.html'
 
     class PropertySpecifiedTemplateTable(tables.Table):
         name = tables.Column()
 
     table = PropertySpecifiedTemplateTable([])
-    table.template = "dummy.html"
-    assert table.template == "dummy.html"
+    table.template = 'dummy.html'
+    assert table.template == 'dummy.html'
 
     class DefaultTable(tables.Table):
         pass
 
     table = DefaultTable([])
-    assert table.template == "django_tables2/table.html"
+    assert table.template == 'django_tables2/table.html'
 
 
 def test_template_in_meta_class_declaration_should_be_honored():
@@ -563,11 +563,11 @@ def test_template_in_meta_class_declaration_should_be_honored():
         name = tables.Column()
 
         class Meta:
-            template = "dummy.html"
+            template = 'dummy.html'
 
     table = MetaDeclarationSpecifiedTemplateTable([])
-    assert table.template == "dummy.html"
-    assert table.as_html(request) == "dummy template contents\n"
+    assert table.template == 'dummy.html'
+    assert table.as_html(request) == 'dummy template contents\n'
 
 
 def test_should_support_rendering_multiple_times():
@@ -610,7 +610,7 @@ def test_table_defaults_are_honored():
 
     table = Table([{}], default='abcd')
     table.default = 'efgh'
-    assert table.rows[0].get_cell('name') == "efgh"
+    assert table.rows[0].get_cell('name') == 'efgh'
 
 
 def test_list_table_data_supports_ordering():
@@ -626,3 +626,24 @@ def test_list_table_data_supports_ordering():
     assert table.rows[0].get_cell('name') == 'Bradley'
     table.order_by = '-name'
     assert table.rows[0].get_cell('name') == 'Davina'
+
+
+def test_sorting_non_database_data():
+    class Table(tables.Table):
+        name = tables.Column()
+        country = tables.Column()
+
+    data = [
+        {'name': 'Adrian', 'country': 'Australia'},
+        {'name': 'Adrian', 'country': 'Brazil'},
+        {'name': 'Audrey', 'country': 'Chile'},
+        {'name': 'Bassie', 'country': 'Belgium'},
+    ]
+    table = Table(data, order_by=('-name', '-country'))
+
+    assert table.rows[0].get_cell('name') == 'Bassie'
+    assert table.rows[1].get_cell('name') == 'Audrey'
+    assert table.rows[2].get_cell('name') == 'Adrian'
+    assert table.rows[2].get_cell('country') == 'Brazil'
+    assert table.rows[3].get_cell('name') == 'Adrian'
+    assert table.rows[3].get_cell('country') == 'Australia'
