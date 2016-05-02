@@ -143,7 +143,7 @@ class Column(object):
 
     def __init__(self, verbose_name=None, accessor=None, default=None,
                  visible=True, orderable=None, attrs=None, order_by=None,
-                 empty_values=None, localize=None):
+                 empty_values=None, localize=None, footer=None):
         if not (accessor is None or isinstance(accessor, six.string_types) or
                 callable(accessor)):
             raise TypeError('accessor must be a string or callable, not %s' %
@@ -166,6 +166,8 @@ class Column(object):
 
         self.creation_counter = Column.creation_counter
         Column.creation_counter += 1
+
+        self._footer = footer
 
     @property
     def default(self):
@@ -191,6 +193,15 @@ class Column(object):
             useful.
         """
         return self.verbose_name
+
+    def footer(self, table):
+        if self._footer is None:
+            return ''
+
+        if callable(self._footer):
+            return self._footer(table)
+
+        return self._footer
 
     def render(self, value):
         """
@@ -330,6 +341,10 @@ class BoundColumn(object):
             return column_header
         # fall back to automatic best guess
         return self.verbose_name
+
+    @property
+    def footer(self):
+        return self.column.footer(self.table)
 
     @property
     def order_by(self):

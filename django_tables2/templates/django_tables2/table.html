@@ -39,7 +39,15 @@
     </tbody>
     {% endblock table.tbody %}
     {% block table.tfoot %}
-    <tfoot></tfoot>
+    {% if table.has_footer %}
+    <tfoot>
+        <tr>
+        {% for column in table.columns %}
+            <td>{{ column.footer }}</td>
+        {% endfor %}
+        </tr>
+    </tfoot>
+    {% endif %}
     {% endblock table.tfoot %}
 
 </table>

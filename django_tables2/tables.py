@@ -58,7 +58,7 @@ class TableData(object):
 
     @property
     def data(self):
-        return self.queryset if hasattr(self, "queryset") else self.list
+        return self.queryset if hasattr(self, 'queryset') else self.list
 
     @property
     def ordering(self):
@@ -471,6 +471,16 @@ class TableBase(object):
         }
 
         return template.render(context)
+
+    def has_footer(self):
+        '''
+        Returns True if any of the columns define a ``_footer`` attribute or a
+        ``render_footer()`` method
+        '''
+        return any(
+            hasattr(column, '_footer') or hasattr(column, 'render_footer')
+            for column in self.columns
+        )
 
     @property
     def attrs(self):
