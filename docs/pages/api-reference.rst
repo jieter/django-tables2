@@ -71,6 +71,22 @@ API Reference
             This functionality is also available via the ``attrs`` keyword
             argument to a table's constructor.
 
+    .. attribute:: row_attrs
+        Allows custom HTML attributes to be specified which will be added to
+        the ``<tr>`` tag of any table rendered.
+
+        :type: `dict`
+        :default: ``{}``
+
+        This can be used to add each record's primary key to each row.::
+
+            class PersonTable(tables.Table):
+                class Meta:
+                    model = Person
+                    row_attrs = {'data-id': lambda record: record.pk}
+
+        .. versionadded:: 1.2.0
+
     .. attribute:: empty_text
 
         Defines the text to display when the table has no rows.
