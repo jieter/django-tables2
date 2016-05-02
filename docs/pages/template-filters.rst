@@ -15,5 +15,5 @@ words containing upper-case letters alone.
 .. warning::
 
     Be careful when loading the ``django_tables2`` template library to not
-    in advertantly load ``title``. You should always use the
+    inadvertently load ``title``. You should always use the
     ``{% load ... from ... %}`` syntax.

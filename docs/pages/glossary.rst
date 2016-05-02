@@ -46,7 +46,7 @@ Glossary
         A single Python object used as the data for a single row.
 
     render
-        The act of serialising a `.Table` into
+        The act of serializing a `.Table` into
         HTML.
 
     template

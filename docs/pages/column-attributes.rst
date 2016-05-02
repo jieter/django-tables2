@@ -17,12 +17,10 @@ e.g.
     >>> class SimpleTable(tables.Table):
     ...     name = tables.Column(attrs={"th": {"id": "foo"}})
     ...
-    >>> SimpleTable(data).as_html()
-    "{snip}<thead><tr><th id="foo" class="name">{snip}<tbody><tr><td class="name">{snip}"
+    >>> # will render something like this:
+    '{snip}<thead><tr><th id="foo" class="name">{snip}<tbody><tr><td class="name">{snip}'
 
 
-``th`` and ``td`` are special cases because they're extended during rendering
-to add the column name as a class. This is done to make writing CSS easier.
-Have a look at each column's API reference to find which elements are
-supported.
-
+For ``th`` and ``td``, the column name will be added as a class name. This makes
+selecting the row for styling easier.
+Have a look at each column's API reference to find which elements are supported.

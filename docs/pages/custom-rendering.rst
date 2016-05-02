@@ -87,22 +87,22 @@ methods on tables::
     ...          'upper':  'Hi there!'}]
     ...
     >>> table = Example(data)
-    >>> table.as_html()
-    u'<table><thead><tr><th>Normal</th><th>Upper</th></tr></thead><tbody><tr><td>Hi there!</td><td>HI THERE!</td></tr></tbody></table>\n'
+    >>> # renders to something like this:
+    '''<table>
+        <thead><tr><th>Normal</th><th>Upper</th></tr></thead>
+        <tbody><tr><td>Hi there!</td><td>HI THERE!</td></tr></tbody>
+    </table>'''
 
 See :ref:`table.render_foo` for a list of arguments that can be accepted.
 
 For complicated columns, you may want to return HTML from the
-:meth:`~Column.render` method. This is fine, but be sure to mark the string as
-safe to avoid it being escaped::
+:meth:`~Column.render` method. Make sure to use Django's html formatting functions::
 
-    >>> from django.utils.safestring import mark_safe
-    >>> from django.utils.html import escape
+    >>> from django.utils.html import format_html
     >>>
     >>> class ImageColumn(tables.Column):
     ...     def render(self, value):
-    ...         return mark_safe('<img src="/media/img/%s.jpg" />'
-    ...                          % escape(value))
+    ...         return format_html('<img src="/media/img/{}.jpg" />', value)
     ...
 
 
@@ -113,11 +113,12 @@ CSS
 
 In order to use CSS to style a table, you'll probably want to add a
 ``class`` or ``id`` attribute to the ``<table>`` element. django-tables2 has
-a hook that allows abitrary attributes to be added to the ``<table>`` tag.
+a hook that allows arbitrary attributes to be added to the ``<table>`` tag.
 
 .. sourcecode:: python
 
     >>> import django_tables2 as tables
+    >>>
     >>> class SimpleTable(tables.Table):
     ...     id = tables.Column()
     ...     age = tables.Column()
@@ -126,7 +127,7 @@ a hook that allows abitrary attributes to be added to the ``<table>`` tag.
     ...         attrs = {'class': 'mytable'}
     ...
     >>> table = SimpleTable()
-    >>> table.as_html()
+    >>> # renders to something like this:
     '<table class="mytable">...'
 
 .. _custom-template:
@@ -139,4 +140,3 @@ ignore the built-in generation tools, and instead pass an instance of your
 `.Table` subclass into your own template, and render it yourself.
 
 Have a look at the ``django_tables2/table.html`` template for an example.
-

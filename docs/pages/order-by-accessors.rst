@@ -16,7 +16,7 @@ Example::
 
         @property
         def name(self):
-            return u"%s %s" % (self.first_name, self.family_name)
+            return '{} {}'.format(self.first_name, self.family_name)
 
     # tables.py
     class PersonTable(tables.Table):
@@ -25,20 +25,19 @@ Example::
 ::
 
     >>> table = PersonTable(Person.objects.all())
-    >>> table.order_by = "name"
-    >>> table.as_html()
-    ...
-    FieldError: Cannot resolve keyword u'name' into field. Choices are: first_name, family_name
+    >>> table.order_by = 'name'
+    >>>
+    >>> # will result in:
+    FieldError: Cannot resolve keyword 'name' into field. Choices are: first_name, family_name
 
 The solution is to declare which fields should be used when ordering on via the
 ``order_by`` argument::
 
     # tables.py
     class PersonTable(tables.Table):
-        name = tables.Column(order_by=("first_name", "family_name"))
+        name = tables.Column(order_by=('first_name', 'family_name'))
 
-Accessor syntax can be used for the values, but they must terminate on a model
-field.
+Accessor syntax can be used for the values, but they must point to a model field.
 
 If ordering doesn't make sense for a particular column, it can be disabled via
 the ``orderable`` argument::

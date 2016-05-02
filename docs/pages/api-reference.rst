@@ -45,7 +45,7 @@ API Reference
                 name = tables.Column()
 
                 class Meta:
-                    attrs = {"class": "paleblue"}
+                    attrs = {'class': 'paleblue'}
 
         .. versionadded:: 0.15.0
 
@@ -64,7 +64,7 @@ API Reference
                 name = tables.Column()
 
                 class Meta:
-                    attrs = {"id": lambda: "table_%d" % next(counter)}
+                    attrs = {'id': lambda: 'table_%d' % next(counter)}
 
         .. note::
 
@@ -119,7 +119,7 @@ API Reference
             'last_name': <django_tables2.columns.Column object at 0x10046d8d0>}
             >>> class ForgetfulPerson(Person):
             ...     class Meta:
-            ...         exclude = ("last_name", )
+            ...         exclude = ('last_name', )
             ...
             >>> ForgetfulPerson.base_columns
             {'first_name': <django_tables2.columns.Column object at 0x10046df10>}
@@ -156,7 +156,7 @@ API Reference
             class PersonTable(tables.Table):
                 class Meta:
                     model = Person
-                    fields = ("first_name", )
+                    fields = ('first_name', )
 
     .. attribute:: model
 
@@ -190,9 +190,9 @@ API Reference
         :type: any iterable (e.g. `tuple` or `list`)
         :default: ``()``
 
-        The special item ``"..."`` can be used as a placeholder that will be
+        The special item ``'...'`` can be used as a placeholder that will be
         replaced with all the columns that weren't explicitly listed. This
-        allows you to add columns to the front or back when using inheritence.
+        allows you to add columns to the front or back when using inheritance.
 
         Example::
 
@@ -201,7 +201,7 @@ API Reference
             ...     last_name = tables.Column()
             ...
             ...     class Meta:
-            ...         sequence = ("last_name", "...")
+            ...         sequence = ('last_name', '...')
             ...
             >>> Person.base_columns.keys()
             ['last_name', 'first_name']
@@ -223,10 +223,10 @@ API Reference
         :type: `bool`
         :default: `True`
 
-        If the table and column don't specify a value, a column's
-        ``orderable`` value will fallback to this. object specify. This
-        provides an easy mechanism to disable ordering on an entire table,
-        without adding ``orderable=False`` to each column in a table.
+        If the table and column don't specify a value, a column's ``orderable``
+        value will fallback to this. This provides an easy mechanism to disable
+        ordering on an entire table, without adding ``orderable=False`` to each
+        column in a table.
 
         .. note::
 

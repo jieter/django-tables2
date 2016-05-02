@@ -30,16 +30,10 @@ with a `.RequestContext` and the table will be in the variable ``table``.
 
 This tag requires that the template in which it's rendered contains the
 `~.http.HttpRequest` inside a ``request`` variable. This can be achieved by
-ensuring the ``TEMPLATE_CONTEXT_PROCESSORS`` setting contains
-``"django.core.context_processors.request"``. By default it is not included,
-and the setting itself is not even defined within your project's
-``settings.py``. To resolve this add the following to your ``settings.py``:
-
-.. sourcecode:: python
-
-    from django.conf.global_settings import TEMPLATE_CONTEXT_PROCESSORS
-    TEMPLATE_CONTEXT_PROCESSORS += ('django.core.context_processors.request',)
-
+ensuring the ``TEMPLATES[]['OPTIONS']['context_processors']`` setting contains
+``django.template.context_processors.request``.
+Please refer to the Django documentation
+.. __: https://docs.djangoproject.com/en/stable/ref/settings/#std:setting-TEMPLATES:
 
 .. _template-tags.querystring:
 

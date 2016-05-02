@@ -1,10 +1,8 @@
 Class Based Generic Mixins
 ==========================
 
-Django 1.3 introduced `class based views`__ as a mechanism to reduce the
-repetition in view code. django-tables2 comes with a single class based view
-mixin: `.SingleTableMixin`. It makes it trivial to incorporate a table into a
-view/template.
+Django-tables2 comes with a class based view mixin: `.SingleTableMixin`.
+It makes it trivial to incorporate a table into a view/template.
 
 The following view parameters are supported:
 
@@ -15,7 +13,7 @@ The following view parameters are supported:
   options to pass to `.RequestConfig`. Set ``table_pagination=False``
   to disable pagination.
 
-.. __: https://docs.djangoproject.com/en/1.3/topics/class-based-views/
+.. __: https://docs.djangoproject.com/en/stable/topics/class-based-views/
 
 For example:
 
@@ -53,7 +51,7 @@ when one isn't explicitly defined.
 .. note::
 
     If you need more than one table on a page, use `.SingleTableView` and use
-    `.get_context_data` to initialise the other tables and add them to the
+    `.get_context_data` to initialize the other tables and add them to the
     context.
 
 .. note::

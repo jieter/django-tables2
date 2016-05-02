@@ -3,9 +3,6 @@
 Controlling localization
 ========================
 
-.. note::
-    This functionality doesn't work in Django prior to version 1.3
-
 Django_tables2 allows you to define which column of a table should or should not
 be localized. For example you may want to use this feature in following use cases:
 

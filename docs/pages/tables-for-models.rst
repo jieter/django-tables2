@@ -23,7 +23,7 @@ This has a number of benefits:
 
 - Less code, easier to write, more DRY
 - Columns use the field's `~.models.Field.verbose_name`
-- Specialised columns are used where possible (e.g. `.DateColumn` for a
+- Specialized columns are used where possible (e.g. `.DateColumn` for a
   `~.models.DateField`)
 
 When using this approach, the following options are useful:

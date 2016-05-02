@@ -2,8 +2,7 @@
 Internal APIs
 =============
 
-The items documented here are internal and subject to change. It exists here
-for convenience.
+The items documented here are internal and subject to change.
 
 
 `.BoundColumns`

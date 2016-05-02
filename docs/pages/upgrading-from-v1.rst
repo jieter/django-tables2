@@ -2,7 +2,7 @@ Upgrading from django-tables Version 1
 ======================================
 
 - Change your ``INSTALLLED_APPS`` entry from ``"django_tables.app"`` to
-  ``"django_tables2"``.
+  ``'django_tables2'``.
 
 - Change all your import references from ``django_tables`` to
   ``django_tables2``.
@@ -21,19 +21,19 @@ Upgrading from django-tables Version 1
 
 - When declaring columns, replace the use of::
 
-    name_in_dataset = tables.Column(name="wanted_column_name")
+    name_in_dataset = tables.Column(name='wanted_column_name')
 
   with::
 
-    wanted_column_name = tables.Column(accessor="name_in_dataset")
+    wanted_column_name = tables.Column(accessor='name_in_dataset')
 
 - When declaring columns, replace the use of::
 
-     column_to_override = tables.Column(name="wanted_column_name", data="name_in_dataset")
+     column_to_override = tables.Column(name='wanted_column_name', data='name_in_dataset')
 
   with::
 
-     wanted_column_name = tables.Column(accessor="name_in_dataset")
+     wanted_column_name = tables.Column(accessor='name_in_dataset')
 
   and exclude ``column_to_override`` via the table meta data.
 

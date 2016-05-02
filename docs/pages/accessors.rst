@@ -16,9 +16,9 @@ to reach a specific value. To demonstrate how they work we'll use them
 directly::
 
     >>> from django_tables2 import A
-    >>> data = {"abc": {"one": {"two": "three"}}}
-    >>> A("abc.one.two").resolve(data)
-    "three"
+    >>> data = {'abc': {'one': {'two': 'three'}}}
+    >>> A('abc.one.two').resolve(data)
+    'three'
 
 Dots represent a relationships, and are attempted in this order:
 
@@ -27,4 +27,3 @@ Dots represent a relationships, and are attempted in this order:
 3. List index lookup ``a[int(b)]``
 
 Then, if the value is callable, it is called and the result is used.
-

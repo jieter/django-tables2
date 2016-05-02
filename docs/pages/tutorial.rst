@@ -22,7 +22,7 @@ to pass a ``Person`` queryset into a template::
     from django.shortcuts import render
 
     def people(request):
-        return render(request, "people.html", {"people": Person.objects.all()})
+        return render(request, 'people.html', {'people': Person.objects.all()})
 
 Finally, implement the template:
 

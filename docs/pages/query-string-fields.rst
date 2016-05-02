@@ -26,9 +26,12 @@ fields with a table-specific name. e.g.
 
     def people_listing(request):
         config = RequestConfig(request)
-        table1 = PeopleTable(Person.objects.all(), prefix="1-")  # prefix specified
-        table2 = PeopleTable(Person.objects.all(), prefix="2-")  # prefix specified
+        table1 = PeopleTable(Person.objects.all(), prefix='1-')  # prefix specified
+        table2 = PeopleTable(Person.objects.all(), prefix='2-')  # prefix specified
         config.configure(table1)
         config.configure(table2)
-        return render(request, "people_listing.html",
-                      {"table1": table1, "table2": table2})
+
+        return render(request, 'people_listing.html', {
+            'table1': table1,
+            'table2': table2
+        })

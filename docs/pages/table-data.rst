@@ -17,8 +17,8 @@ them manually::
     import django_tables2 as tables
 
     data = [
-        {"name": "Bradley"},
-        {"name": "Stevie"},
+        {'name': 'Bradley'},
+        {'name': 'Stevie'},
     ]
 
     class NameTable(tables.Table):
@@ -41,8 +41,7 @@ via `Table.Meta.model` too::
     from .models import Person
 
     class PersonTable(tables.Table):
-        name = tables.Column(verbose_name="full name")
+        name = tables.Column(verbose_name='full name')
 
         class Meta:
             model = Person
-
