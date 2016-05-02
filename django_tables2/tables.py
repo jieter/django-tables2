@@ -236,10 +236,7 @@ class TableOptions(object):
     def __init__(self, options=None):
         super(TableOptions, self).__init__()
         self.attrs = AttributeDict(getattr(options, 'attrs', {}))
-        if options is not None:
-            print getattr(options, 'row_attrs', {})
         self.row_attrs = getattr(options, 'row_attrs', {})
-
         self.default = getattr(options, 'default', '—')
         self.empty_text = getattr(options, 'empty_text', None)
         self.fields = getattr(options, 'fields', None)
