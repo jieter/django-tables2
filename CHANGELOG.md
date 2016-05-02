@@ -1,6 +1,6 @@
 # Change log
 
-## unreleased
+## v1.1.8 (2016-05-02)
 - Pass the table instance into `SingleTableMixin.get_table_pagination()` (#320 by
 (@georgema1982)[https://github.com/georgema1982])
 - Ability to change the body of the `<a>`-tag, by passing `text` kwarg to the columns inheriting from BaseLinkColumn (#318 by [@desecho](https://github.com/desecho), #322)
