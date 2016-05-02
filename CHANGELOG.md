@@ -1,5 +1,8 @@
 # Change log
 
+## v1.2.0 (2016-05-02)
+- Allow custom attributes for rows (fixes #47)
+
 ## v1.1.8 (2016-05-02)
 - Pass the table instance into `SingleTableMixin.get_table_pagination()` (#320 by
 (@georgema1982)[https://github.com/georgema1982])
