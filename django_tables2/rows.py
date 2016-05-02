@@ -1,10 +1,12 @@
 # coding: utf-8
+
+
 from django.db import models
 from django.db.models.fields import FieldDoesNotExist
 from django.utils import six
 
 from .columns.linkcolumn import BaseLinkColumn
-from .utils import A, signature
+from .utils import A, AttributeDict, computed_values, signature
 
 
 class BoundRow(object):
@@ -71,6 +73,20 @@ class BoundRow(object):
     def table(self):
         """The associated `.Table` object."""
         return self._table
+
+    @property
+    def attrs(self):
+        '''Return the attributes for a certain row.'''
+        cssClass = 'even' if next(self._table._counter) % 2 == 0 else 'odd'
+
+        row_attrs = computed_values(self._table.row_attrs, self._record)
+
+        if 'class' in row_attrs:
+            row_attrs['class'] += ' ' + cssClass
+        else:
+            row_attrs['class'] = cssClass
+
+        return AttributeDict(row_attrs)
 
     @property
     def record(self):

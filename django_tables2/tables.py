@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 import copy
 from collections import OrderedDict
+from itertools import count
 
 from django.core.paginator import Paginator
 from django.db.models.fields import FieldDoesNotExist
@@ -154,7 +155,7 @@ class DeclarativeColumnsMetaclass(type):
     ``base_columns`` as well.
     """
     def __new__(mcs, name, bases, attrs):
-        attrs["_meta"] = opts = TableOptions(attrs.get("Meta", None))
+        attrs['_meta'] = opts = TableOptions(attrs.get('Meta', None))
         # extract declared columns
         cols, remainder = [], {}
         for attr_name, attr in attrs.items():
@@ -171,10 +172,10 @@ class DeclarativeColumnsMetaclass(type):
         # necessary to preserve the correct order of columns.
         parent_columns = []
         for base in bases[::-1]:
-            if hasattr(base, "base_columns"):
+            if hasattr(base, 'base_columns'):
                 parent_columns = list(base.base_columns.items()) + parent_columns
         # Start with the parent columns
-        attrs["base_columns"] = OrderedDict(parent_columns)
+        attrs['base_columns'] = OrderedDict(parent_columns)
         # Possibly add some generated columns based on a model
         if opts.model:
             extra = OrderedDict()
@@ -193,23 +194,23 @@ class DeclarativeColumnsMetaclass(type):
             else:
                 for field in opts.model._meta.fields:
                     extra[field.name] = columns.library.column_for_field(field)
-            attrs["base_columns"].update(extra)
+            attrs['base_columns'].update(extra)
 
         # Explicit columns override both parent and generated columns
-        attrs["base_columns"].update(OrderedDict(cols))
+        attrs['base_columns'].update(OrderedDict(cols))
         # Apply any explicit exclude setting
         for exclusion in opts.exclude:
-            if exclusion in attrs["base_columns"]:
-                attrs["base_columns"].pop(exclusion)
+            if exclusion in attrs['base_columns']:
+                attrs['base_columns'].pop(exclusion)
         # Now reorder the columns based on explicit sequence
         if opts.sequence:
-            opts.sequence.expand(attrs["base_columns"].keys())
+            opts.sequence.expand(attrs['base_columns'].keys())
             # Table's sequence defaults to sequence declared in Meta
             # attrs['_sequence'] = opts.sequence
-            attrs["base_columns"] = OrderedDict(((x, attrs["base_columns"][x]) for x in opts.sequence))
+            attrs['base_columns'] = OrderedDict(((x, attrs['base_columns'][x]) for x in opts.sequence))
 
         # set localize on columns
-        for col_name in attrs["base_columns"].keys():
+        for col_name in attrs['base_columns'].keys():
             localize_column = None
             if col_name in opts.localize:
                 localize_column = True
@@ -218,7 +219,7 @@ class DeclarativeColumnsMetaclass(type):
                 localize_column = False
 
             if localize_column is not None:
-                attrs["base_columns"][col_name].localize = localize_column
+                attrs['base_columns'][col_name].localize = localize_column
 
         return super(DeclarativeColumnsMetaclass, mcs).__new__(mcs, name, bases, attrs)
 
@@ -234,27 +235,31 @@ class TableOptions(object):
     """
     def __init__(self, options=None):
         super(TableOptions, self).__init__()
-        self.attrs = AttributeDict(getattr(options, "attrs", {}))
-        self.default = getattr(options, "default", "—")
-        self.empty_text = getattr(options, "empty_text", None)
-        self.fields = getattr(options, "fields", None)
-        self.exclude = getattr(options, "exclude", ())
-        order_by = getattr(options, "order_by", None)
+        self.attrs = AttributeDict(getattr(options, 'attrs', {}))
+        if options is not None:
+            print getattr(options, 'row_attrs', {})
+        self.row_attrs = getattr(options, 'row_attrs', {})
+
+        self.default = getattr(options, 'default', '—')
+        self.empty_text = getattr(options, 'empty_text', None)
+        self.fields = getattr(options, 'fields', None)
+        self.exclude = getattr(options, 'exclude', ())
+        order_by = getattr(options, 'order_by', None)
         if isinstance(order_by, six.string_types):
             order_by = (order_by, )
         self.order_by = OrderByTuple(order_by) if order_by is not None else None
-        self.order_by_field = getattr(options, "order_by_field", "sort")
-        self.page_field = getattr(options, "page_field", "page")
-        self.per_page = getattr(options, "per_page", 25)
-        self.per_page_field = getattr(options, "per_page_field", "per_page")
-        self.prefix = getattr(options, "prefix", "")
-        self.show_header = getattr(options, "show_header", True)
-        self.sequence = Sequence(getattr(options, "sequence", ()))
-        self.orderable = getattr(options, "orderable", True)
-        self.model = getattr(options, "model", None)
-        self.template = getattr(options, "template", "django_tables2/table.html")
-        self.localize = getattr(options, "localize", ())
-        self.unlocalize = getattr(options, "unlocalize", ())
+        self.order_by_field = getattr(options, 'order_by_field', 'sort')
+        self.page_field = getattr(options, 'page_field', 'page')
+        self.per_page = getattr(options, 'per_page', 25)
+        self.per_page_field = getattr(options, 'per_page_field', 'per_page')
+        self.prefix = getattr(options, 'prefix', '')
+        self.show_header = getattr(options, 'show_header', True)
+        self.sequence = Sequence(getattr(options, 'sequence', ()))
+        self.orderable = getattr(options, 'orderable', True)
+        self.model = getattr(options, 'model', None)
+        self.template = getattr(options, 'template', 'django_tables2/table.html')
+        self.localize = getattr(options, 'localize', ())
+        self.unlocalize = getattr(options, 'unlocalize', ())
 
 
 class TableBase(object):
@@ -390,9 +395,10 @@ class TableBase(object):
     TableDataClass = TableData
 
     def __init__(self, data, order_by=None, orderable=None, empty_text=None,
-                 exclude=None, attrs=None, sequence=None, prefix=None,
-                 order_by_field=None, page_field=None, per_page_field=None,
-                 template=None, default=None, request=None, show_header=None):
+                 exclude=None, attrs=None, row_attrs=None, sequence=None,
+                 prefix=None, order_by_field=None, page_field=None,
+                 per_page_field=None, template=None, default=None, request=None,
+                 show_header=None):
         super(TableBase, self).__init__()
         self.exclude = exclude or ()
         self.sequence = sequence
@@ -403,6 +409,7 @@ class TableBase(object):
         self.rows = BoundRows(data=self.data, table=self)
         attrs = computed_values(attrs if attrs is not None else self._meta.attrs)
         self.attrs = AttributeDict(attrs)
+        self.row_attrs = AttributeDict(row_attrs or self._meta.row_attrs)
         self.empty_text = empty_text if empty_text is not None else self._meta.empty_text
         self.orderable = orderable
         self.prefix = prefix
@@ -451,10 +458,14 @@ class TableBase(object):
         if request:
             RequestConfig(request).configure(self)
 
+        self._counter = count()
+
     def as_html(self, request):
         """
         Render the table to a simple HTML table, adding `request` to the context.
         """
+        # reset counter for new rendering
+        self._counter = count()
         template = get_template(self.template)
 
         context = {

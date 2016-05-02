@@ -647,3 +647,29 @@ def test_sorting_non_database_data():
     assert table.rows[2].get_cell('country') == 'Brazil'
     assert table.rows[3].get_cell('name') == 'Adrian'
     assert table.rows[3].get_cell('country') == 'Australia'
+
+
+def test_row_attrs():
+    class Table(tables.Table):
+        alpha = tables.Column()
+        beta = tables.Column()
+
+    table = Table(MEMORY_DATA, row_attrs={
+        'class': lambda record: 'row-id-{}'.format(record['i']),
+    })
+
+    assert table.rows[0].attrs == {'class': 'row-id-2 even'}
+
+
+def test_row_attrs_in_meta():
+    class Table(tables.Table):
+        alpha = tables.Column()
+        beta = tables.Column()
+
+        class Meta:
+            row_attrs = {
+                'class': lambda record: 'row-id-{}'.format(record['i']),
+            }
+
+    table = Table(MEMORY_DATA)
+    assert table.rows[0].attrs == {'class': 'row-id-2 even'}

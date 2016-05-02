@@ -23,7 +23,7 @@
     <tbody>
         {% for row in table.page.object_list|default:table.rows %} {# support pagination #}
         {% block table.tbody.row %}
-        <tr class="{% cycle 'even' 'odd' %}">
+        <tr {{ row.attrs.as_html }}>
             {% for column, cell in row.items %}
                 <td {{ column.attrs.td.as_html }}>{% if column.localize == None %}{{ cell }}{% else %}{% if column.localize %}{{ cell|localize }}{% else %}{{ cell|unlocalize }}{% endif %}{% endif %}</td>
             {% endfor %}

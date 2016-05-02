@@ -108,7 +108,8 @@ class OrderBy(six.text_type):
 
 @six.python_2_unicode_compatible
 class OrderByTuple(tuple):
-    """Stores ordering as (as `.OrderBy` objects). The
+    """
+    Stores ordering as (as `.OrderBy` objects). The
     `~django_tables2.tables.Table.order_by` property is always converted
     to an `.OrderByTuple` object.
 
@@ -482,9 +483,9 @@ def signature(fn):
         return tuple(args), keywords
 
 
-def computed_values(d):
+def computed_values(d, *args, **kwargs):
     """
-    Computes a new `dict` that has callable values replaced with the return values.
+    Returns a new `dict` that has callable values replaced with the return values.
 
     Simple example:
 
@@ -517,8 +518,8 @@ def computed_values(d):
     result = {}
     for k, v in six.iteritems(d):
         if callable(v):
-            v = v()
+            v = v(*args, **kwargs)
         if isinstance(v, dict):
-            v = computed_values(v)
+            v = computed_values(v, *args, **kwargs)
         result[k] = v
     return result

@@ -1,8 +1,8 @@
 # coding: utf-8
-import pytest
 from django.db import models
 from django.utils import six
 
+import pytest
 from django_tables2.utils import (Accessor, AttributeDict, OrderBy,
                                   OrderByTuple, Sequence, computed_values,
                                   segment, signature)
@@ -162,14 +162,23 @@ def test_attribute_dict_handles_escaping():
     assert x.as_html() == 'x="&quot;&#39;x&amp;"'
 
 
-def test_compute_values_supports_shallow_structures():
+def test_computed_values_supports_shallow_structures():
     x = computed_values({'foo': lambda: 'bar'})
     assert x == {'foo': 'bar'}
 
 
-def test_compute_values_supports_nested_structures():
+def test_computed_values_supports_nested_structures():
     x = computed_values({'foo': lambda: {'bar': lambda: 'baz'}})
     assert x == {'foo': {'bar': 'baz'}}
+
+
+def test_computed_values_with_argument():
+    x = computed_values({
+        'foo': lambda y: {
+            'bar': lambda y: 'baz-{}'.format(y)
+        }
+    }, y=2)
+    assert x == {'foo': {'bar': 'baz-2'}}
 
 
 def test_segment_should_return_all_candidates():
