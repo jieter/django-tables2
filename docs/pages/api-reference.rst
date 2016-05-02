@@ -86,6 +86,9 @@ API Reference
                     model = Person
                     row_attrs = {'data-id': lambda record: record.pk}
 
+            # will result in
+            '<tr data-id="1">...</tr>'
+
         .. versionadded:: 1.2.0
 
     .. attribute:: empty_text
