@@ -28,131 +28,102 @@ API Reference
     Provides a way to define *global* settings for table, as opposed to
     defining them for each instance.
 
-    .. attribute:: attrs
+    Arguments:
+        attrs (`dict`): Allows custom HTML attributes to be specified which will
+            be added to the ``<table>`` tag of any table rendered via
+            :meth:`.Table.as_html` or the
+            :ref:`template-tags.render_table` template tag.
 
-        Allows custom HTML attributes to be specified which will be added to
-        the ``<table>`` tag of any table rendered via
-        :meth:`.Table.as_html` or the
-        :ref:`template-tags.render_table` template tag.
+            This is typically used to enable a theme for a table (which is done
+            by adding a CSS class to the ``<table>`` element). i.e.::
 
-        :type: `dict`
-        :default: ``{}``
+                class SimpleTable(tables.Table):
+                    name = tables.Column()
 
-        This is typically used to enable a theme for a table (which is done by
-        adding a CSS class to the ``<table>`` element). i.e.::
+                    class Meta:
+                        attrs = {'class': 'paleblue'}
 
-            class SimpleTable(tables.Table):
-                name = tables.Column()
+            It's possible to use callables to create *dynamic* values. A few caveats:
 
-                class Meta:
-                    attrs = {'class': 'paleblue'}
+             - It's not supported for ``dict`` keys, i.e. only values.
+             - All values will be resolved on table instantiation.
 
-        .. versionadded:: 0.15.0
+            Consider this example where a unique ``id`` is given to each instance
+            of the table::
 
-        It's possible to use callables to create *dynamic* values. A few caveats:
+                import itertools
+                counter = itertools.count()
 
-        - It's not supported for ``dict`` keys, i.e. only values.
-        - All values will be resolved on table instantiation.
+                class UniqueIdTable(tables.Table):
+                    name = tables.Column()
 
-        Consider this example where a unique ``id`` is given to each instance
-        of the table::
+                    class Meta:
+                        attrs = {'id': lambda: 'table_%d' % next(counter)}
 
-            import itertools
-            counter = itertools.count()
+            .. note::
+                This functionality is also available via the ``attrs`` keyword
+                argument to a table's constructor.
 
-            class UniqueIdTable(tables.Table):
-                name = tables.Column()
+        row_attrs (`dict`): Allows custom HTML attributes to be specified which
+            will be added to the ``<tr>`` tag of the rendered table.
 
-                class Meta:
-                    attrs = {'id': lambda: 'table_%d' % next(counter)}
+            This can be used to add each record's primary key to each row::
 
-        .. note::
+                class PersonTable(tables.Table):
+                    class Meta:
+                        model = Person
+                        row_attrs = {'data-id': lambda record: record.pk}
 
-            This functionality is also available via the ``attrs`` keyword
-            argument to a table's constructor.
+                # will result in
+                '<tr data-id="1">...</tr>'
 
-    .. attribute:: row_attrs
+            .. versionadded:: 1.2.0
 
-        Allows custom HTML attributes to be specified which will be added to
-        the ``<tr>`` tag of any table rendered.
-
-        :type: `dict`
-        :default: ``{}``
-
-        This can be used to add each record's primary key to each row.::
-
-            class PersonTable(tables.Table):
-                class Meta:
-                    model = Person
-                    row_attrs = {'data-id': lambda record: record.pk}
-
-            # will result in
-            '<tr data-id="1">...</tr>'
-
-        .. versionadded:: 1.2.0
-
-        .. note::
+            .. note::
 
                 This functionality is also available via the ``row_attrs`` keyword
                 argument to a table's constructor.
 
-    .. attribute:: empty_text
+        empty_text (str): Defines the text to display when the table has no rows.
+            If the table is empty and ``bool(empty_text)`` is `True`, a row is
+            displayed containing ``empty_text``. This is allows a message such as
+            *There are currently no FOO.* to be displayed.
 
-        Defines the text to display when the table has no rows.
+            .. note::
 
-        :type: `unicode`
-        :default: `None`
+                This functionality is also available via the ``empty_text`` keyword
+                argument to a table's constructor.
 
-        If the table is empty and ``bool(empty_text)`` is `True`, a row is
-        displayed containing ``empty_text``. This is allows a message such as
-        *There are currently no FOO.* to be displayed.
+        show_header (bool): Defines whether the table header (``<thead>``)
+            should be displayed or not.
 
-        .. note::
+            .. note::
 
-            This functionality is also available via the ``empty_text`` keyword
-            argument to a table's constructor.
+                This functionality is also available via the ``show_header``
+                keyword argument to a table's constructor.
 
-    .. attribute:: show_header
+        exclude (typle or str): Defines which columns should be excluded from
+            the table. This is useful in subclasses to exclude columns in a
+            parent::
 
-        Defines whether the table header (``<thead>``) should be displayed or
-        not.
+                >>> class Person(tables.Table):
+                ...     first_name = tables.Column()
+                ...     last_name = tables.Column()
+                ...
+                >>> Person.base_columns
+                {'first_name': <django_tables2.columns.Column object at 0x10046df10>,
+                'last_name': <django_tables2.columns.Column object at 0x10046d8d0>}
+                >>> class ForgetfulPerson(Person):
+                ...     class Meta:
+                ...         exclude = ('last_name', )
+                ...
+                >>> ForgetfulPerson.base_columns
+                {'first_name': <django_tables2.columns.Column object at 0x10046df10>}
 
-        :type: `bool`
-        :default: `True`
+            .. note::
 
-        .. note::
-
-            This functionality is also available via the ``show_header``
-            keyword argument to a table's constructor.
-
-    .. attribute:: exclude
-
-        Defines which columns should be excluded from the table. This is useful
-        in subclasses to exclude columns in a parent.
-
-        :type: tuple of `unicode`
-        :default: ``()``
-
-        Example::
-
-            >>> class Person(tables.Table):
-            ...     first_name = tables.Column()
-            ...     last_name = tables.Column()
-            ...
-            >>> Person.base_columns
-            {'first_name': <django_tables2.columns.Column object at 0x10046df10>,
-            'last_name': <django_tables2.columns.Column object at 0x10046d8d0>}
-            >>> class ForgetfulPerson(Person):
-            ...     class Meta:
-            ...         exclude = ('last_name', )
-            ...
-            >>> ForgetfulPerson.base_columns
-            {'first_name': <django_tables2.columns.Column object at 0x10046df10>}
-
-        .. note::
-
-            This functionality is also available via the ``exclude`` keyword
-            argument to a table's constructor.
+                This functionality is also available via the ``exclude`` keyword
+                argument to a table's constructor.
 
             However, unlike some of the other `.Table.Meta` options, providing the
             ``exclude`` keyword to a table's constructor **won't override** the
@@ -160,15 +131,10 @@ API Reference
             to it. i.e. you can't use the constructor's ``exclude`` argument to
             *undo* an exclusion.
 
-    .. attribute:: fields
+    fields (`tuple` or `str`): Used in conjunction with `~.Table.Meta.model`,
+        specifies which fields should have columns in the table.
 
-        Used in conjunction with `~.Table.Meta.model`, specifies which fields
-        should have columns in the table.
-
-        :type: tuple of `unicode` or `None`
-        :default: `None`
-
-        If `None`, all fields are used, otherwise only those named.
+         - If `None`, all fields are used, otherwise only those named.
 
         Example::
 
@@ -183,37 +149,25 @@ API Reference
                     model = Person
                     fields = ('first_name', )
 
-    .. attribute:: model
-
-        A model to inspect and automatically create corresponding columns.
-
-        :type: Django model
-        :default: `None`
+    model (:class:`django.core.db.models.Model`): A model to inspect and
+        automatically create corresponding columns.
 
         This option allows a Django model to be specified to cause the table to
         automatically generate columns that correspond to the fields in a
         model.
 
-    .. attribute:: order_by
-
-        The default ordering. e.g. ``('name', '-age')``. A hyphen ``-`` can be
-        used to prefix a column name to indicate *descending* order.
-
-        :type: `tuple`
-        :default: ``()``
+    order_by (tuple): The default ordering. e.g. ``('name', '-age')``.
+        A hyphen `-` can be used to prefix a column name to indicate
+        *descending* order.
 
         .. note::
 
             This functionality is also available via the ``order_by`` keyword
             argument to a table's constructor.
 
-    .. attribute:: sequence
-
-        The sequence of the table columns. This allows the default order of
-        columns (the order they were defined in the Table) to be overridden.
-
-        :type: any iterable (e.g. `tuple` or `list`)
-        :default: ``()``
+    sequence (iteralbe): The sequence of the table columns. This allows the
+        default order of columns (the order they were defined in the Table) to
+        be overridden.
 
         The special item ``'...'`` can be used as a placeholder that will be
         replaced with all the columns that weren't explicitly listed. This
@@ -231,23 +185,17 @@ API Reference
             >>> Person.base_columns.keys()
             ['last_name', 'first_name']
 
-        The ``"..."`` item can be used at most once in the sequence value. If
+        The ``'...'`` item can be used at most once in the sequence value. If
         it's not used, every column *must* be explicitly included. e.g. in the
-        above example, ``sequence = ("last_name", )`` would be **invalid**
-        because neither ``"..."`` or ``"first_name"`` were included.
+        above example, ``sequence = ('last_name', )`` would be **invalid**
+        because neither ``'...'`` or ``'first_name'`` were included.
 
         .. note::
 
             This functionality is also available via the ``sequence`` keyword
             argument to a table's constructor.
 
-    .. attribute:: orderable
-
-        Default value for column's *orderable* attribute.
-
-        :type: `bool`
-        :default: `True`
-
+    orderable (bool): Default value for column's *orderable* attribute.
         If the table and column don't specify a value, a column's ``orderable``
         value will fallback to this. This provides an easy mechanism to disable
         ordering on an entire table, without adding ``orderable=False`` to each
@@ -258,12 +206,7 @@ API Reference
             This functionality is also available via the ``orderable`` keyword
             argument to a table's constructor.
 
-    .. attribute:: template
-
-        The default template to use when rendering the table.
-
-        :type: `unicode`
-        :default: ``"django_tables2/table.html"``
+    template (str): The default template to use when rendering the table.
 
         .. note::
 
@@ -271,34 +214,23 @@ API Reference
             argument to a table's constructor.
 
 
-    .. attribute:: localize
+    localize (str or tuple): Specifies which fields should be localized in the
+        table. Read :ref:`localization-control` for more information.
 
-        Specifies which fields should be localized in the table.
-        Read :ref:`localization-control` for more information.
-
-        :type: tuple of `unicode`
-        :default: empty tuple
-
-
-    .. attribute:: unlocalize
-
-        Specifies which fields should be unlocalized in the table.
-        Read :ref:`localization-control` for more information.
-
-        :type: tuple of `unicode`
-        :default: empty tuple
-
-
-`.BooleanColumn`
-----------------
-
-.. autoclass:: django_tables2.columns.BooleanColumn
+    unlocalize (str or tuple): Specifies which fields should be unlocalized in
+        the table. Read :ref:`localization-control` for more information.
 
 
 `.Column`
 ---------
 
 .. autoclass:: django_tables2.columns.Column
+
+
+`.BooleanColumn`
+----------------
+
+.. autoclass:: django_tables2.columns.BooleanColumn
 
 
 `.CheckBoxColumn`

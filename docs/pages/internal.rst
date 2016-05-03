@@ -48,3 +48,50 @@ The items documented here are internal and subject to change.
     :members:
     :private-members:
     :special-members:
+
+
+`.utils`
+--------
+
+.. autoclass:: django_tables2.utils.Sequence
+    :members:
+    :private-members:
+    :special-members:
+
+
+.. autoclass:: django_tables2.utils.OrderBy
+    :members:
+    :private-members:
+    :special-members:
+
+
+.. autoclass:: django_tables2.utils.OrderByTuple
+    :members:
+    :private-members:
+    :special-members:
+
+
+.. autoclass:: django_tables2.utils.Accessor
+    :noindex:
+    :members:
+    :private-members:
+    :special-members:
+
+
+.. autoclass:: django_tables2.utils.AttributeDict
+    :noindex:
+    :members:
+    :private-members:
+    :special-members:
+
+
+.. autofunction:: django_tables2.utils.signature
+    :noindex:
+
+
+.. autofunction:: django_tables2.utils.call_with_appropriate
+    :noindex:
+
+
+.. autofunction:: django_tables2.utils.computed_values
+    :noindex:

@@ -13,10 +13,11 @@ class BaseLinkColumn(Column):
     """
     The base for other columns that render links.
 
-    :param  text: Either static text, or a callable. If set, this value will be
-                  used to render the text inside link instead of value (default).
-                  The calleble gets the record being rendered as argument.
-    :param attrs: Additional attributes for the ``<a>`` tag
+    Arguments:
+        text (str or callable): If set, this value will be used to render the
+            text inside link instead of value. The callable gets the record
+            being rendered as argument.
+        attrs (dict): Additional attributes for the ``<a>`` tag
     """
     def __init__(self, attrs=None, text=None, *args, **kwargs):
         kwargs['attrs'] = attrs
@@ -32,10 +33,12 @@ class BaseLinkColumn(Column):
         """
         Render a hyperlink.
 
-        :param    uri: URI for the hyperlink
-        :param record: record currently being rendered
-        :param  value: value wrapped in ``<a></a>``, might be overridden by ``self.text``
-        :param  attrs: ``<a>`` tag attributes
+        Arguments:
+            uri (str): URI for the hyperlink
+            record: record currently being rendered
+            value (str): value to be wrapped in ``<a></a>``, might be overridden
+                by ``self.text``
+            attrs (dict): ``<a>`` tag attributes
         """
         attrs = AttributeDict(attrs if attrs is not None else
                               self.attrs.get('a', {}))
@@ -63,23 +66,23 @@ class LinkColumn(BaseLinkColumn):
     The last argument *attrs* allows custom HTML attributes to be added to the
     rendered ``<a href="...">`` tag.
 
-    :param    viewname: See `~django.core.urlresolvers.reverse`.
-                        Or use `None` to use Model's `get_absolute_url`
-    :param     urlconf: See `~django.core.urlresolvers.reverse`.
-    :param        args: See `~django.core.urlresolvers.reverse`. **
-    :param      kwargs: See `~django.core.urlresolvers.reverse`. **
-    :param current_app: See `~django.core.urlresolvers.reverse`.
-    :param       attrs: a `dict` of HTML attributes that are added to the
-                        rendered ``<a ...>...</a>`` tag.
-    :param        text: Either static text, or a callable. If set, this value
-                        will be used to render the text inside link instead of
-                        value (default).
-                        The calleble gets the record being rendered as argument.
+    Arguments:
+        viewname (str): See `~django.core.urlresolvers.reverse`, or use `None`
+            to use the model's `get_absolute_url`
+        urlconf (str): See `~django.core.urlresolvers.reverse`.
+        args (list): See `~django.core.urlresolvers.reverse`. [2]_
+        kwargs (dict): See `~django.core.urlresolvers.reverse`. [2]_
+        current_app (str): See `~django.core.urlresolvers.reverse`.
+        attrs (dict): HTML attributes that are added to the rendered
+            ``<a ...>...</a>`` tag.
+        text (str or callable): Either static text, or a callable. If set, this
+            will be used to render the text inside link instead of value (default).
+            The calleble gets the record being rendered as argument.
 
-    ** In order to create a link to a URL that relies on information in the
-    current row, `.Accessor` objects can be used in the *args* or
-    *kwargs* arguments. The accessor will be resolved using the row's record
-    before `~django.core.urlresolvers.reverse` is called.
+    .. [2] In order to create a link to a URL that relies on information in the
+        current row, `.Accessor` objects can be used in the *args* or *kwargs*
+        arguments. The accessor will be resolved using the row's record before
+        `~django.core.urlresolvers.reverse` is called.
 
     Example:
 
@@ -100,7 +103,7 @@ class LinkColumn(BaseLinkColumn):
         class PeopleTable(tables.Table):
             name = tables.LinkColumn('people_detail', args=[A('pk')])
 
-    In order to override the text value (i.e. <a ... >text</a>) consider
+    In order to override the text value (i.e. ``<a ... >text</a>``) consider
     the following example:
 
     .. code-block:: python
@@ -168,7 +171,7 @@ class LinkColumn(BaseLinkColumn):
 class RelatedLinkColumn(LinkColumn):
     '''
     Render a link to a related object using related object's ``get_absolute_url``,
-    same parameters as ``LinkColumn``
+    same parameters as ``~.LinkColumn``
     '''
 
     def compose_url(self, record, bound_column):

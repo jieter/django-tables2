@@ -63,11 +63,11 @@ class QuerystringNode(Node):
         for key, value in self.updates.items():
             key = key.resolve(context)
             value = value.resolve(context)
-            if key not in ("", None):
+            if key not in ('', None):
                 params[key] = value
         for removal in self.removals:
             params.pop(removal.resolve(context), None)
-        return escape("?" + urlencode(params, doseq=True))
+        return escape('?' + urlencode(params, doseq=True))
 
 
 # {% querystring "name"="abc" "age"=15 %}

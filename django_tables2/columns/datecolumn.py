@@ -12,12 +12,11 @@ class DateColumn(TemplateColumn):
     """
     A column that renders dates in the local timezone.
 
-    :param format: format string in same format as Django's ``date`` template
-                   filter (optional)
-    :type  format: `unicode`
-    :param  short: if *format* is not specified, use Django's
-                   ``SHORT_DATE_FORMAT`` setting, otherwise use ``DATE_FORMAT``
-    :type   short: `bool`
+    Arguments:
+        format (str): format string in same format as Django's ``date`` template
+                      filter (optional)
+        short (bool): if `format` is not specified, use Django's
+                      ``SHORT_DATE_FORMAT`` setting, otherwise use ``DATE_FORMAT``
     """
     def __init__(self, format=None, short=True, *args, **kwargs):
         if format is None:

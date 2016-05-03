@@ -13,10 +13,9 @@ class TemplateColumn(Column):
     A subclass of `.Column` that renders some template code to use as
     the cell value.
 
-    :type  template_code: `unicode`
-    :param template_code: the template code to render
-    :type  template_name: `unicode`
-    :param template_name: the name of the template to render
+    Arguments:
+        template_code (str): template code to render
+        template_name (str): name of the template to render
 
     A `~django.template.Template` object is created from the
     *template_code* or *template_name* and rendered with a context containing:

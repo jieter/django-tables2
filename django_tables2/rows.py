@@ -18,9 +18,7 @@ class BoundRow(object):
     `.BoundRow` object and it will take care to return values rendered
     using the correct method (e.g. :ref:`table.render_FOO`)
 
-    To access the rendered value of each cell in a row, just iterate over it:
-
-    .. code-block:: python
+    To access the rendered value of each cell in a row, just iterate over it::
 
         >>> import django_tables2 as tables
         >>> class SimpleTable(tables.Table):
@@ -35,9 +33,7 @@ class BoundRow(object):
         1
         <input type="checkbox" name="my_chkbox" value="2" />
 
-    Alternatively you can use row.get_cell() to retrieve a specific cell.
-
-    .. code-block:: python
+    Alternatively you can use row.get_cell() to retrieve a specific cell::
 
         >>> row.get_cell(0)
         1
@@ -47,9 +43,7 @@ class BoundRow(object):
         ...
         IndexError: list index out of range
 
-    Finally you can also use the column names to retrieve a specific cell:
-
-    .. code-block:: python
+    Finally you can also use the column names to retrieve a specific cell::
 
         >>> row.get_cell('a')
         1
@@ -59,10 +53,11 @@ class BoundRow(object):
         ...
         KeyError: 'c'
 
-    :param  table: is the `.Table` in which this row exists.
-    :param record: a single record from the :term:`table data` that is used to
-                   populate the row. A record could be a `~django.db.Model`
-                   object, a `dict`, or something else.
+    Arguments:
+        table: The `.Table` in which this row exists.
+        record: a single record from the :term:`table data` that is used to
+            populate the row. A record could be a `~django.db.Model` object, a
+            `dict`, or something else.
 
     """
     def __init__(self, record, table):
@@ -183,8 +178,9 @@ class BoundRows(object):
     """
     Container for spawning `.BoundRow` objects.
 
-    :param  data: iterable of records
-    :param table: the table in which the rows exist
+    Arguments:
+        data: iterable of records
+        table: the `~.Table` in which the rows exist
 
     This is used for `.Table.rows`.
     """

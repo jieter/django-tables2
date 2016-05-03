@@ -5,7 +5,6 @@ import os
 
 from django.db import models
 from django.utils.html import format_html
-from django.utils.safestring import mark_safe
 
 from django_tables2.utils import AttributeDict
 
@@ -29,11 +28,10 @@ class FileColumn(Column):
 
     `.Column.attrs` keys ``a`` and ``span`` can be used to add additional attributes.
 
-    :type  verify_exists: bool
-    :param verify_exists: attempt to determine if the file exists
-
-    If *verify_exists*, the HTML class ``exists`` or ``missing`` is added to
-    the element to indicate the integrity of the storage.
+    Arguments:
+        verify_exists (bool): attempt to determine if the file exists
+            If *verify_exists*, the HTML class ``exists`` or ``missing`` is
+            added to the element to indicate the integrity of the storage.
     """
     def __init__(self, verify_exists=True, **kwargs):
         self.verify_exists = True

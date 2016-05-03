@@ -12,21 +12,17 @@ class SingleTableMixin(object):
     Adds a Table object to the context. Typically used with
     `.TemplateResponseMixin`.
 
-    :param        table_class: table class
-    :type         table_class: subclass of `.Table`
-    :param         table_data: data used to populate the table
-    :type          table_data: any compatible data source
-    :param context_table_name: name of the table's template variable (default:
-                               "table")
-    :type  context_table_name: `unicode`
-    :param   table_pagination: controls table pagination. If a `dict`, passed as
-                               the *paginate* keyword argument to
-                               `.RequestConfig`. As such, any non-`False`
-                               value enables pagination.
+    Arguments:
+        table_class: subclass of `.Table`
+        table_data: data used to populate the table, any compatible data source.
+        context_table_name(str): name of the table's template variable (default:
+            'table')
+        table_pagination (dict): controls table pagination. If a `dict`, passed as
+            the *paginate* keyword argument to `.RequestConfig`. As such, any
+            Truthy value enables pagination.
 
     This mixin plays nice with the Django's`.MultipleObjectMixin` by using
     `.get_queryset`` as a fallback for the table data source.
-
     """
     table_class = None
     table_data = None

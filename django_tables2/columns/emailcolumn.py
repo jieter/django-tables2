@@ -10,18 +10,15 @@ from .linkcolumn import BaseLinkColumn
 @library.register
 class EmailColumn(BaseLinkColumn):
     """
-    A subclass of `.BaseLinkColumn` that renders the cell value as a hyperlink.
+    Render email addresses to mailto-links.
 
-    It's common to have a email value in a row hyperlinked to another page.
+    Arguments:
+        attrs (dict): HTML attributes that are added to the rendered
+            ``<a href="...">...</a>`` tag
+        text: Either static text, or a callable. If set, this will be used to
+            render the text inside link instead of the value
 
-    :param  attrs: a `dict` of HTML attributes that are added to the rendered
-                   ``<a href="...">...</a>`` tag
-    :param   text: Either static text, or a callable. If set, this value will be
-                   used to render the text inside link instead of value (default)
-
-    Example:
-
-    .. code-block:: python
+    Example::
 
         # models.py
         class Person(models.Model):
@@ -33,6 +30,8 @@ class EmailColumn(BaseLinkColumn):
             name = tables.Column()
             email = tables.EmailColumn()
 
+        # result
+        # [...]<a href="mailto:email@example.com">email@example.com</a>
     """
     def render(self, record, value):
         return self.render_link(
