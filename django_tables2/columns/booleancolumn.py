@@ -5,7 +5,7 @@ from django.db import models
 from django.utils import six
 from django.utils.html import escape, format_html
 
-from django_tables2.utils import Accessor, AttributeDict
+from django_tables2.utils import AttributeDict
 
 from .base import Column, library
 
@@ -18,7 +18,7 @@ class BooleanColumn(Column):
     :param  null: is `None` different from `False`?
     :type   null: `bool`
     :param yesno: text to display for True/False values, comma separated
-    :type  yesno: iterable or string
+    :type  yesno: iterable or `str`
 
     Rendered values are wrapped in a ``<span>`` to allow customisation by
     themes. By default the span is given the class ``true``, ``false``.
@@ -28,7 +28,7 @@ class BooleanColumn(Column):
 
     - *span* -- adds attributes to the <span> tag
     """
-    def __init__(self, null=False, yesno="✔,✘", **kwargs):
+    def __init__(self, null=False, yesno='✔,✘', **kwargs):
         self.yesno = (yesno.split(',') if isinstance(yesno, six.string_types)
                       else tuple(yesno))
         if null:
