@@ -41,8 +41,8 @@ def test_footer():
 def test_footer_column_method():
 
     class SummingColumn(tables.Column):
-        def render_footer(self, table):
-            return sum(self.accessor.resolve(row) for row in table.data)
+        def render_footer(self, bound_column, table):
+            return sum(bound_column.accessor.resolve(row) for row in table.data)
 
     class Table(tables.Table):
         name = tables.Column(footer='Total:')
@@ -51,6 +51,5 @@ def test_footer_column_method():
 
     table = Table(MEMORY_DATA)
     html = table.as_html(build_request('/'))
-    print html
     assert '<td>Total:</td>' in html
     assert '<td>18833000</td>' in html

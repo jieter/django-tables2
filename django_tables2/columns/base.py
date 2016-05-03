@@ -7,7 +7,8 @@ from itertools import islice
 from django.utils import six
 
 from django_tables2.templatetags.django_tables2 import title
-from django_tables2.utils import Accessor, AttributeDict, OrderBy, OrderByTuple
+from django_tables2.utils import (Accessor, AttributeDict, OrderBy,
+                                  OrderByTuple, call_with_appropriate)
 
 
 class Library(object):
@@ -194,14 +195,25 @@ class Column(object):
         """
         return self.verbose_name
 
-    def footer(self, table):
-        if self._footer is None:
-            return ''
+    def footer(self, bound_column, table):
+        if self._footer is not None:
+            if callable(self._footer):
+                return call_with_appropriate(self._footer, {
+                    'column': self,
+                    'bound_column': bound_column,
+                    'table': table
+                })
+            else:
+                return self._footer
 
-        if callable(self._footer):
-            return self._footer(table)
+        if hasattr(self, 'render_footer'):
+            return call_with_appropriate(self.render_footer, {
+                'column': self,
+                'bound_column': bound_column,
+                'table': table
+            })
 
-        return self._footer
+        return ''
 
     def render(self, value):
         """
@@ -344,7 +356,13 @@ class BoundColumn(object):
 
     @property
     def footer(self):
-        return self.column.footer(self.table)
+        return call_with_appropriate(self.column.footer, {
+            'bound_column': self,
+            'table': self.table
+        })
+
+    def has_footer(self):
+        return self.column._footer is not None or hasattr(self.column, 'render_footer')
 
     @property
     def order_by(self):

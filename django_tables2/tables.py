@@ -477,10 +477,7 @@ class TableBase(object):
         Returns True if any of the columns define a ``_footer`` attribute or a
         ``render_footer()`` method
         '''
-        return any(
-            hasattr(column, '_footer') or hasattr(column, 'render_footer')
-            for column in self.columns
-        )
+        return any(column.has_footer() for column in self.columns)
 
     @property
     def attrs(self):
