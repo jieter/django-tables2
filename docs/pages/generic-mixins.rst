@@ -13,8 +13,6 @@ The following view parameters are supported:
   options to pass to `.RequestConfig`. Set ``table_pagination=False``
   to disable pagination.
 
-.. __: https://docs.djangoproject.com/en/stable/topics/class-based-views/
-
 For example:
 
 .. sourcecode:: python
