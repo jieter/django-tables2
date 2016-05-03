@@ -77,7 +77,7 @@ class Column(object):
         An accessor that describes how to extract values for this column from
         the :term:`table data`.
 
-        :type: string or `~.Accessor`
+        :type: `str` or `~.Accessor`
 
 
     .. attribute:: default
@@ -100,7 +100,7 @@ class Column(object):
         Allows one or more accessors to be used for ordering rather than
         *accessor*.
 
-        :type: `unicode`, `tuple`, `~.Accessor`
+        :type: `str`, `tuple`, `~.Accessor`
 
 
     .. attribute:: orderable
@@ -115,7 +115,7 @@ class Column(object):
 
         A human readable version of the column name.
 
-        :type: `unicode`
+        :type: `str`
 
 
     .. attribute:: visible
@@ -127,16 +127,24 @@ class Column(object):
 
     .. attribute:: localize
 
-        *   If `True`, cells of this column will be localized in the HTML output
-            by the localize filter.
+        * If `True`, cells of this column will be localized in the HTML output
+          by the localize filter.
 
-        *   If `False`, cells of this column will be unlocalized in the HTML output
-            by the unlocalize filter.
+        * If `False`, cells of this column will be unlocalized in the HTML output
+          by the unlocalize filter.
 
-        *   If `None` (the default), cell will be rendered as is and localization will depend
-            on ``USE_L10N`` setting.
+        * If `None` (the default), cell will be rendered as is and localization
+          will depend on ``USE_L10N`` setting.
 
         :type: `bool`
+
+    .. attribute:: footer
+
+        Value to render a footer for this column. If `str`, it will be used as
+        is, if callable, it will be called with a column, bound_column and table
+        attribute.
+
+        :type: `str` or `callable`
     """
     #: Tracks each time a Column instance is created. Used to retain order.
     creation_counter = 0

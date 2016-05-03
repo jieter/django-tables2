@@ -23,8 +23,8 @@ def test_has_footer_is_False_without_footer():
 
 def test_footer():
     class Table(tables.Table):
-        name = tables.Column(footer='Total:')
-        country = tables.Column()
+        name = tables.Column()
+        country = tables.Column(footer='Total:')
         population = tables.Column(
             footer=lambda table: sum(x['population'] for x in table.data)
         )
@@ -45,8 +45,8 @@ def test_footer_column_method():
             return sum(bound_column.accessor.resolve(row) for row in table.data)
 
     class Table(tables.Table):
-        name = tables.Column(footer='Total:')
-        country = tables.Column()
+        name = tables.Column()
+        country = tables.Column(footer='Total:')
         population = SummingColumn()
 
     table = Table(MEMORY_DATA)

@@ -24,7 +24,7 @@ Report bugs at http://github.com/bradleyayers/django-tables2/issues
     pages/accessors
     pages/order-by-accessors
     pages/swapping-columns
-    pages/column-headers
+    pages/column-headers-and-footers
     pages/pagination
     pages/custom-rendering
     pages/query-string-fields
