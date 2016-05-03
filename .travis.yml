@@ -22,6 +22,8 @@ matrix:
       env: TOXENV=py27-master
     - python: 3.5
       env: TOXENV=py35-master
+    - python: 2.7
+      env: TOXENV=docs
 
   allow_failures:
       - env: TOXENV=py27-master
