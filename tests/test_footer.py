@@ -38,6 +38,19 @@ def test_footer():
     assert '<td>18833000</td>' in html
 
 
+def test_footer_disable_on_table():
+    '''
+    Showing the footer can be disabled using show_footer argument to the Table
+    constructor
+    '''
+    class Table(tables.Table):
+        name = tables.Column()
+        country = tables.Column(footer='Total:')
+
+    table = Table(MEMORY_DATA, show_footer=False)
+    assert table.has_footer() is False
+
+
 def test_footer_column_method():
 
     class SummingColumn(tables.Column):
