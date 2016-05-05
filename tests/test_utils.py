@@ -4,7 +4,8 @@ from django.utils import six
 
 import pytest
 from django_tables2.utils import (Accessor, AttributeDict, OrderBy,
-                                  OrderByTuple, Sequence, computed_values,
+                                  OrderByTuple, Sequence,
+                                  call_with_appropriate, computed_values,
                                   segment, signature)
 
 
@@ -240,3 +241,19 @@ def test_signature_catch_all_kwargs():
     args, keywords = signature(foo)
     assert args == ('bar', 'baz')
     assert keywords == 'kwargs'
+
+
+def test_call_with_appropriate():
+
+    def foo():
+        return 'bar'
+
+    assert call_with_appropriate(foo, {
+        'a': 'd',
+        'c': 'e'
+    }) == 'bar'
+
+    def bar(baz):
+        return baz
+
+    assert call_with_appropriate(bar, dict(baz=23)) == 23

@@ -7,7 +7,8 @@ from itertools import islice
 from django.utils import six
 
 from django_tables2.templatetags.django_tables2 import title
-from django_tables2.utils import Accessor, AttributeDict, OrderBy, OrderByTuple
+from django_tables2.utils import (Accessor, AttributeDict, OrderBy,
+                                  OrderByTuple, call_with_appropriate)
 
 
 class Library(object):
@@ -76,7 +77,7 @@ class Column(object):
         An accessor that describes how to extract values for this column from
         the :term:`table data`.
 
-        :type: string or `~.Accessor`
+        :type: `str` or `~.Accessor`
 
 
     .. attribute:: default
@@ -99,7 +100,7 @@ class Column(object):
         Allows one or more accessors to be used for ordering rather than
         *accessor*.
 
-        :type: `unicode`, `tuple`, `~.Accessor`
+        :type: `str`, `tuple`, `~.Accessor`
 
 
     .. attribute:: orderable
@@ -114,7 +115,7 @@ class Column(object):
 
         A human readable version of the column name.
 
-        :type: `unicode`
+        :type: `str`
 
 
     .. attribute:: visible
@@ -126,16 +127,24 @@ class Column(object):
 
     .. attribute:: localize
 
-        *   If `True`, cells of this column will be localized in the HTML output
-            by the localize filter.
+        * If `True`, cells of this column will be localized in the HTML output
+          by the localize filter.
 
-        *   If `False`, cells of this column will be unlocalized in the HTML output
-            by the unlocalize filter.
+        * If `False`, cells of this column will be unlocalized in the HTML output
+          by the unlocalize filter.
 
-        *   If `None` (the default), cell will be rendered as is and localization will depend
-            on ``USE_L10N`` setting.
+        * If `None` (the default), cell will be rendered as is and localization
+          will depend on ``USE_L10N`` setting.
 
         :type: `bool`
+
+    .. attribute:: footer
+
+        Value to render a footer for this column. If `str`, it will be used as
+        is, if callable, it will be called with a column, bound_column and table
+        attribute.
+
+        :type: `str` or `callable`
     """
     #: Tracks each time a Column instance is created. Used to retain order.
     creation_counter = 0
@@ -143,7 +152,7 @@ class Column(object):
 
     def __init__(self, verbose_name=None, accessor=None, default=None,
                  visible=True, orderable=None, attrs=None, order_by=None,
-                 empty_values=None, localize=None):
+                 empty_values=None, localize=None, footer=None):
         if not (accessor is None or isinstance(accessor, six.string_types) or
                 callable(accessor)):
             raise TypeError('accessor must be a string or callable, not %s' %
@@ -166,6 +175,8 @@ class Column(object):
 
         self.creation_counter = Column.creation_counter
         Column.creation_counter += 1
+
+        self._footer = footer
 
     @property
     def default(self):
@@ -191,6 +202,26 @@ class Column(object):
             useful.
         """
         return self.verbose_name
+
+    def footer(self, bound_column, table):
+        if self._footer is not None:
+            if callable(self._footer):
+                return call_with_appropriate(self._footer, {
+                    'column': self,
+                    'bound_column': bound_column,
+                    'table': table
+                })
+            else:
+                return self._footer
+
+        if hasattr(self, 'render_footer'):
+            return call_with_appropriate(self.render_footer, {
+                'column': self,
+                'bound_column': bound_column,
+                'table': table
+            })
+
+        return ''
 
     def render(self, value):
         """
@@ -330,6 +361,16 @@ class BoundColumn(object):
             return column_header
         # fall back to automatic best guess
         return self.verbose_name
+
+    @property
+    def footer(self):
+        return call_with_appropriate(self.column.footer, {
+            'bound_column': self,
+            'table': self.table
+        })
+
+    def has_footer(self):
+        return self.column._footer is not None or hasattr(self.column, 'render_footer')
 
     @property
     def order_by(self):

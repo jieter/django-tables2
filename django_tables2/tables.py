@@ -58,7 +58,7 @@ class TableData(object):
 
     @property
     def data(self):
-        return self.queryset if hasattr(self, "queryset") else self.list
+        return self.queryset if hasattr(self, 'queryset') else self.list
 
     @property
     def ordering(self):
@@ -347,6 +347,12 @@ class TableBase(object):
 
         :type: `bool`
 
+    .. attribute:: show_footer
+
+        If `False`, the table footer will not be rendered, even if come columens
+        have a footer. (default `True`)
+
+        :type: `bool`
 
     .. attribute:: prefix
 
@@ -395,7 +401,7 @@ class TableBase(object):
                  exclude=None, attrs=None, row_attrs=None, sequence=None,
                  prefix=None, order_by_field=None, page_field=None,
                  per_page_field=None, template=None, default=None, request=None,
-                 show_header=None):
+                 show_header=None, show_footer=True):
         super(TableBase, self).__init__()
         self.exclude = exclude or ()
         self.sequence = sequence
@@ -414,6 +420,8 @@ class TableBase(object):
         self.page_field = page_field
         self.per_page_field = per_page_field
         self.show_header = show_header
+        self.show_footer = show_footer
+
         # Make a copy so that modifying this will not touch the class
         # definition. Note that this is different from forms, where the
         # copy is made available in a ``fields`` attribute.
@@ -471,6 +479,13 @@ class TableBase(object):
         }
 
         return template.render(context)
+
+    def has_footer(self):
+        '''
+        Returns True if any of the columns define a ``_footer`` attribute or a
+        ``render_footer()`` method
+        '''
+        return self.show_footer and any(column.has_footer() for column in self.columns)
 
     @property
     def attrs(self):

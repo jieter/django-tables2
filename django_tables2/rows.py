@@ -6,7 +6,7 @@ from django.db.models.fields import FieldDoesNotExist
 from django.utils import six
 
 from .columns.linkcolumn import BaseLinkColumn
-from .utils import A, AttributeDict, computed_values, signature
+from .utils import A, AttributeDict, call_with_appropriate, computed_values
 
 
 class BoundRow(object):
@@ -151,23 +151,15 @@ class BoundRow(object):
 
     def _call_render(self, bound_column, value=None):
         '''Call the column's render method with appropriate kwargs'''
-        kwargs = {
+
+        return call_with_appropriate(bound_column.render, {
             'value': value,
             'record': self.record,
             'column': bound_column.column,
             'bound_column': bound_column,
             'bound_row': self,
             'table': self._table,
-        }
-
-        # inspect signature of the render()-method. If the **kwargs argument is
-        # defined, pass all arguments, else provide exactly the kwargs wanted.
-        args, keywords = signature(bound_column.render)
-
-        if keywords is None:
-            kwargs = {key: kwargs[key] for key in kwargs if key in args}
-
-        return bound_column.render(**kwargs)
+        })
 
     def __contains__(self, item):
         """Check by both row object and column name."""

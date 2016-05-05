@@ -462,25 +462,39 @@ def signature(fn):
     if six.PY2:
         argspec = inspect.getargspec(fn)
         args = argspec.args
-        return (
-            tuple(args[1:] if args[0] == 'self' else args),
-            argspec.keywords
-        )
-    else:
-        signature = inspect.signature(fn)
+        if len(args) > 0:
+            args = tuple(args[1:] if args[0] == 'self' else args)
 
-        args = []
-        keywords = None
-        for arg in signature.parameters.values():
-            if arg.kind == arg.VAR_KEYWORD:
-                keywords = arg.name
-            elif arg.kind == arg.VAR_POSITIONAL:
-                # skip *args catch-all
-                continue
-            else:
-                args.append(arg.name)
+        return (args, argspec.keywords)
 
-        return tuple(args), keywords
+    # python 3 version:
+    signature = inspect.signature(fn)
+
+    args = []
+    keywords = None
+    for arg in signature.parameters.values():
+        if arg.kind == arg.VAR_KEYWORD:
+            keywords = arg.name
+        elif arg.kind == arg.VAR_POSITIONAL:
+            continue  # skip *args catch-all
+        else:
+            args.append(arg.name)
+
+    return tuple(args), keywords
+
+
+def call_with_appropriate(fn, kwargs):
+    '''
+    Calls the function ``fn`` with the keyword arguments from ``kwargs`` it expects
+
+    If the **kwargs argument is defined, pass all arguments, else provide
+    exactly the arguments wanted.
+    '''
+    args, keyword = signature(fn)
+    if not keyword:
+        kwargs = {key: kwargs[key] for key in kwargs if key in args}
+
+    return fn(**kwargs)
 
 
 def computed_values(d, *args, **kwargs):
