@@ -6,7 +6,7 @@ Customizing headers and footers
 By default an header and no footer will be rendered.
 
 
-Adding column footers
+Adding column headers
 =====================
 
 The header cell for each column comes from `~.Column.header`. By default this
@@ -48,21 +48,20 @@ Adding column footers
 =====================
 
 By default, no footer will be rendered. If you want to add a footer, define a
-footer for at least one column. That will make the table render
+footer on at least one column.
 
-`footer`-argument to the `~.Column` constructor.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+That will make the table render a footer on every view of the table. It's up to
+you to decide if that makes sense if your table is paginated.
 
-The simplest case is just passing a `str` as the footer argument to a column:
+Pass `footer`-argument to the `~.Column` constructor.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. sourcecode:: python
+The simplest case is just passing a `str` as the footer argument to a column::
 
     country = tables.Column(footer='Total:')
 
 This will just render the string in the footer. If you need to do more complex
-things, like showing a sum or an average, you can pass a callable.
-
-.. sourcecode:: python
+things, like showing a sum or an average, you can pass a callable::
 
     population = tables.Column(
         footer=lambda table: sum(x['population'] for x in table.data)
@@ -74,20 +73,22 @@ Define `render_footer` on a custom column.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 If you need the same footer in multiple columns, you can create your own custom
-column. For example this column that renders the sum of the values in the column.
-
-.. sourcecode:: python
+column. For example this column that renders the sum of the values in the column::
 
     class SummingColumn(tables.Column):
         def render_footer(self, bound_column, table):
             return sum(bound_column.accessor.resolve(row) for row in table.data)
 
 
-Then use this column like so:
-
-.. sourcecode:: python
+Then use this column like so::
 
     class Table(tables.Table):
         name = tables.Column()
         country = tables.Column(footer='Total:')
         population = SummingColumn()
+
+
+.. note::
+
+    If you are `sum`\ ming over tables with big datasets, chances are it's going
+    to be slow. You should use some database aggregation function instead.
