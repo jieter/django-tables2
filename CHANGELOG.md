@@ -1,5 +1,11 @@
 # Change log
 
+## unreleased
+- table footers (#323)
+- Non-field based `LinkColumn` only renders default value if lookup fails. (#322)
+- Accept `text` parameter in `BaseLinkColumn`-based columns. (#322)
+- Pass the table instance into SingleTableMixin's get_table_pagination (#320 by [@georgema1982](https://github.com/georgema1982), fixes #319)
+
 ## v1.2.0 (2016-05-02)
 - Allow custom attributes for rows (fixes #47)
 
