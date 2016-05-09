@@ -1,6 +1,7 @@
 # coding: utf-8
 import pytest
 from django.core.exceptions import ImproperlyConfigured
+from django.views.generic.base import TemplateView
 
 import django_tables2 as tables
 
@@ -132,3 +133,23 @@ def test_should_override_table_pagination():
 
     response, view = PaginationOverrideView.as_view()(build_request('/?p_per_page_override=2'))
     assert view.get_table().paginator.num_pages == 2
+
+
+def test_singletablemixin_with_non_paginated_view():
+    '''
+    SingleTableMixin should not assume it is mixed with a ListView
+
+    Github issue #326
+    '''
+
+    class Table(tables.Table):
+        class Meta:
+            model = Region
+
+    class View(tables.SingleTableMixin, TemplateView):
+        table_class = Table
+        table_data = MEMORY_DATA
+
+        template_name = 'dummy.html'
+
+    View.as_view()(build_request('/'))
