@@ -4,6 +4,8 @@ import re
 import sys
 from os.path import abspath
 
+import sphinx_rtd_theme
+
 os.environ['DJANGO_SETTINGS_MODULE'] = 'example.settings'
 
 # import project
@@ -36,6 +38,6 @@ intersphinx_mapping = {
 
 master_doc = 'index'
 
-
-html_theme = 'default'
+html_theme = 'sphinx_rtd_theme'
+html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 html_static_path = ['_static']
