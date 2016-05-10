@@ -8,9 +8,9 @@ preferences.
 
 The names of the querystring variables are configurable via the options:
 
-- ``order_by_field`` -- default: ``"sort"``
-- ``page_field`` -- default: ``"page"``
-- ``per_page_field`` -- default: ``"per_page"``, **note:** this field currently
+- ``order_by_field`` -- default: ``'sort'``
+- ``page_field`` -- default: ``'page'``
+- ``per_page_field`` -- default: ``'per_page'``, **note:** this field currently
   isn't used by ``{% render_table %}``
 
 Each of these can be specified in three places:

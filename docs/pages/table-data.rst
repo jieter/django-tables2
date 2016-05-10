@@ -5,14 +5,15 @@ Populating a table with data
 
 Tables are compatible with a range of input data structures. If you've seen the
 tutorial you'll have seen a queryset being used, however any iterable that
-supports :func:`len` and contains items that expose key-based accessed to
-column values is fine.
+supports :func:`len` and contains items that expose key-based access to column
+values is fine.
+
+
+List of dicts
+-------------
 
 An an example we'll demonstrate using list of dicts. When defining a table it's
-necessary to declare each column. If your data matches the fields in a model,
-columns can be declared automatically for you via the `Table.Meta.model`
-option, but for non-queryset data you'll probably want to declare
-them manually::
+necessary to declare each column::
 
     import django_tables2 as tables
 
@@ -26,22 +27,43 @@ them manually::
 
     table = NameTable(data)
 
-You can use this technique to override columns that were automatically created
-via `Table.Meta.model` too::
+
+Querysets
+---------
+
+If you build use tables to display `.QuerySet` data, rather than defining each
+column manually in the table, the `.Table.Meta.model` option allows tables to
+be dynamically created based on a model::
 
     # models.py
-    from django.db import models
-
     class Person(models.Model):
-        name = models.CharField(max_length=200)
-
+        first_name = models.CharField(max_length=200)
+        last_name = models.CharField(max_length=200)
+        user = models.ForeignKey('auth.User')
+        dob = models.DateField()
 
     # tables.py
-    import django_tables2 as tables
-    from .models import Person
-
     class PersonTable(tables.Table):
-        name = tables.Column(verbose_name='full name')
-
         class Meta:
             model = Person
+
+    # views.py
+    def person_list(request):
+        table = PersonsTable(Person.objects.all())
+
+        return render(request, 'person_list.html', {
+            'table': table
+        })
+
+This has a number of benefits:
+
+- Less repetition
+- Column headers are defined using the field's `~.models.Field.verbose_name`
+- Specialized columns are used where possible (e.g. `.DateColumn` for a
+  `~.models.DateField`)
+
+When using this approach, the following options might be useful:
+
+- `~.Table.Meta.sequence` -- reorder columns
+- `~.Table.Meta.fields` -- specify model fields to *include*
+- `~.Table.Meta.exclude` -- specify model fields to *exclude*

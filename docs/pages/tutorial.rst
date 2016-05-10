@@ -1,5 +1,8 @@
 Tutorial
-========
+~~~~~~~~
+
+After intalling django-tables2, you can follow this tutorial to start using
+django-tables2.
 
 .. note::
     For this tutorial, we'll assume you use Django version 1.8.0 or greater. For
@@ -8,6 +11,7 @@ Tutorial
 1. ``pip install django-tables2``
 2. Add ``'django_tables2'`` to ``INSTALLED_APPS``
 3. Add ``'django.core.context_processors.request'`` to the ``context_preprocessors`` in your template setting ``OPTIONS``.
+
 
 We're going to run through creating a tutorial app. Let's start with a simple model::
 
@@ -24,9 +28,7 @@ to pass a ``Person`` queryset into a template::
     def people(request):
         return render(request, 'people.html', {'people': Person.objects.all()})
 
-Finally, implement the template:
-
-.. sourcecode:: django
+Finally, implement the template::
 
     {# tutorial/templates/people.html #}
     {% load render_table from django_tables2 %}
@@ -47,9 +49,7 @@ Hook the view up in your URLs, and load the page, you should see:
     :alt: An example table rendered using django-tables2
 
 While simple, passing a queryset directly to ``{% render_table %}`` doesn't
-allow for any customisation. For that, you must define a `.Table` class.
-
-::
+allow for any customisation. For that, you must define a `.Table` class::
 
     # tutorial/tables.py
     import django_tables2 as tables
@@ -63,9 +63,7 @@ allow for any customisation. For that, you must define a `.Table` class.
 
 
 You'll then need to instantiate and configure the table in the view, before
-adding it to the context.
-
-::
+adding it to the context::
 
     # tutorial/views.py
     from django.shortcuts import render
