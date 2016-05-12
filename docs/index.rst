@@ -30,11 +30,6 @@ Table of contents
 .. toctree::
     pages/getting-started
     pages/customizing
-    pages/pagination
-    pages/builtin-columns
-    pages/template-tags
-    pages/generic-mixins
-    pages/localization-control
     pages/reference
     pages/upgrade-changelog
     pages/glossary

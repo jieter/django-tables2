@@ -28,14 +28,30 @@ API Reference
     Provides a way to define *global* settings for table, as opposed to
     defining them for each instance.
 
+    For example, if you want to create a table of users with their primary key
+    added as a `data-id` attribute on each `<tr>`, You can use the following::
+
+        class UsersTable(tables.Table):
+            class Meta:
+                row_attrs = {'data-id': lambda record: record.pk}
+
+    Which adds the desired ``row_attrs`` to every instance of `UsersTable`, in
+    contrast of defining it at construction time::
+
+        table = tables.Table(User.objects.all(),
+                             row_attrs={'data-id': lambda record: record.pk})
+
+    Some settings are only available in `Table.Meta` and not as an argument to
+    the `~.Table` constructor.
+
     Arguments:
-        attrs (`dict`): Allows custom HTML attributes to be specified which will
-            be added to the ``<table>`` tag of any table rendered via
-            :meth:`.Table.as_html` or the
-            :ref:`template-tags.render_table` template tag.
+        attrs (`dict`): Add custom HTML attributes to the table.
+            Allows custom HTML attributes to be specified which will be added to
+            the ``<table>`` tag of any table rendered via :meth:`.Table.as_html`
+            or the :ref:`template-tags.render_table` template tag.
 
             This is typically used to enable a theme for a table (which is done
-            by adding a CSS class to the ``<table>`` element). i.e.::
+            by adding a CSS class to the ``<table>`` element)::
 
                 class SimpleTable(tables.Table):
                     name = tables.Column()
@@ -43,13 +59,11 @@ API Reference
                     class Meta:
                         attrs = {'class': 'paleblue'}
 
-            It's possible to use callables to create *dynamic* values. A few caveats:
+            If you supply a a callable as a value in the dict, it will be called
+            at table instatiation an de returned value will be used:
 
-             - It's not supported for ``dict`` keys, i.e. only values.
-             - All values will be resolved on table instantiation.
-
-            Consider this example where a unique ``id`` is given to each instance
-            of the table::
+            Consider this example where each table gets an unieque ``"id"``
+            attribute::
 
                 import itertools
                 counter = itertools.count()
@@ -64,8 +78,10 @@ API Reference
                 This functionality is also available via the ``attrs`` keyword
                 argument to a table's constructor.
 
-        row_attrs (`dict`): Allows custom HTML attributes to be specified which
-            will be added to the ``<tr>`` tag of the rendered table.
+
+        row_attrs (`dict`): Add custom html attributes to the table rows.
+            Allows custom HTML attributes to be specified which will be added
+            to the ``<tr>`` tag of the rendered table.
 
             This can be used to add each record's primary key to each row::
 
@@ -94,17 +110,17 @@ API Reference
                 This functionality is also available via the ``empty_text`` keyword
                 argument to a table's constructor.
 
-        show_header (bool): Defines whether the table header (``<thead>``)
-            should be displayed or not.
+        show_header (bool): Wether or not to show the table header.
+            Defines whether the table header should be displayed or not, by
+            default, the header shows the column names.
 
             .. note::
 
                 This functionality is also available via the ``show_header``
                 keyword argument to a table's constructor.
 
-        exclude (typle or str): Defines which columns should be excluded from
-            the table. This is useful in subclasses to exclude columns in a
-            parent::
+        exclude (typle or str): Exclude columns from the table.
+            This is useful in subclasses to exclude columns in a parent::
 
                 >>> class Person(tables.Table):
                 ...     first_name = tables.Column()
@@ -131,12 +147,10 @@ API Reference
             to it. i.e. you can't use the constructor's ``exclude`` argument to
             *undo* an exclusion.
 
-    fields (`tuple` or `str`): Used in conjunction with `~.Table.Meta.model`,
-        specifies which fields should have columns in the table.
-
-         - If `None`, all fields are used, otherwise only those named.
-
-        Example::
+    fields (`tuple` or `str`): Fields to show in the table.
+        Used in conjunction with `~.Table.Meta.model`, specifies which fields
+        should have columns in the table. If `None`, all fields are used,
+        otherwise only those named::
 
             # models.py
             class Person(models.Model):
@@ -149,25 +163,25 @@ API Reference
                     model = Person
                     fields = ('first_name', )
 
-    model (:class:`django.core.db.models.Model`): A model to inspect and
-        automatically create corresponding columns.
+    model (:class:`django.core.db.models.Model`): Create columns from model.
+        A model to inspect and automatically create corresponding columns.
 
         This option allows a Django model to be specified to cause the table to
         automatically generate columns that correspond to the fields in a
         model.
 
-    order_by (tuple): The default ordering. e.g. ``('name', '-age')``.
+    order_by (tuple): The default ordering.
         A hyphen `-` can be used to prefix a column name to indicate
-        *descending* order.
+        *descending* order, for example: ``('name', '-age')``.
 
         .. note::
 
             This functionality is also available via the ``order_by`` keyword
             argument to a table's constructor.
 
-    sequence (iteralbe): The sequence of the table columns. This allows the
-        default order of columns (the order they were defined in the Table) to
-        be overridden.
+    sequence (iteralbe): The sequence of the table columns.
+        This allows the default order of columns (the order they were defined
+        in the Table) to be overridden.
 
         The special item ``'...'`` can be used as a placeholder that will be
         replaced with all the columns that weren't explicitly listed. This

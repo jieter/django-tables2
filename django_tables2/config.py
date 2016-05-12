@@ -12,7 +12,7 @@ class RequestConfig(object):
     [pagination]
 
     Arguments:
-        paginate (dict or bool): indicates whether to paginate, and if so, what
+        paginate (dict or bool): Indicates whether to paginate, and if so, what
             default values to use. If the value evaluates to `False`, pagination
             will be disabled. A `dict` can be used to specify default values for
             the call to `~.tables.Table.paginate` (e.g. to define a default
