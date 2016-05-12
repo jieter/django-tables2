@@ -20,9 +20,8 @@ Each of these can be specified in three places:
 - ``Table(...).foo = ...``
 
 If you're using multiple tables on a single page, you'll want to prefix these
-fields with a table-specific name. e.g.
-
-.. sourcecode:: python
+fields with a table-specific name, in order to prevent links on one table
+interfere with those on another table::
 
     def people_listing(request):
         config = RequestConfig(request)

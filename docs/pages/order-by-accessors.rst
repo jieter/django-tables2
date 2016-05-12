@@ -1,13 +1,11 @@
 .. _order-by-accessors:
 
-Specifying alternative ordering for a column
-============================================
+Alternative column ordering
+===========================
 
-When using queryset data, it's possible for a column to present a computed
-value that doesn't correspond to a column in the database. In this situation
-attempting to order the column will cause a database exception.
-
-Example::
+When using queryset data, one might want to show a computed value which is not
+in the database. In this case, attempting to order the column will cause an
+exception::
 
     # models.py
     class Person(models.Model):
@@ -30,16 +28,16 @@ Example::
     >>> # will result in:
     FieldError: Cannot resolve keyword 'name' into field. Choices are: first_name, family_name
 
-The solution is to declare which fields should be used when ordering on via the
-``order_by`` argument::
+To prevent this, django-tables2 needs a hint to know how to sort that column:
+you need to supply an ``order_by`` argument containing a name or a tuple of the
+names of the columns the database should use to sort it::
 
-    # tables.py
     class PersonTable(tables.Table):
         name = tables.Column(order_by=('first_name', 'family_name'))
 
-Accessor syntax can be used for the values, but they must point to a model field.
+`~.Accessor` syntax can be used as well, as long as they point to a model field.
 
-If ordering doesn't make sense for a particular column, it can be disabled via
+If ordering does not make sense for a particular column, it can be disabled via
 the ``orderable`` argument::
 
     class SimpleTable(tables.Table):

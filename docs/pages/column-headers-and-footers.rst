@@ -7,7 +7,7 @@ By default an header and no footer will be rendered.
 
 
 Adding column headers
-=====================
+---------------------
 
 The header cell for each column comes from `~.Column.header`. By default this
 method returns `~.Column.verbose_name`, falling back to the titlised attribute
@@ -102,7 +102,7 @@ column::
 
 
 Adding column footers
-=====================
+---------------------
 
 By default, no footer will be rendered. If you want to add a footer, define a
 footer on at least one column.

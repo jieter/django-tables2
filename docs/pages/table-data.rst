@@ -3,7 +3,7 @@
 Populating a table with data
 ============================
 
-Tables are compatible with a range of input data structures. If you've seen the
+Tables can be created from a range of input data structures. If you've seen the
 tutorial you'll have seen a queryset being used, however any iterable that
 supports :func:`len` and contains items that expose key-based access to column
 values is fine.
@@ -12,8 +12,8 @@ values is fine.
 List of dicts
 -------------
 
-An an example we'll demonstrate using list of dicts. When defining a table it's
-necessary to declare each column::
+An an example we will demonstrate using list of dicts. When defining a table
+it is necessary to declare each column::
 
     import django_tables2 as tables
 
@@ -31,7 +31,7 @@ necessary to declare each column::
 Querysets
 ---------
 
-If you build use tables to display `.QuerySet` data, rather than defining each
+If you build use tables to display `~django.db.models.query.QuerySet` data, rather than defining each
 column manually in the table, the `.Table.Meta.model` option allows tables to
 be dynamically created based on a model::
 
@@ -43,6 +43,8 @@ be dynamically created based on a model::
         dob = models.DateField()
 
     # tables.py
+    import django_tables2 as tables
+
     class PersonTable(tables.Table):
         class Meta:
             model = Person
@@ -62,7 +64,8 @@ This has a number of benefits:
 - Specialized columns are used where possible (e.g. `.DateColumn` for a
   `~.models.DateField`)
 
-When using this approach, the following options might be useful:
+When using this approach, the following options might be useful to customize
+what fields to show or hide:
 
 - `~.Table.Meta.sequence` -- reorder columns
 - `~.Table.Meta.fields` -- specify model fields to *include*

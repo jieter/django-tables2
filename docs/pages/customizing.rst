@@ -1,12 +1,12 @@
-Customizing the tables
-======================
+Customizing the table
+=====================
 
 .. toctree::
-    accessors
+    custom-data
     order-by-accessors
-    custom-rendering
     column-attributes
     column-headers-and-footers
     swapping-columns
     table-mixins
+    custom-rendering
     query-string-fields
