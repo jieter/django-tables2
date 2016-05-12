@@ -12,6 +12,7 @@
 /dist/
 /build/
 /docs/_build/
+/docs/pages/CHANGELOG.md
 /example/database.sqlite
 /example/.env
 /report.pylint

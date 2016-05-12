@@ -36,5 +36,5 @@ Table of contents
     pages/generic-mixins
     pages/localization-control
     pages/reference
-    pages/upgrading-from-v1
+    pages/upgrade-changelog
     pages/glossary

@@ -5,6 +5,7 @@ import sys
 from os.path import abspath
 
 import sphinx_rtd_theme
+from recommonmark.parser import CommonMarkParser
 
 os.environ['DJANGO_SETTINGS_MODULE'] = 'example.settings'
 
@@ -21,6 +22,18 @@ version = release.rpartition('.')[0]
 
 default_role = 'py:obj'
 
+# allow markdown to be able to include the CHANGELOG.md
+source_parsers = {
+    '.md': CommonMarkParser,
+}
+source_suffix = ['.rst', '.md']
+
+# symlink CHANGELOG.md from repo root to the pages dir.
+basedir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+filename = 'CHANGELOG.md'
+target = os.path.join(basedir, 'docs', 'pages', filename)
+if not os.path.islink(target):
+    os.symlink(os.path.join(basedir, filename), target)
 
 extensions = [
     'sphinx.ext.autodoc',
