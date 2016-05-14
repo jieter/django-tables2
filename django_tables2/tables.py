@@ -102,6 +102,11 @@ class TableData(object):
             else:
                 accessors += bound_column.order_by
         if hasattr(self, 'queryset'):
+            # Custom ordering
+            self.queryset, custom = bound_column.order(self.queryset, alias[0] == '-')
+            if custom:
+                return
+            # Traditional ordering
             translate = lambda accessor: accessor.replace(Accessor.SEPARATOR, QUERYSET_ACCESSOR_SEPARATOR)
             if accessors:
                 self.queryset = self.queryset.order_by(*(translate(a) for a in accessors))
