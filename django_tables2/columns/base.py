@@ -332,10 +332,10 @@ class BoundColumn(object):
         if self.orderable:
             th_class.add(self.table.header_attrs.get('ordered', 'orderable'))
         if self.is_ordered:
-            th_class.add(self.table.header_attrs.get('descending', 'desc') \
-                if self.order_by_alias.is_descending \
-                    else self.table.header_attrs.get('ascending', 'asc'))
-        
+            th_class.add(self.table.header_attrs.get('descending', 'desc')
+                         if self.order_by_alias.is_descending
+                         else self.table.header_attrs.get('ascending', 'asc'))
+
         # Always add the column name as a class
         th_class.add(self.name)
         td_class.add(self.name)
