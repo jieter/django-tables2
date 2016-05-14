@@ -92,6 +92,7 @@ class TableData(object):
         :type  aliases: `~.utils.OrderByTuple`
         """
         accessors = []
+        bound_column = None
         for alias in aliases:
             bound_column = self.table.columns[OrderBy(alias).bare]
             # bound_column.order_by reflects the current ordering applied to
@@ -103,9 +104,10 @@ class TableData(object):
                 accessors += bound_column.order_by
         if hasattr(self, 'queryset'):
             # Custom ordering
-            self.queryset, custom = bound_column.order(self.queryset, alias[0] == '-')
-            if custom:
-                return
+            if bound_column:
+                self.queryset, custom = bound_column.order(self.queryset, alias[0] == '-')
+                if custom:
+                    return
             # Traditional ordering
             translate = lambda accessor: accessor.replace(Accessor.SEPARATOR, QUERYSET_ACCESSOR_SEPARATOR)
             if accessors:
