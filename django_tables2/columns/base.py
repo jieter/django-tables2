@@ -317,6 +317,8 @@ class BoundColumn(object):
         # Work on a copy of the attrs object since we're tweaking stuff
         attrs = dict(self.column.attrs)
 
+        print(self.table.row_attrs)
+
         # Find the relevant th attributes (fall back to cell if th isn't
         # explicitly specified).
         attrs['th'] = AttributeDict(attrs.get('th', attrs.get('cell', {})))
@@ -328,13 +330,19 @@ class BoundColumn(object):
 
         # add classes for ordering
         if self.orderable:
-            th_class.add('orderable')
+            th_class.add(self.table.header_attrs.get('ordered', 'orderable'))
         if self.is_ordered:
-            th_class.add('desc' if self.order_by_alias.is_descending else 'asc')
-
+            th_class.add(self.table.header_attrs.get('descending', 'desc') \
+                if self.order_by_alias.is_descending \
+                    else self.table.header_attrs.get('ascending', 'asc'))
+        
         # Always add the column name as a class
         th_class.add(self.name)
         td_class.add(self.name)
+
+        # Add user-defined attrs to current attrs
+        th_class |= set((c for c in self.table.header_attrs.get('class', '').split(' ') if c))
+        td_class |= set((c for c in self.table.cell_attrs.get('class', '').split(' ') if c))
 
         attrs['th']['class'] = ' '.join(sorted(th_class))
         attrs['td']['class'] = ' '.join(sorted(td_class))
