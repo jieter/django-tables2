@@ -317,8 +317,6 @@ class BoundColumn(object):
         # Work on a copy of the attrs object since we're tweaking stuff
         attrs = dict(self.column.attrs)
 
-        print(self.table.row_attrs)
-
         # Find the relevant th attributes (fall back to cell if th isn't
         # explicitly specified).
         attrs['th'] = AttributeDict(attrs.get('th', attrs.get('cell', {})))
