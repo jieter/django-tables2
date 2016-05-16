@@ -239,6 +239,18 @@ class Column(object):
         """
         return value
 
+    def order(self, queryset, is_descending):
+        """
+        Returns the queryset of the table.
+
+        This method can be overridden by :ref:`table.order_FOO` methods on the
+        table or by subclassing `.Column`. Only overrides if second element
+        in return tuple is True.
+
+        :returns: Tuple (queryset, boolean)
+        """
+        return (queryset, False)
+
     @classmethod
     def from_field(cls, field):
         """
@@ -328,13 +340,19 @@ class BoundColumn(object):
 
         # add classes for ordering
         if self.orderable:
-            th_class.add('orderable')
+            th_class.add(self.table.header_attrs.get('orderable', 'orderable'))
         if self.is_ordered:
-            th_class.add('desc' if self.order_by_alias.is_descending else 'asc')
+            th_class.add(self.table.header_attrs.get('descending', 'desc')
+                         if self.order_by_alias.is_descending
+                         else self.table.header_attrs.get('ascending', 'asc'))
 
         # Always add the column name as a class
         th_class.add(self.name)
         td_class.add(self.name)
+
+        # Add user-defined attrs to current attrs
+        th_class |= set((c for c in self.table.header_attrs.get('class', '').split(' ') if c))
+        td_class |= set((c for c in self.table.cell_attrs.get('class', '').split(' ') if c))
 
         attrs['th']['class'] = ' '.join(sorted(th_class))
         attrs['td']['class'] = ' '.join(sorted(td_class))
@@ -527,6 +545,7 @@ class BoundColumns(object):
         for name, column in six.iteritems(table.base_columns):
             self.columns[name] = bc = BoundColumn(table, column, name)
             bc.render = getattr(table, 'render_' + name, column.render)
+            bc.order = getattr(table, 'order_' + name, column.order)
 
     def iternames(self):
         return (name for name, column in self.iteritems())
