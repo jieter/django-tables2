@@ -340,7 +340,7 @@ class BoundColumn(object):
 
         # add classes for ordering
         if self.orderable:
-            th_class.add(self.table.header_attrs.get('ordered', 'orderable'))
+            th_class.add(self.table.header_attrs.get('orderable', 'orderable'))
         if self.is_ordered:
             th_class.add(self.table.header_attrs.get('descending', 'desc')
                          if self.order_by_alias.is_descending
