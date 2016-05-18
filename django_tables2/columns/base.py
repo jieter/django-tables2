@@ -326,11 +326,16 @@ class BoundColumn(object):
         th_class = set((c for c in attrs['th'].get('class', '').split(' ') if c))
         td_class = set((c for c in attrs['td'].get('class', '').split(' ') if c))
 
+        # add set of classes from table's header_attrs
+        th_class |= set((c for c in self.table.header_attrs.get('class', '').split(' ') if c))
+
         # add classes for ordering
         if self.orderable:
-            th_class.add('orderable')
+            th_class.add(self.table.header_attrs.get('orderable', 'orderable'))
         if self.is_ordered:
-            th_class.add('desc' if self.order_by_alias.is_descending else 'asc')
+            th_class.add(self.table.header_attrs.get('descending', 'desc')
+                         if self.order_by_alias.is_descending
+                         else self.table.header_attrs.get('ascending', 'asc'))
 
         # Always add the column name as a class
         th_class.add(self.name)

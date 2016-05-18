@@ -236,6 +236,7 @@ class TableOptions(object):
     def __init__(self, options=None):
         super(TableOptions, self).__init__()
         self.attrs = AttributeDict(getattr(options, 'attrs', {}))
+        self.header_attrs = getattr(options, 'header_attrs', {})
         self.row_attrs = getattr(options, 'row_attrs', {})
         self.default = getattr(options, 'default', '—')
         self.empty_text = getattr(options, 'empty_text', None)
@@ -398,8 +399,8 @@ class TableBase(object):
     TableDataClass = TableData
 
     def __init__(self, data, order_by=None, orderable=None, empty_text=None,
-                 exclude=None, attrs=None, row_attrs=None, sequence=None,
-                 prefix=None, order_by_field=None, page_field=None,
+                 exclude=None, attrs=None, header_attrs=None, row_attrs=None,
+                 sequence=None, prefix=None, order_by_field=None, page_field=None,
                  per_page_field=None, template=None, default=None, request=None,
                  show_header=None, show_footer=True):
         super(TableBase, self).__init__()
@@ -412,6 +413,7 @@ class TableBase(object):
         self.rows = BoundRows(data=self.data, table=self)
         attrs = computed_values(attrs if attrs is not None else self._meta.attrs)
         self.attrs = AttributeDict(attrs)
+        self.header_attrs = AttributeDict(row_attrs or self._meta.header_attrs)
         self.row_attrs = AttributeDict(row_attrs or self._meta.row_attrs)
         self.empty_text = empty_text if empty_text is not None else self._meta.empty_text
         self.orderable = orderable
