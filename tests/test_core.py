@@ -649,6 +649,38 @@ def test_sorting_non_database_data():
     assert table.rows[3].get_cell('country') == 'Australia'
 
 
+def test_header_attrs():
+    class Table(tables.Table):
+        alpha = tables.Column()
+        beta = tables.Column()
+
+    table = Table(MEMORY_DATA, header_attrs={
+        'orderable': 'sortable',
+        'ascending': 'ascend',
+        'descending': 'descend',
+    }, order_by="alpha")
+
+    assert 'sortable' in table.columns[0].attrs['th']['class']
+    assert 'ascend' in table.columns[0].attrs['th']['class']
+
+
+def test_header_attrs_in_meta():
+    class Table(tables.Table):
+        alpha = tables.Column()
+        beta = tables.Column()
+
+        class Meta(OrderedTable.Meta):
+            header_attrs = {
+                'orderable': 'sortable',
+                'ascending': 'ascend',
+                'descending': 'descend',
+            }
+
+    table = Table(MEMORY_DATA)
+    assert 'sortable' in table.columns[0].attrs['th']['class']
+    assert 'ascend' in table.columns[0].attrs['th']['class']
+
+
 def test_row_attrs():
     class Table(tables.Table):
         alpha = tables.Column()

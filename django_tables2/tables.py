@@ -413,7 +413,7 @@ class TableBase(object):
         self.rows = BoundRows(data=self.data, table=self)
         attrs = computed_values(attrs if attrs is not None else self._meta.attrs)
         self.attrs = AttributeDict(attrs)
-        self.header_attrs = AttributeDict(row_attrs or self._meta.header_attrs)
+        self.header_attrs = AttributeDict(header_attrs or self._meta.header_attrs)
         self.row_attrs = AttributeDict(row_attrs or self._meta.row_attrs)
         self.empty_text = empty_text if empty_text is not None else self._meta.empty_text
         self.orderable = orderable
