@@ -244,7 +244,7 @@ class Column(object):
         Returns the queryset of the table.
 
         This method can be overridden by :ref:`table.order_FOO` methods on the
-        table or by subclassing `.Column`. Only overrides if second element
+        table or by subclassing `.Column`; but only overrides if second element
         in return tuple is True.
 
         :returns: Tuple (queryset, boolean)
