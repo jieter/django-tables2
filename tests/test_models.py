@@ -306,7 +306,7 @@ def test_queryset_table_data_supports_custom_ordering():
         def order_first_name(self, queryset, is_descending):
             # annotate to order by length of first_name + last_name
             queryset = queryset.annotate(
-                length=Length("first_name") + Length("last_name")
+                length=Length('first_name') + Length('last_name')
             ).order_by(('-' if is_descending else '') + 'length')
             return (queryset, True)
 
