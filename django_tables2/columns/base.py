@@ -314,28 +314,35 @@ class BoundColumn(object):
         what's actually defined in the column attrs. This makes writing
         templates easier.
         """
-        # Work on a copy of the attrs object since we're tweaking stuff
-        attrs = dict(self.column.attrs)
+        # Inherit from table's 'th' and 'td' attributes
+        #attrs = { x: self.table.attrs.get(x, {}) for x in ('th', 'td') }
+        attrs = dict(self.table.attrs)
+
+        # Update attrs to prefer column's attrs rather than table's
+        attrs.update(dict(self.column.attrs))
+
+        # Column ordering class names
+        ordering_class = attrs.get('th', {}).get('_ordering', {})
 
         # Find the relevant th attributes (fall back to cell if th isn't
         # explicitly specified).
         attrs['th'] = AttributeDict(attrs.get('th', attrs.get('cell', {})))
         attrs['td'] = AttributeDict(attrs.get('td', attrs.get('cell', {})))
 
+        # Remove ordering class names from attributes
+        attrs['th'].pop('_ordering', None)
+
         # make set of existing classes.
         th_class = set((c for c in attrs['th'].get('class', '').split(' ') if c))
         td_class = set((c for c in attrs['td'].get('class', '').split(' ') if c))
 
-        # add set of classes from table's header_attrs
-        th_class |= set((c for c in self.table.header_attrs.get('class', '').split(' ') if c))
-
         # add classes for ordering
         if self.orderable:
-            th_class.add(self.table.header_attrs.get('orderable', 'orderable'))
+            th_class.add(ordering_class.get('orderable', 'orderable'))
         if self.is_ordered:
-            th_class.add(self.table.header_attrs.get('descending', 'desc')
+            th_class.add(ordering_class.get('descending', 'desc')
                          if self.order_by_alias.is_descending
-                         else self.table.header_attrs.get('ascending', 'asc'))
+                         else ordering_class.get('ascending', 'asc'))
 
         # Always add the column name as a class
         th_class.add(self.name)
