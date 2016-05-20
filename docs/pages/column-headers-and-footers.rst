@@ -51,7 +51,7 @@ it in the interface. django-tables2 does this by adding an `asc` class for
 ascending or a `desc` class for descending. It should also be known that any
 orderable column is added with an `orderable` class to the column header.
 
-Sometimes there many be a need to change these default classes.
+Sometimes there may be a need to change these default classes.
 
 On the `attrs` attribute of the table, you can add a `th` key with the value of
 a dictionary. Within that `th` dictionary, you may add an `_ordering` key also
