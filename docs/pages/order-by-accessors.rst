@@ -85,7 +85,7 @@ The implementation would look like this:
 
 
 As another example, presume the situation calls for being able to order by a
-mathematical expression. In this predicament, the table needs to be able to be
+mathematical expression. In this scenario, the table needs to be able to be
 ordered by the sum of both the shirts and the pants. The custom column will
 have its value rendered using :ref:`table.render_FOO`.
 

@@ -302,6 +302,7 @@ def test_queryset_table_data_supports_custom_ordering():
     class Table(tables.Table):
         class Meta:
             model = Person
+            order_by = 'first_name'
 
         def order_first_name(self, queryset, is_descending):
             # annotate to order by length of first_name + last_name
