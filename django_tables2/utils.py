@@ -405,9 +405,9 @@ class AttributeDict(dict):
 
         """
 
-        blocklist = ('th', 'td', '_ordering')
+        blacklist = ('th', 'td', '_ordering')
         return mark_safe(' '.join(['%s="%s"' % (k, escape(v if not callable(v) else v()))
-                                   for k, v in six.iteritems(self) if not k in blocklist]))
+                                   for k, v in six.iteritems(self) if k not in blacklist]))
 
 
 def segment(sequence, aliases):

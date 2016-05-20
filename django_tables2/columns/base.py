@@ -314,8 +314,7 @@ class BoundColumn(object):
         what's actually defined in the column attrs. This makes writing
         templates easier.
         """
-        # Inherit from table's 'th' and 'td' attributes
-        #attrs = { x: self.table.attrs.get(x, {}) for x in ('th', 'td') }
+        # Start with table's attrs; Only 'th' and 'td' attributes will be used
         attrs = dict(self.table.attrs)
 
         # Update attrs to prefer column's attrs rather than table's
@@ -328,9 +327,6 @@ class BoundColumn(object):
         # explicitly specified).
         attrs['th'] = AttributeDict(attrs.get('th', attrs.get('cell', {})))
         attrs['td'] = AttributeDict(attrs.get('td', attrs.get('cell', {})))
-
-        # Remove ordering class names from attributes
-        attrs['th'].pop('_ordering', None)
 
         # make set of existing classes.
         th_class = set((c for c in attrs['th'].get('class', '').split(' ') if c))

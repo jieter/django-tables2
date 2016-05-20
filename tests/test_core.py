@@ -716,8 +716,9 @@ def test_column_ordering_attributes():
             }
         })
 
-    table = Table(MEMORY_DATA, order_by='alpha')
+    table = Table(MEMORY_DATA, attrs={'class': 'only-on-table'}, order_by='alpha')
 
+    assert 'only-on-table' not in table.columns[0].attrs['th']['class']
     assert 'custom-header-class' in table.columns[0].attrs['th']['class']
     assert 'ascending' in table.columns[0].attrs['th']['class']
     assert 'sort' in table.columns[0].attrs['th']['class']
