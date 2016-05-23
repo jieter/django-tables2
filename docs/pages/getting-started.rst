@@ -14,3 +14,4 @@ in your template setting ``OPTIONS``.
 .. toctree::
     tutorial
     table-data
+    performance
