@@ -1,6 +1,7 @@
 # coding: utf-8
 import pytest
 from django.utils import six
+from django.db.models.functions import Length
 
 import django_tables2 as tables
 
@@ -295,6 +296,33 @@ def test_queryset_table_data_supports_ordering():
     assert table.rows[0].get_cell('first_name') == 'Bradley'
     table.order_by = '-first_name'
     assert table.rows[0].get_cell('first_name') == 'Stevie'
+
+
+def test_queryset_table_data_supports_custom_ordering():
+    class Table(tables.Table):
+        class Meta:
+            model = Person
+            order_by = 'first_name'
+
+        def order_first_name(self, queryset, is_descending):
+            # annotate to order by length of first_name + last_name
+            queryset = queryset.annotate(
+                length=Length('first_name') + Length('last_name')
+            ).order_by(('-' if is_descending else '') + 'length')
+            return (queryset, True)
+
+    for name in ('Bradley Ayers', 'Stevie Armstrong', 'VeryLongFirstName VeryLongLastName'):
+        first_name, last_name = name.split()
+        Person.objects.create(first_name=first_name, last_name=last_name)
+
+    table = Table(Person.objects.all())
+
+    # Shortest full names first
+    assert table.rows[0].get_cell('first_name') == 'Bradley'
+
+    # Longest full names first
+    table.order_by = '-first_name'
+    assert table.rows[0].get_cell('first_name') == 'VeryLongFirstName'
 
 
 def test_doesnotexist_from_accessor_should_use_default():

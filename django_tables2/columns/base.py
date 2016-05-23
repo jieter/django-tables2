@@ -239,6 +239,18 @@ class Column(object):
         """
         return value
 
+    def order(self, queryset, is_descending):
+        """
+        Returns the queryset of the table.
+
+        This method can be overridden by :ref:`table.order_FOO` methods on the
+        table or by subclassing `.Column`; but only overrides if second element
+        in return tuple is True.
+
+        :returns: Tuple (queryset, boolean)
+        """
+        return (queryset, False)
+
     @classmethod
     def from_field(cls, field):
         """
@@ -535,6 +547,7 @@ class BoundColumns(object):
         for name, column in six.iteritems(table.base_columns):
             self.columns[name] = bc = BoundColumn(table, column, name)
             bc.render = getattr(table, 'render_' + name, column.render)
+            bc.order = getattr(table, 'order_' + name, column.order)
 
     def iternames(self):
         return (name for name, column in self.iteritems())
