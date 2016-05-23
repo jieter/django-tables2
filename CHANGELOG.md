@@ -1,5 +1,11 @@
 # Change log
 
+## Unreleased
+- Allow use of custom class names for ordered columns through `attrs`. (
+[#329](https://github.com/bradleyayers/django-tables2/pull/329) by [@theTarkus](https://github.com/theTarkus))
+- Column ordering queryset passthrough ([#330](https://github.com/bradleyayers/django-tables2/pull/330) by [@theTarkus](https://github.com/theTarkus))
+- Cleanup/restructuring of [documenation](http://django-tables2.readthedocs.io/), ([#325](https://github.com/bradleyayers/django-tables2/pull/325)
+
 ## v1.2.1 (2016-05-09)
 - table footers (#323)
 - Non-field based `LinkColumn` only renders default value if lookup fails. (#322)
