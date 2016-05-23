@@ -27,23 +27,24 @@ class CheckBoxColumn(Column):
       via *attrs* argument).
     - *orderable* defaults to `False`.
 
+    Arguments:
+        attrs (dict): In addition to *attrs* keys supported by `.Column`, the
+            following are available:
+
+             - *input*     -- ``<input>`` elements in both ``<td>`` and ``<th>``.
+             - *th__input* -- Replaces *input* attrs in header cells.
+             - *td__input* -- Replaces *input* attrs in body cells.
+
+        checked (`~.Accessor`, bool, callable): Allow rendering the checkbox as
+            checked. If it resolves to a truthy value, the checkbox will be
+            rendered as checked.
+
     .. note::
 
         You'd expect that you could select multiple checkboxes in the rendered
         table and then *do something* with that. This functionality isn't
         implemented. If you want something to actually happen, you'll need to
         implement that yourself.
-
-    In addition to *attrs* keys supported by `.Column`, the following are
-    available:
-
-    - *input*     -- ``<input>`` elements in both ``<td>`` and ``<th>``.
-    - *th__input* -- Replaces *input* attrs in header cells.
-    - *td__input* -- Replaces *input* attrs in body cells.
-
-    To render the checkbox as checked, use the *checked* argument with a
-    accessor, boolean or callable returning boolean. If it resolves to a truthy
-    value, the checkbox will be rendered as checked.
     """
     def __init__(self, attrs=None, checked=None, **extra):
         self.checked = checked

@@ -1,5 +1,8 @@
 Tutorial
-========
+~~~~~~~~
+
+After intalling django-tables2, you can follow this tutorial to start using
+django-tables2.
 
 .. note::
     For this tutorial, we'll assume you use Django version 1.8.0 or greater. For
@@ -8,6 +11,7 @@ Tutorial
 1. ``pip install django-tables2``
 2. Add ``'django_tables2'`` to ``INSTALLED_APPS``
 3. Add ``'django.core.context_processors.request'`` to the ``context_preprocessors`` in your template setting ``OPTIONS``.
+
 
 We're going to run through creating a tutorial app. Let's start with a simple model::
 
@@ -24,9 +28,7 @@ to pass a ``Person`` queryset into a template::
     def people(request):
         return render(request, 'people.html', {'people': Person.objects.all()})
 
-Finally, implement the template:
-
-.. sourcecode:: django
+Finally, implement the template::
 
     {# tutorial/templates/people.html #}
     {% load render_table from django_tables2 %}
@@ -47,31 +49,27 @@ Hook the view up in your URLs, and load the page, you should see:
     :alt: An example table rendered using django-tables2
 
 While simple, passing a queryset directly to ``{% render_table %}`` doesn't
-allow for any customisation. For that, you must define a `.Table` class.
-
-::
+allow for any customisation. For that, you must define a custom `.Table` class::
 
     # tutorial/tables.py
     import django_tables2 as tables
-    from tutorial.models import Person
+    from .models import Person
 
     class PersonTable(tables.Table):
         class Meta:
             model = Person
             # add class="paleblue" to <table> tag
-            attrs = {"class": "paleblue"}
+            attrs = {'class': 'paleblue'}
 
 
 You'll then need to instantiate and configure the table in the view, before
-adding it to the context.
-
-::
+adding it to the context::
 
     # tutorial/views.py
     from django.shortcuts import render
-    from django_tables2   import RequestConfig
-    from tutorial.models  import Person
-    from tutorial.tables  import PersonTable
+    from django_tables2 import RequestConfig
+    from .models import Person
+    from .tables import PersonTable
 
     def people(request):
         table = PersonTable(Person.objects.all())
@@ -82,7 +80,7 @@ Using `.RequestConfig` automatically pulls values from ``request.GET`` and
 updates the table accordingly. This enables data ordering and pagination.
 
 Rather than passing a queryset to ``{% render_table %}``, instead pass the
-table.
+table instance:
 
 .. sourcecode:: django
 
@@ -92,3 +90,5 @@ At this point you haven't actually customised anything, you've merely added the
 boilerplate code that ``{% render_table %}`` does for you when given a
 ``QuerySet``. The remaining sections in this document describe how to change
 various aspects of the table.
+
+TODO: insert links to various customisation options here.

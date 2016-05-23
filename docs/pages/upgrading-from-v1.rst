@@ -1,7 +1,7 @@
 Upgrading from django-tables Version 1
 ======================================
 
-- Change your ``INSTALLLED_APPS`` entry from ``"django_tables.app"`` to
+- Change your ``INSTALLLED_APPS`` entry from ``'django_tables.app'`` to
   ``'django_tables2'``.
 
 - Change all your import references from ``django_tables`` to

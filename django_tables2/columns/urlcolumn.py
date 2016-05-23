@@ -12,10 +12,10 @@ class URLColumn(BaseLinkColumn):
     """
     Renders URL values as hyperlinks.
 
-    :param text: Either static text, or a callable. If set, this
-                 value will be used to render the text inside link
-                 instead of value (default)
-    :param attrs: Additional attributes for the ``<a>`` tag
+    Arguments:
+        text (str or callable): Either static text, or a callable. If set, this
+            will be used to render the text inside link instead of value (default)
+        attrs (dict): Additional attributes for the ``<a>`` tag
 
     Example::
 
@@ -24,8 +24,7 @@ class URLColumn(BaseLinkColumn):
         ...
         >>> table = CompaniesTable([{'www': 'http://google.com'}])
         >>> table.rows[0].get_cell('www')
-        u'<a href="http://google.com">http://google.com</a>'
-
+        '<a href="http://google.com">http://google.com</a>'
     """
     def render(self, record, value):
         return self.render_link(value, record=record, value=value)

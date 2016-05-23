@@ -13,10 +13,11 @@ class TimeColumn(TemplateColumn):
     """
     A column that renders times in the local timezone.
 
-    :param format: format string in same format as Django's ``time`` template
-                   filter (optional)
-    :type  format: `unicode`
-    :param  short: if *format* is not specified, use Django's ``TIME_FORMAT`` setting
+    Arguments:
+        format (str): format string in same format as Django's ``time`` template
+            filter (optional)
+        short (bool): if *format* is not specified, use Django's ``TIME_FORMAT``
+            setting
     """
     def __init__(self, format=None, *args, **kwargs):
         if format is None:

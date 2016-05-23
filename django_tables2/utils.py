@@ -12,19 +12,19 @@ from django.utils.safestring import mark_safe
 
 class Sequence(list):
     """
-    Represents a column sequence, e.g. ``("first_name", "...", "last_name")``
+    Represents a column sequence, e.g. ``('first_name', '...', 'last_name')``
 
     This is used to represent `.Table.Meta.sequence` or the `.Table`
     constructors's *sequence* keyword argument.
 
     The sequence must be a list of column names and is used to specify the
-    order of the columns on a table. Optionally a "..." item can be inserted,
+    order of the columns on a table. Optionally a '...' item can be inserted,
     which is treated as a *catch-all* for column names that aren't explicitly
     specified.
     """
     def expand(self, columns):
         """
-        Expands the ``"..."`` item in the sequence into the appropriate column
+        Expands the ``'...'`` item in the sequence into the appropriate column
         names that should be placed there.
 
         :raises: `ValueError` if the sequence is invalid for the columns.
@@ -59,49 +59,45 @@ class OrderBy(six.text_type):
     @property
     def bare(self):
         """
-        Return the bare form.
+        Returns:
+            `.OrderBy`: the bare form.
 
         The *bare form* is the non-prefixed form. Typically the bare form is
         just the ascending form.
 
         Example: ``age`` is the bare form of ``-age``
 
-        :rtype: `.OrderBy` object
         """
         return OrderBy(self[1:]) if self[:1] == '-' else self
 
     @property
     def opposite(self):
         """
-        Return an `.OrderBy` object with an opposite sort influence.
+        Provides the opposite of the current sorting directon.
 
-        Example:
+        Returns:
+            `.OrderBy`: object with an opposite sort influence.
 
-        .. code-block:: python
+        Example::
 
             >>> order_by = OrderBy('name')
             >>> order_by.opposite
             '-name'
 
-        :rtype: `.OrderBy` object
         """
         return OrderBy(self[1:]) if self.is_descending else OrderBy('-' + self)
 
     @property
     def is_descending(self):
         """
-        Return `True` if this object induces *descending* ordering
-
-        :rtype: `bool`
+        Returns `True` if this object induces *descending* ordering.
         """
         return self.startswith('-')
 
     @property
     def is_ascending(self):
         """
-        Return `True` if this object induces *ascending* ordering.
-
-        :returns: `bool`
+        Returns `True` if this object induces *ascending* ordering.
         """
         return not self.is_descending
 
@@ -109,15 +105,12 @@ class OrderBy(six.text_type):
 @six.python_2_unicode_compatible
 class OrderByTuple(tuple):
     """
-    Stores ordering as (as `.OrderBy` objects). The
-    `~django_tables2.tables.Table.order_by` property is always converted
-    to an `.OrderByTuple` object.
+    Stores ordering as (as `.OrderBy` objects). The `~.Table.order_by` property
+    is always converted to an `.OrderByTuple` object.
 
     This class is essentially just a `tuple` with some useful extras.
 
-    Example:
-
-    .. code-block:: python
+    Example::
 
         >>> x = OrderByTuple(('name', '-age'))
         >>> x['age']
@@ -143,19 +136,19 @@ class OrderByTuple(tuple):
         """
         Determine if a column has an influence on ordering.
 
-        Example:
+        Example::
 
-        .. code-block:: python
-
-            >>> ordering =
             >>> x = OrderByTuple(('name', ))
             >>> 'name' in  x
             True
             >>> '-name' in x
             True
 
-        :param name: The name of a column. (optionally prefixed)
-        :returns: `bool`
+        Arguments:
+            name (str): The name of a column. (optionally prefixed)
+
+        Returns:
+            bool: `True` if the column with `name` influences the ordering.
         """
         name = OrderBy(name).bare
         for order_by in self:
@@ -168,9 +161,7 @@ class OrderByTuple(tuple):
         Allows an `.OrderBy` object to be extracted via named or integer
         based indexing.
 
-        When using named based indexing, it's fine to used a prefixed named.
-
-        .. code-block:: python
+        When using named based indexing, it's fine to used a prefixed named::
 
             >>> x = OrderByTuple(('name', '-age'))
             >>> x[0]
@@ -180,7 +171,11 @@ class OrderByTuple(tuple):
             >>> x['-age']
             '-age'
 
-        :rtype: `.OrderBy` object
+        Arguments:
+            index (int): Index to query the ordering for.
+
+        Returns:
+            `.OrderBy`: for the ordering at the index.
         """
         if isinstance(index, six.string_types):
             for order_by in self:
@@ -248,11 +243,7 @@ class OrderByTuple(tuple):
     @property
     def opposite(self):
         """
-        Return version with each `.OrderBy` prefix toggled.
-
-        Example:
-
-        .. code-block:: python
+        Return version with each `.OrderBy` prefix toggled::
 
             >>> order_by = OrderByTuple(('name', '-age'))
             >>> order_by.opposite
@@ -275,9 +266,16 @@ class Accessor(str):
         Return an object described by the accessor by traversing the attributes
         of *context*.
 
-        Example:
+        Lookups are attempted in the following order:
 
-        .. code-block:: python
+         - dictionary (e.g. ``obj[related]``)
+         - attribute (e.g. ``obj.related``)
+         - list-index lookup (e.g. ``obj[int(related)]``)
+
+        Callable objects are called, and their result is used, before
+        proceeding with the resolving.
+
+        Example::
 
             >>> x = Accessor('__len__')
             >>> x.resolve('brad')
@@ -286,25 +284,17 @@ class Accessor(str):
             >>> x.resolve('brad')
             'B'
 
-        :type  context: `object`
-        :param context: The root/first object to traverse.
-        :type     safe: `bool`
-        :param    safe: Don't call anything with ``alters_data = True``
-        :type    quiet: bool
-        :param   quiet: Smother all exceptions and instead return `None`
-        :returns: target object
-        :raises: anything ``getattr(a, "b")`` raises, e.g. `TypeError`,
-                 `AttributeError`, `KeyError`, `ValueError` (unless *quiet* ==
-                 `True`)
+        Arguments:
+            context (object): The root/first object to traverse.
+            safe (bool): Don't call anything with `alters_data = True`
+            quiet (bool): Smother all exceptions and instead return `None`
 
-        `~.Accessor.resolve` attempts lookups in the following order:
+        Returns:
+            target object
 
-        - dictionary (e.g. ``obj[related]``)
-        - attribute (e.g. ``obj.related``)
-        - list-index lookup (e.g. ``obj[int(related)]``)
-
-        Callable objects are called, and their result is used, before
-        proceeding with the resolving.
+        Raises:
+            TypeError`, `AttributeError`, `KeyError`, `ValueError`
+            (unless `quiet` == `True`)
         """
         try:
             current = context
@@ -370,8 +360,11 @@ class Accessor(str):
          - the resolved left part.
          - the remainder
 
-        >>> Accessor('a.b.c').penultimate({'a': {'a': 1, 'b': {'c': 2, 'd': 4}}})
-        ({'c': 2, 'd': 4}, 'c')
+        Example::
+
+            >>> Accessor('a.b.c').penultimate({'a': {'a': 1, 'b': {'c': 2, 'd': 4}}})
+            ({'c': 2, 'd': 4}, 'c')
+
         '''
         path, _, remainder = self.rpartition('.')
         return A(path).resolve(context, quiet=quiet), remainder
@@ -416,15 +409,13 @@ def segment(sequence, aliases):
 
     This allows the value set by `.QuerySet.order_by` to be translated into
     a list of columns that would have the same result. These are called
-    "order by aliases" which are optionally prefixed column names.
+    "order by aliases" which are optionally prefixed column names::
 
-    e.g.
-
-        >>> list(segment(("a", "-b", "c"),
-        ...              {"x": ("a"),
-        ...               "y": ("b", "-c"),
-        ...               "z": ("-b", "c")}))
-        [("x", "-y"), ("x", "z")]
+        >>> list(segment(('a', '-b', 'c'),
+        ...              {'x': ('a'),
+        ...               'y': ('b', '-c'),
+        ...               'z': ('-b', 'c')}))
+        [('x', '-y'), ('x', 'z')]
 
     """
     if not (sequence or aliases):
@@ -451,9 +442,10 @@ def segment(sequence, aliases):
 
 def signature(fn):
     '''
-    Returns a tuple containing:
-     - the arguments (positional or keyword)
-     - the name of the ** kwarg catch all.
+    Returns:
+        tuple: Returns a (arguments, kwarg_name)-tuple:
+             - the arguments (positional or keyword)
+             - the name of the ** kwarg catch all.
 
     The self-argument for methods is always removed.
     '''
@@ -489,8 +481,8 @@ def call_with_appropriate(fn, kwargs):
     '''
     Calls the function ``fn`` with the keyword arguments from ``kwargs`` it expects
 
-    If the **kwargs argument is defined, pass all arguments, else provide
-    exactly the arguments wanted.
+    If the kwargs argument is defined, pass all arguments, else provide exactly
+    the arguments wanted.
     '''
     args, keyword = signature(fn)
     if not keyword:
@@ -503,7 +495,7 @@ def computed_values(d, *args, **kwargs):
     """
     Returns a new `dict` that has callable values replaced with the return values.
 
-    Simple example:
+    Example::
 
         >>> compute_values({'foo': lambda: 'bar'})
         {'foo': 'bar'}
@@ -513,7 +505,7 @@ def computed_values(d, *args, **kwargs):
     1. If the value is callable, call it and make that the new value.
     2. If the value is an instance of dict, use ComputableDict to compute its keys.
 
-    Example:
+    Example::
 
         >>> def parents():
         ...     return {
@@ -529,7 +521,13 @@ def computed_values(d, *args, **kwargs):
         >>> computed_values(a)
         {'name': 'Brad', 'parents': {'father': 'Foo', 'mother': 'Bar'}}
 
-    :rtype: dict
+    Arguments:
+        d (dict): The original dictionary.
+        args: any extra positional arguments will be passed to the callables
+        kwargs: any extra keyword arguments will be passed to the callables.
+
+    Returns:
+        dict: with callable values replaced.
     """
     result = {}
     for k, v in six.iteritems(d):

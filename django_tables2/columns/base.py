@@ -26,7 +26,8 @@ class Library(object):
         """
         Return a column object suitable for model field.
 
-        :returns: column object of `None`
+        Returns:
+            `.Column` object or `None`
         """
         # iterate in reverse order as columns are registered in order
         # of least to most specialised (i.e. Column is registered
@@ -52,99 +53,44 @@ class Column(object):
     """
     Represents a single column of a table.
 
-    `.Column` objects control the way a column (including the cells that
-    fall within it) are rendered.
+    `.Column` objects control the way a column (including the cells that fall
+    within it) are rendered.
+
+    Arguments:
+        attrs (dict): HTML attributes for elements that make up the column.
+            This API is extended by subclasses to allow arbitrary HTML
+            attributes to be added to the output.
+
+            By default `.Column` supports:
+
+             - *th* -- ``table/thead/tr/th`` elements
+             - *td* -- ``table/tbody/tr/td`` elements
+             - *cell* -- fallback if *th* or *td* isn't defined
+        accessor (str or `~.Accessor`): An accessor that describes how to
+            extract values for this column from the :term:`table data`.
+        default (str or callable): The default value for the column. This can be
+            a value or a callable object [1]_. If an object in the data provides
+            `None` for a column, the default will be used instead.
+
+            The default value may affect ordering, depending on the type of data
+            the table is using. The only case where ordering is not affected is
+            when a `.QuerySet` is used as the table data (since sorting is
+            performed by the database).
+        order_by (str, tuple or `.Accessor`): Allows one or more accessors to be
+            used for ordering rather than *accessor*.
+        orderable (bool): If `False`, this column will not be allowed to
+            influence row ordering/sorting.
+        verbose_name (str): A human readable version of the column name.
+        visible (bool): If `True`, this column will be rendered.
+        localize: If the cells in this column will be localized by the
+            `localize` filter:
+
+              - If `True`, force localization
+              - If `False`, values are not localized
+              - If `None` (default), localization depends on the ``USE_L10N`` setting.
 
 
-    .. attribute:: attrs
-
-        HTML attributes for elements that make up the column.
-
-        :type: `dict`
-
-        This API is extended by subclasses to allow arbitrary HTML attributes
-        to be added to the output.
-
-        By default `.Column` supports:
-
-        - *th* -- ``table/thead/th`` elements
-        - *td* -- ``table/tbody/tr/td`` elements
-        - *cell* -- fallback if *th* or *td* isn't defined
-
-
-    .. attribute:: accessor
-
-        An accessor that describes how to extract values for this column from
-        the :term:`table data`.
-
-        :type: `str` or `~.Accessor`
-
-
-    .. attribute:: default
-
-        The default value for the column. This can be a value or a callable
-        object [1]_. If an object in the data provides `None` for a column, the
-        default will be used instead.
-
-        The default value may affect ordering, depending on the type of data
-        the table is using. The only case where ordering is not affected is
-        when a `.QuerySet` is used as the table data (since sorting is
-        performed by the database).
-
-        .. [1] The provided callable object must not expect to receive any
-               arguments.
-
-
-    .. attribute:: order_by
-
-        Allows one or more accessors to be used for ordering rather than
-        *accessor*.
-
-        :type: `str`, `tuple`, `~.Accessor`
-
-
-    .. attribute:: orderable
-
-        If `False`, this column will not be allowed to influence row
-        ordering/sorting.
-
-        :type: `bool`
-
-
-    .. attribute:: verbose_name
-
-        A human readable version of the column name.
-
-        :type: `str`
-
-
-    .. attribute:: visible
-
-        If `True`, this column will be included in the HTML output.
-
-        :type: `bool`
-
-
-    .. attribute:: localize
-
-        * If `True`, cells of this column will be localized in the HTML output
-          by the localize filter.
-
-        * If `False`, cells of this column will be unlocalized in the HTML output
-          by the unlocalize filter.
-
-        * If `None` (the default), cell will be rendered as is and localization
-          will depend on ``USE_L10N`` setting.
-
-        :type: `bool`
-
-    .. attribute:: footer
-
-        Value to render a footer for this column. If `str`, it will be used as
-        is, if callable, it will be called with a column, bound_column and table
-        attribute.
-
-        :type: `str` or `callable`
+    .. [1] The provided callable object must not expect to receive any arguments.
     """
     #: Tracks each time a Column instance is created. Used to retain order.
     creation_counter = 0
@@ -538,8 +484,8 @@ class BoundColumns(object):
     At the moment you'll only come across this class when you access a
     `.Table.columns` property.
 
-    :type  table: `.Table` object
-    :param table: the table containing the columns
+    Arguments:
+        table (`.Table`): the table containing the columns
     """
     def __init__(self, table):
         self.table = table

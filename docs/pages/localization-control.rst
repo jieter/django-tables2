@@ -3,7 +3,7 @@
 Controlling localization
 ========================
 
-Django_tables2 allows you to define which column of a table should or should not
+Django-tables2 allows you to define which column of a table should or should not
 be localized. For example you may want to use this feature in following use cases:
 
 * You want to format some columns representing for example numeric values in the given locales
@@ -22,7 +22,7 @@ First one is setting the `~.Column.localize` attribute in your column definition
 to `True` or `False`. Like so::
 
      class PersonTable(tables.Table):
-        id = tables.Column(name="id", accessor="pk", localize=False)
+        id = tables.Column(name='id', accessor='pk', localize=False)
         class Meta:
             model = Person
 
@@ -36,12 +36,12 @@ tuples in your tables Meta class (jutst like with `~.Table.Meta.fields`
 or `~.Table.Meta.exclude`). You can do this like so::
 
      class PersonTable(tables.Table):
-        id = tables.Column(accessor="pk")
-        value = tables.Column(accessor="some_numerical_field")
+        id = tables.Column(accessor='pk')
+        value = tables.Column(accessor='some_numerical_field')
         class Meta:
             model = Person
-            unlocalize = ('id',)
-            localize = ('value',)
+            unlocalize = ('id', )
+            localize = ('value', )
 
 If you define the same column in both `localize` and `unlocalize` then the value
-of this column will be "unlocalized" which means that `unlocalize` has higher precedence.
+of this column will be 'unlocalized' which means that `unlocalize` has higher precedence.

@@ -8,22 +8,23 @@ class RequestConfig(object):
     """
     A configurator that uses request data to setup a table.
 
-    :type  paginate: `dict` or `bool`
-    :param paginate: indicates whether to paginate, and if so, what default
-                     values to use. If the value evaluates to `False`,
-                     pagination will be disabled. A `dict` can be used to
-                     specify default values for the call to
-                     `~.tables.Table.paginate` (e.g. to define a default
-                     *per_page* value).
+    A single RequestConfig can be used for multiple tables in one view. See
+    [pagination]
 
-                     A special *silent* item can be used to enable automatic
-                     handling of pagination exceptions using the following
-                     algorithm:
+    Arguments:
+        paginate (dict or bool): Indicates whether to paginate, and if so, what
+            default values to use. If the value evaluates to `False`, pagination
+            will be disabled. A `dict` can be used to specify default values for
+            the call to `~.tables.Table.paginate` (e.g. to define a default
+            `per_page` value).
 
-                     - If `~django.core.paginator.PageNotAnInteger`` is raised,
-                       show the first page.
-                     - If `~django.core.paginator.EmptyPage` is raised, show
-                       the last page.
+            A special *silent* item can be used to enable automatic handling of
+            pagination exceptions using the following logic:
+
+             - If `~django.core.paginator.PageNotAnInteger` is raised, show the
+               first page.
+             - If `~django.core.paginator.EmptyPage` is raised, show the last
+               page.
 
     """
     def __init__(self, request, paginate=True):
@@ -33,6 +34,9 @@ class RequestConfig(object):
     def configure(self, table):
         """
         Configure a table using information from the request.
+
+        Arguments:
+            table (`~.Table`): table to be configured
         """
         order_by = self.request.GET.getlist(table.prefixed_order_by_field)
         if order_by:

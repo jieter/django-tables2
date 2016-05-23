@@ -24,9 +24,10 @@ class TableData(object):
     """
     Exposes a consistent API for :term:`table data`.
 
-    :param  data: iterable containing data for each row
-    :type   data: `~django.db.query.QuerySet` or `list` of `dict`
-    :param table: `.Table` object
+    Arguments:
+        data (`~django.db.query.QuerySet` or `list` of `dict`): iterable
+            containing data for each row
+        table (`~.Table`)
     """
     def __init__(self, data, table):
         self.table = table
@@ -86,10 +87,10 @@ class TableData(object):
         Order the data based on order by aliases (prefixed column names) in the
         table.
 
-        :param aliases: optionally prefixed names of columns ('-' indicates
-                        descending order) in order of significance with
-                        regard to data ordering.
-        :type  aliases: `~.utils.OrderByTuple`
+        Arguments:
+            aliases (`~.utils.OrderByTuple`): optionally prefixed names of
+                columns ('-' indicates descending order) in order of
+                significance with regard to data ordering.
         """
         bound_column = None
         accessors = []
@@ -237,8 +238,8 @@ class TableOptions(object):
     when the table is defined. See `.Table` for documentation on the impact of
     variables in this class.
 
-    :param options: options for a table
-    :type  options: `.Table.Meta` on a `.Table`
+    Arguments:
+        options (`.Table.Meta`): options for a table from `.Table.Meta`
     """
     def __init__(self, options=None):
         super(TableOptions, self).__init__()
@@ -270,137 +271,58 @@ class TableBase(object):
     """
     A representation of a table.
 
+    Arguments:
+        attrs (dict): HTML attributes to add to the ``<table>`` tag.
+            When accessing the attribute, the value is always returned as an
+            `.AttributeDict` to allow easily conversion to HTML.
 
-    .. attribute:: attrs
+        columns (`.BoundColumns`): The columns in the table.
 
-        HTML attributes to add to the ``<table>`` tag.
+        default (str): Text to render in empty cells (determined by
+            `.Column.empty_values`, default `.Table.Meta.default`)
 
-        :type: `dict`
+        empty_text (str): Empty text to render when the table has no data.
+            (default `.Table.Meta.empty_text`)
 
-        When accessing the attribute, the value is always returned as an
-        `.AttributeDict` to allow easily conversion to HTML.
+        exclude (iterable or str): The names of columns that shouldn't be
+            included in the table.
 
+        order_by_field (str): If not `None`, defines the name of the *order by*
+            querystring field.
 
-    .. attribute:: columns
+        page: The current page in the context of pagination.
+            Added during the call to `.Table.paginate`.
 
-        The columns in the table.
+        page_field (str): If not `None`, defines the name of the *current page*
+            querystring field.
 
-        :type: `.BoundColumns`
+        paginator: The current paginator for the table, added during the call to `.Table.paginate`.
 
+        per_page_field (str): If not `None`, defines the name of the *per page*
+            querystring field.
 
-    .. attribute:: default
+        show_header (bool): If `False`, the table will not have a header
+            (`<thead>`), defaults to `True`
 
-        Text to render in empty cells (determined by `.Column.empty_values`,
-        default `.Table.Meta.default`)
+        show_footer (bool): If `False`, the table footer will not be rendered,
+            even if some columns have a footer, defaults to `True`.
 
-        :type: `unicode`
+        prefix (str): A prefix for querystring fields to avoid name-clashes when
+            using multiple tables on a single page.
 
+        rows (`.BoundRows`): The rows of the table (ignoring pagination).
 
-    .. attribute:: empty_text
+        sequence (iterable): The sequence/order of columns the columns (from
+            left to right).
 
-        Empty text to render when the table has no data. (default
-        `.Table.Meta.empty_text`)
+            Items in the sequence must be :term:`column names <column name>`, or
+            `'...'` (string containing three periods). `...` can be used as a
+            catch-all for columns that aren't specified.
 
-        :type: `unicode`
+        orderable (bool): Enable/disable column ordering on this table
 
-
-    .. attribute:: exclude
-
-        The names of columns that shouldn't be included in the table.
-
-        :type: iterable of `unicode`
-
-
-    .. attribute:: order_by_field
-
-        If not `None`, defines the name of the *order by* querystring field.
-
-        :type: `unicode`
-
-
-    .. attribute:: page
-
-        The current page in the context of pagination.
-
-        Added during the call to `.Table.paginate`.
-
-
-    .. attribute:: page_field
-
-        If not `None`, defines the name of the *current page* querystring
-        field.
-
-        :type: `unicode`
-
-
-    .. attribute:: paginator
-
-        The current paginator for the table.
-
-        Added during the call to `.Table.paginate`.
-
-
-    .. attribute:: per_page_field
-
-        If not `None`, defines the name of the *per page* querystring field.
-
-        :type: `unicode`
-
-
-    .. attribute:: show_header
-
-        If `False`, the table will not have a header (`<thead>`), default
-        value is `True`
-
-        :type: `bool`
-
-    .. attribute:: show_footer
-
-        If `False`, the table footer will not be rendered, even if come columens
-        have a footer. (default `True`)
-
-        :type: `bool`
-
-    .. attribute:: prefix
-
-        A prefix for querystring fields to avoid name-clashes when using
-        multiple tables on a single page.
-
-        :type: `unicode`
-
-
-    .. attribute:: rows
-
-        The rows of the table (ignoring pagination).
-
-        :type: `.BoundRows`
-
-
-    .. attribute:: sequence
-
-        The sequence/order of columns the columns (from left to right).
-
-        :type: iterable
-
-        Items in the sequence must be :term:`column names <column name>`, or
-        ``"..."`` (string containing three periods). ``...`` can be used as a
-        catch-all for columns that aren't specified.
-
-
-    .. attribute:: orderable
-
-        Enable/disable column ordering on this table
-
-        :type: `bool`
-
-
-    .. attribute:: template
-
-        The template to render when using ``{% render_table %}`` (default
-        ``"django_tables2/table.html"``)
-
-        :type: `unicode`
-
+        template (str): The template to render when using ``{% render_table %}``
+            (default ``'django_tables2/table.html'``)
     """
     TableDataClass = TableData
 
@@ -474,7 +396,7 @@ class TableBase(object):
 
     def as_html(self, request):
         """
-        Render the table to a simple HTML table, adding `request` to the context.
+        Render the table to an HTML table, adding `request` to the context.
         """
         # reset counter for new rendering
         self._counter = count()
@@ -528,7 +450,8 @@ class TableBase(object):
         """
         Order the rows of the table based on columns.
 
-        :param value: iterable of order by aliases.
+        Arguments:
+            value: iterable of order by aliases.
         """
         # collapse empty values to ()
         order_by = () if not value else value
@@ -566,12 +489,12 @@ class TableBase(object):
         Paginates the table using a paginator and creates a ``page`` property
         containing information for the current page.
 
-        :type     klass: Paginator class
-        :param    klass: a paginator class to paginate the results
-        :type  per_page: `int`
-        :param per_page: how many records are displayed on each page
-        :type      page: `int`
-        :param     page: which page should be displayed.
+        Arguments:
+            klass (`~django.core.paginator.Paginator`): A paginator class to
+                paginate the results.
+
+            per_page (int): Number of records to display on each page.
+            page (int): Page to display.
 
         Extra arguments are passed to the paginator.
 
