@@ -43,6 +43,63 @@ As you can see in the last example (region name), the results are not always
 desirable when an accessor is used to cross relationships. To get around this
 be careful to define `.Column.verbose_name`.
 
+Changing class names for ordered column headers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When a column is ordered in an ascending state there needs to be a way to show
+it in the interface. django-tables2 does this by adding an `asc` class for
+ascending or a `desc` class for descending. It should also be known that any
+orderable column is added with an `orderable` class to the column header.
+
+Sometimes there may be a need to change these default classes.
+
+On the `attrs` attribute of the table, you can add a `th` key with the value of
+a dictionary. Within that `th` dictionary, you may add an `_ordering` key also
+with the value of a dictionary.
+
+The `_ordering` element is optional and all elements within it are optional.
+Inside you can have an `orderable` element, which will change the default
+`orderable` class name. You can also have `ascending` which will will change the
+default `asc` class name. And lastly, you can have `descending` which will
+change the default `desc` class name.
+
+Example::
+
+    class Table(tables.Table):
+        Meta:
+            attrs = {
+                'th' : {
+                    '_ordering': {
+                        'orderable': 'sortable', # Instead of `orderable`
+                        'ascending': 'ascend',   # Instead of `asc`
+                        'descending': 'descend'  # Instead of `desc`
+                    }
+                }
+            }
+
+
+It can also be specified at initialization using the `attrs` for both: table and
+column::
+
+    ATTRIBUTES = {
+        'th' : {
+            '_ordering': {
+                'orderable': 'sortable', # Instead of `orderable`
+                'ascending': 'ascend',   # Instead of `asc`
+                'descending': 'descend'  # Instead of `desc`
+            }
+        }
+    }
+
+    table = tables.Table(queryset, attrs=ATTRIBUTES)
+
+    # OR
+
+    class Table(tables.Table):
+        my_column = tables.Column(attrs=ATTRIBUTES)
+
+
+
 
 Adding column footers
 =====================

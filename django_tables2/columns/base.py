@@ -314,8 +314,14 @@ class BoundColumn(object):
         what's actually defined in the column attrs. This makes writing
         templates easier.
         """
-        # Work on a copy of the attrs object since we're tweaking stuff
-        attrs = dict(self.column.attrs)
+        # Start with table's attrs; Only 'th' and 'td' attributes will be used
+        attrs = dict(self.table.attrs)
+
+        # Update attrs to prefer column's attrs rather than table's
+        attrs.update(dict(self.column.attrs))
+
+        # Column ordering class names
+        ordering_class = attrs.get('th', {}).get('_ordering', {})
 
         # Find the relevant th attributes (fall back to cell if th isn't
         # explicitly specified).
@@ -328,9 +334,11 @@ class BoundColumn(object):
 
         # add classes for ordering
         if self.orderable:
-            th_class.add('orderable')
+            th_class.add(ordering_class.get('orderable', 'orderable'))
         if self.is_ordered:
-            th_class.add('desc' if self.order_by_alias.is_descending else 'asc')
+            th_class.add(ordering_class.get('descending', 'desc')
+                         if self.order_by_alias.is_descending
+                         else ordering_class.get('ascending', 'asc'))
 
         # Always add the column name as a class
         th_class.add(self.name)

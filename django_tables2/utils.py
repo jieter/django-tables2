@@ -404,8 +404,10 @@ class AttributeDict(dict):
         :rtype: `~django.utils.safestring.SafeUnicode` object
 
         """
+
+        blacklist = ('th', 'td', '_ordering')
         return mark_safe(' '.join(['%s="%s"' % (k, escape(v if not callable(v) else v()))
-                                   for k, v in six.iteritems(self)]))
+                                   for k, v in six.iteritems(self) if k not in blacklist]))
 
 
 def segment(sequence, aliases):

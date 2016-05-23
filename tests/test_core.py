@@ -649,6 +649,82 @@ def test_sorting_non_database_data():
     assert table.rows[3].get_cell('country') == 'Australia'
 
 
+def test_table_ordering_attributes():
+    class Table(tables.Table):
+        alpha = tables.Column()
+        beta = tables.Column()
+
+    table = Table(MEMORY_DATA, attrs={
+        'th': {
+            'class': 'custom-header-class',
+            '_ordering': {
+                'orderable': 'sortable',
+                'ascending': 'ascend',
+                'descending': 'descend',
+            },
+        },
+    }, order_by='alpha')
+
+    assert 'sortable' in table.columns[0].attrs['th']['class']
+    assert 'ascend' in table.columns[0].attrs['th']['class']
+    assert 'custom-header-class' in table.columns[1].attrs['th']['class']
+
+
+def test_table_ordering_attributes_in_meta():
+    class Table(tables.Table):
+        alpha = tables.Column()
+        beta = tables.Column()
+
+        class Meta(OrderedTable.Meta):
+            attrs = {
+                'th': {
+                    'class': 'custom-header-class-in-meta',
+                    '_ordering': {
+                        'orderable': 'sortable',
+                        'ascending': 'ascend',
+                        'descending': 'descend',
+                    },
+                }
+            }
+
+    table = Table(MEMORY_DATA)
+
+    assert 'sortable' in table.columns[0].attrs['th']['class']
+    assert 'ascend' in table.columns[0].attrs['th']['class']
+    assert 'custom-header-class-in-meta' in table.columns[1].attrs['th']['class']
+
+
+def test_column_ordering_attributes():
+    class Table(tables.Table):
+        alpha = tables.Column(attrs={
+            'th': {
+                'class': 'custom-header-class',
+                '_ordering': {
+                    'orderable': 'sort',
+                    'ascending': 'ascending'
+                }
+            }
+        })
+        beta = tables.Column(attrs={
+            'th': {
+                '_ordering': {
+                    'orderable': 'canOrder',
+                }
+            },
+            'td': {
+                'class': 'cell-2'
+            }
+        })
+
+    table = Table(MEMORY_DATA, attrs={'class': 'only-on-table'}, order_by='alpha')
+
+    assert 'only-on-table' not in table.columns[0].attrs['th']['class']
+    assert 'custom-header-class' in table.columns[0].attrs['th']['class']
+    assert 'ascending' in table.columns[0].attrs['th']['class']
+    assert 'sort' in table.columns[0].attrs['th']['class']
+    assert 'canOrder' in table.columns[1].attrs['th']['class']
+
+
 def test_row_attrs():
     class Table(tables.Table):
         alpha = tables.Column()
