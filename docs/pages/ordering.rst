@@ -1,5 +1,3 @@
-.. _order-by-accessors:
-
 Alternative column ordering
 ===========================
 
@@ -28,8 +26,15 @@ exception::
     >>> # will result in:
     FieldError: Cannot resolve keyword 'name' into field. Choices are: first_name, family_name
 
-To prevent this, django-tables2 needs a hint to know how to sort that column:
-you need to supply an ``order_by`` argument containing a name or a tuple of the
+To prevent this, django-tables2 allows two ways to specify custom ordering:
+accessors and :meth:`~.order_FOO` methods.
+
+.. _order-by-accessors:
+
+Ordering by accessors
+---------------------
+
+You can supply an ``order_by`` argument containing a name or a tuple of the
 names of the columns the database should use to sort it::
 
     class PersonTable(tables.Table):
@@ -87,8 +92,7 @@ mathematical expression. In this scenario, the table needs to be able to be
 ordered by the sum of both the shirts and the pants. The custom column will
 have its value rendered using :ref:`table.render_FOO`.
 
-This can be achieved like this:
-::
+This can be achieved like this::
 
     # models.py
     class Person(models.Model):

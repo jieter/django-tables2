@@ -3,7 +3,7 @@ Customizing the table
 
 .. toctree::
     custom-data
-    order-by-accessors
+    ordering
     column-attributes
     column-headers-and-footers
     swapping-columns
