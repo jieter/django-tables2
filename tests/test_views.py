@@ -5,7 +5,7 @@ from django.views.generic.base import TemplateView
 
 import django_tables2 as tables
 
-from .app.models import Region
+from .app.models import Person, Region
 from .utils import build_request
 
 MEMORY_DATA = [
@@ -153,3 +153,32 @@ def test_singletablemixin_with_non_paginated_view():
         template_name = 'dummy.html'
 
     View.as_view()(build_request('/'))
+
+
+@pytest.mark.django_db
+def test_multiTableMixin_basic():
+    Person.objects.create(first_name='Jan', last_name='Jieter')
+
+    Region.objects.create(name='Zuid-Holland')
+    Region.objects.create(name='Noord-Holland')
+
+    class TableA(tables.Table):
+        class Meta:
+            model = Person
+
+    class TableB(tables.Table):
+        class Meta:
+            model = Region
+            exclude = ('id', )
+
+    class View(tables.MultiTableMixin, TemplateView):
+        tables = (TableA, TableB)
+        tables_data = (Person.objects.all(), Region.objects.all())
+        template_name = 'multiple.html'
+
+    response = View.as_view()(build_request('/'))
+
+    print response.render()
+
+    print response
+    assert False
