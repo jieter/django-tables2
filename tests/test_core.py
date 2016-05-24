@@ -517,11 +517,11 @@ def test_prefix():
     assert 'x' == TableB([], prefix='x').prefix
 
     table = TableB([])
-    table.prefix = 'x'
+    table.prefix = 'x-'
     html = table.as_html(build_request('/'))
 
-    assert 'x' == table.prefix
-    assert 'xsort=last_name' in html
+    assert 'x-' == table.prefix
+    assert 'x-sort=last_name' in html
 
 
 def test_field_names():

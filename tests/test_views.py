@@ -157,7 +157,7 @@ def test_singletablemixin_with_non_paginated_view():
 
 @pytest.mark.django_db
 def test_multiTableMixin_basic():
-    Person.objects.create(first_name='Jan', last_name='Jieter')
+    Person.objects.create(first_name='Jan Pieter', last_name='W')
 
     Region.objects.create(name='Zuid-Holland')
     Region.objects.create(name='Noord-Holland')
@@ -177,8 +177,74 @@ def test_multiTableMixin_basic():
         template_name = 'multiple.html'
 
     response = View.as_view()(build_request('/'))
+    response.render()
 
-    print response.render()
+    html = response.rendered_content
 
-    print response
-    assert False
+    assert 'table_0-sort=first_name' in html
+    assert 'table_1-sort=name' in html
+
+    assert '<td class="first_name">Jan Pieter</td>' in html
+    assert '<td class="name">Zuid-Holland</td>' in html
+
+
+@pytest.mark.django_db
+def test_multiTableMixin_basic_alternative():
+    Person.objects.create(first_name='Jan Pieter', last_name='W')
+
+    Region.objects.create(name='Zuid-Holland')
+    Region.objects.create(name='Noord-Holland')
+
+    class TableA(tables.Table):
+        class Meta:
+            model = Person
+
+    class TableB(tables.Table):
+        class Meta:
+            model = Region
+            exclude = ('id', )
+
+    class View(tables.MultiTableMixin, TemplateView):
+        tables = (
+            TableA(Person.objects.all()),
+            TableB(Region.objects.all())
+        )
+        template_name = 'multiple.html'
+
+    response = View.as_view()(build_request('/'))
+    response.render()
+
+    html = response.rendered_content
+
+    assert 'table_0-sort=first_name' in html
+    assert 'table_1-sort=name' in html
+
+    assert '<td class="first_name">Jan Pieter</td>' in html
+    assert '<td class="name">Zuid-Holland</td>' in html
+
+
+def test_multiTableMixin_without_tables():
+    class View(tables.MultiTableMixin, TemplateView):
+        template_name = 'multiple.html'
+
+    with pytest.raises(ImproperlyConfigured):
+        View.as_view()(build_request('/'))
+
+
+def test_multiTableMixin_incorrect_len():
+    class TableA(tables.Table):
+        class Meta:
+            model = Person
+
+    class TableB(tables.Table):
+        class Meta:
+            model = Region
+            exclude = ('id', )
+
+    class View(tables.MultiTableMixin, TemplateView):
+        tables = (TableA, TableB)
+        tables_data = (Person.objects.all(), )
+        template_name = 'multiple.html'
+
+    with pytest.raises(ImproperlyConfigured):
+        View.as_view()(build_request('/'))

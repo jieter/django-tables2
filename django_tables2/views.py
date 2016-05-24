@@ -1,6 +1,8 @@
 # coding: utf-8
 from __future__ import unicode_literals
 
+from itertools import count
+
 from django.core.exceptions import ImproperlyConfigured
 from django.views.generic.list import ListView
 
@@ -118,10 +120,14 @@ class MultiTableMixin(object):
     `.TemplateResponseMixin`.
 
     Arguments:
-        tables: list of `.Table` instances
+        tables: list of `.Table` instances or list of
+        tables_data: if defined, `tables` is assumed to be a list of table
+            classes which will be instatiated with the corresponding item from
+            this list of `.TableData` instances.
 
     '''
     tables = None
+    tables_data = None
 
     def get_tables(self):
         if not self.tables:
@@ -141,14 +147,21 @@ class MultiTableMixin(object):
     def get_context_data(self, **kwargs):
         context = super(MultiTableMixin, self).get_context_data(**kwargs)
 
-        context_name = getattr(self, 'context_table_name', 'tables')
-
-        if not hasattr(self, 'tables_data'):
-            context[context_name] = self.tables
+        if self.tables_data is None:
+            tables = self.get_tables()
         else:
             data = self.tables_data
-            if len(data) != len(self.tables):
-                raise ImproperlyConfigured('Amount of data does not agree with the amount of tables')
-            context[context_name] = (Table(data[i]) for i, Table in enumerate(self.tables))
+            if len(data) != len(self.get_tables()):
+                klass = type(self).__name__
+                raise ImproperlyConfigured(
+                    'len({}.tables_data) != len({}.tables)'.format(klass, klass)
+                )
+            tables = list(Table(data[i]) for i, Table in enumerate(self.tables))
+
+        table_counter = count()
+        for table in tables:
+            table.prefix = 'table_{}-'.format(next(table_counter))
+
+        context[getattr(self, 'context_table_name', 'tables')] = list(tables)
 
         return context
