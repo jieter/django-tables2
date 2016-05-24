@@ -158,7 +158,7 @@ def test_datasource_untouched():
     '''
     Ensure that data that is provided to the table (the datasource) is not
     modified by table operations.
-    '''
+    """
     original_data = copy.deepcopy(MEMORY_DATA)
 
     table = UnorderedTable(MEMORY_DATA)
@@ -434,7 +434,7 @@ def test_pagination():
     # create some sample data
     data = []
     for i in range(100):
-        data.append({'name': 'Book No. %d' % i})
+        data.append({"name": "Book No. %d" % i})
     books = BookTable(data)
 
     # external paginator
@@ -504,17 +504,24 @@ def test_prefix():
         class Meta:
             prefix = 'x'
 
-    assert 'x' == TableA([]).prefix
+    table = TableA([])
+    html = table.as_html(build_request('/'))
+
+    assert 'x' == table.prefix
+    assert 'xsort=name' in html
 
     class TableB(tables.Table):
-        name = tables.Column()
+        last_name = tables.Column()
 
     assert '' == TableB([]).prefix
     assert 'x' == TableB([], prefix='x').prefix
 
     table = TableB([])
     table.prefix = 'x'
+    html = table.as_html(build_request('/'))
+
     assert 'x' == table.prefix
+    assert 'xsort=last_name' in html
 
 
 def test_field_names():
