@@ -44,6 +44,24 @@ API Reference
     Some settings are only available in `Table.Meta` and not as an argument to
     the `~.Table` constructor.
 
+    .. Note::
+
+        If you define a `class Meta` on a child of a table already having a
+        `class Meta` defined, you need to specify the parent's `Meta` class as
+        the parent for the `class Meta in the child`::
+
+            class PersonTable(table.Table):
+                class Meta:
+                    model = Person
+                    exclude = ('email', )
+
+            class PersonWithEmailTable(PersonTable):
+                class Meta(PersonTable.Meta):
+                    exclude = ()
+
+        All attributes are overwritten if defined in the child's `class Meta`,
+        no merging is attempted.
+
     Arguments:
         attrs (`dict`): Add custom HTML attributes to the table.
             Allows custom HTML attributes to be specified which will be added to

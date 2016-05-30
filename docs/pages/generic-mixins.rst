@@ -13,9 +13,7 @@ The following view parameters are supported:
   options to pass to `.RequestConfig`. Set ``table_pagination=False``
   to disable pagination.
 
-For example:
-
-.. sourcecode:: python
+For example::
 
     from django_tables2 import SingleTableView
 
