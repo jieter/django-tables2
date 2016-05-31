@@ -17,9 +17,9 @@ MEMORY_DATA = [
 
 
 class DispatchHookMixin(object):
-    """
+    '''
     Returns a response *and* reference to the view.
-    """
+    '''
     def dispatch(self, *args, **kwargs):
         return super(DispatchHookMixin, self).dispatch(*args, **kwargs), self
 
@@ -155,21 +155,23 @@ def test_singletablemixin_with_non_paginated_view():
     View.as_view()(build_request('/'))
 
 
+class TableA(tables.Table):
+    class Meta:
+        model = Person
+
+
+class TableB(tables.Table):
+    class Meta:
+        model = Region
+        exclude = ('id', )
+
+
 @pytest.mark.django_db
 def test_multiTableMixin_basic():
     Person.objects.create(first_name='Jan Pieter', last_name='W')
 
     Region.objects.create(name='Zuid-Holland')
     Region.objects.create(name='Noord-Holland')
-
-    class TableA(tables.Table):
-        class Meta:
-            model = Person
-
-    class TableB(tables.Table):
-        class Meta:
-            model = Region
-            exclude = ('id', )
 
     class View(tables.MultiTableMixin, TemplateView):
         tables = (TableA, TableB)
@@ -194,15 +196,6 @@ def test_multiTableMixin_basic_alternative():
 
     Region.objects.create(name='Zuid-Holland')
     Region.objects.create(name='Noord-Holland')
-
-    class TableA(tables.Table):
-        class Meta:
-            model = Person
-
-    class TableB(tables.Table):
-        class Meta:
-            model = Region
-            exclude = ('id', )
 
     class View(tables.MultiTableMixin, TemplateView):
         tables = (
@@ -232,14 +225,6 @@ def test_multiTableMixin_without_tables():
 
 
 def test_multiTableMixin_incorrect_len():
-    class TableA(tables.Table):
-        class Meta:
-            model = Person
-
-    class TableB(tables.Table):
-        class Meta:
-            model = Region
-            exclude = ('id', )
 
     class View(tables.MultiTableMixin, TemplateView):
         tables = (TableA, TableB)
@@ -248,3 +233,32 @@ def test_multiTableMixin_incorrect_len():
 
     with pytest.raises(ImproperlyConfigured):
         View.as_view()(build_request('/'))
+
+
+@pytest.mark.django_db
+def test_multiTableMixin_pagination():
+    NL_PROVICES = (
+        'Flevoland', 'Friesland', 'Gelderland', 'Groningen', 'Limburg',
+        'Noord-Brabant', 'Noord-Holland', 'Overijssel', 'Utrecht',
+        'Zeeland', 'Zuid-Holland',
+    )
+    for name in NL_PROVICES:
+        Region.objects.create(name=name)
+
+    class View(DispatchHookMixin, tables.MultiTableMixin, TemplateView):
+        tables = (
+            TableB(Region.objects.all()),
+            TableB(Region.objects.all())
+        )
+        template_name = 'multiple.html'
+
+        table_pagination = {
+            'per_page': 5
+        }
+
+    response, view = View.as_view()(build_request('/?table_1-page=3'))
+
+    tableA, tableB = view.get_tables()
+
+    assert tableA.page.number == 1
+    assert tableB.page.number == 3
