@@ -78,18 +78,6 @@ class SingleTableMixin(object):
         elif hasattr(self, 'object_list'):
             return self.object_list
 
-        # it seems this is never going to happen because django wil raise
-        # ImproperlyConfigured if no model is defined and
-        # SingleTableMixin.get_table_class will raise if no table_data was specified...
-        # TODO: consider removing
-        elif hasattr(self, 'get_queryset'):
-            return self.get_queryset()
-
-        klass = type(self).__name__
-        raise ImproperlyConfigured(
-            'Table data was not specified. Define {}.table_data'.format(klass)
-        )
-
     def get_table_pagination(self, table):
         """
         Returns pagination options: True for standard pagination (default),
