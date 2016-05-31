@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% load django_tables2 %}
+
+{% block extrahead %}
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="{{ STATIC_URL }}django_tables2/bootstrap.css" rel="stylesheet" />
+{% endblock %}
+
+{% block body %}
+    <h1>Multiple tables on a single page using MultiTableMixin</h1>
+
+    <p>
+        pagination should work independently for each table,
+        the second table excludes the column 'country'.
+    </p>
+    {% for table in tables %}
+        {% render_table table %}
+    {% endfor %}
+{% endblock %}

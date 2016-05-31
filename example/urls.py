@@ -4,13 +4,15 @@ from django.conf.urls import include, url
 from django.contrib import admin
 from django.views import static
 
-from app.views import bootstrap, class_based, multiple, tutorial
+from app.views import ClassBased, MultipleTables, bootstrap, multiple, tutorial
 
 admin.autodiscover()
 
 urlpatterns = [
     url(r'^$', multiple),
-    url(r'^class-based/$', class_based),
+    url(r'^class-based/$', ClassBased.as_view()),
+    url(r'^class-based-multiple/$', MultipleTables.as_view()),
+
     url(r'^tutorial/$', tutorial),
     url(r'^bootstrap/$', bootstrap),
 

@@ -35,11 +35,18 @@ class TableMixinBase(object):
         return self.context_table_name
 
     def get_table_pagination(self, table):
-        """
+        '''
         Returns pagination options: True for standard pagination (default),
         False for no pagination, and a dictionary for custom pagination.
-        """
-        return self.table_pagination
+        '''
+        paginate = self.table_pagination or {}
+
+        if hasattr(self, 'paginate_by') and self.paginate_by is not None:
+            # Since ListView knows the concept paginate_by, we use that if no
+            # other pagination is configured.
+            paginate['per_page'] = self.paginate_by
+
+        return paginate
 
 
 class SingleTableMixin(TableMixinBase):
@@ -67,20 +74,10 @@ class SingleTableMixin(TableMixinBase):
         Return a table object to use. The table has automatic support for
         sorting and pagination.
         """
-        options = {}
         table_class = self.get_table_class()
         table = table_class(self.get_table_data(), **kwargs)
 
-        paginate = self.get_table_pagination(table)
-        if paginate is not None:
-            options['paginate'] = paginate
-
-        elif hasattr(self, 'paginate_by') and self.paginate_by is not None:
-            # Since ListView knows the concept paginate_by, we use that if no
-            # other pagination is configured.
-            options['paginate'] = {'per_page': self.paginate_by}
-
-        RequestConfig(self.request, **options).configure(table)
+        RequestConfig(self.request, paginate=self.get_table_pagination(table)).configure(table)
         return table
 
     def get_table_data(self):
@@ -162,10 +159,12 @@ class MultiTableMixin(TableMixinBase):
                 )
             tables = list(Table(data[i]) for i, Table in enumerate(self.tables))
 
-        # apply prefixes to the tables
+        # apply prefixes and execute requestConfig for each table
         table_counter = count()
         for table in tables:
             table.prefix = self.table_prefix.format(next(table_counter))
+
+            RequestConfig(self.request, paginate=self.get_table_pagination(table)).configure(table)
 
         context[self.get_context_table_name(table)] = list(tables)
 
