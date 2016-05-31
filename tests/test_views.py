@@ -32,7 +32,7 @@ class SimpleTable(tables.Table):
 class SimpleView(DispatchHookMixin, tables.SingleTableView):
     table_class = SimpleTable
     table_pagination = {'per_page': 1}
-    model = Region  # needed for ListView
+    model = Region  # required for ListView
 
 
 @pytest.mark.django_db
