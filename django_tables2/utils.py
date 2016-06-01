@@ -51,11 +51,14 @@ class Sequence(list):
         self[:] = chain(head, columns, tail)
 
 
-class OrderBy(six.text_type):
-    """
-    A single item in an `.OrderByTuple` object. This class is
-    essentially just a `str` with some extra properties.
-    """
+class OrderBy(str):
+    '''
+    A single item in an `.OrderByTuple` object. This class is essentially just
+    a `str` with some extra properties.
+    '''
+
+    QUERYSET_SEPARATOR = '__'
+
     @property
     def bare(self):
         """
@@ -100,6 +103,13 @@ class OrderBy(six.text_type):
         Returns `True` if this object induces *ascending* ordering.
         """
         return not self.is_descending
+
+    def for_queryset(self):
+        '''
+        Returns the current instance usable in Django QuerySet's order_by
+        arguments.
+        '''
+        return self.replace(Accessor.SEPARATOR, OrderBy.QUERYSET_SEPARATOR)
 
 
 @six.python_2_unicode_compatible
@@ -253,16 +263,16 @@ class OrderByTuple(tuple):
 
 
 class Accessor(str):
-    """
+    '''
     A string describing a path from one object to another via attribute/index
     accesses. For convenience, the class has an alias `.A` to allow for more concise code.
 
     Relations are separated by a ``.`` character.
-    """
+    '''
     SEPARATOR = '.'
 
     def resolve(self, context, safe=True, quiet=False):
-        """
+        '''
         Return an object described by the accessor by traversing the attributes
         of *context*.
 
@@ -295,7 +305,7 @@ class Accessor(str):
         Raises:
             TypeError`, `AttributeError`, `KeyError`, `ValueError`
             (unless `quiet` == `True`)
-        """
+        '''
         try:
             current = context
             for bit in self.bits:

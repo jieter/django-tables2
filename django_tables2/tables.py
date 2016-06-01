@@ -14,10 +14,8 @@ from django.utils.functional import cached_property
 from . import columns
 from .config import RequestConfig
 from .rows import BoundRows
-from .utils import (Accessor, AttributeDict, OrderBy, OrderByTuple, Sequence,
+from .utils import (AttributeDict, OrderBy, OrderByTuple, Sequence,
                     computed_values, segment)
-
-QUERYSET_ACCESSOR_SEPARATOR = '__'
 
 
 class TableData(object):
@@ -110,9 +108,9 @@ class TableData(object):
                 if modified:
                     return
             # Traditional ordering
-            translate = lambda accessor: accessor.replace(Accessor.SEPARATOR, QUERYSET_ACCESSOR_SEPARATOR)
             if accessors:
-                self.queryset = self.queryset.order_by(*(translate(a) for a in accessors))
+                order_by_accessors = (a.for_queryset() for a in accessors)
+                self.queryset = self.queryset.order_by(*order_by_accessors)
         else:
             self.list.sort(key=OrderByTuple(accessors).key)
 
