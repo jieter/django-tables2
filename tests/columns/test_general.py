@@ -1,11 +1,12 @@
 # coding: utf-8
 from __future__ import unicode_literals
 
-import pytest
+from django.db import models
 from django.utils.safestring import SafeData, mark_safe
 from django.utils.translation import ugettext_lazy
 
 import django_tables2 as tables
+import pytest
 
 from ..app.models import Person
 from ..utils import build_request, parse
@@ -335,3 +336,32 @@ def test_raises_when_using_non_supported_index():
     row = table.rows[0]
     with pytest.raises(TypeError):
         row[table]
+
+
+def test_column_params_should_be_preserved_under_inheritance():
+    '''
+    Github issue #337
+    '''
+    class MyModel(models.Model):
+        item1 = models.CharField(max_length=10)
+        item2 = models.CharField(max_length=10)
+
+        class Meta:
+            app_label = 'django_tables2_tests'
+
+    class MyTable(tables.Table):
+        item1 = tables.Column(verbose_name='Nice column name')
+
+        class Meta:
+            model = MyModel
+            fields = ('item1',)
+
+    class MyTableExt(MyTable):
+        item2 = tables.Column()
+
+        class Meta(MyTable.Meta):
+            fields = ('item1', 'item2')
+
+    table = MyTableExt(MyModel.objects.all())
+
+    assert table.columns['item1'].verbose_name == 'Nice column name'
