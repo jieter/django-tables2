@@ -1,12 +1,12 @@
 # coding: utf-8
 from __future__ import unicode_literals
 
+import pytest
 from django.db import models
 from django.utils.safestring import SafeData, mark_safe
 from django.utils.translation import ugettext_lazy
 
 import django_tables2 as tables
-import pytest
 
 from ..app.models import Person
 from ..utils import build_request, parse
@@ -341,6 +341,11 @@ def test_raises_when_using_non_supported_index():
 def test_column_params_should_be_preserved_under_inheritance():
     '''
     Github issue #337
+
+    Columns explicitly defined on MyTable get overridden by columns implicitly
+    defined on it's child.
+    If the column is not redefined, the explicit definition of MyTable is used,
+    preserving the specialized verbose_name defined on it.
     '''
     class MyModel(models.Model):
         item1 = models.CharField(max_length=10)
@@ -359,9 +364,11 @@ def test_column_params_should_be_preserved_under_inheritance():
     class MyTableExt(MyTable):
         item2 = tables.Column()
 
-        class Meta(MyTable.Meta):
-            fields = ('item1', 'item2')
+        # class Meta(MyTable.Meta):
+        #     fields = ('item1', 'item2')
 
-    table = MyTableExt(MyModel.objects.all())
+    table = MyTable(MyModel.objects.all())
+    tableExt = MyTableExt(MyModel.objects.all())
 
     assert table.columns['item1'].verbose_name == 'Nice column name'
+    assert tableExt.columns['item1'].verbose_name == 'Nice column name'

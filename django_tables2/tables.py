@@ -150,11 +150,11 @@ class TableData(object):
 
 
 class DeclarativeColumnsMetaclass(type):
-    """
+    '''
     Metaclass that converts `.Column` objects defined on a class to the
     dictionary `.Table.base_columns`, taking into account parent class
-    ``base_columns`` as well.
-    """
+    `base_columns` as well.
+    '''
     def __new__(mcs, name, bases, attrs):
         attrs['_meta'] = opts = TableOptions(attrs.get('Meta', None))
         # extract declared columns
@@ -203,14 +203,15 @@ class DeclarativeColumnsMetaclass(type):
         for exclusion in opts.exclude:
             if exclusion in attrs['base_columns']:
                 attrs['base_columns'].pop(exclusion)
-        # Now reorder the columns based on explicit sequence
+
+        # Reorder the columns based on explicit sequence
         if opts.sequence:
             opts.sequence.expand(attrs['base_columns'].keys())
             # Table's sequence defaults to sequence declared in Meta
             # attrs['_sequence'] = opts.sequence
             attrs['base_columns'] = OrderedDict(((x, attrs['base_columns'][x]) for x in opts.sequence))
 
-        # set localize on columns
+        # Set localize on columns
         for col_name in attrs['base_columns'].keys():
             localize_column = None
             if col_name in opts.localize:
