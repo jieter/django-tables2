@@ -19,14 +19,14 @@ from .utils import (AttributeDict, OrderBy, OrderByTuple, Sequence,
 
 
 class TableData(object):
-    """
+    '''
     Exposes a consistent API for :term:`table data`.
 
     Arguments:
         data (`~django.db.query.QuerySet` or `list` of `dict`): iterable
             containing data for each row
         table (`~.Table`)
-    """
+    '''
     def __init__(self, data, table):
         self.table = table
         # data may be a QuerySet-like objects with count() and order_by()
@@ -61,7 +61,7 @@ class TableData(object):
 
     @property
     def ordering(self):
-        """
+        '''
         Returns the list of order by aliases that are enforcing ordering on the
         data.
 
@@ -70,7 +70,7 @@ class TableData(object):
 
         This works by inspecting the actual underlying data. As such it's only
         supported for querysets.
-        """
+        '''
         if hasattr(self, 'queryset'):
             aliases = {}
             for bound_column in self.table.columns:
@@ -81,7 +81,7 @@ class TableData(object):
                 pass
 
     def order_by(self, aliases):
-        """
+        '''
         Order the data based on order by aliases (prefixed column names) in the
         table.
 
@@ -89,7 +89,7 @@ class TableData(object):
             aliases (`~.utils.OrderByTuple`): optionally prefixed names of
                 columns ('-' indicates descending order) in order of
                 significance with regard to data ordering.
-        """
+        '''
         bound_column = None
         accessors = []
         for alias in aliases:
@@ -101,6 +101,7 @@ class TableData(object):
                 accessors += bound_column.order_by.opposite
             else:
                 accessors += bound_column.order_by
+
         if hasattr(self, 'queryset'):
             # Custom ordering
             if bound_column:
@@ -114,43 +115,37 @@ class TableData(object):
         else:
             self.list.sort(key=OrderByTuple(accessors).key)
 
-    def __iter__(self):
-        """
-        for ... in ... default to using this. There's a bug in Django 1.3
-        with indexing into querysets, so this side-steps that problem (as well
-        as just being a better way to iterate).
-        """
-        return iter(self.data)
-
     def __getitem__(self, key):
-        """
+        '''
         Slicing returns a new `.TableData` instance, indexing returns a
         single record.
-        """
+        '''
         return self.data[key]
 
     @cached_property
     def verbose_name(self):
-        """
+        '''
         The full (singular) name for the data.
 
         Queryset data has its model's `~django.db.Model.Meta.verbose_name`
-        honored. List data is checked for a ``verbose_name`` attribute, and
-        falls back to using ``"item"``.
-        """
+        honored. List data is checked for a `verbose_name` attribute, and
+        falls back to using `'item'`.
+        '''
         if hasattr(self, 'queryset'):
             return self.queryset.model._meta.verbose_name
+
         return getattr(self.list, 'verbose_name', 'item')
 
     @cached_property
     def verbose_name_plural(self):
-        """
+        '''
         The full (plural) name of the data.
 
         This uses the same approach as `TableData.verbose_name`.
-        """
+        '''
         if hasattr(self, 'queryset'):
             return self.queryset.model._meta.verbose_name_plural
+
         return getattr(self.list, 'verbose_name_plural', 'items')
 
 
