@@ -1,12 +1,12 @@
 # coding: utf-8
 from __future__ import unicode_literals
 
-import pytest
 from django.db import models
 from django.utils.safestring import SafeData, mark_safe
 from django.utils.translation import ugettext_lazy
 
 import django_tables2 as tables
+import pytest
 
 from ..app.models import Person
 from ..utils import build_request, parse
@@ -349,7 +349,6 @@ def test_column_params_should_be_preserved_under_inheritance():
     '''
     class MyModel(models.Model):
         item1 = models.CharField(max_length=10)
-        item2 = models.CharField(max_length=10)
 
         class Meta:
             app_label = 'django_tables2_tests'
@@ -359,16 +358,28 @@ def test_column_params_should_be_preserved_under_inheritance():
 
         class Meta:
             model = MyModel
-            fields = ('item1',)
+            fields = ('item1', )
 
-    class MyTableExt(MyTable):
-        item2 = tables.Column()
+    class MyTableA(MyTable):
+        '''
+        having an empty `class Meta` should not undo the explicit definition
+        of column item1 in MyTable.
+        '''
+        class Meta(MyTable.Meta):
+            pass
 
-        # class Meta(MyTable.Meta):
-        #     fields = ('item1', 'item2')
+    class MyTableB(MyTable):
+        '''
+        having a non-empty `class Meta` should not undo the explicit definition
+        of column item1 in MyTable.
+        '''
+        class Meta(MyTable.Meta):
+            per_page = 22
 
     table = MyTable(MyModel.objects.all())
-    tableExt = MyTableExt(MyModel.objects.all())
+    tableA = MyTableA(MyModel.objects.all())
+    tableB = MyTableB(MyModel.objects.all())
 
     assert table.columns['item1'].verbose_name == 'Nice column name'
-    assert tableExt.columns['item1'].verbose_name == 'Nice column name'
+    assert tableA.columns['item1'].verbose_name == 'Nice column name'
+    assert tableB.columns['item1'].verbose_name == 'Nice column name'
