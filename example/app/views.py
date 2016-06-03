@@ -1,6 +1,7 @@
 # coding: utf-8
 from random import choice
 
+from django.core.urlresolvers import reverse
 from django.shortcuts import render
 from django.utils.lorem_ipsum import words
 from django.views.generic.base import TemplateView
@@ -10,6 +11,24 @@ from django_tables2 import MultiTableMixin, RequestConfig, SingleTableView
 from .models import Country, Person
 from .tables import (BootstrapTable, CountryTable, PersonTable,
                      ThemedCountryTable)
+
+
+def index(request):
+    table = PersonTable(Person.objects.all())
+    RequestConfig(request, paginate={
+        'per_page': 5
+    }).configure(table)
+
+    return render(request, 'index.html', {
+        'table': table,
+        'urls': (
+            (reverse('tutorial'), 'Tutorial'),
+            (reverse('multiple'), 'Multiple tables'),
+            (reverse('singletableview'), 'Using SingleTableMixin'),
+            (reverse('multitableview'), 'Using MultiTableMixin'),
+            (reverse('bootstrap'), 'Using the bootstrap template'),
+        )
+    })
 
 
 def multiple(request):

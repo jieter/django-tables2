@@ -4,17 +4,19 @@ from django.conf.urls import include, url
 from django.contrib import admin
 from django.views import static
 
-from app.views import ClassBased, MultipleTables, bootstrap, multiple, tutorial
+from app.views import (ClassBased, MultipleTables, bootstrap, index, multiple,
+                       tutorial)
 
 admin.autodiscover()
 
 urlpatterns = [
-    url(r'^$', multiple),
-    url(r'^class-based/$', ClassBased.as_view()),
-    url(r'^class-based-multiple/$', MultipleTables.as_view()),
+    url(r'^$', index),
+    url(r'multiple/', multiple, name='multiple'),
+    url(r'^class-based/$', ClassBased.as_view(), name='singletableview'),
+    url(r'^class-based-multiple/$', MultipleTables.as_view(), name='multitableview'),
 
-    url(r'^tutorial/$', tutorial),
-    url(r'^bootstrap/$', bootstrap),
+    url(r'^tutorial/$', tutorial, name='tutorial'),
+    url(r'^bootstrap/$', bootstrap, name='bootstrap'),
 
 
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
