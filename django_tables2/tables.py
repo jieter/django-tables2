@@ -410,14 +410,6 @@ class TableBase(object):
         return self.show_footer and any(column.has_footer() for column in self.columns)
 
     @property
-    def attrs(self):
-        return self._attrs
-
-    @attrs.setter
-    def attrs(self, value):
-        self._attrs = value
-
-    @property
     def show_header(self):
         return (self._show_header if self._show_header is not None
                 else self._meta.show_header)
@@ -425,14 +417,6 @@ class TableBase(object):
     @show_header.setter
     def show_header(self, value):
         self._show_header = value
-
-    @property
-    def empty_text(self):
-        return self._empty_text
-
-    @empty_text.setter
-    def empty_text(self, value):
-        self._empty_text = value
 
     @property
     def order_by(self):
@@ -519,15 +503,15 @@ class TableBase(object):
 
     @property
     def prefixed_order_by_field(self):
-        return "%s%s" % (self.prefix, self.order_by_field)
+        return '%s%s' % (self.prefix, self.order_by_field)
 
     @property
     def prefixed_page_field(self):
-        return "%s%s" % (self.prefix, self.page_field)
+        return '%s%s' % (self.prefix, self.page_field)
 
     @property
     def prefixed_per_page_field(self):
-        return "%s%s" % (self.prefix, self.per_page_field)
+        return '%s%s' % (self.prefix, self.per_page_field)
 
     @property
     def sequence(self):
