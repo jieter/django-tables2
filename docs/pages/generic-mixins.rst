@@ -1,8 +1,15 @@
 Class Based Generic Mixins
 ==========================
 
-Django-tables2 comes with a class based view mixin: `.SingleTableMixin`.
-It makes it trivial to incorporate a table into a view/template.
+Django-tables2 comes with two class based view mixins: `.SingleTableMixin` and
+`.MultiTableMixin`.
+
+
+A single table using `.SingleTableMixin`
+----------------------------------------
+
+`.SingleTableMixin` makes it trivial to incorporate a table into a view or
+template.
 
 The following view parameters are supported:
 
@@ -25,7 +32,7 @@ For example::
 
     class PersonTable(tables.Table):
         class Meta:
-            model = Simple
+            model = Person
 
 
     class PersonList(SingleTableView):
@@ -46,11 +53,35 @@ when one isn't explicitly defined.
 
 .. note::
 
-    If you need more than one table on a page, use `.SingleTableView` and use
-    `.get_context_data` to initialize the other tables and add them to the
-    context.
-
-.. note::
-
     You don't have to base your view on `ListView`, you're able to mix
     `SingleTableMixin` directly.
+
+
+Multiple tables using `.MultipleObjectMixin`
+--------------------------------------------
+
+If you need more than one table in a single view you can use `MultiTableMixin`.
+It manages multiple tables for you and takes care of adding the appropriate
+prefixes for them. Just define a list of tables in the tables attribute::
+
+    from django_tables2 import MultiTableMixin
+    from django.views.generic.base import TemplateView
+
+    class PersonTablesView(MultiTableMixin, TemplateView):
+        template_name = 'multiTable.html'
+        tables = [
+            PersonTable(qs),
+            PersonTable(qs, exclude=('country', ))
+        ]
+
+        table_pagination = {
+            'per_page': 10
+        }
+
+In the template, you get a variable `tables`, which you can loop over like this:
+
+.. sourcecode:: django
+
+    {% for table in tables %}
+        {% render_table table %}
+    {% endfor %}

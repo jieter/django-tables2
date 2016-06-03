@@ -54,7 +54,7 @@ class SingleTableMixin(TableMixinBase):
     Adds a Table object to the context. Typically used with
     `.TemplateResponseMixin`.
 
-    Arguments:
+    Attributes:
         table_class: subclass of `.Table`
         table_data: data used to populate the table, any compatible data source.
         context_table_name(str): name of the table's template variable (default:
@@ -70,10 +70,10 @@ class SingleTableMixin(TableMixinBase):
     table_data = None
 
     def get_table(self, **kwargs):
-        """
+        '''
         Return a table object to use. The table has automatic support for
         sorting and pagination.
-        """
+        '''
         table_class = self.get_table_class()
         table = table_class(self.get_table_data(), **kwargs)
 
@@ -81,19 +81,19 @@ class SingleTableMixin(TableMixinBase):
         return table
 
     def get_table_data(self):
-        """
+        '''
         Return the table data that should be used to populate the rows.
-        """
+        '''
         if self.table_data is not None:
             return self.table_data
         elif hasattr(self, 'object_list'):
             return self.object_list
 
     def get_context_data(self, **kwargs):
-        """
+        '''
         Overriden version of `.TemplateResponseMixin` to inject the table into
         the template's context.
-        """
+        '''
         context = super(SingleTableMixin, self).get_context_data(**kwargs)
         table = self.get_table()
         context[self.get_context_table_name(table)] = table
@@ -102,7 +102,7 @@ class SingleTableMixin(TableMixinBase):
 
 class SingleTableView(SingleTableMixin, ListView):
     '''
-    Generic view that renders a template and passes in a `.Table` object.
+    Generic view that renders a template and passes in a `.Table` instances.
     '''
 
 
@@ -116,7 +116,7 @@ class MultiTableMixin(TableMixinBase):
     case, tables_data must be defined, having an entry containing the data for
     each table in `tables`.
 
-    Arguments:
+    Attributes:
         tables: list of `.Table` instances or list of `.Table` child objects.
         tables_data: if defined, `tables` is assumed to be a list of table
             classes which will be instatiated with the corresponding item from
