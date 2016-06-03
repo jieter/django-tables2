@@ -92,9 +92,13 @@ class Column(object):
 
     .. [1] The provided callable object must not expect to receive any arguments.
     """
-    #: Tracks each time a Column instance is created. Used to retain order.
+    # Tracks each time a Column instance is created. Used to retain order.
     creation_counter = 0
     empty_values = (None, '')
+
+    # Explicit is set to True if the column is defined as an attribute of a
+    # class, used to give explicit columns precedence.
+    _explicit = False
 
     def __init__(self, verbose_name=None, accessor=None, default=None,
                  visible=True, orderable=None, attrs=None, order_by=None,

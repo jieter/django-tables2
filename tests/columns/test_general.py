@@ -1,11 +1,12 @@
 # coding: utf-8
 from __future__ import unicode_literals
 
-import pytest
+from django.db import models
 from django.utils.safestring import SafeData, mark_safe
 from django.utils.translation import ugettext_lazy
 
 import django_tables2 as tables
+import pytest
 
 from ..app.models import Person
 from ..utils import build_request, parse
@@ -335,3 +336,67 @@ def test_raises_when_using_non_supported_index():
     row = table.rows[0]
     with pytest.raises(TypeError):
         row[table]
+
+
+class MyModel(models.Model):
+    item1 = models.CharField(max_length=10)
+
+    class Meta:
+        app_label = 'django_tables2_tests'
+
+
+class MyTable(tables.Table):
+    item1 = tables.Column(verbose_name='Nice column name')
+
+    class Meta:
+        model = MyModel
+        fields = ('item1', )
+
+
+def test_column_params_should_be_preserved_under_inheritance():
+    '''
+    Github issue #337
+
+    Columns explicitly defined on MyTable get overridden by columns implicitly
+    defined on it's child.
+    If the column is not redefined, the explicit definition of MyTable is used,
+    preserving the specialized verbose_name defined on it.
+    '''
+
+    class MyTableA(MyTable):
+        '''
+        having an empty `class Meta` should not undo the explicit definition
+        of column item1 in MyTable.
+        '''
+        class Meta(MyTable.Meta):
+            pass
+
+    class MyTableB(MyTable):
+        '''
+        having a non-empty `class Meta` should not undo the explicit definition
+        of column item1 in MyTable.
+        '''
+        class Meta(MyTable.Meta):
+            per_page = 22
+
+    table = MyTable(MyModel.objects.all())
+    tableA = MyTableA(MyModel.objects.all())
+    tableB = MyTableB(MyModel.objects.all())
+
+    assert table.columns['item1'].verbose_name == 'Nice column name'
+    assert tableA.columns['item1'].verbose_name == 'Nice column name'
+    assert tableB.columns['item1'].verbose_name == 'Nice column name'
+
+
+def test_explicit_column_can_be_overridden_by_other_explicit_column():
+    class MyTableC(MyTable):
+        '''
+        If we define a new explict item1 column, that one should be used.
+        '''
+        item1 = tables.Column(verbose_name='New nice column name')
+
+    table = MyTable(MyModel.objects.all())
+    tableC = MyTableC(MyModel.objects.all())
+
+    assert table.columns['item1'].verbose_name == 'Nice column name'
+    assert tableC.columns['item1'].verbose_name == 'New nice column name'
