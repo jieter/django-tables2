@@ -157,10 +157,12 @@ class DeclarativeColumnsMetaclass(type):
     '''
     def __new__(mcs, name, bases, attrs):
         attrs['_meta'] = opts = TableOptions(attrs.get('Meta', None))
+
         # extract declared columns
         cols, remainder = [], {}
         for attr_name, attr in attrs.items():
             if isinstance(attr, columns.Column):
+                attr._explicit = True
                 cols.append((attr_name, attr))
             else:
                 remainder[attr_name] = attr
@@ -175,8 +177,10 @@ class DeclarativeColumnsMetaclass(type):
         for base in bases[::-1]:
             if hasattr(base, 'base_columns'):
                 parent_columns = list(base.base_columns.items()) + parent_columns
+
         # Start with the parent columns
-        attrs['base_columns'] = OrderedDict(parent_columns)
+        base_columns = OrderedDict(parent_columns)
+
         # Possibly add some generated columns based on a model
         if opts.model:
             extra = OrderedDict()
@@ -195,24 +199,30 @@ class DeclarativeColumnsMetaclass(type):
             else:
                 for field in opts.model._meta.fields:
                     extra[field.name] = columns.library.column_for_field(field)
-            attrs['base_columns'].update(extra)
+
+            # update base_columns with extra columns
+            for key, col in extra.items():
+                # skip current col because the parent was explicitly defined,
+                # and the current column is not.
+                if key in base_columns and base_columns[key]._explicit is True:
+                    continue
+                base_columns[key] = col
 
         # Explicit columns override both parent and generated columns
-        attrs['base_columns'].update(OrderedDict(cols))
+        base_columns.update(OrderedDict(cols))
         # Apply any explicit exclude setting
         for exclusion in opts.exclude:
-            if exclusion in attrs['base_columns']:
-                attrs['base_columns'].pop(exclusion)
+            if exclusion in base_columns:
+                base_columns.pop(exclusion)
 
         # Reorder the columns based on explicit sequence
         if opts.sequence:
-            opts.sequence.expand(attrs['base_columns'].keys())
+            opts.sequence.expand(base_columns.keys())
             # Table's sequence defaults to sequence declared in Meta
-            # attrs['_sequence'] = opts.sequence
-            attrs['base_columns'] = OrderedDict(((x, attrs['base_columns'][x]) for x in opts.sequence))
+            base_columns = OrderedDict(((x, base_columns[x]) for x in opts.sequence))
 
         # Set localize on columns
-        for col_name in attrs['base_columns'].keys():
+        for col_name in base_columns.keys():
             localize_column = None
             if col_name in opts.localize:
                 localize_column = True
@@ -221,8 +231,9 @@ class DeclarativeColumnsMetaclass(type):
                 localize_column = False
 
             if localize_column is not None:
-                attrs['base_columns'][col_name].localize = localize_column
+                base_columns[col_name].localize = localize_column
 
+        attrs['base_columns'] = base_columns
         return super(DeclarativeColumnsMetaclass, mcs).__new__(mcs, name, bases, attrs)
 
 
