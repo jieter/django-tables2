@@ -218,8 +218,11 @@ class DeclarativeColumnsMetaclass(type):
         # Reorder the columns based on explicit sequence
         if opts.sequence:
             opts.sequence.expand(base_columns.keys())
-            # Table's sequence defaults to sequence declared in Meta
-            base_columns = OrderedDict(((x, base_columns[x]) for x in opts.sequence))
+            # Table's sequence defaults to sequence declared in Meta, if the
+            # column is not excluded
+            base_columns = OrderedDict((
+                (x, base_columns[x]) for x in opts.sequence if x in base_columns
+            ))
 
         # Set localize on columns
         for col_name in base_columns.keys():

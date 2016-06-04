@@ -392,6 +392,7 @@ def test_exclude_columns():
 
         class Meta:
             exclude = ('beta', )
+
     table = ExcludeTable([])
     assert [c.name for c in table.columns] == ['i', 'alpha', 'added']
 
@@ -408,10 +409,17 @@ def test_table_exclude_property_should_override_constructor_argument():
 
 
 def test_exclude_should_work_on_sequence_too():
+    '''
+    It should be possible to define a sequence on a table and excluded
+    and exclude it in a child of that table.
+    '''
     class PersonTable(tables.Table):
+        first_name = tables.Column()
+        last_name = tables.Column()
+        occupation = tables.Column()
+
         class Meta:
             model = Person
-            fields = ()
             sequence = ('first_name', 'last_name', 'occupation')
 
     class AnotherPersonTable(PersonTable):
