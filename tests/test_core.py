@@ -5,11 +5,12 @@ from __future__ import absolute_import, unicode_literals
 import copy
 import itertools
 
+import pytest
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
+from django.db import models
 from django.utils import six
 
 import django_tables2 as tables
-import pytest
 from django_tables2.tables import DeclarativeColumnsMetaclass
 
 from .utils import build_request
@@ -361,12 +362,12 @@ def test_column_accessor():
 
 
 def test_exclude_columns():
-    """
+    '''
     Defining ``Table.Meta.exclude`` or providing an ``exclude`` argument when
     instantiating a table should have the same effect -- exclude those columns
     from the table. It should have the same effect as not defining the
     columns originally.
-    """
+    '''
     # Table(..., exclude=...)
     table = UnorderedTable([], exclude=('i'))
     assert [c.name for c in table.columns] == ['alpha', 'beta']
@@ -405,6 +406,37 @@ def test_table_exclude_property_should_override_constructor_argument():
     assert [c.name for c in table.columns] == ['b']
 
 
+def test_exclude_should_work_on_sequence_too():
+    class Participant(models.Model):
+        email = models.EmailField()
+        register_datetime = models.DateTimeField()
+        status = models.CharField(max_length=10)
+        order = models.CharField(max_length=10)
+        actions = models.CharField(max_length=10)
+
+        class Meta:
+            app_label = 'django_tables2-tests'
+
+    class ParticipantTable(tables.Table):
+        email = tables.Column(verbose_name='Email')
+        register_datetime = tables.Column(verbose_name='Register date')
+
+        class Meta:
+            model = Participant
+            fields = ()
+            sequence = ('email', 'register_datetime')
+
+    class ParticipantCancelTable(ParticipantTable):
+        status = tables.Column(verbose_name='Status', order_by='status')
+
+        class Meta(ParticipantTable.Meta):
+            pass
+
+    class TrainerParticipantTable(ParticipantCancelTable):
+        class Meta(ParticipantCancelTable.Meta):
+            exclude = ('register_datetime', 'order', 'actions')
+
+
 def test_pagination():
     class BookTable(tables.Table):
         name = tables.Column()
@@ -412,7 +444,7 @@ def test_pagination():
     # create some sample data
     data = []
     for i in range(100):
-        data.append({"name": "Book No. %d" % i})
+        data.append({'name': 'Book No. %d' % i})
     books = BookTable(data)
 
     # external paginator
