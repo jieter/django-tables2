@@ -1,17 +1,19 @@
 # coding: utf-8
-"""Test the core table functionality."""
+'''Test the core table functionality.'''
 from __future__ import absolute_import, unicode_literals
 
 import copy
 import itertools
 
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
+from django.db import models
 from django.utils import six
 
 import django_tables2 as tables
 import pytest
 from django_tables2.tables import DeclarativeColumnsMetaclass
 
+from .app.models import Person
 from .utils import build_request
 
 request = build_request('/')
@@ -51,7 +53,7 @@ def test_column_named_items():
 
 
 def test_declarations():
-    """Test defining tables by declaration."""
+    '''Test defining tables by declaration.'''
     class GeoAreaTable(tables.Table):
         name = tables.Column()
         population = tables.Column()
@@ -79,7 +81,7 @@ def test_declarations():
 
 def test_metaclass_inheritance():
     class Tweaker(type):
-        """Adds an attribute "tweaked" to all classes"""
+        '''Adds an attribute "tweaked" to all classes'''
         def __new__(cls, name, bases, attrs):
             attrs['tweaked'] = True
             return super(Tweaker, cls).__new__(cls, name, bases, attrs)
@@ -121,18 +123,18 @@ def test_attrs():
 
     class TestTable2(tables.Table):
         class Meta:
-            attrs = {"a": "b"}
-    assert {"a": "b"} == TestTable2([]).attrs
+            attrs = {'a': 'b'}
+    assert {'a': 'b'} == TestTable2([]).attrs
 
     class TestTable3(tables.Table):
         pass
     assert {} == TestTable3([]).attrs
-    assert {"a": "b"} == TestTable3([], attrs={"a": "b"}).attrs
+    assert {'a': 'b'} == TestTable3([], attrs={'a': 'b'}).attrs
 
     class TestTable4(tables.Table):
         class Meta:
-            attrs = {"a": "b"}
-    assert {"c": "d"} == TestTable4([], attrs={"c": "d"}).attrs
+            attrs = {'a': 'b'}
+    assert {'c': 'd'} == TestTable4([], attrs={'c': 'd'}).attrs
 
 
 def test_attrs_support_computed_values():
@@ -140,22 +142,23 @@ def test_attrs_support_computed_values():
 
     class TestTable(tables.Table):
         class Meta:
-            attrs = {"id": lambda: "test_table_%d" % next(counter)}
+            attrs = {'id': lambda: 'test_table_%d' % next(counter)}
 
-    assert {"id": "test_table_0"} == TestTable([]).attrs
-    assert {"id": "test_table_1"} == TestTable([]).attrs
+    assert {'id': 'test_table_0'} == TestTable([]).attrs
+    assert {'id': 'test_table_1'} == TestTable([]).attrs
 
 
 def test_data_knows_its_name():
     table = tables.Table([{}])
-    assert table.data.verbose_name == "item"
-    assert table.data.verbose_name_plural == "items"
+    assert table.data.verbose_name == 'item'
+    assert table.data.verbose_name_plural == 'items'
 
 
 def test_datasource_untouched():
-    """Ensure that data that is provided to the table (the datasource) is not
+    '''
+    Ensure that data that is provided to the table (the datasource) is not
     modified by table operations.
-    """
+    '''
     original_data = copy.deepcopy(MEMORY_DATA)
 
     table = UnorderedTable(MEMORY_DATA)
@@ -361,13 +364,12 @@ def test_column_accessor():
 
 
 def test_exclude_columns():
-    """
+    '''
     Defining ``Table.Meta.exclude`` or providing an ``exclude`` argument when
     instantiating a table should have the same effect -- exclude those columns
     from the table. It should have the same effect as not defining the
     columns originally.
-    """
-    # Table(..., exclude=...)
+    '''
     table = UnorderedTable([], exclude=('i'))
     assert [c.name for c in table.columns] == ['alpha', 'beta']
 
@@ -390,6 +392,7 @@ def test_exclude_columns():
 
         class Meta:
             exclude = ('beta', )
+
     table = ExcludeTable([])
     assert [c.name for c in table.columns] == ['i', 'alpha', 'added']
 
@@ -405,6 +408,25 @@ def test_table_exclude_property_should_override_constructor_argument():
     assert [c.name for c in table.columns] == ['b']
 
 
+def test_exclude_should_work_on_sequence_too():
+    '''
+    It should be possible to define a sequence on a table and excluded
+    and exclude it in a child of that table.
+    '''
+    class PersonTable(tables.Table):
+        first_name = tables.Column()
+        last_name = tables.Column()
+        occupation = tables.Column()
+
+        class Meta:
+            model = Person
+            sequence = ('first_name', 'last_name', 'occupation')
+
+    class AnotherPersonTable(PersonTable):
+        class Meta(PersonTable.Meta):
+            exclude = ('first_name', 'last_name')
+
+
 def test_pagination():
     class BookTable(tables.Table):
         name = tables.Column()
@@ -412,7 +434,7 @@ def test_pagination():
     # create some sample data
     data = []
     for i in range(100):
-        data.append({"name": "Book No. %d" % i})
+        data.append({'name': 'Book No. %d' % i})
     books = BookTable(data)
 
     # external paginator
@@ -473,7 +495,9 @@ def test_empty_text():
 
 
 def test_prefix():
-    """Test that table prefixes affect the names of querystring parameters"""
+    '''
+    Test that table prefixes affect the names of querystring parameters
+    '''
     class TableA(tables.Table):
         name = tables.Column()
 
