@@ -13,6 +13,7 @@ from django.utils import six
 import django_tables2 as tables
 from django_tables2.tables import DeclarativeColumnsMetaclass
 
+from .app.models import Person
 from .utils import build_request
 
 request = build_request('/')
@@ -407,34 +408,15 @@ def test_table_exclude_property_should_override_constructor_argument():
 
 
 def test_exclude_should_work_on_sequence_too():
-    class Participant(models.Model):
-        email = models.EmailField()
-        register_datetime = models.DateTimeField()
-        status = models.CharField(max_length=10)
-        order = models.CharField(max_length=10)
-        actions = models.CharField(max_length=10)
-
+    class PersonTable(tables.Table):
         class Meta:
-            app_label = 'django_tables2-tests'
-
-    class ParticipantTable(tables.Table):
-        email = tables.Column(verbose_name='Email')
-        register_datetime = tables.Column(verbose_name='Register date')
-
-        class Meta:
-            model = Participant
+            model = Person
             fields = ()
-            sequence = ('email', 'register_datetime')
+            sequence = ('first_name', 'last_name', 'occupation')
 
-    class ParticipantCancelTable(ParticipantTable):
-        status = tables.Column(verbose_name='Status', order_by='status')
-
-        class Meta(ParticipantTable.Meta):
-            pass
-
-    class TrainerParticipantTable(ParticipantCancelTable):
-        class Meta(ParticipantCancelTable.Meta):
-            exclude = ('register_datetime', 'order', 'actions')
+    class AnotherPersonTable(PersonTable):
+        class Meta(PersonTable.Meta):
+            exclude = ('first_name', 'last_name')
 
 
 def test_pagination():
