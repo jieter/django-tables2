@@ -1,6 +1,9 @@
 # Change log
 
 ## Unreleased
+
+
+## v1.2.2 (2016-06-04)
 - Allow use of custom class names for ordered columns through `attrs`. (
 [#329](https://github.com/bradleyayers/django-tables2/pull/329) by [@theTarkus](https://github.com/theTarkus))
 - Column ordering queryset passthrough ([#330](https://github.com/bradleyayers/django-tables2/pull/330) by [@theTarkus](https://github.com/theTarkus))
