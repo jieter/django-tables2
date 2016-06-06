@@ -188,9 +188,9 @@ API Reference
         automatically generate columns that correspond to the fields in a
         model.
 
-    order_by (tuple): The default ordering.
+    order_by (tuple or str): The default ordering tuple or comma separated str.
         A hyphen `-` can be used to prefix a column name to indicate
-        *descending* order, for example: ``('name', '-age')``.
+        *descending* order, for example: `('name', '-age')` or `name,-age`.
 
         .. note::
 
@@ -201,7 +201,7 @@ API Reference
         This allows the default order of columns (the order they were defined
         in the Table) to be overridden.
 
-        The special item ``'...'`` can be used as a placeholder that will be
+        The special item `'...'` can be used as a placeholder that will be
         replaced with all the columns that weren't explicitly listed. This
         allows you to add columns to the front or back when using inheritance.
 

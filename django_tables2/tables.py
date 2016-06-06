@@ -295,8 +295,12 @@ class TableBase(object):
         exclude (iterable or str): The names of columns that shouldn't be
             included in the table.
 
+        order_by: (tuple or str): The default ordering tuple or comma separated str.
+            A hyphen `-` can be used to prefix a column name to indicate
+            *descending* order, for example: `('name', '-age')` or `name,-age`.
+
         order_by_field (str): If not `None`, defines the name of the *order by*
-            querystring field.
+            querystring field in the url.
 
         page: The current page in the context of pagination.
             Added during the call to `.Table.paginate`.
@@ -403,9 +407,9 @@ class TableBase(object):
         self._counter = count()
 
     def as_html(self, request):
-        """
+        '''
         Render the table to an HTML table, adding `request` to the context.
-        """
+        '''
         # reset counter for new rendering
         self._counter = count()
         template = get_template(self.template)
@@ -439,17 +443,18 @@ class TableBase(object):
 
     @order_by.setter
     def order_by(self, value):
-        """
+        '''
         Order the rows of the table based on columns.
 
         Arguments:
-            value: iterable of order by aliases.
-        """
+            value: iterable or comma separated string of order by aliases.
+        '''
         # collapse empty values to ()
         order_by = () if not value else value
         # accept string
         order_by = order_by.split(',') if isinstance(order_by, six.string_types) else order_by
         valid = []
+
         # everything's been converted to a iterable, accept iterable!
         for alias in order_by:
             name = OrderBy(alias).bare
@@ -477,7 +482,7 @@ class TableBase(object):
         self._page_field = value
 
     def paginate(self, klass=Paginator, per_page=None, page=1, *args, **kwargs):
-        """
+        '''
         Paginates the table using a paginator and creates a ``page`` property
         containing information for the current page.
 
@@ -493,7 +498,7 @@ class TableBase(object):
         Pagination exceptions (`~django.core.paginator.EmptyPage` and
         `~django.core.paginator.PageNotAnInteger`) may be raised from this
         method and should be handled by the caller.
-        """
+        '''
         per_page = per_page or self._meta.per_page
         self.paginator = klass(self.rows, per_page, *args, **kwargs)
         self.page = self.paginator.page(page)
@@ -563,3 +568,5 @@ class TableBase(object):
 
 # Python 2/3 compatible way to enable the metaclass
 Table = DeclarativeColumnsMetaclass(str('Table'), (TableBase, ), {})
+# ensure the Table class has the right class docstring
+Table.__doc__ = TableBase.__doc__
