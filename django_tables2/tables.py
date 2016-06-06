@@ -241,14 +241,14 @@ class DeclarativeColumnsMetaclass(type):
 
 
 class TableOptions(object):
-    """
+    '''
     Extracts and exposes options for a `.Table` from a `.Table.Meta`
     when the table is defined. See `.Table` for documentation on the impact of
     variables in this class.
 
     Arguments:
         options (`.Table.Meta`): options for a table from `.Table.Meta`
-    """
+    '''
     def __init__(self, options=None):
         super(TableOptions, self).__init__()
         self.attrs = AttributeDict(getattr(options, 'attrs', {}))
@@ -276,18 +276,17 @@ class TableOptions(object):
 
 
 class TableBase(object):
-    """
+    '''
     A representation of a table.
 
     Arguments:
-        attrs (dict): HTML attributes to add to the ``<table>`` tag.
-            When accessing the attribute, the value is always returned as an
-            `.AttributeDict` to allow easily conversion to HTML.
+        data (queryset, list of dicts): The data to display.
 
-        columns (`.BoundColumns`): The columns in the table.
+        order_by: (tuple or str): The default ordering tuple or comma separated str.
+            A hyphen `-` can be used to prefix a column name to indicate
+            *descending* order, for example: `('name', '-age')` or `name,-age`.
 
-        default (str): Text to render in empty cells (determined by
-            `.Column.empty_values`, default `.Table.Meta.default`)
+        orderable (bool): Enable/disable column ordering on this table
 
         empty_text (str): Empty text to render when the table has no data.
             (default `.Table.Meta.empty_text`)
@@ -295,34 +294,13 @@ class TableBase(object):
         exclude (iterable or str): The names of columns that shouldn't be
             included in the table.
 
-        order_by: (tuple or str): The default ordering tuple or comma separated str.
-            A hyphen `-` can be used to prefix a column name to indicate
-            *descending* order, for example: `('name', '-age')` or `name,-age`.
+        attrs (dict): HTML attributes to add to the ``<table>`` tag.
+            When accessing the attribute, the value is always returned as an
+            `.AttributeDict` to allow easily conversion to HTML.
 
-        order_by_field (str): If not `None`, defines the name of the *order by*
-            querystring field in the url.
-
-        page: The current page in the context of pagination.
-            Added during the call to `.Table.paginate`.
-
-        page_field (str): If not `None`, defines the name of the *current page*
-            querystring field.
-
-        paginator: The current paginator for the table, added during the call to `.Table.paginate`.
-
-        per_page_field (str): If not `None`, defines the name of the *per page*
-            querystring field.
-
-        show_header (bool): If `False`, the table will not have a header
-            (`<thead>`), defaults to `True`
-
-        show_footer (bool): If `False`, the table footer will not be rendered,
-            even if some columns have a footer, defaults to `True`.
-
-        prefix (str): A prefix for querystring fields to avoid name-clashes when
-            using multiple tables on a single page.
-
-        rows (`.BoundRows`): The rows of the table (ignoring pagination).
+        row_attrs: Add custom html attributes to the table rows.
+            Allows custom HTML attributes to be specified which will be added
+            to the ``<tr>`` tag of the rendered table.
 
         sequence (iterable): The sequence/order of columns the columns (from
             left to right).
@@ -331,11 +309,32 @@ class TableBase(object):
             `'...'` (string containing three periods). `...` can be used as a
             catch-all for columns that aren't specified.
 
-        orderable (bool): Enable/disable column ordering on this table
+        prefix (str): A prefix for querystring fields.
+            To avoid name-clashes when  using multiple tables on single page.
+
+        order_by_field (str): If not `None`, defines the name of the *order by*
+            querystring field in the url.
+
+        page_field (str): If not `None`, defines the name of the *current page*
+            querystring field.
+
+        per_page_field (str): If not `None`, defines the name of the *per page*
+            querystring field.
 
         template (str): The template to render when using ``{% render_table %}``
             (default ``'django_tables2/table.html'``)
-    """
+
+        default (str): Text to render in empty cells (determined by
+            `.Column.empty_values`, default `.Table.Meta.default`)
+
+        request: Django's request to avoid using `RequestConfig`
+
+        show_header (bool): If `False`, the table will not have a header
+            (`<thead>`), defaults to `True`
+
+        show_footer (bool): If `False`, the table footer will not be rendered,
+            even if some columns have a footer, defaults to `True`.
+    '''
     TableDataClass = TableData
 
     def __init__(self, data, order_by=None, orderable=None, empty_text=None,
