@@ -7,13 +7,18 @@
 {% endblock %}
 
 {% block body %}
-    <h1>Multiple tables on a single page using MultiTableMixin</h1>
+    <div class="container">
 
-    <p>
-        pagination should work independently for each table,
-        the second table excludes the column 'country'.
-    </p>
-    {% for table in tables %}
-        {% render_table table %}
-    {% endfor %}
+        <h1>Multiple tables on a single page using MultiTableMixin</h1>
+
+        <p>
+            Pagination should work independently for each table,
+            the second table excludes the column 'country'.
+        </p>
+        <div class="row">
+            {% for table in tables %}
+                <div class="col-sm-6">{% render_table table %}</div>
+            {% endfor %}
+        </div>
+    </div>
 {% endblock %}

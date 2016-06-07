@@ -5,12 +5,11 @@ from __future__ import absolute_import, unicode_literals
 import copy
 import itertools
 
+import pytest
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
-from django.db import models
 from django.utils import six
 
 import django_tables2 as tables
-import pytest
 from django_tables2.tables import DeclarativeColumnsMetaclass
 
 from .app.models import Person
@@ -158,7 +157,7 @@ def test_datasource_untouched():
     '''
     Ensure that data that is provided to the table (the datasource) is not
     modified by table operations.
-    """
+    '''
     original_data = copy.deepcopy(MEMORY_DATA)
 
     table = UnorderedTable(MEMORY_DATA)
