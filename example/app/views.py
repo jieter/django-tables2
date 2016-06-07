@@ -1,33 +1,54 @@
 # coding: utf-8
 from random import choice
 
+from django.core.urlresolvers import reverse
 from django.shortcuts import render
 from django.utils.lorem_ipsum import words
+from django.views.generic.base import TemplateView
 
-from django_tables2 import RequestConfig, SingleTableView
+from django_tables2 import MultiTableMixin, RequestConfig, SingleTableView
 
 from .models import Country, Person
-from .tables import BootstrapTable, CountryTable, ThemedCountryTable
+from .tables import (BootstrapTable, CountryTable, PersonTable,
+                     ThemedCountryTable)
+
+
+def index(request):
+    table = PersonTable(Person.objects.all())
+    RequestConfig(request, paginate={
+        'per_page': 5
+    }).configure(table)
+
+    return render(request, 'index.html', {
+        'table': table,
+        'urls': (
+            (reverse('tutorial'), 'Tutorial'),
+            (reverse('multiple'), 'Multiple tables'),
+            (reverse('singletableview'), 'Using SingleTableMixin'),
+            (reverse('multitableview'), 'Using MultiTableMixin'),
+            (reverse('bootstrap'), 'Using the bootstrap template'),
+        )
+    })
 
 
 def multiple(request):
     qs = Country.objects.all()
 
-    example1 = CountryTable(qs, prefix="1-")
+    example1 = CountryTable(qs, prefix='1-')
     RequestConfig(request, paginate=False).configure(example1)
 
-    example2 = CountryTable(qs, prefix="2-")
-    RequestConfig(request, paginate={"per_page": 2}).configure(example2)
+    example2 = CountryTable(qs, prefix='2-')
+    RequestConfig(request, paginate={'per_page': 2}).configure(example2)
 
-    example3 = ThemedCountryTable(qs, prefix="3-")
-    RequestConfig(request, paginate={"per_page": 3}).configure(example3)
+    example3 = ThemedCountryTable(qs, prefix='3-')
+    RequestConfig(request, paginate={'per_page': 3}).configure(example3)
 
-    example4 = ThemedCountryTable(qs, prefix="4-")
-    RequestConfig(request, paginate={"per_page": 3}).configure(example4)
+    example4 = ThemedCountryTable(qs, prefix='4-')
+    RequestConfig(request, paginate={'per_page': 3}).configure(example4)
 
-    example5 = ThemedCountryTable(qs, prefix="5-")
-    example5.template = "extended_table.html"
-    RequestConfig(request, paginate={"per_page": 3}).configure(example5)
+    example5 = ThemedCountryTable(qs, prefix='5-')
+    example5.template = 'extended_table.html'
+    RequestConfig(request, paginate={'per_page': 3}).configure(example5)
 
     return render(request, 'multiple.html', {
         'example1': example1,
@@ -49,7 +70,7 @@ def bootstrap(request):
         ])
 
     table = BootstrapTable(Person.objects.all(), order_by='-name')
-    RequestConfig(request, paginate={"per_page": 10}).configure(table)
+    RequestConfig(request, paginate={'per_page': 10}).configure(table)
 
     return render(request, 'bootstrap_template.html', {
         'table': table
@@ -61,7 +82,22 @@ class ClassBased(SingleTableView):
     queryset = Country.objects.all()
     template_name = 'class_based.html'
 
-class_based = ClassBased.as_view()
+
+# note that this is not really the way to go because the queryset is not re
+# -evaluated after the first time the view is requested.
+qs = Person.objects.all()
+
+
+class MultipleTables(MultiTableMixin, TemplateView):
+    template_name = 'multiTable.html'
+    tables = [
+        PersonTable(qs),
+        PersonTable(qs, exclude=('country', ))
+    ]
+
+    table_pagination = {
+        'per_page': 10
+    }
 
 
 def tutorial(request):

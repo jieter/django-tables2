@@ -326,5 +326,18 @@ API Reference
 .. autoclass:: django_tables2.columns.URLColumn
     :members:
 
+`.SingleTableMixin`
+-------------------
+
+.. autoclass:: django_tables2.views.SingleTableMixin
+    :members:
+
+
+`.MultiTableMixin`
+------------------
+
+.. autoclass:: django_tables2.views.MultiTableMixin
+    :members:
+
 
 See :doc:`internal` for internal classes.

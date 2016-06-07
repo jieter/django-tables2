@@ -5,12 +5,11 @@ from __future__ import absolute_import, unicode_literals
 import copy
 import itertools
 
+import pytest
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
-from django.db import models
 from django.utils import six
 
 import django_tables2 as tables
-import pytest
 from django_tables2.tables import DeclarativeColumnsMetaclass
 
 from .app.models import Person
@@ -434,7 +433,7 @@ def test_pagination():
     # create some sample data
     data = []
     for i in range(100):
-        data.append({'name': 'Book No. %d' % i})
+        data.append({"name": "Book No. %d" % i})
     books = BookTable(data)
 
     # external paginator
@@ -504,17 +503,24 @@ def test_prefix():
         class Meta:
             prefix = 'x'
 
-    assert 'x' == TableA([]).prefix
+    table = TableA([])
+    html = table.as_html(build_request('/'))
+
+    assert 'x' == table.prefix
+    assert 'xsort=name' in html
 
     class TableB(tables.Table):
-        name = tables.Column()
+        last_name = tables.Column()
 
     assert '' == TableB([]).prefix
     assert 'x' == TableB([], prefix='x').prefix
 
     table = TableB([])
-    table.prefix = 'x'
-    assert 'x' == table.prefix
+    table.prefix = 'x-'
+    html = table.as_html(build_request('/'))
+
+    assert 'x-' == table.prefix
+    assert 'x-sort=last_name' in html
 
 
 def test_field_names():

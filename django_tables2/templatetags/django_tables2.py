@@ -114,7 +114,7 @@ class RenderTableNode(Node):
 
         if isinstance(table, tables.Table):
             pass
-        elif hasattr(table, "model"):
+        elif hasattr(table, 'model'):
             queryset = table
 
             # We've been given a queryset, create a table using its model and
@@ -122,14 +122,14 @@ class RenderTableNode(Node):
             class OnTheFlyTable(tables.Table):
                 class Meta:
                     model = queryset.model
-                    attrs = {"class": "paleblue"}
+                    attrs = {'class': 'paleblue'}
             table = OnTheFlyTable(queryset)
             request = context.get('request')
             if request:
                 RequestConfig(request).configure(table)
         else:
-            raise ValueError("Expected table or queryset, not '%s'." %
-                             type(table).__name__)
+            klass = type(table).__name__
+            raise ValueError('Expected table or queryset, not {}'.format(klass))
 
         if self.template:
             template = self.template.resolve(context)
@@ -145,7 +145,7 @@ class RenderTableNode(Node):
         # Contexts are basically a `MergeDict`, when you `update()`, it
         # internally just adds a dict to the list to attempt lookups from. This
         # is why we're able to `pop()` later.
-        context.update({"table": table})
+        context.update({'table': table})
         try:
             # HACK:
             # TemplateColumn benefits from being able to use the context

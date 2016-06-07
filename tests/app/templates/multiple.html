@@ -1,0 +1,6 @@
+{% load django_tables2 %}
+<h1>Multiple tables using MultiTableMixin</h1>
+
+{% for table in tables %}
+    {% render_table table %}
+{% endfor %}

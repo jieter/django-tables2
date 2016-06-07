@@ -5,7 +5,7 @@ from django.views.generic.base import TemplateView
 
 import django_tables2 as tables
 
-from .app.models import Region
+from .app.models import Person, Region
 from .utils import build_request
 
 MEMORY_DATA = [
@@ -17,9 +17,9 @@ MEMORY_DATA = [
 
 
 class DispatchHookMixin(object):
-    """
+    '''
     Returns a response *and* reference to the view.
-    """
+    '''
     def dispatch(self, *args, **kwargs):
         return super(DispatchHookMixin, self).dispatch(*args, **kwargs), self
 
@@ -32,7 +32,7 @@ class SimpleTable(tables.Table):
 class SimpleView(DispatchHookMixin, tables.SingleTableView):
     table_class = SimpleTable
     table_pagination = {'per_page': 1}
-    model = Region  # needed for ListView
+    model = Region  # required for ListView
 
 
 @pytest.mark.django_db
@@ -153,3 +153,112 @@ def test_singletablemixin_with_non_paginated_view():
         template_name = 'dummy.html'
 
     View.as_view()(build_request('/'))
+
+
+class TableA(tables.Table):
+    class Meta:
+        model = Person
+
+
+class TableB(tables.Table):
+    class Meta:
+        model = Region
+        exclude = ('id', )
+
+
+@pytest.mark.django_db
+def test_multiTableMixin_basic():
+    Person.objects.create(first_name='Jan Pieter', last_name='W')
+
+    Region.objects.create(name='Zuid-Holland')
+    Region.objects.create(name='Noord-Holland')
+
+    class View(tables.MultiTableMixin, TemplateView):
+        tables = (TableA, TableB)
+        tables_data = (Person.objects.all(), Region.objects.all())
+        template_name = 'multiple.html'
+
+    response = View.as_view()(build_request('/'))
+    response.render()
+
+    html = response.rendered_content
+
+    assert 'table_0-sort=first_name' in html
+    assert 'table_1-sort=name' in html
+
+    assert '<td class="first_name">Jan Pieter</td>' in html
+    assert '<td class="name">Zuid-Holland</td>' in html
+
+
+@pytest.mark.django_db
+def test_multiTableMixin_basic_alternative():
+    Person.objects.create(first_name='Jan Pieter', last_name='W')
+
+    Region.objects.create(name='Zuid-Holland')
+    Region.objects.create(name='Noord-Holland')
+
+    class View(tables.MultiTableMixin, TemplateView):
+        tables = (
+            TableA(Person.objects.all()),
+            TableB(Region.objects.all())
+        )
+        template_name = 'multiple.html'
+
+    response = View.as_view()(build_request('/'))
+    response.render()
+
+    html = response.rendered_content
+
+    assert 'table_0-sort=first_name' in html
+    assert 'table_1-sort=name' in html
+
+    assert '<td class="first_name">Jan Pieter</td>' in html
+    assert '<td class="name">Zuid-Holland</td>' in html
+
+
+def test_multiTableMixin_without_tables():
+    class View(tables.MultiTableMixin, TemplateView):
+        template_name = 'multiple.html'
+
+    with pytest.raises(ImproperlyConfigured):
+        View.as_view()(build_request('/'))
+
+
+def test_multiTableMixin_incorrect_len():
+
+    class View(tables.MultiTableMixin, TemplateView):
+        tables = (TableA, TableB)
+        tables_data = (Person.objects.all(), )
+        template_name = 'multiple.html'
+
+    with pytest.raises(ImproperlyConfigured):
+        View.as_view()(build_request('/'))
+
+
+@pytest.mark.django_db
+def test_multiTableMixin_pagination():
+    NL_PROVICES = (
+        'Flevoland', 'Friesland', 'Gelderland', 'Groningen', 'Limburg',
+        'Noord-Brabant', 'Noord-Holland', 'Overijssel', 'Utrecht',
+        'Zeeland', 'Zuid-Holland',
+    )
+    for name in NL_PROVICES:
+        Region.objects.create(name=name)
+
+    class View(DispatchHookMixin, tables.MultiTableMixin, TemplateView):
+        tables = (
+            TableB(Region.objects.all()),
+            TableB(Region.objects.all())
+        )
+        template_name = 'multiple.html'
+
+        table_pagination = {
+            'per_page': 5
+        }
+
+    response, view = View.as_view()(build_request('/?table_1-page=3'))
+
+    tableA, tableB = view.get_tables()
+
+    assert tableA.page.number == 1
+    assert tableB.page.number == 3

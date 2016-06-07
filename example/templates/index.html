@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load django_tables2 %}
+
+{% block extrahead %}
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="{{ STATIC_URL }}django_tables2/bootstrap.css" rel="stylesheet" />
+{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <h1>Some examples of using django-tables2</h1>
+
+        <p>
+            Welcome to the django-tables2 example project.
+            Below is a list of different examples using django-tables2.
+        </p>
+
+        <ul>
+            {% for url, text in urls %}
+                <li><a href="{{ url }}">{{ text }}</a></li>
+            {% endfor %}
+        </ul>
+
+        <h2>Basic example of a table</h2>
+        {% render_table table "django_tables2/bootstrap.html" %}
+    </div>
+{% endblock %}
