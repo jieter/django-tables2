@@ -6,16 +6,18 @@ from django.utils.translation import ugettext_lazy as _
 
 
 class Country(models.Model):
-    """Represents a geographical Country"""
+    '''
+    Represents a geographical Country
+    '''
     name = models.CharField(max_length=100)
-    population = models.PositiveIntegerField(verbose_name="población")
+    population = models.PositiveIntegerField(verbose_name=_('population'))
     tz = models.CharField(max_length=50)
     visits = models.PositiveIntegerField()
     commonwealth = models.NullBooleanField()
-    flag = models.FileField(upload_to="country/flags/")
+    flag = models.FileField(upload_to='country/flags/')
 
     class Meta:
-        verbose_name_plural = _("countries")
+        verbose_name_plural = _('countries')
 
     def __unicode__(self):
         return self.name
@@ -25,16 +27,16 @@ class Country(models.Model):
 
     @property
     def summary(self):
-        return "%s (pop. %s)" % (self.name, self.population)
+        return '%s (pop. %s)' % (self.name, self.population)
 
 
 class Person(models.Model):
-    name = models.CharField(max_length=200, verbose_name="full name")
+    name = models.CharField(max_length=200, verbose_name='full name')
 
     country = models.ForeignKey(Country, null=True)
 
     class Meta:
-        verbose_name_plural = "people"
+        verbose_name_plural = 'people'
 
     def __unicode__(self):
         return self.name

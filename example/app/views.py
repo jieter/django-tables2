@@ -48,7 +48,7 @@ def bootstrap(request):
             for i in range(50)
         ])
 
-    table = BootstrapTable(Person.objects.all())
+    table = BootstrapTable(Person.objects.all(), order_by='-name')
     RequestConfig(request, paginate={"per_page": 10}).configure(table)
 
     return render(request, 'bootstrap_template.html', {
@@ -59,10 +59,10 @@ def bootstrap(request):
 class ClassBased(SingleTableView):
     table_class = ThemedCountryTable
     queryset = Country.objects.all()
-    template_name = "class_based.html"
+    template_name = 'class_based.html'
 
 class_based = ClassBased.as_view()
 
 
 def tutorial(request):
-    return render(request, "tutorial.html", {"people": Person.objects.all()})
+    return render(request, 'tutorial.html', {'people': Person.objects.all()})

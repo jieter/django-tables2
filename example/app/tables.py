@@ -9,7 +9,7 @@ class CountryTable(tables.Table):
     population = tables.Column()
     tz = tables.Column(verbose_name='time zone')
     visits = tables.Column()
-    summary = tables.Column(order_by=("name", "population"))
+    summary = tables.Column(order_by=('name', 'population'))
 
     class Meta:
         model = Country
