@@ -127,6 +127,7 @@ class MultiTableMixin(TableMixinBase):
         context_table_name(str): name of the table's template variable (default:
             'tables')
 
+    .. versionadded:: 1.2.3
     '''
     tables = None
     tables_data = None
