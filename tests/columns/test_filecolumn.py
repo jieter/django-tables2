@@ -29,6 +29,11 @@ def column():
     })
 
 
+@pytest.yield_fixture
+def column_with_text():
+    yield tables.FileColumn(text='Download')
+
+
 def test_should_be_used_for_filefields():
     class FileModel(models.Model):
         field = models.FileField()
@@ -90,3 +95,13 @@ def test_filecolumn_supports_fieldfile(column, storage):
         'href': '/baseurl/child/does_not_exist.html'
     }
     assert root.text == 'does_not_exist.html'
+
+
+def test_filecolumn_text_custom_value(column_with_text, storage):
+    name = 'foobar.html'
+    file_ = ContentFile('')
+    file_.name = name
+    root = parse(column_with_text.render(value=file_))
+    assert root.tag == 'span'
+    assert root.attrib == {'title': name, 'class': ''}
+    assert root.text == 'Download'
