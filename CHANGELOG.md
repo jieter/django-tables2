@@ -1,13 +1,13 @@
 # Change log
 
 ## Unreleased
-
+ - Accept `text` parameter in `FileColumn`, analogous to `LinkColumn` ([#343](https://github.com/bradleyayers/django-tables2/pull/343) by [@graup](https://github.com/graup))
 
 ## v1.2.2 (2016-06-04)
 - Allow use of custom class names for ordered columns through `attrs`. (
 [#329](https://github.com/bradleyayers/django-tables2/pull/329) by [@theTarkus](https://github.com/theTarkus))
 - Column ordering queryset passthrough ([#330](https://github.com/bradleyayers/django-tables2/pull/330) by [@theTarkus](https://github.com/theTarkus))
-- Cleanup/restructuring of [documenation](http://django-tables2.readthedocs.io/), ([#325](https://github.com/bradleyayers/django-tables2/pull/325)
+- Cleanup/restructuring of [documentation](http://django-tables2.readthedocs.io/), ([#325](https://github.com/bradleyayers/django-tables2/pull/325)
 - Fixed an issue where explicitly defined column options where not preserved over inheritance ([#339](https://github.com/bradleyayers/django-tables2/pull/339), [issue #337](https://github.com/bradleyayers/django-tables2/issues/337))
 - Fixed an issue where `exclude` in combination with `sequence` raised a KeyError ([#341](https://github.com/bradleyayers/django-tables2/pull/341), [issue #205](https://github.com/bradleyayers/django-tables2/issues/205))
 
