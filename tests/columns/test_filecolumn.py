@@ -29,6 +29,11 @@ def column():
     })
 
 
+@pytest.yield_fixture
+def column_with_text():
+    yield tables.FileColumn(text='Download')
+
+
 def test_should_be_used_for_filefields():
     class FileModel(models.Model):
         field = models.FileField()
@@ -46,7 +51,7 @@ def test_should_be_used_for_filefields():
 def test_filecolumn_supports_storage_file(column, storage):
     file_ = storage.open('child/foo.html')
     try:
-        root = parse(column.render(value=file_))
+        root = parse(column.render(value=file_, record=None))
     finally:
         file_.close()
     path = file_.name
@@ -59,7 +64,7 @@ def test_filecolumn_supports_contentfile(column):
     name = 'foobar.html'
     file_ = ContentFile('')
     file_.name = name
-    root = parse(column.render(value=file_))
+    root = parse(column.render(value=file_, record=None))
     assert root.tag == 'span'
     assert root.attrib == {'title': name, 'class': 'span'}
     assert root.text == 'foobar.html'
@@ -69,7 +74,7 @@ def test_filecolumn_supports_fieldfile(column, storage):
     field = models.FileField(storage=storage)
     name = 'child/foo.html'
     fieldfile = FieldFile(instance=None, field=field, name=name)
-    root = parse(column.render(value=fieldfile))
+    root = parse(column.render(value=fieldfile, record=None))
     assert root.tag == 'a'
     assert root.attrib == {
         'class': 'a exists',
@@ -81,7 +86,7 @@ def test_filecolumn_supports_fieldfile(column, storage):
     # Now try a file that doesn't exist
     name = 'child/does_not_exist.html'
     fieldfile = FieldFile(instance=None, field=field, name=name)
-    html = column.render(value=fieldfile)
+    html = column.render(value=fieldfile, record=None)
     root = parse(html)
     assert root.tag == 'a'
     assert root.attrib == {
@@ -90,3 +95,13 @@ def test_filecolumn_supports_fieldfile(column, storage):
         'href': '/baseurl/child/does_not_exist.html'
     }
     assert root.text == 'does_not_exist.html'
+
+
+def test_filecolumn_text_custom_value(column_with_text, storage):
+    name = 'foobar.html'
+    file_ = ContentFile('')
+    file_.name = name
+    root = parse(column_with_text.render(value=file_, record=None))
+    assert root.tag == 'span'
+    assert root.attrib == {'title': name, 'class': ''}
+    assert root.text == 'Download'

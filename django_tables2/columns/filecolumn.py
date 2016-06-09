@@ -8,11 +8,12 @@ from django.utils.html import format_html
 
 from django_tables2.utils import AttributeDict
 
-from .base import Column, library
+from .base import library
+from .linkcolumn import BaseLinkColumn
 
 
 @library.register
-class FileColumn(Column):
+class FileColumn(BaseLinkColumn):
     """
     Attempts to render `.FieldFile` (or other storage backend `.File`) as a
     hyperlink.
@@ -32,12 +33,19 @@ class FileColumn(Column):
         verify_exists (bool): attempt to determine if the file exists
             If *verify_exists*, the HTML class ``exists`` or ``missing`` is
             added to the element to indicate the integrity of the storage.
+        text (str or callable): Either static text, or a callable. If set, this
+            will be used to render the text inside link instead of value (default)
     """
     def __init__(self, verify_exists=True, **kwargs):
-        self.verify_exists = True
+        self.verify_exists = verify_exists
         super(FileColumn, self).__init__(**kwargs)
 
-    def render(self, value):
+    def text_value(self, record, value):
+        if self.text is None:
+            return os.path.basename(value.name)
+        return super(FileColumn, self).text_value(record, value)
+
+    def render(self, record, value):
         storage = getattr(value, 'storage', None)
         exists = None
         url = None
@@ -57,20 +65,20 @@ class FileColumn(Column):
         tag = 'a' if url else 'span'
         attrs = AttributeDict(self.attrs.get(tag, {}))
         attrs['title'] = value.name
-        if url:
-            attrs['href'] = url
 
         classes = [c for c in attrs.get('class', '').split(' ') if c]
         if exists is not None:
             classes.append('exists' if exists else 'missing')
         attrs['class'] = ' '.join(classes)
 
-        return format_html(
-            '<{tag} {attrs}>{text}</{tag}>',
-            tag=tag,
-            attrs=attrs.as_html(),
-            text=os.path.basename(value.name)
-        )
+        if url:
+            return self.render_link(url, record=record, value=value, attrs=attrs)
+        else:
+            return format_html(
+                '<span {attrs}>{text}</span>',
+                attrs=attrs.as_html(),
+                text=self.text_value(record, value)
+            )
 
     @classmethod
     def from_field(cls, field):
