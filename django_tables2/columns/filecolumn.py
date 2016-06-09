@@ -36,7 +36,7 @@ class FileColumn(Column):
             text inside the link instead of the file's basename.
     """
     def __init__(self, verify_exists=True, text=None, **kwargs):
-        self.verify_exists = True
+        self.verify_exists = verify_exists
         self.text = text
         super(FileColumn, self).__init__(**kwargs)
 
