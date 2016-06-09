@@ -32,10 +32,18 @@ class FileColumn(Column):
         verify_exists (bool): attempt to determine if the file exists
             If *verify_exists*, the HTML class ``exists`` or ``missing`` is
             added to the element to indicate the integrity of the storage.
+        text (str): If set, this value will be used to render the
+            text inside the link instead of the file's basename.
     """
-    def __init__(self, verify_exists=True, **kwargs):
-        self.verify_exists = True
+    def __init__(self, verify_exists=True, text=None, **kwargs):
+        self.verify_exists = verify_exists
+        self.text = text
         super(FileColumn, self).__init__(**kwargs)
+
+    def text_value(self, value):
+        if self.text is None:
+            return os.path.basename(value.name)
+        return self.text
 
     def render(self, value):
         storage = getattr(value, 'storage', None)
@@ -69,7 +77,7 @@ class FileColumn(Column):
             '<{tag} {attrs}>{text}</{tag}>',
             tag=tag,
             attrs=attrs.as_html(),
-            text=os.path.basename(value.name)
+            text=self.text_value(value)
         )
 
     @classmethod
