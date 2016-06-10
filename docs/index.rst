@@ -31,5 +31,6 @@ Table of contents
     pages/getting-started
     pages/customizing
     pages/reference
+    pages/faq
     pages/upgrade-changelog
     pages/glossary

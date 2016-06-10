@@ -99,7 +99,7 @@ column::
         my_column = tables.Column(attrs=ATTRIBUTES)
 
 
-
+.. _column-footers:
 
 Adding column footers
 ---------------------
