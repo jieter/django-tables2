@@ -64,9 +64,8 @@ class TemplateColumn(Column):
 
         try:
             if self.template_code:
-                template = Template(self.template_code)
+                return Template(self.template_code).render(context)
             else:
-                template = get_template(self.template_name)
-            return template.render(context)
+                return get_template(self.template_name).render(context.flatten())
         finally:
             context.pop()
