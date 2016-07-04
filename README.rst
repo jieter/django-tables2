@@ -73,4 +73,4 @@ And finally in the template:
     {% render_table table %}
 
 This example shows one of the simplest cases, but django-tables2 can do a lot more!
-Check out the _documentation: https://django-tables2.readthedocs.io/en/latest/ for more details.
+Check out the `documentation <https://django-tables2.readthedocs.io/en/latest/>`_ for more details.
