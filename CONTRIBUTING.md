@@ -40,5 +40,5 @@ Publishing a release
 
 1. Bump the version in `django-tables2/__init__.py`.
 2. Update CHANGELOG.md`.
-3. Create a tag git tag -a v1.0.6 -m 'tagging v1.0.6'`
-4. Run `python setup.py sdist upload --sign --identity=<your gpg identity>`.
+3. Create a tag `./setup.py tag` or `git tag -a v1.0.6 -m 'tagging v1.0.6'`
+4. Run `./setup.py publish` or `python setup.py sdist upload --sign --identity=<your gpg identity>`.
