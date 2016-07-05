@@ -3,6 +3,7 @@
 ## Unreleased
  - Accept `text` parameter in `FileColumn`, analogous to `LinkColumn` ([#343](https://github.com/bradleyayers/django-tables2/pull/343) by [@graup](https://github.com/graup))
  - Fix TemplateColumn RemovedInDjango110Warning fixes [#346](https://github.com/bradleyayers/django-tables2/issues/346).
+ - Use field name in RelatedColumnLink ([#350](https://github.com/bradleyayers/django-tables2/pull/350), fixes [#347](https://github.com/bradleyayers/django-tables2/issues/347)
 
 ## v1.2.2 (2016-06-04)
 - Allow use of custom class names for ordered columns through `attrs`. (
