@@ -18,7 +18,7 @@ class Person(models.Model):
 
     occupation = models.ForeignKey(
         'Occupation', related_name='people',
-        null=True, verbose_name='occupation')
+        null=True, verbose_name='occupation of the person')
 
     trans_test = models.CharField(
         max_length=200, blank=True,
