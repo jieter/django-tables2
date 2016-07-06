@@ -98,12 +98,11 @@ def querystring(parser, token):
 
 
 class RenderTableNode(Node):
-    """
-    :param    table: the table to render
-    :type     table: Table object
-    :param template: Name[s] of template to render
-    :type  template: unicode or list
-    """
+    '''
+    parameters:
+        table (~.Table): the table to render
+        template (str or list): Name[s] of template to render
+    '''
     def __init__(self, table, template=None):
         super(RenderTableNode, self).__init__()
         self.table = table
@@ -203,13 +202,13 @@ RE_UPPERCASE = re.compile('[A-Z]')
 @register.filter
 @stringfilter
 def title(value):
-    """
+    '''
     A slightly better title template filter.
 
     Same as Django's builtin `~django.template.defaultfilters.title` filter,
     but operates on individual words and leaves words unchanged if they already
     have a capital letter.
-    """
+    '''
     title_word = lambda w: w if RE_UPPERCASE.search(w) else old_title(w)
     return re.sub('(\S+)', lambda m: title_word(m.group(0)), value)
 title.is_safe = True
