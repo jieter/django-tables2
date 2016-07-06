@@ -71,7 +71,7 @@ def test_boolean_field_choices_with_real_model_instances():
     If a booleanField has choices defined, the value argument passed to
     BooleanColumn.render() is the rendered value, not a bool.
     '''
-    class BoolModel(models.Model):
+    class BoolModelChoices(models.Model):
         field = models.BooleanField(choices=(
             (True, 'Yes'),
             (False, 'No'))
@@ -82,9 +82,9 @@ def test_boolean_field_choices_with_real_model_instances():
 
     class Table(tables.Table):
         class Meta:
-            model = BoolModel
+            model = BoolModelChoices
 
-    table = Table([BoolModel(field=True), BoolModel(field=False)])
+    table = Table([BoolModelChoices(field=True), BoolModelChoices(field=False)])
 
     assert table.rows[0].get_cell('field') == '<span class="true">✔</span>'
     assert table.rows[1].get_cell('field') == '<span class="false">✘</span>'
