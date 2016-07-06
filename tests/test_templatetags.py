@@ -26,7 +26,6 @@ def test_render_table_templatetag_invalid_type():
         }))
 
 
-
 def test_render_table_templatetag(settings):
     request = build_request('/')
     # ensure it works with a multi-order-by
@@ -82,21 +81,32 @@ def test_render_table_should_support_template_argument():
     table = CountryTable(MEMORY_DATA, order_by=('name', 'population'))
     template = Template('{% load django_tables2 %}'
                         '{% render_table table "dummy.html" %}')
-    request = build_request('/')
-    context = RequestContext(request, {'table': table})
+
+    context = RequestContext(build_request(), {'table': table})
+    assert template.render(context) == 'dummy template contents\n'
+
+
+def test_render_table_template_argument_list():
+    template = Template('{% load django_tables2 %}'
+                        '{% render_table table template_list %}')
+
+    context = RequestContext(build_request(), {
+        'table': CountryTable(MEMORY_DATA, order_by=('name', 'population')),
+        'template_list': ('dummy.html', 'child/foo.html')
+    })
     assert template.render(context) == 'dummy template contents\n'
 
 
 @pytest.mark.django_db
 def test_render_table_supports_queryset():
-    for name in ("Mackay", "Brisbane", "Maryborough"):
+    for name in ('Mackay', 'Brisbane', 'Maryborough'):
         Region.objects.create(name=name)
     template = Template('{% load django_tables2 %}{% render_table qs %}')
     html = template.render(Context({'qs': Region.objects.all(),
                                     'request': build_request('/')}))
 
     root = parse(html)
-    assert [e.text for e in root.findall('.//thead/tr/th/a')] == ["ID", "name", "mayor"]
+    assert [e.text for e in root.findall('.//thead/tr/th/a')] == ['ID', 'name', 'mayor']
     td = [[td.text for td in tr.findall('td')] for tr in root.findall('.//tbody/tr')]
     db = []
     for region in Region.objects.all():
