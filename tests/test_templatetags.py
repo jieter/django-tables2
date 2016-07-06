@@ -13,7 +13,7 @@ from django_tables2.config import RequestConfig
 
 from .app.models import Person, Region
 from .test_templates import MEMORY_DATA, CountryTable
-from .utils import build_request, parse
+from .utils import assertNumQueries, build_request, parse
 
 
 def test_render_table_templatetag(settings):
@@ -99,19 +99,19 @@ def test_querystring_templatetag():
 
     # Should be something like: <root>?name=Brad&amp;a=b&amp;c=5&amp;age=21</root>
     xml = template.render(Context({
-        "request": build_request('/?a=b&name=dog&c=5'),
-        "foo": {"bar": "age"},
-        "value": 21,
+        'request': build_request('/?a=b&name=dog&c=5'),
+        'foo': {'bar': 'age'},
+        'value': 21,
     }))
 
     # Ensure it's valid XML, retrieve the URL
     url = parse(xml).text
 
     qs = parse_qs(url[1:])  # everything after the ?
-    assert qs["name"] == ["Brad"]
-    assert qs["age"] == ["21"]
-    assert qs["a"] == ["b"]
-    assert qs["c"] == ["5"]
+    assert qs['name'] == ['Brad']
+    assert qs['age'] == ['21']
+    assert qs['a'] == ['b']
+    assert qs['c'] == ['5']
 
 
 def test_querystring_templatetag_requires_request():
@@ -122,15 +122,15 @@ def test_querystring_templatetag_requires_request():
 
 def test_querystring_templatetag_supports_without():
     context = Context({
-        "request": build_request('/?a=b&name=dog&c=5'),
-        "a_var": "a",
+        'request': build_request('/?a=b&name=dog&c=5'),
+        'a_var': 'a',
     })
 
     template = Template('{% load django_tables2 %}'
                         '<b>{% querystring "name"="Brad" without a_var %}</b>')
     url = parse(template.render(context)).text
     qs = parse_qs(url[1:])  # trim the ?
-    assert set(qs.keys()) == set(["name", "c"])
+    assert set(qs.keys()) == set(['name', 'c'])
 
     # Try with only exclusions
     template = Template('{% load django_tables2 %}'
@@ -147,16 +147,16 @@ def test_querystring_syntax_error():
 
 def test_title_should_only_apply_to_words_without_uppercase_letters():
     expectations = {
-        "a brown fox": "A Brown Fox",
-        "a brown foX": "A Brown foX",
-        "black FBI": "Black FBI",
-        "f.b.i": "F.B.I",
-        "start 6pm": "Start 6pm",
+        'a brown fox': 'A Brown Fox',
+        'a brown foX': 'A Brown foX',
+        'black FBI': 'Black FBI',
+        'f.b.i': 'F.B.I',
+        'start 6pm': 'Start 6pm',
     }
 
     for raw, expected in expectations.items():
-        template = Template("{% load django_tables2 %}{{ x|title }}")
-        assert template.render(Context({"x": raw})) == expected
+        template = Template('{% load django_tables2 %}{{ x|title }}')
+        assert template.render(Context({'x': raw})) == expected
 
 
 @pytest.mark.django_db
@@ -165,6 +165,8 @@ def test_as_html_db_queries(transactional_db):
         class Meta:
             model = Person
 
-    # TODO: check why this is commented out
-    # with queries(count=1):
-    #     PersonTable(Person.objects.all()).as_html(request)
+    Person.objects.create(first_name='John', last_name='Doo')
+
+    with assertNumQueries(count=3):
+        # Person.objects.count()
+        PersonTable(Person.objects.all()).as_html(build_request())
