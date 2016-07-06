@@ -73,7 +73,7 @@ class QuerystringNode(Node):
 # {% querystring "name"="abc" "age"=15 %}
 @register.tag
 def querystring(parser, token):
-    """
+    '''
     Creates a URL (containing only the querystring [including "?"]) derived
     from the current URL's querystring, by updating it with the provided
     keyword arguments.
@@ -85,13 +85,13 @@ def querystring(parser, token):
         {% querystring "name"="Ayers" without "gender" %}
         ?name=Ayers
 
-    """
+    '''
     bits = token.split_contents()
     tag = bits.pop(0)
     updates = token_kwargs(bits, parser)
     # ``bits`` should now be empty of a=b pairs, it should either be empty, or
     # have ``without`` arguments.
-    if bits and bits.pop(0) != "without":
+    if bits and bits.pop(0) != 'without':
         raise TemplateSyntaxError("Malformed arguments to '%s'" % tag)
     removals = [parser.compile_filter(bit) for bit in bits]
     return QuerystringNode(updates, removals)
@@ -161,7 +161,7 @@ class RenderTableNode(Node):
 
 @register.tag
 def render_table(parser, token):
-    """
+    '''
     Render a HTML table.
 
     The tag can be given either a `.Table` object, or a queryset. An optional
@@ -179,7 +179,7 @@ def render_table(parser, token):
         class OnTheFlyTable(tables.Table):
             class Meta:
                 model = queryset.model
-                attrs = {"class": "paleblue"}
+                attrs = {'class': 'paleblue'}
 
     For configuration beyond this, a `.Table` class must be manually defined,
     instantiated, and passed to this tag.
@@ -187,15 +187,13 @@ def render_table(parser, token):
     The context should include a *request* variable containing the current
     request. This allows pagination URLs to be created without clobbering the
     existing querystring.
-    """
+    '''
     bits = token.split_contents()
-    try:
-        bits.pop(0)
-        table = parser.compile_filter(bits.pop(0))
-    except ValueError:
-        raise TemplateSyntaxError("'%s' must be given a table or queryset." % bits[0])
+    bits.pop(0)
 
+    table = parser.compile_filter(bits.pop(0))
     template = parser.compile_filter(bits.pop(0)) if bits else None
+
     return RenderTableNode(table, template)
 
 

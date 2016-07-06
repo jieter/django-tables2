@@ -16,6 +16,17 @@ from .test_templates import MEMORY_DATA, CountryTable
 from .utils import assertNumQueries, build_request, parse
 
 
+def test_render_table_templatetag_invalid_type():
+    template = Template('{% load django_tables2 %}{% render_table table %}')
+
+    with pytest.raises(ValueError):
+        template.render(Context({
+            'request': build_request(),
+            'table': dict()
+        }))
+
+
+
 def test_render_table_templatetag(settings):
     request = build_request('/')
     # ensure it works with a multi-order-by
