@@ -1,7 +1,7 @@
 # coding: utf-8
 import pytest
-from django.utils import six
 from django.db.models.functions import Length
+from django.utils import six
 
 import django_tables2 as tables
 
@@ -357,6 +357,8 @@ def test_foreign_key():
             model = Person
             fields = ('foreign_key', )
 
+    # TODO: implement
+
 
 def test_fields_empty_list_means_no_fields():
     class Table(tables.Table):
@@ -366,3 +368,20 @@ def test_fields_empty_list_means_no_fields():
 
     table = Table(Person.objects.all())
     assert len(table.columns.names()) == 0
+
+
+def test_column_named_delete():
+    class DeleteTable(tables.Table):
+        delete = tables.TemplateColumn('[delete button]', verbose_name='')
+
+        class Meta:
+            model = Person
+            fields = ('name', 'delete')
+
+    person1 = Person.objects.create(first_name='Jan', last_name='Pieter')
+    person2 = Person.objects.create(first_name='John', last_name='Peter')
+
+    DeleteTable(Person.objects.all()).as_html(build_request())
+
+    assert Person.objects.get(pk=person1.pk) == person1
+    assert Person.objects.get(pk=person2.pk) == person2
