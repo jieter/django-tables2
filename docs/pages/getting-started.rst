@@ -1,7 +1,7 @@
 Getting started
 ===============
 
-Djangol-tables2 is `Available on pypi <https://pypi.python.org/pypi/django-tables2>`_
+Django-tables2 is `Available on pypi <https://pypi.python.org/pypi/django-tables2>`_
 and can be installed using pip::
 
     pip install django-tables2
