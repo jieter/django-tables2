@@ -1,13 +1,13 @@
 # coding: utf-8
 from __future__ import unicode_literals
 
+import pytest
 from django.template import Context, Template
 from django.test import TransactionTestCase
 from django.utils.translation import override as translation_override
 from django.utils.translation import ugettext_lazy
 
 import django_tables2 as tables
-import pytest
 from django_tables2.config import RequestConfig
 
 from .app.models import Person
@@ -253,6 +253,9 @@ def test_localization_of_pagination_string():
 
     with translation_override('it'):
         assert 'Pagina 1 di 4' in table.as_html(request)
+
+    with translation_override('nb'):
+        assert 'Side 1 av 4' in table.as_html(request)
 
 
 class BootstrapTable(CountryTable):

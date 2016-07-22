@@ -1,0 +1,47 @@
+# This file is distributed under the same license as the django-tables2 package
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: django-tables2\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2016-07-22 11:11+0200\n"
+"PO-Revision-Date: 2016-07-22 11:11+0200\n"
+"Last-Translator: Andreas Tollånes"
+"Language-Team: Norwegian Bokmal <nb@li.org>\n"
+"Language: nb\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: templates/django_tables2/bootstrap.html:35
+msgid "no results"
+msgstr "ingen resultater"
+
+#: templates/django_tables2/bootstrap.html:55
+#, fuzzy
+#| msgid "Previous"
+msgid "previous"
+msgstr "Forrige"
+
+#: templates/django_tables2/bootstrap.html:59
+#: templates/django_tables2/table.html:64
+#, python-format
+msgid "Page %(current)s of %(total)s"
+msgstr "Side %(current)s av %(total)s"
+
+#: templates/django_tables2/bootstrap.html:64
+msgid "next"
+msgstr "neste"
+
+#: templates/django_tables2/table.html:56
+msgid "Previous"
+msgstr "Forrige"
+
+#: templates/django_tables2/table.html:72
+msgid "Next"
+msgstr "Neste"
+
+#: templates/django_tables2/table.html:78
+#, python-format
+msgid "%(count)s of %(total)s"
+msgstr "%(count)s av %(total)s"
