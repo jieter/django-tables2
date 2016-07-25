@@ -77,7 +77,7 @@ class LinkColumn(BaseLinkColumn):
             ``<a ...>...</a>`` tag.
         text (str or callable): Either static text, or a callable. If set, this
             will be used to render the text inside link instead of value (default).
-            The calleble gets the record being rendered as argument.
+            The callable gets the record being rendered as argument.
 
     .. [2] In order to create a link to a URL that relies on information in the
         current row, `.Accessor` objects can be used in the *args* or *kwargs*
