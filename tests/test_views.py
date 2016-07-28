@@ -31,6 +31,11 @@ class SimpleTable(tables.Table):
 
 class SimpleView(DispatchHookMixin, tables.SingleTableView):
     table_class = SimpleTable
+    model = Region  # required for ListView
+
+
+class SimplePaginatedView(DispatchHookMixin, tables.SingleTableView):
+    table_class = SimpleTable
     table_pagination = {'per_page': 1}
     model = Region  # required for ListView
 
@@ -40,8 +45,53 @@ def test_view_should_support_pagination_options():
     for region in MEMORY_DATA:
         Region.objects.create(name=region['name'])
 
-    response, view = SimpleView.as_view()(build_request('/'))
+    response, view = SimplePaginatedView.as_view()(build_request('/'))
     assert view.get_table().paginator.num_pages == len(MEMORY_DATA)
+    assert view.get_table().paginator.per_page == 1
+
+
+@pytest.mark.django_db
+def test_view_should_support_default_pagination():
+    class PaginateDefault(DispatchHookMixin, tables.SingleTableView):
+        table_class = SimpleTable
+        model = Region
+        table_data = MEMORY_DATA
+
+    response, view = PaginateDefault.as_view()(build_request('/'))
+    table = view.get_table()
+    assert table.paginator.per_page == 25
+    assert len(table.page) == 4
+
+
+@pytest.mark.django_db
+def test_view_should_support_default_pagination_with_table_options():
+    class Table(tables.Table):
+        class Meta:
+            model = Region
+            per_page = 2
+
+    class PaginateByDefinedOnView(DispatchHookMixin, tables.SingleTableView):
+        table_class = Table
+        model = Region
+        table_data = MEMORY_DATA
+
+    response, view = PaginateByDefinedOnView.as_view()(build_request('/'))
+    table = view.get_table()
+    assert table.paginator.per_page == 2
+    assert len(table.page) == 2
+
+
+@pytest.mark.django_db
+def test_view_should_support_disabling_pagination_options():
+    class SimpleNotPaginatedView(DispatchHookMixin, tables.SingleTableView):
+        table_class = SimpleTable
+        table_data = MEMORY_DATA
+        table_pagination = False
+        model = Region  # required for ListView
+
+    response, view = SimpleNotPaginatedView.as_view()(build_request('/'))
+    table = view.get_table()
+    assert not hasattr(table, 'page')
 
 
 @pytest.mark.django_db
@@ -69,7 +119,7 @@ def test_should_raise_without_tableclass():
 
 
 def test_should_support_explicit_table_data():
-    class ExplicitDataView(SimpleView):
+    class ExplicitDataView(SimplePaginatedView):
         table_data = MEMORY_DATA
 
     response, view = ExplicitDataView.as_view()(build_request('/'))
@@ -86,11 +136,10 @@ def test_paginate_by_on_view_class():
         table_class = Table
         model = Region
         paginate_by = 2
-
         table_data = MEMORY_DATA
 
     response, view = PaginateByDefinedOnView.as_view()(build_request('/'))
-    assert view.get_table().paginator.num_pages == 2
+    assert view.get_table().paginator.per_page == 2
 
 
 @pytest.mark.django_db
@@ -132,7 +181,7 @@ def test_should_override_table_pagination():
             return super(PaginationOverrideView, self).get_table_pagination(table)
 
     response, view = PaginationOverrideView.as_view()(build_request('/?p_per_page_override=2'))
-    assert view.get_table().paginator.num_pages == 2
+    assert view.get_table().paginator.per_page == 2
 
 
 def test_singletablemixin_with_non_paginated_view():
