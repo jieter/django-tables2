@@ -1,6 +1,6 @@
 # Change log
 
-## master
+## 1.2.4 (2016-07-28)
 - Added Norwegian Locale ([#356](https://github.com/bradleyayers/django-tables2/issues/356) by [@fanzypantz](https://github.com/fanzypantz))
 - Restore default pagination for `SingleTableMixin`, fixes [#354](https://github.com/bradleyayers/django-tables2/issues/354) ([#395](https://github.com/bradleyayers/django-tables2/pull/359) by [@graup](https://github.com/graup))
 
