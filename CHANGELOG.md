@@ -1,5 +1,8 @@
 # Change log
 
+## 1.2.5 (2016-07-30)
+- Fixed an issue preventing the rest of the row being rendered if a `BooleanColumn` was in the table for a model without custom choices defined on the model field. ([#360](https://github.com/bradleyayers/django-tables2/issues/360))
+
 ## 1.2.4 (2016-07-28)
 - Added Norwegian Locale ([#356](https://github.com/bradleyayers/django-tables2/issues/356) by [@fanzypantz](https://github.com/fanzypantz))
 - Restore default pagination for `SingleTableMixin`, fixes [#354](https://github.com/bradleyayers/django-tables2/issues/354) ([#395](https://github.com/bradleyayers/django-tables2/pull/359) by [@graup](https://github.com/graup))
