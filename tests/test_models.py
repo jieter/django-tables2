@@ -31,15 +31,16 @@ def test_boundrows_iteration():
 
 
 def test_model_table():
-    """
+    '''
     The ``model`` option on a table causes the table to dynamically add columns
     based on the fields.
-    """
+    '''
     class OccupationTable(tables.Table):
         class Meta:
             model = Occupation
 
-    assert ['id', 'name', 'region', 'boolean'] == list(OccupationTable.base_columns.keys())
+    expected = ['id', 'name', 'region', 'boolean', 'boolean_with_choices']
+    assert expected == list(OccupationTable.base_columns.keys())
 
     class OccupationTable2(tables.Table):
         extra = tables.Column()
@@ -47,7 +48,8 @@ def test_model_table():
         class Meta:
             model = Occupation
 
-    assert ['id', 'name', 'region', 'boolean', 'extra'] == list(OccupationTable2.base_columns.keys())
+    expected.append('extra')
+    assert expected == list(OccupationTable2.base_columns.keys())
 
     # be aware here, we already have *models* variable, but we're importing
     # over the top
@@ -76,7 +78,9 @@ def test_mixins():
 
         class Meta:
             model = Occupation
-    assert ['extra', 'id', 'name', 'region', 'boolean', 'extra2'] == list(OccupationTable.base_columns.keys())
+
+    expected = ['extra', 'id', 'name', 'region', 'boolean', 'boolean_with_choices', 'extra2']
+    assert expected == list(OccupationTable.base_columns.keys())
 
 
 def test_column_verbose_name():

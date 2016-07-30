@@ -7,7 +7,7 @@ from django.db import models
 import django_tables2 as tables
 
 from ..app.models import Occupation, Person
-from ..utils import attrs
+from ..utils import attrs, build_request
 
 
 def test_should_be_used_for_booleanfield():
@@ -95,13 +95,19 @@ def test_boolean_field_choices_spanning_relations():
     'The inverse lookup voor boolean choices should also work on related models'
 
     class Table(tables.Table):
-        boolean = tables.BooleanColumn(accessor='occupation.boolean')
+        boolean = tables.BooleanColumn(accessor='occupation.boolean_with_choices')
 
         class Meta:
             model = Person
 
-    model_true = Occupation.objects.create(name='true-name', boolean=True)
-    model_false = Occupation.objects.create(name='false-name', boolean=False)
+    model_true = Occupation.objects.create(
+        name='true-name',
+        boolean_with_choices=True
+    )
+    model_false = Occupation.objects.create(
+        name='false-name',
+        boolean_with_choices=False
+    )
 
     table = Table([
         Person(first_name='True', last_name='False', occupation=model_true),
@@ -110,3 +116,25 @@ def test_boolean_field_choices_spanning_relations():
 
     assert table.rows[0].get_cell('boolean') == '<span class="true">✔</span>'
     assert table.rows[1].get_cell('boolean') == '<span class="false">✘</span>'
+
+
+@pytest.mark.django_db
+def test_boolean_should_not_prevent_rendering_of_other_columns():
+    '''Test for issue 360'''
+    class Table(tables.Table):
+        boolean = tables.BooleanColumn(yesno='waar,onwaar')
+
+        class Meta:
+            model = Person
+            fields = ('boolean', 'name')
+
+    Occupation.objects.create(name='Waar', boolean=True),
+    Occupation.objects.create(name='Onwaar', boolean=False),
+    Occupation.objects.create(name='Onduidelijk')
+
+    table = Table(Occupation.objects.all())
+
+    html = table.as_html(build_request())
+
+    assert 'Waar' in html
+    assert 'Onwaar' in html

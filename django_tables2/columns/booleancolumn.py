@@ -12,7 +12,7 @@ from .base import Column, library
 
 @library.register
 class BooleanColumn(Column):
-    """
+    '''
     A column suitable for rendering boolean data.
 
     Arguments:
@@ -26,7 +26,7 @@ class BooleanColumn(Column):
     available:
 
     - *span* -- adds attributes to the <span> tag
-    """
+    '''
     def __init__(self, null=False, yesno='✔,✘', **kwargs):
         self.yesno = (yesno.split(',') if isinstance(yesno, six.string_types)
                       else tuple(yesno))
@@ -35,17 +35,14 @@ class BooleanColumn(Column):
         super(BooleanColumn, self).__init__(**kwargs)
 
     def render(self, value, record, bound_column):
-        # if record is a model, we need to check if it has choices defined.
-        # If that's the case, we need to inverse lookup the value to convert to
-        # a boolean.
+        # If record is a model, we need to check if it has choices defined.
         if hasattr(record, '_meta'):
-            try:
-                field = bound_column.accessor.get_field(record)
+            field = bound_column.accessor.get_field(record)
 
-                if hasattr(field, 'choices') and field.choices is not None:
-                    value = next(val for val, name in field.choices if name == value)
-            except:
-                pass
+            # If that's the case, we need to inverse lookup the value to convert
+            # to a boolean we can use.
+            if hasattr(field, 'choices') and field.choices is not None and len(field.choices) > 0:
+                value = next(val for val, name in field.choices if name == value)
 
         value = bool(value)
         text = self.yesno[int(not value)]
