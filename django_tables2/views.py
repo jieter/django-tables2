@@ -92,13 +92,19 @@ class SingleTableMixin(TableMixinBase):
         elif hasattr(self, 'object_list'):
             return self.object_list
 
+    def get_table_kwargs(self):
+        '''
+        Return the keyword arguments for instantiating the table.
+        '''
+        return {}
+
     def get_context_data(self, **kwargs):
         '''
         Overriden version of `.TemplateResponseMixin` to inject the table into
         the template's context.
         '''
         context = super(SingleTableMixin, self).get_context_data(**kwargs)
-        table = self.get_table()
+        table = self.get_table(**self.get_table_kwargs())
         context[self.get_context_table_name(table)] = table
         return context
 
