@@ -273,6 +273,8 @@ class TableOptions(object):
         self.template = getattr(options, 'template', 'django_tables2/table.html')
         self.localize = getattr(options, 'localize', ())
         self.unlocalize = getattr(options, 'unlocalize', ())
+        self.bound_column_class = getattr(options, 'bound_column_class',
+                                          columns.BoundColumn)
 
 
 class TableBase(object):

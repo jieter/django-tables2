@@ -400,3 +400,31 @@ def test_explicit_column_can_be_overridden_by_other_explicit_column():
 
     assert table.columns['item1'].verbose_name == 'Nice column name'
     assert tableC.columns['item1'].verbose_name == 'New nice column name'
+
+
+def test_override_bound_column():
+    '''
+    We can override the class used for bound columns to control the
+    output of CSS class names
+    '''
+    class BoundColumnOverride(tables.columns.BoundColumn):
+        def get_class_name(self):
+            return 'prefix-' + self.name
+
+    class MyTable(tables.Table):
+        population = tables.Column(verbose_name='Population')
+
+        class Meta:
+            bound_column_class = BoundColumnOverride
+
+    TEST_DATA = [
+        {'name': 'Belgium', 'population': 11200000},
+        {'name': 'Luxembourgh', 'population': 540000},
+        {'name': 'France', 'population': 66000000},
+    ]
+
+    table = MyTable(TEST_DATA)
+    html = table.as_html(build_request())
+    print(html)
+
+    assert '<td class="prefix-population">11200000</td>' in html
