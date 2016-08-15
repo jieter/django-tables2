@@ -1,5 +1,9 @@
 # Change log
 
+## unreleased
+- Added `get_table_kwargs()` method to `SingleTableMixin` to allow passing custom keyword arguments to the `Table` constructor. [#366](https://github.com/bradleyayers/django-tables2/pull/366) by [@fritz-k](https://github.com/fritz-k)
+
+
 ## 1.2.5 (2016-07-30)
 - Fixed an issue preventing the rest of the row being rendered if a `BooleanColumn` was in the table for a model without custom choices defined on the model field. ([#360](https://github.com/bradleyayers/django-tables2/issues/360))
 
