@@ -329,7 +329,7 @@ class BoundColumn(object):
         # favour Column.header
         column_header = self.column.header
         if column_header:
-            return column_header
+            return title(column_header)
         # fall back to automatic best guess
         return self.verbose_name
 
@@ -430,11 +430,12 @@ class BoundColumn(object):
         """
         # Favor an explicit defined verbose_name
         if self.column.verbose_name is not None:
-            return self.column.verbose_name
+            # return 'Broken'
+            return title(self.column.verbose_name)
 
         # This is our reasonable fallback, should the next section not result
         # in anything useful.
-        name = title(self.name.replace('_', ' '))
+        name = self.name.replace('_', ' ')
 
         # Try to use a model field's verbose_name
         if hasattr(self.table.data, 'queryset') and hasattr(self.table.data.queryset, 'model'):
@@ -460,7 +461,8 @@ class BoundColumn(object):
                     name = field.field.verbose_name
                 else:
                     name = getattr(field, 'verbose_name', field.name)
-        return name
+        return title(name)
+        # return 'Broekn'
 
     @property
     def visible(self):
