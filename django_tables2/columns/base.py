@@ -331,7 +331,7 @@ class BoundColumn(object):
         if column_header:
             return title(column_header)
         # fall back to automatic best guess
-        return self.verbose_name
+        return title(self.verbose_name)
 
     @property
     def order_by(self):
@@ -430,8 +430,7 @@ class BoundColumn(object):
         """
         # Favor an explicit defined verbose_name
         if self.column.verbose_name is not None:
-            # return 'Broken'
-            return title(self.column.verbose_name)
+            return self.column.verbose_name
 
         # This is our reasonable fallback, should the next section not result
         # in anything useful.
@@ -461,8 +460,7 @@ class BoundColumn(object):
                     name = field.field.verbose_name
                 else:
                     name = getattr(field, 'verbose_name', field.name)
-        return title(name)
-        # return 'Broekn'
+        return name
 
     @property
     def visible(self):
