@@ -293,37 +293,31 @@ class BoundColumn(object):
 
         return attrs
 
-    def get_class_name(self):
-        """
-        Returns the HTML class attribute used for both header and data cell
-        """
-        return self.name
-
     def get_td_class_name(self, td_attrs):
         """
         Returns the HTML class attribute for a data cell in this column
         """
-        td_class = set((c for c in td_attrs.get('class', '').split(' ') if c))
-        td_class.add(self.get_class_name())
-        return ' '.join(sorted(td_class))
+        classes = set((c for c in td_attrs.get('class', '').split(' ') if c))
+        td_classes = self.table.get_column_class_names(classes, self)
+        return ' '.join(sorted(td_classes))
 
     def get_th_class_name(self, th_attrs):
         """
         Returns the HTML class attribute for a header cell in this column
         """
-        th_class = set((c for c in th_attrs.get('class', '').split(' ') if c))
-        th_class.add(self.get_class_name())
+        classes = set((c for c in th_attrs.get('class', '').split(' ') if c))
+        th_classes = self.table.get_column_class_names(classes, self)
 
         # add classes for ordering
         ordering_class = th_attrs.get('_ordering', {})
         if self.orderable:
-            th_class.add(ordering_class.get('orderable', 'orderable'))
+            th_classes.add(ordering_class.get('orderable', 'orderable'))
         if self.is_ordered:
-            th_class.add(ordering_class.get('descending', 'desc')
-                         if self.order_by_alias.is_descending
-                         else ordering_class.get('ascending', 'asc'))
+            th_classes.add(ordering_class.get('descending', 'desc')
+                           if self.order_by_alias.is_descending
+                           else ordering_class.get('ascending', 'asc'))
 
-        return ' '.join(sorted(th_class))
+        return ' '.join(sorted(th_classes))
 
     @property
     def default(self):
@@ -509,9 +503,8 @@ class BoundColumns(object):
     def __init__(self, table):
         self.table = table
         self.columns = OrderedDict()
-        bc_class = getattr(self.table._meta, 'bound_column_class', BoundColumn)
         for name, column in six.iteritems(table.base_columns):
-            self.columns[name] = bc = bc_class(table, column, name)
+            self.columns[name] = bc = BoundColumn(table, column, name)
             bc.render = getattr(table, 'render_' + name, column.render)
             bc.order = getattr(table, 'order_' + name, column.order)
 

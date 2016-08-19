@@ -273,8 +273,6 @@ class TableOptions(object):
         self.template = getattr(options, 'template', 'django_tables2/table.html')
         self.localize = getattr(options, 'localize', ())
         self.unlocalize = getattr(options, 'unlocalize', ())
-        self.bound_column_class = getattr(options, 'bound_column_class',
-                                          columns.BoundColumn)
 
 
 class TableBase(object):
@@ -566,6 +564,24 @@ class TableBase(object):
     @template.setter
     def template(self, value):
         self._template = value
+
+    def get_column_class_names(self, classes_set, bound_column):
+        """
+        Returns a set of HTML class names for cells of a bound column
+        in this tables.
+        By default it uses the class names defined in the table's attributes,
+        and additionally the bound column's name.
+
+        Arguments:
+            classes_set(set of string): a set of class names to be added
+              to the cell, retrieved from the column's attributes
+
+            bound_column(`.BoundColumn`): the bound column the class names are
+              determined for
+        """
+        classes_set.add(bound_column.name)
+        return classes_set
+
 
 # Python 2/3 compatible way to enable the metaclass
 Table = DeclarativeColumnsMetaclass(str('Table'), (TableBase, ), {})
