@@ -567,17 +567,25 @@ class TableBase(object):
 
     def get_column_class_names(self, classes_set, bound_column):
         """
-        Returns a set of HTML class names for cells of a bound column
-        in this tables.
-        By default it uses the class names defined in the table's attributes,
-        and additionally the bound column's name.
+        Returns a set of HTML class names for cells (both td and th) of a
+        **bound column** in this table.
+        By default this returns the column class names defined in the table's
+        attributes, and additionally the bound column's name.
+        This method can be overridden to change the default behavior, for
+        example to simply `return classes_set`.
 
         Arguments:
             classes_set(set of string): a set of class names to be added
-              to the cell, retrieved from the column's attributes
+              to the cell, retrieved from the column's attributes. In the case
+              of a header cell (th), this also includes ordering classes.
+              To set the classes for a column, see `.Column`.
+              To configure ordering classes, see :ref:`ordering-class-name`
 
             bound_column(`.BoundColumn`): the bound column the class names are
-              determined for
+              determined for. Useful for accessing `bound_column.name`.
+
+        Returns:
+            A set of class names to be added to cells of this column
         """
         classes_set.add(bound_column.name)
         return classes_set

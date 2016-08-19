@@ -288,36 +288,36 @@ class BoundColumn(object):
         attrs['td'] = AttributeDict(attrs.get('td', attrs.get('cell', {})))
 
         # Override/add classes
-        attrs['th']['class'] = self.get_th_class_name(attrs['th'])
-        attrs['td']['class'] = self.get_td_class_name(attrs['td'])
+        attrs['th']['class'] = self.get_th_class(attrs['th'])
+        attrs['td']['class'] = self.get_td_class(attrs['td'])
 
         return attrs
 
-    def get_td_class_name(self, td_attrs):
+    def get_td_class(self, td_attrs):
         """
         Returns the HTML class attribute for a data cell in this column
         """
         classes = set((c for c in td_attrs.get('class', '').split(' ') if c))
-        td_classes = self.table.get_column_class_names(classes, self)
-        return ' '.join(sorted(td_classes))
+        classes = self.table.get_column_class_names(classes, self)
+        return ' '.join(sorted(classes))
 
-    def get_th_class_name(self, th_attrs):
+    def get_th_class(self, th_attrs):
         """
         Returns the HTML class attribute for a header cell in this column
         """
         classes = set((c for c in th_attrs.get('class', '').split(' ') if c))
-        th_classes = self.table.get_column_class_names(classes, self)
+        classes = self.table.get_column_class_names(classes, self)
 
         # add classes for ordering
         ordering_class = th_attrs.get('_ordering', {})
         if self.orderable:
-            th_classes.add(ordering_class.get('orderable', 'orderable'))
+            classes.add(ordering_class.get('orderable', 'orderable'))
         if self.is_ordered:
-            th_classes.add(ordering_class.get('descending', 'desc')
-                           if self.order_by_alias.is_descending
-                           else ordering_class.get('ascending', 'asc'))
+            classes.add(ordering_class.get('descending', 'desc')
+                        if self.order_by_alias.is_descending
+                        else ordering_class.get('ascending', 'asc'))
 
-        return ' '.join(sorted(th_classes))
+        return ' '.join(sorted(classes))
 
     @property
     def default(self):
