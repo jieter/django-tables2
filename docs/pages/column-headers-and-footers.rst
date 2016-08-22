@@ -43,6 +43,8 @@ As you can see in the last example (region name), the results are not always
 desirable when an accessor is used to cross relationships. To get around this
 be careful to define `.Column.verbose_name`.
 
+.. _ordering-class-name:
+
 Changing class names for ordered column headers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

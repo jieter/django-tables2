@@ -235,7 +235,7 @@ class BoundColumn(object):
     means that a `.BoundColumn` knows the *"variable name"* given to the
     `.Column` when it was declared on the `.Table`.
 
-    For convenience, all `.Column` properties are available from thisclass.
+    For convenience, all `.Column` properties are available from this class.
 
     :type   table: `.Table` object
     :param  table: the table in which this column exists
@@ -282,33 +282,42 @@ class BoundColumn(object):
         # Update attrs to prefer column's attrs rather than table's
         attrs.update(dict(self.column.attrs))
 
-        # Column ordering class names
-        ordering_class = attrs.get('th', {}).get('_ordering', {})
-
         # Find the relevant th attributes (fall back to cell if th isn't
         # explicitly specified).
         attrs['th'] = AttributeDict(attrs.get('th', attrs.get('cell', {})))
         attrs['td'] = AttributeDict(attrs.get('td', attrs.get('cell', {})))
 
-        # make set of existing classes.
-        th_class = set((c for c in attrs['th'].get('class', '').split(' ') if c))
-        td_class = set((c for c in attrs['td'].get('class', '').split(' ') if c))
+        # Override/add classes
+        attrs['th']['class'] = self.get_th_class(attrs['th'])
+        attrs['td']['class'] = self.get_td_class(attrs['td'])
+
+        return attrs
+
+    def get_td_class(self, td_attrs):
+        """
+        Returns the HTML class attribute for a data cell in this column
+        """
+        classes = set((c for c in td_attrs.get('class', '').split(' ') if c))
+        classes = self.table.get_column_class_names(classes, self)
+        return ' '.join(sorted(classes))
+
+    def get_th_class(self, th_attrs):
+        """
+        Returns the HTML class attribute for a header cell in this column
+        """
+        classes = set((c for c in th_attrs.get('class', '').split(' ') if c))
+        classes = self.table.get_column_class_names(classes, self)
 
         # add classes for ordering
+        ordering_class = th_attrs.get('_ordering', {})
         if self.orderable:
-            th_class.add(ordering_class.get('orderable', 'orderable'))
+            classes.add(ordering_class.get('orderable', 'orderable'))
         if self.is_ordered:
-            th_class.add(ordering_class.get('descending', 'desc')
-                         if self.order_by_alias.is_descending
-                         else ordering_class.get('ascending', 'asc'))
+            classes.add(ordering_class.get('descending', 'desc')
+                        if self.order_by_alias.is_descending
+                        else ordering_class.get('ascending', 'asc'))
 
-        # Always add the column name as a class
-        th_class.add(self.name)
-        td_class.add(self.name)
-
-        attrs['th']['class'] = ' '.join(sorted(th_class))
-        attrs['td']['class'] = ' '.join(sorted(td_class))
-        return attrs
+        return ' '.join(sorted(classes))
 
     @property
     def default(self):

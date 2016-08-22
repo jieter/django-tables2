@@ -17,7 +17,7 @@ API Reference
 --------
 
 .. autoclass:: django_tables2.tables.Table
-    :members: paginate, as_html
+    :members: paginate, as_html, get_column_class_names
 
 
 `.Table.Meta`
