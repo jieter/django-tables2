@@ -5,7 +5,7 @@ This example project only supports the latest version of Django.
 # To get it up and running:
 
 ```
-git clone git@github.com:bradleyayers/django-tables2.git
+git clone https://github.com/bradleyayers/django-tables2.git
 
 pip install -r requirements.pip
 python manage.py migrate
