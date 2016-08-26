@@ -108,7 +108,7 @@ MIDDLEWARE_CLASSES = (
     "debug_toolbar.middleware.DebugToolbarMiddleware",
 )
 
-ROOT_URLCONF = 'example.urls'
+ROOT_URLCONF = 'urls'
 
 
 INSTALLED_APPS = (
@@ -119,14 +119,14 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'example.app',
+    'app',
 
     'django_tables2',
     'debug_toolbar',
 )
 
 INTERNAL_IPS = (
-    "127.0.0.1",
+    '127.0.0.1',
 )
 
 # A sample logging configuration. The only tangible logging
