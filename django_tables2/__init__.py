@@ -1,5 +1,5 @@
 # coding: utf-8
-from .tables import Table
+from .tables import Table, TableBase
 from .columns import (BooleanColumn, Column, CheckBoxColumn, DateColumn,
                       DateTimeColumn, EmailColumn, FileColumn, LinkColumn,
                       RelatedLinkColumn, TemplateColumn, TimeColumn, URLColumn)
