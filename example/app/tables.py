@@ -27,6 +27,7 @@ class BootstrapTable(tables.Table):
     class Meta:
         model = Person
         template = 'django_tables2/bootstrap.html'
+        attrs = {'class': 'table table-bordered table-striped'}
 
 
 class PersonTable(tables.Table):
