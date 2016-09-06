@@ -1,9 +1,9 @@
 # Change log
 
-## unreleased
+## 1.2.6 (2016-09-06)
 - Added `get_table_kwargs()` method to `SingleTableMixin` to allow passing custom keyword arguments to the `Table` constructor. [#366](https://github.com/bradleyayers/django-tables2/pull/366) by [@fritz-k](https://github.com/fritz-k)
 - Allow the children of `TableBase` render in the `{% render_table %}` template tag. ([#377](https://github.com/bradleyayers/django-tables2/pull/377) by [@shawnnapora](https://github.com/shawnnapora))
-- Refactor `BoundColumn` attributes to allow override of CSS class names. ([#349](https://github.com/bradleyayers/django-tables2/pull/349) by [@graup](https://github.com/graup), fixes [#349](https://github.com/bradleyayers/django-tables2/issues/349),
+- Refactor `BoundColumn` attributes to allow override of CSS class names. ([#370](https://github.com/bradleyayers/django-tables2/pull/370) by [@graup](https://github.com/graup), fixes [#349](https://github.com/bradleyayers/django-tables2/issues/349). Current behaviour should be intact, we will change the default in the future so it will **not** add the column name to the list of CSS classes.
 
 ## 1.2.5 (2016-07-30)
 - Fixed an issue preventing the rest of the row being rendered if a `BooleanColumn` was in the table for a model without custom choices defined on the model field. ([#360](https://github.com/bradleyayers/django-tables2/issues/360))
