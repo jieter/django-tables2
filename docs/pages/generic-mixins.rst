@@ -19,6 +19,8 @@ The following view parameters are supported:
 - ``table_pagination`` (or ``get_table_pagination``) -- pagination
   options to pass to `.RequestConfig`. Set ``table_pagination=False``
   to disable pagination.
+- ``get_table_kwargs()`` allows the keyword arguments passed to the ``Table``
+   constructor.
 
 For example::
 

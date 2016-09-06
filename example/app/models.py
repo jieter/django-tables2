@@ -32,6 +32,7 @@ class Country(models.Model):
 
 class Person(models.Model):
     name = models.CharField(max_length=200, verbose_name='full name')
+    friendly = models.BooleanField(default=True)
 
     country = models.ForeignKey(Country, null=True)
 

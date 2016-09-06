@@ -28,6 +28,7 @@ class BootstrapTable(tables.Table):
         model = Person
         template = 'django_tables2/bootstrap.html'
         attrs = {'class': 'table table-bordered table-striped'}
+        exclude = ('friendly', )
 
 
 class PersonTable(tables.Table):

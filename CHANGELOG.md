@@ -1,5 +1,16 @@
 # Change log
 
+## unreleased
+- Added `get_table_kwargs()` method to `SingleTableMixin` to allow passing custom keyword arguments to the `Table` constructor. [#366](https://github.com/bradleyayers/django-tables2/pull/366) by [@fritz-k](https://github.com/fritz-k)
+
+
+## 1.2.5 (2016-07-30)
+- Fixed an issue preventing the rest of the row being rendered if a `BooleanColumn` was in the table for a model without custom choices defined on the model field. ([#360](https://github.com/bradleyayers/django-tables2/issues/360))
+
+## 1.2.4 (2016-07-28)
+- Added Norwegian Locale ([#356](https://github.com/bradleyayers/django-tables2/issues/356) by [@fanzypantz](https://github.com/fanzypantz))
+- Restore default pagination for `SingleTableMixin`, fixes [#354](https://github.com/bradleyayers/django-tables2/issues/354) ([#395](https://github.com/bradleyayers/django-tables2/pull/359) by [@graup](https://github.com/graup))
+
 ## 1.2.3 (2016-07-05)
  - Accept `text` parameter in `FileColumn`, analogous to `LinkColumn` ([#343](https://github.com/bradleyayers/django-tables2/pull/343) by [@graup](https://github.com/graup))
  - Fix TemplateColumn RemovedInDjango110Warning fixes [#346](https://github.com/bradleyayers/django-tables2/issues/346).

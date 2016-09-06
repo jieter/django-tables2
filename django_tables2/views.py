@@ -39,12 +39,16 @@ class TableMixinBase(object):
         Returns pagination options: True for standard pagination (default),
         False for no pagination, and a dictionary for custom pagination.
         '''
-        paginate = self.table_pagination or {}
+        paginate = self.table_pagination
 
         if hasattr(self, 'paginate_by') and self.paginate_by is not None:
             # Since ListView knows the concept paginate_by, we use that if no
             # other pagination is configured.
+            paginate = paginate or {}
             paginate['per_page'] = self.paginate_by
+
+        if paginate is None:
+            return True
 
         return paginate
 
@@ -61,7 +65,7 @@ class SingleTableMixin(TableMixinBase):
             'table')
         table_pagination (dict): controls table pagination. If a `dict`, passed as
             the *paginate* keyword argument to `.RequestConfig`. As such, any
-            Truthy value enables pagination.
+            Truthy value enables pagination. (default: enable pagination)
 
     This mixin plays nice with the Django's`.MultipleObjectMixin` by using
     `.get_queryset`` as a fallback for the table data source.
@@ -76,7 +80,6 @@ class SingleTableMixin(TableMixinBase):
         '''
         table_class = self.get_table_class()
         table = table_class(self.get_table_data(), **kwargs)
-
         RequestConfig(self.request, paginate=self.get_table_pagination(table)).configure(table)
         return table
 
@@ -89,13 +92,19 @@ class SingleTableMixin(TableMixinBase):
         elif hasattr(self, 'object_list'):
             return self.object_list
 
+    def get_table_kwargs(self):
+        '''
+        Return the keyword arguments for instantiating the table.
+        '''
+        return {}
+
     def get_context_data(self, **kwargs):
         '''
         Overriden version of `.TemplateResponseMixin` to inject the table into
         the template's context.
         '''
         context = super(SingleTableMixin, self).get_context_data(**kwargs)
-        table = self.get_table()
+        table = self.get_table(**self.get_table_kwargs())
         context[self.get_context_table_name(table)] = table
         return context
 

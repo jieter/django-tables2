@@ -60,7 +60,8 @@ class PersonProxy(Person):
 class Occupation(models.Model):
     name = models.CharField(max_length=200)
     region = models.ForeignKey('Region', null=True)
-    boolean = models.BooleanField(default=True, choices=(
+    boolean = models.BooleanField(null=True)
+    boolean_with_choices = models.BooleanField(null=True, choices=(
         (True, 'Yes'),
         (False, 'No')
     ))

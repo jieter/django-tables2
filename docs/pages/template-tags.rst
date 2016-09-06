@@ -57,5 +57,5 @@ we want to update the ``sort`` parameter:
     {% querystring key="robots" %}           # ?search=robots&page=5
     {% endwith %}
 
-This tag requires the ``django.core.context_processors.request`` context
+This tag requires the ``django.template.context_processors.request`` context
 processor, see :ref:`template-tags.render_table`.
