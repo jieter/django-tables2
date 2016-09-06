@@ -1,5 +1,5 @@
 {% load querystring from django_tables2 %}
-{% load i18n %}
+{% load l10n %}
 {% load blocktrans trans from i18n %}
 
 <div class="table-container">
@@ -57,32 +57,45 @@
     {% endblock table %}
 
     {% if table.page and table.paginator.num_pages > 1 %}
+        {% with table.page.paginator.count as total %}
+        {% with table.page.object_list|length as count %}
         {% block pagination %}
-        <ul class="pager">
+        <ul class="pager list-inline">
             {% if table.page.has_previous %}
-            <li class="previous">
-                <a href="{% querystring table.prefixed_page_field=table.page.previous_page_number %}" class="btn btn-default">
-                    {% trans 'previous' %}
-                </a>
+                {% block pagination.previous %}
+                <li class="previous">
+                    <a href="{% querystring table.prefixed_page_field=table.page.previous_page_number %}" class="btn btn-default">
+                        <span aria-hidden="true">&larr;</span> {% trans 'previous' %}
+                    </a>
+                </li>
+                {% endblock pagination.previous %}
             {% endif %}
-            <li class="cardinality">
-                {% blocktrans with table.page.number as current and table.paginator.num_pages as total %}Page {{ current }} of {{ total }}{% endblocktrans %}
-            </li>
-            {% block pagination.cardinality %}
-            <li class="cardinality">
-                {% if total != count %}{% blocktrans %}{{ count }} of {{ total }}{% endblocktrans %}{% else %}{{ total }}{% endif %} {% if total == 1 %}{{ table.data.verbose_name }}{% else %}{{ table.data.verbose_name_plural }}{% endif %}
-            </li>
-            {% endblock pagination.cardinality %}
-    </li>
-            {% if table.page.has_next %}
-            <li class="next">
-                <a href="{% querystring table.prefixed_page_field=table.page.next_page_number %}" class="btn btn-default">
-                    {% trans 'next' %}
-                </a>
-            </li>
-            {% endif %}
-        </ul>
 
-        {% endblock pagination %}
-    {% endif %}
+            {% if table.page.has_previous or table.page.has_next %}
+                {% block pagination.current %}
+                    <li class="current">
+                        <small>{% blocktrans with table.page.number as current and table.paginator.num_pages as total %}Page {{ current }} of {{ total }}{% endblocktrans %}</small>
+                    </li>
+                {% endblock pagination.current %}
+            {% endif %}
+            {% block pagination.cardinality %}
+                <li class="cardinality text-muted">
+                    <small>{% if total != count %}{% blocktrans %}{{ count }} of {{ total }}{% endblocktrans %}{% else %}{{ total }}{% endif %} {% if total == 1 %}{{ table.data.verbose_name }}{% else %}{{ table.data.verbose_name_plural }}{% endif %}</small>
+                </li>
+            {% endblock pagination.cardinality %}
+
+            {% if table.page.has_next %}
+                {% block pagination.next %}
+                <li class="next">
+                    <a href="{% querystring table.prefixed_page_field=table.page.next_page_number %}" class="btn btn-default">
+                        {% trans 'next' %} <span aria-hidden="true">&rarr;</span>
+                    </a>
+                </li>
+                {% endblock pagination.next %}
+            {% endif %}
+    </ul>
+    {% endblock pagination %}
+    {% endwith %}
+    {% endwith %}
+{% endif %}
 </div>

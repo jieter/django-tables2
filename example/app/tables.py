@@ -27,7 +27,7 @@ class BootstrapTable(tables.Table):
     class Meta:
         model = Person
         template = 'django_tables2/bootstrap.html'
-        attrs = {'class': 'table table-bordered table-striped'}
+        attrs = {'class': 'table table-bordered table-striped table-hover'}
         exclude = ('friendly', )
 
 
@@ -36,3 +36,4 @@ class PersonTable(tables.Table):
     class Meta:
         model = Person
         template = 'django_tables2/bootstrap.html'
+        attrs = {'class': 'table'}
