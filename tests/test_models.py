@@ -100,6 +100,7 @@ def test_column_verbose_name():
         fn1 = tables.Column(accessor='first_name')
         fn2 = tables.Column(accessor='first_name.upper')
         fn3 = tables.Column(accessor='last_name', verbose_name='OVERRIDE')
+        fn4 = tables.Column(accessor='last_name', verbose_name='override')
         last_name = tables.Column()
         ln1 = tables.Column(accessor='last_name')
         ln2 = tables.Column(accessor='last_name.upper')
@@ -116,35 +117,42 @@ def test_column_verbose_name():
     # that we should expect that the two columns that use the ``last_name``
     # field should both use the model's ``last_name`` field's ``verbose_name``,
     # however both fields that use the ``first_name`` field should just use a
-    # capitalized version of the column name as the column header.
+    # titlised version of the column name as the column header.
     table = PersonTable(Person.objects.all())
     # Should be generated (capitalized column name)
-    assert 'first name' == table.columns['first_name'].verbose_name
-    assert 'first name' == table.columns['fn1'].verbose_name
-    assert 'first name' == table.columns['fn2'].verbose_name
+    assert 'First Name' == table.columns['first_name'].verbose_name
+    assert 'First Name' == table.columns['fn1'].verbose_name
+    assert 'First Name' == table.columns['fn2'].verbose_name
     assert 'OVERRIDE' == table.columns['fn3'].verbose_name
-    # Should use the model field's verbose_name
-    assert 'surname' == table.columns['last_name'].verbose_name
-    assert 'surname' == table.columns['ln1'].verbose_name
-    assert 'surname' == table.columns['ln2'].verbose_name
+    assert 'override' == table.columns['fn4'].verbose_name
+    # Should use the titlised model field's verbose_name
+    assert 'Surname' == table.columns['last_name'].verbose_name
+    assert 'Surname' == table.columns['ln1'].verbose_name
+    assert 'Surname' == table.columns['ln2'].verbose_name
     assert 'OVERRIDE' == table.columns['ln3'].verbose_name
-    assert 'name' == table.columns['region'].verbose_name
-    assert 'name' == table.columns['r1'].verbose_name
-    assert 'name' == table.columns['r2'].verbose_name
+    assert 'Name' == table.columns['region'].verbose_name
+    assert 'Name' == table.columns['r1'].verbose_name
+    assert 'Name' == table.columns['r2'].verbose_name
     assert 'OVERRIDE' == table.columns['r3'].verbose_name
-    assert "translation test" == table.columns["trans_test"].verbose_name
-    assert "translation test lazy" == table.columns["trans_test_lazy"].verbose_name
+    assert "Translation Test" == table.columns["trans_test"].verbose_name
+    assert "Translation Test Lazy" == table.columns["trans_test_lazy"].verbose_name
 
     # -------------------------------------------------------------------------
 
     # Now we'll try using a table with Meta.model
     class PersonTable(tables.Table):
+        first_name = tables.Column(verbose_name="OVERRIDE")
+
         class Meta:
             model = Person
+
     # Issue #16
     table = PersonTable([])
-    assert "translation test" == table.columns["trans_test"].verbose_name
-    assert "translation test lazy" == table.columns["trans_test_lazy"].verbose_name
+    assert "Translation Test" == table.columns["trans_test"].verbose_name
+    assert "Translation Test Lazy" == table.columns["trans_test_lazy"].verbose_name
+    assert "Web Site" == table.columns["website"].verbose_name
+    assert "Birthdate" == table.columns["birthdate"].verbose_name
+    assert "OVERRIDE" == table.columns["first_name"].verbose_name
 
 
 def test_data_verbose_name():

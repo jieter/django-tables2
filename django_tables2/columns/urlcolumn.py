@@ -3,6 +3,8 @@ from __future__ import absolute_import, unicode_literals
 
 from django.db import models
 
+from django_tables2.templatetags.django_tables2 import title
+
 from .base import library
 from .linkcolumn import BaseLinkColumn
 
@@ -32,4 +34,4 @@ class URLColumn(BaseLinkColumn):
     @classmethod
     def from_field(cls, field):
         if isinstance(field, models.URLField):
-            return cls(verbose_name=field.verbose_name)
+            return cls(verbose_name=title(field.verbose_name))

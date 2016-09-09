@@ -5,6 +5,7 @@ from collections import OrderedDict
 from itertools import islice
 
 from django.utils import six
+from django.utils.safestring import SafeData
 
 from django_tables2.templatetags.django_tables2 import title
 from django_tables2.utils import (Accessor, AttributeDict, OrderBy,
@@ -223,7 +224,7 @@ class Column(object):
                 verbose_name = field.get_related_field().verbose_name
             else:
                 verbose_name = getattr(field, 'verbose_name', field.name)
-            return cls(verbose_name=verbose_name)
+            return cls(verbose_name=title(verbose_name))
 
 
 @six.python_2_unicode_compatible
@@ -437,8 +438,17 @@ class BoundColumn(object):
     @property
     def verbose_name(self):
         """
-        Return the verbose name for this column, or fallback to the titlised
-        column name.
+        Return the verbose name for this column.
+
+        In order of preference, this will return:
+          1) The column's explicitly defined verbose_name
+          2) The titlised model's verbose name (if applicable)
+          3) Fallback to the titlised column name.
+
+        Any verbose_name that was not passed explicitly in the column
+        definition is returned titlised in keeping with the Django convention
+        of verbose_names being defined in lowercase and uppercased/titlised
+        as needed by the application.
 
         If the table is using queryset data, then use the corresponding model
         field's `~.db.Field.verbose_name`. If it's traversing a relationship,
@@ -452,7 +462,7 @@ class BoundColumn(object):
 
         # This is our reasonable fallback, should the next section not result
         # in anything useful.
-        name = title(self.name.replace('_', ' '))
+        name = self.name.replace('_', ' ')
 
         # Try to use a model field's verbose_name
         if hasattr(self.table.data, 'queryset') and hasattr(self.table.data.queryset, 'model'):
@@ -463,7 +473,12 @@ class BoundColumn(object):
                     name = field.field.verbose_name
                 else:
                     name = getattr(field, 'verbose_name', field.name)
-        return name
+
+            # If verbose_name was mark_safe()'d, return intact to keep safety
+            if isinstance(name, SafeData):
+                return name
+
+        return title(name)
 
     @property
     def visible(self):
