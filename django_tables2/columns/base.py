@@ -441,13 +441,13 @@ class BoundColumn(object):
         Return the verbose name for this column.
 
         In order of preference, this will return:
-          1) The column's explicitly defined verbose_name
-          2) The titlised model's verbose name (if applicable)
+          1) The column's explicitly defined `verbose_name`
+          2) The titlised model's `verbose_name` (if applicable)
           3) Fallback to the titlised column name.
 
-        Any verbose_name that was not passed explicitly in the column
+        Any `verbose_name` that was not passed explicitly in the column
         definition is returned titlised in keeping with the Django convention
-        of verbose_names being defined in lowercase and uppercased/titlised
+        of `verbose_name` being defined in lowercase and uppercased/titlised
         as needed by the application.
 
         If the table is using queryset data, then use the corresponding model

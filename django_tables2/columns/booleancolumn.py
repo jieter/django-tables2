@@ -58,7 +58,8 @@ class BooleanColumn(Column):
 
     @classmethod
     def from_field(cls, field):
+        verbose_name = title(field.verbose_name)
         if isinstance(field, models.BooleanField):
-            return cls(verbose_name=title(field.verbose_name), null=False)
+            return cls(verbose_name=verbose_name, null=False)
         if isinstance(field, models.NullBooleanField):
-            return cls(verbose_name=title(field.verbose_name), null=True)
+            return cls(verbose_name=verbose_name, null=True)
