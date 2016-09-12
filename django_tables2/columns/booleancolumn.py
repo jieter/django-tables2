@@ -5,6 +5,7 @@ from django.db import models
 from django.utils import six
 from django.utils.html import escape, format_html
 
+from django_tables2.templatetags.django_tables2 import title
 from django_tables2.utils import AttributeDict
 
 from .base import Column, library
@@ -22,10 +23,10 @@ class BooleanColumn(Column):
     Rendered values are wrapped in a ``<span>`` to allow customisation by
     themes. By default the span is given the class ``true``, ``false``.
 
-    In addition to *attrs* keys supported by `.Column`, the following are
+    In addition to *attrs* keys supported by `~.Column`, the following are
     available:
 
-    - *span* -- adds attributes to the <span> tag
+     - *span* -- adds attributes to the ``<span>`` tag
     '''
     def __init__(self, null=False, yesno='✔,✘', **kwargs):
         self.yesno = (yesno.split(',') if isinstance(yesno, six.string_types)
@@ -58,6 +59,6 @@ class BooleanColumn(Column):
     @classmethod
     def from_field(cls, field):
         if isinstance(field, models.BooleanField):
-            return cls(verbose_name=field.verbose_name, null=False)
+            return cls(verbose_name=title(field.verbose_name), null=False)
         if isinstance(field, models.NullBooleanField):
-            return cls(verbose_name=field.verbose_name, null=True)
+            return cls(verbose_name=title(field.verbose_name), null=True)

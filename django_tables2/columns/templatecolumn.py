@@ -9,7 +9,7 @@ from .base import Column, library
 
 @library.register
 class TemplateColumn(Column):
-    """
+    '''
     A subclass of `.Column` that renders some template code to use as
     the cell value.
 
@@ -20,8 +20,8 @@ class TemplateColumn(Column):
     A `~django.template.Template` object is created from the
     *template_code* or *template_name* and rendered with a context containing:
 
-    - *record* -- data record for the current row
-    - *value* -- value from `record` that corresponds to the current column
+    - *record*  -- data record for the current row
+    - *value*   -- value from `record` that corresponds to the current column
     - *default* -- appropriate default value to use as fallback
 
     Example:
@@ -40,7 +40,7 @@ class TemplateColumn(Column):
         In order to use template tags or filters that require a
         `~django.template.RequestContext`, the table **must** be rendered via
         :ref:`{% render_table %} <template-tags.render_table>`.
-    """
+    '''
     empty_values = ()
 
     def __init__(self, template_code=None, template_name=None, **extra):

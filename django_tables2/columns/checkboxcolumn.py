@@ -10,7 +10,7 @@ from .base import Column, library
 
 @library.register
 class CheckBoxColumn(Column):
-    """
+    '''
     A subclass of `.Column` that renders as a checkbox form input.
 
     This column allows a user to *select* a set of rows. The selection
@@ -28,7 +28,7 @@ class CheckBoxColumn(Column):
     - *orderable* defaults to `False`.
 
     Arguments:
-        attrs (dict): In addition to *attrs* keys supported by `.Column`, the
+        attrs (dict): In addition to *attrs* keys supported by `~.Column`, the
             following are available:
 
              - *input*     -- ``<input>`` elements in both ``<td>`` and ``<th>``.
@@ -41,11 +41,11 @@ class CheckBoxColumn(Column):
 
     .. note::
 
-        You'd expect that you could select multiple checkboxes in the rendered
-        table and then *do something* with that. This functionality isn't
-        implemented. If you want something to actually happen, you'll need to
-        implement that yourself.
-    """
+        You might expect that you could select multiple checkboxes in the
+        rendered table and then *do something* with that. This functionality
+        is not implemented. If you want something to actually happen, you will
+        need to implement that yourself.
+    '''
     def __init__(self, attrs=None, checked=None, **extra):
         self.checked = checked
         kwargs = {'orderable': False, 'attrs': attrs}
@@ -77,9 +77,9 @@ class CheckBoxColumn(Column):
         return mark_safe('<input %s/>' % attrs.as_html())
 
     def is_checked(self, value, record):
-        """
+        '''
         Determine if the checkbox should be checked
-        """
+        '''
         if self.checked is None:
             return False
         if self.checked is True:

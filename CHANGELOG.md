@@ -1,8 +1,12 @@
 # Change log
 
 ## unreleased
-- Added `get_table_kwargs()` method to `SingleTableMixin` to allow passing custom keyword arguments to the `Table` constructor. [#366](https://github.com/bradleyayers/django-tables2/pull/366) by [@fritz-k](https://github.com/fritz-k)
+- Apply `title` to a column's `verbose_name` when it is derived from a model, fixes [#249](https://github.com/bradleyayers/django-tables2/issues/249). ([#382](https://github.com/bradleyayers/django-tables2/pull/382) by [@shawnnapora](https://github.com/shawnnapora))
 
+## 1.2.6 (2016-09-06)
+- Added `get_table_kwargs()` method to `SingleTableMixin` to allow passing custom keyword arguments to the `Table` constructor. ([#366](https://github.com/bradleyayers/django-tables2/pull/366) by [@fritz-k](https://github.com/fritz-k))
+- Allow the children of `TableBase` render in the `{% render_table %}` template tag. ([#377](https://github.com/bradleyayers/django-tables2/pull/377) by [@shawnnapora](https://github.com/shawnnapora))
+- Refactor `BoundColumn` attributes to allow override of CSS class names, fixes [#349](https://github.com/bradleyayers/django-tables2/issues/349) ([#370](https://github.com/bradleyayers/django-tables2/pull/370) by [@graup](https://github.com/graup)). Current behaviour should be intact, we will change the default in the future so it will **not** add the column name to the list of CSS classes.
 
 ## 1.2.5 (2016-07-30)
 - Fixed an issue preventing the rest of the row being rendered if a `BooleanColumn` was in the table for a model without custom choices defined on the model field. ([#360](https://github.com/bradleyayers/django-tables2/issues/360))
@@ -14,13 +18,13 @@
 ## 1.2.3 (2016-07-05)
  - Accept `text` parameter in `FileColumn`, analogous to `LinkColumn` ([#343](https://github.com/bradleyayers/django-tables2/pull/343) by [@graup](https://github.com/graup))
  - Fix TemplateColumn RemovedInDjango110Warning fixes [#346](https://github.com/bradleyayers/django-tables2/issues/346).
- - Use field name in RelatedColumnLink ([#350](https://github.com/bradleyayers/django-tables2/pull/350), fixes [#347](https://github.com/bradleyayers/django-tables2/issues/347)
+ - Use field name in RelatedColumnLink ([#350](https://github.com/bradleyayers/django-tables2/pull/350), fixes [#347](https://github.com/bradleyayers/django-tables2/issues/347))
 
 ## v1.2.2 (2016-06-04)
 - Allow use of custom class names for ordered columns through `attrs`. (
 [#329](https://github.com/bradleyayers/django-tables2/pull/329) by [@theTarkus](https://github.com/theTarkus))
 - Column ordering queryset passthrough ([#330](https://github.com/bradleyayers/django-tables2/pull/330) by [@theTarkus](https://github.com/theTarkus))
-- Cleanup/restructuring of [documentation](http://django-tables2.readthedocs.io/), ([#325](https://github.com/bradleyayers/django-tables2/pull/325)
+- Cleanup/restructuring of [documentation](http://django-tables2.readthedocs.io/), ([#325](https://github.com/bradleyayers/django-tables2/pull/325))
 - Fixed an issue where explicitly defined column options where not preserved over inheritance ([#339](https://github.com/bradleyayers/django-tables2/pull/339), [issue #337](https://github.com/bradleyayers/django-tables2/issues/337))
 - Fixed an issue where `exclude` in combination with `sequence` raised a KeyError ([#341](https://github.com/bradleyayers/django-tables2/pull/341), [issue #205](https://github.com/bradleyayers/django-tables2/issues/205))
 

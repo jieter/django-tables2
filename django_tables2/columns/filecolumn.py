@@ -6,6 +6,7 @@ import os
 from django.db import models
 from django.utils.html import format_html
 
+from django_tables2.templatetags.django_tables2 import title
 from django_tables2.utils import AttributeDict
 
 from .base import library
@@ -14,7 +15,7 @@ from .linkcolumn import BaseLinkColumn
 
 @library.register
 class FileColumn(BaseLinkColumn):
-    """
+    '''
     Attempts to render `.FieldFile` (or other storage backend `.File`) as a
     hyperlink.
 
@@ -36,7 +37,7 @@ class FileColumn(BaseLinkColumn):
         text (str or callable): Either static text, or a callable. If set, this
             will be used to render the text inside the link instead of
             the file's basename (default)
-    """
+    '''
     def __init__(self, verify_exists=True, **kwargs):
         self.verify_exists = verify_exists
         super(FileColumn, self).__init__(**kwargs)
@@ -84,4 +85,4 @@ class FileColumn(BaseLinkColumn):
     @classmethod
     def from_field(cls, field):
         if isinstance(field, models.FileField):
-            return cls(verbose_name=field.verbose_name)
+            return cls(verbose_name=title(field.verbose_name))

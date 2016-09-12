@@ -111,7 +111,7 @@ class RenderTableNode(Node):
     def render(self, context):
         table = self.table.resolve(context)
 
-        if isinstance(table, tables.Table):
+        if isinstance(table, tables.TableBase):
             pass
         elif hasattr(table, 'model'):
             queryset = table

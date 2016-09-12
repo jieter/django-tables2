@@ -106,7 +106,7 @@ def test_render_table_supports_queryset():
                                     'request': build_request('/')}))
 
     root = parse(html)
-    assert [e.text for e in root.findall('.//thead/tr/th/a')] == ['ID', 'name', 'mayor']
+    assert [e.text for e in root.findall('.//thead/tr/th/a')] == ['ID', 'Name', 'Mayor']
     td = [[td.text for td in tr.findall('td')] for tr in root.findall('.//tbody/tr')]
     db = []
     for region in Region.objects.all():

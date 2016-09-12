@@ -5,6 +5,7 @@ from collections import OrderedDict
 from itertools import islice
 
 from django.utils import six
+from django.utils.safestring import SafeData
 
 from django_tables2.templatetags.django_tables2 import title
 from django_tables2.utils import (Accessor, AttributeDict, OrderBy,
@@ -12,9 +13,9 @@ from django_tables2.utils import (Accessor, AttributeDict, OrderBy,
 
 
 class Library(object):
-    """
+    '''
     A collection of columns.
-    """
+    '''
     def __init__(self):
         self.columns = []
 
@@ -23,12 +24,12 @@ class Library(object):
         return column
 
     def column_for_field(self, field):
-        """
+        '''
         Return a column object suitable for model field.
 
         Returns:
             `.Column` object or `None`
-        """
+        '''
         # iterate in reverse order as columns are registered in order
         # of least to most specialised (i.e. Column is registered
         # first). This also allows user-registered columns to be
@@ -50,7 +51,7 @@ library = Library()
 
 @library.register
 class Column(object):
-    """
+    '''
     Represents a single column of a table.
 
     `.Column` objects control the way a column (including the cells that fall
@@ -91,7 +92,7 @@ class Column(object):
 
 
     .. [1] The provided callable object must not expect to receive any arguments.
-    """
+    '''
     # Tracks each time a Column instance is created. Used to retain order.
     creation_counter = 0
     empty_values = (None, '')
@@ -135,7 +136,7 @@ class Column(object):
 
     @property
     def header(self):
-        """
+        '''
         The value used for the column heading (e.g. inside the ``<th>`` tag).
 
         By default this returns `~.Column.verbose_name`.
@@ -150,31 +151,29 @@ class Column(object):
             column name (it's only available on a `.BoundColumn` object hence
             accessing that first) when this property doesn't return something
             useful.
-        """
+        '''
         return self.verbose_name
 
     def footer(self, bound_column, table):
+        footer_kwargs = {
+            'column': self,
+            'bound_column': bound_column,
+            'table': table
+        }
+
         if self._footer is not None:
             if callable(self._footer):
-                return call_with_appropriate(self._footer, {
-                    'column': self,
-                    'bound_column': bound_column,
-                    'table': table
-                })
+                return call_with_appropriate(self._footer, footer_kwargs)
             else:
                 return self._footer
 
         if hasattr(self, 'render_footer'):
-            return call_with_appropriate(self.render_footer, {
-                'column': self,
-                'bound_column': bound_column,
-                'table': table
-            })
+            return call_with_appropriate(self.render_footer, footer_kwargs)
 
         return ''
 
     def render(self, value):
-        """
+        '''
         Returns the content for a specific cell.
 
         This method can be overridden by :ref:`table.render_FOO` methods on the
@@ -186,11 +185,11 @@ class Column(object):
         skipped and an appropriate default value is rendered instead.
         Subclasses should set `.empty_values` to ``()`` if they want to handle
         all values in `.render`.
-        """
+        '''
         return value
 
     def order(self, queryset, is_descending):
-        """
+        '''
         Returns the queryset of the table.
 
         This method can be overridden by :ref:`table.order_FOO` methods on the
@@ -198,12 +197,12 @@ class Column(object):
         in return tuple is True.
 
         :returns: Tuple (queryset, boolean)
-        """
+        '''
         return (queryset, False)
 
     @classmethod
     def from_field(cls, field):
-        """
+        '''
         Return a specialised column for the model field or `None`.
 
         :param field: the field that needs a suitable column
@@ -215,7 +214,7 @@ class Column(object):
 
         If the column is specialised, it should return an instance of itself
         that's configured appropriately for the field.
-        """
+        '''
         # Since this method is inherited by every subclass, only provide a
         # column if this class was asked directly.
         if cls is Column:
@@ -223,12 +222,12 @@ class Column(object):
                 verbose_name = field.get_related_field().verbose_name
             else:
                 verbose_name = getattr(field, 'verbose_name', field.name)
-            return cls(verbose_name=verbose_name)
+            return cls(verbose_name=title(verbose_name))
 
 
 @six.python_2_unicode_compatible
 class BoundColumn(object):
-    """
+    '''
     A *run-time* version of `.Column`. The difference between
     `.BoundColumn` and `.Column`, is that `.BoundColumn` objects include the
     relationship between a `.Column` and a `.Table`. In practice, this
@@ -237,20 +236,16 @@ class BoundColumn(object):
 
     For convenience, all `.Column` properties are available from this class.
 
-    :type   table: `.Table` object
-    :param  table: the table in which this column exists
-    :type  column: `.Column` object
-    :param column: the type of column
-    :type    name: string object
-    :param   name: the variable name of the column used to when defining the
-                   `.Table`. In this example the name is ``age``:
+    arguments:
+        table (`~.Table`): The table in which this column exists
+        column (`~.Column`): The type of column
+        name (str): The variable name of the column used when defining the
+                    `.Table`. In this example the name is ``age``::
 
-                       .. code-block:: python
+                          class SimpleTable(tables.Table):
+                              age = tables.Column()
 
-                           class SimpleTable(tables.Table):
-                               age = tables.Column()
-
-    """
+    '''
     def __init__(self, table, column, name):
         self.table = table
         self.column = column
@@ -261,21 +256,21 @@ class BoundColumn(object):
 
     @property
     def accessor(self):
-        """
+        '''
         Returns the string used to access data for this column out of the data
         source.
-        """
+        '''
         return self.column.accessor or Accessor(self.name)
 
     @property
     def attrs(self):
-        """
+        '''
         Proxy to `.Column.attrs` but injects some values of our own.
 
         A ``th`` and ``td`` are guaranteed to be defined (irrespective of
         what's actually defined in the column attrs. This makes writing
         templates easier.
-        """
+        '''
         # Start with table's attrs; Only 'th' and 'td' attributes will be used
         attrs = dict(self.table.attrs)
 
@@ -294,17 +289,17 @@ class BoundColumn(object):
         return attrs
 
     def get_td_class(self, td_attrs):
-        """
+        '''
         Returns the HTML class attribute for a data cell in this column
-        """
+        '''
         classes = set((c for c in td_attrs.get('class', '').split(' ') if c))
         classes = self.table.get_column_class_names(classes, self)
         return ' '.join(sorted(classes))
 
     def get_th_class(self, th_attrs):
-        """
+        '''
         Returns the HTML class attribute for a header cell in this column
-        """
+        '''
         classes = set((c for c in th_attrs.get('class', '').split(' ') if c))
         classes = self.table.get_column_class_names(classes, self)
 
@@ -321,9 +316,9 @@ class BoundColumn(object):
 
     @property
     def default(self):
-        """
+        '''
         Returns the default value for this column.
-        """
+        '''
         value = self.column.default
         if value is None:
             value = self.table.default
@@ -331,9 +326,9 @@ class BoundColumn(object):
 
     @property
     def header(self):
-        """
+        '''
         The value that should be used in the header cell for this column.
-        """
+        '''
         # favour Column.header
         column_header = self.column.header
         if column_header:
@@ -353,12 +348,12 @@ class BoundColumn(object):
 
     @property
     def order_by(self):
-        """
+        '''
         Returns an `.OrderByTuple` of appropriately prefixed data source
         keys used to sort this column.
 
         See `.order_by_alias` for details.
-        """
+        '''
         if self.column.order_by is not None:
             order_by = self.column.order_by
         else:
@@ -368,7 +363,7 @@ class BoundColumn(object):
 
     @property
     def order_by_alias(self):
-        """
+        '''
         Returns an `OrderBy` describing the current state of ordering for this
         column.
 
@@ -392,13 +387,13 @@ class BoundColumn(object):
         e.g.::
 
             >>> class SimpleTable(tables.Table):
-            ...     name = tables.Column(order_by=("firstname", "last_name"))
+            ...     name = tables.Column(order_by=('firstname', 'last_name'))
             ...
-            >>> table = SimpleTable([], order_by=("-name", ))
-            >>> table.columns["name"].order_by_alias
-            "-name"
-            >>> table.columns["name"].order_by
-            ("-first_name", "-last_name")
+            >>> table = SimpleTable([], order_by=('-name', ))
+            >>> table.columns['name'].order_by_alias
+            '-name'
+            >>> table.columns['name'].order_by
+            ('-first_name', '-last_name')
 
         The `OrderBy` returned has been patched to include an extra attribute
         ``next``, which returns a version of the alias that would be
@@ -408,7 +403,7 @@ class BoundColumn(object):
             ascending  -> descending
             descending -> ascending
 
-        This is useful otherwise in templates you'd need something like:
+        This is useful otherwise in templates you'd need something like::
 
             {% if column.is_ordered %}
             {% querystring table.prefixed_order_by_field=column.order_by_alias.opposite %}
@@ -416,7 +411,7 @@ class BoundColumn(object):
             {% querystring table.prefixed_order_by_field=column.order_by_alias %}
             {% endif %}
 
-        """
+        '''
         order_by = OrderBy((self.table.order_by or {}).get(self.name, self.name))
         order_by.next = order_by.opposite if self.is_ordered else order_by
         return order_by
@@ -427,32 +422,41 @@ class BoundColumn(object):
 
     @property
     def orderable(self):
-        """
+        '''
         Return a `bool` depending on whether this column supports ordering.
-        """
+        '''
         if self.column.orderable is not None:
             return self.column.orderable
         return self.table.orderable
 
     @property
     def verbose_name(self):
-        """
-        Return the verbose name for this column, or fallback to the titlised
-        column name.
+        '''
+        Return the verbose name for this column.
+
+        In order of preference, this will return:
+          1) The column's explicitly defined `verbose_name`
+          2) The titlised model's `verbose_name` (if applicable)
+          3) Fallback to the titlised column name.
+
+        Any `verbose_name` that was not passed explicitly in the column
+        definition is returned titlised in keeping with the Django convention
+        of `verbose_name` being defined in lowercase and uppercased/titlised
+        as needed by the application.
 
         If the table is using queryset data, then use the corresponding model
         field's `~.db.Field.verbose_name`. If it's traversing a relationship,
         then get the last field in the accessor (i.e. stop when the
         relationship turns from ORM relationships to object attributes [e.g.
         person.upper should stop at person]).
-        """
+        '''
         # Favor an explicit defined verbose_name
         if self.column.verbose_name is not None:
             return self.column.verbose_name
 
         # This is our reasonable fallback, should the next section not result
         # in anything useful.
-        name = title(self.name.replace('_', ' '))
+        name = self.name.replace('_', ' ')
 
         # Try to use a model field's verbose_name
         if hasattr(self.table.data, 'queryset') and hasattr(self.table.data.queryset, 'model'):
@@ -463,13 +467,18 @@ class BoundColumn(object):
                     name = field.field.verbose_name
                 else:
                     name = getattr(field, 'verbose_name', field.name)
-        return name
+
+            # If verbose_name was mark_safe()'d, return intact to keep safety
+            if isinstance(name, SafeData):
+                return name
+
+        return title(name)
 
     @property
     def visible(self):
-        """
+        '''
         Returns a `bool` depending on whether this column is visible.
-        """
+        '''
         return self.column.visible
 
     @property
@@ -481,7 +490,7 @@ class BoundColumn(object):
 
 
 class BoundColumns(object):
-    """
+    '''
     Container for spawning `.BoundColumn` objects.
 
     This is bound to a table and provides its `.Table.columns` property.
@@ -499,7 +508,7 @@ class BoundColumns(object):
 
     Arguments:
         table (`.Table`): the table containing the columns
-    """
+    '''
     def __init__(self, table):
         self.table = table
         self.columns = OrderedDict()
@@ -515,24 +524,24 @@ class BoundColumns(object):
         return list(self.iternames())
 
     def iterall(self):
-        """
+        '''
         Return an iterator that exposes all `.BoundColumn` objects,
         regardless of visiblity or sortability.
-        """
+        '''
         return (column for name, column in self.iteritems())
 
     def all(self):
         return list(self.iterall())
 
     def iteritems(self):
-        """
+        '''
         Return an iterator of ``(name, column)`` pairs (where ``column`` is a
         `BoundColumn`).
 
         This method is the mechanism for retrieving columns that takes into
         consideration all of the ordering and filtering modifiers that a table
         supports (e.g. `~Table.Meta.exclude` and `~Table.Meta.sequence`).
-        """
+        '''
         for name in self.table.sequence:
             if name not in self.table.exclude:
                 yield (name, self.columns[name])
@@ -541,43 +550,43 @@ class BoundColumns(object):
         return list(self.iteritems())
 
     def iterorderable(self):
-        """
+        '''
         Same as `BoundColumns.all` but only returns orderable columns.
 
         This is useful in templates, where iterating over the full
         set and checking ``{% if column.ordarable %}`` can be problematic in
         conjunction with e.g. ``{{ forloop.last }}`` (the last column might not
         be the actual last that is rendered).
-        """
+        '''
         return (x for x in self.iterall() if x.orderable)
 
     def orderable(self):
         return list(self.iterorderable())
 
     def itervisible(self):
-        """
+        '''
         Same as `.iterorderable` but only returns visible `.BoundColumn`
         objects.
 
         This is geared towards table rendering.
-        """
+        '''
         return (x for x in self.iterall() if x.visible)
 
     def visible(self):
         return list(self.itervisible())
 
     def __iter__(self):
-        """
+        '''
         Convenience API, alias of `.itervisible`.
-        """
+        '''
         return self.itervisible()
 
     def __contains__(self, item):
-        """
+        '''
         Check if a column is contained within a `Columns` object.
 
-        *item* can either be a `BoundColumn` object, or the name of a column.
-        """
+        *item* can either be a `~.BoundColumn` object, or the name of a column.
+        '''
         if isinstance(item, six.string_types):
             return item in self.iternames()
         else:
@@ -585,15 +594,15 @@ class BoundColumns(object):
             return item in self.iterall()
 
     def __len__(self):
-        """
-        Return how many :class:`BoundColumn` objects are contained (and
+        '''
+        Return how many `~.BoundColumn` objects are contained (and
         visible).
-        """
+        '''
         return len(self.visible())
 
     def __getitem__(self, index):
-        """
-        Retrieve a specific `BoundColumn` object.
+        '''
+        Retrieve a specific `~.BoundColumn` object.
 
         *index* can either be 0-indexed or the name of a column
 
@@ -601,7 +610,7 @@ class BoundColumns(object):
 
             columns['speed']  # returns a bound column with name 'speed'
             columns[0]        # returns the first column
-        """
+        '''
         if isinstance(index, int):
             try:
                 return next(islice(self.iterall(), index, index + 1))

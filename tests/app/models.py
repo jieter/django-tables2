@@ -31,6 +31,12 @@ class Person(models.Model):
     safe = models.CharField(
         max_length=200, blank=True, verbose_name=mark_safe("<b>Safe</b>"))
 
+    website = models.URLField(
+        max_length=200, null=True, blank=True,
+        verbose_name="web site")
+
+    birthdate = models.DateField(null=True)
+
     content_type = models.ForeignKey(ContentType, null=True, blank=True)
     object_id = models.PositiveIntegerField(null=True, blank=True)
     foreign_key = GenericForeignKey()

@@ -10,15 +10,18 @@ from .base import Column, library
 
 
 class BaseLinkColumn(Column):
-    """
+    '''
     The base for other columns that render links.
 
     Arguments:
         text (str or callable): If set, this value will be used to render the
             text inside link instead of value. The callable gets the record
             being rendered as argument.
-        attrs (dict): Additional attributes for the ``<a>`` tag
-    """
+        attrs (dict): In addition to *attrs* keys supported by `~.Column`, the
+            following are available:
+
+             - *a* -- ``<a>`` in ``<td>`` elements.
+    '''
     def __init__(self, attrs=None, text=None, *args, **kwargs):
         kwargs['attrs'] = attrs
         self.text = text
@@ -30,7 +33,7 @@ class BaseLinkColumn(Column):
         return self.text(record) if callable(self.text) else self.text
 
     def render_link(self, uri, record, value, attrs=None):
-        """
+        '''
         Render a hyperlink.
 
         Arguments:
@@ -39,7 +42,7 @@ class BaseLinkColumn(Column):
             value (str): value to be wrapped in ``<a></a>``, might be overridden
                 by ``self.text``
             attrs (dict): ``<a>`` tag attributes
-        """
+        '''
         attrs = AttributeDict(attrs if attrs is not None else
                               self.attrs.get('a', {}))
         attrs['href'] = uri
@@ -53,7 +56,7 @@ class BaseLinkColumn(Column):
 
 @library.register
 class LinkColumn(BaseLinkColumn):
-    """
+    '''
     Renders a normal value as an internal hyperlink to another page.
 
     It's common to have the primary value in a row hyperlinked to the page
@@ -123,7 +126,7 @@ class LinkColumn(BaseLinkColumn):
     available:
 
     - *a* -- ``<a>`` elements in ``<td>``.
-    """
+    '''
     def __init__(self, viewname=None, urlconf=None, args=None, kwargs=None,
                  current_app=None, attrs=None, **extra):
         super(LinkColumn, self).__init__(attrs, **extra)
