@@ -11,7 +11,7 @@ from .templatecolumn import TemplateColumn
 
 @library.register
 class DateTimeColumn(TemplateColumn):
-    """
+    '''
     A column that renders datetimes in the local timezone.
 
     Arguments:
@@ -19,7 +19,7 @@ class DateTimeColumn(TemplateColumn):
                       Note that *format* uses Django's `date` template tag syntax.
         short (bool): if `format` is not specified, use Django's
                       ``SHORT_DATETIME_FORMAT``, else ``DATETIME_FORMAT``
-    """
+    '''
     def __init__(self, format=None, short=True, *args, **kwargs):
         if format is None:
             format = 'SHORT_DATETIME_FORMAT' if short else 'DATETIME_FORMAT'

@@ -10,7 +10,7 @@ from .utils import A, AttributeDict, call_with_appropriate, computed_values
 
 
 class BoundRow(object):
-    """
+    '''
     Represents a *specific* row in a table.
 
     `.BoundRow` objects are a container that make it easy to access the
@@ -59,19 +59,23 @@ class BoundRow(object):
             populate the row. A record could be a `~django.db.Model` object, a
             `dict`, or something else.
 
-    """
+    '''
     def __init__(self, record, table):
         self._record = record
         self._table = table
 
     @property
     def table(self):
-        """The associated `.Table` object."""
+        '''
+        The associated `.Table` object.
+        '''
         return self._table
 
     @property
     def attrs(self):
-        '''Return the attributes for a certain row.'''
+        '''
+        Return the attributes for a certain row.
+        '''
         cssClass = 'even' if next(self._table._counter) % 2 == 0 else 'odd'
 
         row_attrs = computed_values(self._table.row_attrs, self._record)
@@ -85,29 +89,29 @@ class BoundRow(object):
 
     @property
     def record(self):
-        """
+        '''
         The data record from the data source which is used to populate this row
         with data.
-        """
+        '''
         return self._record
 
     def __iter__(self):
-        """
+        '''
         Iterate over the rendered values for cells in the row.
 
         Under the hood this method just makes a call to
         `.BoundRow.__getitem__` for each cell.
-        """
+        '''
         for column, value in self.items():
             # this uses __getitem__, using the name (rather than the accessor)
             # is correct – it's what __getitem__ expects.
             yield value
 
     def get_cell(self, name):
-        """
+        '''
         Returns the final rendered value for a cell in the row, given the name
         of a column.
-        """
+        '''
         bound_column = self.table.columns[name]
 
         value = None
@@ -145,7 +149,9 @@ class BoundRow(object):
         return self._call_render(bound_column, value)
 
     def _call_render(self, bound_column, value=None):
-        '''Call the column's render method with appropriate kwargs'''
+        '''
+        Call the column's render method with appropriate kwargs
+        '''
 
         return call_with_appropriate(bound_column.render, {
             'value': value,
@@ -157,33 +163,35 @@ class BoundRow(object):
         })
 
     def __contains__(self, item):
-        """Check by both row object and column name."""
+        '''
+        Check by both row object and column name.
+        '''
         if isinstance(item, six.string_types):
             return item in self.table.columns
         else:
             return item in self
 
     def items(self):
-        """
+        '''
         Returns iterator yielding ``(bound_column, cell)`` pairs.
 
         *cell* is ``row[name]`` -- the rendered unicode value that should be
         ``rendered within ``<td>``.
-        """
+        '''
         for column in self.table.columns:
             yield (column, self.get_cell(column.name))
 
 
 class BoundRows(object):
-    """
+    '''
     Container for spawning `.BoundRow` objects.
 
     Arguments:
         data: iterable of records
         table: the `~.Table` in which the rows exist
 
-    This is used for `.Table.rows`.
-    """
+    This is used for `~.Table.rows`.
+    '''
     def __init__(self, data, table):
         self.data = data
         self.table = table
@@ -196,9 +204,9 @@ class BoundRows(object):
         return len(self.data)
 
     def __getitem__(self, key):
-        """
-        Slicing returns a new `.BoundRows` instance, indexing returns a single
-        `.BoundRow` instance.
-        """
+        '''
+        Slicing returns a new `~.BoundRows` instance, indexing returns a single
+        `~.BoundRow` instance.
+        '''
         container = BoundRows if isinstance(key, slice) else BoundRow
         return container(self.data[key], table=self.table)

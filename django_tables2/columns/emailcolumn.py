@@ -11,7 +11,7 @@ from .linkcolumn import BaseLinkColumn
 
 @library.register
 class EmailColumn(BaseLinkColumn):
-    """
+    '''
     Render email addresses to mailto-links.
 
     Arguments:
@@ -34,7 +34,7 @@ class EmailColumn(BaseLinkColumn):
 
         # result
         # [...]<a href="mailto:email@example.com">email@example.com</a>
-    """
+    '''
     def render(self, record, value):
         return self.render_link(
             uri='mailto:{}'.format(value),

@@ -12,7 +12,7 @@ from .templatecolumn import TemplateColumn
 
 @library.register
 class TimeColumn(TemplateColumn):
-    """
+    '''
     A column that renders times in the local timezone.
 
     Arguments:
@@ -20,7 +20,7 @@ class TimeColumn(TemplateColumn):
             filter (optional)
         short (bool): if *format* is not specified, use Django's ``TIME_FORMAT``
             setting
-    """
+    '''
     def __init__(self, format=None, *args, **kwargs):
         if format is None:
             format = settings.TIME_FORMAT
