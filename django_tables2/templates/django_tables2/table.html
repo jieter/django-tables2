@@ -80,11 +80,6 @@
             </li>
         {% endblock pagination.next %}
     {% endif %}
-    {% block pagination.cardinality %}
-        <li class="cardinality">
-            {% if total != count %}{% blocktrans %}{{ count }} of {{ total }}{% endblocktrans %}{% else %}{{ total }}{% endif %} {% if total == 1 %}{{ table.data.verbose_name }}{% else %}{{ table.data.verbose_name_plural }}{% endif %}
-        </li>
-    {% endblock pagination.cardinality %}
 </ul>
 {% endblock pagination %}
 {% endwith %}

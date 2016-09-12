@@ -1,44 +1,40 @@
-{% load querystring from django_tables2 %}
-{% load l10n %}
-{% load blocktrans trans from i18n %}
+{% load django_tables2 %}
+{% load i18n %}
 
 <div class="table-container">
     {% block table %}
-        <table {% if table.attrs %} {{ table.attrs.as_html }}{% endif %}>
+        <table {% if table.attrs %} {{ table.attrs.as_html }}{%else%}class="table"{% endif %}>
             {% block table.thead %}
             {% if table.show_header %}
                 <thead>
                 <tr>
-                    {% for column in table.columns %}
-                        {% if column.orderable %}
-                            <th {{ column.attrs.th.as_html }}>
-                                <a href="{% querystring table.prefixed_order_by_field=column.order_by_alias.next %}">{{ column.header }}</a>
-                            </th>
-                        {% else %}
-                            <th {{ column.attrs.th.as_html }}>{{ column.header }}</th>
-                        {% endif %}
-                    {% endfor %}
+                {% for column in table.columns %}
+                    {% if column.orderable %}
+                        <th {{ column.attrs.th.as_html }}><a href="{% querystring table.prefixed_order_by_field=column.order_by_alias.next %}">{{ column.header }}</a></th>
+                    {% else %}
+                        <th {{ column.attrs.th.as_html }}>{{ column.header }}</th>
+                    {% endif %}
+                {% endfor %}
                 </tr>
                 </thead>
-            {%endif%}
+            {% endif %}
             {% endblock table.thead %}
             {% block table.tbody %}
                 <tbody>
                 {% for row in table.page.object_list|default:table.rows %} {# support pagination #}
                     {% block table.tbody.row %}
-                        <tr {{ row.attrs.as_html }}>
-                            {% for column, cell in row.items %}
-                                <td {{ column.attrs.td.as_html }}>{% if column.localize == None %}{{ cell }}{% else %}{% if column.localize %}{{ cell|localize }}{% else %}{{ cell|unlocalize }}{% endif %}{% endif %}</td>
-                            {% endfor %}
-                        </tr>
+                    <tr {{ row.attrs.as_html }}>
+                        {% for column, cell in row.items %}
+                            <td {{ column.attrs.td.as_html }}>{% if column.localize == None %}{{ cell }}{% else %}{% if column.localize %}{{ cell|localize }}{% else %}{{ cell|unlocalize }}{% endif %}{% endif %}</td>
+                        {% endfor %}
+                    </tr>
                     {% endblock table.tbody.row %}
                     {% empty %}
+                    {% if table.empty_text %}
                     {% block table.tbody.empty_text %}
-                        {% trans "no results" as table_empty_text %}
-                        <tr>
-                            <td colspan="{{ table.columns|length }}">{{ table.empty_text|default:table_empty_text }}</td>
-                        </tr>
+                        <tr><td colspan="{{ table.columns|length }}">{{ table.empty_text }}</td></tr>
                     {% endblock table.tbody.empty_text %}
+                    {% endif %}
                 {% endfor %}
                 </tbody>
             {% endblock table.tbody %}
@@ -64,9 +60,7 @@
             {% if table.page.has_previous %}
                 {% block pagination.previous %}
                 <li class="previous">
-                    <a href="{% querystring table.prefixed_page_field=table.page.previous_page_number %}" class="btn btn-default">
-                        <span aria-hidden="true">&larr;</span> {% trans 'previous' %}
-                    </a>
+                    <a href="{% querystring table.prefixed_page_field=table.page.previous_page_number %}" class="btn btn-default"><span aria-hidden="true">&larr;</span> {% trans 'previous' %}</a>
                 </li>
                 {% endblock pagination.previous %}
             {% endif %}
@@ -78,24 +72,17 @@
                     </li>
                 {% endblock pagination.current %}
             {% endif %}
-            {% block pagination.cardinality %}
-                <li class="cardinality text-muted">
-                    <small>{% if total != count %}{% blocktrans %}{{ count }} of {{ total }}{% endblocktrans %}{% else %}{{ total }}{% endif %} {% if total == 1 %}{{ table.data.verbose_name }}{% else %}{{ table.data.verbose_name_plural }}{% endif %}</small>
-                </li>
-            {% endblock pagination.cardinality %}
 
             {% if table.page.has_next %}
                 {% block pagination.next %}
                 <li class="next">
-                    <a href="{% querystring table.prefixed_page_field=table.page.next_page_number %}" class="btn btn-default">
-                        {% trans 'next' %} <span aria-hidden="true">&rarr;</span>
-                    </a>
+                    <a href="{% querystring table.prefixed_page_field=table.page.next_page_number %}" class="btn btn-default">{% trans 'next' %} <span aria-hidden="true">&rarr;</span></a>
                 </li>
                 {% endblock pagination.next %}
             {% endif %}
-    </ul>
-    {% endblock pagination %}
-    {% endwith %}
-    {% endwith %}
-{% endif %}
+        </ul>
+        {% endblock pagination %}
+        {% endwith %}
+        {% endwith %}
+    {% endif %}
 </div>
