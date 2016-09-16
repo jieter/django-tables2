@@ -10,7 +10,7 @@ django-tables2.
 
 1. ``pip install django-tables2``
 2. Add ``'django_tables2'`` to ``INSTALLED_APPS``
-3. Add ``'django.template.context_processors.request'`` to the ``context_preprocessors`` in your template setting ``OPTIONS``.
+3. Add ``'django.template.context_processors.request'`` to the ``context_processors`` in your template setting ``OPTIONS``.
 
 
 We're going to run through creating a tutorial app. Let's start with a simple model::
