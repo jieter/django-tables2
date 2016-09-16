@@ -66,11 +66,11 @@
     {% endif %}
 
     {% if table.page.has_previous or table.page.has_next %}
-        {% block pagination.current %}
-            <li class="current">
+        {% block pagination.cardinality %}
+            <li class="cardinality">
                 {% blocktrans with table.page.number as current and table.paginator.num_pages as total %}Page {{ current }} of {{ total }}{% endblocktrans %}
             </li>
-        {% endblock pagination.current %}
+        {% endblock pagination.cardinality %}
     {% endif %}
 
     {% if table.page.has_next %}
