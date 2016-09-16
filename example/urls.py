@@ -4,7 +4,7 @@ from django.conf.urls import include, url
 from django.contrib import admin
 from django.views import static
 
-from app.views import (ClassBased, MultipleTables, bootstrap, index, multiple,
+from app.views import (ClassBased, MultipleTables, bootstrap, semantic, index, multiple,
                        tutorial)
 
 admin.autodiscover()
@@ -17,6 +17,7 @@ urlpatterns = [
 
     url(r'^tutorial/$', tutorial, name='tutorial'),
     url(r'^bootstrap/$', bootstrap, name='bootstrap'),
+    url(r'^semantic/$', semantic, name='semantic'),
 
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
     url(r'^admin/', include(admin.site.urls)),
