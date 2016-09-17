@@ -52,7 +52,7 @@
                     {% with table.page.object_list|length as count %}
                     {% block pagination %}
                     <tr>
-                    <th colspan="3">
+                    <th colspan="{{ table.columns|length }}">
                     <div class="ui right floated pagination menu">
                         {% if table.page.has_previous %}
                             {% block pagination.previous %}
@@ -62,7 +62,7 @@
 
                         {% if table.page.has_previous or table.page.has_next %}
                             {% block pagination.current %}
-                                    <div class="ui button disabled">{% blocktrans with table.page.number as current and table.paginator.num_pages as total %}Page {{ current }} of {{ total }}{% endblocktrans %}</div>
+                                    <div class="item">{% blocktrans with table.page.number as current and table.paginator.num_pages as total %}Page {{ current }} of {{ total }}{% endblocktrans %}</div>
                             {% endblock pagination.current %}
                         {% endif %}
 
