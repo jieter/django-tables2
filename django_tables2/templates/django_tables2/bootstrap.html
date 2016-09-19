@@ -3,7 +3,7 @@
 
 <div class="table-container">
     {% block table %}
-        <table {% if table.attrs %} {{ table.attrs.as_html }}{%else%}class="table"{% endif %}>
+        <table {% if table.attrs %} {{ table.attrs.as_html }}{% else %}class="table"{% endif %}>
             {% block table.thead %}
             {% if table.show_header %}
                 <thead>
@@ -53,8 +53,6 @@
     {% endblock table %}
 
     {% if table.page and table.paginator.num_pages > 1 %}
-        {% with table.page.paginator.count as total %}
-        {% with table.page.object_list|length as count %}
         {% block pagination %}
         <ul class="pager list-inline">
             {% if table.page.has_previous %}
@@ -82,7 +80,5 @@
             {% endif %}
         </ul>
         {% endblock pagination %}
-        {% endwith %}
-        {% endwith %}
     {% endif %}
 </div>
