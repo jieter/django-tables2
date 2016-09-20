@@ -22,6 +22,7 @@ def create_fake_data():
             for i in range(50)
         ])
 
+
 def index(request):
     create_fake_data()
     table = PersonTable(Person.objects.all())
@@ -80,6 +81,7 @@ def bootstrap(request):
     return render(request, 'bootstrap_template.html', {
         'table': table
     })
+
 
 def semantic(request):
     '''Demonstrate the use of the Semantic UI template'''

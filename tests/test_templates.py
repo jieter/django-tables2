@@ -262,12 +262,13 @@ class BootstrapTable(CountryTable):
     class Meta:
         template = 'django_tables2/bootstrap.html'
         prefix = 'bootstrap-'
+        per_page = 2
 
 
 def test_boostrap_template():
     table = BootstrapTable(MEMORY_DATA)
     request = build_request('/')
-    RequestConfig(request, {'per_page': 2}).configure(table)
+    RequestConfig(request).configure(table)
 
     template = Template('{% load django_tables2 %}{% render_table table %}')
     html = template.render(Context({'request': request, 'table': table}))
@@ -277,6 +278,6 @@ def test_boostrap_template():
     assert len(root.findall('.//tbody/tr')) == 2
     assert len(root.findall('.//tbody/tr/td')) == 8
 
-    assert root.find('ul[@class="pager"]/li[@class="cardinality"]').text.strip() == 'Page 1 of 2'
+    assert root.find('./ul[@class="pager list-inline"]/li[@class="cardinality"]/small').text.strip() == 'Page 1 of 2'
     # make sure the link is prefixed
-    assert root.find('ul[@class="pager"]/li[@class="next"]/a').get('href') == '?bootstrap-page=2'
+    assert root.find('./ul[@class="pager list-inline"]/li[@class="next"]/a').get('href') == '?bootstrap-page=2'

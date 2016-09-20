@@ -39,7 +39,6 @@ def test_render_table_templatetag(settings):
     assert len(root.findall('.//thead/tr/th')) == 4
     assert len(root.findall('.//tbody/tr')) == 4
     assert len(root.findall('.//tbody/tr/td')) == 16
-    assert root.find('ul[@class="pagination"]/li[@class="cardinality"]').text.strip() == '4 items'
 
     # no data with no empty_text
     table = CountryTable([])
