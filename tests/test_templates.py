@@ -281,3 +281,30 @@ def test_boostrap_template():
     assert root.find('./ul[@class="pager list-inline"]/li[@class="cardinality"]/small').text.strip() == 'Page 1 of 2'
     # make sure the link is prefixed
     assert root.find('./ul[@class="pager list-inline"]/li[@class="next"]/a').get('href') == '?bootstrap-page=2'
+
+
+class SemanticTable(CountryTable):
+    class Meta:
+        template = 'django_tables2/semantic.html'
+        prefix = 'semantic-'
+        per_page = 2
+
+
+def test_semantic_template():
+    table = SemanticTable(MEMORY_DATA)
+    request = build_request('/')
+    RequestConfig(request).configure(table)
+
+    template = Template('{% load django_tables2 %}{% render_table table %}')
+    html = template.render(Context({'request': request, 'table': table}))
+    root = parse(html)
+    assert len(root.findall('.//thead/tr')) == 1
+    assert len(root.findall('.//thead/tr/th')) == 4
+    assert len(root.findall('.//tbody/tr')) == 2
+    assert len(root.findall('.//tbody/tr/td')) == 8
+
+    pager = './/tfoot/tr/th/div[@class="ui right floated pagination menu"]/div[@class="item"]'
+    assert root.find(pager).text.strip() == 'Page 1 of 2'
+    # make sure the link is prefixed
+    next_page = './/tfoot/tr/th/div[@class="ui right floated pagination menu"]/a[@class="icon item"]'
+    assert root.find(next_page).get('href') == '?semantic-page=2'

@@ -9,7 +9,7 @@ from django.utils import six
 
 
 def parse(html):
-    # We use html instead of etree because etree can't parse html entities like &rarr; 
+    # We use html instead of etree. Because etree can't parse html entities.
     return lxml.html.fromstring(html)
 
 
