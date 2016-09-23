@@ -32,7 +32,7 @@ Finally, implement the template::
 
     {# tutorial/templates/people.html #}
     {% load render_table from django_tables2 %}
-    {% load staticfiles %}
+    {% load static %}
     <!doctype html>
     <html>
         <head>
