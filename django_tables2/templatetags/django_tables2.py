@@ -29,13 +29,13 @@ context_processor_error_msg = (
 
 
 def token_kwargs(bits, parser):
-    """
+    '''
     Based on Django's `~django.template.defaulttags.token_kwargs`, but with a
     few changes:
 
     - No legacy mode.
     - Both keys and values are compiled as a filter
-    """
+    '''
     if not bits:
         return {}
     kwargs = OrderedDict()

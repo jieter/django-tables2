@@ -11,7 +11,7 @@ from django.utils.safestring import mark_safe
 
 
 class Sequence(list):
-    """
+    '''
     Represents a column sequence, e.g. ``('first_name', '...', 'last_name')``
 
     This is used to represent `.Table.Meta.sequence` or the `.Table`
@@ -21,14 +21,14 @@ class Sequence(list):
     order of the columns on a table. Optionally a '...' item can be inserted,
     which is treated as a *catch-all* for column names that aren't explicitly
     specified.
-    """
+    '''
     def expand(self, columns):
-        """
+        '''
         Expands the ``'...'`` item in the sequence into the appropriate column
         names that should be placed there.
 
         :raises: `ValueError` if the sequence is invalid for the columns.
-        """
+        '''
         ellipses = self.count("...")
         if ellipses > 1:
             raise ValueError("'...' must be used at most once in a sequence.")
@@ -61,7 +61,7 @@ class OrderBy(str):
 
     @property
     def bare(self):
-        """
+        '''
         Returns:
             `.OrderBy`: the bare form.
 
@@ -70,12 +70,12 @@ class OrderBy(str):
 
         Example: ``age`` is the bare form of ``-age``
 
-        """
+        '''
         return OrderBy(self[1:]) if self[:1] == '-' else self
 
     @property
     def opposite(self):
-        """
+        '''
         Provides the opposite of the current sorting directon.
 
         Returns:
@@ -87,21 +87,21 @@ class OrderBy(str):
             >>> order_by.opposite
             '-name'
 
-        """
+        '''
         return OrderBy(self[1:]) if self.is_descending else OrderBy('-' + self)
 
     @property
     def is_descending(self):
-        """
+        '''
         Returns `True` if this object induces *descending* ordering.
-        """
+        '''
         return self.startswith('-')
 
     @property
     def is_ascending(self):
-        """
+        '''
         Returns `True` if this object induces *ascending* ordering.
-        """
+        '''
         return not self.is_descending
 
     def for_queryset(self):
@@ -114,7 +114,7 @@ class OrderBy(str):
 
 @six.python_2_unicode_compatible
 class OrderByTuple(tuple):
-    """
+    '''
     Stores ordering as (as `.OrderBy` objects). The `~.Table.order_by` property
     is always converted to an `.OrderByTuple` object.
 
@@ -130,7 +130,7 @@ class OrderByTuple(tuple):
         >>> x['age'].opposite
         'age'
 
-    """
+    '''
     def __new__(cls, iterable):
         transformed = []
         for item in iterable:
@@ -143,7 +143,7 @@ class OrderByTuple(tuple):
         return ','.join(self)
 
     def __contains__(self, name):
-        """
+        '''
         Determine if a column has an influence on ordering.
 
         Example::
@@ -159,7 +159,7 @@ class OrderByTuple(tuple):
 
         Returns:
             bool: `True` if the column with `name` influences the ordering.
-        """
+        '''
         name = OrderBy(name).bare
         for order_by in self:
             if order_by.bare == name:
@@ -167,7 +167,7 @@ class OrderByTuple(tuple):
         return False
 
     def __getitem__(self, index):
-        """
+        '''
         Allows an `.OrderBy` object to be extracted via named or integer
         based indexing.
 
@@ -186,7 +186,7 @@ class OrderByTuple(tuple):
 
         Returns:
             `.OrderBy`: for the ordering at the index.
-        """
+        '''
         if isinstance(index, six.string_types):
             for order_by in self:
                 if order_by == index or order_by.bare == index:
@@ -242,9 +242,9 @@ class OrderByTuple(tuple):
         return Comparator
 
     def get(self, key, fallback):
-        """
+        '''
         Identical to __getitem__, but supports fallback value.
-        """
+        '''
         try:
             return self[key]
         except (KeyError, IndexError):
@@ -252,13 +252,13 @@ class OrderByTuple(tuple):
 
     @property
     def opposite(self):
-        """
+        '''
         Return version with each `.OrderBy` prefix toggled::
 
             >>> order_by = OrderByTuple(('name', '-age'))
             >>> order_by.opposite
             ('-name', 'age')
-        """
+        '''
         return type(self)((o.opposite for o in self))
 
 
@@ -348,7 +348,9 @@ class Accessor(str):
         return self.split(self.SEPARATOR)
 
     def get_field(self, model):
-        '''Return the django model field for model in context, following relations'''
+        '''
+        Return the django model field for model in context, following relations.
+        '''
         if not hasattr(model, '_meta'):
             return
 
@@ -384,15 +386,15 @@ A = Accessor  # alias
 
 
 class AttributeDict(dict):
-    """
+    '''
     A wrapper around `dict` that knows how to render itself as HTML
     style tag attributes.
 
     The returned string is marked safe, so it can be used safely in a template.
     See `.as_html` for a usage example.
-    """
+    '''
     def as_html(self):
-        """
+        '''
         Render to HTML tag attributes.
 
         Example:
@@ -406,7 +408,7 @@ class AttributeDict(dict):
 
         :rtype: `~django.utils.safestring.SafeUnicode` object
 
-        """
+        '''
 
         blacklist = ('th', 'td', '_ordering')
         return mark_safe(' '.join(['%s="%s"' % (k, escape(v if not callable(v) else v()))
@@ -414,7 +416,7 @@ class AttributeDict(dict):
 
 
 def segment(sequence, aliases):
-    """
+    '''
     Translates a flat sequence of items into a set of prefixed aliases.
 
     This allows the value set by `.QuerySet.order_by` to be translated into
@@ -427,7 +429,7 @@ def segment(sequence, aliases):
         ...               'z': ('-b', 'c')}))
         [('x', '-y'), ('x', 'z')]
 
-    """
+    '''
     if not (sequence or aliases):
         return
     for alias, parts in aliases.items():
@@ -502,7 +504,7 @@ def call_with_appropriate(fn, kwargs):
 
 
 def computed_values(d, *args, **kwargs):
-    """
+    '''
     Returns a new `dict` that has callable values replaced with the return values.
 
     Example::
@@ -538,7 +540,7 @@ def computed_values(d, *args, **kwargs):
 
     Returns:
         dict: with callable values replaced.
-    """
+    '''
     result = {}
     for k, v in six.iteritems(d):
         if callable(v):

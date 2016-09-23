@@ -5,7 +5,7 @@ from django.core.paginator import EmptyPage, PageNotAnInteger
 
 
 class RequestConfig(object):
-    """
+    '''
     A configurator that uses request data to setup a table.
 
     A single RequestConfig can be used for multiple tables in one view. See
@@ -26,18 +26,18 @@ class RequestConfig(object):
              - If `~django.core.paginator.EmptyPage` is raised, show the last
                page.
 
-    """
+    '''
     def __init__(self, request, paginate=True):
         self.request = request
         self.paginate = paginate
 
     def configure(self, table):
-        """
+        '''
         Configure a table using information from the request.
 
         Arguments:
             table (`~.Table`): table to be configured
-        """
+        '''
         order_by = self.request.GET.getlist(table.prefixed_order_by_field)
         if order_by:
             table.order_by = order_by

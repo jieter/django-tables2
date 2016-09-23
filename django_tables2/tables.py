@@ -566,7 +566,7 @@ class TableBase(object):
         self._template = value
 
     def get_column_class_names(self, classes_set, bound_column):
-        """
+        '''
         Returns a set of HTML class names for cells (both td and th) of a
         **bound column** in this table.
         By default this returns the column class names defined in the table's
@@ -586,7 +586,7 @@ class TableBase(object):
 
         Returns:
             A set of class names to be added to cells of this column
-        """
+        '''
         classes_set.add(bound_column.name)
         return classes_set
 
