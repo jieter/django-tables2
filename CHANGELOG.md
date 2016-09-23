@@ -2,6 +2,7 @@
 
 ## unreleased
 - Apply `title` to a column's `verbose_name` when it is derived from a model, fixes [#249](https://github.com/bradleyayers/django-tables2/issues/249). ([#382](https://github.com/bradleyayers/django-tables2/pull/382) by [@shawnnapora](https://github.com/shawnnapora))
+- Update documentation after deprecation of `STATIC_URL` in django ([#384](https://github.com/bradleyayers/django-tables2/pull/384), by [@velaia](https://github.com/velaia))
 
 ## 1.2.6 (2016-09-06)
 - Added `get_table_kwargs()` method to `SingleTableMixin` to allow passing custom keyword arguments to the `Table` constructor. ([#366](https://github.com/bradleyayers/django-tables2/pull/366) by [@fritz-k](https://github.com/fritz-k))
