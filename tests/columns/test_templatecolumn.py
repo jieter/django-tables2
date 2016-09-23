@@ -9,16 +9,16 @@ import django_tables2 as tables
 
 def test_should_handle_context_on_table():
     class TestTable(tables.Table):
-        col_code = tables.TemplateColumn(template_code='code:{{ record.col }}{{ STATIC_URL }}')
+        col_code = tables.TemplateColumn(template_code='code:{{ record.col }}-{{ foo }}')
         col_name = tables.TemplateColumn(template_name='test_template_column.html')
 
     table = TestTable([{'col': 'brad'}])
-    assert table.rows[0].get_cell('col_code') == 'code:brad'
-    assert table.rows[0].get_cell('col_name') == 'name:brad'
+    assert table.rows[0].get_cell('col_code') == 'code:brad-'
+    assert table.rows[0].get_cell('col_name') == 'name:brad-empty\n'
 
-    table.context = Context({'STATIC_URL': '/static/'})
-    assert table.rows[0].get_cell('col_code') == 'code:brad/static/'
-    assert table.rows[0].get_cell('col_name') == 'name:brad/static/'
+    table.context = Context({'foo': 'author'})
+    assert table.rows[0].get_cell('col_code') == 'code:brad-author'
+    assert table.rows[0].get_cell('col_name') == 'name:brad-author\n'
 
 
 def test_should_support_default():
