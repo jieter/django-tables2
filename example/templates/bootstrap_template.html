@@ -1,3 +1,4 @@
+{% load static %}
 {% load render_table from django_tables2 %}
 <!doctype html>
 <html>
@@ -5,7 +6,7 @@
     <title>django_tables2 with bootstrap template example</title>
 
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" />
-    <link href="{{ STATIC_URL }}django_tables2/bootstrap.css" rel="stylesheet" />
+    <link href="{% static 'django_tables2/bootstrap.css' %}" rel="stylesheet" />
 </head>
 <body>
     <div class="container">

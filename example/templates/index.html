@@ -1,9 +1,10 @@
 {% extends "base.html" %}
 {% load django_tables2 %}
+{% load static %}
 
 {% block extrahead %}
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" />
-    <link href="{{ STATIC_URL }}django_tables2/bootstrap.css" rel="stylesheet" />
+    <link href="{% static 'django_tables2/bootstrap.css' %}" rel="stylesheet" />
 {% endblock %}
 
 {% block body %}
