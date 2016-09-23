@@ -22,17 +22,6 @@
         }
     },
     {
-        "pk": 3,
-        "model": "app.country",
-        "fields": {
-            "tz": "CAT",
-            "name": "Africa",
-            "visits": 0,
-            "population": 1000010000,
-            "flag": "country/flags/africa.svg"
-        }
-    },
-    {
         "pk": 4,
         "model": "app.country",
         "fields": {
