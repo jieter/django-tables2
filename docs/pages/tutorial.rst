@@ -32,10 +32,11 @@ Finally, implement the template::
 
     {# tutorial/templates/people.html #}
     {% load render_table from django_tables2 %}
+    {% load staticfiles %}
     <!doctype html>
     <html>
         <head>
-            <link rel="stylesheet" href="{{ STATIC_URL }}django_tables2/themes/paleblue/css/screen.css" />
+            <link rel="stylesheet" href="{% static 'django_tables2/themes/paleblue/css/screen.css' %}" />
         </head>
         <body>
             {% render_table people %}
