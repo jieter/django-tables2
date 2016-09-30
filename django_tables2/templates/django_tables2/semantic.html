@@ -1,9 +1,9 @@
 {% load django_tables2 %}
 {% load i18n %}
 
-<div class="table-container">
+<div class="ui container table-container">
     {% block table %}
-        <table {% if table.attrs %} {{ table.attrs.as_html }}{% else %}class="table"{% endif %}>
+        <table {% if table.attrs %} {{ table.attrs.as_html }}{% else %}class="ui celled table"{% endif %}>
             {% block table.thead %}
             {% if table.show_header %}
                 <thead>
@@ -32,53 +32,51 @@
                     {% empty %}
                     {% if table.empty_text %}
                     {% block table.tbody.empty_text %}
-                        <tr><td colspan="{{ table.columns|length }}">{{ table.empty_text }}</td></tr>
+                    <tr><td colspan="{{ table.columns|length }}">{{ table.empty_text }}</td></tr>
                     {% endblock table.tbody.empty_text %}
                     {% endif %}
                 {% endfor %}
                 </tbody>
             {% endblock table.tbody %}
             {% block table.tfoot %}
-            {% if table.has_footer %}
             <tfoot>
+                {% if table.has_footer %}
                 <tr>
                 {% for column in table.columns %}
                     <td>{{ column.footer }}</td>
                 {% endfor %}
                 </tr>
+                {% endif %}
+                {% if table.page and table.paginator.num_pages > 1 %}
+                    {% block pagination %}
+                    <tr>
+                    <th colspan="{{ table.columns|length }}">
+                    <div class="ui right floated pagination menu">
+                        {% if table.page.has_previous %}
+                            {% block pagination.previous %}
+                            <a class="icon item" href="{% querystring table.prefixed_page_field=table.page.previous_page_number %}"><i class="left chevron icon"></i>&nbsp; {% trans 'previous' %}</a>
+                            {% endblock pagination.previous %}
+                        {% endif %}
+
+                        {% if table.page.has_previous or table.page.has_next %}
+                            {% block pagination.current %}
+                                    <div class="item">{% blocktrans with table.page.number as current and table.paginator.num_pages as total %}Page {{ current }} of {{ total }}{% endblocktrans %}</div>
+                            {% endblock pagination.current %}
+                        {% endif %}
+
+                        {% if table.page.has_next %}
+                            {% block pagination.next %}
+                            <a class="icon item" href="{% querystring table.prefixed_page_field=table.page.next_page_number %}">{% trans 'next' %} &nbsp;<i class="right chevron icon"></i></a>
+                            {% endblock pagination.next %}
+                        {% endif %}
+                    </div>
+                    </th>
+                    </tr>
+                    {% endblock pagination %}
+                {% endif %}
             </tfoot>
-            {% endif %}
             {% endblock table.tfoot %}
         </table>
     {% endblock table %}
 
-    {% if table.page and table.paginator.num_pages > 1 %}
-        {% block pagination %}
-        <ul class="pager list-inline">
-            {% if table.page.has_previous %}
-                {% block pagination.previous %}
-                <li class="previous">
-                    <a href="{% querystring table.prefixed_page_field=table.page.previous_page_number %}" class="btn btn-default"><span aria-hidden="true">&larr;</span> {% trans 'previous' %}</a>
-                </li>
-                {% endblock pagination.previous %}
-            {% endif %}
-
-            {% if table.page.has_previous or table.page.has_next %}
-                {% block pagination.current %}
-                    <li class="cardinality">
-                        <small>{% blocktrans with table.page.number as current and table.paginator.num_pages as total %}Page {{ current }} of {{ total }}{% endblocktrans %}</small>
-                    </li>
-                {% endblock pagination.current %}
-            {% endif %}
-
-            {% if table.page.has_next %}
-                {% block pagination.next %}
-                <li class="next">
-                    <a href="{% querystring table.prefixed_page_field=table.page.next_page_number %}" class="btn btn-default">{% trans 'next' %} <span aria-hidden="true">&rarr;</span></a>
-                </li>
-                {% endblock pagination.next %}
-            {% endif %}
-        </ul>
-        {% endblock pagination %}
-    {% endif %}
 </div>

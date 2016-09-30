@@ -16,6 +16,12 @@ has native support for pagination and sorting. It does for HTML tables what
 .. image:: http://dl.dropbox.com/u/33499139/django-tables2/example.png
     :alt: An example table rendered using django-tables2
 
+.. image:: bootstrap.png
+    :alt: An example table rendered using django-tables2 and bootstrap theme
+
+.. image:: semantic.png
+    :alt: An example table rendered using django-tables2 and semantic-ui theme
+
 Its features include:
 
 - Any iterable can be a data-source, but special support for Django querysets is included.

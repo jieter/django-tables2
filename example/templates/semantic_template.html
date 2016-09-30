@@ -1,0 +1,16 @@
+{% load render_table from django_tables2 %}
+<!doctype html>
+<html>
+<head>
+    <title>django_tables2 with semantic template example</title>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.4/semantic.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.4/semantic.min.css">
+</head>
+<body>
+    <div class="ui container">
+        <h3>django_tables2 with Semantic UI template example</h3>
+        {% render_table table %}
+    </div>
+</body>
+</html>

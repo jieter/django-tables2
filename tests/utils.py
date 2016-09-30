@@ -9,7 +9,8 @@ from django.utils import six
 
 
 def parse(html):
-    return lxml.etree.fromstring(html)
+    # We use html instead of etree. Because etree can't parse html entities.
+    return lxml.html.fromstring(html)
 
 
 class assertNumQueries(object):
