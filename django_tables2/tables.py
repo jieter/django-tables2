@@ -306,7 +306,7 @@ class TableBase(object):
             left to right).
 
             Items in the sequence must be :term:`column names <column name>`, or
-            `'...'` (string containing three periods). `...` can be used as a
+            `'...'` (string containing three periods). `'...'` can be used as a
             catch-all for columns that aren't specified.
 
         prefix (str): A prefix for querystring fields.

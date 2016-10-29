@@ -370,20 +370,20 @@ def test_exclude_columns():
     columns originally.
     '''
     table = UnorderedTable([], exclude=('i'))
-    assert [c.name for c in table.columns] == ['alpha', 'beta']
+    assert table.columns.names() == ['alpha', 'beta']
 
     # Table.Meta: exclude=...
     class PartialTable(UnorderedTable):
         class Meta:
             exclude = ('alpha', )
     table = PartialTable([])
-    assert [c.name for c in table.columns] == ['i', 'beta']
+    assert table.columns.names() == ['i', 'beta']
 
     # Inheritence -- exclude in parent, add in child
     class AddonTable(PartialTable):
         added = tables.Column()
     table = AddonTable([])
-    assert [c.name for c in table.columns] == ['i', 'beta', 'added']
+    assert table.columns.names() == ['i', 'beta', 'added']
 
     # Inheritence -- exclude in child
     class ExcludeTable(UnorderedTable):
@@ -393,7 +393,7 @@ def test_exclude_columns():
             exclude = ('beta', )
 
     table = ExcludeTable([])
-    assert [c.name for c in table.columns] == ['i', 'alpha', 'added']
+    assert table.columns.names() == ['i', 'alpha', 'added']
 
 
 def test_table_exclude_property_should_override_constructor_argument():
@@ -402,14 +402,14 @@ def test_table_exclude_property_should_override_constructor_argument():
         b = tables.Column()
 
     table = SimpleTable([], exclude=('b', ))
-    assert [c.name for c in table.columns] == ['a']
+    assert table.columns.names() == ['a']
     table.exclude = ('a', )
-    assert [c.name for c in table.columns] == ['b']
+    assert table.columns.names() == ['b']
 
 
 def test_exclude_should_work_on_sequence_too():
     '''
-    It should be possible to define a sequence on a table and excluded
+    It should be possible to define a sequence on a table
     and exclude it in a child of that table.
     '''
     class PersonTable(tables.Table):
@@ -418,12 +418,20 @@ def test_exclude_should_work_on_sequence_too():
         occupation = tables.Column()
 
         class Meta:
-            model = Person
             sequence = ('first_name', 'last_name', 'occupation')
 
     class AnotherPersonTable(PersonTable):
         class Meta(PersonTable.Meta):
             exclude = ('first_name', 'last_name')
+
+    tableA = PersonTable([])
+    assert tableA.columns.names() == ['first_name', 'last_name', 'occupation']
+
+    tableB = AnotherPersonTable([])
+    assert tableB.columns.names() == ['occupation']
+
+    tableC = PersonTable([], exclude=('first_name'))
+    assert tableC.columns.names() == ['last_name', 'occupation']
 
 
 def test_pagination():
@@ -433,7 +441,7 @@ def test_pagination():
     # create some sample data
     data = []
     for i in range(100):
-        data.append({"name": "Book No. %d" % i})
+        data.append({'name': 'Book No. %d' % i})
     books = BookTable(data)
 
     # external paginator
@@ -445,7 +453,7 @@ def test_pagination():
 
     # integrated paginator
     books.paginate(page=1)
-    assert hasattr(books, "page") is True
+    assert hasattr(books, 'page') is True
 
     books.paginate(page=1, per_page=10)
     assert len(list(books.page.object_list)) == 10
