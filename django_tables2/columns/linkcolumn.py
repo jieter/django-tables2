@@ -1,8 +1,13 @@
 # coding: utf-8
 from __future__ import absolute_import, unicode_literals
 
-from django.core.urlresolvers import reverse
 from django.utils.html import format_html
+
+try:
+    from django.urls import reverse
+except ImportError:
+    # to keep backward (Django <= 1.9) compatibility
+    from django.core.urlresolvers import reverse
 
 from django_tables2.utils import Accessor, AttributeDict
 
@@ -63,19 +68,19 @@ class LinkColumn(BaseLinkColumn):
     dedicated to that record.
 
     The first arguments are identical to that of
-    `~django.core.urlresolvers.reverse` and allows an internal URL to be
+    `~django.urls.reverse` and allows an internal URL to be
     described. If this argument is `None`, then `get_absolute_url`.
     (see Django references) will be used.
     The last argument *attrs* allows custom HTML attributes to be added to the
     rendered ``<a href="...">`` tag.
 
     Arguments:
-        viewname (str): See `~django.core.urlresolvers.reverse`, or use `None`
+        viewname (str): See `~django.urls.reverse`, or use `None`
             to use the model's `get_absolute_url`
-        urlconf (str): See `~django.core.urlresolvers.reverse`.
-        args (list): See `~django.core.urlresolvers.reverse`. [2]_
-        kwargs (dict): See `~django.core.urlresolvers.reverse`. [2]_
-        current_app (str): See `~django.core.urlresolvers.reverse`.
+        urlconf (str): See `~django.urls.reverse`.
+        args (list): See `~django.urls.reverse`. [2]_
+        kwargs (dict): See `~django.urls.reverse`. [2]_
+        current_app (str): See `~django.urls.reverse`.
         attrs (dict): HTML attributes that are added to the rendered
             ``<a ...>...</a>`` tag.
         text (str or callable): Either static text, or a callable. If set, this
@@ -85,7 +90,7 @@ class LinkColumn(BaseLinkColumn):
     .. [2] In order to create a link to a URL that relies on information in the
         current row, `.Accessor` objects can be used in the *args* or *kwargs*
         arguments. The accessor will be resolved using the row's record before
-        `~django.core.urlresolvers.reverse` is called.
+        `~django.urls.reverse` is called.
 
     Example:
 
