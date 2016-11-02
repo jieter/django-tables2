@@ -51,7 +51,7 @@ be dynamically created based on a model::
 
     # views.py
     def person_list(request):
-        table = PersonsTable(Person.objects.all())
+        table = PersonTable(Person.objects.all())
 
         return render(request, 'person_list.html', {
             'table': table
