@@ -1,10 +1,15 @@
 # coding: utf-8
 from random import choice
 
-from django.core.urlresolvers import reverse
 from django.shortcuts import render
 from django.utils.lorem_ipsum import words
 from django.views.generic.base import TemplateView
+
+try:
+    from django.urls import reverse
+except ImportError:
+    # to keep backward (Django <= 1.9) compatibility
+    from django.core.urlresolvers import reverse
 
 from django_tables2 import MultiTableMixin, RequestConfig, SingleTableView
 
