@@ -343,7 +343,7 @@ class TableBase(object):
                  per_page_field=None, template=None, default=None, request=None,
                  show_header=None, show_footer=True):
         super(TableBase, self).__init__()
-        self.exclude = exclude or ()
+        self.exclude = exclude or self._meta.exclude
         self.sequence = sequence
         self.data = self.TableDataClass(data=data, table=self)
         if default is None:
