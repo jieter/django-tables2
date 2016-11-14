@@ -5,22 +5,21 @@ import pytest
 from django.template import Context, Template
 from django.utils.html import mark_safe
 
-try:
-    from django.urls import reverse
-except ImportError:
-    # to keep backward (Django <= 1.9) compatibility
-    from django.core.urlresolvers import reverse
-
 import django_tables2 as tables
 from django_tables2 import A
 
 from ..app.models import Occupation, Person
 from ..utils import attrs, build_request
 
+try:
+    from django.urls import reverse
+except ImportError:
+    # to keep backward (Django <= 1.9) compatibility
+    from django.core.urlresolvers import reverse
+
 
 def test_unicode():
-    """Test LinkColumn"""
-    # test unicode values + headings
+    '''Test LinkColumn for unicode values + headings'''
     class UnicodeTable(tables.Table):
         first_name = tables.LinkColumn('person', args=[A('pk')])
         last_name = tables.LinkColumn('person', args=[A('pk')], verbose_name='äÚ¨´ˆÁ˜¨ˆ˜˘Ú…Ò˚ˆπ∆ˆ´')
@@ -144,6 +143,32 @@ def test_a_attrs_should_be_supported():
     }
 
 
+@pytest.mark.django_db
+def test_td_attrs_should_be_supported():
+    '''LinkColumn should support both <td> and <a> attrs'''
+
+    person = Person.objects.create(first_name='Bob', last_name='Builder')
+
+    class Table(tables.Table):
+        first_name = tables.LinkColumn(attrs={
+            'a': {'style': 'color: red;'},
+            'td': {'style': 'background-color: #ddd;'}
+        })
+        last_name = tables.Column()
+
+    table = Table(Person.objects.all())
+
+    expected = '<a href="{}" {}>{}</a>'.format(
+        'style="color: red;"',
+        reverse('person', args=(person.pk, )),
+        person.first_name
+    )
+    assert table.rows[0].get_cell('first_name') == expected
+
+    expected = '<td style="background-color: #ddd;" class="first_name">{}</td>'.format(expected)
+    assert expected in table.as_html(build_request())
+
+
 def test_defaults():
     class Table(tables.Table):
         link = tables.LinkColumn('occupation', kwargs={'pk': 1}, default='xyz')
@@ -161,7 +186,10 @@ def test_get_absolute_url():
     person = Person.objects.create(first_name='Jan Pieter', last_name='Waagmeester', )
     table = PersonTable(Person.objects.all())
 
-    expected = '<a href="/people/%d/">Waagmeester</a>' % person.pk
+    expected = '<a href="{}">{}</a>'.format(
+        reverse('person', args=(person.pk, )),
+        person.last_name
+    )
     assert table.rows[0].get_cell('last_name') == expected
 
 

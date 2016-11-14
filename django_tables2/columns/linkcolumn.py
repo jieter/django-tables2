@@ -3,15 +3,17 @@ from __future__ import absolute_import, unicode_literals
 
 from django.utils.html import format_html
 
+from django_tables2.utils import Accessor, AttributeDict
+
+from .base import Column, library
+
 try:
     from django.urls import reverse
 except ImportError:
     # to keep backward (Django <= 1.9) compatibility
     from django.core.urlresolvers import reverse
 
-from django_tables2.utils import Accessor, AttributeDict
 
-from .base import Column, library
 
 
 class BaseLinkColumn(Column):
@@ -131,6 +133,14 @@ class LinkColumn(BaseLinkColumn):
     available:
 
     - *a* -- ``<a>`` elements in ``<td>``.
+
+    Adding attributes to the ``<a>``-tag looks like this::
+
+        class PeopleTable(tables.Table):
+            first_name = tables.LinkColumn(attrs={
+                'a': {'style': 'color: red;'}
+            })
+
     '''
     def __init__(self, viewname=None, urlconf=None, args=None, kwargs=None,
                  current_app=None, attrs=None, **extra):
