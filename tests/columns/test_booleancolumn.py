@@ -132,9 +132,7 @@ def test_boolean_should_not_prevent_rendering_of_other_columns():
     Occupation.objects.create(name='Onwaar', boolean=False),
     Occupation.objects.create(name='Onduidelijk')
 
-    table = Table(Occupation.objects.all())
-
-    html = table.as_html(build_request())
+    html = Table(Occupation.objects.all()).as_html(build_request())
 
     assert 'Waar' in html
     assert 'Onwaar' in html

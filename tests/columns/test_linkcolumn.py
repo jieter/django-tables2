@@ -30,10 +30,11 @@ def test_unicode():
         {'pk': 2, 'first_name': 'Chr…s', 'last_name': 'DÒble'},
     ]
 
-    table = UnicodeTable(dataset)
-    request = build_request('/some-url/')
     template = Template('{% load django_tables2 %}{% render_table table %}')
-    html = template.render(Context({'request': request, 'table': table}))
+    html = template.render(Context({
+        'request': build_request(),
+        'table': UnicodeTable(dataset)
+    }))
 
     assert 'Brädley' in html
     assert '∆yers' in html
@@ -54,8 +55,7 @@ def test_link_text_custom_value():
         {'pk': 1, 'first_name': 'John', 'last_name': 'Doe'}
     ]
 
-    table = CustomLinkTable(dataset)
-    html = table.as_html(build_request('/some-url/'))
+    html = CustomLinkTable(dataset).as_html(build_request())
 
     assert 'foo::bar' in html
     assert 'Doe John' in html
@@ -73,8 +73,7 @@ def test_link_text_escaping():
         {'pk': 1, 'first_name': 'John', 'last_name': 'Doe'}
     ]
 
-    table = CustomLinkTable(dataset)
-    html = table.as_html(build_request('/some-url/'))
+    html = CustomLinkTable(dataset).as_html(build_request())
 
     expected = '<td class="editlink"><a href="{}">edit</a></td>'.format(
         reverse('person', args=(1, ))
@@ -118,10 +117,10 @@ def test_kwargs():
     class PersonTable(tables.Table):
         a = tables.LinkColumn('occupation', kwargs={'pk': A('a')})
 
-    request = build_request('/')
-    html = PersonTable([{'a': 0}, {'a': 1}]).as_html(request)
-    assert reverse('occupation', kwargs={'pk': 0}) in html
-    assert reverse('occupation', kwargs={'pk': 1}) in html
+    table = PersonTable([{'a': 0}, {'a': 1}])
+
+    assert reverse('occupation', kwargs={'pk': 0}) in table.rows[0].get_cell('a')
+    assert reverse('occupation', kwargs={'pk': 1}) in table.rows[1].get_cell('a')
 
 
 def test_html_escape_value():
@@ -201,6 +200,10 @@ def test_get_absolute_url():
 
 
 def test_get_absolute_url_not_defined():
+    '''
+    The dict doesn't have a get_absolute_url(), so creating the table should
+    raise a TypeError
+    '''
     class Table(tables.Table):
         first_name = tables.Column()
         last_name = tables.LinkColumn()
@@ -210,7 +213,7 @@ def test_get_absolute_url_not_defined():
     ])
 
     with pytest.raises(TypeError):
-        table.as_html(build_request('/'))
+        table.as_html(build_request())
 
 
 @pytest.mark.django_db
