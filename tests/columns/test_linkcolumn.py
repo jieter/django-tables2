@@ -168,7 +168,12 @@ def test_td_attrs_should_be_supported():
 
     html = table.as_html(build_request())
     assert expected in html
-    assert '<td style="background-color: #ddd;" class="first_name">' in html
+
+    attrs = AttributeDict({
+        'style': 'background-color: #ddd;',
+        'class': 'first_name'
+    })
+    assert '<td {}>'.format(attrs.as_html()) in html
 
 
 def test_defaults():
