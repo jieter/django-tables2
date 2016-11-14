@@ -34,12 +34,6 @@ class TemplateColumn(Column):
             bar = tables.TemplateColumn(template_name='myapp/name2_column.html')
 
     Both columns will have the same output.
-
-    .. important::
-
-        In order to use template tags or filters that require a
-        `~django.template.RequestContext`, the table **must** be rendered via
-        :ref:`{% render_table %} <template-tags.render_table>`.
     '''
     empty_values = ()
 

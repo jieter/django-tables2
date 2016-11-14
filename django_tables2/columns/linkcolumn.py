@@ -14,8 +14,6 @@ except ImportError:
     from django.core.urlresolvers import reverse
 
 
-
-
 class BaseLinkColumn(Column):
     '''
     The base for other columns that render links.
