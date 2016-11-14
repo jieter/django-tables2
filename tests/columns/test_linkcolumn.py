@@ -7,6 +7,7 @@ from django.utils.html import mark_safe
 
 import django_tables2 as tables
 from django_tables2 import A
+from django_tables2.utils import AttributeDict
 
 from ..app.models import Occupation, Person
 from ..utils import attrs, build_request
@@ -158,15 +159,16 @@ def test_td_attrs_should_be_supported():
 
     table = Table(Person.objects.all())
 
-    expected = '<a href="{}" {}>{}</a>'.format(
-        'style="color: red;"',
-        reverse('person', args=(person.pk, )),
-        person.first_name
-    )
+    attrs = AttributeDict({
+        'href': reverse('person', args=(person.pk, )),
+        'style': 'color: red;'
+    })
+    expected = '<a {}>{}</a>'.format(attrs.as_html(), person.first_name)
     assert table.rows[0].get_cell('first_name') == expected
 
-    expected = '<td style="background-color: #ddd;" class="first_name">{}</td>'.format(expected)
-    assert expected in table.as_html(build_request())
+    html = table.as_html(build_request())
+    assert expected in html
+    assert '<td style="background-color: #ddd;" class="first_name">' in html
 
 
 def test_defaults():
