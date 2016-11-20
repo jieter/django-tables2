@@ -211,6 +211,8 @@ def title(value):
     '''
     title_word = lambda w: w if RE_UPPERCASE.search(w) else old_title(w)
     return re.sub('(\S+)', lambda m: title_word(m.group(0)), value)
+
+
 title.is_safe = True
 
 register.filter('localize', l10n_register.filters['localize'])
