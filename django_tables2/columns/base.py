@@ -188,6 +188,25 @@ class Column(object):
         '''
         return value
 
+    def value(self, value, record, column, bound_column, bound_row, table):
+        '''
+        Returns the content for a specific cell similarly to `.render` however without any html content. This can be
+        used to get the data in the formatted as it is presented but in a form that could be added to a csv file.
+
+        The default implementation just calls the `render` function but any subclasses where `render` returns
+        html content should override this method.
+
+        See `LinkColumn` for an example.
+        '''
+        return call_with_appropriate(self.render, {
+            'value': value,
+            'record': record,
+            'column': column,
+            'bound_column': bound_column,
+            'bound_row': bound_row,
+            'table': table,
+        })
+
     def order(self, queryset, is_descending):
         '''
         Returns the queryset of the table.
