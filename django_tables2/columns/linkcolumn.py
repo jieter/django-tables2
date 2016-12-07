@@ -64,6 +64,7 @@ class BaseLinkColumn(Column):
         '''
         return self.text_value(record, value)
 
+
 @library.register
 class LinkColumn(BaseLinkColumn):
     '''
