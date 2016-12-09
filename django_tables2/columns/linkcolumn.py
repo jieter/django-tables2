@@ -60,7 +60,8 @@ class BaseLinkColumn(Column):
 
     def value(self, record, value):
         '''
-        Returns the content for a specific cell similarly to `.render` however without any html content.
+        Returns the content for a specific cell similarly to `.render` however
+        without any html content.
         '''
         return self.text_value(record, value)
 

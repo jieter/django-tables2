@@ -129,7 +129,8 @@ class BoundRow(object):
         if isinstance(penultimate, models.Model):
             try:
                 field = accessor.get_field(self.record)
-                display_fn = getattr(penultimate, 'get_%s_display' % remainder, None)
+                display_fn = getattr(penultimate, 'get_%s_display' % remainder,
+                                     None)
                 if getattr(field, 'choices', ()) and display_fn:
                     value = display_fn()
                     remainder = None
@@ -167,8 +168,8 @@ class BoundRow(object):
 
     def get_cell_value(self, name):
         '''
-        Returns the final rendered value (excluding any html) for a cell in the row, given the name
-        of a column.
+        Returns the final rendered value (excluding any html) for a cell in the
+        row, given the name of a column.
         '''
         return self._get_and_render_with(name, self._call_value)
 

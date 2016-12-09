@@ -190,11 +190,14 @@ class Column(object):
 
     def value(self, value, record, column, bound_column, bound_row, table):
         '''
-        Returns the content for a specific cell similarly to `.render` however without any html content. This can be
-        used to get the data in the formatted as it is presented but in a form that could be added to a csv file.
+        Returns the content for a specific cell similarly to `.render` however
+        without any html content. This can be used to get the data in the
+        formatted as it is presented but in a form that could be added to a csv
+        file.
 
-        The default implementation just calls the `render` function but any subclasses where `render` returns
-        html content should override this method.
+        The default implementation just calls the `render` function but any
+        subclasses where `render` returns html content should override this
+        method.
 
         See `LinkColumn` for an example.
         '''
