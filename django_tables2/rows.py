@@ -107,13 +107,6 @@ class BoundRow(object):
             # is correct – it's what __getitem__ expects.
             yield value
 
-    def get_cell(self, name):
-        '''
-        Returns the final rendered value for a cell in the row, given the name
-        of a column.
-        '''
-        return self._get_and_render_with(name, self._call_render)
-
     def _get_and_render_with(self, name, render_func):
         bound_column = self.table.columns[name]
 
@@ -151,6 +144,13 @@ class BoundRow(object):
             return bound_column.default
 
         return render_func(bound_column, value)
+
+    def get_cell(self, name):
+        '''
+        Returns the final rendered value for a cell in the row, given the name
+        of a column.
+        '''
+        return self._get_and_render_with(name, self._call_render)
 
     def _call_render(self, bound_column, value=None):
         '''
