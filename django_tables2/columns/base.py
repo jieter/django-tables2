@@ -188,7 +188,7 @@ class Column(object):
         '''
         return value
 
-    def value(self, value, record, column, bound_column, bound_row, table):
+    def value(self, **kwargs):
         '''
         Returns the content for a specific cell similarly to `.render` however
         without any html content. This can be used to get the data in the
@@ -201,14 +201,7 @@ class Column(object):
 
         See `LinkColumn` for an example.
         '''
-        return call_with_appropriate(self.render, {
-            'value': value,
-            'record': record,
-            'column': column,
-            'bound_column': bound_column,
-            'bound_row': bound_row,
-            'table': table,
-        })
+        return call_with_appropriate(self.render, kwargs)
 
     def order(self, queryset, is_descending):
         '''
