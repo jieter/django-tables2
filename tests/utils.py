@@ -1,3 +1,4 @@
+import re
 import warnings
 from contextlib import contextmanager
 
@@ -78,3 +79,8 @@ def build_request(uri='/'):
         'wsgi.multithread': False,
         'wsgi.run_once': False,
     })
+
+
+def clean_output(s):
+    '''Remove double newlines with whitespace in between and reduce the level of indentation'''
+    return re.sub('\n( *\n)+', '\n', s).replace('    ', '  ')
