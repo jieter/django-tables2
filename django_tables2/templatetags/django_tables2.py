@@ -4,6 +4,7 @@ from __future__ import absolute_import, unicode_literals
 import re
 from collections import OrderedDict
 
+import django_tables2 as tables
 from django import template
 from django.core.exceptions import ImproperlyConfigured
 from django.template import Node, TemplateSyntaxError
@@ -14,8 +15,6 @@ from django.templatetags.l10n import register as l10n_register
 from django.utils import six
 from django.utils.html import escape
 from django.utils.http import urlencode
-
-import django_tables2 as tables
 from django_tables2.config import RequestConfig
 
 register = template.Library()
@@ -209,7 +208,10 @@ def title(value):
     but operates on individual words and leaves words unchanged if they already
     have a capital letter.
     '''
-    title_word = lambda w: w if RE_UPPERCASE.search(w) else old_title(w)
+
+    def title_word(w):
+        return w if RE_UPPERCASE.search(w) else old_title(w)
+
     return re.sub('(\S+)', lambda m: title_word(m.group(0)), value)
 
 
