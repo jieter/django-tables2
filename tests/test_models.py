@@ -1,10 +1,13 @@
 # coding: utf-8
+from random import randint
+
 import django_tables2 as tables
 import pytest
 from django.db.models.functions import Length
 from django.utils import six
+from django_tables2 import RequestConfig
 
-from .app.models import Occupation, Person, PersonProxy
+from .app.models import Occupation, Person, PersonProxy, Player
 from .utils import build_request
 
 pytestmark = pytest.mark.django_db
@@ -401,3 +404,31 @@ def test_column_named_delete():
 
     assert Person.objects.get(pk=person1.pk) == person1
     assert Person.objects.get(pk=person2.pk) == person2
+
+
+def test_issue_361(per_page=5):
+
+    bob = Person.objects.create(first_name='Bob', last_name='Builder')
+    eve = Person.objects.create(first_name='Eve', last_name='Dropper')
+
+    for i in range(10):
+        Player.objects.create(person=bob, score=randint(0, 200))
+        Player.objects.create(person=eve, score=randint(200, 400))
+        Player.objects.create(person=bob, score=5)
+        Player.objects.create(person=eve, score=5)
+
+    class UserPlayerTable(tables.Table):
+        class Meta:
+            model = Player
+            fields = ('person.name', 'score',)
+            order_by = ['score', 'person.first_name']
+            orderable = False
+
+    queryset = Player.objects.filter(score=5)
+
+    table = UserPlayerTable(queryset)
+    RequestConfig(request, paginate={'per_page': per_page}).configure(table)
+    html = table.as_html(request)
+
+    # count the number of rows, subtract one for the header
+    assert (html.count('<tr') - 1) == per_page
