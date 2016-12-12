@@ -8,4 +8,4 @@ from .utils import A
 from .views import SingleTableMixin, SingleTableView, MultiTableMixin
 
 
-__version__ = '1.2.6'
+__version__ = '1.2.7'
