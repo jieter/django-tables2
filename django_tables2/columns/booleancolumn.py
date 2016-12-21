@@ -35,7 +35,7 @@ class BooleanColumn(Column):
             kwargs['empty_values'] = ()
         super(BooleanColumn, self).__init__(**kwargs)
 
-    def render(self, value, record, bound_column):
+    def _get_bool_value(self, record, value, bound_column):
         # If record is a model, we need to check if it has choices defined.
         if hasattr(record, '_meta'):
             field = bound_column.accessor.get_field(record)
@@ -46,6 +46,10 @@ class BooleanColumn(Column):
                 value = next(val for val, name in field.choices if name == value)
 
         value = bool(value)
+        return value
+
+    def render(self, value, record, bound_column):
+        value = self._get_bool_value(record, value, bound_column)
         text = self.yesno[int(not value)]
         attrs = {'class': six.text_type(value).lower()}
         attrs.update(self.attrs.get('span', {}))
@@ -55,6 +59,14 @@ class BooleanColumn(Column):
             AttributeDict(attrs).as_html(),
             escape(text)
         )
+
+    def value(self, record, value, bound_column):
+        '''
+        Returns the content for a specific cell similarly to `.render` however without any html content.
+        '''
+        value = self._get_bool_value(record, value, bound_column)
+        text = self.yesno[int(not value)]
+        return text
 
     @classmethod
     def from_field(cls, field):
