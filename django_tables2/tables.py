@@ -210,10 +210,16 @@ class DeclarativeColumnsMetaclass(type):
 
         # Explicit columns override both parent and generated columns
         base_columns.update(OrderedDict(cols))
+
         # Apply any explicit exclude setting
         for exclusion in opts.exclude:
             if exclusion in base_columns:
                 base_columns.pop(exclusion)
+
+        # Remove any columns from our remainder, else columns from our parent class will remain
+        for attr_name in remainder:
+            if attr_name in base_columns:
+                base_columns.pop(attr_name)
 
         # Reorder the columns based on explicit sequence
         if opts.sequence:
