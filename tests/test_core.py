@@ -77,6 +77,13 @@ def test_declarations():
     assert len(CityTable.base_columns) == 4
     assert 'added' in CityTable.base_columns
 
+    # overwrite a column with a non-column
+    class MayorlessCityTable(CityTable):
+        mayor = None
+
+    assert len(MayorlessCityTable.base_columns) == 3
+
+
 
 def test_metaclass_inheritance():
     class Tweaker(type):
