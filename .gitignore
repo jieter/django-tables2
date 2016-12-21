@@ -17,3 +17,5 @@
 /example/.env
 /report.pylint
 .cache/
+.python-version
+.idea
