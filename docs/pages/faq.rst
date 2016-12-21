@@ -8,7 +8,7 @@ FAQ
 ===
 
 Some frequently requested questions/examples. All examples assume you
-import djang-tables2 like this::
+import django-tables2 like this::
 
     import django_tables2 as tables
 
@@ -97,4 +97,28 @@ Or by creating a custom column::
 Documentation: :ref:`column-footers`
 
 .. note ::
-    You table template must include a block rendering the table footer!
+    Your table template must include a block rendering the table footer!
+
+
+Can I use inheritance to build Tables that share features?
+----------------------------------------------------------
+
+Yes, like this::
+
+    class CountryTable(tables.Table):
+        name = tables.Column()
+        language = tables.Column()
+
+A `CountryTable` will show columns `name` and `language`.
+
+    class TouristCountryTable(CountryTable):
+        tourist_info = tables.Column()
+
+A `TouristCountryTable` will show columns `name`, `language` and `tourist_info`.
+
+Overwriting a Column attribute from the base class with anything that is not a Column will result in removing that Column from the Table. For example:
+
+    class SimpleCountryTable(CountryTable):
+        language = None
+
+A `SimpleCountryTable` will only show column `name`.
