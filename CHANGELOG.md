@@ -1,7 +1,10 @@
 # Change log
 
+## 1.2.9 (2016-12-21)
+ - Documentation for `None`-column attributes [#401](https://github.com/bradleyayers/django-tables2/pull/401) by [@dyve](https://github.com/dyve)
+
 ## 1.2.8 (2016-12-21)
- - Non-column attributes on child class overwrite column attributes of parent class
+ - `None`-column attributes on child class overwrite column attributes of parent class
  [#400](https://github.com/bradleyayers/django-tables2/pull/400) by [@dyve](https://github.com/dyve)
 
 ## 1.2.7 (2016-12-12)
