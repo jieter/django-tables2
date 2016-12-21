@@ -1,5 +1,9 @@
 # Change log
 
+## 1.2.8 (2016-12-21)
+ - Non-column attributes on child class overwrite column attributes of parent class
+ [#400](https://github.com/bradleyayers/django-tables2/pull/400) by [@dyve](https://github.com/dyve)
+
 ## 1.2.7 (2016-12-12)
 - Apply `title` to a column's `verbose_name` when it is derived from a model, fixes [#249](https://github.com/bradleyayers/django-tables2/issues/249). ([#382](https://github.com/bradleyayers/django-tables2/pull/382) by [@shawnnapora](https://github.com/shawnnapora))
 - Update documentation after deprecation of `STATIC_URL` in django ([#384](https://github.com/bradleyayers/django-tables2/pull/384), by [@velaia](https://github.com/velaia))
