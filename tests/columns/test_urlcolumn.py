@@ -53,3 +53,12 @@ def test_text_can_be_overridden_with_callable():
 
     assert table.rows[0].get_cell('url') == '<a href="http://example.com">Example</a>'
     assert table.rows[1].get_cell('url') == '<a href="https://example.com">Example (https)</a>'
+
+
+def test_value_returns_a_raw_value_without_html():
+    class TestTable(tables.Table):
+        col = tables.URLColumn()
+
+    table = TestTable([{'col': 'http://example.com'}])
+
+    assert table.rows[0].get_cell_value('col') == 'http://example.com'

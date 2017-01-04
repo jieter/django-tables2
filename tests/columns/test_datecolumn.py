@@ -68,3 +68,13 @@ def test_should_be_used_for_datefields():
             model = DateModel
 
     assert type(Table.base_columns['field']) == tables.DateColumn
+
+
+def test_value_returns_a_raw_value_without_html(settings):
+    settings.SHORT_DATE_FORMAT = 'b Y D'
+
+    class Table(tables.Table):
+        col = tables.DateColumn()
+
+    table = Table([{'col': date(2012, 9, 11)}])
+    assert table.rows[0].get_cell_value('col') == 'sep 2012 Tue'

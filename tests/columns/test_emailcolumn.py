@@ -42,3 +42,11 @@ def test_text_should_be_overridable():
 
     table = Table([{'email': 'test@example.com'}])
     assert table.rows[0].get_cell('email') == '<a href="mailto:test@example.com">@</a>'
+
+
+def test_value_returns_a_raw_value_without_html():
+    class Table(tables.Table):
+        col = tables.EmailColumn()
+
+    table = Table([{'col': 'test@example.com'}])
+    assert table.rows[0].get_cell_value('col') == 'test@example.com'

@@ -224,3 +224,11 @@ def test_RelatedLinkColumn():
     table = Table(Person.objects.all())
 
     assert table.rows[0].get_cell('occupation') == '<a href="/occupations/%d/">Carpenter</a>' % carpenter.pk
+
+
+def test_value_returns_a_raw_value_without_html():
+    class Table(tables.Table):
+        col = tables.LinkColumn('occupation', args=(A('id'), ))
+
+    table = Table([{'col': 'link-text', 'id': 1}])
+    assert table.rows[0].get_cell_value('col') == 'link-text'

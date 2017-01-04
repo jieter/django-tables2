@@ -65,8 +65,7 @@ class BooleanColumn(Column):
         Returns the content for a specific cell similarly to `.render` however without any html content.
         '''
         value = self._get_bool_value(record, value, bound_column)
-        text = self.yesno[int(not value)]
-        return text
+        return str(value)
 
     @classmethod
     def from_field(cls, field):
