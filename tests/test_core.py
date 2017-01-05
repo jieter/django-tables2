@@ -692,6 +692,23 @@ def test_sorting_non_database_data():
     assert table.rows[3].get_cell('country') == 'Australia'
 
 
+def test_as_values():
+    class Table(tables.Table):
+        name = tables.Column()
+        country = tables.Column()
+
+    data = [
+        {'name': 'Adrian', 'country': 'Australia'},
+        {'name': 'Adrian', 'country': 'Brazil'},
+        {'name': 'Audrey', 'country': 'Chile'},
+        {'name': 'Bassie', 'country': 'Belgium'},
+    ]
+    expected = [['Name', 'Country']] + [[r['name'], r['country']] for r in data]
+    table = Table(data)
+
+    assert table.as_values() == expected
+
+
 def test_table_ordering_attributes():
     class Table(tables.Table):
         alpha = tables.Column()
