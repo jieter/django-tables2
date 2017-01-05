@@ -147,7 +147,7 @@ class BoundRow(object):
 
     def get_cell(self, name):
         '''
-        Returns the final rendered value for a cell in the row, given the name
+        Returns the final rendered html for a cell in the row, given the name
         of a column.
         '''
         return self._get_and_render_with(name, self._call_render)
