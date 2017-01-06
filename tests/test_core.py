@@ -692,6 +692,30 @@ def test_sorting_non_database_data():
     assert table.rows[3].get_cell('country') == 'Australia'
 
 
+def test_dynamically_adding_columns():
+    class Table(tables.Table):
+        name = tables.Column()
+
+        def __init__(self, extra_cols, *args, **kwargs):
+            """Pass in a list of tuples of extra columns to add in the format (colunm_name, column)"""
+            for col_name, col in extra_cols:
+                self.base_columns[col_name] = col
+            super(Table, self).__init__(*args, **kwargs)
+
+    data = [
+        {'name': 'Adrian', 'country': 'Australia'},
+        {'name': 'Adrian', 'country': 'Brazil'},
+        {'name': 'Audrey', 'country': 'Chile'},
+        {'name': 'Bassie', 'country': 'Belgium'},
+    ]
+    table = Table([('country', tables.Column())], data)
+    assert table.columns.columns.keys() == ['name', 'country']
+
+    # a new instance shouldn't have the extra columns added to the first instance
+    table2 = Table([], data)
+    assert table2.columns.columns.keys() == ['name']
+
+
 def test_table_ordering_attributes():
     class Table(tables.Table):
         alpha = tables.Column()
