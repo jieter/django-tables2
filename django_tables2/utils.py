@@ -360,9 +360,14 @@ class Accessor(str):
                 field = model._meta.get_field(bit)
             except FieldDoesNotExist:
                 break
-            if hasattr(field, 'rel') and hasattr(field.rel, 'to'):
-                model = field.rel.to
-                continue
+
+            if hasattr(field, 'remote_field'):
+                rel = getattr(field, 'remote_field', None)
+                model = getattr(rel, 'model', model)
+            else:
+                # Since django 1.9 `rel` attribute was replaced by `remote_field`
+                rel = getattr(field, 'rel', None)
+                model = getattr(rel, 'to', model)
 
         return field
 
