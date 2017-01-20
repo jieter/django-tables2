@@ -11,6 +11,7 @@ with open('django_tables2/__init__.py', 'rb') as f:
 
 if sys.argv[-1] == 'publish':
     os.system('python setup.py sdist upload')
+    print('\nreleased [{version}](https://pypi.python.org/pypi/django-tables2/{version})'.format(version=VERSION))
     sys.exit()
 
 if sys.argv[-1] == 'tag':
