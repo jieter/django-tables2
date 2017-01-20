@@ -1,39 +1,24 @@
 language: python
 
+# django 2.0 is only supported on py35+
 # django 1.9 is only supported on py27 and py35
-# django 1.8 is the first realease supporting py35
 matrix:
   include:
-    - python: 2.7
-      env: TOXENV=py27-1.8
-    - python: 2.7
-      env: TOXENV=py27-1.9
-    - python: 2.7
-      env: TOXENV=py27-1.10
-    - python: 2.7
-      env: TOXENV=py27-1.11
-    - python: 3.3
-      env: TOXENV=py33-1.8
-    - python: 3.4
-      env: TOXENV=py34-1.8
-    - python: 3.4
-      env: TOXENV=py34-1.9
-    - python: 3.4
-      env: TOXENV=py34-1.10
-    - python: 3.4
-      env: TOXENV=py34-1.11
-    - python: 3.5
-      env: TOXENV=py35-1.9
-    - python: 3.5
-      env: TOXENV=py35-1.10
-    - python: 3.5
-      env: TOXENV=py35-1.11
-    - python: 3.4
-      env: TOXENV=py34-master
-    - python: 3.5
-      env: TOXENV=py35-master
-    - python: 2.7
-      env: TOXENV=docs
+    - { python: 2.7, env: TOXENV=py27-1.8 }
+    - { python: 2.7, env: TOXENV=py27-1.9 }
+    - { python: 2.7, env: TOXENV=py27-1.10 }
+    - { python: 2.7, env: TOXENV=py27-1.11 }
+    - { python: 3.3, env: TOXENV=py33-1.8 }
+    - { python: 3.4, env: TOXENV=py34-1.8 }
+    - { python: 3.4, env: TOXENV=py34-1.9 }
+    - { python: 3.4, env: TOXENV=py34-1.10 }
+    - { python: 3.4, env: TOXENV=py34-1.11 }
+    - { python: 3.5, env: TOXENV=py35-1.9 }
+    - { python: 3.5, env: TOXENV=py35-1.10 }
+    - { python: 3.5, env: TOXENV=py35-1.11 }
+    - { python: 3.4, env: TOXENV=py34-master }
+    - { python: 3.5, env: TOXENV=py35-master }
+    - { python: 2.7, env: TOXENV=docs }
 
   allow_failures:
       - env: TOXENV=py27-1.11
