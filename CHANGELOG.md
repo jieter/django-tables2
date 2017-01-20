@@ -1,5 +1,8 @@
 # Change log
 
+## 1.3.0 (2017-01-20)
+ - Implement a method on `.Table` to get it's raw values. [#394](https://github.com/bradleyayers/django-tables2/pull/394) by [@intiocean](https://github.com/intiocean)
+
 ## 1.2.9 (2016-12-21)
  - Documentation for `None`-column attributes [#401](https://github.com/bradleyayers/django-tables2/pull/401) by [@dyve](https://github.com/dyve)
 
