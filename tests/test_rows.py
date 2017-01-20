@@ -3,6 +3,8 @@ import pytest
 
 import django_tables2 as tables
 
+from django.db import models
+
 
 def test_bound_rows():
     class SimpleTable(tables.Table):
@@ -54,3 +56,44 @@ def test_bound_row():
     assert 'name' in row
     assert 'occupation' in row
     assert 'gamma' not in row
+
+
+def test_get_cell_display():
+
+    class A(models.Model):
+        foo = models.CharField(
+            max_length=1,
+            choices=(
+                ('a', 'valA'),
+                ('b', 'valB'),
+            )
+        )
+
+        class Meta:
+            app_label = 'django_tables2_test'
+
+    class B(models.Model):
+        a = models.ForeignKey(A, on_delete=models.CASCADE)
+
+        class Meta:
+            app_label = 'django_tables2_test'
+
+    class C(models.Model):
+        b = models.ForeignKey(B, on_delete=models.CASCADE)
+
+        class Meta:
+            app_label = 'django_tables2_test'
+
+    class Tab(tables.Table):
+        a = tables.Column(accessor="b.a.foo")
+
+        class Meta:
+            model = C
+
+    a = A(foo='a')
+    b = B(a=a)
+    c = C(b=b)
+
+    tab = Tab([c])
+    row = tab.rows[0]
+    assert row.get_cell('a') == 'valA'

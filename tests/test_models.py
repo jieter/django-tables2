@@ -57,7 +57,7 @@ def test_model_table():
 
     class ComplexModel(models.Model):
         char = models.CharField(max_length=200)
-        fk = models.ForeignKey('self')
+        fk = models.ForeignKey('self', on_delete=models.CASCADE)
         m2m = models.ManyToManyField('self')
 
         class Meta:
