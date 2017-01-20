@@ -74,3 +74,13 @@ def test_should_be_used_for_datetimefields():
             model = DateTimeModel
 
     assert type(Table.base_columns['field']) == tables.DateTimeColumn
+
+
+def test_value_returns_a_raw_value_without_html(dt, settings):
+    settings.SHORT_DATETIME_FORMAT = 'b Y D A f'
+
+    class Table(tables.Table):
+        col = tables.DateTimeColumn()
+
+    table = Table([{'col': dt}])
+    assert table.rows[0].get_cell_value('col') == 'sep 2012 Tue PM 12:30'

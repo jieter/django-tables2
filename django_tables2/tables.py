@@ -426,6 +426,16 @@ class TableBase(object):
 
         return template.render(context)
 
+    def as_values(self):
+        '''
+        Return a 2d array of the data which would be shown in the table where the first row is the table headers.
+
+        This can be used to output the table data as CSV, excel, etc
+        '''
+        headings = [str(c.header) for c in self.columns]
+        rows = [[r.get_cell_value(column.name) for column in r.table.columns] for r in self.rows]
+        return [headings] + rows
+
     def has_footer(self):
         '''
         Returns True if any of the columns define a ``_footer`` attribute or a

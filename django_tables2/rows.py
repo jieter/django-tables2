@@ -107,11 +107,7 @@ class BoundRow(object):
             # is correct – it's what __getitem__ expects.
             yield value
 
-    def get_cell(self, name):
-        '''
-        Returns the final rendered value for a cell in the row, given the name
-        of a column.
-        '''
+    def _get_and_render_with(self, name, render_func):
         bound_column = self.table.columns[name]
 
         value = None
@@ -126,7 +122,8 @@ class BoundRow(object):
         if isinstance(penultimate, models.Model):
             try:
                 field = accessor.get_field(self.record)
-                display_fn = getattr(penultimate, 'get_%s_display' % remainder, None)
+                display_fn = getattr(penultimate, 'get_%s_display' % remainder,
+                                     None)
                 if getattr(field, 'choices', ()) and display_fn:
                     value = display_fn()
                     remainder = None
@@ -141,12 +138,19 @@ class BoundRow(object):
                 # we need to account for non-field based columns (issue #257)
                 is_linkcolumn = isinstance(bound_column.column, BaseLinkColumn)
                 if is_linkcolumn and bound_column.column.text is not None:
-                    return self._call_render(bound_column)
+                    return render_func(bound_column)
 
         if value in bound_column.column.empty_values:
             return bound_column.default
 
-        return self._call_render(bound_column, value)
+        return render_func(bound_column, value)
+
+    def get_cell(self, name):
+        '''
+        Returns the final rendered html for a cell in the row, given the name
+        of a column.
+        '''
+        return self._get_and_render_with(name, self._call_render)
 
     def _call_render(self, bound_column, value=None):
         '''
@@ -154,6 +158,25 @@ class BoundRow(object):
         '''
 
         return call_with_appropriate(bound_column.render, {
+            'value': value,
+            'record': self.record,
+            'column': bound_column.column,
+            'bound_column': bound_column,
+            'bound_row': self,
+            'table': self._table,
+        })
+
+    def get_cell_value(self, name):
+        '''
+        Returns the final rendered value (excluding any html) for a cell in the
+        row, given the name of a column.
+        '''
+        return self._get_and_render_with(name, self._call_value)
+
+    def _call_value(self, bound_column, value=None):
+        '''Call the column's value method with appropriate kwargs'''
+
+        return call_with_appropriate(bound_column.column.value, {
             'value': value,
             'record': self.record,
             'column': bound_column.column,

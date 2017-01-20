@@ -58,6 +58,13 @@ class BaseLinkColumn(Column):
             text=self.text_value(record, value)
         )
 
+    def value(self, record, value):
+        '''
+        Returns the content for a specific cell similarly to `.render` however
+        without any html content.
+        '''
+        return self.text_value(record, value)
+
 
 @library.register
 class LinkColumn(BaseLinkColumn):
