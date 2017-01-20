@@ -364,8 +364,10 @@ class Accessor(str):
             if hasattr(field, 'remote_field'):
                 rel = getattr(field, 'remote_field', None)
                 model = getattr(rel, 'model', model)
+
+            # !!! Support only for Django <= 1.8
+            # Remove this when support for Django 1.8 is over
             else:
-                # Since django 1.9 `rel` attribute was replaced by `remote_field`
                 rel = getattr(field, 'rel', None)
                 model = getattr(rel, 'to', model)
 
