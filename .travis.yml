@@ -13,10 +13,11 @@ matrix:
     - { python: 3.4, env: TOXENV=py34-1.9 }
     - { python: 3.4, env: TOXENV=py34-1.10 }
     - { python: 3.4, env: TOXENV=py34-1.11 }
+    - { python: 3.4, env: TOXENV=py34-master }
+    - { python: 3.5, env: TOXENV=py35-1.8 }
     - { python: 3.5, env: TOXENV=py35-1.9 }
     - { python: 3.5, env: TOXENV=py35-1.10 }
     - { python: 3.5, env: TOXENV=py35-1.11 }
-    - { python: 3.4, env: TOXENV=py34-master }
     - { python: 3.5, env: TOXENV=py35-master }
     - { python: 3.6, env: TOXENV=py36-master }
     - { python: 2.7, env: TOXENV=docs }
