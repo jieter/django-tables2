@@ -334,6 +334,7 @@ class TableOptions(object):
         super(TableOptions, self).__init__()
         self.attrs = AttributeDict(getattr(options, 'attrs', {}))
         self.row_attrs = getattr(options, 'row_attrs', {})
+        self.pinned_row_attrs = getattr(options, 'pinned_row_attrs', {})
         self.default = getattr(options, 'default', '—')
         self.empty_text = getattr(options, 'empty_text', None)
         self.fields = getattr(options, 'fields', None)
@@ -383,6 +384,8 @@ class TableBase(object):
             Allows custom HTML attributes to be specified which will be added
             to the ``<tr>`` tag of the rendered table.
 
+        pinned_row_attrs: Same as row_attrs but for pinned rows
+
         sequence (iterable): The sequence/order of columns the columns (from
             left to right).
 
@@ -417,18 +420,28 @@ class TableBase(object):
             even if some columns have a footer, defaults to `True`.
     '''
     def __init__(self, data, order_by=None, orderable=None, empty_text=None,
-                 exclude=None, attrs=None, row_attrs=None, sequence=None,
-                 prefix=None, order_by_field=None, page_field=None,
+                 exclude=None, attrs=None, row_attrs=None, pinned_row_attrs=None,
+                 sequence=None, prefix=None, order_by_field=None, page_field=None,
                  per_page_field=None, template=None, default=None, request=None,
                  show_header=None, show_footer=True):
+
         super(TableBase, self).__init__()
+
         self.exclude = exclude or self._meta.exclude
         self.sequence = sequence
         self.data = TableData.from_data(data=data, table=self)
         if default is None:
             default = self._meta.default
         self.default = default
-        self.rows = BoundRows(data=self.data, table=self)
+
+        # Pinned rows #406
+        self.pinned_row_attrs = AttributeDict(pinned_row_attrs or self._meta.pinned_row_attrs)
+        self.pinned_data = {
+            'top': self.get_top_pinned_data(),
+            'bottom': self.get_bottom_pinned_data()
+        }
+
+        self.rows = BoundRows(data=self.data, table=self, pinned_data=self.pinned_data)
         attrs = computed_values(attrs if attrs is not None else self._meta.attrs)
         self.attrs = AttributeDict(attrs)
         self.row_attrs = AttributeDict(row_attrs or self._meta.row_attrs)
@@ -483,6 +496,24 @@ class TableBase(object):
             RequestConfig(request).configure(self)
 
         self._counter = count()
+
+    def get_top_pinned_data(self):
+        """
+        Return data for top pinned rows containing data for each row.
+        Iterable type like: queryset, list of dicts, list of objects.
+        Default return None and should be override in subclass of ~.Table\
+        For None value top pinned rows are not render.
+        """
+        return None
+
+    def get_bottom_pinned_data(self):
+        """
+        Return data for bottom pinned rows containing data for each row.
+        Iterable type like: queryset, list of dicts, list of objects.
+        Default return None and should be override in subclass of ~.Table\
+        For None value bottom pinned rows are not render.
+        """
+        return None
 
     def as_html(self, request):
         '''

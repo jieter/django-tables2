@@ -213,6 +213,46 @@ class BoundRow(object):
             yield (column, self.get_cell(column.name))
 
 
+class BoundPinnedRow(BoundRow):
+
+    @property
+    def attrs(self):
+        '''
+        Return the attributes for a certain pinned row.
+        Add 'pinned-row' to css class attribute
+        '''
+        row_attrs = computed_values(self._table.pinned_row_attrs, self._record)
+        cssClass = "pinned-row"
+        cssClass = " ".join([
+            'even' if next(self._table._counter) % 2 == 0 else 'odd',
+            cssClass,
+            row_attrs.get('class', "")
+        ])
+        row_attrs['class'] = cssClass
+        return AttributeDict(row_attrs)
+
+    def __iter__(self):
+        '''
+        Iterate over the rendered values for cells in the row.
+
+        Under the hood this method just makes a call to
+        `.BoundPinnedRow.__getitem__` for each cell.
+        '''
+        for column, value in self.items():
+            # this uses __getitem__, using the name (rather than the accessor)
+            # is correct – it's what __getitem__ expects.
+            yield value
+
+    def _get_and_render_with(self, name, render_func):
+        """
+        Get raw value from record render
+        this value using by render_func
+        """
+        accessor = A(name)
+        value = accessor.resolve(context=self._record, quiet=True) or self._table.default
+        return value
+
+
 class BoundRows(object):
     '''
     Container for spawning `.BoundRow` objects.
@@ -220,16 +260,44 @@ class BoundRows(object):
     Arguments:
         data: iterable of records
         table: the `~.Table` in which the rows exist
+        pinned_data: dictionary with iterable of records for top and/or
+         bottom pinned rows. Example
+         {
+         'top' : [ iterable structure ] | None,
+         'bottom' : [ iterable structure ] | None
+         }
 
     This is used for `~.Table.rows`.
     '''
-    def __init__(self, data, table):
+    def __init__(self, data, table, pinned_data=None):
         self.data = data
         self.table = table
+        self.top_pinned_data = pinned_data.get('top')
+        self.bottom_pinned_data = pinned_data.get('bottom')
+
+    def generator_pined_row(self, data):
+        """
+        Generator for top and bottom pinned rows
+        """
+        if data is not None:
+            if hasattr(data, '__iter__') is False:
+                raise ValueError('The data for pinned rows must be iterable')
+            else:
+                # If pinned data is iterable
+                for pinned_record in data:
+                    yield BoundPinnedRow(pinned_record, table=self.table)
 
     def __iter__(self):
+        # Top pinned rows
+        for pinned_record in self.generator_pined_row(self.top_pinned_data):
+            yield pinned_record
+
         for record in self.data:
             yield BoundRow(record, table=self.table)
+
+        # Bottom pinned rows
+        for pinned_record in self.generator_pined_row(self.bottom_pinned_data):
+            yield pinned_record
 
     def __len__(self):
         return len(self.data)
@@ -239,5 +307,14 @@ class BoundRows(object):
         Slicing returns a new `~.BoundRows` instance, indexing returns a single
         `~.BoundRow` instance.
         '''
-        container = BoundRows if isinstance(key, slice) else BoundRow
-        return container(self.data[key], table=self.table)
+        if isinstance(key, slice):
+            return BoundRows(
+                self.data[key],
+                table=self.table,
+                pinned_data={
+                    'top': self.top_pinned_data,
+                    'bottom': self.bottom_pinned_data
+                }
+            )
+        else:
+            return BoundRow(self.data[key], table=self.table)
