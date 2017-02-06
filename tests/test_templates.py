@@ -75,7 +75,7 @@ def test_as_html():
 
 
 def test_custom_rendering():
-    """For good measure, render some actual templates."""
+    '''For good measure, render some actual templates.'''
     countries = CountryTable(MEMORY_DATA)
     context = Context({'countries': countries})
 

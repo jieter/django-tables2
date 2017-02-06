@@ -54,9 +54,9 @@ def test_bound_rows_with_pinned_data():
 
 
 def test_as_html():
-    """
+    '''
     Check is html render correctly
-    """
+    '''
     request = build_request('/')
     table = SimpleTable([{'name': 'Grzegorz', 'age': 30, 'occupation': 'programmer'}])
     root = parse(table.as_html(request))
@@ -118,9 +118,9 @@ def test_pinned_row_attrs():
 
 
 def test_ordering():
-    """
+    '''
     change sorting should not change ordering pinned rows
-    """
+    '''
     request = build_request('/')
     records = [
         {'name': 'Alex', 'age': 42, 'occupation': 'programmer'},
@@ -147,11 +147,11 @@ def test_ordering():
 
 
 def test_bound_rows_getitem():
-    """
-    Testing __getitem__ from BoundRows
-    Sprawdzenie zwracanej klasy
-    in BoundRows it should not be pinned rows
-    """
+    '''
+    Testing BoundRows.__getitem__() method.
+    Checking the return class for simple value and for slice.
+    Ensure the inside of the BoundRows pinned rows not exist.
+    '''
     records = [
         {'name': 'Greg', 'age': 30, 'occupation': 'policeman'},
         {'name': 'Alex', 'age': 42, 'occupation': 'programmer'},
@@ -162,3 +162,4 @@ def test_bound_rows_getitem():
     assert isinstance(table.rows[0], BoundRow) is True
     assert isinstance(table.rows[0:2], BoundRows) is True
     assert table.rows[0:2][0].get_cell('name') == 'Greg'
+    assert len(table.rows[:]) == 3

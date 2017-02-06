@@ -498,21 +498,21 @@ class TableBase(object):
         self._counter = count()
 
     def get_top_pinned_data(self):
-        """
+        '''
         Return data for top pinned rows containing data for each row.
         Iterable type like: queryset, list of dicts, list of objects.
-        Default return None and should be override in subclass of ~.Table\
-        For None value top pinned rows are not render.
-        """
+        Default return None. This method should be overriden in subclass of ~.Table\
+        For None value, top pinned rows are not rendered.
+        '''
         return None
 
     def get_bottom_pinned_data(self):
-        """
+        '''
         Return data for bottom pinned rows containing data for each row.
         Iterable type like: queryset, list of dicts, list of objects.
-        Default return None and should be override in subclass of ~.Table\
-        For None value bottom pinned rows are not render.
-        """
+        Default return None. This method should be overriden in subclass of ~.Table\
+        For None value, bottom pinned rows are not rendered.
+        '''
         return None
 
     def as_html(self, request):

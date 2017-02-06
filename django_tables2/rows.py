@@ -71,12 +71,20 @@ class BoundRow(object):
         '''
         return self._table
 
+    def get_even_odd_css_class(self):
+        '''
+        Return css class `even` or `odd`
+        '''
+        if next(self._table._counter) % 2 == 0:
+            return 'even'
+        return 'odd'
+
     @property
     def attrs(self):
         '''
         Return the attributes for a certain row.
         '''
-        cssClass = 'even' if next(self._table._counter) % 2 == 0 else 'odd'
+        cssClass = self.get_even_odd_css_class()
 
         row_attrs = computed_values(self._table.row_attrs, self._record)
 
@@ -224,7 +232,7 @@ class BoundPinnedRow(BoundRow):
         row_attrs = computed_values(self._table.pinned_row_attrs, self._record)
         cssClass = "pinned-row"
         cssClass = " ".join([
-            'even' if next(self._table._counter) % 2 == 0 else 'odd',
+            self.get_even_odd_css_class(),
             cssClass,
             row_attrs.get('class', "")
         ])
@@ -244,10 +252,10 @@ class BoundPinnedRow(BoundRow):
             yield value
 
     def _get_and_render_with(self, name, render_func):
-        """
+        '''
         Get raw value from record render
         this value using by render_func
-        """
+        '''
         accessor = A(name)
         value = accessor.resolve(context=self._record, quiet=True) or self._table.default
         return value
@@ -272,13 +280,12 @@ class BoundRows(object):
     def __init__(self, data, table, pinned_data=None):
         self.data = data
         self.table = table
-        self.top_pinned_data = pinned_data.get('top')
-        self.bottom_pinned_data = pinned_data.get('bottom')
+        self.pinned_data = pinned_data or {}
 
-    def generator_pined_row(self, data):
-        """
+    def generator_pinned_row(self, data):
+        '''
         Generator for top and bottom pinned rows
-        """
+        '''
         if data is not None:
             if hasattr(data, '__iter__') is False:
                 raise ValueError('The data for pinned rows must be iterable')
@@ -289,14 +296,14 @@ class BoundRows(object):
 
     def __iter__(self):
         # Top pinned rows
-        for pinned_record in self.generator_pined_row(self.top_pinned_data):
+        for pinned_record in self.generator_pinned_row(self.pinned_data.get('top')):
             yield pinned_record
 
         for record in self.data:
             yield BoundRow(record, table=self.table)
 
         # Bottom pinned rows
-        for pinned_record in self.generator_pined_row(self.bottom_pinned_data):
+        for pinned_record in self.generator_pinned_row(self.pinned_data.get('bottom')):
             yield pinned_record
 
     def __len__(self):
@@ -311,10 +318,7 @@ class BoundRows(object):
             return BoundRows(
                 self.data[key],
                 table=self.table,
-                pinned_data={
-                    'top': self.top_pinned_data,
-                    'bottom': self.bottom_pinned_data
-                }
+                pinned_data=self.pinned_data
             )
         else:
             return BoundRow(self.data[key], table=self.table)
