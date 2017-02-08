@@ -1,8 +1,10 @@
 # encoding: utf-8
 import pytest
+from django.db import models
+
 import django_tables2 as tables
 from django_tables2.rows import BoundRow, BoundRows
-from django.db import models
+
 from .utils import build_request, parse
 
 
@@ -39,7 +41,6 @@ def test_bound_rows_with_pinned_data():
     with pytest.raises(IndexError):
         row.get_cell(3)
 
-    # column name indexing into a row
     assert row.get_cell('name') == record['name']
     assert row.get_cell('occupation') == record['occupation']
     assert row.get_cell('age') == record['age']
@@ -47,7 +48,6 @@ def test_bound_rows_with_pinned_data():
     with pytest.raises(KeyError):
         row.get_cell('gamma')
 
-    # row should support contains check
     assert 'name' in row
     assert 'occupation' in row
     assert 'gamma' not in row
@@ -55,7 +55,7 @@ def test_bound_rows_with_pinned_data():
 
 def test_as_html():
     '''
-    Check is html render correctly
+    Ensure that html render correctly.
     '''
     request = build_request('/')
     table = SimpleTable([{'name': 'Grzegorz', 'age': 30, 'occupation': 'programmer'}])
@@ -64,33 +64,33 @@ def test_as_html():
     # One row for header
     assert len(root.findall('.//thead/tr')) == 1
 
-    # in the header should be 3 cell
+    # In the header should be 3 cell.
     assert len(root.findall('.//thead/tr/th')) == 3
 
-    # in the body should be on orginal record and 3 pinned rows
+    # In the body, should be one original record and 3 pinned rows.
     assert len(root.findall('.//tbody/tr')) == 4
     assert len(root.findall('.//tbody/tr/td')) == 12
 
-    # first top pinned row
+    # First top pinned row.
     tr = root.findall('.//tbody/tr')
     td = tr[0].findall('td')
     assert td[0].text == "Ron"
     assert td[1].text == table.default
     assert td[2].text == "90"
 
-    # second top pinned row
+    # Second top pinned row.
     td = tr[1].findall('td')
     assert td[0].text == "Jon"
     assert td[1].text == table.default
     assert td[2].text == '10'
 
-    # oryginal row
+    # Original row
     td = tr[2].findall('td')
     assert td[0].text == "Grzegorz"
     assert td[1].text == 'programmer'
     assert td[2].text == '30'
 
-    # first bottom pinned row
+    # First bottom pinned row.
     td = tr[3].findall('td')
     assert td[0].text == table.default
     assert td[1].text == 'Sum age'
@@ -99,7 +99,7 @@ def test_as_html():
 
 def test_pinned_row_attrs():
     '''
-    Testing attrs for pinned rows
+    Testing attrs for pinned rows.
     '''
 
     pinned_row_attrs = {
@@ -119,7 +119,7 @@ def test_pinned_row_attrs():
 
 def test_ordering():
     '''
-    change sorting should not change ordering pinned rows
+    Change sorting should not change ordering pinned rows.
     '''
     request = build_request('/')
     records = [
@@ -150,7 +150,7 @@ def test_bound_rows_getitem():
     '''
     Testing BoundRows.__getitem__() method.
     Checking the return class for simple value and for slice.
-    Ensure the inside of the BoundRows pinned rows not exist.
+    Ensure that inside of BoundRows pinned rows are not exist.
     '''
     records = [
         {'name': 'Greg', 'age': 30, 'occupation': 'policeman'},
@@ -163,3 +163,21 @@ def test_bound_rows_getitem():
     assert isinstance(table.rows[0:2], BoundRows) is True
     assert table.rows[0:2][0].get_cell('name') == 'Greg'
     assert len(table.rows[:]) == 3
+
+
+def test_uniterable_pinned_data():
+    '''
+    Ensure that, when data for pinned rows are not iterable,
+    the ValueError exception will be raised.
+    '''
+    class FooTable(tables.Table):
+        col = tables.Column()
+
+        def get_top_pinned_data(self):
+            return 1
+
+    tab = FooTable([1, 2, 3])
+
+    with pytest.raises(ValueError):
+        for row in tab.rows:
+            pass
