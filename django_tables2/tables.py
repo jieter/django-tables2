@@ -384,7 +384,7 @@ class TableBase(object):
             Allows custom HTML attributes to be specified which will be added
             to the ``<tr>`` tag of the rendered table.
 
-        pinned_row_attrs: Same as row_attrs but for pinned rows
+        pinned_row_attrs: Same as row_attrs but for pinned rows.
 
         sequence (iterable): The sequence/order of columns the columns (from
             left to right).
@@ -501,7 +501,7 @@ class TableBase(object):
         '''
         Return data for top pinned rows containing data for each row.
         Iterable type like: queryset, list of dicts, list of objects.
-        Default return None. This method should be overriden in subclass of ~.Table\
+        Default return None. This method should be overridden in subclass of ~.Table
         For None value, top pinned rows are not rendered.
         '''
         return None
@@ -510,7 +510,7 @@ class TableBase(object):
         '''
         Return data for bottom pinned rows containing data for each row.
         Iterable type like: queryset, list of dicts, list of objects.
-        Default return None. This method should be overriden in subclass of ~.Table\
+        Default return None. This method should be overridden in subclass of ~.Table
         For None value, bottom pinned rows are not rendered.
         '''
         return None

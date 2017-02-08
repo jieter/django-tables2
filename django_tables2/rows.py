@@ -73,7 +73,7 @@ class BoundRow(object):
 
     def get_even_odd_css_class(self):
         '''
-        Return css class `even` or `odd`
+        Return css class `even` or `odd`.
         '''
         if next(self._table._counter) % 2 == 0:
             return 'even'
@@ -227,29 +227,16 @@ class BoundPinnedRow(BoundRow):
     def attrs(self):
         '''
         Return the attributes for a certain pinned row.
-        Add 'pinned-row' to css class attribute
+        Add 'pinned-row' to css class attribute.
         '''
         row_attrs = computed_values(self._table.pinned_row_attrs, self._record)
-        cssClass = "pinned-row"
-        cssClass = " ".join([
+        css_class = ' '.join([
             self.get_even_odd_css_class(),
-            cssClass,
-            row_attrs.get('class', "")
+            'pinned-row',
+            row_attrs.get('class', '')
         ])
-        row_attrs['class'] = cssClass
+        row_attrs['class'] = css_class
         return AttributeDict(row_attrs)
-
-    def __iter__(self):
-        '''
-        Iterate over the rendered values for cells in the row.
-
-        Under the hood this method just makes a call to
-        `.BoundPinnedRow.__getitem__` for each cell.
-        '''
-        for column, value in self.items():
-            # this uses __getitem__, using the name (rather than the accessor)
-            # is correct – it's what __getitem__ expects.
-            yield value
 
     def _get_and_render_with(self, name, render_func):
         '''
@@ -284,7 +271,7 @@ class BoundRows(object):
 
     def generator_pinned_row(self, data):
         '''
-        Generator for top and bottom pinned rows
+        Top and bottom pinned rows generator.
         '''
         if data is not None:
             if hasattr(data, '__iter__') is False:
