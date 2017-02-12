@@ -11,7 +11,6 @@ from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.utils import six
 from django_tables2.tables import DeclarativeColumnsMetaclass
 
-from .app.models import Person
 from .utils import build_request
 
 request = build_request('/')
