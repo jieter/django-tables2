@@ -671,7 +671,7 @@ def test_list_table_data_supports_ordering():
     assert table.rows[0].get_cell('name') == 'Davina'
 
 
-def test_sorting_non_database_data():
+def test_ordering_non_database_data():
     class Table(tables.Table):
         name = tables.Column()
         country = tables.Column()
