@@ -9,8 +9,9 @@ import django_tables2 as tables
 import pytest
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.utils import six
-from django_tables2.tables import DeclarativeColumnsMetaclass
+from django_tables2.tables import DeclarativeColumnsMetaclass, RequestConfig
 
+from .app.models import Person
 from .utils import build_request
 
 request = build_request('/')
@@ -300,7 +301,7 @@ def test_ordering_different_types():
     ]
 
     table = OrderedTable(data)
-    assert "—" == table.rows[0].get_cell('alpha')
+    assert '—' == table.rows[0].get_cell('alpha')
 
     table = OrderedTable(data, order_by='i')
     if six.PY3:
@@ -782,6 +783,47 @@ def test_column_ordering_attributes():
     assert 'ascending' in table.columns[0].attrs['th']['class']
     assert 'sort' in table.columns[0].attrs['th']['class']
     assert 'canOrder' in table.columns[1].attrs['th']['class']
+
+
+@pytest.mark.django_db
+def test_ordering_by_custom_field():
+    '''
+    When defining a custom field in a table, as name=tables.Column() with
+    methods to render and order render_name and order_name, sorting by this
+    column causes an error if the custom field is not in last position.
+    (issue #413)
+    '''
+
+    Person.objects.create(first_name='Alice', last_name='Beta')
+    Person.objects.create(first_name='Bob', last_name='Alpha')
+
+    from django.db.models import F, Value
+    from django.db.models.functions import Concat
+
+
+    class PersonTable(tables.Table):
+        first_name = tables.Column()
+        last_name = tables.Column()
+        full_name = tables.Column()
+
+        def render_full_name(self, record):
+            return record.last_name + ' ' + record.first_name
+
+        def order_full_name(self, queryset, is_descending):
+            queryset = queryset.annotate(
+                full_name=Concat(F('last_name'), Value(' '), F('first_name'))
+            ).order_by(('-' if is_descending else '') + 'full_name')
+            return queryset, True
+
+        class Meta:
+            model = Person
+            fields = ('first_name', 'last_name', 'full_name')
+
+    table = PersonTable(Person.objects.all())
+    request = build_request('/?sort=full_name&sort=first_name')
+    RequestConfig(request).configure(table)
+
+    assert table.rows[0].record.first_name == 'Bob'
 
 
 def test_row_attrs():
