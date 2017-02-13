@@ -1,9 +1,8 @@
 # coding: utf-8
+import django_tables2 as tables
 import pytest
 from django.db.models.functions import Length
 from django.utils import six
-
-import django_tables2 as tables
 
 from .app.models import Occupation, Person, PersonProxy
 from .utils import build_request
@@ -119,6 +118,7 @@ def test_column_verbose_name():
     # however both fields that use the ``first_name`` field should just use a
     # titlised version of the column name as the column header.
     table = PersonTable(Person.objects.all())
+
     # Should be generated (capitalized column name)
     assert 'First Name' == table.columns['first_name'].verbose_name
     assert 'First Name' == table.columns['fn1'].verbose_name
@@ -147,7 +147,7 @@ def test_column_verbose_name():
             model = Person
 
     # Issue #16
-    table = PersonTable([])
+    table = PersonTable(Person.objects.all())
     assert 'Translation Test' == table.columns['trans_test'].verbose_name
     assert 'Translation Test Lazy' == table.columns['trans_test_lazy'].verbose_name
     assert 'Web Site' == table.columns['website'].verbose_name
