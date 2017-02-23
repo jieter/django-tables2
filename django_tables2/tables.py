@@ -501,8 +501,20 @@ class TableBase(object):
         '''
         Return data for top pinned rows containing data for each row.
         Iterable type like: queryset, list of dicts, list of objects.
-        Default return None. This method should be overridden in subclass of ~.Table
-        For None value, top pinned rows are not rendered.
+
+        Returns:
+            `None` (default) no pinned rows at the top, iterable, data for pinned rows at the top.
+
+        Note:
+            To show pinned row this method should be overridden.
+
+        Example:
+            >>> class TableWithTopPinnedRows(Table):
+            ...     def get_top_pinned_data(self):
+            ...         return [{
+            ...             'column_a' : 'some value',
+            ...             'column_c' : 'other value',
+            ...         }]
         '''
         return None
 
@@ -510,8 +522,20 @@ class TableBase(object):
         '''
         Return data for bottom pinned rows containing data for each row.
         Iterable type like: queryset, list of dicts, list of objects.
-        Default return None. This method should be overridden in subclass of ~.Table
-        For None value, bottom pinned rows are not rendered.
+
+        Returns:
+            `None` (default) no pinned rows at the bottom, iterable, data for pinned rows at the bottom.
+
+        Note:
+            To show pinned row this method should be overridden.
+
+        Example:
+            >>> class TableWithBottomPinnedRows(Table):
+            ...     def get_bottom_pinned_data(self):
+            ...         return [{
+            ...             'column_a' : 'some value',
+            ...             'column_c' : 'other value',
+            ...         }]
         '''
         return None
 

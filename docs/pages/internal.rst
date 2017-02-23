@@ -41,6 +41,15 @@ The items documented here are internal and subject to change.
     :special-members:
 
 
+`.BoundPinnedRow`
+-----------------
+
+.. autoclass:: django_tables2.rows.BoundPinnedRow
+    :members:
+    :private-members:
+    :special-members:
+
+
 `.TableData`
 ------------
 
