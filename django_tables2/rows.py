@@ -78,9 +78,7 @@ class BoundRow(object):
         Return:
             string: `even` for even records, `odd` otherwise.
         '''
-        if next(self._table._counter) % 2 == 0:
-            return 'even'
-        return 'odd'
+        return 'odd' if next(self._table._counter) % 2 else 'even'
 
     @property
     def attrs(self):
