@@ -20,29 +20,113 @@ from .utils import (AttributeDict, OrderBy, OrderByTuple, Sequence,
 
 class TableData(object):
     '''
-    Exposes a consistent API for :term:`table data`.
-
-    Arguments:
-        data (`~django.db.query.QuerySet` or `list` of `dict`): iterable
-            containing data for each row
-        table (`~.Table`)
+    Base class for table data containers.
     '''
     def __init__(self, data, table):
+        self.data = data
         self.table = table
-        # data may be a QuerySet-like objects with count() and order_by()
-        if (hasattr(data, 'count') and callable(data.count) and
-                hasattr(data, 'order_by') and callable(data.order_by)):
-            self.queryset = data
-            return
 
-        # do some light validation
-        if hasattr(data, '__iter__') or (hasattr(data, '__len__') and hasattr(data, '__getitem__')):
-            self.list = list(data)
-            return
+    def __getitem__(self, key):
+        '''
+        Slicing returns a new `.TableData` instance, indexing returns a
+        single record.
+        '''
+        return self.data[key]
+
+    def get_model(self):
+        return getattr(self.data, 'model', None)
+
+    @property
+    def ordering(self):
+        return None
+
+    @property
+    def verbose_name(self):
+        return 'item'
+
+    @property
+    def verbose_name_plural(self):
+        return 'items'
+
+    @staticmethod
+    def from_data(data, table):
+        if TableQuerysetData.validate(data):
+            return TableQuerysetData(data, table)
+        elif TableListData.validate(data):
+            return TableListData(list(data), table)
 
         raise ValueError(
             'data must be QuerySet-like (have count() and order_by()) or support'
             ' list(data) -- {} has neither'.format(type(data).__name__)
+        )
+
+
+class TableListData(TableData):
+    '''
+    Table data container for a list of dicts, for example::
+
+    [
+        {'name': 'John', 'age': 20},
+        {'name': 'Brian', 'age': 25}
+    ]
+
+    .. note::
+
+        Other structures might have worked in the past, but are not explicitly
+        supported or tested.
+    '''
+
+    @staticmethod
+    def validate(data):
+        '''
+        Validates `data` for use in this container
+        '''
+        return (
+            hasattr(data, '__iter__') or
+            (hasattr(data, '__len__') and hasattr(data, '__getitem__'))
+        )
+
+    def __len__(self):
+        return len(self.data)
+
+    def order_by(self, aliases):
+        '''
+        Order the data based on order by aliases (prefixed column names) in the
+        table.
+
+        Arguments:
+            aliases (`~.utils.OrderByTuple`): optionally prefixed names of
+                columns ('-' indicates descending order) in order of
+                significance with regard to data ordering.
+        '''
+        accessors = []
+        for alias in aliases:
+            bound_column = self.table.columns[OrderBy(alias).bare]
+
+            # bound_column.order_by reflects the current ordering applied to
+            # the table. As such we need to check the current ordering on the
+            # column and use the opposite if it doesn't match the alias prefix.
+            if alias[0] != bound_column.order_by_alias[0]:
+                accessors += bound_column.order_by.opposite
+            else:
+                accessors += bound_column.order_by
+
+        self.data.sort(key=OrderByTuple(accessors).key)
+
+
+class TableQuerysetData(TableData):
+    '''
+    Table data container for a queryset.
+    '''
+
+    @staticmethod
+    def validate(data):
+        '''
+        Validates `data` for use in this container
+        '''
+        return (
+            hasattr(data, 'count') and callable(data.count) and
+            hasattr(data, 'order_by') and callable(data.order_by)
         )
 
     def __len__(self):
@@ -50,14 +134,9 @@ class TableData(object):
             # Use the queryset count() method to get the length, instead of
             # loading all results into memory. This allows, for example,
             # smart paginators that use len() to perform better.
-            self._length = (
-                self.queryset.count() if hasattr(self, 'queryset') else len(self.list)
-            )
-        return self._length
+            self._length = self.data.count()
 
-    @property
-    def data(self):
-        return self.queryset if hasattr(self, 'queryset') else self.list
+        return self._length
 
     @property
     def ordering(self):
@@ -71,14 +150,14 @@ class TableData(object):
         This works by inspecting the actual underlying data. As such it's only
         supported for querysets.
         '''
-        if hasattr(self, 'queryset'):
-            aliases = {}
-            for bound_column in self.table.columns:
-                aliases[bound_column.order_by_alias] = bound_column.order_by
-            try:
-                return next(segment(self.queryset.query.order_by, aliases))
-            except StopIteration:
-                pass
+
+        aliases = {}
+        for bound_column in self.table.columns:
+            aliases[bound_column.order_by_alias] = bound_column.order_by
+        try:
+            return next(segment(self.data.query.order_by, aliases))
+        except StopIteration:
+            pass
 
     def order_by(self, aliases):
         '''
@@ -90,7 +169,7 @@ class TableData(object):
                 columns ('-' indicates descending order) in order of
                 significance with regard to data ordering.
         '''
-        bound_column = None
+        modified_any = False
         accessors = []
         for alias in aliases:
             bound_column = self.table.columns[OrderBy(alias).bare]
@@ -102,51 +181,39 @@ class TableData(object):
             else:
                 accessors += bound_column.order_by
 
-        if hasattr(self, 'queryset'):
-            # Custom ordering
             if bound_column:
-                self.queryset, modified = bound_column.order(self.queryset, alias[0] == '-')
-                if modified:
-                    return
-            # Traditional ordering
-            if accessors:
-                order_by_accessors = (a.for_queryset() for a in accessors)
-                self.queryset = self.queryset.order_by(*order_by_accessors)
-        else:
-            self.list.sort(key=OrderByTuple(accessors).key)
+                queryset, modified = bound_column.order(self.data, alias[0] == '-')
 
-    def __getitem__(self, key):
-        '''
-        Slicing returns a new `.TableData` instance, indexing returns a
-        single record.
-        '''
-        return self.data[key]
+                if modified:
+                    self.data = queryset
+                    modified_any = True
+
+        # custom ordering
+        if modified_any:
+            return True
+
+        # Traditional ordering
+        if accessors:
+            order_by_accessors = (a.for_queryset() for a in accessors)
+            self.data = self.data.order_by(*order_by_accessors)
 
     @cached_property
     def verbose_name(self):
         '''
         The full (singular) name for the data.
 
-        Queryset data has its model's `~django.db.Model.Meta.verbose_name`
-        honored. List data is checked for a `verbose_name` attribute, and
-        falls back to using `'item'`.
+        Model's `~django.db.Model.Meta.verbose_name` is honored.
         '''
-        if hasattr(self, 'queryset'):
-            return self.queryset.model._meta.verbose_name
-
-        return getattr(self.list, 'verbose_name', 'item')
+        return self.data.model._meta.verbose_name
 
     @cached_property
     def verbose_name_plural(self):
         '''
-        The full (plural) name of the data.
+        The full (plural) name for the data.
 
-        This uses the same approach as `TableData.verbose_name`.
+        Model's `~django.db.Model.Meta.verbose_name` is honored.
         '''
-        if hasattr(self, 'queryset'):
-            return self.queryset.model._meta.verbose_name_plural
-
-        return getattr(self.list, 'verbose_name_plural', 'items')
+        return self.data.model._meta.verbose_name_plural
 
 
 class DeclarativeColumnsMetaclass(type):
@@ -341,8 +408,6 @@ class TableBase(object):
         show_footer (bool): If `False`, the table footer will not be rendered,
             even if some columns have a footer, defaults to `True`.
     '''
-    TableDataClass = TableData
-
     def __init__(self, data, order_by=None, orderable=None, empty_text=None,
                  exclude=None, attrs=None, row_attrs=None, sequence=None,
                  prefix=None, order_by_field=None, page_field=None,
@@ -351,7 +416,7 @@ class TableBase(object):
         super(TableBase, self).__init__()
         self.exclude = exclude or self._meta.exclude
         self.sequence = sequence
-        self.data = self.TableDataClass(data=data, table=self)
+        self.data = TableData.from_data(data=data, table=self)
         if default is None:
             default = self._meta.default
         self.default = default

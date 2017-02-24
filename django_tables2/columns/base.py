@@ -6,7 +6,6 @@ from itertools import islice
 
 from django.utils import six
 from django.utils.safestring import SafeData
-
 from django_tables2.templatetags.django_tables2 import title
 from django_tables2.utils import (Accessor, AttributeDict, OrderBy,
                                   OrderByTuple, call_with_appropriate)
@@ -211,7 +210,8 @@ class Column(object):
         table or by subclassing `.Column`; but only overrides if second element
         in return tuple is True.
 
-        :returns: Tuple (queryset, boolean)
+        returns:
+            Tuple (queryset, boolean)
         '''
         return (queryset, False)
 
@@ -220,9 +220,10 @@ class Column(object):
         '''
         Return a specialised column for the model field or `None`.
 
-        :param field: the field that needs a suitable column
-        :type  field: model field instance
-        :returns: `.Column` object or `None`
+        Arguments:
+            field (Model Field instance): the field that needs a suitable column
+        Returns:
+            `.Column` object or `None`
 
         If the column isn't specialised for the given model field, it should
         return `None`. This gives other columns the opportunity to do better.
@@ -474,8 +475,8 @@ class BoundColumn(object):
         name = self.name.replace('_', ' ')
 
         # Try to use a model field's verbose_name
-        if hasattr(self.table.data, 'queryset') and hasattr(self.table.data.queryset, 'model'):
-            model = self.table.data.queryset.model
+        model = self.table.data.get_model()
+        if model:
             field = Accessor(self.accessor).get_field(model)
             if field:
                 if hasattr(field, 'field'):
