@@ -149,12 +149,6 @@ def test_attrs_support_computed_values():
     assert {'id': 'test_table_1'} == TestTable([]).attrs
 
 
-def test_data_knows_its_name():
-    table = tables.Table([{}])
-    assert table.data.verbose_name == 'item'
-    assert table.data.verbose_name_plural == 'items'
-
-
 def test_datasource_untouched():
     '''
     Ensure that data that is provided to the table (the datasource) is not
@@ -194,29 +188,6 @@ def test_should_support_haystack_data_source():
     table = PersonTable(SearchQuerySet().all())
     table.as_html(request)
 
-
-def test_data_validation():
-    with pytest.raises(ValueError):
-        table = OrderedTable(None)
-
-    class Bad:
-        def __len__(self):
-            pass
-
-    with pytest.raises(ValueError):
-        table = OrderedTable(Bad())
-
-    class Ok:
-        def __len__(self):
-            return 1
-
-        def __getitem__(self, pos):
-            if pos != 0:
-                raise IndexError()
-            return {'a': 1}
-
-    table = OrderedTable(Ok())
-    assert len(table.rows) == 1
 
 def test_column_count():
     class SimpleTable(tables.Table):
