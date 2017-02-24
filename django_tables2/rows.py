@@ -107,7 +107,7 @@ class BoundRow(object):
             # is correct – it's what __getitem__ expects.
             yield value
 
-    def _get_and_render_with(self, name, render_func):
+    def _get_and_render_with(self, name, render_func, default):
         bound_column = self.table.columns[name]
 
         value = None
@@ -141,7 +141,7 @@ class BoundRow(object):
                     return render_func(bound_column)
 
         if value in bound_column.column.empty_values:
-            return bound_column.default
+            return default
 
         return render_func(bound_column, value)
 
@@ -150,7 +150,11 @@ class BoundRow(object):
         Returns the final rendered html for a cell in the row, given the name
         of a column.
         '''
-        return self._get_and_render_with(name, self._call_render)
+        return self._get_and_render_with(
+            name,
+            render_func=self._call_render,
+            default=self.table.columns[name].default
+        )
 
     def _call_render(self, bound_column, value=None):
         '''
@@ -171,7 +175,11 @@ class BoundRow(object):
         Returns the final rendered value (excluding any html) for a cell in the
         row, given the name of a column.
         '''
-        return self._get_and_render_with(name, self._call_value)
+        return self._get_and_render_with(
+            name,
+            render_func=self._call_value,
+            default=None
+        )
 
     def _call_value(self, bound_column, value=None):
         '''Call the column's value method with appropriate kwargs'''
