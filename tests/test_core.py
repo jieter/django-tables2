@@ -6,10 +6,11 @@ import copy
 import itertools
 
 import django_tables2 as tables
-import pytest
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.utils import six
 from django_tables2.tables import DeclarativeColumnsMetaclass
+
+import pytest
 
 from .utils import build_request
 
@@ -705,6 +706,26 @@ def test_as_values():
     expected = [['Name', 'Country']] + [[r['name'], r['country']] for r in data]
     table = Table(data)
 
+    assert table.as_values() == expected
+
+
+def test_as_values_empty_values():
+    '''
+    Table's as_values() method returns `None` for missing values
+    '''
+
+    class Table(tables.Table):
+        name = tables.Column()
+        country = tables.Column()
+
+    data = [
+        {'name': 'Adrian', 'country': 'Brazil'},
+        {'name': 'Audrey'},
+        {'name': 'Bassie', 'country': 'Belgium'},
+        {'country': 'France'},
+    ]
+    expected = [['Name', 'Country']] + [[r.get('name'), r.get('country')] for r in data]
+    table = Table(data)
     assert table.as_values() == expected
 
 
