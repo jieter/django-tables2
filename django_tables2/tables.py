@@ -19,6 +19,9 @@ from .utils import (AttributeDict, OrderBy, OrderByTuple, Sequence,
 
 
 class TableData(object):
+    '''
+    Base class for table data containers.
+    '''
     def __init__(self, data, table):
         self.data = data
         self.table = table
@@ -30,27 +33,20 @@ class TableData(object):
         '''
         return self.data[key]
 
-    def accessors(self, aliases):
-        bound_column = None
-        accessors = []
-        for alias in aliases:
-            bound_column = self.table.columns[OrderBy(alias).bare]
-            # bound_column.order_by reflects the current ordering applied to
-            # the table. As such we need to check the current ordering on the
-            # column and use the opposite if it doesn't match the alias prefix.
-            if alias[0] != bound_column.order_by_alias[0]:
-                accessors += bound_column.order_by.opposite
-            else:
-                accessors += bound_column.order_by
-
-        return accessors
-
     def get_model(self):
-        return None
+        return getattr(self.data, 'model', None)
 
     @property
     def ordering(self):
         return None
+
+    @property
+    def verbose_name(self):
+        return 'item'
+
+    @property
+    def verbose_name_plural(self):
+        return 'items'
 
     @staticmethod
     def from_data(data, table):
@@ -66,8 +62,25 @@ class TableData(object):
 
 
 class TableListData(TableData):
+    '''
+    Table data container for a list of dicts, for example::
+
+    [
+        {'name': 'John', 'age': 20},
+        {'name': 'Brian', 'age': 25}
+    ]
+
+    .. note::
+
+        Other structures might have worked in the past, but are not explicitly
+        supported or tested.
+    '''
+
     @staticmethod
     def validate(data):
+        '''
+        Validates `data` for use in this container
+        '''
         return (
             hasattr(data, '__iter__') or
             (hasattr(data, '__len__') and hasattr(data, '__getitem__'))
@@ -86,25 +99,31 @@ class TableListData(TableData):
                 columns ('-' indicates descending order) in order of
                 significance with regard to data ordering.
         '''
-        accessors = self.accessors(aliases)
-        print 'accessors', accessors
+        accessors = []
+        for alias in aliases:
+            bound_column = self.table.columns[OrderBy(alias).bare]
+
+            # bound_column.order_by reflects the current ordering applied to
+            # the table. As such we need to check the current ordering on the
+            # column and use the opposite if it doesn't match the alias prefix.
+            if alias[0] != bound_column.order_by_alias[0]:
+                accessors += bound_column.order_by.opposite
+            else:
+                accessors += bound_column.order_by
+
         self.data.sort(key=OrderByTuple(accessors).key)
-
-    @cached_property
-    def verbose_name(self):
-        return getattr(self.data, 'verbose_name', 'item')
-
-    @cached_property
-    def verbose_name_plural(self):
-        return getattr(self.data, 'verbose_name_plural', 'items')
 
 
 class TableQuerysetData(TableData):
-    def get_model(self):
-        return getattr(self.data, 'model', None)
+    '''
+    Table data container for a queryset.
+    '''
 
     @staticmethod
     def validate(data):
+        '''
+        Validates `data` for use in this container
+        '''
         return (
             hasattr(data, 'count') and callable(data.count) and
             hasattr(data, 'order_by') and callable(data.order_by)
@@ -150,7 +169,7 @@ class TableQuerysetData(TableData):
                 columns ('-' indicates descending order) in order of
                 significance with regard to data ordering.
         '''
-        bound_column = None
+        modified_any = False
         accessors = []
         for alias in aliases:
             bound_column = self.table.columns[OrderBy(alias).bare]
@@ -162,11 +181,16 @@ class TableQuerysetData(TableData):
             else:
                 accessors += bound_column.order_by
 
-        # Custom ordering
-        if bound_column:
-            self.data, modified = bound_column.order(self.data, alias[0] == '-')
-            if modified:
-                return
+            if bound_column:
+                queryset, modified = bound_column.order(self.data, alias[0] == '-')
+
+                if modified:
+                    self.data = queryset
+                    modified_any = True
+
+        # custom ordering
+        if modified_any:
+            return True
 
         # Traditional ordering
         if accessors:

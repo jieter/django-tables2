@@ -2,9 +2,10 @@
 from __future__ import absolute_import, unicode_literals
 
 import django_tables2 as tables
-import pytest
 from django.utils import six
 from django_tables2.tables import RequestConfig
+
+import pytest
 
 from .app.models import Person
 from .utils import build_request
@@ -121,14 +122,16 @@ def test_ordering_different_types():
     assert [] == table.rows[0].get_cell('beta')
 
 
-def test_multi_column_ordering():
-    brad = {'first_name': 'Bradley', 'last_name': 'Ayers'}
-    brad2 = {'first_name': 'Bradley', 'last_name': 'Fake'}
-    chris = {'first_name': 'Chris', 'last_name': 'Doble'}
-    davina = {'first_name': 'Davina', 'last_name': 'Adisusila'}
-    ross = {'first_name': 'Ross', 'last_name': 'Ayers'}
+brad = {'first_name': 'Bradley', 'last_name': 'Ayers'}
+brad2 = {'first_name': 'Bradley', 'last_name': 'Fake'}
+chris = {'first_name': 'Chris', 'last_name': 'Doble'}
+davina = {'first_name': 'Davina', 'last_name': 'Adisusila'}
+ross = {'first_name': 'Ross', 'last_name': 'Ayers'}
 
-    people = [brad, brad2, chris, davina, ross]
+people = [brad, brad2, chris, davina, ross]
+
+
+def test_multi_column_ordering_by_table():
 
     class PersonTable(tables.Table):
         first_name = tables.Column()
@@ -140,6 +143,8 @@ def test_multi_column_ordering():
     table = PersonTable(people, order_by=('first_name', '-last_name'))
     assert [brad2, brad, chris, davina, ross] == [r.record for r in table.rows]
 
+
+def test_multi_column_ordering_by_column():
     # let's try column order_by using multiple keys
     class PersonTable(tables.Table):
         name = tables.Column(order_by=('first_name', 'last_name'))
