@@ -13,3 +13,4 @@ Customizing the table
     query-string-fields
     localization-control
     generic-mixins
+    pinned-rows
