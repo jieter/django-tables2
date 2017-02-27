@@ -80,7 +80,7 @@ class BoundRow(object):
 
         row_attrs = computed_values(self._table.row_attrs, self._record)
 
-        if 'class' in row_attrs:
+        if 'class' in row_attrs and row_attrs['class']:
             row_attrs['class'] += ' ' + cssClass
         else:
             row_attrs['class'] = cssClass
