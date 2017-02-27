@@ -2,10 +2,11 @@
 from random import randint
 
 import django_tables2 as tables
-import pytest
 from django.db.models.functions import Length
 from django.utils import six
 from django_tables2 import RequestConfig
+
+import pytest
 
 from .app.models import Occupation, Person, PersonProxy, Player
 from .utils import build_request
@@ -406,7 +407,35 @@ def test_column_named_delete():
     assert Person.objects.get(pk=person2.pk) == person2
 
 
-def test_issue_361(per_page=5):
+def test_single_query_for_non_paginated_table(settings):
+    '''
+    A non-paginated table should not generate a query for each row, but only
+    one query to count the rows and one to fetch the rows.
+    '''
+    from django.db import connection
+    settings.DEBUG = True
+
+    for i in range(10):
+        Person.objects.create(first_name='Bob %d' % randint(0, 200), last_name='Builder')
+
+    num_queries_before = len(connection.queries)
+
+    class PersonTable(tables.Table):
+        class Meta:
+            model = Person
+            fields = ('first_name', 'last_name')
+
+    table = PersonTable(Person.objects.all())
+    request = build_request('/')
+    RequestConfig(request, paginate=False).configure(table)
+    table.as_html(request)
+
+    # print '\n'.join(q['sql'] for q in connection.queries)
+    assert len(connection.queries) - num_queries_before == 2
+
+
+def test_issue_361(settings):
+    settings.DEBUG = True
 
     bob = Person.objects.create(first_name='Bob', last_name='Builder')
     eve = Person.objects.create(first_name='Eve', last_name='Dropper')
