@@ -4,7 +4,7 @@ Pinned rows
 ===========
 
 By using Pinned Rows, you can pin particular rows to the top or bottom of your table.
-To add pinned rows to your table, you must overridden `get_top_pinned_data` and/or `get_bottom_pinned_data`
+To add pinned rows to your table, you must override `get_top_pinned_data` and/or `get_bottom_pinned_data`
 methods in your `.Table` class.
 
 * `get_top_pinned_data(self)` - Display the pinned rows on top.
@@ -39,7 +39,7 @@ Example::
             }]
 
 
-.. note:: Sorting and pagination for pined rows not working.
+.. note:: Sorting and pagination for pinned rows not working.
 
 Value for cell in pinned row will be shown only when **key** in object has the same name as column.
 You can decide which columns for pinned rows will visible or not.
@@ -55,8 +55,8 @@ Non existing keys won't be shown in pinned rows.
 
 Pinned rows attributes
 ========================
-If you wont override HTML attributes for pinned rows you can use: ``pinned_row_attrs``.
-Pined row attributes can be specified using a `dict` defining the HTML attributes for
+If you want override HTML attributes for pinned rows you should use: ``pinned_row_attrs``.
+Pinned row attributes can be specified using a `dict` defining the HTML attributes for
 the ``<tr>`` element on each row. See more: :ref:`row-attributes`.
 
 .. note:: By default pinned rows have ``pinned-row`` css class.
