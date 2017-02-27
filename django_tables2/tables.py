@@ -33,6 +33,14 @@ class TableData(object):
         '''
         return self.data[key]
 
+    def __iter__(self):
+        '''
+        for ... in ... default to using this. There's a bug in Django 1.3
+        with indexing into querysets, so this side-steps that problem (as well
+        as just being a better way to iterate).
+        '''
+        return iter(self.data)
+
     def get_model(self):
         return getattr(self.data, 'model', None)
 
@@ -190,7 +198,7 @@ class TableQuerysetData(TableData):
 
         # custom ordering
         if modified_any:
-            return True
+            return
 
         # Traditional ordering
         if accessors:
@@ -579,6 +587,7 @@ class TableBase(object):
         `~django.core.paginator.PageNotAnInteger`) may be raised from this
         method and should be handled by the caller.
         '''
+
         per_page = per_page or self._meta.per_page
         self.paginator = klass(self.rows, per_page, *args, **kwargs)
         self.page = self.paginator.page(page)

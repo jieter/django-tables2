@@ -3,9 +3,10 @@ import django_tables2 as tables
 import pytest
 from django.db.models.functions import Length
 from django.utils import six
+from django_tables2 import RequestConfig
 
 from .app.models import Occupation, Person, PersonProxy
-from .utils import build_request
+from .utils import assertNumQueries, build_request
 
 pytestmark = pytest.mark.django_db
 request = build_request('/')
@@ -401,3 +402,22 @@ def test_column_named_delete():
 
     assert Person.objects.get(pk=person1.pk) == person1
     assert Person.objects.get(pk=person2.pk) == person2
+
+def test_single_query_for_non_paginated_table():
+    '''
+    A non-paginated table should not generate a query for each row, but only
+    one query fetch the rows.
+    '''
+    for i in range(10):
+        Person.objects.create(first_name='Bob %d' % i, last_name='Builder')
+
+    class PersonTable(tables.Table):
+        class Meta:
+            model = Person
+            fields = ('first_name', 'last_name')
+            order_by = ('last_name', 'first_name')
+
+    table = PersonTable(Person.objects.all())
+
+    with assertNumQueries(1):
+        table.as_values()

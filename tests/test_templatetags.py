@@ -1,14 +1,13 @@
 # coding: utf-8
 from __future__ import unicode_literals
 
+import django_tables2 as tables
+import pytest
 from django.core.exceptions import ImproperlyConfigured
 from django.template import (Context, RequestContext, Template,
                              TemplateSyntaxError)
 from django.utils import six
 from django.utils.six.moves.urllib.parse import parse_qs
-
-import django_tables2 as tables
-import pytest
 from django_tables2.config import RequestConfig
 
 from .app.models import Person, Region
@@ -187,6 +186,5 @@ def test_as_html_db_queries(transactional_db):
 
     Person.objects.create(first_name='John', last_name='Doo')
 
-    with assertNumQueries(count=3):
-        # Person.objects.count()
+    with assertNumQueries(count=2):
         PersonTable(Person.objects.all()).as_html(build_request())

@@ -113,6 +113,7 @@ class PersonInformation(models.Model):
 
 # -- haystack -----------------------------------------------------------------
 
+
 if not six.PY3:  # Haystack isn't compatible with Python 3
     from haystack import indexes
 
