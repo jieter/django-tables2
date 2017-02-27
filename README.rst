@@ -13,13 +13,13 @@ django-tables2 simplifies the task of turning sets of data into HTML tables. It
 has native support for pagination and sorting. It does for HTML tables what
 `django.forms` does for HTML forms. e.g.
 
-.. image:: http://dl.dropbox.com/u/33499139/django-tables2/example.png
+.. image:: https://cdn.rawgit.com/bradleyayers/django-tables2/90a78457/docs/img/example.png
     :alt: An example table rendered using django-tables2
 
-.. image:: bootstrap.png
+.. image:: https://cdn.rawgit.com/bradleyayers/django-tables2/90a78457/docs/img/bootstrap.png
     :alt: An example table rendered using django-tables2 and bootstrap theme
 
-.. image:: semantic.png
+.. image:: https://cdn.rawgit.com/bradleyayers/django-tables2/90a78457/docs/img/semantic.png
     :alt: An example table rendered using django-tables2 and semantic-ui theme
 
 Its features include:
