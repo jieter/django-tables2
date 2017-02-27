@@ -7,6 +7,7 @@ from django.db import models
 from django.utils import six
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext, ugettext_lazy
+from haystack import indexes
 
 try:
     from django.urls import reverse
@@ -113,15 +114,11 @@ class PersonInformation(models.Model):
 
 # -- haystack -----------------------------------------------------------------
 
+class PersonIndex(indexes.SearchIndex, indexes.Indexable):
+    first_name = indexes.CharField(document=True)
 
-if not six.PY3:  # Haystack isn't compatible with Python 3
-    from haystack import indexes
+    def get_model(self):
+        return Person
 
-    class PersonIndex(indexes.SearchIndex, indexes.Indexable):
-        first_name = indexes.CharField(document=True)
-
-        def get_model(self):
-            return Person
-
-        def index_queryset(self, using=None):
-            return self.get_model().objects.all()
+    def index_queryset(self, using=None):
+        return self.get_model().objects.all()

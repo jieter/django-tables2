@@ -6,11 +6,11 @@ import copy
 import itertools
 
 import django_tables2 as tables
-from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
-from django_tables2.tables import DeclarativeColumnsMetaclass, RequestConfig
-
 import pytest
+from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
+from django_tables2.tables import DeclarativeColumnsMetaclass
 
+from .app.models import Person
 from .utils import build_request
 
 request = build_request('/')
@@ -180,15 +180,25 @@ def test_should_support_tuple_data_source():
     assert len(table.rows) == 2
 
 
-def test_should_support_haystack_data_source():
-    from haystack.query import SearchQuerySet
-
-    class PersonTable(tables.Table):
-        first_name = tables.Column()
-
-    table = PersonTable(SearchQuerySet().all())
-    table.as_html(request)
-
+# @pytest.mark.django_db
+# def test_should_support_haystack_data_source():
+#     Person.objects.create(first_name='Foo', last_name='Bar')
+#     Person.objects.create(first_name='Brad', last_name='Pitt')
+#
+#     from haystack.query import SearchQuerySet
+#     from haystack.management.commands import update_index
+#
+#     update_index.Command().handle(interactive=False)
+#
+#     class PersonTable(tables.Table):
+#         first_name = tables.Column()
+#
+#     table = PersonTable(SearchQuerySet().all())
+#     html = table.as_html(request)
+#
+#     # TODO: assert that a person is actually in the produced html.
+#     assert 'Brad' in html
+#
 
 def test_column_count():
     class SimpleTable(tables.Table):
