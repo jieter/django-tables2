@@ -1,5 +1,10 @@
 # Change log
 
+## 1.4.1 (2017-02-27)
+ - Fix urls to screenshots in on pypi description (fixes [ #398](https://github.com/bradleyayers/django-tables2/issues/398))
+ - Prevent superfluous spaces when a callable `row_attrs['class']` returns an empty string ([#417](https://github.com/bradleyayers/django-tables2/pull/417 by [@Superman8218](https://github.com/Superman8218)), fixes [#416](https://github.com/bradleyayers/django-tables2/issues/416))
+
+
 ## 1.4.0 (2017-02-27)
  - Return `None` from `Table.as_values()` for missing values. [#419](https://github.com/bradleyayers/django-tables2/pull/419)
  - Fix ordering by custom fields, and refactor `TableData` [#424](https://github.com/bradleyayers/django-tables2/pull/424), fixes [#413](https://github.com/bradleyayers/django-tables2/issues/413)
