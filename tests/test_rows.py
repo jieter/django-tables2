@@ -1,8 +1,6 @@
 # coding: utf-8
-import pytest
-
 import django_tables2 as tables
-
+import pytest
 from django.db import models
 
 
@@ -56,6 +54,33 @@ def test_bound_row():
     assert 'name' in row
     assert 'occupation' in row
     assert 'gamma' not in row
+
+
+def test_row_attrs():
+    '''
+    If a callable returns an empty string, do not add a space to the CSS class
+    attribute. (#416)
+    '''
+    from itertools import count
+    counter = count()
+
+    class Table(tables.Table):
+        name = tables.Column()
+
+        class Meta(object):
+            row_attrs = {
+                'class': lambda x: '' if next(counter) % 2 == 0 else 'bla'
+            }
+
+    table = Table([
+        {'name': 'Brian'},
+        {'name': 'Thomas'},
+        {'name': 'John'}
+    ])
+
+    assert table.rows[0].attrs['class'] == 'even'
+    assert table.rows[1].attrs['class'] == 'bla odd'
+    assert table.rows[1].attrs['class'] == 'even'
 
 
 def test_get_cell_display():
