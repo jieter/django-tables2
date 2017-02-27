@@ -1,5 +1,14 @@
 # Change log
 
+## unreleased
+ - Return `None` from `Table.as_values()` for missing values. [#419](https://github.com/bradleyayers/django-tables2/pull/419)
+ - Fix ordering by custom fields, and refactor `TableData` [#424](https://github.com/bradleyayers/django-tables2/pull/424), fixes [#413](https://github.com/bradleyayers/django-tables2/issues/413)
+
+
+## 1.3.0 (2017-01-20)
+ - Implement a method on `.Table` to get it's raw values. [#394](https://github.com/bradleyayers/django-tables2/pull/394) by [@intiocean](https://github.com/intiocean)
+ - Fix some compatibility issues with django 2.0 [#408](https://github.com/bradleyayers/django-tables2/pull/409) by [djk2](https://github.com/djk2)
+
 ## 1.3.0 (2017-01-20)
  - Implement a method on `.Table` to get it's raw values. [#394](https://github.com/bradleyayers/django-tables2/pull/394) by [@intiocean](https://github.com/intiocean)
  - Fix some compatibility issues with django 2.0 [#408](https://github.com/bradleyayers/django-tables2/pull/409) by [djk2](https://github.com/djk2)
