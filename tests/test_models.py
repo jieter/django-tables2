@@ -403,6 +403,7 @@ def test_column_named_delete():
     assert Person.objects.get(pk=person1.pk) == person1
     assert Person.objects.get(pk=person2.pk) == person2
 
+
 def test_single_query_for_non_paginated_table():
     '''
     A non-paginated table should not generate a query for each row, but only
