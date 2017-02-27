@@ -1,15 +1,12 @@
 # coding: utf-8
-from random import randint
-
 import django_tables2 as tables
+import pytest
 from django.db.models.functions import Length
 from django.utils import six
 from django_tables2 import RequestConfig
 
-import pytest
-
-from .app.models import Occupation, Person, PersonProxy, Player
-from .utils import build_request
+from .app.models import Occupation, Person, PersonProxy
+from .utils import assertNumQueries, build_request
 
 pytestmark = pytest.mark.django_db
 request = build_request('/')
@@ -406,58 +403,21 @@ def test_column_named_delete():
     assert Person.objects.get(pk=person1.pk) == person1
     assert Person.objects.get(pk=person2.pk) == person2
 
-
-def test_single_query_for_non_paginated_table(settings):
+def test_single_query_for_non_paginated_table():
     '''
     A non-paginated table should not generate a query for each row, but only
-    one query to count the rows and one to fetch the rows.
+    one query fetch the rows.
     '''
-    from django.db import connection
-    settings.DEBUG = True
-
     for i in range(10):
-        Person.objects.create(first_name='Bob %d' % randint(0, 200), last_name='Builder')
-
-    num_queries_before = len(connection.queries)
+        Person.objects.create(first_name='Bob %d' % i, last_name='Builder')
 
     class PersonTable(tables.Table):
         class Meta:
             model = Person
             fields = ('first_name', 'last_name')
+            order_by = ('last_name', 'first_name')
 
     table = PersonTable(Person.objects.all())
-    request = build_request('/')
-    RequestConfig(request, paginate=False).configure(table)
-    table.as_html(request)
 
-    # print '\n'.join(q['sql'] for q in connection.queries)
-    assert len(connection.queries) - num_queries_before == 2
-
-
-def test_issue_361(settings):
-    settings.DEBUG = True
-
-    bob = Person.objects.create(first_name='Bob', last_name='Builder')
-    eve = Person.objects.create(first_name='Eve', last_name='Dropper')
-
-    for i in range(10):
-        Player.objects.create(person=bob, score=randint(0, 200))
-        Player.objects.create(person=eve, score=randint(200, 400))
-        Player.objects.create(person=bob, score=5)
-        Player.objects.create(person=eve, score=5)
-
-    class UserPlayerTable(tables.Table):
-        class Meta:
-            model = Player
-            fields = ('person.name', 'score',)
-            order_by = ['score', 'person.first_name']
-            orderable = False
-
-    queryset = Player.objects.filter(score=5)
-
-    table = UserPlayerTable(queryset)
-    RequestConfig(request, paginate={'per_page': per_page}).configure(table)
-    html = table.as_html(request)
-
-    # count the number of rows, subtract one for the header
-    assert (html.count('<tr') - 1) == per_page
+    with assertNumQueries(1):
+        table.as_values()

@@ -111,12 +111,6 @@ class PersonInformation(models.Model):
     )
 
 
-class Player(models.Model):
-    person = models.ForeignKey(Person)
-    created = models.DateTimeField(auto_now_add=True)
-    score = models.PositiveIntegerField()
-
-
 # -- haystack -----------------------------------------------------------------
 
 
