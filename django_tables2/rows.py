@@ -246,7 +246,7 @@ class BoundPinnedRow(BoundRow):
         row_attrs['class'] = css_class
         return AttributeDict(row_attrs)
 
-    def _get_and_render_with(self, name, render_func):
+    def _get_and_render_with(self, name, render_func, default):
         '''
         Get raw value from record for render in table.
         This value using by render_func.
@@ -259,7 +259,7 @@ class BoundPinnedRow(BoundRow):
             object: Raw value from record for single cell.
         '''
         accessor = A(name)
-        value = accessor.resolve(context=self._record, quiet=True) or self._table.default
+        value = accessor.resolve(context=self._record, quiet=True) or default
         return value
 
 
