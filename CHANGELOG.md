@@ -1,6 +1,8 @@
 # Change log
 
 ## master (unreleased)
+
+## 1.4.2 (2017-03-06)
  - Feature: Pinned rows ([#411](https://github.com/bradleyayers/django-tables2/pull/411) by [@djk2](https://github.com/djk2), fixes [#406](https://github.com/bradleyayers/django-tables2/issues/406))
  - Fix an issue where `ValueError` was raised while using a view with a `get_queryset()` method defined. (fix with [#423](https://github.com/bradleyayers/django-tables2/pull/423) by [@desecho](https://github.com/desecho))
 
