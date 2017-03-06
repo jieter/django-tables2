@@ -122,3 +122,45 @@ def test_get_cell_display():
     tab = Tab([c])
     row = tab.rows[0]
     assert row.get_cell('a') == 'valA'
+
+
+def test_even_odd_css_class():
+    '''
+    Test for BoundRow.get_even_odd_css_class() method
+    '''
+    class SimpleTable(tables.Table):
+        foo = tables.Column()
+
+        def get_top_pinned_data(self):
+            return [{'foo': 'top-pinned'}]
+
+        def get_bottom_pinned_data(self):
+            return [{'foo': 'bottom-pinned'}]
+
+    data = [
+        {'foo', 'bar'},
+        {'foo', 'bas'},
+        {'foo', 'baz'},
+    ]
+
+    simple_table = SimpleTable(data)
+
+    count = 0
+    prev = None
+    for row in simple_table.rows:
+        if prev:
+            assert row.get_even_odd_css_class() != prev.get_even_odd_css_class()
+        prev = row
+        count += 1
+
+    # count should be 5 because:
+    # First row is a top pinned row.
+    # Three defaults rows with data.
+    # Last row is a bottom pinned row.
+    assert count == 5
+
+    # Important!
+    # Length of data is three because pinned rows are not added to data list.
+    # Pinned rows are added only in the iteration on BoundRows.
+    # First object from rows is not BoundPinnedRow but BoundRow.
+    assert len(simple_table.rows) == 3
