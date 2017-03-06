@@ -1,9 +1,9 @@
 # coding: utf-8
-import pytest
+import django_tables2 as tables
 from django.core.exceptions import ImproperlyConfigured
 from django.views.generic.base import TemplateView
 
-import django_tables2 as tables
+import pytest
 
 from .app.models import Person, Region
 from .utils import build_request
@@ -311,3 +311,32 @@ def test_multiTableMixin_pagination():
 
     assert tableA.page.number == 1
     assert tableB.page.number == 3
+
+
+@pytest.mark.django_db
+def test_View_using_get_queryset():
+    '''
+    Should not raise a value-error for a View using View.get_queryset()
+    (test for reverting regressing in #423)
+    '''
+    Person.objects.create(first_name='Anton', last_name='Sam')
+
+    class Table(tables.Table):
+        class Meta(object):
+            model = Person
+            fields = ('first_name', 'last_name')
+
+    class TestView(tables.SingleTableView):
+        model = Person
+        table_class = Table
+
+        def get(self, request, *args, **kwargs):
+            self.get_table()
+            from django.http import HttpResponse
+            return HttpResponse()
+
+        def get_queryset(self):
+            '''get_queryset should be called'''
+            return Person.objects.all()
+
+    TestView.as_view()(build_request())
