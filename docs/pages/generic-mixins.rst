@@ -59,7 +59,7 @@ when one isn't explicitly defined.
     `SingleTableMixin` directly.
 
 
-Multiple tables using `.MultipleObjectMixin`
+Multiple tables using `.MultiTableMixin`
 --------------------------------------------
 
 If you need more than one table in a single view you can use `MultiTableMixin`.
