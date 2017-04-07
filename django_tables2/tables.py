@@ -556,13 +556,13 @@ class TableBase(object):
 
     def as_values(self):
         '''
-        Return a 2d array of the data which would be shown in the table where the first row is the table headers.
+        Return a row iterator of the data which would be shown in the table where the first row is the table headers.
 
         This can be used to output the table data as CSV, excel, etc
         '''
-        headings = [str(c.header) for c in self.columns]
-        rows = [[r.get_cell_value(column.name) for column in r.table.columns] for r in self.rows]
-        return [headings] + rows
+        yield [str(c.header) for c in self.columns]
+        for r in self.rows:
+            yield [r.get_cell_value(column.name) for column in r.table.columns]
 
     def has_footer(self):
         '''

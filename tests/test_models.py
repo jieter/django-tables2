@@ -421,4 +421,4 @@ def test_single_query_for_non_paginated_table():
     table = PersonTable(Person.objects.all())
 
     with assertNumQueries(1):
-        table.as_values()
+        list(table.as_values())
