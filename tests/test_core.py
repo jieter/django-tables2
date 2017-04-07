@@ -522,7 +522,7 @@ def test_as_values():
     expected = [['Name', 'Country']] + [[r['name'], r['country']] for r in data]
     table = Table(data)
 
-    assert table.as_values() == expected
+    assert list(table.as_values()) == expected
 
 
 def test_as_values_empty_values():
@@ -542,7 +542,7 @@ def test_as_values_empty_values():
     ]
     expected = [['Name', 'Country']] + [[r.get('name'), r.get('country')] for r in data]
     table = Table(data)
-    assert table.as_values() == expected
+    assert list(table.as_values()) == expected
 
 
 def test_row_attrs():
