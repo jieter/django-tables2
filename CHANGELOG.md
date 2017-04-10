@@ -1,9 +1,12 @@
 # Change log
 
 ## master (unreleased)
+_Full disclosure: as of april 1st, 2017, I am an employee of [Zostera](http://zostera.nl/), as such I will continue to maintain and improve django-tables2._
  - Made `TableBase.as_values()` an interator ([#432](https://github.com/bradleyayers/django-tables2/pull/432) by [@pziarsolo](https://github.com/pziarsolo))
  - Added `JSONField` for data in JSON format.
  - Added `__all__` in `django_tables2/__init__.py` and `django_tables2/columns/__init__.py`
+ - Added a setting `DJANGO_TABLES2_TEMPLATE` to allow project-wide overriding of the template used to render tables (fixes [#434](https://github.com/bradleyayers/django-tables2/issues/434)).
+
 
 ## 1.4.2 (2017-03-06)
  - Feature: Pinned rows ([#411](https://github.com/bradleyayers/django-tables2/pull/411) by [@djk2](https://github.com/djk2), fixes [#406](https://github.com/bradleyayers/django-tables2/issues/406))

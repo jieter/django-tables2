@@ -37,4 +37,4 @@ ignore the built-in generation tools, and instead pass an instance of your
 Have a look at the ``django_tables2/table.html`` template for an example.
 
 You can set `DJANGO_TABLES2_TEMPLATE` in your django settings to change the
-default template django_tables2 looks for.
+default template django-tables2 looks for.
