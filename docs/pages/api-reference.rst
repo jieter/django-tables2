@@ -301,6 +301,12 @@ API Reference
     :members:
 
 
+`.JSONColumn`
+-------------
+
+.. autoclass:: django_tables2.columns.JSONColumn
+    :members:
+
 `.LinkColumn`
 -------------
 

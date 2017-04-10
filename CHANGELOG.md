@@ -1,6 +1,8 @@
 # Change log
 
 ## master (unreleased)
+ - Made `TableBase.as_values()` an interator ([#432](https://github.com/bradleyayers/django-tables2/pull/432) by [@pziarsolo](https://github.com/pziarsolo))
+ - Added `JSONField` for data in JSON format.
 
 ## 1.4.2 (2017-03-06)
  - Feature: Pinned rows ([#411](https://github.com/bradleyayers/django-tables2/pull/411) by [@djk2](https://github.com/djk2), fixes [#406](https://github.com/bradleyayers/django-tables2/issues/406))
