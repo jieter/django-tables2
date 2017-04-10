@@ -120,7 +120,7 @@ class RenderTableNode(Node):
             class OnTheFlyTable(tables.Table):
                 class Meta:
                     model = queryset.model
-                    attrs = {'class': 'paleblue'}
+
             table = OnTheFlyTable(queryset)
             request = context.get('request')
             if request:
