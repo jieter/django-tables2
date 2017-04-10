@@ -1,17 +1,26 @@
 # coding: utf-8
 from __future__ import unicode_literals
 
+import django_tables2 as tables
 import pytest
 from django.template import Context, Template
 from django.test import TransactionTestCase
 from django.utils.translation import override as translation_override
 from django.utils.translation import ugettext_lazy
-
-import django_tables2 as tables
 from django_tables2.config import RequestConfig
 
 from .app.models import Person
 from .utils import build_request, parse
+
+
+def test_template_override_in_settings(settings):
+    settings.DJANGO_TABLES2_TEMPLATE = 'foo/bar.html'
+
+    class Table(tables.Table):
+        column = tables.Column()
+
+    table = Table({})
+    assert table.template == 'foo/bar.html'
 
 
 class CountryTable(tables.Table):

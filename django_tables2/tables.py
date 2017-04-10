@@ -5,6 +5,7 @@ import copy
 from collections import OrderedDict
 from itertools import count
 
+from django.conf import settings
 from django.core.paginator import Paginator
 from django.db.models.fields import FieldDoesNotExist
 from django.template.loader import get_template
@@ -332,7 +333,11 @@ class TableOptions(object):
     '''
     def __init__(self, options=None):
         super(TableOptions, self).__init__()
-        self.attrs = AttributeDict(getattr(options, 'attrs', {}))
+
+        DJANGO_TABLES2_TEMPLATE = getattr(settings, 'DJANGO_TABLES2_TEMPLATE', 'django_tables2/table.html')
+        DJANGO_TABLES2_TABLE_ATTRS = getattr(settings, 'DJANGO_TABLES2_TABLE_ATTRS', {})
+
+        self.attrs = AttributeDict(getattr(options, 'attrs', DJANGO_TABLES2_TABLE_ATTRS))
         self.row_attrs = getattr(options, 'row_attrs', {})
         self.pinned_row_attrs = getattr(options, 'pinned_row_attrs', {})
         self.default = getattr(options, 'default', '—')
@@ -352,7 +357,7 @@ class TableOptions(object):
         self.sequence = Sequence(getattr(options, 'sequence', ()))
         self.orderable = getattr(options, 'orderable', True)
         self.model = getattr(options, 'model', None)
-        self.template = getattr(options, 'template', 'django_tables2/table.html')
+        self.template = getattr(options, 'template', DJANGO_TABLES2_TEMPLATE)
         self.localize = getattr(options, 'localize', ())
         self.unlocalize = getattr(options, 'unlocalize', ())
 

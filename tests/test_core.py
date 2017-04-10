@@ -150,6 +150,18 @@ def test_attrs_support_computed_values():
     assert {'id': 'test_table_1'} == TestTable([]).attrs
 
 
+def test_attrs_from_settings(settings):
+    settings.DJANGO_TABLES2_TABLE_ATTRS = {
+        'class': 'table-compact'
+    }
+
+    class Table(tables.Table):
+        column = tables.Column()
+
+    table = Table({})
+    assert table.attrs == {'class': 'table-compact'}
+
+
 def test_datasource_untouched():
     '''
     Ensure that data that is provided to the table (the datasource) is not
