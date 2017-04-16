@@ -1,12 +1,12 @@
 # coding: utf-8
 from __future__ import unicode_literals
 
-import pytest
+import django_tables2 as tables
 from django.db import models
 from django.utils.safestring import SafeData, mark_safe
 from django.utils.translation import ugettext_lazy
 
-import django_tables2 as tables
+import pytest
 
 from ..app.models import Person
 from ..utils import build_request, parse
@@ -423,3 +423,21 @@ def test_override_column_class_names():
     html = MyTable(TEST_DATA).as_html(build_request())
 
     assert '<td class="prefix-population">11200000</td>' in html
+
+
+@pytest.mark.django_db
+def test_computable_td_attrs():
+    '''Computable attrs for columns, using table argument'''
+    Person.objects.create(first_name='Jan', last_name='Pietersz.')
+    Person.objects.create(first_name='Sjon', last_name='Jansen')
+
+    class Table(tables.Table):
+        person = tables.Column(attrs={
+            'cell': {
+                'data-length': lambda table: len(table.data)
+            }
+        })
+
+    table = Table(Person.objects.all())
+    html = table.as_html(request)
+    assert 'data-length="2"' in html

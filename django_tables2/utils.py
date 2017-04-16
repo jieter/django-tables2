@@ -6,8 +6,7 @@ from itertools import chain
 
 from django.db.models.fields import FieldDoesNotExist
 from django.utils import six
-from django.utils.html import escape
-from django.utils.safestring import mark_safe
+from django.utils.html import format_html_join
 
 
 class Sequence(list):
@@ -418,8 +417,10 @@ class AttributeDict(dict):
         '''
 
         blacklist = ('th', 'td', '_ordering')
-        return mark_safe(' '.join(['%s="%s"' % (k, escape(v if not callable(v) else v()))
-                                   for k, v in six.iteritems(self) if k not in blacklist]))
+        return format_html_join(
+            ' ', '{}="{}"',
+            [(k, v) for k, v in six.iteritems(self) if k not in blacklist]
+        )
 
 
 def segment(sequence, aliases):
