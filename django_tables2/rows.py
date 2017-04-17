@@ -1,5 +1,5 @@
 # coding: utf-8
-
+from __future__ import absolute_import, unicode_literals
 
 from django.db import models
 from django.db.models.fields import FieldDoesNotExist
@@ -154,6 +154,21 @@ class BoundRow(object):
 
         return render_func(bound_column, value)
 
+    def _optional_cell_arguments(self, bound_column, value):
+        '''
+        Defines the arguments that will optionally be passed while calling the
+        cell's rendering or value getter if that function has one of these as a
+        keyword argument.
+        '''
+        return {
+            'value': value,
+            'record': self.record,
+            'column': bound_column.column,
+            'bound_column': bound_column,
+            'bound_row': self,
+            'table': self._table,
+        }
+
     def get_cell(self, name):
         '''
         Returns the final rendered html for a cell in the row, given the name
@@ -169,15 +184,10 @@ class BoundRow(object):
         '''
         Call the column's render method with appropriate kwargs
         '''
-
-        return call_with_appropriate(bound_column.render, {
-            'value': value,
-            'record': self.record,
-            'column': bound_column.column,
-            'bound_column': bound_column,
-            'bound_row': self,
-            'table': self._table,
-        })
+        return call_with_appropriate(
+            bound_column.render,
+            self._optional_cell_arguments(bound_column, value)
+        )
 
     def get_cell_value(self, name):
         '''
@@ -191,16 +201,13 @@ class BoundRow(object):
         )
 
     def _call_value(self, bound_column, value=None):
-        '''Call the column's value method with appropriate kwargs'''
-
-        return call_with_appropriate(bound_column.column.value, {
-            'value': value,
-            'record': self.record,
-            'column': bound_column.column,
-            'bound_column': bound_column,
-            'bound_row': self,
-            'table': self._table,
-        })
+        '''
+        Call the column's value method with appropriate kwargs
+        '''
+        return call_with_appropriate(
+            bound_column.column.value,
+            self._optional_cell_arguments(bound_column, value)
+        )
 
     def __contains__(self, item):
         '''
