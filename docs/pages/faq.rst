@@ -109,14 +109,15 @@ Yes, like this::
         name = tables.Column()
         language = tables.Column()
 
-A `CountryTable` will show columns `name` and `language`.
+A `CountryTable` will show columns `name` and `language`::
 
     class TouristCountryTable(CountryTable):
         tourist_info = tables.Column()
 
 A `TouristCountryTable` will show columns `name`, `language` and `tourist_info`.
 
-Overwriting a Column attribute from the base class with anything that is not a Column will result in removing that Column from the Table. For example:
+Overwriting a `Column` attribute from the base class with anything that is not a
+`Column` will result in removing that Column from the `Table`. For example::
 
     class SimpleCountryTable(CountryTable):
         language = None
