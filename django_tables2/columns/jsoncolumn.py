@@ -25,6 +25,8 @@ class JSONColumn(BaseLinkColumn):
     Render the contents of `~django.contrib.postgres.fields.JSONField` or
     `~django.contrib.postgres.fields.HStoreField` as an indented string.
 
+    .. versionadded :: 1.5.0
+
     .. note::
 
         Automatic rendering of data to this column requires PostgreSQL support

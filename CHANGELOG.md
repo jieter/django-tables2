@@ -1,6 +1,8 @@
 # Change log
 
 ## master (unreleased)
+
+## 1.5.0 (2017-04-18)
 _Full disclosure: as of april 1st, 2017, I am an employee of [Zostera](http://zostera.nl/), as such I will continue to maintain and improve django-tables2._
  - Made `TableBase.as_values()` an interator ([#432](https://github.com/bradleyayers/django-tables2/pull/432) by [@pziarsolo](https://github.com/pziarsolo))
  - Added `JSONField` for data in JSON format.
