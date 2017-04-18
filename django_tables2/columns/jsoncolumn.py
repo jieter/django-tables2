@@ -27,8 +27,9 @@ class JSONColumn(BaseLinkColumn):
 
     .. note::
 
-        Automatic rendering of data to this column requires postgres support
-        to import the fields, but this column can also be used manually without it.
+        Automatic rendering of data to this column requires PostgreSQL support
+        (psycopg2 installed) to import the fields, but this column can also be
+        used manually without it.
 
     Arguments:
         json_dumps_kwargs: kwargs passed to `json.dumps`, defaults to `{'indent': 2}`
