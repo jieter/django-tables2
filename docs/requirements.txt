@@ -1,0 +1,4 @@
+-r ../requirements/common.pip
+Sphinx
+sphinx_rtd_theme
+recommonmark
