@@ -2,3 +2,4 @@
 Sphinx
 sphinx_rtd_theme
 recommonmark
+django_tables2
