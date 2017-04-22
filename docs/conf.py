@@ -8,6 +8,7 @@ import sphinx_rtd_theme
 
 from recommonmark.parser import CommonMarkParser
 
+os.environ['PYTHONPATH'] = '.'
 os.environ['DJANGO_SETTINGS_MODULE'] = 'example.settings'
 
 # import project
