@@ -11,7 +11,6 @@ os.environ['DJANGO_SETTINGS_MODULE'] = 'example.settings'
 
 # import project
 sys.path.insert(0, os.path.abspath('../'))
-# sys.path.pop(0)
 
 project = 'django-tables2'
 with open('../django_tables2/__init__.py', 'rb') as f:
