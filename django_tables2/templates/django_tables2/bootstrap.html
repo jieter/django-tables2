@@ -1,6 +1,6 @@
 {% load django_tables2 %}
 {% load i18n %}
-
+{% block table-wrapper %}
 <div class="table-container">
     {% block table %}
         <table {% if table.attrs %} {{ table.attrs.as_html }}{% else %}class="table"{% endif %}>
@@ -82,3 +82,4 @@
         {% endblock pagination %}
     {% endif %}
 </div>
+{% endblock table-wrapper %}

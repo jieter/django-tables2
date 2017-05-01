@@ -24,5 +24,12 @@
 
         <h2>Basic example of a table</h2>
         {% render_table table "django_tables2/bootstrap.html" %}
+
+        <div class="row">
+            <h2>Same table, but responsive (<code>.table-responsive</code>)</h2>
+            <div class="col-sm-12">
+                {% render_table table "django_tables2/bootstrap-responsive.html" %}
+            </div>
+        </div>
     </div>
 {% endblock %}

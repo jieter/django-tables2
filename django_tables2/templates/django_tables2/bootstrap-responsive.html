@@ -1,0 +1,9 @@
+{% extends 'django_tables2/bootstrap.html' %}
+
+{% block table-wrapper %}
+<div class="table-container table-responsive">
+    {% block table %}
+    {{ block.super }}
+    {% endblock table %}
+</div>
+{% endblock table-wrapper %}
