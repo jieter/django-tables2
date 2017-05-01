@@ -1,5 +1,4 @@
 -r ../requirements/common.pip
-Sphinx
+Sphinx<1.6
 sphinx_rtd_theme
 recommonmark
-sphinxcontrib-websupport
