@@ -5,5 +5,11 @@
     {% block table %}
     {{ block.super }}
     {% endblock table %}
+
+    {% if table.page and table.paginator.num_pages > 1 %}
+    {% block pagination %}
+    {{ block.super }}
+    {% endblock pagination %}
+    {% endif %}
 </div>
 {% endblock table-wrapper %}
