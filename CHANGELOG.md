@@ -2,6 +2,8 @@
 
 ## master (unreleased)
 
+## 1.6.1 (2017-05-08)
+- Add missing pagination to the responsive bootstrap template ([#440](https://github.com/bradleyayers/django-tables2/pull/440) by [@tobiasmcnulty](https://github.com/tobiasmcnulty))
 
 ## 1.6.0 (2017-05-01)
 - Add new template `bootstrap-responsive.html` to generate a responsive bootstrap table. (Fixes [#436](https://github.com/bradleyayers/django-tables2/issues/436))
