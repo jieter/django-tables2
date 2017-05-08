@@ -317,3 +317,24 @@ def test_semantic_template():
     # make sure the link is prefixed
     next_page = './/tfoot/tr/th/div[@class="ui right floated pagination menu"]/a[@class="icon item"]'
     assert root.find(next_page).get('href') == '?semantic-page=2'
+
+
+def test_bootstrap_responsive_template():
+    class BootstrapResponsiveTable(BootstrapTable):
+        class Meta(BootstrapTable.Meta):
+            template = 'django_tables2/bootstrap-responsive.html'
+
+    table = BootstrapResponsiveTable(MEMORY_DATA)
+    request = build_request('/')
+    RequestConfig(request).configure(table)
+
+    template = Template('{% load django_tables2 %}{% render_table table %}')
+    html = template.render(Context({'request': request, 'table': table}))
+    root = parse(html)
+    assert len(root.findall('.//thead/tr')) == 1
+    assert len(root.findall('.//thead/tr/th')) == 4
+    assert len(root.findall('.//tbody/tr')) == 2
+    assert len(root.findall('.//tbody/tr/td')) == 8
+
+    pager = './/ul/li[@class="cardinality"]/small'
+    assert root.find(pager).text.strip() == 'Page 1 of 2'
