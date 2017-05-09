@@ -6,11 +6,11 @@ import copy
 import itertools
 
 import django_tables2 as tables
-import pytest
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django_tables2.tables import DeclarativeColumnsMetaclass
 
-from .app.models import Person
+import pytest
+
 from .utils import build_request
 
 request = build_request('/')
