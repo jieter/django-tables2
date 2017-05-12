@@ -4,6 +4,14 @@ from random import choice
 from django.shortcuts import render
 from django.utils.lorem_ipsum import words
 from django.views.generic.base import TemplateView
+from django_tables2 import MultiTableMixin, RequestConfig, SingleTableView
+
+from django_filters.views import FilterView
+
+from .filters import PersonFilter
+from .models import Country, Person
+from .tables import (BootstrapTable, CountryTable, PersonTable, SemanticTable,
+                     ThemedCountryTable)
 
 try:
     from django.urls import reverse
@@ -11,11 +19,7 @@ except ImportError:
     # to keep backward (Django <= 1.9) compatibility
     from django.core.urlresolvers import reverse
 
-from django_tables2 import MultiTableMixin, RequestConfig, SingleTableView
 
-from .models import Country, Person
-from .tables import (BootstrapTable, SemanticTable, CountryTable, PersonTable,
-                     ThemedCountryTable)
 
 
 def create_fake_data():
@@ -40,6 +44,7 @@ def index(request):
         'urls': (
             (reverse('tutorial'), 'Tutorial'),
             (reverse('multiple'), 'Multiple tables'),
+            (reverse('filtertableview'), 'Filtered tables'),
             (reverse('singletableview'), 'Using SingleTableMixin'),
             (reverse('multitableview'), 'Using MultiTableMixin'),
             (reverse('bootstrap'), 'Using the bootstrap template'),
@@ -125,3 +130,14 @@ class MultipleTables(MultiTableMixin, TemplateView):
 
 def tutorial(request):
     return render(request, 'tutorial.html', {'people': Person.objects.all()})
+
+
+class FilteredPersonListView(FilterView, SingleTableView):
+    table_class = PersonTable
+    model = Person
+    template_name = 'bootstrap_template.html'
+
+    filterset_class = PersonFilter
+
+    def get_table_data(self):
+        return self.object_list
