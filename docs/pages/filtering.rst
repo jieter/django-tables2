@@ -17,6 +17,3 @@ The basis of a filterted table is a `SingleTableView` combined with a
         template_name = 'template.html'
 
         filterset_class = PersonFilter
-
-        def get_table_data(self):
-            return self.object_list

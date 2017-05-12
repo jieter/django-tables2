@@ -136,6 +136,3 @@ class FilteredPersonListView(FilterView, SingleTableView):
     template_name = 'bootstrap_template.html'
 
     filterset_class = PersonFilter
-
-    def get_table_data(self):
-        return self.object_list
