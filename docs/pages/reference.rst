@@ -1,5 +1,5 @@
-Reference
-=========
+API
+===
 
 .. toctree::
     builtin-columns

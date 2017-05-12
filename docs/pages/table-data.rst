@@ -31,9 +31,9 @@ it is necessary to declare each column::
 Querysets
 ---------
 
-If you build use tables to display `~django.db.models.query.QuerySet` data, rather than defining each
-column manually in the table, the `.Table.Meta.model` option allows tables to
-be dynamically created based on a model::
+If you build use tables to display `~django.db.models.query.QuerySet` data,
+rather than defining each column manually in the table, the `.Table.Meta.model`
+option allows tables to be dynamically created based on a model::
 
     # models.py
     class Person(models.Model):

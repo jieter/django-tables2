@@ -53,8 +53,9 @@ Non existing keys won't be shown in pinned rows.
 
 .. _pinned_row_attributes:
 
-Pinned rows attributes
-========================
+Attributes for pinned rows
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 If you want to override HTML attributes for pinned rows you should use: ``pinned_row_attrs``.
 Pinned row attributes can be specified using a `dict` defining the HTML attributes for
 the ``<tr>`` element on each row. See more: :ref:`row-attributes`.

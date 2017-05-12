@@ -1,7 +1,10 @@
 .. _column-attributes:
 
+Column and row attributes
+=========================
+
 Column attributes
-=================
+~~~~~~~~~~~~~~~~~
 
 Column attributes can be specified using the `dict` with specific keys.
 The dict defines HTML attributes for one of more elements within the column.
@@ -25,7 +28,7 @@ Have a look at each column's API reference to find which elements are supported.
 .. _row-attributes:
 
 Row attributes
-==============
+~~~~~~~~~~~~~~
 
 Row attributes can be specified using a dict defining the HTML attributes for
 the ``<tr>`` element on each row. The values of the dict may be

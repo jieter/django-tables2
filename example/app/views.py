@@ -20,8 +20,6 @@ except ImportError:
     from django.core.urlresolvers import reverse
 
 
-
-
 def create_fake_data():
     # create some fake data to make sure we need to paginate
     if Person.objects.all().count() < 50:
