@@ -1,9 +1,11 @@
 # coding: utf-8
+from __future__ import unicode_literals
+
 import django_tables2 as tables
 import pytest
 from django.db.models.functions import Length
 from django.utils import six
-from django_tables2 import RequestConfig
+from django.utils.translation import override as translation_override
 
 from .app.models import Occupation, Person, PersonProxy
 from .utils import assertNumQueries, build_request
@@ -154,6 +156,17 @@ def test_column_verbose_name():
     assert 'Web Site' == table.columns['website'].verbose_name
     assert 'Birthdate' == table.columns['birthdate'].verbose_name
     assert 'OVERRIDE' == table.columns['first_name'].verbose_name
+
+    # Verbose name should be lazy if it comes from the model field and
+    # the column was not declared explicitly
+    class PersonTable(tables.Table):
+        class Meta:
+            model = Person
+
+    table = PersonTable(Person.objects.all())
+    assert type(table.columns['trans_test_lazy'].verbose_name) is not six.text_type
+    with translation_override('ua'):
+        assert u'Тест Ленивого Перекладу' == table.columns['trans_test_lazy'].verbose_name
 
 
 def test_data_verbose_name():

@@ -195,9 +195,6 @@ def render_table(parser, token):
     return RenderTableNode(table, template)
 
 
-RE_UPPERCASE = re.compile('[A-Z]')
-
-
 @register.filter
 @stringfilter
 def title(value):
@@ -206,16 +203,24 @@ def title(value):
 
     Same as Django's builtin `~django.template.defaultfilters.title` filter,
     but operates on individual words and leaves words unchanged if they already
-    have a capital letter.
+    have a capital letter or a digit. Actually Django's filter also skips
+    words with digits but only for latin letters (or at least not for
+    cyrillic ones).
     '''
-
-    def title_word(w):
-        return w if RE_UPPERCASE.search(w) else old_title(w)
-
-    return re.sub('(\S+)', lambda m: title_word(m.group(0)), value)
+    return ' '.join([
+        any([c.isupper() or c.isdigit() for c in w]) and w or old_title(w)
+        for w in value.split()
+    ])
 
 
 title.is_safe = True
+
+try:
+    from django.utils.functional import keep_lazy_text
+    title = keep_lazy_text(title)
+except ImportError:
+    from django.utils.functional import lazy
+    title = lazy(title, six.text_type)
 
 register.filter('localize', l10n_register.filters['localize'])
 register.filter('unlocalize', l10n_register.filters['unlocalize'])
