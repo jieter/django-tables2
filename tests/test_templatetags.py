@@ -171,6 +171,14 @@ def test_title_should_only_apply_to_words_without_uppercase_letters():
         'black FBI': 'Black FBI',
         'f.b.i': 'F.B.I',
         'start 6pm': 'Start 6pm',
+
+        # Some cyrillic samples
+        'руда лисиця': 'Руда Лисиця',
+        'руда лисицЯ': 'Руда лисицЯ',
+        'діяльність СБУ': 'Діяльність СБУ',
+        'а.б.в': 'А.Б.В',
+        'вага 6кг': 'Вага 6кг',
+        'у 80-их роках': 'У 80-их Роках',
     }
 
     for raw, expected in expectations.items():
