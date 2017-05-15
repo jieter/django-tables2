@@ -166,7 +166,7 @@ def test_column_verbose_name():
     table = PersonTable(Person.objects.all())
     assert type(table.columns['trans_test_lazy'].verbose_name) is not six.text_type
     with translation_override('ua'):
-        assert u'Тест Ленивого Перекладу' == table.columns['trans_test_lazy'].verbose_name
+        assert 'Тест Ленивого Перекладу' == table.columns['trans_test_lazy'].verbose_name
 
 
 def test_data_verbose_name():

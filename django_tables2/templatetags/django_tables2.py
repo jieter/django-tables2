@@ -219,6 +219,7 @@ try:
     from django.utils.functional import keep_lazy_text
     title = keep_lazy_text(title)
 except ImportError:
+    # to keep backward (Django < 1.10) compatibility
     from django.utils.functional import lazy
     title = lazy(title, six.text_type)
 
