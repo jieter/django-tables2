@@ -1,12 +1,13 @@
 # Change log
 
 ## master (unreleased)
+ - Make `title()` lazy ([#443](https://github.com/bradleyayers/django-tables2/pull/443) by [@ygwain](https://github.com/ygwain), fixes [#438](https://github.com/bradleyayers/django-tables2/issues/438))
 
 ## 1.6.1 (2017-05-08)
-- Add missing pagination to the responsive bootstrap template ([#440](https://github.com/bradleyayers/django-tables2/pull/440) by [@tobiasmcnulty](https://github.com/tobiasmcnulty))
+ - Add missing pagination to the responsive bootstrap template ([#440](https://github.com/bradleyayers/django-tables2/pull/440) by [@tobiasmcnulty](https://github.com/tobiasmcnulty))
 
 ## 1.6.0 (2017-05-01)
-- Add new template `bootstrap-responsive.html` to generate a responsive bootstrap table. (Fixes [#436](https://github.com/bradleyayers/django-tables2/issues/436))
+ - Add new template `bootstrap-responsive.html` to generate a responsive bootstrap table. (Fixes [#436](https://github.com/bradleyayers/django-tables2/issues/436))
 
 ## 1.5.0 (2017-04-18)
 _Full disclosure: as of april 1st, 2017, I am an employee of [Zostera](http://zostera.nl/), as such I will continue to maintain and improve django-tables2._
