@@ -1,10 +1,9 @@
 # coding: utf-8
 from __future__ import unicode_literals
 
+import django_tables2 as tables
 import pytest
 from django.template import Context
-
-import django_tables2 as tables
 
 
 def test_should_handle_context_on_table():
@@ -49,3 +48,14 @@ def test_should_raise_when_called_without_template():
     with pytest.raises(ValueError):
         class Table(tables.Table):
             col = tables.TemplateColumn()
+
+
+def test_should_support_value_with_curly_braces():
+    '''
+    https://github.com/bradleyayers/django-tables2/issues/441
+    '''
+    class Table(tables.Table):
+        track = tables.TemplateColumn('track: {{ value }}')
+
+    table = Table([{'track': 'Beat it {Freestyle}'}])
+    assert table.rows[0].get_cell('track') == 'track: Beat it {Freestyle}'
