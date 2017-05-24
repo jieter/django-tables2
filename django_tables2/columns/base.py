@@ -533,10 +533,10 @@ class BoundColumns(object):
     Arguments:
         table (`.Table`): the table containing the columns
     '''
-    def __init__(self, table):
+    def __init__(self, table, base_columns):
         self._table = table
         self.columns = OrderedDict()
-        for name, column in six.iteritems(table.base_columns):
+        for name, column in six.iteritems(base_columns):
             self.columns[name] = bc = BoundColumn(table, column, name)
             bc.render = getattr(table, 'render_' + name, column.render)
             bc.order = getattr(table, 'order_' + name, column.order)

@@ -24,7 +24,7 @@ def _test_counter(Table, expected='<td class="counter">0</td>'):
     return html
 
 
-def test_row_counter_render_method():
+def test_row_counter_using_render_method():
     class CountryTable(tables.Table):
         counter = tables.Column(empty_values=(), orderable=False)
         name = tables.Column()

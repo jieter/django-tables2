@@ -26,6 +26,8 @@ class TableData(object):
         self.data = data
         self.table = table
 
+        super(TableData, self).__init__()
+
     def __getitem__(self, key):
         '''
         Slicing returns a new `.TableData` instance, indexing returns a
@@ -316,7 +318,6 @@ class DeclarativeColumnsMetaclass(type):
 
             if localize_column is not None:
                 base_columns[col_name].localize = localize_column
-
         attrs['base_columns'] = base_columns
         return super(DeclarativeColumnsMetaclass, mcs).__new__(mcs, name, bases, attrs)
 
@@ -422,12 +423,16 @@ class TableBase(object):
 
         show_footer (bool): If `False`, the table footer will not be rendered,
             even if some columns have a footer, defaults to `True`.
+
+        extra_columns (str, `.Column`): list of `(name, column)`-tuples containing
+            extra columns to add to the instance.
     '''
     def __init__(self, data, order_by=None, orderable=None, empty_text=None,
                  exclude=None, attrs=None, row_attrs=None, pinned_row_attrs=None,
                  sequence=None, prefix=None, order_by_field=None, page_field=None,
                  per_page_field=None, template=None, default=None, request=None,
-                 show_header=None, show_footer=True):
+                 show_header=None, show_footer=True, extra_columns=None):
+        super(TableBase, self).__init__()
 
         self.exclude = exclude or self._meta.exclude
         self.sequence = sequence
@@ -459,7 +464,12 @@ class TableBase(object):
         # Make a copy so that modifying this will not touch the class
         # definition. Note that this is different from forms, where the
         # copy is made available in a ``fields`` attribute.
-        self.base_columns = copy.deepcopy(type(self).base_columns)
+        base_columns = copy.deepcopy(type(self).base_columns)
+
+        if extra_columns is not None:
+            for name, column in extra_columns:
+                base_columns[name] = column
+
         # Keep fully expanded ``sequence`` at _sequence so it's easily accessible
         # during render. The priority is as follows:
         # 1. sequence passed in as an argument
@@ -467,7 +477,7 @@ class TableBase(object):
         # 3. sequence defaults to '...'
         if sequence is not None:
             self._sequence = Sequence(sequence)
-            self._sequence.expand(self.base_columns.keys())
+            self._sequence.expand(base_columns.keys())
         elif self._meta.sequence:
             self._sequence = self._meta.sequence
         else:
@@ -475,8 +485,8 @@ class TableBase(object):
                 self._sequence = Sequence(tuple(self._meta.fields) + ('...', ))
             else:
                 self._sequence = Sequence(('...', ))
-            self._sequence.expand(self.base_columns.keys())
-        self.columns = columns.BoundColumns(self)
+            self._sequence.expand(base_columns.keys())
+        self.columns = columns.BoundColumns(self, base_columns)
         # `None` value for order_by means no order is specified. This means we
         # `shouldn't touch our data's ordering in any way. *However*
         # `table.order_by = None` means "remove any ordering from the data"
@@ -739,6 +749,9 @@ class TableBase(object):
 
 
 # Python 2/3 compatible way to enable the metaclass
-Table = DeclarativeColumnsMetaclass(str('Table'), (TableBase, ), {})
-# ensure the Table class has the right class docstring
-Table.__doc__ = TableBase.__doc__
+@six.add_metaclass(DeclarativeColumnsMetaclass)
+class Table(TableBase):
+    # ensure the Table class has the right class docstring
+    __doc__ = TableBase.__doc__
+
+# Table = DeclarativeColumnsMetaclass(str('Table'), (TableBase, ), {})
