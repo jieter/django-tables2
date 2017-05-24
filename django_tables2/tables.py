@@ -250,7 +250,7 @@ class DeclarativeColumnsMetaclass(type):
         # well. Note that we loop over the bases in *reverse* - this is
         # necessary to preserve the correct order of columns.
         parent_columns = []
-        for base in bases[::-1]:
+        for base in reversed(bases):
             if hasattr(base, 'base_columns'):
                 parent_columns = list(base.base_columns.items()) + parent_columns
 
@@ -429,8 +429,6 @@ class TableBase(object):
                  sequence=None, prefix=None, order_by_field=None, page_field=None,
                  per_page_field=None, template=None, default=None, request=None,
                  show_header=None, show_footer=True):
-
-        super(TableBase, self).__init__()
 
         self.exclude = exclude or self._meta.exclude
         self.sequence = sequence
