@@ -27,8 +27,8 @@ def test_should_be_used_for_json_and_hstore_fields():
         class Meta:
             model = Model
 
-    assert type(Table.base_columns['json']) == tables.JSONColumn
-    assert type(Table.base_columns['hstore']) == tables.JSONColumn
+    assert isinstance(Table.base_columns['json'], tables.JSONColumn)
+    assert isinstance(Table.base_columns['hstore'], tables.JSONColumn)
 
 
 def test_jsoncolumn_dict():
