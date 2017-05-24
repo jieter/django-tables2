@@ -4,7 +4,7 @@ You are welcome to contribute to the development of `django-tables2` in various 
 
 - Discover and [report bugs](https://github.com/bradleyayers/django-tables2/issues/new).
   Make sure to include a minimal example to show your problem.
-- Propose features or fix bugs by [opening a Pull Request](https://github.com/bradleyayers/django-tables2/compare)
+- Propose features, add tests or fix bugs by [opening a Pull Request](https://github.com/bradleyayers/django-tables2/compare)
 - Fix documenation or translations
 
 When contributing code or making bug fixes, we need to have unit tests to verify the expected behaviour.
