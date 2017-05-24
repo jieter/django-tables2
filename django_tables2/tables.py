@@ -551,6 +551,31 @@ class TableBase(object):
         '''
         return None
 
+    def before_render(self, request):
+        '''
+        A way to hook into the moment just before rendering the template.
+
+        Can be used to hide a column.
+
+        Arguments:
+            request: contains the `WGSIRequest` instance, containing a `user` attribute if
+                `.django.contrib.auth.middleware.AuthenticationMiddleware` is added to
+                your `MIDDLEWARE_CLASSES`.
+
+        Example::
+
+            class Table(tables.Table):
+                name = tables.Column(orderable=False)
+                country = tables.Column(orderable=False)
+
+                def before_render(self, request):
+                    if request.user.has_perm('foo.delete_bar'):
+                        self.columns.hide('country')
+                    else:
+                        self.columns.show('country')
+        '''
+        return
+
     def as_html(self, request):
         '''
         Render the table to an HTML table, adding `request` to the context.
@@ -564,6 +589,7 @@ class TableBase(object):
             'request': request
         }
 
+        self.before_render(request)
         return template.render(context)
 
     def as_values(self):

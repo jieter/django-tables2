@@ -600,6 +600,24 @@ class BoundColumns(object):
     def visible(self):
         return list(self.itervisible())
 
+    def hide(self, name):
+        '''
+        Hide a column.
+
+        Arguments:
+            name(str): name of the column
+        '''
+        self.columns[name].column.visible = False
+
+    def show(self, name):
+        '''
+        Show a column otherwise hidden.
+
+        Arguments:
+            name(str): name of the column
+        '''
+        self.columns[name].column.visible = True
+
     def __iter__(self):
         '''
         Convenience API, alias of `.itervisible`.
