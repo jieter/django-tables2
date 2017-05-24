@@ -19,7 +19,7 @@ data = [
 
 def test_dynamically_adding_columns():
     '''
-    When adding columns to self.base_columns, they are actually added to
+    When adding columns to self.base_columns, they were actually added to
     the class attribute `Table.base_columns`, and not to the instance
     attribute, `table.base_columns`
 
