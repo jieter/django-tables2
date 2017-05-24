@@ -5,7 +5,7 @@ import django_tables2 as tables
 
 import pytest
 
-@pytest.mark.skip('foo')
+@pytest.mark.skip('not yet fixed, issue #403')
 def test_dynamically_adding_columns():
     class Table(tables.Table):
         '''
