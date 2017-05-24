@@ -48,12 +48,12 @@ def attrs(xml):
 @contextmanager
 def warns(warning_class):
     with warnings.catch_warnings(record=True) as ws:
-        warnings.simplefilter("always")
+        warnings.simplefilter('always')
         yield ws
         assert any((issubclass(w.category, DeprecationWarning) for w in ws))
 
 
-def build_request(uri='/'):
+def build_request(uri='/', user=None):
     '''
     Return a fresh HTTP GET / request.
 
@@ -61,7 +61,7 @@ def build_request(uri='/'):
     `~django.test.client.RequestFactory`.
     '''
     path, _, querystring = uri.partition('?')
-    return WSGIRequest({
+    request = WSGIRequest({
         'CONTENT_TYPE': 'text/html; charset=utf-8',
         'PATH_INFO': path,
         'QUERY_STRING': querystring,
@@ -79,6 +79,9 @@ def build_request(uri='/'):
         'wsgi.multithread': False,
         'wsgi.run_once': False,
     })
+    if user is not None:
+        request.user = user
+    return request
 
 
 def clean_output(s):
