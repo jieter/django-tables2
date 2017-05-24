@@ -1,12 +1,10 @@
 # coding: utf-8
+import pytest
 from django.db import models
 from django.utils import six
 
-import pytest
-from django_tables2.utils import (Accessor, AttributeDict, OrderBy,
-                                  OrderByTuple, Sequence,
-                                  call_with_appropriate, computed_values,
-                                  segment, signature)
+from django_tables2.utils import (Accessor, AttributeDict, OrderBy, OrderByTuple, Sequence, call_with_appropriate,
+                                  computed_values, segment, signature)
 
 
 def test_orderbytuple():

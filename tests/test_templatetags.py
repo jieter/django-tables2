@@ -1,13 +1,13 @@
 # coding: utf-8
 from __future__ import unicode_literals
 
-import django_tables2 as tables
 import pytest
 from django.core.exceptions import ImproperlyConfigured
-from django.template import (Context, RequestContext, Template,
-                             TemplateSyntaxError)
+from django.template import Context, RequestContext, Template, TemplateSyntaxError
 from django.utils import six
 from django.utils.six.moves.urllib.parse import parse_qs
+
+import django_tables2 as tables
 from django_tables2.config import RequestConfig
 
 from .app.models import Person, Region

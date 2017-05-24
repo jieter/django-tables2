@@ -1,11 +1,12 @@
 # coding: utf-8
 from __future__ import unicode_literals
 
-import django_tables2 as tables
 import pytest
 from django.db.models.functions import Length
 from django.utils import six
 from django.utils.translation import override as translation_override
+
+import django_tables2 as tables
 
 from .app.models import Occupation, Person, PersonProxy
 from .utils import assertNumQueries, build_request

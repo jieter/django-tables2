@@ -1,11 +1,11 @@
 # coding: utf-8
 from __future__ import absolute_import, unicode_literals
 
-import django_tables2 as tables
-from django.utils import six
-from django_tables2.tables import RequestConfig
-
 import pytest
+from django.utils import six
+
+import django_tables2 as tables
+from django_tables2.tables import RequestConfig
 
 from .app.models import Person
 from .utils import build_request

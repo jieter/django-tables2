@@ -1,12 +1,12 @@
 # coding: utf-8
 from __future__ import unicode_literals
 
-import django_tables2 as tables
+import pytest
 from django.db import models
 from django.utils.safestring import SafeData, mark_safe
 from django.utils.translation import ugettext_lazy
 
-import pytest
+import django_tables2 as tables
 
 from ..app.models import Person
 from ..utils import build_request, parse

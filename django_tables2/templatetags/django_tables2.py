@@ -4,7 +4,6 @@ from __future__ import absolute_import, unicode_literals
 import re
 from collections import OrderedDict
 
-import django_tables2 as tables
 from django import template
 from django.core.exceptions import ImproperlyConfigured
 from django.template import Node, TemplateSyntaxError
@@ -15,6 +14,8 @@ from django.templatetags.l10n import register as l10n_register
 from django.utils import six
 from django.utils.html import escape
 from django.utils.http import urlencode
+
+import django_tables2 as tables
 from django_tables2.config import RequestConfig
 
 register = template.Library()

@@ -4,6 +4,7 @@ from __future__ import absolute_import, unicode_literals
 import json
 
 from django.utils.html import format_html
+
 from django_tables2.templatetags.django_tables2 import title
 from django_tables2.utils import AttributeDict
 

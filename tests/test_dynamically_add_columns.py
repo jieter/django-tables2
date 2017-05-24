@@ -1,9 +1,10 @@
 # coding: utf-8
 from __future__ import absolute_import, unicode_literals
 
+import pytest
+
 import django_tables2 as tables
 
-import pytest
 
 @pytest.mark.skip('not yet fixed, issue #403')
 def test_dynamically_adding_columns():

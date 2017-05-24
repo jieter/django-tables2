@@ -1,9 +1,10 @@
 # coding: utf-8
 from __future__ import unicode_literals
 
-import django_tables2 as tables
 import pytest
 from django.template import Context
+
+import django_tables2 as tables
 
 
 def test_should_handle_context_on_table():

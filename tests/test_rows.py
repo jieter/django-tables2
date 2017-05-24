@@ -1,7 +1,8 @@
 # coding: utf-8
-import django_tables2 as tables
 import pytest
 from django.db import models
+
+import django_tables2 as tables
 
 
 def test_bound_rows():

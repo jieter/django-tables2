@@ -1,9 +1,9 @@
 # coding: utf-8
-import django_tables2 as tables
+import pytest
 from django.core.exceptions import ImproperlyConfigured
 from django.views.generic.base import TemplateView
 
-import pytest
+import django_tables2 as tables
 
 from .app.models import Person, Region
 from .utils import build_request

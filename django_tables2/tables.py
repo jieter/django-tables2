@@ -15,8 +15,7 @@ from django.utils.functional import cached_property
 from . import columns
 from .config import RequestConfig
 from .rows import BoundRows
-from .utils import (AttributeDict, OrderBy, OrderByTuple, Sequence,
-                    computed_values, segment)
+from .utils import AttributeDict, OrderBy, OrderByTuple, Sequence, computed_values, segment
 
 
 class TableData(object):

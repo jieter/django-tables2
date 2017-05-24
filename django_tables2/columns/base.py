@@ -6,10 +6,9 @@ from itertools import islice
 
 from django.utils import six
 from django.utils.safestring import SafeData
+
 from django_tables2.templatetags.django_tables2 import title
-from django_tables2.utils import (Accessor, AttributeDict, OrderBy,
-                                  OrderByTuple, call_with_appropriate,
-                                  computed_values)
+from django_tables2.utils import Accessor, AttributeDict, OrderBy, OrderByTuple, call_with_appropriate, computed_values
 
 
 class Library(object):

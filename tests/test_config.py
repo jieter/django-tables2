@@ -1,8 +1,9 @@
 # coding: utf-8
 import pytest
 from django.core.paginator import EmptyPage, PageNotAnInteger
-from django_tables2 import Column, RequestConfig, Table
 from fudge import Fake
+
+from django_tables2 import Column, RequestConfig, Table
 
 from .utils import build_request
 

@@ -4,8 +4,7 @@ from django.conf.urls import include, url
 from django.contrib import admin
 from django.views import static
 
-from app.views import (ClassBased, FilteredPersonListView, MultipleTables,
-                       bootstrap, index, multiple, semantic, tutorial)
+from app.views import ClassBased, FilteredPersonListView, MultipleTables, bootstrap, index, multiple, semantic, tutorial
 
 admin.autodiscover()
 

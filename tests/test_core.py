@@ -5,11 +5,11 @@ from __future__ import absolute_import, unicode_literals
 import copy
 import itertools
 
-import django_tables2 as tables
-from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
-from django_tables2.tables import DeclarativeColumnsMetaclass
-
 import pytest
+from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
+
+import django_tables2 as tables
+from django_tables2.tables import DeclarativeColumnsMetaclass
 
 from .utils import build_request
 

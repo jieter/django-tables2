@@ -1,9 +1,10 @@
 # coding: utf-8
 from __future__ import unicode_literals
 
-import django_tables2 as tables
 import pytest
 from django.db import models
+
+import django_tables2 as tables
 
 try:
     from django.contrib.postgres.fields import HStoreField, JSONField
