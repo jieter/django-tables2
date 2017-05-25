@@ -6,3 +6,4 @@ pytz>0
 pytest
 pytest-django
 pytest-cov
+tablib

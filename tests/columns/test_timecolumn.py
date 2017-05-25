@@ -8,7 +8,9 @@ from django.db import models
 import django_tables2 as tables
 
 
-# Format string: https://docs.djangoproject.com/en/stable/ref/templates/builtins/#date
+'''
+Format string: https://docs.djangoproject.com/en/stable/ref/templates/builtins/#date
+'''
 
 
 def test_should_handle_explicit_format():

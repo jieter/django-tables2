@@ -8,10 +8,13 @@ from django.db import models
 import django_tables2 as tables
 
 
-# Format string: https://docs.djangoproject.com/en/stable/ref/templates/builtins/#date
-# D -- Day of the week, textual, 3 letters  -- 'Fri'
-# b -- Month, textual, 3 letters, lowercase -- 'jan'
-# Y -- Year, 4 digits.                      -- '1999'
+'''
+Format string: https://docs.djangoproject.com/en/stable/ref/templates/builtins/#date
+D -- Day of the week, textual, 3 letters  -- 'Fri'
+b -- Month, textual, 3 letters, lowercase -- 'jan'
+Y -- Year, 4 digits.                      -- '1999'
+'''
+
 
 def test_should_handle_explicit_format():
     class TestTable(tables.Table):

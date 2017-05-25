@@ -1,4 +1,4 @@
 -r ../requirements/common.pip
-Sphinx<1.6
+Sphinx==1.6.2
 sphinx_rtd_theme
 recommonmark

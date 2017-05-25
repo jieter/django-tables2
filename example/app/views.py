@@ -4,9 +4,10 @@ from random import choice
 from django.shortcuts import render
 from django.utils.lorem_ipsum import words
 from django.views.generic.base import TemplateView
-from django_filters.views import FilterView
 
+from django_filters.views import FilterView
 from django_tables2 import MultiTableMixin, RequestConfig, SingleTableView
+from django_tables2.export.views import ExportMixin
 
 from .filters import PersonFilter
 from .models import Country, Person
@@ -129,7 +130,7 @@ def tutorial(request):
     return render(request, 'tutorial.html', {'people': Person.objects.all()})
 
 
-class FilteredPersonListView(FilterView, SingleTableView):
+class FilteredPersonListView(FilterView, ExportMixin, SingleTableView):
     table_class = PersonTable
     model = Person
     template_name = 'bootstrap_template.html'

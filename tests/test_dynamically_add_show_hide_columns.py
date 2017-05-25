@@ -6,6 +6,7 @@ from django.contrib.auth import get_user_model
 from django.template import Context, Template
 
 import django_tables2 as tables
+
 from .utils import build_request
 
 User = get_user_model()

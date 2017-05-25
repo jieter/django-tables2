@@ -10,12 +10,14 @@ from django.db import models
 import django_tables2 as tables
 
 
-# Format string: https://docs.djangoproject.com/en/stable/ref/templates/builtins/#date
-# D -- Day of the week, textual, 3 letters  -- 'Fri'
-# b -- Month, textual, 3 letters, lowercase -- 'jan'
-# Y -- Year, 4 digits.                      -- '1999'
-# A -- 'AM' or 'PM'.                        -- 'AM'
-# f -- Time, in 12-hour hours[:minutes]     -- '1', '1:30'
+'''
+Format string: https://docs.djangoproject.com/en/stable/ref/templates/builtins/#date
+D -- Day of the week, textual, 3 letters  -- 'Fri'
+b -- Month, textual, 3 letters, lowercase -- 'jan'
+Y -- Year, 4 digits.                      -- '1999'
+A -- 'AM' or 'PM'.                        -- 'AM'
+f -- Time, in 12-hour hours[:minutes]     -- '1', '1:30'
+'''
 
 
 @pytest.yield_fixture

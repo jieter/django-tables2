@@ -7,6 +7,7 @@ from django.db import models
 from django.utils import six
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext, ugettext_lazy
+
 from haystack import indexes
 
 try:
