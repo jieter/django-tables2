@@ -99,6 +99,14 @@ class TableListData(TableData):
     def __len__(self):
         return len(self.data)
 
+    @property
+    def verbose_name(self):
+        return getattr(self.data, 'verbose_name', super(TableListData, self).verbose_name)
+
+    @property
+    def verbose_name_plural(self):
+        return getattr(self.data, 'verbose_name_plural', super(TableListData, self).verbose_name_plural)
+
     def order_by(self, aliases):
         '''
         Order the data based on order by aliases (prefixed column names) in the
