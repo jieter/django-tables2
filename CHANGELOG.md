@@ -1,11 +1,14 @@
 # Change log
 
 ## master (unreleased)
+
+## 1.7.0 (2017-06-01)
  - Make `title()` lazy ([#443](https://github.com/bradleyayers/django-tables2/pull/443) by [@ygwain](https://github.com/ygwain), fixes [#438](https://github.com/bradleyayers/django-tables2/issues/438))
  - Fix `__all__` by populating them with the names of the items to export instead of the items themself.
  - Allow adding extra columns to an instance using the `extra_columns` argument. Fixes [#403](https://github.com/bradleyayers/django-tables2/issues/403), [#70](https://github.com/bradleyayers/django-tables2/issues/70)
  - Added a hook `before_render` to allow last-minute changes to the table before rendering.
  - Added `BoundColumns.show()` and `BoundColumns.hide()` to show/hide columns on an instance of a `Table`.
+ - Use `<listlike>.verbose_name`/`.verbose_name_plural` if it exists to name the items in the list. (fixes [#166](https://github.com/bradleyayers/django-tables2/issues/166))
 
 ## 1.6.1 (2017-05-08)
  - Add missing pagination to the responsive bootstrap template ([#440](https://github.com/bradleyayers/django-tables2/pull/440) by [@tobiasmcnulty](https://github.com/tobiasmcnulty))
