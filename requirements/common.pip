@@ -5,5 +5,4 @@ pylint
 pytz>0
 pytest
 pytest-django
-flake8
 pytest-cov

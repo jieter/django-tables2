@@ -128,6 +128,8 @@ def test_should_support_explicit_table_data():
 
 @pytest.mark.django_db
 def test_paginate_by_on_view_class():
+    Region.objects.create(name='Friesland')
+
     class Table(tables.Table):
         class Meta:
             model = Region
@@ -137,6 +139,9 @@ def test_paginate_by_on_view_class():
         model = Region
         paginate_by = 2
         table_data = MEMORY_DATA
+
+        def get_queryset(self):
+            return Region.objects.all().order_by('name')
 
     response, view = PaginateByDefinedOnView.as_view()(build_request('/'))
     assert view.get_table().paginator.per_page == 2

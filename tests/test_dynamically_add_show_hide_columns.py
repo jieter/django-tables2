@@ -26,7 +26,8 @@ def test_dynamically_adding_columns():
 
     issue #403
     '''
-    class MyTable(tables.Table):name = tables.Column()
+    class MyTable(tables.Table):
+        name = tables.Column()
 
     # this is obvious:
     assert list(MyTable(data).columns.columns.keys()) == ['name']
