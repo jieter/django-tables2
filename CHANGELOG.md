@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+
+## 1.7.1 (2017-06-02)
+- Call before_render when rendering with the render_table template tag (fixes [#447](https://github.com/bradleyayers/django-tables2/issues/447))
+
 ## 1.7.0 (2017-06-01)
  - Make `title()` lazy ([#443](https://github.com/bradleyayers/django-tables2/pull/443) by [@ygwain](https://github.com/ygwain), fixes [#438](https://github.com/bradleyayers/django-tables2/issues/438))
  - Fix `__all__` by populating them with the names of the items to export instead of the items themself.
