@@ -111,6 +111,8 @@ class RenderTableNode(Node):
     def render(self, context):
         table = self.table.resolve(context)
 
+        request = context.get('request')
+
         if isinstance(table, tables.TableBase):
             pass
         elif hasattr(table, 'model'):
@@ -123,7 +125,6 @@ class RenderTableNode(Node):
                     model = queryset.model
 
             table = OnTheFlyTable(queryset)
-            request = context.get('request')
             if request:
                 RequestConfig(request).configure(table)
         else:
@@ -152,6 +153,7 @@ class RenderTableNode(Node):
             # achieved is to temporarily attach the context to the table,
             # which TemplateColumn then looks for and uses.
             table.context = context
+            table.before_render(request)
             return template.render(context.flatten())
         finally:
             del table.context
