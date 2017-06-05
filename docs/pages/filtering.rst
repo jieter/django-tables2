@@ -1,7 +1,7 @@
 Filtering data in your table
 ============================
 
-When presenting a large amount of data, filtering is often a necessaty.
+When presenting a large amount of data, filtering is often a necessity.
 Fortunately, filtering the data in your django-tables2 table is simple with
 `django-filter <https://pypi.python.org/pypi/django-filter>`_.
 
