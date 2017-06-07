@@ -356,9 +356,9 @@ class BoundColumn(object):
         # favour Column.header
         column_header = self.column.header
         if column_header:
-            return column_header
+            return title(column_header)
         # fall back to automatic best guess
-        return self.verbose_name
+        return title(self.verbose_name)
 
     @property
     def footer(self):
