@@ -12,7 +12,7 @@ from django_tables2.config import RequestConfig
 from django_tables2.export.export import TableExport
 from django_tables2.export.views import ExportMixin
 
-from ..app.models import Person
+from ..app.models import Occupation, Person, Region
 from ..test_views import DispatchHookMixin
 from ..utils import build_request
 
@@ -101,3 +101,28 @@ def test_function_view():
 
     assert 'Yildiz' in html
     assert 'Lindy' not in html
+
+
+@pytest.mark.django_db
+def test_exporting_should_work_with_foreign_keys():
+    vlaanderen = Region.objects.create(name='Vlaanderen')
+    Occupation.objects.create(name='Timmerman', boolean=True, region=vlaanderen)
+    Occupation.objects.create(name='Ecoloog', boolean=False, region=vlaanderen)
+
+    class OccupationTable(tables.Table):
+        name = tables.Column()
+        boolean = tables.Column()
+        region = tables.Column()
+
+    class OccupationView(DispatchHookMixin, ExportMixin, tables.SingleTableView):
+        table_class = OccupationTable
+        table_pagination = {'per_page': 1}
+        model = Occupation
+        template_name = 'django_tables2/bootstrap.html'
+
+    response, view = OccupationView.as_view()(build_request('/?_export=xls'))
+    data = response.content
+    # binary data, so not possible to compare to an exact expectation
+    assert data.find('Vlaanderen'.encode())
+    assert data.find('Ecoloog'.encode())
+    assert data.find('Timmerman'.encode())
