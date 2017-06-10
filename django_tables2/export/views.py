@@ -13,9 +13,10 @@ class ExportMixin(object):
         return 'table.{}'.format(export_format)
 
     def create_export(self, export_format):
-        table = self.get_table(**self.get_table_kwargs())
-
-        exporter = TableExport(export_format=export_format, table=table)
+        exporter = TableExport(
+            export_format=export_format,
+            table=self.get_table(**self.get_table_kwargs())
+        )
 
         return exporter.response(filename=self.get_export_filename(export_format))
 

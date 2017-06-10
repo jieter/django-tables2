@@ -1,7 +1,14 @@
 from __future__ import unicode_literals
 
+from django.core.exceptions import ImproperlyConfigured
 from django.http import HttpResponse
-from tablib import Dataset
+
+try:
+    from tablib import Dataset
+except ImportError:
+    raise ImproperlyConfigured(
+        'You must have tablib installed in order to use the django-tables2 export functionality'
+    )
 
 
 class TableExport(object):
