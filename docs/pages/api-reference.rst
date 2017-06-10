@@ -348,5 +348,17 @@ API Reference
 .. autoclass:: django_tables2.views.MultiTableMixin
     :members:
 
+`.export.TableExport`
+---------------------
+
+.. autoclass:: django_tables2.export.TableExport
+    :members:
+
+`.export.ExportMixin`
+---------------------
+
+.. autoclass:: django_tables2.export.ExportMixin
+    :members:
+
 
 See :doc:`internal` for internal classes.

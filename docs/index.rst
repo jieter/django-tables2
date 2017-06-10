@@ -53,6 +53,7 @@ Table of contents
     pages/generic-mixins
     pages/pinned-rows
     pages/filtering
+    pages/export
 
 .. toctree::
     :maxdepth: 1

@@ -5,8 +5,11 @@ import json
 
 import pytest
 from django.core.exceptions import ImproperlyConfigured
+from django.shortcuts import render
 
 import django_tables2 as tables
+from django_tables2.config import RequestConfig
+from django_tables2.export.export import TableExport
 from django_tables2.export.views import ExportMixin
 
 from ..app.models import Person
@@ -18,6 +21,15 @@ NAMES = [
     ('Lindi', 'Hakvoort'),
     ('Gerardo', 'Castelein'),
 ]
+
+EXPECTED_CSV = '\r\n'.join(
+    ('First Name,Surname', ) + tuple(','.join(name) for name in NAMES)
+) + '\r\n'
+
+EXPECTED_JSON = list([
+    {'First Name': first_name, 'Surname': last_name}
+    for first_name, last_name in NAMES
+])
 
 
 def create_test_data():
@@ -40,12 +52,9 @@ class View(DispatchHookMixin, ExportMixin, tables.SingleTableView):
 @pytest.mark.django_db
 def test_view_should_support_csv_export():
     create_test_data()
-    expected = '\r\n'.join(
-        ('First Name,Surname', 'Yildiz,van der Kuil', 'Lindi,Hakvoort', 'Gerardo,Castelein')
-    ) + '\r\n'
 
     response, view = View.as_view()(build_request('/?_export=csv'))
-    assert response.getvalue().decode('utf8') == expected
+    assert response.getvalue().decode('utf8') == EXPECTED_CSV
 
     # should just render the normal table without the _export query
     response, view = View.as_view()(build_request('/'))
@@ -59,10 +68,36 @@ def test_view_should_support_csv_export():
 def test_view_should_support_json_export():
     create_test_data()
 
-    expected = list([
-        {'First Name': m.first_name, 'Surname': m.last_name}
-        for m in Person.objects.all()
-    ])
-
     response, view = View.as_view()(build_request('/?_export=json'))
-    assert json.loads(response.getvalue().decode('utf8')) == expected
+    assert json.loads(response.getvalue().decode('utf8')) == EXPECTED_JSON
+
+
+@pytest.mark.django_db
+def test_function_view():
+    '''
+    Test the code used in the docs
+    '''
+    create_test_data()
+
+    def table_view(request):
+        table = Table(Person.objects.all())
+        RequestConfig(request).configure(table)
+
+        export_format = request.GET.get('_export', None)
+        if TableExport.is_valid_format(export_format):
+            exporter = TableExport(export_format, table)
+            return exporter.response('table.{}'.format(export_format))
+
+        return render(request, 'django_tables2/table.html', {
+            'table': table
+        })
+
+    response = table_view(build_request('/?_export=csv'))
+    assert response.getvalue().decode('utf8') == EXPECTED_CSV
+
+    # must also support the normal html table.
+    response = table_view(build_request('/'))
+    html = response.content.decode('utf8')
+
+    assert 'Yildiz' in html
+    assert 'Lindy' not in html

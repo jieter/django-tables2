@@ -12,21 +12,37 @@ except ImportError:
 
 
 class TableExport(object):
+    '''
+    Export data from a table to the filetype specified.
+
+    Argumenents:
+        export_format (str): one of `csv, json, latex, ods, tsv, xls, xlsx, yml`
+        table (`~.Table`): instance of the table to export the data from
+    '''
     CSV = 'csv'
     JSON = 'json'
+    LATEX = 'latex'
+    ODS = 'ods'
+    TSV = 'tsv'
     XLS = 'xls'
     XLSX = 'xlsx'
     YAML = 'yml'
 
     FORMATS = {
         CSV: 'text/csv; charset=utf-8',
-        JSON: 'application/json;',
+        JSON: 'application/json',
+        LATEX: 'text/plain',
+        ODS: 'application/vnd.oasis.opendocument.spreadsheet',
+        TSV: 'text/tsv; charset=utf-8',
         XLS: 'application/vnd.ms-excel',
         XLSX: 'application/vnd.ms-excel',
         YAML: 'text/yml; charset=utf-8',
     }
 
     def __init__(self, export_format, table):
+        if not self.is_valid_format(export_format):
+            raise TypeError('Export format "{}" is not supported.'.format(export_format))
+
         self.format = export_format
 
         self.dataset = Dataset()
@@ -36,26 +52,40 @@ class TableExport(object):
             else:
                 self.dataset.append(row)
 
+    @classmethod
+    def is_valid_format(self, export_format):
+        '''
+        Returns true if `export_format` is one of the supported export formats
+        '''
+        return (
+            export_format is not None and
+            export_format in TableExport.FORMATS.keys()
+        )
+
     def content_type(self):
+        '''
+        Returns the content type for the current export format
+        '''
         return self.FORMATS[self.format]
 
     def export(self):
-        if self.format == self.CSV:
-            return self.dataset.csv
-        elif self.format == self.JSON:
-            return self.dataset.json
-        elif self.format == self.XLS:
-            return self.dataset.xls
-        elif self.format == self.XLSX:
-            return self.dataset.xlsx
-        elif self.format == self.YAML:
-            return self.dataset.yaml
+        '''
+        Returns the string/bytes for the current export format
+        '''
+        return getattr(self.dataset, self.format)
 
-    def response(self, filename):
+    def response(self, filename=None):
+        '''
+        Builds and returns a `HttpResponse` containing the exported data
+
+        Arguments:
+            filename (str): if not `None`,
+        '''
         response = HttpResponse(content_type=self.content_type())
-        response['Content-Disposition'] = 'attachment; filename="{}"'.format(
-            filename
-        )
+        if filename is not None:
+            response['Content-Disposition'] = 'attachment; filename="{}"'.format(
+                filename
+            )
 
         response.write(self.export())
         return response

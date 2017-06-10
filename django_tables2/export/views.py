@@ -22,7 +22,7 @@ class ExportMixin(object):
 
     def render_to_response(self, context, **kwargs):
         export_format = self.request.GET.get(self.export_trigger_param, None)
-        if export_format is not None and export_format in TableExport.FORMATS.keys():
+        if TableExport.is_valid_format(export_format):
             return self.create_export(export_format)
 
         return super(ExportMixin, self).render_to_response(context, **kwargs)
