@@ -1,35 +1,27 @@
 from __future__ import unicode_literals
 
-from django.http import HttpResponse
-
-from tablib import Dataset
+from .export import TableExport
 
 
 class ExportMixin(object):
-    report_trigger_param = '_report'
-    report_download_filename = 'table.csv'
+    '''
+    Support various export formats for the table data.
+    '''
+    export_trigger_param = '_export'
 
-    def create_export(self):
+    def get_export_filename(self, export_format):
+        return 'table.{}'.format(export_format)
+
+    def create_export(self, export_format):
         table = self.get_table(**self.get_table_kwargs())
 
-        response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = 'attachment; filename="{}"'.format(
-            self.report_download_filename
-        )
-        data = table.as_values()
+        exporter = TableExport(export_format=export_format, table=table)
 
-        dataset = Dataset()
-        for i, row in enumerate(data):
-            if i == 0:
-                dataset.header = row
-            else:
-                dataset.append(row)
-
-        response.write(dataset.csv)
-        return response
+        return exporter.response(filename=self.get_export_filename(export_format))
 
     def render_to_response(self, context, **kwargs):
-        if self.report_trigger_param in self.request.GET:
-            return self.create_report()
+        export_format = self.request.GET.get(self.export_trigger_param, None)
+        if export_format is not None and export_format in TableExport.FORMATS.keys():
+            return self.create_export(export_format)
 
         return super(ExportMixin, self).render_to_response(context, **kwargs)

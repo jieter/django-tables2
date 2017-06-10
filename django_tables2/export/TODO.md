@@ -4,5 +4,5 @@ Try to make a simple and clean implementation of table exports based on `Table.a
 
 ## TODO:
  - [ ] exclude columns from CSV
- - [ ] example how to use function views.
+ - [ ] example how to use in function views.
  - [ ] tests
