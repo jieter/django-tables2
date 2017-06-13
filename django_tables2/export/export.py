@@ -5,7 +5,7 @@ from django.http import HttpResponse
 
 try:
     from tablib import Dataset
-except ImportError:
+except ImportError:  # pragma: no cover
     raise ImproperlyConfigured(
         'You must have tablib installed in order to use the django-tables2 export functionality'
     )

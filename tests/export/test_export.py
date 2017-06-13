@@ -64,6 +64,13 @@ def test_view_should_support_csv_export():
     assert 'Lindy' not in html
 
 
+def test_exporter_should_raise_error_for_unsupported_file_type():
+    table = Table([])
+
+    with pytest.raises(TypeError):
+        TableExport(table=table, export_format='exe')
+
+
 @pytest.mark.django_db
 def test_view_should_support_json_export():
     create_test_data()
