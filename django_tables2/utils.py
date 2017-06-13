@@ -26,7 +26,13 @@ class Sequence(list):
         Expands the ``'...'`` item in the sequence into the appropriate column
         names that should be placed there.
 
-        :raises: `ValueError` if the sequence is invalid for the columns.
+        arguments:
+            columns (list): list of column names.
+        returns:
+            The current instance.
+
+        raises:
+            `ValueError` if the sequence is invalid for the columns.
         '''
         ellipses = self.count("...")
         if ellipses > 1:
@@ -48,6 +54,8 @@ class Sequence(list):
             if name in columns:
                 columns.pop(columns.index(name))
         self[:] = chain(head, columns, tail)
+
+        return self
 
 
 class OrderBy(str):

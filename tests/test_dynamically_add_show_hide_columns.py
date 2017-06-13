@@ -41,6 +41,25 @@ def test_dynamically_adding_columns():
     assert list(MyTable(data).columns.columns.keys()) == ['name']
 
 
+def test_dynamically_add_column_with_sequence():
+    class MyTable(tables.Table):
+        name = tables.Column()
+
+        class Meta:
+            sequence = ('...', 'name')
+
+    assert list(MyTable(data, extra_columns=[
+        ('country', tables.Column())
+    ]).columns.columns.keys()) == ['country', 'name']
+
+    # override sequence with an argument.
+    assert list(MyTable(
+        data,
+        extra_columns=[('country', tables.Column())],
+        sequence=('name', '...')
+    ).columns.columns.keys()) == ['name', 'country']
+
+
 @pytest.mark.django_db
 def test_dynamically_hide_columns():
     class MyTable(tables.Table):

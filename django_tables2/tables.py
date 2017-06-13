@@ -306,15 +306,6 @@ class DeclarativeColumnsMetaclass(type):
             if attr_name in base_columns:
                 base_columns.pop(attr_name)
 
-        # Reorder the columns based on explicit sequence
-        if opts.sequence:
-            opts.sequence.expand(base_columns.keys())
-            # Table's sequence defaults to sequence declared in Meta, if the
-            # column is not excluded
-            base_columns = OrderedDict((
-                (x, base_columns[x]) for x in opts.sequence if x in base_columns
-            ))
-
         # Set localize on columns
         for col_name in base_columns.keys():
             localize_column = None
@@ -484,16 +475,21 @@ class TableBase(object):
         # 2. sequence declared in ``Meta``
         # 3. sequence defaults to '...'
         if sequence is not None:
-            self._sequence = Sequence(sequence)
-            self._sequence.expand(base_columns.keys())
+            sequence = Sequence(sequence)
         elif self._meta.sequence:
-            self._sequence = self._meta.sequence
+            sequence = self._meta.sequence
         else:
             if self._meta.fields is not None:
-                self._sequence = Sequence(tuple(self._meta.fields) + ('...', ))
+                sequence = Sequence(tuple(self._meta.fields) + ('...', ))
             else:
-                self._sequence = Sequence(('...', ))
-            self._sequence.expand(base_columns.keys())
+                sequence = Sequence(('...', ))
+        self._sequence = sequence.expand(base_columns.keys())
+
+        # reorder columns based on sequence.
+        base_columns = OrderedDict((
+            (x, base_columns[x]) for x in sequence if x in base_columns
+        ))
+
         self.columns = columns.BoundColumns(self, base_columns)
         # `None` value for order_by means no order is specified. This means we
         # `shouldn't touch our data's ordering in any way. *However*
