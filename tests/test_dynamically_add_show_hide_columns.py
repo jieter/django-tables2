@@ -4,6 +4,7 @@ from __future__ import absolute_import, unicode_literals
 import pytest
 from django.contrib.auth import get_user_model
 from django.template import Context, Template
+from django.utils.translation import ugettext_lazy as _
 
 import django_tables2 as tables
 
@@ -47,7 +48,7 @@ def test_sorting_on_dynamically_added_columns():
         name = tables.Column()
 
     table = MyTable(data, order_by='-country', extra_columns=[
-        ('country', tables.Column())
+        ('country', tables.Column(verbose_name=_('country')))
     ])
 
     root = parse(table.as_html(build_request()))
