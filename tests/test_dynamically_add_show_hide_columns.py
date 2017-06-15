@@ -8,13 +8,13 @@ from django.template import Context, Template
 import django_tables2 as tables
 
 from .app.models import Person
-from .utils import build_request
+from .utils import build_request, parse
 
 User = get_user_model()
 
 data = [
     {'name': 'Adrian', 'country': 'Australia'},
-    {'name': 'Adrian', 'country': 'Brazil'},
+    {'name': 'Roy', 'country': 'Brazil'},
     {'name': 'Audrey', 'country': 'Chile'},
     {'name': 'Bassie', 'country': 'Belgium'},
 ]
@@ -40,6 +40,19 @@ def test_dynamically_adding_columns():
 
     # this new instance should not have the extra columns added to the first instance.
     assert list(MyTable(data).columns.columns.keys()) == ['name']
+
+
+def test_sorting_on_dynamically_added_columns():
+    class MyTable(tables.Table):
+        name = tables.Column()
+
+    table = MyTable(data, order_by='-country', extra_columns=[
+        ('country', tables.Column())
+    ])
+
+    root = parse(table.as_html(build_request()))
+    assert root.find('.//tbody/tr/td[2]').text == 'Chile'
+    assert root.find('.//tbody/tr[4]/td[2]').text == 'Australia'
 
 
 @pytest.mark.django_db
