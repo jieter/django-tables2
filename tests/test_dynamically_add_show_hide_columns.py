@@ -7,6 +7,7 @@ from django.template import Context, Template
 
 import django_tables2 as tables
 
+from .app.models import Person
 from .utils import build_request
 
 User = get_user_model()
@@ -39,6 +40,28 @@ def test_dynamically_adding_columns():
 
     # this new instance should not have the extra columns added to the first instance.
     assert list(MyTable(data).columns.columns.keys()) == ['name']
+
+
+@pytest.mark.django_db
+def test_dynamically_override_auto_generated_columns():
+    for name, country in data:
+        Person.objects.create(first_name=name, last_name=country)
+    queryset = Person.objects.all()
+
+    class MyTable(tables.Table):
+        class Meta:
+            model = Person
+            fields = ('first_name', 'last_name')
+
+    assert list(MyTable(queryset).columns.columns.keys()) == ['first_name', 'last_name']
+
+    table = MyTable(queryset, extra_columns=[
+        ('first_name', tables.Column(attrs={'td': {'style': 'color: red;'}}))
+    ])
+    # we still should have two columns
+    assert list(table.columns.columns.keys()) == ['first_name', 'last_name']
+    # the attrs should be applied to the `first_name` column
+    assert table.columns['first_name'].attrs['td'] == {'class': 'first_name', 'style': 'color: red;'}
 
 
 def test_dynamically_add_column_with_sequence():
