@@ -4,20 +4,31 @@ from __future__ import absolute_import, unicode_literals
 import pytest
 from django.contrib.auth import get_user_model
 from django.template import Context, Template
-from django.utils.translation import ugettext_lazy as _
-
+from django.utils.translation import ugettext as _
 import django_tables2 as tables
 
-from .app.models import Person
-from .utils import build_request, parse
+from django_tables2.config import RequestConfig
+from django.template.defaultfilters import date as _date
+from .app.models import Person, ActivityType, Activity
+from .utils import build_request
 
 User = get_user_model()
 
 data = [
     {'name': 'Adrian', 'country': 'Australia'},
-    {'name': 'Roy', 'country': 'Brazil'},
+    {'name': 'Adrian', 'country': 'Brazil'},
     {'name': 'Audrey', 'country': 'Chile'},
     {'name': 'Bassie', 'country': 'Belgium'},
+]
+
+activity_types_data = [
+    'testing',
+    'trying'
+]
+
+activities_data = [
+   '2017-06-15',
+   '2017-06-15'
 ]
 
 
@@ -41,19 +52,6 @@ def test_dynamically_adding_columns():
 
     # this new instance should not have the extra columns added to the first instance.
     assert list(MyTable(data).columns.columns.keys()) == ['name']
-
-
-def test_sorting_on_dynamically_added_columns():
-    class MyTable(tables.Table):
-        name = tables.Column()
-
-    table = MyTable(data, order_by='-country', extra_columns=[
-        ('country', tables.Column(verbose_name=_('country')))
-    ])
-
-    root = parse(table.as_html(build_request()))
-    assert root.find('.//tbody/tr/td[2]').text == 'Chile'
-    assert root.find('.//tbody/tr[4]/td[2]').text == 'Australia'
 
 
 @pytest.mark.django_db
@@ -129,3 +127,51 @@ def test_dynamically_hide_columns():
     html = template.render(Context({'request': request, 'table': table}))
     assert '<th class="name">Name</th>' in html
     assert '<th class="country">Country</th>' in html
+
+
+
+@pytest.mark.django_db
+def test_extra_columns_with_custom_column_render():
+
+    for name, country in data:
+        Person.objects.create(first_name=name, last_name=country)
+    queryset = Person.objects.all()
+
+    for name in activity_types_data:
+        ActivityType.objects.create(name=name)
+
+    for date in activities_data:
+        Activity.objects.create(activity_type_id=1, date=date, person_id=1)
+
+
+
+    class MyColumn(tables.Column):
+        empty_values = ()
+        def __init__(self, *args, **kwargs):
+            self.activity_type = kwargs.pop('activity_type')
+            super(MyColumn, self).__init__(*args, **kwargs)
+        def render(self,record, table, value, bound_column, **kwargs):     
+            activity = record.last_for_activity_type(self.activity_type) 
+            if activity:
+                value = _date(activity.date, "DATE_FORMAT")
+            else:
+                value = '—'
+            return value
+
+    class MyTable(tables.Table):
+        class Meta:
+            model = Person
+            fields = ('name',)
+            sequence = ('name', '...')
+
+    extra_columns = ()
+    extra_columns += tuple([('last_{}'.format(x.name.replace(" ", "_")), MyColumn(activity_type=x, verbose_name=_('Last {}').format(x.name))) for x in ActivityType.objects.all()])
+
+    table = MyTable(queryset, extra_columns=extra_columns)
+    template = Template('{% load django_tables2 %}{% render_table table %}')
+
+    request = build_request(user=User.objects.create(username='Bob'))
+    RequestConfig(request).configure(table)
+    html = template.render(Context({'request': request, 'table': table}))
+
+    assert 'last_testing' in html
