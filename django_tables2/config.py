@@ -8,8 +8,7 @@ class RequestConfig(object):
     '''
     A configurator that uses request data to setup a table.
 
-    A single RequestConfig can be used for multiple tables in one view. See
-    [pagination]
+    A single RequestConfig can be used for multiple tables in one view.
 
     Arguments:
         paginate (dict or bool): Indicates whether to paginate, and if so, what
