@@ -20,6 +20,7 @@ class DispatchHookMixin(object):
     '''
     Returns a response *and* reference to the view.
     '''
+
     def dispatch(self, *args, **kwargs):
         return super(DispatchHookMixin, self).dispatch(*args, **kwargs), self
 
@@ -276,6 +277,20 @@ def test_multiTableMixin_without_tables():
 
     with pytest.raises(ImproperlyConfigured):
         View.as_view()(build_request('/'))
+
+
+def test_multiTableMixin_with_empty_get_tables_list():
+    class View(tables.MultiTableMixin, TemplateView):
+        template_name = 'multiple.html'
+
+        def get_tables(self):
+            return []
+
+    response = View.as_view()(build_request('/'))
+    response.render()
+
+    html = response.rendered_content
+    assert '<h1>Multiple tables using MultiTableMixin</h1>' in html
 
 
 def test_multiTableMixin_incorrect_len():
