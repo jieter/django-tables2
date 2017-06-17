@@ -3,8 +3,13 @@
 ## master (unreleased)
 
 
+## 1.8.0 (2017-06-17)
+ - Feature: Added an `ExportMixin` to export table data in various export formats (CSV, XLS, etc.) using [tablib](http://docs.python-tablib.org/en/latest/).
+ - Defer expanding `Meta.sequence` to `Table.__init__`, to make sequence work in combination with `extra_columns` (fixes [#450](https://github.com/bradleyayers/django-tables2/issues/450))
+ - Fixed a crash when `MultiTableMixin.get_tables()` returned an empty array ([#454](https://github.com/bradleyayers/django-tables2/pull/455) by [@pypetey](https://github.com/pypetey)
+
 ## 1.7.1 (2017-06-02)
-- Call before_render when rendering with the render_table template tag (fixes [#447](https://github.com/bradleyayers/django-tables2/issues/447))
+ - Call before_render when rendering with the render_table template tag (fixes [#447](https://github.com/bradleyayers/django-tables2/issues/447))
 
 ## 1.7.0 (2017-06-01)
  - Make `title()` lazy ([#443](https://github.com/bradleyayers/django-tables2/pull/443) by [@ygwain](https://github.com/ygwain), fixes [#438](https://github.com/bradleyayers/django-tables2/issues/438))
