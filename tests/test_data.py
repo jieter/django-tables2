@@ -1,5 +1,5 @@
 
-from django_tables2.tables import TableListData
+from django_tables2.data import TableListData
 
 
 def generator(max_value):

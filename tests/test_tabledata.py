@@ -1,11 +1,9 @@
 # coding: utf-8
 from __future__ import unicode_literals
 
-from copy import deepcopy
-
 import pytest
 
-from django_tables2.tables import TableData, TableListData, TableQuerysetData
+from django_tables2.data import TableData, TableListData, TableQuerysetData
 
 from .app.models import Person
 
