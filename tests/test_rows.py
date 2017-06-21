@@ -70,7 +70,7 @@ def test_row_attrs():
 
         class Meta(object):
             row_attrs = {
-                'class': lambda x: '' if next(counter) % 2 == 0 else 'bla'
+                'class': lambda: '' if next(counter) % 2 == 0 else 'bla'
             }
 
     table = Table([

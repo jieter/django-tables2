@@ -158,6 +158,7 @@ def test_accessor_penultimate():
 
 def test_attribute_dict_handles_escaping():
     x = AttributeDict({'x': '"\'x&'})
+    print x
     assert x.as_html() == 'x="&quot;&#39;x&amp;"'
 
 
@@ -176,7 +177,7 @@ def test_computed_values_with_argument():
         'foo': lambda y: {
             'bar': lambda y: 'baz-{}'.format(y)
         }
-    }, y=2)
+    }, kwargs=dict(y=2))
     assert x == {'foo': {'bar': 'baz-2'}}
 
 

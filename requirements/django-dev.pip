@@ -1,2 +1,3 @@
 -r common.pip
+Django==1.11.2
 https://github.com/django/django/archive/1.11a1.zip

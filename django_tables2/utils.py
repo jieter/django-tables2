@@ -407,6 +407,13 @@ class AttributeDict(dict):
     The returned string is marked safe, so it can be used safely in a template.
     See `.as_html` for a usage example.
     '''
+    blacklist = ('th', 'td', '_ordering')
+
+    def _iteritems(self):
+        for k, v in six.iteritems(self):
+            if k not in self.blacklist:
+                yield (k, v() if callable(v) else v)
+
     def as_html(self):
         '''
         Render to HTML tag attributes.
@@ -423,12 +430,7 @@ class AttributeDict(dict):
         :rtype: `~django.utils.safestring.SafeUnicode` object
 
         '''
-
-        blacklist = ('th', 'td', '_ordering')
-        return format_html_join(
-            ' ', '{}="{}"',
-            [(k, v) for k, v in six.iteritems(self) if k not in blacklist]
-        )
+        return format_html_join(' ', '{}="{}"', self._iteritems())
 
 
 def segment(sequence, aliases):
@@ -519,7 +521,7 @@ def call_with_appropriate(fn, kwargs):
     return fn(**kwargs)
 
 
-def computed_values(d, *args, **kwargs):
+def computed_values(d, kwargs=None):
     '''
     Returns a new `dict` that has callable values replaced with the return values.
 
@@ -551,17 +553,18 @@ def computed_values(d, *args, **kwargs):
 
     Arguments:
         d (dict): The original dictionary.
-        args: any extra positional arguments will be passed to the callables
-        kwargs: any extra keyword arguments will be passed to the callables.
+        kwargs: any extra keyword arguments will be passed to the callables, if the callable
+            takes an argument with such a name.
 
     Returns:
         dict: with callable values replaced.
     '''
+    kwargs = kwargs or {}
     result = {}
     for k, v in six.iteritems(d):
         if callable(v):
-            v = v(*args, **kwargs)
+            v = call_with_appropriate(v, kwargs=kwargs)
         if isinstance(v, dict):
-            v = computed_values(v, *args, **kwargs)
+            v = computed_values(v, kwargs=kwargs)
         result[k] = v
     return result

@@ -146,8 +146,8 @@ def test_attrs_support_computed_values():
         class Meta:
             attrs = {'id': lambda: 'test_table_%d' % next(counter)}
 
-    assert {'id': 'test_table_0'} == TestTable([]).attrs
-    assert {'id': 'test_table_1'} == TestTable([]).attrs
+    assert 'id="test_table_0"' == TestTable([]).attrs.as_html()
+    assert 'id="test_table_1"' == TestTable([]).attrs.as_html()
 
 
 def test_attrs_from_settings(settings):
@@ -581,3 +581,20 @@ def test_row_attrs_in_meta():
 
     table = Table(MEMORY_DATA)
     assert table.rows[0].attrs == {'class': 'row-id-2 even'}
+
+
+def test_td_attrs_from_table():
+    class Table(tables.Table):
+        alpha = tables.Column()
+        beta = tables.Column()
+
+        class Meta:
+            attrs = {
+                'td': {
+                    'data-column-name': lambda column: column.name
+                }
+            }
+    table = Table(MEMORY_DATA)
+    html = table.as_html(request)
+
+    assert '<td data-column-name="alpha" class="alpha">' in html

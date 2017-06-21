@@ -232,8 +232,8 @@ class TableBase(object):
         }
 
         self.rows = BoundRows(data=self.data, table=self, pinned_data=self.pinned_data)
-        attrs = computed_values(attrs if attrs is not None else self._meta.attrs)
-        self.attrs = AttributeDict(attrs)
+        self.attrs = AttributeDict(attrs if attrs is not None else self._meta.attrs)
+
         self.row_attrs = AttributeDict(row_attrs or self._meta.row_attrs)
         self.empty_text = empty_text if empty_text is not None else self._meta.empty_text
         self.orderable = orderable

@@ -87,7 +87,7 @@ class BoundRow(object):
         '''
         cssClass = self.get_even_odd_css_class()
 
-        row_attrs = computed_values(self._table.row_attrs, self._record)
+        row_attrs = computed_values(self._table.row_attrs, kwargs={'record': self._record})
 
         if 'class' in row_attrs and row_attrs['class']:
             row_attrs['class'] += ' ' + cssClass
@@ -244,7 +244,7 @@ class BoundPinnedRow(BoundRow):
         Return:
             AttributeDict: Attributes for pinned rows.
         '''
-        row_attrs = computed_values(self._table.pinned_row_attrs, self._record)
+        row_attrs = computed_values(self._table.pinned_row_attrs, kwargs={'record': self._record})
         css_class = ' '.join([
             self.get_even_odd_css_class(),
             'pinned-row',
