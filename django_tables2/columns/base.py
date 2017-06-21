@@ -304,10 +304,11 @@ class BoundColumn(object):
         cell_attrs = attrs.get('cell', {})
         # override with attrs defined specifically for th and td respectively.
         kwargs = {
-            'table': self._table
+            'table': self._table,
+            'column': self
         }
-        attrs['th'] = computed_values(attrs.get('th', cell_attrs), **kwargs)
-        attrs['td'] = computed_values(attrs.get('td', cell_attrs), **kwargs)
+        attrs['th'] = computed_values(attrs.get('th', cell_attrs), kwargs=kwargs)
+        attrs['td'] = computed_values(attrs.get('td', cell_attrs), kwargs=kwargs)
 
         # wrap in AttributeDict
         attrs['th'] = AttributeDict(attrs['th'])

@@ -2,3 +2,4 @@
 Sphinx==1.6.2
 sphinx_rtd_theme
 recommonmark
+tablib
