@@ -11,7 +11,7 @@ from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 import django_tables2 as tables
 from django_tables2.tables import DeclarativeColumnsMetaclass
 
-from .utils import build_request, parse, attrs
+from .utils import build_request, parse
 
 request = build_request('/')
 
