@@ -158,7 +158,6 @@ def test_accessor_penultimate():
 
 def test_attribute_dict_handles_escaping():
     x = AttributeDict({'x': '"\'x&'})
-    print x
     assert x.as_html() == 'x="&quot;&#39;x&amp;"'
 
 

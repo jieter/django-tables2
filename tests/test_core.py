@@ -11,7 +11,7 @@ from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 import django_tables2 as tables
 from django_tables2.tables import DeclarativeColumnsMetaclass
 
-from .utils import build_request
+from .utils import build_request, parse, attrs
 
 request = build_request('/')
 
@@ -596,5 +596,8 @@ def test_td_attrs_from_table():
             }
     table = Table(MEMORY_DATA)
     html = table.as_html(request)
-
-    assert '<td data-column-name="alpha" class="alpha">' in html
+    td = parse(html).find('.//tbody/tr[1]/td[1]')
+    assert td.attrib == {
+        'data-column-name': 'alpha',
+        'class': 'alpha'
+    }
