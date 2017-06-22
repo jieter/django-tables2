@@ -2,6 +2,8 @@
 
 ## master (unreleased)
 
+## 1.9.0 (2017-06-22)
+Allow computable attrs for `<td>`-tags from `Table.attrs` ([#457](https://github.com/bradleyayers/django-tables2/pull/457), fixes [#451](https://github.com/bradleyayers/django-tables2/issues/451))
 
 ## 1.8.0 (2017-06-17)
  - Feature: Added an `ExportMixin` to export table data in various export formats (CSV, XLS, etc.) using [tablib](http://docs.python-tablib.org/en/latest/).
