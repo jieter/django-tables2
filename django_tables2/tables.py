@@ -382,9 +382,27 @@ class TableBase(object):
 
     def as_values(self):
         '''
-        Return a row iterator of the data which would be shown in the table where the first row is the table headers.
+        Return a row iterator of the data which would be shown in the table where
+        the first row is the table headers.
 
-        This can be used to output the table data as CSV, excel, etc
+        This can be used to output the table data as CSV, excel, for example using the
+        `~.export.ExportMixin`.
+
+        If a column is defined using a :ref:`table.render_FOO`, the returned value from
+        that method is used. If you want to differentiate between the rendered cell
+        and a value, use a `value_Foo`-method::
+
+            class Table(tables.Table):
+                name = tables.Column()
+
+                def render_name(self, value):
+                    return format_html('<span class="name">{}</span>', value)
+
+                def value_name(self, value):
+                    return value
+
+        will have a value wrapped in `<span>` in the rendered HTML, and just returns
+        the value when `as_values()` is called.
         '''
         yield [str(c.header) for c in self.columns]
         for r in self.rows:

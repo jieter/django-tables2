@@ -520,19 +520,21 @@ def test_table_defaults_are_honored():
     assert table.rows[0].get_cell('name') == 'efgh'
 
 
+AS_VALUES_DATA = [
+    {'name': 'Adrian', 'country': 'Australia'},
+    {'name': 'Adrian', 'country': 'Brazil'},
+    {'name': 'Audrey', 'country': 'Chile'},
+    {'name': 'Bassie', 'country': 'Belgium'},
+]
+
+
 def test_as_values():
     class Table(tables.Table):
         name = tables.Column()
         country = tables.Column()
 
-    data = [
-        {'name': 'Adrian', 'country': 'Australia'},
-        {'name': 'Adrian', 'country': 'Brazil'},
-        {'name': 'Audrey', 'country': 'Chile'},
-        {'name': 'Bassie', 'country': 'Belgium'},
-    ]
-    expected = [['Name', 'Country']] + [[r['name'], r['country']] for r in data]
-    table = Table(data)
+    expected = [['Name', 'Country']] + [[r['name'], r['country']] for r in AS_VALUES_DATA]
+    table = Table(AS_VALUES_DATA)
 
     assert list(table.as_values()) == expected
 
@@ -555,6 +557,20 @@ def test_as_values_empty_values():
     expected = [['Name', 'Country']] + [[r.get('name'), r.get('country')] for r in data]
     table = Table(data)
     assert list(table.as_values()) == expected
+
+
+def test_as_values_render_FOO():
+
+    class Table(tables.Table):
+        name = tables.Column()
+        country = tables.Column()
+
+        def render_country(self, value):
+            return value + ' test'
+
+    expected = [['Name', 'Country']] + [[r['name'], r['country'] + ' test'] for r in AS_VALUES_DATA]
+
+    assert list(Table(AS_VALUES_DATA).as_values()) == expected
 
 
 def test_row_attrs():

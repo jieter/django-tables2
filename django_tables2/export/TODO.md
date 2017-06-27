@@ -6,5 +6,5 @@ Try to make a simple and clean implementation of table exports based on `Table.a
  - [ ] exclude columns from export
  - [x] example how to use in function views.
  - [x] docs
- - [ ] test using a template column
- - [ ] test using a render_foo() method
+ - [x] test using a template column
+ - [x] test using a render_foo() method

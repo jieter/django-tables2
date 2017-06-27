@@ -547,6 +547,8 @@ class BoundColumns(object):
         for name, column in six.iteritems(base_columns):
             self.columns[name] = bc = BoundColumn(table, column, name)
             bc.render = getattr(table, 'render_' + name, column.render)
+            # How the value is defined: 1. value_<name> 2. render_<name> 3. column.value.
+            bc.value = getattr(table, 'value_' + name, getattr(table, 'render_' + name, column.value))
             bc.order = getattr(table, 'order_' + name, column.order)
 
     def iternames(self):

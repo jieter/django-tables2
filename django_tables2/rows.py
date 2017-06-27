@@ -205,7 +205,7 @@ class BoundRow(object):
         Call the column's value method with appropriate kwargs
         '''
         return call_with_appropriate(
-            bound_column.column.value,
+            bound_column.value,
             self._optional_cell_arguments(bound_column, value)
         )
 
