@@ -573,6 +573,23 @@ def test_as_values_render_FOO():
     assert list(Table(AS_VALUES_DATA).as_values()) == expected
 
 
+def test_as_values_value_FOO():
+
+    class Table(tables.Table):
+        name = tables.Column()
+        country = tables.Column()
+
+        def render_country(self, value):
+            return value + ' test'
+
+        def value_country(self, value):
+            return value + ' different'
+
+    expected = [['Name', 'Country']] + [[r['name'], r['country'] + ' different'] for r in AS_VALUES_DATA]
+
+    assert list(Table(AS_VALUES_DATA).as_values()) == expected
+
+
 def test_row_attrs():
     class Table(tables.Table):
         alpha = tables.Column()
