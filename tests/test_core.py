@@ -539,6 +539,17 @@ def test_as_values():
     assert list(table.as_values()) == expected
 
 
+def test_as_values_exclude():
+    class Table(tables.Table):
+        name = tables.Column()
+        country = tables.Column()
+
+    expected = [['Name']] + [[r['name']] for r in AS_VALUES_DATA]
+    table = Table(AS_VALUES_DATA)
+
+    assert list(table.as_values(exclude_columns=('country', ))) == expected
+
+
 def test_as_values_empty_values():
     '''
     Table's as_values() method returns `None` for missing values

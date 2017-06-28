@@ -380,10 +380,13 @@ class TableBase(object):
         self.before_render(request)
         return template.render(context)
 
-    def as_values(self):
+    def as_values(self, exclude_columns=None):
         '''
         Return a row iterator of the data which would be shown in the table where
         the first row is the table headers.
+
+        arguments:
+            exclude_columns (iterable): columns to exclude in the data iterator.
 
         This can be used to output the table data as CSV, excel, for example using the
         `~.export.ExportMixin`.
@@ -404,9 +407,17 @@ class TableBase(object):
         will have a value wrapped in `<span>` in the rendered HTML, and just returns
         the value when `as_values()` is called.
         '''
-        yield [str(c.header) for c in self.columns]
+        if exclude_columns is None:
+            exclude_columns = ()
+
+        def excluded(column):
+            if column.column.exclude_from_export:
+                return True
+            return column.name in exclude_columns
+
+        yield [str(column.header) for column in self.columns if not excluded(column)]
         for r in self.rows:
-            yield [r.get_cell_value(column.name) for column in r.table.columns]
+            yield [r.get_cell_value(column.name) for column in r.table.columns if not excluded(column)]
 
     def has_footer(self):
         '''

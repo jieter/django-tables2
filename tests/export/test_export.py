@@ -32,7 +32,7 @@ EXPECTED_JSON = list([
 ])
 
 
-def create_test_data():
+def create_test_persons():
     for first_name, last_name in NAMES:
         Person.objects.create(first_name=first_name, last_name=last_name)
 
@@ -51,7 +51,7 @@ class View(DispatchHookMixin, ExportMixin, tables.SingleTableView):
 
 @pytest.mark.django_db
 def test_view_should_support_csv_export():
-    create_test_data()
+    create_test_persons()
 
     response, view = View.as_view()(build_request('/?_export=csv'))
     assert response.getvalue().decode('utf8') == EXPECTED_CSV
@@ -73,7 +73,7 @@ def test_exporter_should_raise_error_for_unsupported_file_type():
 
 @pytest.mark.django_db
 def test_view_should_support_json_export():
-    create_test_data()
+    create_test_persons()
 
     response, view = View.as_view()(build_request('/?_export=json'))
     assert json.loads(response.getvalue().decode('utf8')) == EXPECTED_JSON
@@ -84,7 +84,7 @@ def test_function_view():
     '''
     Test the code used in the docs
     '''
-    create_test_data()
+    create_test_persons()
 
     def table_view(request):
         table = Table(Person.objects.all())
@@ -110,16 +110,21 @@ def test_function_view():
     assert 'Lindy' not in html
 
 
-@pytest.mark.django_db
-def test_exporting_should_work_with_foreign_keys():
+def create_test_occupations():
     vlaanderen = Region.objects.create(name='Vlaanderen')
     Occupation.objects.create(name='Timmerman', boolean=True, region=vlaanderen)
     Occupation.objects.create(name='Ecoloog', boolean=False, region=vlaanderen)
 
-    class OccupationTable(tables.Table):
-        name = tables.Column()
-        boolean = tables.Column()
-        region = tables.Column()
+
+class OccupationTable(tables.Table):
+    name = tables.Column()
+    boolean = tables.Column()
+    region = tables.Column()
+
+
+@pytest.mark.django_db
+def test_exporting_should_work_with_foreign_keys():
+    create_test_occupations()
 
     class OccupationView(DispatchHookMixin, ExportMixin, tables.SingleTableView):
         table_class = OccupationTable
@@ -133,3 +138,20 @@ def test_exporting_should_work_with_foreign_keys():
     assert data.find('Vlaanderen'.encode())
     assert data.find('Ecoloog'.encode())
     assert data.find('Timmerman'.encode())
+
+
+@pytest.mark.django_db
+def test_exporting_exclude_columns():
+    create_test_occupations()
+
+    class OccupationExcludingView(DispatchHookMixin, ExportMixin, tables.SingleTableView):
+        table_class = OccupationTable
+        table_pagination = {'per_page': 1}
+        model = Occupation
+        template_name = 'django_tables2/bootstrap.html'
+        exclude_columns = ('boolean', )
+
+    response, view = OccupationExcludingView.as_view()(build_request('/?_export=csv'))
+    data = response.getvalue().decode('utf8')
+
+    assert data.splitlines()[0] == 'Name,Region'

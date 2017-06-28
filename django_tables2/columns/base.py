@@ -77,6 +77,14 @@ class Column(object):
             the table is using. The only case where ordering is not affected is
             when a `.QuerySet` is used as the table data (since sorting is
             performed by the database).
+        empty_values (iterable): list of values considered as a missing value,
+            for which the column will render the default value. Defaults to
+            `(None, '')`
+        exclude_from_export (bool): If `True`, this column will not be added to
+            the data iterator returned from as_values().
+        footer (str, callable): Defines the footer of this column. If a callable
+            is passed, it can take optional keyword argumetns `column`,
+            `bound_colun` and `table`.
         order_by (str, tuple or `.Accessor`): Allows one or more accessors to be
             used for ordering rather than *accessor*.
         orderable (bool): If `False`, this column will not be allowed to
@@ -103,7 +111,8 @@ class Column(object):
 
     def __init__(self, verbose_name=None, accessor=None, default=None,
                  visible=True, orderable=None, attrs=None, order_by=None,
-                 empty_values=None, localize=None, footer=None):
+                 empty_values=None, localize=None, footer=None,
+                 exclude_from_export=False):
         if not (accessor is None or isinstance(accessor, six.string_types) or
                 callable(accessor)):
             raise TypeError('accessor must be a string or callable, not %s' %
@@ -128,6 +137,8 @@ class Column(object):
         Column.creation_counter += 1
 
         self._footer = footer
+
+        self.exclude_from_export = exclude_from_export
 
     @property
     def default(self):
@@ -155,6 +166,9 @@ class Column(object):
         return self.verbose_name
 
     def footer(self, bound_column, table):
+        '''
+        Returns the content of the footer, if specified.
+        '''
         footer_kwargs = {
             'column': self,
             'bound_column': bound_column,
@@ -179,8 +193,6 @@ class Column(object):
         This method can be overridden by :ref:`table.render_FOO` methods on the
         table or by subclassing `.Column`.
 
-        :returns: `unicode`
-
         If the value for this cell is in `.empty_values`, this method is
         skipped and an appropriate default value is rendered instead.
         Subclasses should set `.empty_values` to ``()`` if they want to handle
@@ -203,7 +215,7 @@ class Column(object):
         '''
         value = call_with_appropriate(self.render, kwargs)
 
-        # convert model instances to string, otherwise exporting to xls fails.
+        # explicitly cast model instances to string, otherwise exporting to xls fails.
         if isinstance(value, models.Model):
             value = str(value)
 

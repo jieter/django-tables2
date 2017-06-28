@@ -6,8 +6,24 @@ from .export import TableExport
 class ExportMixin(object):
     '''
     Support various export formats for the table data.
+
+    `ExportMixin` looks for some attributes on the class to change it's behaviour:
+
+    Attributes:
+        export_trigger_param (str): is the name of the GET attribute used to trigger
+            the export. It's value decides the export format, refer to
+            `TableExport` for a list of available formats.
+        excude_columns (iterable): column names excluded from the export.
+            For example, one might want to exclude columns containing buttons from
+            the export. Excluding columns from the export is also possible using the
+            `exclude_from_export` argument to the `.Column` constructor::
+
+                class Table(tables.Table):
+                    name = tables.Column()
+                    buttons = tables.TemplateColumn(exclude_from_export=True, template_name=...)
     '''
     export_trigger_param = '_export'
+    exclude_columns = ()
 
     def get_export_filename(self, export_format):
         return 'table.{}'.format(export_format)
@@ -15,7 +31,8 @@ class ExportMixin(object):
     def create_export(self, export_format):
         exporter = TableExport(
             export_format=export_format,
-            table=self.get_table(**self.get_table_kwargs())
+            table=self.get_table(**self.get_table_kwargs()),
+            exclude_columns=self.exclude_columns
         )
 
         return exporter.response(filename=self.get_export_filename(export_format))

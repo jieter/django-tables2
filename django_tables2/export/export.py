@@ -39,14 +39,14 @@ class TableExport(object):
         YAML: 'text/yml; charset=utf-8',
     }
 
-    def __init__(self, export_format, table):
+    def __init__(self, export_format, table, exclude_columns=None):
         if not self.is_valid_format(export_format):
             raise TypeError('Export format "{}" is not supported.'.format(export_format))
 
         self.format = export_format
 
         self.dataset = Dataset()
-        for i, row in enumerate(table.as_values()):
+        for i, row in enumerate(table.as_values(exclude_columns=exclude_columns)):
             if i == 0:
                 self.dataset.headers = row
             else:
