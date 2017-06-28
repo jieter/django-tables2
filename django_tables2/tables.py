@@ -15,7 +15,7 @@ from . import columns
 from .config import RequestConfig
 from .data import TableData
 from .rows import BoundRows
-from .utils import AttributeDict, OrderBy, OrderByTuple, Sequence, computed_values
+from .utils import AttributeDict, OrderBy, OrderByTuple, Sequence
 
 
 class DeclarativeColumnsMetaclass(type):
