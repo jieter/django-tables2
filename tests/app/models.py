@@ -16,8 +16,10 @@ except ImportError:
     # to keep backward (Django <= 1.9) compatibility
     from django.core.urlresolvers import reverse
 
+
 class ActivityType(models.Model):
     name = models.CharField(max_length=100)
+
 
 class Activity(models.Model):
     date = models.DateField()
@@ -124,9 +126,7 @@ class PersonInformation(models.Model):
     )
 
 
-
 # -- haystack -----------------------------------------------------------------
-
 class PersonIndex(indexes.SearchIndex, indexes.Indexable):
     first_name = indexes.CharField(document=True)
 
