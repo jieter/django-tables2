@@ -200,7 +200,7 @@ API Reference
             This functionality is also available via the ``order_by`` keyword
             argument to a table's constructor.
 
-    sequence (iteralbe): The sequence of the table columns.
+    sequence (iterable): The sequence of the table columns.
         This allows the default order of columns (the order they were defined
         in the Table) to be overridden.
 
@@ -260,6 +260,7 @@ API Reference
 ---------
 
 .. autoclass:: django_tables2.columns.Column
+    :members: render, value, order
 
 
 `.BooleanColumn`
