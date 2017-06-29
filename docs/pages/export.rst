@@ -51,3 +51,29 @@ If you must use a function view, you might use someting like this::
         return render(request, 'table.html', {
             'table': table
         })
+
+
+Excluding columns
+-----------------
+
+Certain columns do not make sense while exporting data: you might show images or
+have a column with buttons you want to exclude from the export.
+You can define the columns you want to exclude in several ways::
+
+    # exclude a column while defining Columns on a table:
+    class Table(tables.Table):
+        name = columns.Column()
+        buttons = columns.TemplateColumn(template_name='...', exclude_from_export=True)
+
+
+    # exclude columns while creating the TableExport instance:
+    exporter = TableExport('csv', table, exclude_columns=('image', 'buttons'))
+
+
+If you use the ``~.ExportMixin``, add an ``exclude_columns`` attribute to your class::
+
+    class TableView(ExportMixin, tables.SingleTableView):
+        table_class = MyTable
+        model = Person
+        template_name = 'django_tables2/bootstrap.html'
+        exclude_column = ('buttons', )

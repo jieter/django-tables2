@@ -18,6 +18,7 @@ class TableExport(object):
     Argumenents:
         export_format (str): one of `csv, json, latex, ods, tsv, xls, xlsx, yml`
         table (`~.Table`): instance of the table to export the data from
+        exclude_columns (iterable): list of column names to exclude from the export
     '''
     CSV = 'csv'
     JSON = 'json'
