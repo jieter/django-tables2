@@ -3,6 +3,7 @@
 ## master (unreleased)
  - Allow customizing the value used in `Table.as_values()` when using a `render_<name>` method. (fixes [#458](https://github.com/bradleyayers/django-tables2/issues/458))
  - Allow excluding columns from the `Table.as_values()` output. (fixes [#459](https://github.com/bradleyayers/django-tables2/issues/459))
+ - Fixed unicode handling for columhn headers in `Table.as_values()`
 
 ## 1.9.0 (2017-06-22)
 - Allow computable attrs for `<td>`-tags from `Table.attrs` ([#457](https://github.com/bradleyayers/django-tables2/pull/457), fixes [#451](https://github.com/bradleyayers/django-tables2/issues/451))
