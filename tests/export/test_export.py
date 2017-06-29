@@ -122,15 +122,16 @@ class OccupationTable(tables.Table):
     region = tables.Column()
 
 
+class OccupationView(DispatchHookMixin, ExportMixin, tables.SingleTableView):
+    table_class = OccupationTable
+    table_pagination = {'per_page': 1}
+    model = Occupation
+    template_name = 'django_tables2/bootstrap.html'
+
+
 @pytest.mark.django_db
 def test_exporting_should_work_with_foreign_keys():
     create_test_occupations()
-
-    class OccupationView(DispatchHookMixin, ExportMixin, tables.SingleTableView):
-        table_class = OccupationTable
-        table_pagination = {'per_page': 1}
-        model = Occupation
-        template_name = 'django_tables2/bootstrap.html'
 
     response, view = OccupationView.as_view()(build_request('/?_export=xls'))
     data = response.content
@@ -155,3 +156,23 @@ def test_exporting_exclude_columns():
     data = response.getvalue().decode('utf8')
 
     assert data.splitlines()[0] == 'Name,Region'
+
+
+@pytest.mark.django_db
+def test_exporting_unicode_data():
+    unicode_name = '木匠'
+    Occupation.objects.create(name=unicode_name)
+
+    expected_csv = 'Name,Boolean,Region\r\n{},,\r\n'.format(unicode_name)
+
+    response, view = OccupationView.as_view()(build_request('/?_export=csv'))
+    assert response.getvalue().decode('utf8') == expected_csv
+
+    # smoke tests, hard to test this binary format for string containment
+    response, view = OccupationView.as_view()(build_request('/?_export=xls'))
+    data = response.content
+    assert len(data) > len(expected_csv)
+
+    response, view = OccupationView.as_view()(build_request('/?_export=xlsx'))
+    data = response.content
+    assert len(data) > len(expected_csv)
