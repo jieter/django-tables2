@@ -558,7 +558,6 @@ def test_as_values_exclude_from_export():
     assert list(Table([]).as_values()) == [['Name'], ]
 
 
-
 def test_as_values_empty_values():
     '''
     Table's as_values() method returns `None` for missing values
