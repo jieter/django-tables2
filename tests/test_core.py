@@ -550,6 +550,15 @@ def test_as_values_exclude():
     assert list(table.as_values(exclude_columns=('country', ))) == expected
 
 
+def test_as_values_exclude_from_export():
+    class Table(tables.Table):
+        name = tables.Column()
+        buttons = tables.Column(exclude_from_export=True)
+
+    assert list(Table([]).as_values()) == [['Name'], ]
+
+
+
 def test_as_values_empty_values():
     '''
     Table's as_values() method returns `None` for missing values
