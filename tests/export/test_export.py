@@ -176,3 +176,18 @@ def test_exporting_unicode_data():
     response, view = OccupationView.as_view()(build_request('/?_export=xlsx'))
     data = response.content
     assert len(data) > len(expected_csv)
+
+
+def test_exporting_unicode_header():
+    unicode_header = 'hé'
+
+    class Table(tables.Table):
+        name = tables.Column(verbose_name=unicode_header)
+
+    exporter = TableExport('csv', Table([]))
+    response = exporter.response()
+    assert response.getvalue().decode('utf8') == unicode_header + '\r\n'
+
+    exporter = TableExport('xls', Table([]))
+    # this would fail if the header contains unicode and string converstion is attempted.
+    exporter.export()

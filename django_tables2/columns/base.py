@@ -4,7 +4,6 @@ from __future__ import absolute_import, unicode_literals
 from collections import OrderedDict
 from itertools import islice
 
-from django.db import models
 from django.utils import six
 from django.utils.safestring import SafeData
 
@@ -214,10 +213,6 @@ class Column(object):
         See `LinkColumn` for an example.
         '''
         value = call_with_appropriate(self.render, kwargs)
-
-        # explicitly cast model instances to string, otherwise exporting to xls fails.
-        if isinstance(value, models.Model):
-            value = str(value)
 
         return value
 

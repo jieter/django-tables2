@@ -10,6 +10,7 @@ from django.core.paginator import Paginator
 from django.db.models.fields import FieldDoesNotExist
 from django.template.loader import get_template
 from django.utils import six
+from django.utils.encoding import force_text
 
 from . import columns
 from .config import RequestConfig
@@ -415,9 +416,15 @@ class TableBase(object):
                 return True
             return column.name in exclude_columns
 
-        yield [str(column.header) for column in self.columns if not excluded(column)]
+        yield [
+            force_text(column.header, strings_only=True)
+            for column in self.columns if not excluded(column)
+        ]
         for r in self.rows:
-            yield [r.get_cell_value(column.name) for column in r.table.columns if not excluded(column)]
+            yield [
+                force_text(r.get_cell_value(column.name), strings_only=True)
+                for column in r.table.columns if not excluded(column)
+            ]
 
     def has_footer(self):
         '''
