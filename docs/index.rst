@@ -34,7 +34,6 @@ Table of contents
     pages/installation
     pages/tutorial
     pages/table-data
-    pages/performance
 
 .. toctree::
     :maxdepth: 1

@@ -26,13 +26,18 @@ class ManyToManyColumn(Column):
 
         # models.py
         class Person(models.Model):
-            name = models.CharField(max_length=200)
-            friends = models.ManyToManyField(User)
+            first_name = models.CharField(max_length=200)
+            last_name = models.CharField(max_length=200)
+            friends = models.ManyToManyField(Person)
+
+            @property
+            def name(self):
+                return '{} {}'.format(self.first_name, self.last_name)
 
         # tables.py
         class PersonTable(tables.Table):
-            name = tables.Column()
-            friends = tables.ManyToManyColumn(transform=lamda user: u.get_full_name())
+            name = tables.Column(order_by=('last_name', 'first_name'))
+            friends = tables.ManyToManyColumn(transform=lamda user: u.name)
 
     '''
     def __init__(self, transform=None, filter=None, *args, **kwargs):
@@ -50,6 +55,10 @@ class ManyToManyColumn(Column):
         return force_text(obj)
 
     def filter(self, qs):
+        '''
+        Filter is called on the ManyRelatedManager to allow ordering, filtering or limiting
+        on the set of related objects.
+        '''
         return qs.all()
 
     def render(self, value):

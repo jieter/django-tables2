@@ -1,7 +1,7 @@
 # Change log
 
 ## master (unreleased)
-
+ - Added `ManyToManyColumn` .
 
 ## 1.9.1 (2017-06-29)
  - Allow customizing the value used in `Table.as_values()` (when using a `render_<name>` method) using a `value_<name>` method. (fixes [#458](https://github.com/bradleyayers/django-tables2/issues/458))

@@ -316,6 +316,12 @@ API Reference
 .. autoclass:: django_tables2.columns.LinkColumn
     :members:
 
+`.ManyToManyColumn`
+-------------------
+
+.. autoclass:: django_tables2.columns.ManyToManyColumn
+    :members:
+
 `.RelatedLinkColumn`
 --------------------
 
