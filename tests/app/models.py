@@ -57,6 +57,8 @@ class Person(models.Model):
     object_id = models.PositiveIntegerField(null=True, blank=True)
     foreign_key = GenericForeignKey()
 
+    friends = models.ManyToManyField('Person')
+
     class Meta:
         verbose_name = "person"
         verbose_name_plural = "people"

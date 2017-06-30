@@ -2,7 +2,7 @@
 from .tables import Table, TableBase
 from .columns import (BooleanColumn, Column, CheckBoxColumn, DateColumn,
                       DateTimeColumn, EmailColumn, FileColumn, JSONColumn,
-                      LinkColumn, RelatedLinkColumn, TemplateColumn,
+                      LinkColumn, ManyToManyColumn, RelatedLinkColumn, TemplateColumn,
                       TimeColumn, URLColumn)
 from .config import RequestConfig
 from .utils import A
@@ -14,8 +14,8 @@ __version__ = '1.9.1'
 __all__ = (
     'Table', 'TableBase',
     'BooleanColumn', 'Column', 'CheckBoxColumn', 'DateColumn', 'DateTimeColumn',
-    'EmailColumn', 'FileColumn', 'JSONColumn', 'LinkColumn', 'RelatedLinkColumn',
-    'TemplateColumn', 'TimeColumn', 'URLColumn',
+    'EmailColumn', 'FileColumn', 'JSONColumn', 'LinkColumn', 'ManyToManyColumn',
+    'RelatedLinkColumn', 'TemplateColumn', 'TimeColumn', 'URLColumn',
 
     'RequestConfig',
     'A',
