@@ -111,7 +111,9 @@ def test_function_view():
 
 
 def create_test_occupations():
-    vlaanderen = Region.objects.create(name='Vlaanderen')
+    richard = Person.objects.create(first_name='Richard', last_name='Queener')
+
+    vlaanderen = Region.objects.create(name='Vlaanderen', mayor=richard)
     Occupation.objects.create(name='Timmerman', boolean=True, region=vlaanderen)
     Occupation.objects.create(name='Ecoloog', boolean=False, region=vlaanderen)
 
@@ -139,6 +141,33 @@ def test_exporting_should_work_with_foreign_keys():
     assert data.find('Vlaanderen'.encode())
     assert data.find('Ecoloog'.encode())
     assert data.find('Timmerman'.encode())
+
+
+@pytest.mark.django_db
+def test_exporting_should_work_with_foreign_key_fields():
+    create_test_occupations()
+
+    class OccupationWithForeignKeyFieldsTable(tables.Table):
+        name = tables.Column()
+        boolean = tables.Column()
+        region = tables.Column()
+        mayor = tables.Column(accessor='region.mayor.first_name')
+
+    class View(DispatchHookMixin, ExportMixin, tables.SingleTableView):
+        table_class = OccupationWithForeignKeyFieldsTable
+        table_pagination = {'per_page': 1}
+        model = Occupation
+        template_name = 'django_tables2/bootstrap.html'
+
+    response, view = View.as_view()(build_request('/?_export=csv'))
+    data = response.getvalue().decode('utf8')
+
+    expected_csv = '\r\n'.join((
+        'Name,Boolean,Region,First Name',
+        'Timmerman,True,Vlaanderen,Richard',
+        'Ecoloog,False,Vlaanderen,Richard\r\n'
+    ))
+    assert data == expected_csv
 
 
 @pytest.mark.django_db
