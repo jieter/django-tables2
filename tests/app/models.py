@@ -17,6 +17,16 @@ except ImportError:
     from django.core.urlresolvers import reverse
 
 
+class ActivityType(models.Model):
+    name = models.CharField(max_length=100)
+
+
+class Activity(models.Model):
+    date = models.DateField()
+    person = models.ForeignKey('Person', on_delete=models.CASCADE)
+    activity_type = models.ForeignKey(ActivityType, on_delete=models.CASCADE)
+
+
 @six.python_2_unicode_compatible
 class Person(models.Model):
     first_name = models.CharField(max_length=200)
@@ -73,6 +83,9 @@ class Person(models.Model):
     def get_absolute_url(self):
         return reverse('person', args=(self.pk, ))
 
+    def last_for_activity_type(self, activity_type):
+        return Activity.objects.filter(person=self, activity_type=activity_type).order_by('date').last()
+
 
 class PersonProxy(Person):
     class Meta:
@@ -116,7 +129,6 @@ class PersonInformation(models.Model):
 
 
 # -- haystack -----------------------------------------------------------------
-
 class PersonIndex(indexes.SearchIndex, indexes.Indexable):
     first_name = indexes.CharField(document=True)
 
