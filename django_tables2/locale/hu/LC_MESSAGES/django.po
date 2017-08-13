@@ -1,0 +1,46 @@
+# This file is distributed under the same license as the django-tables2 package
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: django-tables2\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2016-04-19 10:22+0200\n"
+"PO-Revision-Date: 2017-08-13 14:19+0200\n"
+"Last-Translator: Miklos Horvath <hmiki@blackpantheros.eu>\n"
+"Language-Team: Hungarian <hu@li.org>\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.8.12\n"
+
+#: templates/django_tables2/bootstrap.html:35
+msgid "no results"
+msgstr "nincs eredmény"
+
+#: templates/django_tables2/bootstrap.html:55
+msgid "previous"
+msgstr "előző"
+
+#: templates/django_tables2/bootstrap.html:59
+#: templates/django_tables2/table.html:64
+#, python-format
+msgid "Page %(current)s of %(total)s"
+msgstr "Oldal: %(current)s / %(total)s"
+
+#: templates/django_tables2/bootstrap.html:64
+msgid "next"
+msgstr "következő"
+
+#: templates/django_tables2/table.html:56
+msgid "Previous"
+msgstr "Előző"
+
+#: templates/django_tables2/table.html:72
+msgid "Next"
+msgstr "Következő"
+
+#: templates/django_tables2/table.html:78
+#, python-format
+msgid "%(count)s of %(total)s"
+msgstr "%(count)s / %(total)s"
