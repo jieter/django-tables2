@@ -196,14 +196,10 @@ def render_table(parser, token):
     template = parser.compile_filter(bits.pop(0)) if bits else None
 
     return RenderTableNode(table, template)
-
-
-
 RE_UPPERCASE = re.compile('[A-Z]')
-
 @register.filter
 @stringfilter
-def table_page_range(num_pages,arg):
+def table_page_range(num_pages, arg):
     page_number = int(arg)
     page_range = 10
     num_pages = int(num_pages)
