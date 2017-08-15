@@ -10,12 +10,14 @@ from django.db import models
 import django_tables2 as tables
 
 
-# Format string: https://docs.djangoproject.com/en/stable/ref/templates/builtins/#date
-# D -- Day of the week, textual, 3 letters  -- 'Fri'
-# b -- Month, textual, 3 letters, lowercase -- 'jan'
-# Y -- Year, 4 digits.                      -- '1999'
-# A -- 'AM' or 'PM'.                        -- 'AM'
-# f -- Time, in 12-hour hours[:minutes]     -- '1', '1:30'
+'''
+Format string: https://docs.djangoproject.com/en/stable/ref/templates/builtins/#date
+D -- Day of the week, textual, 3 letters  -- 'Fri'
+b -- Month, textual, 3 letters, lowercase -- 'jan'
+Y -- Year, 4 digits.                      -- '1999'
+A -- 'AM' or 'PM'.                        -- 'AM'
+f -- Time, in 12-hour hours[:minutes]     -- '1', '1:30'
+'''
 
 
 @pytest.yield_fixture
@@ -74,3 +76,13 @@ def test_should_be_used_for_datetimefields():
             model = DateTimeModel
 
     assert type(Table.base_columns['field']) == tables.DateTimeColumn
+
+
+def test_value_returns_a_raw_value_without_html(dt, settings):
+    settings.SHORT_DATETIME_FORMAT = 'b Y D A f'
+
+    class Table(tables.Table):
+        col = tables.DateTimeColumn()
+
+    table = Table([{'col': dt}])
+    assert table.rows[0].get_cell_value('col') == 'sep 2012 Tue PM 12:30'

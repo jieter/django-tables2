@@ -5,148 +5,18 @@ import copy
 from collections import OrderedDict
 from itertools import count
 
+from django.conf import settings
 from django.core.paginator import Paginator
 from django.db.models.fields import FieldDoesNotExist
 from django.template.loader import get_template
 from django.utils import six
-from django.utils.functional import cached_property
+from django.utils.encoding import force_text
 
 from . import columns
 from .config import RequestConfig
+from .data import TableData
 from .rows import BoundRows
-from .utils import (AttributeDict, OrderBy, OrderByTuple, Sequence,
-                    computed_values, segment)
-
-
-class TableData(object):
-    '''
-    Exposes a consistent API for :term:`table data`.
-
-    Arguments:
-        data (`~django.db.query.QuerySet` or `list` of `dict`): iterable
-            containing data for each row
-        table (`~.Table`)
-    '''
-    def __init__(self, data, table):
-        self.table = table
-        # data may be a QuerySet-like objects with count() and order_by()
-        if (hasattr(data, 'count') and callable(data.count) and
-                hasattr(data, 'order_by') and callable(data.order_by)):
-            self.queryset = data
-            return
-
-        # do some light validation
-        if hasattr(data, '__iter__') or (hasattr(data, '__len__') and hasattr(data, '__getitem__')):
-            self.list = list(data)
-            return
-
-        raise ValueError(
-            'data must be QuerySet-like (have count() and order_by()) or support'
-            ' list(data) -- {} has neither'.format(type(data).__name__)
-        )
-
-    def __len__(self):
-        if not hasattr(self, '_length'):
-            # Use the queryset count() method to get the length, instead of
-            # loading all results into memory. This allows, for example,
-            # smart paginators that use len() to perform better.
-            self._length = (
-                self.queryset.count() if hasattr(self, 'queryset') else len(self.list)
-            )
-        return self._length
-
-    @property
-    def data(self):
-        return self.queryset if hasattr(self, 'queryset') else self.list
-
-    @property
-    def ordering(self):
-        '''
-        Returns the list of order by aliases that are enforcing ordering on the
-        data.
-
-        If the data is unordered, an empty sequence is returned. If the
-        ordering can not be determined, `None` is returned.
-
-        This works by inspecting the actual underlying data. As such it's only
-        supported for querysets.
-        '''
-        if hasattr(self, 'queryset'):
-            aliases = {}
-            for bound_column in self.table.columns:
-                aliases[bound_column.order_by_alias] = bound_column.order_by
-            try:
-                return next(segment(self.queryset.query.order_by, aliases))
-            except StopIteration:
-                pass
-
-    def order_by(self, aliases):
-        '''
-        Order the data based on order by aliases (prefixed column names) in the
-        table.
-
-        Arguments:
-            aliases (`~.utils.OrderByTuple`): optionally prefixed names of
-                columns ('-' indicates descending order) in order of
-                significance with regard to data ordering.
-        '''
-        bound_column = None
-        accessors = []
-        for alias in aliases:
-            bound_column = self.table.columns[OrderBy(alias).bare]
-            # bound_column.order_by reflects the current ordering applied to
-            # the table. As such we need to check the current ordering on the
-            # column and use the opposite if it doesn't match the alias prefix.
-            if alias[0] != bound_column.order_by_alias[0]:
-                accessors += bound_column.order_by.opposite
-            else:
-                accessors += bound_column.order_by
-
-        if hasattr(self, 'queryset'):
-            # Custom ordering
-            if bound_column:
-                self.queryset, modified = bound_column.order(self.queryset, alias[0] == '-')
-                if modified:
-                    return
-            # Traditional ordering
-            if accessors:
-                order_by_accessors = (a.for_queryset() for a in accessors)
-                self.queryset = self.queryset.order_by(*order_by_accessors)
-        else:
-            self.list.sort(key=OrderByTuple(accessors).key)
-
-    def __getitem__(self, key):
-        '''
-        Slicing returns a new `.TableData` instance, indexing returns a
-        single record.
-        '''
-        return self.data[key]
-
-    @cached_property
-    def verbose_name(self):
-        '''
-        The full (singular) name for the data.
-
-        Queryset data has its model's `~django.db.Model.Meta.verbose_name`
-        honored. List data is checked for a `verbose_name` attribute, and
-        falls back to using `'item'`.
-        '''
-        if hasattr(self, 'queryset'):
-            return self.queryset.model._meta.verbose_name
-
-        return getattr(self.list, 'verbose_name', 'item')
-
-    @cached_property
-    def verbose_name_plural(self):
-        '''
-        The full (plural) name of the data.
-
-        This uses the same approach as `TableData.verbose_name`.
-        '''
-        if hasattr(self, 'queryset'):
-            return self.queryset.model._meta.verbose_name_plural
-
-        return getattr(self.list, 'verbose_name_plural', 'items')
+from .utils import AttributeDict, OrderBy, OrderByTuple, Sequence
 
 
 class DeclarativeColumnsMetaclass(type):
@@ -174,7 +44,7 @@ class DeclarativeColumnsMetaclass(type):
         # well. Note that we loop over the bases in *reverse* - this is
         # necessary to preserve the correct order of columns.
         parent_columns = []
-        for base in bases[::-1]:
+        for base in reversed(bases):
             if hasattr(base, 'base_columns'):
                 parent_columns = list(base.base_columns.items()) + parent_columns
 
@@ -210,19 +80,16 @@ class DeclarativeColumnsMetaclass(type):
 
         # Explicit columns override both parent and generated columns
         base_columns.update(OrderedDict(cols))
+
         # Apply any explicit exclude setting
         for exclusion in opts.exclude:
             if exclusion in base_columns:
                 base_columns.pop(exclusion)
 
-        # Reorder the columns based on explicit sequence
-        if opts.sequence:
-            opts.sequence.expand(base_columns.keys())
-            # Table's sequence defaults to sequence declared in Meta, if the
-            # column is not excluded
-            base_columns = OrderedDict((
-                (x, base_columns[x]) for x in opts.sequence if x in base_columns
-            ))
+        # Remove any columns from our remainder, else columns from our parent class will remain
+        for attr_name in remainder:
+            if attr_name in base_columns:
+                base_columns.pop(attr_name)
 
         # Set localize on columns
         for col_name in base_columns.keys():
@@ -235,7 +102,6 @@ class DeclarativeColumnsMetaclass(type):
 
             if localize_column is not None:
                 base_columns[col_name].localize = localize_column
-
         attrs['base_columns'] = base_columns
         return super(DeclarativeColumnsMetaclass, mcs).__new__(mcs, name, bases, attrs)
 
@@ -251,8 +117,13 @@ class TableOptions(object):
     '''
     def __init__(self, options=None):
         super(TableOptions, self).__init__()
-        self.attrs = AttributeDict(getattr(options, 'attrs', {}))
+
+        DJANGO_TABLES2_TEMPLATE = getattr(settings, 'DJANGO_TABLES2_TEMPLATE', 'django_tables2/table.html')
+        DJANGO_TABLES2_TABLE_ATTRS = getattr(settings, 'DJANGO_TABLES2_TABLE_ATTRS', {})
+
+        self.attrs = AttributeDict(getattr(options, 'attrs', DJANGO_TABLES2_TABLE_ATTRS))
         self.row_attrs = getattr(options, 'row_attrs', {})
+        self.pinned_row_attrs = getattr(options, 'pinned_row_attrs', {})
         self.default = getattr(options, 'default', '—')
         self.empty_text = getattr(options, 'empty_text', None)
         self.fields = getattr(options, 'fields', None)
@@ -270,7 +141,7 @@ class TableOptions(object):
         self.sequence = Sequence(getattr(options, 'sequence', ()))
         self.orderable = getattr(options, 'orderable', True)
         self.model = getattr(options, 'model', None)
-        self.template = getattr(options, 'template', 'django_tables2/table.html')
+        self.template = getattr(options, 'template', DJANGO_TABLES2_TEMPLATE)
         self.localize = getattr(options, 'localize', ())
         self.unlocalize = getattr(options, 'unlocalize', ())
 
@@ -302,11 +173,13 @@ class TableBase(object):
             Allows custom HTML attributes to be specified which will be added
             to the ``<tr>`` tag of the rendered table.
 
+        pinned_row_attrs: Same as row_attrs but for pinned rows.
+
         sequence (iterable): The sequence/order of columns the columns (from
             left to right).
 
             Items in the sequence must be :term:`column names <column name>`, or
-            `'...'` (string containing three periods). `...` can be used as a
+            `'...'` (string containing three periods). `'...'` can be used as a
             catch-all for columns that aren't specified.
 
         prefix (str): A prefix for querystring fields.
@@ -334,24 +207,34 @@ class TableBase(object):
 
         show_footer (bool): If `False`, the table footer will not be rendered,
             even if some columns have a footer, defaults to `True`.
-    '''
-    TableDataClass = TableData
 
+        extra_columns (str, `.Column`): list of `(name, column)`-tuples containing
+            extra columns to add to the instance.
+    '''
     def __init__(self, data, order_by=None, orderable=None, empty_text=None,
-                 exclude=None, attrs=None, row_attrs=None, sequence=None,
-                 prefix=None, order_by_field=None, page_field=None,
+                 exclude=None, attrs=None, row_attrs=None, pinned_row_attrs=None,
+                 sequence=None, prefix=None, order_by_field=None, page_field=None,
                  per_page_field=None, template=None, default=None, request=None,
-                 show_header=None, show_footer=True):
+                 show_header=None, show_footer=True, extra_columns=None):
         super(TableBase, self).__init__()
-        self.exclude = exclude or ()
+
+        self.exclude = exclude or self._meta.exclude
         self.sequence = sequence
-        self.data = self.TableDataClass(data=data, table=self)
+        self.data = TableData.from_data(data=data, table=self)
         if default is None:
             default = self._meta.default
         self.default = default
-        self.rows = BoundRows(data=self.data, table=self)
-        attrs = computed_values(attrs if attrs is not None else self._meta.attrs)
-        self.attrs = AttributeDict(attrs)
+
+        # Pinned rows #406
+        self.pinned_row_attrs = AttributeDict(pinned_row_attrs or self._meta.pinned_row_attrs)
+        self.pinned_data = {
+            'top': self.get_top_pinned_data(),
+            'bottom': self.get_bottom_pinned_data()
+        }
+
+        self.rows = BoundRows(data=self.data, table=self, pinned_data=self.pinned_data)
+        self.attrs = AttributeDict(attrs if attrs is not None else self._meta.attrs)
+
         self.row_attrs = AttributeDict(row_attrs or self._meta.row_attrs)
         self.empty_text = empty_text if empty_text is not None else self._meta.empty_text
         self.orderable = orderable
@@ -365,24 +248,34 @@ class TableBase(object):
         # Make a copy so that modifying this will not touch the class
         # definition. Note that this is different from forms, where the
         # copy is made available in a ``fields`` attribute.
-        self.base_columns = copy.deepcopy(type(self).base_columns)
+        base_columns = copy.deepcopy(type(self).base_columns)
+
+        if extra_columns is not None:
+            for name, column in extra_columns:
+                base_columns[name] = column
+
         # Keep fully expanded ``sequence`` at _sequence so it's easily accessible
         # during render. The priority is as follows:
         # 1. sequence passed in as an argument
         # 2. sequence declared in ``Meta``
         # 3. sequence defaults to '...'
         if sequence is not None:
-            self._sequence = Sequence(sequence)
-            self._sequence.expand(self.base_columns.keys())
+            sequence = Sequence(sequence)
         elif self._meta.sequence:
-            self._sequence = self._meta.sequence
+            sequence = self._meta.sequence
         else:
             if self._meta.fields is not None:
-                self._sequence = Sequence(tuple(self._meta.fields) + ('...', ))
+                sequence = Sequence(tuple(self._meta.fields) + ('...', ))
             else:
-                self._sequence = Sequence(('...', ))
-            self._sequence.expand(self.base_columns.keys())
-        self.columns = columns.BoundColumns(self)
+                sequence = Sequence(('...', ))
+        self._sequence = sequence.expand(base_columns.keys())
+
+        # reorder columns based on sequence.
+        base_columns = OrderedDict((
+            (x, base_columns[x]) for x in sequence if x in base_columns
+        ))
+
+        self.columns = columns.BoundColumns(self, base_columns)
         # `None` value for order_by means no order is specified. This means we
         # `shouldn't touch our data's ordering in any way. *However*
         # `table.order_by = None` means "remove any ordering from the data"
@@ -405,6 +298,73 @@ class TableBase(object):
 
         self._counter = count()
 
+    def get_top_pinned_data(self):
+        '''
+        Return data for top pinned rows containing data for each row.
+        Iterable type like: queryset, list of dicts, list of objects.
+
+        Returns:
+            `None` (default) no pinned rows at the top, iterable, data for pinned rows at the top.
+
+        Note:
+            To show pinned row this method should be overridden.
+
+        Example:
+            >>> class TableWithTopPinnedRows(Table):
+            ...     def get_top_pinned_data(self):
+            ...         return [{
+            ...             'column_a' : 'some value',
+            ...             'column_c' : 'other value',
+            ...         }]
+        '''
+        return None
+
+    def get_bottom_pinned_data(self):
+        '''
+        Return data for bottom pinned rows containing data for each row.
+        Iterable type like: queryset, list of dicts, list of objects.
+
+        Returns:
+            `None` (default) no pinned rows at the bottom, iterable, data for pinned rows at the bottom.
+
+        Note:
+            To show pinned row this method should be overridden.
+
+        Example:
+            >>> class TableWithBottomPinnedRows(Table):
+            ...     def get_bottom_pinned_data(self):
+            ...         return [{
+            ...             'column_a' : 'some value',
+            ...             'column_c' : 'other value',
+            ...         }]
+        '''
+        return None
+
+    def before_render(self, request):
+        '''
+        A way to hook into the moment just before rendering the template.
+
+        Can be used to hide a column.
+
+        Arguments:
+            request: contains the `WGSIRequest` instance, containing a `user` attribute if
+                `.django.contrib.auth.middleware.AuthenticationMiddleware` is added to
+                your `MIDDLEWARE_CLASSES`.
+
+        Example::
+
+            class Table(tables.Table):
+                name = tables.Column(orderable=False)
+                country = tables.Column(orderable=False)
+
+                def before_render(self, request):
+                    if request.user.has_perm('foo.delete_bar'):
+                        self.columns.hide('country')
+                    else:
+                        self.columns.show('country')
+        '''
+        return
+
     def as_html(self, request):
         '''
         Render the table to an HTML table, adding `request` to the context.
@@ -418,7 +378,53 @@ class TableBase(object):
             'request': request
         }
 
+        self.before_render(request)
         return template.render(context)
+
+    def as_values(self, exclude_columns=None):
+        '''
+        Return a row iterator of the data which would be shown in the table where
+        the first row is the table headers.
+
+        arguments:
+            exclude_columns (iterable): columns to exclude in the data iterator.
+
+        This can be used to output the table data as CSV, excel, for example using the
+        `~.export.ExportMixin`.
+
+        If a column is defined using a :ref:`table.render_FOO`, the returned value from
+        that method is used. If you want to differentiate between the rendered cell
+        and a value, use a `value_Foo`-method::
+
+            class Table(tables.Table):
+                name = tables.Column()
+
+                def render_name(self, value):
+                    return format_html('<span class="name">{}</span>', value)
+
+                def value_name(self, value):
+                    return value
+
+        will have a value wrapped in `<span>` in the rendered HTML, and just returns
+        the value when `as_values()` is called.
+        '''
+        if exclude_columns is None:
+            exclude_columns = ()
+
+        def excluded(column):
+            if column.column.exclude_from_export:
+                return True
+            return column.name in exclude_columns
+
+        yield [
+            force_text(column.header, strings_only=True)
+            for column in self.columns if not excluded(column)
+        ]
+        for r in self.rows:
+            yield [
+                force_text(r.get_cell_value(column.name), strings_only=True)
+                for column in r.table.columns if not excluded(column)
+            ]
 
     def has_footer(self):
         '''
@@ -498,6 +504,7 @@ class TableBase(object):
         `~django.core.paginator.PageNotAnInteger`) may be raised from this
         method and should be handled by the caller.
         '''
+
         per_page = per_page or self._meta.per_page
         self.paginator = klass(self.rows, per_page, *args, **kwargs)
         self.page = self.paginator.page(page)
@@ -566,7 +573,7 @@ class TableBase(object):
         self._template = value
 
     def get_column_class_names(self, classes_set, bound_column):
-        """
+        '''
         Returns a set of HTML class names for cells (both td and th) of a
         **bound column** in this table.
         By default this returns the column class names defined in the table's
@@ -586,12 +593,15 @@ class TableBase(object):
 
         Returns:
             A set of class names to be added to cells of this column
-        """
+        '''
         classes_set.add(bound_column.name)
         return classes_set
 
 
 # Python 2/3 compatible way to enable the metaclass
-Table = DeclarativeColumnsMetaclass(str('Table'), (TableBase, ), {})
-# ensure the Table class has the right class docstring
-Table.__doc__ = TableBase.__doc__
+@six.add_metaclass(DeclarativeColumnsMetaclass)
+class Table(TableBase):
+    # ensure the Table class has the right class docstring
+    __doc__ = TableBase.__doc__
+
+# Table = DeclarativeColumnsMetaclass(str('Table'), (TableBase, ), {})

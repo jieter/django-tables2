@@ -1,9 +1,10 @@
 {% extends "base.html" %}
 {% load django_tables2 %}
+{% load static %}
 
 {% block extrahead %}
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" />
-    <link href="{{ STATIC_URL }}django_tables2/bootstrap.css" rel="stylesheet" />
+    <link href="{% static 'django_tables2/bootstrap.css' %}" rel="stylesheet" />
 {% endblock %}
 
 {% block body %}
@@ -23,5 +24,12 @@
 
         <h2>Basic example of a table</h2>
         {% render_table table "django_tables2/bootstrap.html" %}
+
+        <div class="row">
+            <h2>Same table, but responsive (<code>.table-responsive</code>)</h2>
+            <div class="col-sm-12">
+                {% render_table table "django_tables2/bootstrap-responsive.html" %}
+            </div>
+        </div>
     </div>
 {% endblock %}

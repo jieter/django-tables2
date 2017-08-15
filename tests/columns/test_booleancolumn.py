@@ -58,6 +58,15 @@ def test_treat_none_as_false():
     assert table.rows[0].get_cell('col') == '<span class="false">✘</span>'
 
 
+def test_value_returns_a_raw_value_without_html():
+    class Table(tables.Table):
+        col = tables.BooleanColumn()
+
+    table = Table([{'col': True}, {'col': False}])
+    assert table.rows[0].get_cell_value('col') == 'True'
+    assert table.rows[1].get_cell_value('col') == 'False'
+
+
 def test_span_attrs():
     class Table(tables.Table):
         col = tables.BooleanColumn(attrs={'span': {'key': 'value'}})
@@ -132,9 +141,7 @@ def test_boolean_should_not_prevent_rendering_of_other_columns():
     Occupation.objects.create(name='Onwaar', boolean=False),
     Occupation.objects.create(name='Onduidelijk')
 
-    table = Table(Occupation.objects.all())
-
-    html = table.as_html(build_request())
+    html = Table(Occupation.objects.all()).as_html(build_request())
 
     assert 'Waar' in html
     assert 'Onwaar' in html

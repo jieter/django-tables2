@@ -1,19 +1,37 @@
 # coding: utf-8
 from random import choice
 
-from django.core.urlresolvers import reverse
 from django.shortcuts import render
 from django.utils.lorem_ipsum import words
 from django.views.generic.base import TemplateView
 
+from django_filters.views import FilterView
 from django_tables2 import MultiTableMixin, RequestConfig, SingleTableView
+from django_tables2.export.views import ExportMixin
 
+from .filters import PersonFilter
 from .models import Country, Person
-from .tables import (BootstrapTable, CountryTable, PersonTable,
-                     ThemedCountryTable)
+from .tables import BootstrapTable, CountryTable, PersonTable, SemanticTable, ThemedCountryTable
+
+try:
+    from django.urls import reverse
+except ImportError:
+    # to keep backward (Django <= 1.9) compatibility
+    from django.core.urlresolvers import reverse
+
+
+def create_fake_data():
+    # create some fake data to make sure we need to paginate
+    if Person.objects.all().count() < 50:
+        countries = list(Country.objects.all()) + [None]
+        Person.objects.bulk_create([
+            Person(name=words(3, common=False), country=choice(countries))
+            for i in range(50)
+        ])
 
 
 def index(request):
+    create_fake_data()
     table = PersonTable(Person.objects.all())
     RequestConfig(request, paginate={
         'per_page': 5
@@ -24,9 +42,11 @@ def index(request):
         'urls': (
             (reverse('tutorial'), 'Tutorial'),
             (reverse('multiple'), 'Multiple tables'),
+            (reverse('filtertableview'), 'Filtered tables'),
             (reverse('singletableview'), 'Using SingleTableMixin'),
             (reverse('multitableview'), 'Using MultiTableMixin'),
             (reverse('bootstrap'), 'Using the bootstrap template'),
+            (reverse('semantic'), 'Using the Semantic UI template'),
         )
     })
 
@@ -61,18 +81,24 @@ def multiple(request):
 
 def bootstrap(request):
     '''Demonstrate the use of the bootstrap template'''
-    # create some fake data to make sure we need to paginate
-    if Person.objects.all().count() < 50:
-        countries = list(Country.objects.all()) + [None]
-        Person.objects.bulk_create([
-            Person(name=words(3, common=False), country=choice(countries))
-            for i in range(50)
-        ])
 
+    create_fake_data()
     table = BootstrapTable(Person.objects.all(), order_by='-name')
     RequestConfig(request, paginate={'per_page': 10}).configure(table)
 
     return render(request, 'bootstrap_template.html', {
+        'table': table
+    })
+
+
+def semantic(request):
+    '''Demonstrate the use of the Semantic UI template'''
+
+    create_fake_data()
+    table = SemanticTable(Person.objects.all(), order_by='-name')
+    RequestConfig(request, paginate={'per_page': 10}).configure(table)
+
+    return render(request, 'semantic_template.html', {
         'table': table
     })
 
@@ -102,3 +128,11 @@ class MultipleTables(MultiTableMixin, TemplateView):
 
 def tutorial(request):
     return render(request, 'tutorial.html', {'people': Person.objects.all()})
+
+
+class FilteredPersonListView(FilterView, ExportMixin, SingleTableView):
+    table_class = PersonTable
+    model = Person
+    template_name = 'bootstrap_template.html'
+
+    filterset_class = PersonFilter

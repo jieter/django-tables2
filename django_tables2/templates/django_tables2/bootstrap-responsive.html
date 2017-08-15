@@ -1,0 +1,15 @@
+{% extends 'django_tables2/bootstrap.html' %}
+
+{% block table-wrapper %}
+<div class="table-container table-responsive">
+    {% block table %}
+    {{ block.super }}
+    {% endblock table %}
+
+    {% if table.page and table.paginator.num_pages > 1 %}
+    {% block pagination %}
+    {{ block.super }}
+    {% endblock pagination %}
+    {% endif %}
+</div>
+{% endblock table-wrapper %}

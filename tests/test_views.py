@@ -20,6 +20,7 @@ class DispatchHookMixin(object):
     '''
     Returns a response *and* reference to the view.
     '''
+
     def dispatch(self, *args, **kwargs):
         return super(DispatchHookMixin, self).dispatch(*args, **kwargs), self
 
@@ -128,6 +129,8 @@ def test_should_support_explicit_table_data():
 
 @pytest.mark.django_db
 def test_paginate_by_on_view_class():
+    Region.objects.create(name='Friesland')
+
     class Table(tables.Table):
         class Meta:
             model = Region
@@ -137,6 +140,9 @@ def test_paginate_by_on_view_class():
         model = Region
         paginate_by = 2
         table_data = MEMORY_DATA
+
+        def get_queryset(self):
+            return Region.objects.all().order_by('name')
 
     response, view = PaginateByDefinedOnView.as_view()(build_request('/'))
     assert view.get_table().paginator.per_page == 2
@@ -273,6 +279,20 @@ def test_multiTableMixin_without_tables():
         View.as_view()(build_request('/'))
 
 
+def test_multiTableMixin_with_empty_get_tables_list():
+    class View(tables.MultiTableMixin, TemplateView):
+        template_name = 'multiple.html'
+
+        def get_tables(self):
+            return []
+
+    response = View.as_view()(build_request('/'))
+    response.render()
+
+    html = response.rendered_content
+    assert '<h1>Multiple tables using MultiTableMixin</h1>' in html
+
+
 def test_multiTableMixin_incorrect_len():
 
     class View(tables.MultiTableMixin, TemplateView):
@@ -311,3 +331,32 @@ def test_multiTableMixin_pagination():
 
     assert tableA.page.number == 1
     assert tableB.page.number == 3
+
+
+@pytest.mark.django_db
+def test_View_using_get_queryset():
+    '''
+    Should not raise a value-error for a View using View.get_queryset()
+    (test for reverting regressing in #423)
+    '''
+    Person.objects.create(first_name='Anton', last_name='Sam')
+
+    class Table(tables.Table):
+        class Meta(object):
+            model = Person
+            fields = ('first_name', 'last_name')
+
+    class TestView(tables.SingleTableView):
+        model = Person
+        table_class = Table
+
+        def get(self, request, *args, **kwargs):
+            self.get_table()
+            from django.http import HttpResponse
+            return HttpResponse()
+
+        def get_queryset(self):
+            '''get_queryset should be called'''
+            return Person.objects.all()
+
+    TestView.as_view()(build_request())

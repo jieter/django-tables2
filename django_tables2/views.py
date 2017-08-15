@@ -91,6 +91,13 @@ class SingleTableMixin(TableMixinBase):
             return self.table_data
         elif hasattr(self, 'object_list'):
             return self.object_list
+        elif hasattr(self, 'get_queryset'):
+            return self.get_queryset()
+
+        klass = type(self).__name__
+        raise ImproperlyConfigured(
+            'Table data was not specified. Define {}.table_data'.format(klass)
+        )
 
     def get_table_kwargs(self):
         '''
@@ -176,6 +183,6 @@ class MultiTableMixin(TableMixinBase):
 
             RequestConfig(self.request, paginate=self.get_table_pagination(table)).configure(table)
 
-        context[self.get_context_table_name(table)] = list(tables)
+            context[self.get_context_table_name(table)] = list(tables)
 
         return context

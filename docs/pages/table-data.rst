@@ -31,9 +31,9 @@ it is necessary to declare each column::
 Querysets
 ---------
 
-If you build use tables to display `~django.db.models.query.QuerySet` data, rather than defining each
-column manually in the table, the `.Table.Meta.model` option allows tables to
-be dynamically created based on a model::
+If you build use tables to display `~django.db.models.query.QuerySet` data,
+rather than defining each column manually in the table, the `.Table.Meta.model`
+option allows tables to be dynamically created based on a model::
 
     # models.py
     class Person(models.Model):
@@ -51,7 +51,7 @@ be dynamically created based on a model::
 
     # views.py
     def person_list(request):
-        table = PersonsTable(Person.objects.all())
+        table = PersonTable(Person.objects.all())
 
         return render(request, 'person_list.html', {
             'table': table
@@ -70,3 +70,16 @@ what fields to show or hide:
 - `~.Table.Meta.sequence` -- reorder columns
 - `~.Table.Meta.fields` -- specify model fields to *include*
 - `~.Table.Meta.exclude` -- specify model fields to *exclude*
+
+Performance
+-----------
+
+Django-tables tries to be efficient in displaying big datasets. It tries to
+avoid converting the `~django.db.models.query.QuerySet` instances to lists by
+using SQL to slice the data and should be able to handle datasets with 100k
+records without a problem.
+
+However, when using one of the customisation methods described in this
+documentation, there is lot's of oppurtunity to introduce slowness.
+If you experience that, try to strip the table of customisations and re-add them
+one by one, checking for performance after each step.

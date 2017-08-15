@@ -3,13 +3,15 @@ from __future__ import absolute_import, unicode_literals
 
 from django.db import models
 
+from django_tables2.templatetags.django_tables2 import title
+
 from .base import library
 from .linkcolumn import BaseLinkColumn
 
 
 @library.register
 class URLColumn(BaseLinkColumn):
-    """
+    '''
     Renders URL values as hyperlinks.
 
     Arguments:
@@ -25,11 +27,11 @@ class URLColumn(BaseLinkColumn):
         >>> table = CompaniesTable([{'www': 'http://google.com'}])
         >>> table.rows[0].get_cell('www')
         '<a href="http://google.com">http://google.com</a>'
-    """
+    '''
     def render(self, record, value):
         return self.render_link(value, record=record, value=value)
 
     @classmethod
     def from_field(cls, field):
         if isinstance(field, models.URLField):
-            return cls(verbose_name=field.verbose_name)
+            return cls(verbose_name=title(field.verbose_name))

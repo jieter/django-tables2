@@ -1,12 +1,10 @@
 # coding: utf-8
+import pytest
 from django.db import models
 from django.utils import six
 
-import pytest
-from django_tables2.utils import (Accessor, AttributeDict, OrderBy,
-                                  OrderByTuple, Sequence,
-                                  call_with_appropriate, computed_values,
-                                  segment, signature)
+from django_tables2.utils import (Accessor, AttributeDict, OrderBy, OrderByTuple, Sequence, call_with_appropriate,
+                                  computed_values, segment, signature)
 
 
 def test_orderbytuple():
@@ -178,7 +176,7 @@ def test_computed_values_with_argument():
         'foo': lambda y: {
             'bar': lambda y: 'baz-{}'.format(y)
         }
-    }, y=2)
+    }, kwargs=dict(y=2))
     assert x == {'foo': {'bar': 'baz-2'}}
 
 

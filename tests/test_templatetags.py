@@ -1,14 +1,13 @@
 # coding: utf-8
 from __future__ import unicode_literals
 
+import pytest
 from django.core.exceptions import ImproperlyConfigured
-from django.template import (Context, RequestContext, Template,
-                             TemplateSyntaxError)
+from django.template import Context, RequestContext, Template, TemplateSyntaxError
 from django.utils import six
 from django.utils.six.moves.urllib.parse import parse_qs
 
 import django_tables2 as tables
-import pytest
 from django_tables2.config import RequestConfig
 
 from .app.models import Person, Region
@@ -39,7 +38,6 @@ def test_render_table_templatetag(settings):
     assert len(root.findall('.//thead/tr/th')) == 4
     assert len(root.findall('.//tbody/tr')) == 4
     assert len(root.findall('.//tbody/tr/td')) == 16
-    assert root.find('ul[@class="pagination"]/li[@class="cardinality"]').text.strip() == '4 items'
 
     # no data with no empty_text
     table = CountryTable([])
@@ -106,7 +104,7 @@ def test_render_table_supports_queryset():
                                     'request': build_request('/')}))
 
     root = parse(html)
-    assert [e.text for e in root.findall('.//thead/tr/th/a')] == ['ID', 'name', 'mayor']
+    assert [e.text for e in root.findall('.//thead/tr/th/a')] == ['ID', 'Name', 'Mayor']
     td = [[td.text for td in tr.findall('td')] for tr in root.findall('.//tbody/tr')]
     db = []
     for region in Region.objects.all():
@@ -173,6 +171,14 @@ def test_title_should_only_apply_to_words_without_uppercase_letters():
         'black FBI': 'Black FBI',
         'f.b.i': 'F.B.I',
         'start 6pm': 'Start 6pm',
+
+        # Some cyrillic samples
+        'руда лисиця': 'Руда Лисиця',
+        'руда лисицЯ': 'Руда лисицЯ',
+        'діяльність СБУ': 'Діяльність СБУ',
+        'а.б.в': 'А.Б.В',
+        'вага 6кг': 'Вага 6кг',
+        'у 80-их роках': 'У 80-их Роках',
     }
 
     for raw, expected in expectations.items():
@@ -188,6 +194,5 @@ def test_as_html_db_queries(transactional_db):
 
     Person.objects.create(first_name='John', last_name='Doo')
 
-    with assertNumQueries(count=3):
-        # Person.objects.count()
+    with assertNumQueries(count=2):
         PersonTable(Person.objects.all()).as_html(build_request())

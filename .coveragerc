@@ -2,6 +2,7 @@
 source =
     django_tables2
     tests
+branch = true
 
 
 [html]

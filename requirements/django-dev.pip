@@ -1,2 +1,3 @@
 -r common.pip
-http://github.com/django/django/tarball/master
+Django==1.11.2
+https://github.com/django/django/archive/1.11a1.zip

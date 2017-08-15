@@ -8,10 +8,13 @@ from django.db import models
 import django_tables2 as tables
 
 
-# Format string: https://docs.djangoproject.com/en/stable/ref/templates/builtins/#date
-# D -- Day of the week, textual, 3 letters  -- 'Fri'
-# b -- Month, textual, 3 letters, lowercase -- 'jan'
-# Y -- Year, 4 digits.                      -- '1999'
+'''
+Format string: https://docs.djangoproject.com/en/stable/ref/templates/builtins/#date
+D -- Day of the week, textual, 3 letters  -- 'Fri'
+b -- Month, textual, 3 letters, lowercase -- 'jan'
+Y -- Year, 4 digits.                      -- '1999'
+'''
+
 
 def test_should_handle_explicit_format():
     class TestTable(tables.Table):
@@ -68,3 +71,13 @@ def test_should_be_used_for_datefields():
             model = DateModel
 
     assert type(Table.base_columns['field']) == tables.DateColumn
+
+
+def test_value_returns_a_raw_value_without_html(settings):
+    settings.SHORT_DATE_FORMAT = 'b Y D'
+
+    class Table(tables.Table):
+        col = tables.DateColumn()
+
+    table = Table([{'col': date(2012, 9, 11)}])
+    assert table.rows[0].get_cell_value('col') == 'sep 2012 Tue'

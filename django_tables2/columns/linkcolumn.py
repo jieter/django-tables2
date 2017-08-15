@@ -1,24 +1,32 @@
 # coding: utf-8
 from __future__ import absolute_import, unicode_literals
 
-from django.core.urlresolvers import reverse
 from django.utils.html import format_html
 
 from django_tables2.utils import Accessor, AttributeDict
 
 from .base import Column, library
 
+try:
+    from django.urls import reverse
+except ImportError:
+    # to keep backward (Django <= 1.9) compatibility
+    from django.core.urlresolvers import reverse
+
 
 class BaseLinkColumn(Column):
-    """
+    '''
     The base for other columns that render links.
 
     Arguments:
         text (str or callable): If set, this value will be used to render the
             text inside link instead of value. The callable gets the record
             being rendered as argument.
-        attrs (dict): Additional attributes for the ``<a>`` tag
-    """
+        attrs (dict): In addition to *attrs* keys supported by `~.Column`, the
+            following are available:
+
+             - *a* -- ``<a>`` in ``<td>`` elements.
+    '''
     def __init__(self, attrs=None, text=None, *args, **kwargs):
         kwargs['attrs'] = attrs
         self.text = text
@@ -30,7 +38,7 @@ class BaseLinkColumn(Column):
         return self.text(record) if callable(self.text) else self.text
 
     def render_link(self, uri, record, value, attrs=None):
-        """
+        '''
         Render a hyperlink.
 
         Arguments:
@@ -39,7 +47,7 @@ class BaseLinkColumn(Column):
             value (str): value to be wrapped in ``<a></a>``, might be overridden
                 by ``self.text``
             attrs (dict): ``<a>`` tag attributes
-        """
+        '''
         attrs = AttributeDict(attrs if attrs is not None else
                               self.attrs.get('a', {}))
         attrs['href'] = uri
@@ -50,29 +58,36 @@ class BaseLinkColumn(Column):
             text=self.text_value(record, value)
         )
 
+    def value(self, record, value):
+        '''
+        Returns the content for a specific cell similarly to `.render` however
+        without any html content.
+        '''
+        return self.text_value(record, value)
+
 
 @library.register
 class LinkColumn(BaseLinkColumn):
-    """
+    '''
     Renders a normal value as an internal hyperlink to another page.
 
     It's common to have the primary value in a row hyperlinked to the page
     dedicated to that record.
 
     The first arguments are identical to that of
-    `~django.core.urlresolvers.reverse` and allows an internal URL to be
+    `~django.urls.reverse` and allows an internal URL to be
     described. If this argument is `None`, then `get_absolute_url`.
     (see Django references) will be used.
     The last argument *attrs* allows custom HTML attributes to be added to the
     rendered ``<a href="...">`` tag.
 
     Arguments:
-        viewname (str): See `~django.core.urlresolvers.reverse`, or use `None`
+        viewname (str): See `~django.urls.reverse`, or use `None`
             to use the model's `get_absolute_url`
-        urlconf (str): See `~django.core.urlresolvers.reverse`.
-        args (list): See `~django.core.urlresolvers.reverse`. [2]_
-        kwargs (dict): See `~django.core.urlresolvers.reverse`. [2]_
-        current_app (str): See `~django.core.urlresolvers.reverse`.
+        urlconf (str): See `~django.urls.reverse`.
+        args (list): See `~django.urls.reverse`. [2]_
+        kwargs (dict): See `~django.urls.reverse`. [2]_
+        current_app (str): See `~django.urls.reverse`.
         attrs (dict): HTML attributes that are added to the rendered
             ``<a ...>...</a>`` tag.
         text (str or callable): Either static text, or a callable. If set, this
@@ -82,7 +97,7 @@ class LinkColumn(BaseLinkColumn):
     .. [2] In order to create a link to a URL that relies on information in the
         current row, `.Accessor` objects can be used in the *args* or *kwargs*
         arguments. The accessor will be resolved using the row's record before
-        `~django.core.urlresolvers.reverse` is called.
+        `~django.urls.reverse` is called.
 
     Example:
 
@@ -123,7 +138,15 @@ class LinkColumn(BaseLinkColumn):
     available:
 
     - *a* -- ``<a>`` elements in ``<td>``.
-    """
+
+    Adding attributes to the ``<a>``-tag looks like this::
+
+        class PeopleTable(tables.Table):
+            first_name = tables.LinkColumn(attrs={
+                'a': {'style': 'color: red;'}
+            })
+
+    '''
     def __init__(self, viewname=None, urlconf=None, args=None, kwargs=None,
                  current_app=None, attrs=None, **extra):
         super(LinkColumn, self).__init__(attrs, **extra)

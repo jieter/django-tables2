@@ -28,8 +28,36 @@ Table of contents
 -----------------
 
 .. toctree::
-    pages/getting-started
-    pages/customizing
+    :maxdepth: 1
+    :caption: Getting started
+
+    pages/installation
+    pages/tutorial
+    pages/table-data
+
+.. toctree::
+    :maxdepth: 1
+    :caption: Customisation
+
+    pages/custom-data
+    pages/ordering
+    pages/column-attributes
+    pages/column-headers-and-footers
+    pages/swapping-columns
+    pages/pagination
+    pages/table-mixins
+    pages/custom-rendering
+    pages/query-string-fields
+    pages/localization-control
+    pages/generic-mixins
+    pages/pinned-rows
+    pages/filtering
+    pages/export
+
+.. toctree::
+    :maxdepth: 1
+    :caption: Reference
+
     pages/reference
     pages/faq
     pages/upgrade-changelog

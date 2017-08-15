@@ -1,19 +1,14 @@
 Tutorial
 ~~~~~~~~
 
-After intalling django-tables2, you can follow this tutorial to start using
-django-tables2.
-
-.. note::
-    For this tutorial, we'll assume you use Django version 1.8.0 or greater. For
-    Django 1.7, refer to the `Django 1.7 documentation <https://docs.djangoproject.com/en/1.7/ref/templates/api/#django-core-context-processors-request>`_.
+This is a step-by-step guide to learn how to install and use django-tables2.
 
 1. ``pip install django-tables2``
 2. Add ``'django_tables2'`` to ``INSTALLED_APPS``
-3. Add ``'django.template.context_processors.request'`` to the ``context_preprocessors`` in your template setting ``OPTIONS``.
+3. Add ``'django.template.context_processors.request'`` to the ``context_processors`` in your template setting ``OPTIONS``.
 
 
-We're going to run through creating a tutorial app. Let's start with a simple model::
+We are going to run through creating a tutorial app. Let's start with a simple model::
 
     # tutorial/models.py
     class Person(models.Model):
@@ -32,10 +27,11 @@ Finally, implement the template::
 
     {# tutorial/templates/people.html #}
     {% load render_table from django_tables2 %}
+    {% load static %}
     <!doctype html>
     <html>
         <head>
-            <link rel="stylesheet" href="{{ STATIC_URL }}django_tables2/themes/paleblue/css/screen.css" />
+            <link rel="stylesheet" href="{% static 'django_tables2/themes/paleblue/css/screen.css' %}" />
         </head>
         <body>
             {% render_table people %}

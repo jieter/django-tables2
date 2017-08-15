@@ -5,6 +5,7 @@ from django.db import models
 from django.utils import six
 from django.utils.html import escape, format_html
 
+from django_tables2.templatetags.django_tables2 import title
 from django_tables2.utils import AttributeDict
 
 from .base import Column, library
@@ -22,10 +23,10 @@ class BooleanColumn(Column):
     Rendered values are wrapped in a ``<span>`` to allow customisation by
     themes. By default the span is given the class ``true``, ``false``.
 
-    In addition to *attrs* keys supported by `.Column`, the following are
+    In addition to *attrs* keys supported by `~.Column`, the following are
     available:
 
-    - *span* -- adds attributes to the <span> tag
+     - *span* -- adds attributes to the ``<span>`` tag
     '''
     def __init__(self, null=False, yesno='✔,✘', **kwargs):
         self.yesno = (yesno.split(',') if isinstance(yesno, six.string_types)
@@ -34,7 +35,7 @@ class BooleanColumn(Column):
             kwargs['empty_values'] = ()
         super(BooleanColumn, self).__init__(**kwargs)
 
-    def render(self, value, record, bound_column):
+    def _get_bool_value(self, record, value, bound_column):
         # If record is a model, we need to check if it has choices defined.
         if hasattr(record, '_meta'):
             field = bound_column.accessor.get_field(record)
@@ -45,6 +46,10 @@ class BooleanColumn(Column):
                 value = next(val for val, name in field.choices if name == value)
 
         value = bool(value)
+        return value
+
+    def render(self, value, record, bound_column):
+        value = self._get_bool_value(record, value, bound_column)
         text = self.yesno[int(not value)]
         attrs = {'class': six.text_type(value).lower()}
         attrs.update(self.attrs.get('span', {}))
@@ -55,9 +60,16 @@ class BooleanColumn(Column):
             escape(text)
         )
 
+    def value(self, record, value, bound_column):
+        '''
+        Returns the content for a specific cell similarly to `.render` however without any html content.
+        '''
+        value = self._get_bool_value(record, value, bound_column)
+        return str(value)
+
     @classmethod
     def from_field(cls, field):
         if isinstance(field, models.BooleanField):
-            return cls(verbose_name=field.verbose_name, null=False)
+            return cls(verbose_name=title(field.verbose_name), null=False)
         if isinstance(field, models.NullBooleanField):
-            return cls(verbose_name=field.verbose_name, null=True)
+            return cls(verbose_name=title(field.verbose_name), null=True)

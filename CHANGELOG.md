@@ -1,8 +1,84 @@
 # Change log
 
-## unreleased
-- Added `get_table_kwargs()` method to `SingleTableMixin` to allow passing custom keyword arguments to the `Table` constructor. [#366](https://github.com/bradleyayers/django-tables2/pull/366) by [@fritz-k](https://github.com/fritz-k)
+## master (unreleased)
 
+## 1.10.0 (2017-06-30)
+ - Added `ManyToManyColumn` automatically added for `ManyToManyField`s.
+
+## 1.9.1 (2017-06-29)
+ - Allow customizing the value used in `Table.as_values()` (when using a `render_<name>` method) using a `value_<name>` method. (fixes [#458](https://github.com/bradleyayers/django-tables2/issues/458))
+ - Allow excluding columns from the `Table.as_values()` output. (fixes [#459](https://github.com/bradleyayers/django-tables2/issues/459))
+ - Fixed unicode handling for columhn headers in `Table.as_values()`
+
+## 1.9.0 (2017-06-22)
+- Allow computable attrs for `<td>`-tags from `Table.attrs` ([#457](https://github.com/bradleyayers/django-tables2/pull/457), fixes [#451](https://github.com/bradleyayers/django-tables2/issues/451))
+
+## 1.8.0 (2017-06-17)
+ - Feature: Added an `ExportMixin` to export table data in various export formats (CSV, XLS, etc.) using [tablib](http://docs.python-tablib.org/en/latest/).
+ - Defer expanding `Meta.sequence` to `Table.__init__`, to make sequence work in combination with `extra_columns` (fixes [#450](https://github.com/bradleyayers/django-tables2/issues/450))
+ - Fixed a crash when `MultiTableMixin.get_tables()` returned an empty array ([#454](https://github.com/bradleyayers/django-tables2/pull/455) by [@pypetey](https://github.com/pypetey)
+
+## 1.7.1 (2017-06-02)
+ - Call before_render when rendering with the render_table template tag (fixes [#447](https://github.com/bradleyayers/django-tables2/issues/447))
+
+## 1.7.0 (2017-06-01)
+ - Make `title()` lazy ([#443](https://github.com/bradleyayers/django-tables2/pull/443) by [@ygwain](https://github.com/ygwain), fixes [#438](https://github.com/bradleyayers/django-tables2/issues/438))
+ - Fix `__all__` by populating them with the names of the items to export instead of the items themself.
+ - Allow adding extra columns to an instance using the `extra_columns` argument. Fixes [#403](https://github.com/bradleyayers/django-tables2/issues/403), [#70](https://github.com/bradleyayers/django-tables2/issues/70)
+ - Added a hook `before_render` to allow last-minute changes to the table before rendering.
+ - Added `BoundColumns.show()` and `BoundColumns.hide()` to show/hide columns on an instance of a `Table`.
+ - Use `<listlike>.verbose_name`/`.verbose_name_plural` if it exists to name the items in the list. (fixes [#166](https://github.com/bradleyayers/django-tables2/issues/166))
+
+## 1.6.1 (2017-05-08)
+ - Add missing pagination to the responsive bootstrap template ([#440](https://github.com/bradleyayers/django-tables2/pull/440) by [@tobiasmcnulty](https://github.com/tobiasmcnulty))
+
+## 1.6.0 (2017-05-01)
+ - Add new template `bootstrap-responsive.html` to generate a responsive bootstrap table. (Fixes [#436](https://github.com/bradleyayers/django-tables2/issues/436))
+
+## 1.5.0 (2017-04-18)
+_Full disclosure: as of april 1st, 2017, I am an employee of [Zostera](http://zostera.nl/), as such I will continue to maintain and improve django-tables2._
+ - Made `TableBase.as_values()` an interator ([#432](https://github.com/bradleyayers/django-tables2/pull/432) by [@pziarsolo](https://github.com/pziarsolo))
+ - Added `JSONField` for data in JSON format.
+ - Added `__all__` in `django_tables2/__init__.py` and `django_tables2/columns/__init__.py`
+ - Added a setting `DJANGO_TABLES2_TEMPLATE` to allow project-wide overriding of the template used to render tables (fixes [#434](https://github.com/bradleyayers/django-tables2/issues/434)).
+
+## 1.4.2 (2017-03-06)
+ - Feature: Pinned rows ([#411](https://github.com/bradleyayers/django-tables2/pull/411) by [@djk2](https://github.com/djk2), fixes [#406](https://github.com/bradleyayers/django-tables2/issues/406))
+ - Fix an issue where `ValueError` was raised while using a view with a `get_queryset()` method defined. (fix with [#423](https://github.com/bradleyayers/django-tables2/pull/423) by [@desecho](https://github.com/desecho))
+
+## 1.4.1 (2017-02-27)
+ - Fix urls to screenshots in on pypi description (fixes [ #398](https://github.com/bradleyayers/django-tables2/issues/398))
+ - Prevent superfluous spaces when a callable `row_attrs['class']` returns an empty string ([#417](https://github.com/bradleyayers/django-tables2/pull/417 by [@Superman8218](https://github.com/Superman8218)), fixes [#416](https://github.com/bradleyayers/django-tables2/issues/416))
+
+
+## 1.4.0 (2017-02-27)
+ - Return `None` from `Table.as_values()` for missing values. [#419](https://github.com/bradleyayers/django-tables2/pull/419)
+ - Fix ordering by custom fields, and refactor `TableData` [#424](https://github.com/bradleyayers/django-tables2/pull/424), fixes [#413](https://github.com/bradleyayers/django-tables2/issues/413)
+ - Revert removing `TableData.__iter__()` (removed in [this commit](https://github.com/bradleyayers/django-tables2/commit/8fe9826429e6945a9258bc181fcbd711b282dba9)), fixes [#427](https://github.com/bradleyayers/django-tables2/issues/427), [#361](https://github.com/bradleyayers/django-tables2/issues/361) and [#421](https://github.com/bradleyayers/django-tables2/issues/421).
+
+## 1.3.0 (2017-01-20)
+ - Implement method `Table.as_values()` to get it's raw values. [#394](https://github.com/bradleyayers/django-tables2/pull/394) by [@intiocean](https://github.com/intiocean)
+ - Fix some compatibility issues with django 2.0 [#408](https://github.com/bradleyayers/django-tables2/pull/409) by [djk2](https://github.com/djk2)
+
+## 1.2.9 (2016-12-21)
+ - Documentation for `None`-column attributes [#401](https://github.com/bradleyayers/django-tables2/pull/401) by [@dyve](https://github.com/dyve)
+
+## 1.2.8 (2016-12-21)
+ - `None`-column attributes on child class overwrite column attributes of parent class
+ [#400](https://github.com/bradleyayers/django-tables2/pull/400) by [@dyve](https://github.com/dyve)
+
+## 1.2.7 (2016-12-12)
+- Apply `title` to a column's `verbose_name` when it is derived from a model, fixes [#249](https://github.com/bradleyayers/django-tables2/issues/249). ([#382](https://github.com/bradleyayers/django-tables2/pull/382) by [@shawnnapora](https://github.com/shawnnapora))
+- Update documentation after deprecation of `STATIC_URL` in django ([#384](https://github.com/bradleyayers/django-tables2/pull/384), by [@velaia](https://github.com/velaia))
+- Cleanup of the templates, making the output more equal ([#381](https://github.com/bradleyayers/django-tables2/pull/381) by [@ralgozino](https://github.com/ralgozino))
+- Use new location for `urlresolvers` in Django and add backwards compatible import ([#388](https://github.com/bradleyayers/django-tables2/pull/388) by [@felixxm](https://github.com/felixxm))
+- Fix a bug where using `sequence` and then `exclude` in a child table would result in a `KeyError`
+- Some documentation fixes and cleanups.
+
+## 1.2.6 (2016-09-06)
+- Added `get_table_kwargs()` method to `SingleTableMixin` to allow passing custom keyword arguments to the `Table` constructor. ([#366](https://github.com/bradleyayers/django-tables2/pull/366) by [@fritz-k](https://github.com/fritz-k))
+- Allow the children of `TableBase` render in the `{% render_table %}` template tag. ([#377](https://github.com/bradleyayers/django-tables2/pull/377) by [@shawnnapora](https://github.com/shawnnapora))
+- Refactor `BoundColumn` attributes to allow override of CSS class names, fixes [#349](https://github.com/bradleyayers/django-tables2/issues/349) ([#370](https://github.com/bradleyayers/django-tables2/pull/370) by [@graup](https://github.com/graup)). Current behaviour should be intact, we will change the default in the future so it will **not** add the column name to the list of CSS classes.
 
 ## 1.2.5 (2016-07-30)
 - Fixed an issue preventing the rest of the row being rendered if a `BooleanColumn` was in the table for a model without custom choices defined on the model field. ([#360](https://github.com/bradleyayers/django-tables2/issues/360))
@@ -14,13 +90,13 @@
 ## 1.2.3 (2016-07-05)
  - Accept `text` parameter in `FileColumn`, analogous to `LinkColumn` ([#343](https://github.com/bradleyayers/django-tables2/pull/343) by [@graup](https://github.com/graup))
  - Fix TemplateColumn RemovedInDjango110Warning fixes [#346](https://github.com/bradleyayers/django-tables2/issues/346).
- - Use field name in RelatedColumnLink ([#350](https://github.com/bradleyayers/django-tables2/pull/350), fixes [#347](https://github.com/bradleyayers/django-tables2/issues/347)
+ - Use field name in RelatedColumnLink ([#350](https://github.com/bradleyayers/django-tables2/pull/350), fixes [#347](https://github.com/bradleyayers/django-tables2/issues/347))
 
 ## v1.2.2 (2016-06-04)
 - Allow use of custom class names for ordered columns through `attrs`. (
 [#329](https://github.com/bradleyayers/django-tables2/pull/329) by [@theTarkus](https://github.com/theTarkus))
 - Column ordering queryset passthrough ([#330](https://github.com/bradleyayers/django-tables2/pull/330) by [@theTarkus](https://github.com/theTarkus))
-- Cleanup/restructuring of [documentation](http://django-tables2.readthedocs.io/), ([#325](https://github.com/bradleyayers/django-tables2/pull/325)
+- Cleanup/restructuring of [documentation](http://django-tables2.readthedocs.io/), ([#325](https://github.com/bradleyayers/django-tables2/pull/325))
 - Fixed an issue where explicitly defined column options where not preserved over inheritance ([#339](https://github.com/bradleyayers/django-tables2/pull/339), [issue #337](https://github.com/bradleyayers/django-tables2/issues/337))
 - Fixed an issue where `exclude` in combination with `sequence` raised a KeyError ([#341](https://github.com/bradleyayers/django-tables2/pull/341), [issue #205](https://github.com/bradleyayers/django-tables2/issues/205))
 

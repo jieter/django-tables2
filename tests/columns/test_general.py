@@ -1,12 +1,12 @@
 # coding: utf-8
 from __future__ import unicode_literals
 
+import pytest
 from django.db import models
 from django.utils.safestring import SafeData, mark_safe
 from django.utils.translation import ugettext_lazy
 
 import django_tables2 as tables
-import pytest
 
 from ..app.models import Person
 from ..utils import build_request, parse
@@ -158,10 +158,10 @@ def test_supports_is_ordered():
 
 
 def test_translation():
-    """
+    '''
     Tests different types of values for the ``verbose_name`` property of a
     column.
-    """
+    '''
     class TranslationTable(tables.Table):
         text = tables.Column(verbose_name=ugettext_lazy('Text'))
 
@@ -170,9 +170,9 @@ def test_translation():
 
 
 def test_sequence():
-    """
+    '''
     Ensures that the sequence of columns is configurable.
-    """
+    '''
     class TestTable(tables.Table):
         a = tables.Column()
         b = tables.Column()
@@ -235,11 +235,11 @@ def test_sequence():
 
 
 def test_should_support_both_meta_sequence_and_constructor_exclude():
-    """
+    '''
     Issue #32 describes a problem when both ``Meta.sequence`` and
     ``Table(..., exclude=...)`` are used on a single table. The bug caused an
     exception to be raised when the table was iterated.
-    """
+    '''
     class SequencedTable(tables.Table):
         a = tables.Column()
         b = tables.Column()
@@ -420,7 +420,24 @@ def test_override_column_class_names():
         {'name': 'France', 'population': 66000000},
     ]
 
-    table = MyTable(TEST_DATA)
-    html = table.as_html(build_request())
+    html = MyTable(TEST_DATA).as_html(build_request())
 
     assert '<td class="prefix-population">11200000</td>' in html
+
+
+@pytest.mark.django_db
+def test_computable_td_attrs():
+    '''Computable attrs for columns, using table argument'''
+    Person.objects.create(first_name='Jan', last_name='Pietersz.')
+    Person.objects.create(first_name='Sjon', last_name='Jansen')
+
+    class Table(tables.Table):
+        person = tables.Column(attrs={
+            'cell': {
+                'data-length': lambda table: len(table.data)
+            }
+        })
+
+    table = Table(Person.objects.all())
+    html = table.as_html(request)
+    assert 'data-length="2"' in html

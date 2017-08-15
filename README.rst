@@ -13,10 +13,14 @@ django-tables2 simplifies the task of turning sets of data into HTML tables. It
 has native support for pagination and sorting. It does for HTML tables what
 `django.forms` does for HTML forms. e.g.
 
-.. image:: http://dl.dropbox.com/u/33499139/django-tables2/example.png
-    :alt: An example table rendered using django-tables2
+- `Available on pypi <https://pypi.python.org/pypi/django-tables2>`_
+- Tested against currently supported versions of Django
+  `and the python versions Django supports <https://docs.djangoproject.com/en/dev/faq/install/#what-python-version-can-i-use-with-django>`_
+  (see `Travis CI <https://travis-ci.org/bradleyayers/django-tables2>`_)
+- `Documentation on readthedocs.org <https://django-tables2.readthedocs.io/en/latest/>`_
+- `Bug tracker <http://github.com/bradleyayers/django-tables2/issues>`_
 
-Its features include:
+Features:
 
 - Any iterable can be a data-source, but special support for Django querysets is included.
 - The builtin UI does not rely on JavaScript.
@@ -27,12 +31,14 @@ Its features include:
 - Template tag to enable trivial rendering to HTML.
 - Generic view mixin.
 
-About the app:
+.. image:: https://cdn.rawgit.com/bradleyayers/django-tables2/1044316e/docs/img/example.png
+    :alt: An example table rendered using django-tables2
 
-- `Available on pypi <https://pypi.python.org/pypi/django-tables2>`_
-- Tested with python 2.7, 3.3, 3.4, 3.5 and Django 1.8, 1.9, `Travis CI <https://travis-ci.org/bradleyayers/django-tables2>`_
-- `Documentation on readthedocs.org <https://django-tables2.readthedocs.io/en/latest/>`_
-- `Bug tracker <http://github.com/bradleyayers/django-tables2/issues>`_
+.. image:: https://cdn.rawgit.com/bradleyayers/django-tables2/1044316e/docs/img/bootstrap.png
+    :alt: An example table rendered using django-tables2 and bootstrap theme
+
+.. image:: https://cdn.rawgit.com/bradleyayers/django-tables2/1044316e/docs/img/semantic.png
+    :alt: An example table rendered using django-tables2 and semantic-ui theme
 
 Example
 -------

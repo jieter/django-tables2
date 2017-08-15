@@ -10,9 +10,11 @@ For common use-cases the following columns are included:
 - `.CheckBoxColumn` -- renders checkbox form inputs
 - `.DateColumn` -- date formatting
 - `.DateTimeColumn` -- datetime formatting in the local timezone
-- `.FileColumn` -- renders files as links
 - `.EmailColumn` -- renders ``<a href="mailto:...">`` tags
+- `.FileColumn` -- renders files as links
+- `.JSONColumn` -- renders JSON as an indented string in ``<pre></pre>``
 - `.LinkColumn` -- renders ``<a href="...">`` tags (compose a django url)
+- `.ManyToManyColumn` -- renders a list objects from a `ManyToManyField`
 - `.RelatedLinkColumn` -- renders ``<a href="...">`` tags linking related objects
 - `.TemplateColumn` -- renders template code
 - `.URLColumn` -- renders ``<a href="...">`` tags (absolute url)

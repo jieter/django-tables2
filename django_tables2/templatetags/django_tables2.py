@@ -29,13 +29,13 @@ context_processor_error_msg = (
 
 
 def token_kwargs(bits, parser):
-    """
+    '''
     Based on Django's `~django.template.defaulttags.token_kwargs`, but with a
     few changes:
 
     - No legacy mode.
     - Both keys and values are compiled as a filter
-    """
+    '''
     if not bits:
         return {}
     kwargs = OrderedDict()
@@ -111,7 +111,9 @@ class RenderTableNode(Node):
     def render(self, context):
         table = self.table.resolve(context)
 
-        if isinstance(table, tables.Table):
+        request = context.get('request')
+
+        if isinstance(table, tables.TableBase):
             pass
         elif hasattr(table, 'model'):
             queryset = table
@@ -121,9 +123,8 @@ class RenderTableNode(Node):
             class OnTheFlyTable(tables.Table):
                 class Meta:
                     model = queryset.model
-                    attrs = {'class': 'paleblue'}
+
             table = OnTheFlyTable(queryset)
-            request = context.get('request')
             if request:
                 RequestConfig(request).configure(table)
         else:
@@ -152,6 +153,7 @@ class RenderTableNode(Node):
             # achieved is to temporarily attach the context to the table,
             # which TemplateColumn then looks for and uses.
             table.context = context
+            table.before_render(request)
             return template.render(context.flatten())
         finally:
             del table.context
@@ -196,6 +198,7 @@ def render_table(parser, token):
     return RenderTableNode(table, template)
 
 
+
 RE_UPPERCASE = re.compile('[A-Z]')
 
 @register.filter
@@ -217,6 +220,7 @@ def table_page_range(num_pages,arg):
             range_end = num_pages + 1
     return range(range_start, range_end)
 
+
 @register.filter
 @stringfilter
 def title(value):
@@ -225,11 +229,25 @@ def title(value):
 
     Same as Django's builtin `~django.template.defaultfilters.title` filter,
     but operates on individual words and leaves words unchanged if they already
-    have a capital letter.
+    have a capital letter or a digit. Actually Django's filter also skips
+    words with digits but only for latin letters (or at least not for
+    cyrillic ones).
     '''
-    title_word = lambda w: w if RE_UPPERCASE.search(w) else old_title(w)
-    return re.sub('(\S+)', lambda m: title_word(m.group(0)), value)
+    return ' '.join([
+        any([c.isupper() or c.isdigit() for c in w]) and w or old_title(w)
+        for w in value.split()
+    ])
+
+
 title.is_safe = True
+
+try:
+    from django.utils.functional import keep_lazy_text
+    title = keep_lazy_text(title)
+except ImportError:
+    # to keep backward (Django < 1.10) compatibility
+    from django.utils.functional import lazy
+    title = lazy(title, six.text_type)
 
 register.filter('localize', l10n_register.filters['localize'])
 register.filter('unlocalize', l10n_register.filters['unlocalize'])

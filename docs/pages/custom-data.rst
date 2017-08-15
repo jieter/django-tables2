@@ -37,7 +37,7 @@ If the resulting value is callable, it is called and the return value is used.
 .. _table.render_foo:
 
 `Table.render_foo` methods
-------------------------------------
+--------------------------
 
 To change how a column is rendered, define a ``render_foo`` method on
 the table for example: `render_row_number()` for a column named `row_number`.
@@ -86,6 +86,15 @@ argument.
     be not an :term:`empty value`. When a value is in `.Column.empty_values`,
     a default value is rendered instead (both `.Column.render` and
     ``Table.render_FOO`` are skipped).
+
+`Table.value_foo` methods
+-------------------------
+
+If you want to use `Table.as_values` to export your data, you might want to define
+a method ``value_foo``, which is analogous to ``render_foo``, but used to render the
+values rather than the HTML output.
+
+Please refer to `~.Table.as_values` for an example.
 
 .. _subclassing-column:
 

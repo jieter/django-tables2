@@ -7,15 +7,19 @@ import itertools
 
 import pytest
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
-from django.utils import six
 
 import django_tables2 as tables
 from django_tables2.tables import DeclarativeColumnsMetaclass
 
-from .app.models import Person
-from .utils import build_request
+from .utils import build_request, parse
 
 request = build_request('/')
+
+MEMORY_DATA = [
+    {'i': 2, 'alpha': 'b', 'beta': 'b'},
+    {'i': 1, 'alpha': 'a', 'beta': 'c'},
+    {'i': 3, 'alpha': 'c', 'beta': 'a'},
+]
 
 
 class UnorderedTable(tables.Table):
@@ -27,13 +31,6 @@ class UnorderedTable(tables.Table):
 class OrderedTable(UnorderedTable):
     class Meta:
         order_by = 'alpha'
-
-
-MEMORY_DATA = [
-    {'i': 2, 'alpha': 'b', 'beta': 'b'},
-    {'i': 1, 'alpha': 'a', 'beta': 'c'},
-    {'i': 3, 'alpha': 'c', 'beta': 'a'},
-]
 
 
 def test_column_named_items():
@@ -76,6 +73,12 @@ def test_declarations():
 
     assert len(CityTable.base_columns) == 4
     assert 'added' in CityTable.base_columns
+
+    # overwrite a column with a non-column
+    class MayorlessCityTable(CityTable):
+        mayor = None
+
+    assert len(MayorlessCityTable.base_columns) == 3
 
 
 def test_metaclass_inheritance():
@@ -143,14 +146,20 @@ def test_attrs_support_computed_values():
         class Meta:
             attrs = {'id': lambda: 'test_table_%d' % next(counter)}
 
-    assert {'id': 'test_table_0'} == TestTable([]).attrs
-    assert {'id': 'test_table_1'} == TestTable([]).attrs
+    assert 'id="test_table_0"' == TestTable([]).attrs.as_html()
+    assert 'id="test_table_1"' == TestTable([]).attrs.as_html()
 
 
-def test_data_knows_its_name():
-    table = tables.Table([{}])
-    assert table.data.verbose_name == 'item'
-    assert table.data.verbose_name_plural == 'items'
+def test_attrs_from_settings(settings):
+    settings.DJANGO_TABLES2_TABLE_ATTRS = {
+        'class': 'table-compact'
+    }
+
+    class Table(tables.Table):
+        column = tables.Column()
+
+    table = Table({})
+    assert table.attrs == {'class': 'table-compact'}
 
 
 def test_datasource_untouched():
@@ -183,165 +192,25 @@ def test_should_support_tuple_data_source():
     assert len(table.rows) == 2
 
 
-def test_should_support_haystack_data_source():
-    from haystack.query import SearchQuerySet
-
-    class PersonTable(tables.Table):
-        first_name = tables.Column()
-
-    table = PersonTable(SearchQuerySet().all())
-    table.as_html(request)
-
-
-def test_data_validation():
-    with pytest.raises(ValueError):
-        table = OrderedTable(None)
-
-    class Bad:
-        def __len__(self):
-            pass
-
-    with pytest.raises(ValueError):
-        table = OrderedTable(Bad())
-
-    class Ok:
-        def __len__(self):
-            return 1
-
-        def __getitem__(self, pos):
-            if pos != 0:
-                raise IndexError()
-            return {'a': 1}
-
-    table = OrderedTable(Ok())
-    assert len(table.rows) == 1
-
-
-def test_ordering():
-    # fallback to Table.Meta
-    assert ('alpha', ) == OrderedTable([], order_by=None).order_by == OrderedTable([]).order_by
-
-    # values of order_by are wrapped in tuples before being returned
-    assert OrderedTable([], order_by='alpha').order_by == ('alpha', )
-    assert OrderedTable([], order_by=('beta', )).order_by == ('beta', )
-
-    table = OrderedTable([])
-    table.order_by = []
-    assert () == table.order_by == OrderedTable([], order_by=[]).order_by
-
-    table = OrderedTable([])
-    table.order_by = ()
-    assert () == table.order_by == OrderedTable([], order_by=()).order_by
-
-    table = OrderedTable([])
-    table.order_by = ''
-    assert () == table.order_by == OrderedTable([], order_by='').order_by
-
-    # apply an ordering
-    table = UnorderedTable([])
-    table.order_by = 'alpha'
-    assert ('alpha', ) == UnorderedTable([], order_by='alpha').order_by == table.order_by
-
-    table = OrderedTable([])
-    table.order_by = 'alpha'
-    assert ('alpha', ) == OrderedTable([], order_by='alpha').order_by == table.order_by
-
-    # let's check the data
-    table = OrderedTable(MEMORY_DATA, order_by='beta')
-    assert 3 == table.rows[0].get_cell('i')
-
-    table = OrderedTable(MEMORY_DATA, order_by='-beta')
-    assert 1 == table.rows[0].get_cell('i')
-
-    # allow fallback to Table.Meta.order_by
-    table = OrderedTable(MEMORY_DATA)
-    assert 1 == table.rows[0].get_cell('i')
-
-    # column's can't be ordered if they're not allowed to be
-    class TestTable2(tables.Table):
-        a = tables.Column(orderable=False)
-        b = tables.Column()
-
-    table = TestTable2([], order_by='a')
-    assert table.order_by == ()
-
-    table = TestTable2([], order_by='b')
-    assert table.order_by == ('b', )
-
-    # ordering disabled by default
-    class TestTable3(tables.Table):
-        a = tables.Column(orderable=True)
-        b = tables.Column()
-
-        class Meta:
-            orderable = False
-
-    table = TestTable3([], order_by='a')
-    assert table.order_by == ('a', )
-
-    table = TestTable3([], order_by='b')
-    assert table.order_by == ()
-
-    table = TestTable3([], orderable=True, order_by='b')
-    assert table.order_by == ('b', )
-
-
-def test_ordering_different_types():
-    from datetime import datetime
-
-    data = [
-        {'i': 1, 'alpha': datetime.now(), 'beta': [1]},
-        {'i': {}, 'alpha': None, 'beta': ''},
-        {'i': 2, 'alpha': None, 'beta': []},
-    ]
-
-    table = OrderedTable(data)
-    assert "—" == table.rows[0].get_cell('alpha')
-
-    table = OrderedTable(data, order_by='i')
-    if six.PY3:
-        assert {} == table.rows[0].get_cell('i')
-    else:
-        assert 1 == table.rows[0].get_cell('i')
-
-    table = OrderedTable(data, order_by='beta')
-    assert [] == table.rows[0].get_cell('beta')
-
-
-def test_multi_column_ordering():
-    brad = {'first_name': 'Bradley', 'last_name': 'Ayers'}
-    brad2 = {'first_name': 'Bradley', 'last_name': 'Fake'}
-    chris = {'first_name': 'Chris', 'last_name': 'Doble'}
-    davina = {'first_name': 'Davina', 'last_name': 'Adisusila'}
-    ross = {'first_name': 'Ross', 'last_name': 'Ayers'}
-
-    people = [brad, brad2, chris, davina, ross]
-
-    class PersonTable(tables.Table):
-        first_name = tables.Column()
-        last_name = tables.Column()
-
-    table = PersonTable(people, order_by=('first_name', 'last_name'))
-    assert [brad, brad2, chris, davina, ross] == [r.record for r in table.rows]
-
-    table = PersonTable(people, order_by=('first_name', '-last_name'))
-    assert [brad2, brad, chris, davina, ross] == [r.record for r in table.rows]
-
-    # let's try column order_by using multiple keys
-    class PersonTable(tables.Table):
-        name = tables.Column(order_by=('first_name', 'last_name'))
-
-    # add 'name' key for each person.
-    for person in people:
-        person['name'] = '{p[first_name]} {p[last_name]}'.format(p=person)
-    assert brad['name'] == 'Bradley Ayers'
-
-    table = PersonTable(people, order_by='name')
-    assert [brad, brad2, chris, davina, ross] == [r.record for r in table.rows]
-
-    table = PersonTable(people, order_by='-name')
-    assert [ross, davina, chris, brad2, brad] == [r.record for r in table.rows]
-
+# @pytest.mark.django_db
+# def test_should_support_haystack_data_source():
+#     Person.objects.create(first_name='Foo', last_name='Bar')
+#     Person.objects.create(first_name='Brad', last_name='Pitt')
+#
+#     from haystack.query import SearchQuerySet
+#     from haystack.management.commands import update_index
+#
+#     update_index.Command().handle(interactive=False)
+#
+#     class PersonTable(tables.Table):
+#         first_name = tables.Column()
+#
+#     table = PersonTable(SearchQuerySet().all())
+#     html = table.as_html(request)
+#
+#     # TODO: assert that a person is actually in the produced html.
+#     assert 'Brad' in html
+#
 
 def test_column_count():
     class SimpleTable(tables.Table):
@@ -370,20 +239,20 @@ def test_exclude_columns():
     columns originally.
     '''
     table = UnorderedTable([], exclude=('i'))
-    assert [c.name for c in table.columns] == ['alpha', 'beta']
+    assert table.columns.names() == ['alpha', 'beta']
 
     # Table.Meta: exclude=...
     class PartialTable(UnorderedTable):
         class Meta:
             exclude = ('alpha', )
     table = PartialTable([])
-    assert [c.name for c in table.columns] == ['i', 'beta']
+    assert table.columns.names() == ['i', 'beta']
 
     # Inheritence -- exclude in parent, add in child
     class AddonTable(PartialTable):
         added = tables.Column()
     table = AddonTable([])
-    assert [c.name for c in table.columns] == ['i', 'beta', 'added']
+    assert table.columns.names() == ['i', 'beta', 'added']
 
     # Inheritence -- exclude in child
     class ExcludeTable(UnorderedTable):
@@ -393,7 +262,7 @@ def test_exclude_columns():
             exclude = ('beta', )
 
     table = ExcludeTable([])
-    assert [c.name for c in table.columns] == ['i', 'alpha', 'added']
+    assert table.columns.names() == ['i', 'alpha', 'added']
 
 
 def test_table_exclude_property_should_override_constructor_argument():
@@ -402,14 +271,14 @@ def test_table_exclude_property_should_override_constructor_argument():
         b = tables.Column()
 
     table = SimpleTable([], exclude=('b', ))
-    assert [c.name for c in table.columns] == ['a']
+    assert table.columns.names() == ['a']
     table.exclude = ('a', )
-    assert [c.name for c in table.columns] == ['b']
+    assert table.columns.names() == ['b']
 
 
 def test_exclude_should_work_on_sequence_too():
     '''
-    It should be possible to define a sequence on a table and excluded
+    It should be possible to define a sequence on a table
     and exclude it in a child of that table.
     '''
     class PersonTable(tables.Table):
@@ -418,12 +287,20 @@ def test_exclude_should_work_on_sequence_too():
         occupation = tables.Column()
 
         class Meta:
-            model = Person
             sequence = ('first_name', 'last_name', 'occupation')
 
     class AnotherPersonTable(PersonTable):
         class Meta(PersonTable.Meta):
             exclude = ('first_name', 'last_name')
+
+    tableA = PersonTable([])
+    assert tableA.columns.names() == ['first_name', 'last_name', 'occupation']
+
+    tableB = AnotherPersonTable([])
+    assert tableB.columns.names() == ['occupation']
+
+    tableC = PersonTable([], exclude=('first_name'))
+    assert tableC.columns.names() == ['last_name', 'occupation']
 
 
 def test_pagination():
@@ -433,7 +310,7 @@ def test_pagination():
     # create some sample data
     data = []
     for i in range(100):
-        data.append({"name": "Book No. %d" % i})
+        data.append({'name': 'Book No. %d' % i})
     books = BookTable(data)
 
     # external paginator
@@ -445,7 +322,7 @@ def test_pagination():
 
     # integrated paginator
     books.paginate(page=1)
-    assert hasattr(books, "page") is True
+    assert hasattr(books, 'page') is True
 
     books.paginate(page=1, per_page=10)
     assert len(list(books.page.object_list)) == 10
@@ -643,116 +520,93 @@ def test_table_defaults_are_honored():
     assert table.rows[0].get_cell('name') == 'efgh'
 
 
-def test_list_table_data_supports_ordering():
+AS_VALUES_DATA = [
+    {'name': 'Adrian', 'country': 'Australia'},
+    {'name': 'Adrian', 'country': 'Brazil'},
+    {'name': 'Audrey', 'country': 'Chile'},
+    {'name': 'Bassie', 'country': 'Belgium'},
+]
+
+
+def test_as_values():
     class Table(tables.Table):
         name = tables.Column()
+        country = tables.Column()
 
-    data = [
-        {'name': 'Bradley'},
-        {'name': 'Davina'},
-    ]
+    expected = [['Name', 'Country']] + [[r['name'], r['country']] for r in AS_VALUES_DATA]
+    table = Table(AS_VALUES_DATA)
 
-    table = Table(data)
-    assert table.rows[0].get_cell('name') == 'Bradley'
-    table.order_by = '-name'
-    assert table.rows[0].get_cell('name') == 'Davina'
+    assert list(table.as_values()) == expected
 
 
-def test_sorting_non_database_data():
+def test_as_values_exclude():
+    class Table(tables.Table):
+        name = tables.Column()
+        country = tables.Column()
+
+    expected = [['Name']] + [[r['name']] for r in AS_VALUES_DATA]
+    table = Table(AS_VALUES_DATA)
+
+    assert list(table.as_values(exclude_columns=('country', ))) == expected
+
+
+def test_as_values_exclude_from_export():
+    class Table(tables.Table):
+        name = tables.Column()
+        buttons = tables.Column(exclude_from_export=True)
+
+    assert list(Table([]).as_values()) == [['Name'], ]
+
+
+def test_as_values_empty_values():
+    '''
+    Table's as_values() method returns `None` for missing values
+    '''
+
     class Table(tables.Table):
         name = tables.Column()
         country = tables.Column()
 
     data = [
-        {'name': 'Adrian', 'country': 'Australia'},
         {'name': 'Adrian', 'country': 'Brazil'},
-        {'name': 'Audrey', 'country': 'Chile'},
+        {'name': 'Audrey'},
         {'name': 'Bassie', 'country': 'Belgium'},
+        {'country': 'France'},
     ]
-    table = Table(data, order_by=('-name', '-country'))
-
-    assert table.rows[0].get_cell('name') == 'Bassie'
-    assert table.rows[1].get_cell('name') == 'Audrey'
-    assert table.rows[2].get_cell('name') == 'Adrian'
-    assert table.rows[2].get_cell('country') == 'Brazil'
-    assert table.rows[3].get_cell('name') == 'Adrian'
-    assert table.rows[3].get_cell('country') == 'Australia'
+    expected = [['Name', 'Country']] + [[r.get('name'), r.get('country')] for r in data]
+    table = Table(data)
+    assert list(table.as_values()) == expected
 
 
-def test_table_ordering_attributes():
+def test_as_values_render_FOO():
+
     class Table(tables.Table):
-        alpha = tables.Column()
-        beta = tables.Column()
+        name = tables.Column()
+        country = tables.Column()
 
-    table = Table(MEMORY_DATA, attrs={
-        'th': {
-            'class': 'custom-header-class',
-            '_ordering': {
-                'orderable': 'sortable',
-                'ascending': 'ascend',
-                'descending': 'descend',
-            },
-        },
-    }, order_by='alpha')
+        def render_country(self, value):
+            return value + ' test'
 
-    assert 'sortable' in table.columns[0].attrs['th']['class']
-    assert 'ascend' in table.columns[0].attrs['th']['class']
-    assert 'custom-header-class' in table.columns[1].attrs['th']['class']
+    expected = [['Name', 'Country']] + [[r['name'], r['country'] + ' test'] for r in AS_VALUES_DATA]
+
+    assert list(Table(AS_VALUES_DATA).as_values()) == expected
 
 
-def test_table_ordering_attributes_in_meta():
+def test_as_values_value_FOO():
+
     class Table(tables.Table):
-        alpha = tables.Column()
-        beta = tables.Column()
+        name = tables.Column()
+        country = tables.Column()
 
-        class Meta(OrderedTable.Meta):
-            attrs = {
-                'th': {
-                    'class': 'custom-header-class-in-meta',
-                    '_ordering': {
-                        'orderable': 'sortable',
-                        'ascending': 'ascend',
-                        'descending': 'descend',
-                    },
-                }
-            }
+        def render_country(self, value):
+            return value + ' test'
 
-    table = Table(MEMORY_DATA)
+        def value_country(self, value):
+            return value + ' different'
 
-    assert 'sortable' in table.columns[0].attrs['th']['class']
-    assert 'ascend' in table.columns[0].attrs['th']['class']
-    assert 'custom-header-class-in-meta' in table.columns[1].attrs['th']['class']
+    expected = [['Name', 'Country']] + [[r['name'], r['country'] + ' different'] for r in AS_VALUES_DATA]
 
-
-def test_column_ordering_attributes():
-    class Table(tables.Table):
-        alpha = tables.Column(attrs={
-            'th': {
-                'class': 'custom-header-class',
-                '_ordering': {
-                    'orderable': 'sort',
-                    'ascending': 'ascending'
-                }
-            }
-        })
-        beta = tables.Column(attrs={
-            'th': {
-                '_ordering': {
-                    'orderable': 'canOrder',
-                }
-            },
-            'td': {
-                'class': 'cell-2'
-            }
-        })
-
-    table = Table(MEMORY_DATA, attrs={'class': 'only-on-table'}, order_by='alpha')
-
-    assert 'only-on-table' not in table.columns[0].attrs['th']['class']
-    assert 'custom-header-class' in table.columns[0].attrs['th']['class']
-    assert 'ascending' in table.columns[0].attrs['th']['class']
-    assert 'sort' in table.columns[0].attrs['th']['class']
-    assert 'canOrder' in table.columns[1].attrs['th']['class']
+    assert list(Table(AS_VALUES_DATA).as_values()) == expected
 
 
 def test_row_attrs():
@@ -779,3 +633,23 @@ def test_row_attrs_in_meta():
 
     table = Table(MEMORY_DATA)
     assert table.rows[0].attrs == {'class': 'row-id-2 even'}
+
+
+def test_td_attrs_from_table():
+    class Table(tables.Table):
+        alpha = tables.Column()
+        beta = tables.Column()
+
+        class Meta:
+            attrs = {
+                'td': {
+                    'data-column-name': lambda column: column.name
+                }
+            }
+    table = Table(MEMORY_DATA)
+    html = table.as_html(request)
+    td = parse(html).find('.//tbody/tr[1]/td[1]')
+    assert td.attrib == {
+        'data-column-name': 'alpha',
+        'class': 'alpha'
+    }

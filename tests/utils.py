@@ -1,3 +1,4 @@
+import re
 import warnings
 from contextlib import contextmanager
 
@@ -9,7 +10,8 @@ from django.utils import six
 
 
 def parse(html):
-    return lxml.etree.fromstring(html)
+    # We use html instead of etree. Because etree can't parse html entities.
+    return lxml.html.fromstring(html)
 
 
 class assertNumQueries(object):
@@ -46,12 +48,12 @@ def attrs(xml):
 @contextmanager
 def warns(warning_class):
     with warnings.catch_warnings(record=True) as ws:
-        warnings.simplefilter("always")
+        warnings.simplefilter('always')
         yield ws
         assert any((issubclass(w.category, DeprecationWarning) for w in ws))
 
 
-def build_request(uri='/'):
+def build_request(uri='/', user=None):
     '''
     Return a fresh HTTP GET / request.
 
@@ -59,7 +61,7 @@ def build_request(uri='/'):
     `~django.test.client.RequestFactory`.
     '''
     path, _, querystring = uri.partition('?')
-    return WSGIRequest({
+    request = WSGIRequest({
         'CONTENT_TYPE': 'text/html; charset=utf-8',
         'PATH_INFO': path,
         'QUERY_STRING': querystring,
@@ -77,3 +79,11 @@ def build_request(uri='/'):
         'wsgi.multithread': False,
         'wsgi.run_once': False,
     })
+    if user is not None:
+        request.user = user
+    return request
+
+
+def clean_output(s):
+    '''Remove double newlines with whitespace in between and reduce the level of indentation'''
+    return re.sub('\n( *\n)+', '\n', s).replace('    ', '  ')

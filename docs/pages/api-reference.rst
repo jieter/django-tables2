@@ -17,7 +17,10 @@ API Reference
 --------
 
 .. autoclass:: django_tables2.tables.Table
-    :members: paginate, as_html, get_column_class_names
+    :members: paginate, as_html, as_values, get_column_class_names,
+              before_render,
+              get_top_pinned_data, get_bottom_pinned_data,
+              get_column_class_names
 
 
 `.Table.Meta`
@@ -197,7 +200,7 @@ API Reference
             This functionality is also available via the ``order_by`` keyword
             argument to a table's constructor.
 
-    sequence (iteralbe): The sequence of the table columns.
+    sequence (iterable): The sequence of the table columns.
         This allows the default order of columns (the order they were defined
         in the Table) to be overridden.
 
@@ -257,6 +260,7 @@ API Reference
 ---------
 
 .. autoclass:: django_tables2.columns.Column
+    :members: render, value, order
 
 
 `.BooleanColumn`
@@ -300,10 +304,22 @@ API Reference
     :members:
 
 
+`.JSONColumn`
+-------------
+
+.. autoclass:: django_tables2.columns.JSONColumn
+    :members:
+
 `.LinkColumn`
 -------------
 
 .. autoclass:: django_tables2.columns.LinkColumn
+    :members:
+
+`.ManyToManyColumn`
+-------------------
+
+.. autoclass:: django_tables2.columns.ManyToManyColumn
     :members:
 
 `.RelatedLinkColumn`
@@ -337,6 +353,18 @@ API Reference
 ------------------
 
 .. autoclass:: django_tables2.views.MultiTableMixin
+    :members:
+
+`.export.TableExport`
+---------------------
+
+.. autoclass:: django_tables2.export.TableExport
+    :members:
+
+`.export.ExportMixin`
+---------------------
+
+.. autoclass:: django_tables2.export.ExportMixin
     :members:
 
 

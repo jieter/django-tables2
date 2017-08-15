@@ -121,6 +121,8 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'app',
 
+    'django_filters',
+    'bootstrap3',
     'django_tables2',
     'debug_toolbar',
 )
