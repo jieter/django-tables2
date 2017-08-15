@@ -9,12 +9,20 @@ from django.shortcuts import render
 
 import django_tables2 as tables
 from django_tables2.config import RequestConfig
-from django_tables2.export.export import TableExport
-from django_tables2.export.views import ExportMixin
 
 from ..app.models import Occupation, Person, Region
 from ..test_views import DispatchHookMixin
 from ..utils import build_request
+
+try:
+    from tablib import Dataset
+    from django_tables2.export.export import TableExport
+    from django_tables2.export.views import ExportMixin
+except ImportError:
+    pass
+
+pytest.importorskip('tablib')
+
 
 NAMES = [
     ('Yildiz', 'van der Kuil'),
