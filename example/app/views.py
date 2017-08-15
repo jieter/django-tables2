@@ -12,6 +12,7 @@ from django_tables2.export.views import ExportMixin
 from .filters import PersonFilter
 from .models import Country, Person
 from .tables import BootstrapTable, CountryTable, PersonTable, SemanticTable, ThemedCountryTable
+from .data import COUNTRIES
 
 try:
     from django.urls import reverse
@@ -29,6 +30,10 @@ def create_fake_data():
             for i in range(50)
         ])
 
+    if Country.objects.all().count() < 50:
+        for country in COUNTRIES.splitlines():
+            name, population = country.split(';')
+            Country.objects.create(name=name, visits=0, population=int(population))
 
 def index(request):
     create_fake_data()
