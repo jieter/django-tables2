@@ -9,10 +9,10 @@ from django_filters.views import FilterView
 from django_tables2 import MultiTableMixin, RequestConfig, SingleTableView
 from django_tables2.export.views import ExportMixin
 
+from .data import COUNTRIES
 from .filters import PersonFilter
 from .models import Country, Person
 from .tables import BootstrapTable, CountryTable, PersonTable, SemanticTable, ThemedCountryTable
-from .data import COUNTRIES
 
 try:
     from django.urls import reverse
