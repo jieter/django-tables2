@@ -23,6 +23,11 @@ except ImportError:
 
 def create_fake_data():
     # create some fake data to make sure we need to paginate
+    if Country.objects.all().count() < 50:
+        for country in COUNTRIES.splitlines():
+            name, population = country.split(';')
+            Country.objects.create(name=name, visits=0, population=int(population))
+
     if Person.objects.all().count() < 50:
         countries = list(Country.objects.all()) + [None]
         Person.objects.bulk_create([
@@ -30,10 +35,6 @@ def create_fake_data():
             for i in range(50)
         ])
 
-    if Country.objects.all().count() < 50:
-        for country in COUNTRIES.splitlines():
-            name, population = country.split(';')
-            Country.objects.create(name=name, visits=0, population=int(population))
 
 def index(request):
     create_fake_data()
