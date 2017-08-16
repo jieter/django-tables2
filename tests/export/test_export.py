@@ -14,14 +14,14 @@ from ..app.models import Occupation, Person, Region
 from ..test_views import DispatchHookMixin
 from ..utils import build_request
 
+# Skip if tablib is not installed (required for debian packaging)
+pytest.importorskip('tablib')
+
 try:
-    from tablib import Dataset
     from django_tables2.export.export import TableExport
     from django_tables2.export.views import ExportMixin
-except ImportError:
+except ImproperlyConfigured:
     pass
-
-pytest.importorskip('tablib')
 
 
 NAMES = [
