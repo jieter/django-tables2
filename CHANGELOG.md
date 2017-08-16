@@ -1,6 +1,8 @@
 # Change log
 
 ## master (unreleased)
+ - Added Hungarian translation [#471](https://github.com/bradleyayers/django-tables2/pull/471) by [@hmikihth](https://github.com/hmikihth).
+ - 
 
 ## 1.10.0 (2017-06-30)
  - Added `ManyToManyColumn` automatically added for `ManyToManyField`s.
