@@ -2,7 +2,7 @@
 
 ## master (unreleased)
  - Added Hungarian translation [#471](https://github.com/bradleyayers/django-tables2/pull/471) by [@hmikihth](https://github.com/hmikihth).
- - 
+ - Added TemplateColumn.value() and enhanced export docs (fixes [#470](https://github.com/bradleyayers/django-tables2/issues/470))
 
 ## 1.10.0 (2017-06-30)
  - Added `ManyToManyColumn` automatically added for `ManyToManyField`s.
