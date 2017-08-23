@@ -52,6 +52,23 @@ If you must use a function view, you might use someting like this::
             'table': table
         })
 
+What exacly is exported?
+------------------------
+
+The export views use the `.Table.as_values()` method to get the data from the table.
+Because we often use HTML in our table cells, we need to specify something else for the
+export to make sense.
+
+If you use :ref:`table.render_foo`-methods to customize the output for a column,
+you should define a :ref:`table.value_foo`-method, returning the value you want
+to be exported.
+
+If you are creating your own custom columns, you should know that each column
+defines a `value()` method, which is used in `Table.as_values()`.
+By default, it just calls the `render()` method on that column.
+If your custom column produces HTML, you should override this method and return
+the actual value.
+
 
 Excluding columns
 -----------------

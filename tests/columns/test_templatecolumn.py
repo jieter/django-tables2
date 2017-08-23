@@ -74,3 +74,12 @@ def test_should_support_value_with_curly_braces():
 
     table = Table([{'track': 'Beat it {Freestyle}'}])
     assert table.rows[0].get_cell('track') == 'track: Beat it {Freestyle}'
+
+
+def test_should_strip_tags_for_value():
+    class Table(tables.Table):
+        track = tables.TemplateColumn('<span>{{ value }}</span>')
+
+    table = Table([{'track': 'Space Oddity'}])
+
+    assert list(table.as_values()) == [['Track'], ['Space Oddity']]
