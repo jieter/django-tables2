@@ -25,7 +25,7 @@ Adding ability to export the table data to a class based views looks like this::
         template_name = 'django_tables2/bootstrap.html'
 
 
-Now, if you append ``_report=csv`` to the querystring, the browser will download
+Now, if you append ``_export=csv`` to the querystring, the browser will download
 a csv file containing your data. Supported export formats are:
 
     csv, json, latex, ods, tsv, xls, xlsx, yml
