@@ -420,10 +420,10 @@ class TableBase(object):
             force_text(column.header, strings_only=True)
             for column in self.columns if not excluded(column)
         ]
-        for r in self.rows:
+        for row in self.rows:
             yield [
-                force_text(r.get_cell_value(column.name), strings_only=True)
-                for column in r.table.columns if not excluded(column)
+                force_text(row.get_cell_value(column.name), strings_only=True)
+                for column in row.table.columns if not excluded(column)
             ]
 
     def has_footer(self):
