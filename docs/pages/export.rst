@@ -94,3 +94,28 @@ If you use the ``~.ExportMixin``, add an ``exclude_columns`` attribute to your c
         model = Person
         template_name = 'django_tables2/bootstrap.html'
         exclude_column = ('buttons', )
+
+
+Generating export urls
+----------------------
+
+You can use the ``querystring`` template tag included with django_tables2
+to render a link to export the data as ``csv``::
+
+    {% querystring '_export'='csv' %}
+
+This will make sure any other query string parameters will be preserved, for example
+in combination when filtering table items.
+
+If you want to render more than one button, you could use something like this::
+
+    {% for format in table.export_formats %}
+        <a href="{% querystring '_export'=format %}">
+            download  <code>.{{ format }}</code>
+        </a>
+    {% endfor %}
+
+.. note::
+
+    This example assumes you define a list of possible
+    export formats on your table instance in attribute ``export_formats``
