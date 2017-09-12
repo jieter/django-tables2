@@ -324,7 +324,12 @@ class BoundRows(object):
             yield pinned_record
 
     def __len__(self):
-        return len(self.data)
+        length = len(self.data)
+        pinned_top = self.pinned_data.get('top')
+        pinned_bottom = self.pinned_data.get('bottom')
+        length += 0 if pinned_top is None else len(pinned_top)
+        length += 0 if pinned_bottom is None else len(pinned_bottom)
+        return length
 
     def __getitem__(self, key):
         '''
