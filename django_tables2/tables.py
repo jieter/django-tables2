@@ -302,6 +302,9 @@ class TableBase(object):
         '''
         Return data for top pinned rows containing data for each row.
         Iterable type like: queryset, list of dicts, list of objects.
+        Having a non-zero number of pinned rows
+        will not result in an empty resultset message being rendered,
+        even if there are no regular data rows
 
         Returns:
             `None` (default) no pinned rows at the top, iterable, data for pinned rows at the top.
@@ -323,6 +326,9 @@ class TableBase(object):
         '''
         Return data for bottom pinned rows containing data for each row.
         Iterable type like: queryset, list of dicts, list of objects.
+        Having a non-zero number of pinned rows
+        will not result in an empty resultset message being rendered,
+        even if there are no regular data rows
 
         Returns:
             `None` (default) no pinned rows at the bottom, iterable, data for pinned rows at the bottom.

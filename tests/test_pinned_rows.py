@@ -150,7 +150,7 @@ def test_bound_rows_getitem():
     '''
     Testing BoundRows.__getitem__() method.
     Checking the return class for simple value and for slice.
-    Ensure that inside of BoundRows pinned rows are not exist.
+    Ensure that inside of BoundRows pinned rows are included in length.
     '''
     records = [
         {'name': 'Greg', 'age': 30, 'occupation': 'policeman'},
@@ -162,7 +162,7 @@ def test_bound_rows_getitem():
     assert isinstance(table.rows[0], BoundRow) is True
     assert isinstance(table.rows[0:2], BoundRows) is True
     assert table.rows[0:2][0].get_cell('name') == 'Greg'
-    assert len(table.rows[:]) == 3
+    assert len(table.rows[:]) == 6
 
 
 def test_uniterable_pinned_data():
