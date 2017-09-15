@@ -102,6 +102,14 @@ class SingleTableMixin(TableMixinBase):
     def get_table_kwargs(self):
         '''
         Return the keyword arguments for instantiating the table.
+
+        Allows passing customized arguments to the table constructor, for example, to remove the buttons column,
+        you could define this method in your View::
+
+            def get_table_kwargs(self):
+                return {
+                    'exclude': ('buttons', )
+                }
         '''
         return {}
 
