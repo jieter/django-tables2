@@ -8,6 +8,7 @@ import django_tables2 as tables
 
 from ..utils import build_request
 
+
 def test_should_render_in_pinned_row():
     class TestOnlyPinnedTable(tables.Table):
         foo = tables.TemplateColumn('value={{ value }}')
@@ -29,6 +30,7 @@ def test_should_render_in_pinned_row():
     html = template.render(Context({'request': build_request(), 'table': table}))
 
     assert '<td class="foo">value=bar</td>' in html
+
 
 def test_should_handle_context_on_table():
     class TestTable(tables.Table):
