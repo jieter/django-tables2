@@ -5,8 +5,8 @@ from django.db import models
 from django.db.models.fields import FieldDoesNotExist
 from django.utils import six
 
-from .columns.linkcolumn import BaseLinkColumn
 from .columns import TemplateColumn
+from .columns.linkcolumn import BaseLinkColumn
 from .utils import A, AttributeDict, call_with_appropriate, computed_values
 
 
