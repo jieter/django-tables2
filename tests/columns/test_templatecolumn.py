@@ -8,6 +8,27 @@ import django_tables2 as tables
 
 from ..utils import build_request
 
+def test_should_render_in_pinned_row():
+    class TestOnlyPinnedTable(tables.Table):
+        foo = tables.TemplateColumn('value={{ value }}')
+
+        def __init__(self, data):
+            self.pinned = data
+            revised_data = []
+
+            super(TestOnlyPinnedTable, self).__init__(revised_data)
+
+        def get_top_pinned_data(self):
+            return self.pinned
+
+    table = TestOnlyPinnedTable([{'foo': 'bar'}])
+    for row in table.rows:
+        assert row.get_cell('foo') == 'value=bar'
+
+    template = Template('{% load django_tables2 %}{% render_table table %}')
+    html = template.render(Context({'request': build_request(), 'table': table}))
+
+    assert '<td class="foo">value=bar</td>' in html
 
 def test_should_handle_context_on_table():
     class TestTable(tables.Table):
