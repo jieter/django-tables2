@@ -30,7 +30,14 @@ a csv file containing your data. Supported export formats are:
 
     csv, json, latex, ods, tsv, xls, xlsx, yml
 
-If you must use a function view, you might use someting like this::
+To customize the name of the query parameter add an ``export_trigger_param``
+attribute to your class.
+
+By default, the file will be named ``table.ext``, where ``ext`` is the requested
+export format extension. To customize this name, add a ``export_name`` attribute
+to your class. The correct extension will be appended automatically to this value.
+
+If you must use a function view, you might use something like this::
 
     from django_tables2.config import RequestConfig
     from django_tables2.export.export import TableExport
