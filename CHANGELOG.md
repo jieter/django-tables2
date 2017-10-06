@@ -1,5 +1,9 @@
 # Change log
 
+## master
+ - Allow export filename customization [#484](https://github.com/bradleyayers/django-tables2/pull/484) by [@federicobond](https://github.com/federicobond)
+ -
+
 ## 1.11.0
  - Added Hungarian translation [#471](https://github.com/bradleyayers/django-tables2/pull/471) by [@hmikihth](https://github.com/hmikihth).
  - Added TemplateColumn.value() and enhanced export docs (fixes [#470](https://github.com/bradleyayers/django-tables2/issues/470))
