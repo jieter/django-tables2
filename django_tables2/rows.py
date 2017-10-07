@@ -5,7 +5,6 @@ from django.db import models
 from django.db.models.fields import FieldDoesNotExist
 from django.utils import six
 
-from .columns import TemplateColumn
 from .columns.linkcolumn import BaseLinkColumn
 from .utils import A, AttributeDict, call_with_appropriate, computed_values
 
@@ -253,28 +252,6 @@ class BoundPinnedRow(BoundRow):
         ])
         row_attrs['class'] = css_class
         return AttributeDict(row_attrs)
-
-    def _get_and_render_with(self, name, render_func, default):
-        '''
-        Get raw value from record for render in table.
-        This value using by render_func.
-
-        Arguments:
-            name: String describing a path from one object to another.
-            render_func: Only for compatibility - not used.
-
-        Return:
-            object: Raw value from record for single cell.
-        '''
-
-        bound_column = self.table.columns[name]
-
-        if isinstance(bound_column.column, TemplateColumn):
-            return super(BoundPinnedRow, self)._get_and_render_with(name, render_func, default)
-        else:
-            accessor = A(name)
-            value = accessor.resolve(context=self._record, quiet=True) or default
-            return value
 
 
 class BoundRows(object):
