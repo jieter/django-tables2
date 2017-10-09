@@ -111,15 +111,13 @@ _Full disclosure: as of april 1st, 2017, I am an employee of [Zostera](http://zo
 - table footers (#323)
 - Non-field based `LinkColumn` only renders default value if lookup fails. (#322)
 - Accept `text` parameter in `BaseLinkColumn`-based columns. (#322)
-- Pass the table instance into SingleTableMixin's get_table_pagination (#320 by [@georgema1982](https://github.com/georgema1982), fixes #319)
+- Pass the table instance into SingleTableMixin's `get_table_pagination` (#320 by [@georgema1982](https://github.com/georgema1982), fixes #319)
 - Check if the view has `paginate_by` before before trying to access it. (fixes #326)
 
 ## v1.2.0 (2016-05-02)
 - Allow custom attributes for rows (fixes #47)
 
 ## v1.1.8 (2016-05-02)
-- Pass the table instance into `SingleTableMixin.get_table_pagination()` (#320 by
-(@georgema1982)[https://github.com/georgema1982])
 - Ability to change the body of the `<a>`-tag, by passing `text` kwarg to the columns inheriting from BaseLinkColumn (#318 by [@desecho](https://github.com/desecho), #322)
 - Non-field based LinkColumn only renders default value if lookup fails and text is not set. (#322, fixes #257)
 
