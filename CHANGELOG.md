@@ -1,10 +1,10 @@
 # Change log
 
-## master
+## 1.12.0 (2017-10-10)
  - Allow export filename customization [#484](https://github.com/bradleyayers/django-tables2/pull/484) by [@federicobond](https://github.com/federicobond)
  - Fixed a bug where template columns were not rendered for pinned rows ([#483](https://github.com/bradleyayers/django-tables2/pull/483) by [@khirstinova](https://github.com/khirstinova), fixes [#482](https://github.com/bradleyayers/django-tables2/issues/482))
 
-## 1.11.0
+## 1.11.0 (2017-09-15)
  - Added Hungarian translation [#471](https://github.com/bradleyayers/django-tables2/pull/471) by [@hmikihth](https://github.com/hmikihth).
  - Added TemplateColumn.value() and enhanced export docs (fixes [#470](https://github.com/bradleyayers/django-tables2/issues/470))
  - Fixed display of pinned rows if table has no data. [#477](https://github.com/bradleyayers/django-tables2/pull/477) by [@khirstinova](https://github.com/khirstinova)
