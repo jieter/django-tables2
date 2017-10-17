@@ -79,7 +79,7 @@ class SingleTableMixin(TableMixinBase):
         sorting and pagination.
         '''
         table_class = self.get_table_class()
-        table = table_class(self.get_table_data(), **kwargs)
+        table = table_class(data=self.get_table_data(), **kwargs)
         RequestConfig(self.request, paginate=self.get_table_pagination(table)).configure(table)
         return table
 
