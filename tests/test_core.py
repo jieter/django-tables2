@@ -34,11 +34,9 @@ class OrderedTable(UnorderedTable):
 
 
 def test_omitting_data():
-
     with pytest.raises(TypeError):
         UnorderedTable()
 
-    UnorderedTable()
 
 def test_column_named_items():
     '''
