@@ -152,6 +152,7 @@ class TableBase(object):
 
     Arguments:
         data (queryset, list of dicts): The data to display.
+            This is a required variable, a `TypeError` will be raised if it's not passed.
 
         order_by: (tuple or str): The default ordering tuple or comma separated str.
             A hyphen `-` can be used to prefix a column name to indicate
@@ -211,12 +212,17 @@ class TableBase(object):
         extra_columns (str, `.Column`): list of `(name, column)`-tuples containing
             extra columns to add to the instance.
     '''
-    def __init__(self, data, order_by=None, orderable=None, empty_text=None,
+    def __init__(self, data=None, order_by=None, orderable=None, empty_text=None,
                  exclude=None, attrs=None, row_attrs=None, pinned_row_attrs=None,
                  sequence=None, prefix=None, order_by_field=None, page_field=None,
                  per_page_field=None, template=None, default=None, request=None,
                  show_header=None, show_footer=True, extra_columns=None):
         super(TableBase, self).__init__()
+
+        # note that although data is a keyword argument, it used to be positional
+        # so it is assumed to be the first argument to this method.
+        if data is None:
+            raise TypeError('data argument to {} is required'.format(__class__))
 
         self.exclude = exclude or self._meta.exclude
         self.sequence = sequence
