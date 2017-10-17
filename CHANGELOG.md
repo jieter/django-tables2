@@ -1,7 +1,7 @@
 # Change log
 
-## master
- - Made `data` argument to the table `__init__()` a keyword argument to make inheritance easier. Will raise a `TypeError` if not passed.
+## 1.23.0 (2017-10-17)
+ - Made `data` argument to the table `__init__()` a keyword argument to make inheritance easier. Will raise a `TypeError` if ommitted.
 
 ## 1.12.0 (2017-10-10)
  - Allow export filename customization [#484](https://github.com/bradleyayers/django-tables2/pull/484) by [@federicobond](https://github.com/federicobond)
