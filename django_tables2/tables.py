@@ -222,7 +222,7 @@ class TableBase(object):
         # note that although data is a keyword argument, it used to be positional
         # so it is assumed to be the first argument to this method.
         if data is None:
-            raise TypeError('data argument to {} is required'.format(__class__))
+            raise TypeError('Argument data to {} is required'.format(type(self).__name__))
 
         self.exclude = exclude or self._meta.exclude
         self.sequence = sequence
