@@ -5,8 +5,8 @@ from django.shortcuts import render
 from django.utils.lorem_ipsum import words
 from django.views.generic.base import TemplateView
 
-from django_filters.views import FilterView
-from django_tables2 import MultiTableMixin, RequestConfig, SingleTableView
+from django_filters.views import FilterView, FilterMixin
+from django_tables2 import MultiTableMixin, RequestConfig, SingleTableView, SingleTableMixin
 from django_tables2.export.views import ExportMixin
 
 from .data import COUNTRIES
@@ -136,7 +136,7 @@ def tutorial(request):
     return render(request, 'tutorial.html', {'people': Person.objects.all()})
 
 
-class FilteredPersonListView(FilterView, ExportMixin, SingleTableView):
+class FilteredPersonListView(SingleTableMixin, FilterView):
     table_class = PersonTable
     model = Person
     template_name = 'bootstrap_template.html'
