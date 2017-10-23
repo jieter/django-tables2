@@ -339,3 +339,22 @@ def test_bootstrap_responsive_template():
 
     pager = './/ul/li[@class="cardinality"]/small'
     assert root.find(pager).text.strip() == 'Page 1 of 2'
+
+
+def test_render_forloop():
+    """Check is forloop exist in template context"""
+    rows = [{}, {}, {}]
+
+    class Table(tables.Table):
+        column = tables.TemplateColumn("{{ forloop.counter }}")
+
+    table = Table(rows)
+    request = build_request('/')
+    RequestConfig(request).configure(table)
+
+    template = Template('{% load django_tables2 %}{% render_table table %}')
+    html = template.render(Context({'request': request, 'table': table}))
+
+    assert '<td class="name">1</td>' in html
+    assert '<td class="name">2</td>' in html
+    assert '<td class="name">3</td>' in html
