@@ -1,5 +1,8 @@
 # Change log
 
+## 1.14.1 (2017-10-30)
+ - Do not fail if `orderable=False` is passed to `ManyToManyColumn()`
+
 ## 1.14.0 (2017-10-30)
  - Added `separator` argument to `ManyToManyColumn`.
  - Allow `mark_safe()`'d strings from `ManyToManyColumn.tranform()`
