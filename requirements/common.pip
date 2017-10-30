@@ -6,4 +6,4 @@ pytz>0
 pytest
 pytest-django
 pytest-cov
-tablib<0.11.4
+tablib==0.11.4
