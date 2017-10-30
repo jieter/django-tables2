@@ -51,7 +51,9 @@ class ManyToManyColumn(Column):
             self.filter = filter
         self.separator = separator
 
-        super(ManyToManyColumn, self).__init__(orderable=False, *args, **kwargs)
+        kwargs.setdefault('orderable', False)
+
+        super(ManyToManyColumn, self).__init__(*args, **kwargs)
 
     def transform(self, obj):
         '''

@@ -92,6 +92,13 @@ def test_transform_returns_html():
             assert Person.objects.filter(first_name=stripped).exists()
 
 
+def test_orderable_is_false():
+    class Table(tables.Table):
+        friends = tables.ManyToManyColumn(orderable=False)
+
+    Table([])
+
+
 def test_ManyToManyColumn_complete_example():
     create_Persons()
 
