@@ -13,10 +13,10 @@ def generator(max_value):
 
 
 def test_TableListData_basic_list():
-    l = list(generator(100))
-    data = TableListData(l, object())
+    list_data = list(generator(100))
+    data = TableListData(list_data, object())
 
-    assert len(l) == len(data)
+    assert len(list_data) == len(data)
     assert data.verbose_name == 'item'
     assert data.verbose_name_plural == 'items'
 
@@ -30,9 +30,9 @@ def test_TableListData_with_verbose_name():
         verbose_name = 'unit'
         verbose_name_plural = 'units'
 
-    l = listlike(generator(100))
-    data = TableListData(l, object())
+    list_data = listlike(generator(100))
+    data = TableListData(list_data, object())
 
-    assert len(data) == len(l)
+    assert len(list_data) == len(data)
     assert data.verbose_name == 'unit'
     assert data.verbose_name_plural == 'units'
