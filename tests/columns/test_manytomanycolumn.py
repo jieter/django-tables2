@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 from random import randint, sample
 
 import pytest
-from django.utils.html import mark_safe
+from django.utils.html import format_html, mark_safe, strip_tags
 
 import django_tables2 as tables
 from tests.app.models import Person
@@ -76,6 +76,20 @@ def test_custom_separator():
     # html tag, would normally be escaped, but should not be escaped because
     # it is mark_safe()'ed
     assert_sep(mark_safe('<br />'))
+
+
+def test_transform_returns_html():
+    create_Persons()
+
+    class Table(tables.Table):
+        friends = tables.ManyToManyColumn(transform=lambda m: format_html('<span>{}</span>', m.first_name))
+
+    table = Table(Person.objects.all().order_by('last_name'))
+    for row in table.rows:
+        friends = row.get_cell('friends').split(', ')
+        for friend in friends:
+            stripped = strip_tags(friend)
+            assert Person.objects.filter(first_name=stripped).exists()
 
 
 def test_ManyToManyColumn_complete_example():

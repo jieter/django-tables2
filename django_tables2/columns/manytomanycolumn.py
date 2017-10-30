@@ -72,7 +72,9 @@ class ManyToManyColumn(Column):
             return '-'
 
         return mark_safe(
-            conditional_escape(self.separator).join(map(self.transform, self.filter(value)))
+            conditional_escape(self.separator).join(
+                map(conditional_escape, map(self.transform, self.filter(value)))
+            )
         )
 
     @classmethod
