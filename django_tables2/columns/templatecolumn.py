@@ -22,9 +22,10 @@ class TemplateColumn(Column):
     A `~django.template.Template` object is created from the
     *template_code* or *template_name* and rendered with a context containing:
 
-    - *record*  -- data record for the current row
-    - *value*   -- value from `record` that corresponds to the current column
-    - *default* -- appropriate default value to use as fallback
+    - *record*      -- data record for the current row
+    - *value*       -- value from `record` that corresponds to the current column
+    - *default*     -- appropriate default value to use as fallback
+    - *row_counter* -- The number of the row this cell is being rendered in.
 
     Example:
 
@@ -55,7 +56,8 @@ class TemplateColumn(Column):
             'default': bound_column.default,
             'column': bound_column,
             'record': record,
-            'value': value
+            'value': value,
+            'row_counter': kwargs['bound_row'].row_counter
         })
 
         try:

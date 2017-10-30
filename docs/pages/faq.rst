@@ -44,34 +44,8 @@ How to create a row counter?
 You can use `itertools.counter` to add row count to a table. Note that in a
 paginated table, every page's counter will start at zero.
 
-Use a `render_counter()`-method::
-
-    import itertools
-
     class CountryTable(tables.Table):
-        counter = tables.Column(empty_values=(), orderable=False)
-
-        def render_counter(self):
-            self.row_counter = getattr(self, 'row_counter', itertools.count())
-            return next(self.row_counter)
-
-
-
-Or create a specialized column::
-
-    import itertools
-
-    class CounterColumn(tables.Column):
-        def __init__(self, *args, **kwargs):
-            self.counter = itertools.count()
-            kwargs.update({
-                'empty_values': (),
-                'orderable': False
-            })
-            super(CounterColumn, self).__init__(*args, **kwargs)
-
-        def render(self):
-            return next(self.counter)
+        counter = tables.TemplateColumn('{{ row_counter }}')
 
 
 How to add a footer containing a column total?
