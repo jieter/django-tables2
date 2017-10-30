@@ -1,5 +1,8 @@
 # Change log
 
+## 1.14.2 (2017-10-30)
+ - Added a `row_counter` variable to the template context in `TemplateColumn` (fixes [#448](https://github.com/jieter/django-tables2/issues/488))
+
 ## 1.14.1 (2017-10-30)
  - Do not fail if `orderable=False` is passed to `ManyToManyColumn()`
 
