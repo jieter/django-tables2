@@ -50,10 +50,11 @@ def token_kwargs(bits, parser):
 
 
 class QuerystringNode(Node):
-    def __init__(self, updates, removals):
+    def __init__(self, updates, removals, asvar=None):
         super(QuerystringNode, self).__init__()
         self.updates = updates
         self.removals = removals
+        self.asvar = asvar
 
     def render(self, context):
         if 'request' not in context:
@@ -65,12 +66,20 @@ class QuerystringNode(Node):
             value = value.resolve(context)
             if key not in ('', None):
                 params[key] = value
+        print 'removals', self.removals
         for removal in self.removals:
             params.pop(removal.resolve(context), None)
-        return escape('?' + urlencode(params, doseq=True))
+        value = escape('?' + urlencode(params, doseq=True))
+
+        if self.asvar:
+            context[str(self.asvar)] = value
+            return ''
+        else:
+            return value
 
 
 # {% querystring "name"="abc" "age"=15 %}
+# {% querystring "name"="abc" "age"=15 as='qs' %}
 @register.tag
 def querystring(parser, token):
     '''
@@ -84,17 +93,22 @@ def querystring(parser, token):
         ?name=Ayers&gender=male&age=20
         {% querystring "name"="Ayers" without "gender" %}
         ?name=Ayers
-
     '''
     bits = token.split_contents()
     tag = bits.pop(0)
+    asvar = None
     updates = token_kwargs(bits, parser)
+    for key in updates:
+        if str(key) == 'as':
+            asvar = str(updates[key])
+            del updates[key]
+
     # ``bits`` should now be empty of a=b pairs, it should either be empty, or
     # have ``without`` arguments.
     if bits and bits.pop(0) != 'without':
         raise TemplateSyntaxError("Malformed arguments to '%s'" % tag)
     removals = [parser.compile_filter(bit) for bit in bits]
-    return QuerystringNode(updates, removals)
+    return QuerystringNode(updates, removals, asvar=asvar)
 
 
 class RenderTableNode(Node):

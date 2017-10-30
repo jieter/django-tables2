@@ -164,6 +164,41 @@ def test_querystring_syntax_error():
         Template('{% load django_tables2 %}{% querystring foo= %}')
 
 
+def test_querystring_as_var():
+
+    def assert_querystring_asvar(template_code, expected):
+        template = Template(
+            '{% load django_tables2 %}' +
+            '<b>{% querystring ' + template_code + ' %}</b>' +
+            '<strong>{{ varname }}</strong>'
+        )
+
+        # Should be something like: <root>?name=Brad&amp;a=b&amp;c=5&amp;age=21</root>
+        xml = template.render(Context({
+            'request': build_request('/?a=b'),
+            'foo': {'bar': 'age'},
+            'value': 21,
+        }))
+        assert '<b></b>' in xml
+        qs = parse(xml).xpath('.//strong')[0].text[1:]
+        print qs, expected
+        assert parse_qs(qs) == expected
+
+    assert_querystring_asvar(
+        '"name"="Brad" foo.bar=value as=varname',
+        dict(name=['Brad'], a=['b'], age=['21'])
+    )
+    assert_querystring_asvar(
+        '"name"="Brad" as=varname foo.bar=value',
+        dict(name=['Brad'], a=['b'], age=['21'])
+    )
+    assert_querystring_asvar(
+        '"name"="Brad" as=varname foo.bar=value without a',
+        dict(name=['Brad'], age=['21'])
+    )
+
+
+
 def test_title_should_only_apply_to_words_without_uppercase_letters():
     expectations = {
         'a brown fox': 'A Brown Fox',
