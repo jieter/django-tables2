@@ -41,7 +41,7 @@ class ManyToManyColumn(Column):
         # tables.py
         class PersonTable(tables.Table):
             name = tables.Column(order_by=('last_name', 'first_name'))
-            friends = tables.ManyToManyColumn(transform=lamda user: u.name)
+            friends = tables.ManyToManyColumn(transform=lambda user: u.name)
 
     '''
     def __init__(self, transform=None, filter=None, separator=', ', *args, **kwargs):
