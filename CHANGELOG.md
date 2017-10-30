@@ -1,5 +1,10 @@
 # Change log
 
+## 1.14.0 (2017-10-30)
+ - Added `separator` argument to `ManyToManyColumn`.
+ - Allow `mark_safe()`'d strings from `ManyToManyColumn.tranform()`
+ - Disabled ordering on `ManyToManyColumns` by default.
+
 ## 1.13.0 (2017-10-17)
  - Made positional `data` argument to the table `__init__()` a keyword argument to make inheritance easier. Will raise a `TypeError` if ommitted.
 
