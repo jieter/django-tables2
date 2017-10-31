@@ -10,9 +10,9 @@ from django.shortcuts import render
 import django_tables2 as tables
 from django_tables2.config import RequestConfig
 
-from ..app.models import Occupation, Person, Region
-from ..test_views import DispatchHookMixin
-from ..utils import build_request
+from .app.models import Occupation, Person, Region
+from .test_views import DispatchHookMixin
+from .utils import build_request
 
 # Skip if tablib is not installed (required for debian packaging)
 pytest.importorskip('tablib')
