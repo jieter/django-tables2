@@ -1,3 +1,5 @@
+.. _api-public:
+
 API Reference
 =============
 

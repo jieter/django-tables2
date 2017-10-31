@@ -1,37 +1,47 @@
 Tutorial
 ~~~~~~~~
 
-This is a step-by-step guide to learn how to install and use django-tables2.
+This is a step-by-step guide to learn how to install and use django-tables2 using Django 1.11.
 
 1. ``pip install django-tables2``
-2. Add ``'django_tables2'`` to ``INSTALLED_APPS``
-3. Add ``'django.template.context_processors.request'`` to the ``context_processors`` in your template setting ``OPTIONS``.
+2. Start a new Django app using `python manage.py startapp tutorial`
+3. Add both ``'django_tables2'`` and ``'tutorial'`` to your ``INSTALLED_APPS`` setting in ``settings.py``.
 
-
-We are going to run through creating a tutorial app. Let's start with a simple model::
+Now, add a model to your ``tutorial/models.py``::
 
     # tutorial/models.py
     class Person(models.Model):
-        name = models.CharField(verbose_name="full name")
+        name = models.CharField(max_length=100, verbose_name='full name')
 
-Add some data so you have something to display in the table. Now write a view
-to pass a ``Person`` queryset into a template::
+Create the database tables for the newly added model::
+
+    $ python manage.py makemigrations tutorial
+    $ python manage.py migrate tutorial
+
+Add some data so you have something to display in the table::
+
+    $ python manage.py shell
+    >>> from tutorial.models import Person
+    >>> Person.objects.bulk_create([Person(name='Jieter'), Person(name='Bradley')])
+    [<Person: Person object>, <Person: Person object>]
+
+Now write a view to pass a ``Person`` queryset into a template::
 
     # tutorial/views.py
     from django.shortcuts import render
+    from .models import Person
 
     def people(request):
-        return render(request, 'people.html', {'people': Person.objects.all()})
+        return render(request, 'tutorial/people.html', {'people': Person.objects.all()})
 
-Finally, implement the template::
+Finally, create the template::
 
-    {# tutorial/templates/people.html #}
+    {# tutorial/templates/tutorial/people.html #}
     {% load render_table from django_tables2 %}
-    {% load static %}
     <!doctype html>
     <html>
         <head>
-            <link rel="stylesheet" href="{% static 'django_tables2/themes/paleblue/css/screen.css' %}" />
+            <title>List of persons</title>
         </head>
         <body>
             {% render_table people %}
@@ -44,7 +54,7 @@ Hook the view up in your URLs, and load the page, you should see:
     :align: center
     :alt: An example table rendered using django-tables2
 
-While simple, passing a queryset directly to ``{% render_table %}`` doesn't
+While simple, passing a queryset directly to ``{% render_table %}`` does not
 allow for any customisation. For that, you must define a custom `.Table` class::
 
     # tutorial/tables.py
@@ -54,11 +64,10 @@ allow for any customisation. For that, you must define a custom `.Table` class::
     class PersonTable(tables.Table):
         class Meta:
             model = Person
-            # add class="paleblue" to <table> tag
-            attrs = {'class': 'paleblue'}
+            template = 'django_tables2/bootstrap.html'
 
 
-You'll then need to instantiate and configure the table in the view, before
+You will then need to instantiate and configure the table in the view, before
 adding it to the context::
 
     # tutorial/views.py
@@ -76,15 +85,34 @@ Using `.RequestConfig` automatically pulls values from ``request.GET`` and
 updates the table accordingly. This enables data ordering and pagination.
 
 Rather than passing a queryset to ``{% render_table %}``, instead pass the
-table instance:
+table instance::
 
-.. sourcecode:: django
+    {# tutorial/templates/tutorial/people.html #}
+    {% load render_table from django_tables2 %}
+    <!doctype html>
+    <html>
+        <head>
+            <title>List of persons</title>
+            <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
+        </head>
+        <body>
+            {% render_table table %}
+        </body>
+    </html>
 
-    {% render_table table %}
+This results in a table rendered with the bootstrap3 stylesheet:
 
-At this point you haven't actually customised anything, you've merely added the
-boilerplate code that ``{% render_table %}`` does for you when given a
-``QuerySet``. The remaining sections in this document describe how to change
-various aspects of the table.
+.. figure:: /_static/tutorial-bootstrap.png
+    :align: center
+    :alt: An example table rendered using django-tables2 with the bootstrap template
 
-TODO: insert links to various customisation options here.
+At this point you have not actually customised anything but the template.
+There are several topic you can read into to futher customize the table:
+
+- Table data
+    - :ref:`Populating the table with data <table_data>`,
+    - :ref:`Filtering table data <filtering>`
+- Custumizing the rendered table
+    - :ref:`Headers and footers <column-headers-and-footers>`
+    - :ref:`pinned_rows`
+- :ref:`api-public`

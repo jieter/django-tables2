@@ -1,3 +1,5 @@
+.. _filtering:
+
 Filtering data in your table
 ============================
 
