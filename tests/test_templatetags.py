@@ -181,22 +181,17 @@ def test_querystring_as_var():
         }))
         assert '<b></b>' in xml
         qs = parse(xml).xpath('.//strong')[0].text[1:]
-        print qs, expected
+        print(qs, expected)
         assert parse_qs(qs) == expected
 
-    assert_querystring_asvar(
-        '"name"="Brad" foo.bar=value as=varname',
-        dict(name=['Brad'], a=['b'], age=['21'])
-    )
-    assert_querystring_asvar(
-        '"name"="Brad" as=varname foo.bar=value',
-        dict(name=['Brad'], a=['b'], age=['21'])
-    )
-    assert_querystring_asvar(
-        '"name"="Brad" as=varname foo.bar=value without a',
-        dict(name=['Brad'], age=['21'])
+    tests = (
+        ('"name"="Brad" as=varname', dict(name=['Brad'], a=['b'])),
+        ('as=varname "name"="Brad"', dict(name=['Brad'], a=['b'])),
+        ('"name"="Brad" as=varname without "a" ', dict(name=['Brad']))
     )
 
+    for argstr, expected in tests:
+        assert_querystring_asvar(argstr, expected)
 
 
 def test_title_should_only_apply_to_words_without_uppercase_letters():

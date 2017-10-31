@@ -66,9 +66,9 @@ class QuerystringNode(Node):
             value = value.resolve(context)
             if key not in ('', None):
                 params[key] = value
-        print 'removals', self.removals
         for removal in self.removals:
             params.pop(removal.resolve(context), None)
+
         value = escape('?' + urlencode(params, doseq=True))
 
         if self.asvar:
@@ -78,8 +78,7 @@ class QuerystringNode(Node):
             return value
 
 
-# {% querystring "name"="abc" "age"=15 %}
-# {% querystring "name"="abc" "age"=15 as='qs' %}
+# {% querystring "name"="abc" "age"=15 as=qs %}
 @register.tag
 def querystring(parser, token):
     '''
@@ -89,6 +88,8 @@ def querystring(parser, token):
 
     Example (imagine URL is ``/abc/?gender=male&name=Brad``)::
 
+        # {% querystring "name"="abc" "age"=15 %}
+        ?name=abc&gender=male&age=15
         {% querystring "name"="Ayers" "age"=20 %}
         ?name=Ayers&gender=male&age=20
         {% querystring "name"="Ayers" without "gender" %}
@@ -96,12 +97,18 @@ def querystring(parser, token):
     '''
     bits = token.split_contents()
     tag = bits.pop(0)
-    asvar = None
     updates = token_kwargs(bits, parser)
+
+    asvar_key = None
     for key in updates:
         if str(key) == 'as':
-            asvar = str(updates[key])
-            del updates[key]
+            asvar_key = key
+
+    if asvar_key is not None:
+        asvar = updates[asvar_key]
+        del updates[asvar_key]
+    else:
+        asvar = None
 
     # ``bits`` should now be empty of a=b pairs, it should either be empty, or
     # have ``without`` arguments.
