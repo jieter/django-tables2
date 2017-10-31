@@ -198,6 +198,29 @@ def render_table(parser, token):
     return RenderTableNode(table, template)
 
 
+RE_UPPERCASE = re.compile('[A-Z]')
+
+
+@register.filter
+@stringfilter
+def table_page_range(num_pages, arg):
+    page_number = int(arg)
+    page_range = 10
+    num_pages = int(num_pages)
+    if num_pages <= page_range:
+        range_start = 1
+        range_end = num_pages + 1
+    else:
+        range_start = page_number - int(page_range / 2)
+        if range_start < 1:
+            range_start = 1
+        range_end = range_start + page_range
+        if range_end >= num_pages:
+            range_start = num_pages - page_range + 1
+            range_end = num_pages + 1
+    return range(range_start, range_end)
+
+
 @register.filter
 @stringfilter
 def title(value):

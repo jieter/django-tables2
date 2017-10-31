@@ -62,8 +62,18 @@
             <li class="previous">
                 <a href="{% querystring table.prefixed_page_field=table.page.previous_page_number %}">{% trans "Previous" %}</a>
             </li>
+            <li class="first">
+                <a href="{% querystring table.prefixed_page_field=1 %}">{% trans "First" %}</a>
+            </li>
         {% endblock pagination.previous %}
     {% endif %}
+{% block pagination.allpages %}
+    {% for p in table.paginator.num_pages|table_page_range:table.page.number %}
+        <li class="{%  if table.page.number == p %} active {%endif%}">
+            <a href="{% querystring table.prefixed_page_field=p %}">{{ p }}</a>
+        </li>
+    {% endfor %}
+{% endblock pagination.allpages %}
 
     {% if table.page.has_previous or table.page.has_next %}
         {% block pagination.cardinality %}
@@ -75,13 +85,18 @@
 
     {% if table.page.has_next %}
         {% block pagination.next %}
+            <li class="last">
+                <a href="{% querystring table.prefixed_page_field=table.paginator.num_pages %}">{% trans "Last" %}</a>
+            </li>
             <li class="next">
                 <a href="{% querystring table.prefixed_page_field=table.page.next_page_number %}">{% trans "Next" %}</a>
             </li>
         {% endblock pagination.next %}
     {% endif %}
 </ul>
+
 {% endblock pagination %}
+
 {% endwith %}
 {% endwith %}
 {% endif %}
