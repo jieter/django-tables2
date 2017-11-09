@@ -1,3 +1,5 @@
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fjieter%2Fdjango-tables2.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fjieter%2Fdjango-tables2?ref=badge_shield)
+
 django-tables2 - An app for creating HTML tables
 ------------------------------------------------
 
@@ -80,3 +82,7 @@ And finally in the template:
 
 This example shows one of the simplest cases, but django-tables2 can do a lot more!
 Check out the `documentation <https://django-tables2.readthedocs.io/en/latest/>`_ for more details.
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fjieter%2Fdjango-tables2.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fjieter%2Fdjango-tables2?ref=badge_large)
