@@ -34,6 +34,19 @@ Now write a view to pass a ``Person`` queryset into a template::
     def people(request):
         return render(request, 'tutorial/people.html', {'people': Person.objects.all()})
 
+Add the view to your ``urls.py``::
+
+    # urls.py
+    from django.conf.urls import url
+    from django.contrib import admin
+
+    from tutorial.views import people
+
+    urlpatterns = [
+        url(r'^admin/', admin.site.urls),
+        url(r'^people/', people)
+    ]
+
 Finally, create the template::
 
     {# tutorial/templates/tutorial/people.html #}
@@ -48,7 +61,8 @@ Finally, create the template::
         </body>
     </html>
 
-Hook the view up in your URLs, and load the page, you should see:
+You should be able to load the page in the browser (http://localhost:8000/people/ by default),
+you should see:
 
 .. figure:: /_static/tutorial.png
     :align: center
