@@ -1,8 +1,7 @@
 import itertools
 
-from bs4 import BeautifulSoup
-
 import django_tables2 as tables
+from bs4 import BeautifulSoup
 
 from .utils import build_request
 
