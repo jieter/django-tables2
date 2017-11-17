@@ -4,6 +4,8 @@
  - Added `as=varname` keyword argument to the `{% querystring %}` template tag,
    fixes [#481](https://github.com/jieter/django-tables2/issues/481)
  - Updated the tutorial to reflect current state of Django a bit better
+ - Added `tf` dictionary to `Column.attrs` with default values for the footer,
+   so footers now have `class` attribute by default
 
 ## 1.14.2 (2017-10-30)
  - Added a `row_counter` variable to the template context in `TemplateColumn` (fixes [#448](https://github.com/jieter/django-tables2/issues/488))
