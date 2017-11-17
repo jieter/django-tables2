@@ -25,18 +25,23 @@ a hook that allows arbitrary attributes to be added to the ``<table>`` tag.
     >>> # renders to something like this:
     '<table class="mytable">...'
 
-How about styling individual columns then? django-tables2 has you covered.
-Ever single column gets a class attribute, which by default is the same
-as the column's label. So every row of the ``SimpleTable()`` from previous
-example will look like:
+Also every column gets a class attribute, which by default is the same as the
+column's label. Also, by default, odd rows' class is ``odd`` and even rows'
+class is ``even``. So rows of the ``SimpleTable()`` from previous example
+in django-tables2 default configuration will look like:
 
 .. sourcecode:: html
 
-    <tr>
+    <tr class="odd">
       <td class="id">...</td>
       <td class="age">...</td>
     </tr>
-    
+    <tr class="even">
+      <td class="id">...</td>
+      <td class="age">...</td>
+    </tr>
+
+
 You can also specify ``attrs`` attribute when creating a column. django-tables2
 supports 3 different dictionaries, this way you can give different attributes
 to column tags in table header (``th``), rows (``td``) or footer (``tf``)
@@ -54,7 +59,7 @@ to column tags in table header (``th``), rows (``td``) or footer (``tf``)
     ...
     >>> table = SimpleTable()
     >>> # renders to something like this:
-    '<tr><td class="my-class">...</td></tr>'
+    '<tbody><tr><td class="my-class">...</td></tr>'
     >>> # and the footer will look like this:
     '<tfoot><tr> ... <td class="age" bgcolor="red"></tr></tfoot>''
 
