@@ -297,9 +297,10 @@ class BoundColumn(object):
         '''
         Proxy to `.Column.attrs` but injects some values of our own.
 
-        A ``th`` and ``td`` are guaranteed to be defined (irrespective of
-        what's actually defined in the column attrs. This makes writing
-        templates easier.
+        A ``th``, ``td`` and ``tf`` are guaranteed to be defined (irrespective
+        of what's actually defined in the column attrs. This makes writing
+        templates easier. ``tf`` is not actually a HTML tag, but this key name
+        will be used for attributes for column's footer, if the column has one.
         '''
         # Start with table's attrs; Only 'th' and 'td' attributes will be used
         attrs = dict(self._table.attrs)
@@ -316,14 +317,17 @@ class BoundColumn(object):
         }
         attrs['th'] = computed_values(attrs.get('th', cell_attrs), kwargs=kwargs)
         attrs['td'] = computed_values(attrs.get('td', cell_attrs), kwargs=kwargs)
+        attrs['tf'] = computed_values(attrs.get('tf', cell_attrs), kwargs=kwargs)
 
         # wrap in AttributeDict
         attrs['th'] = AttributeDict(attrs['th'])
         attrs['td'] = AttributeDict(attrs['td'])
+        attrs['tf'] = AttributeDict(attrs['tf'])
 
         # Override/add classes
         attrs['th']['class'] = self.get_th_class(attrs['th'])
         attrs['td']['class'] = self.get_td_class(attrs['td'])
+        attrs['tf']['class'] = self.get_td_class(attrs['tf'])
 
         return attrs
 

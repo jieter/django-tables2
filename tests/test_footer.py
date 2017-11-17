@@ -57,18 +57,17 @@ def test_footer_disable_on_table():
     assert table.has_footer() is False
 
 
-class SummingColumn(tables.Column):
-    def render_footer(self, bound_column, table):
-        return sum(bound_column.accessor.resolve(row) for row in table.data)
-
-
-class TestTable(tables.Table):
-    name = tables.Column()
-    country = tables.Column(footer='Total:')
-    population = SummingColumn()
-
-
 def test_footer_column_method():
+    class SummingColumn(tables.Column):
+        def render_footer(self, bound_column, table):
+            return sum(
+                bound_column.accessor.resolve(row) for row in table.data)
+
+    class TestTable(tables.Table):
+        name = tables.Column()
+        country = tables.Column(footer='Total:')
+        population = SummingColumn()
+
     table = TestTable(MEMORY_DATA)
     html = table.as_html(build_request('/'))
 
@@ -81,6 +80,16 @@ def test_footer_column_method():
 
 
 def test_footer_has_class():
+    class SummingColumn(tables.Column):
+        def render_footer(self, bound_column, table):
+            return sum(
+                bound_column.accessor.resolve(row) for row in table.data)
+
+    class TestTable(tables.Table):
+        name = tables.Column()
+        country = tables.Column(footer='Total:')
+        population = SummingColumn()
+
     table = TestTable(MEMORY_DATA)
     html = table.as_html(build_request('/'))
 
@@ -89,3 +98,24 @@ def test_footer_has_class():
     columns = row.find_all("td")
 
     assert "class" in columns[1].attrs
+
+
+def test_footer_custom_attriubtes():
+    class SummingColumn(tables.Column):
+        def render_footer(self, bound_column, table):
+            return sum(
+                bound_column.accessor.resolve(row) for row in table.data)
+
+    class TestTable(tables.Table):
+        name = tables.Column()
+        country = tables.Column(footer='Total:', attrs={'tf': {'align': 'right'}})
+        population = SummingColumn()
+
+    table = TestTable(MEMORY_DATA)
+    table.columns['country'].attrs['tf'] = {'align': 'right'}
+    html = table.as_html(build_request('/'))
+
+    soup = BeautifulSoup(html, "lxml")
+    row = soup.find("tfoot").tr
+    columns = row.find_all("td")
+    assert "align" in columns[1].attrs

@@ -1,5 +1,7 @@
 import itertools
 
+from bs4 import BeautifulSoup
+
 import django_tables2 as tables
 
 from .utils import build_request
@@ -44,4 +46,8 @@ def test_row_footer_total():
     table = CountryTable(TEST_DATA)
     html = table.as_html(build_request())
 
-    assert '<td>Total: 77740000</td>' in html
+    soup = BeautifulSoup(html, "lxml")
+    row = soup.find("tfoot").tr
+    columns = row.find_all("td")
+
+    assert columns[1].text == "Total: 77740000"
