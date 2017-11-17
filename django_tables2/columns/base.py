@@ -83,7 +83,7 @@ class Column(object):
             the data iterator returned from as_values().
         footer (str, callable): Defines the footer of this column. If a callable
             is passed, it can take optional keyword argumetns `column`,
-            `bound_colun` and `table`.
+            `bound_column` and `table`.
         order_by (str, tuple or `.Accessor`): Allows one or more accessors to be
             used for ordering rather than *accessor*.
         orderable (bool): If `False`, this column will not be allowed to
