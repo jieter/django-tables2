@@ -3,6 +3,7 @@ from __future__ import absolute_import, unicode_literals
 
 from django.db import models
 from django.utils.encoding import force_text
+from django.utils.html import conditional_escape, mark_safe
 
 from django_tables2.templatetags.django_tables2 import title
 
@@ -14,6 +15,8 @@ class ManyToManyColumn(Column):
     '''
     Display the list of objects from a `ManyRelatedManager`
 
+    Ordering is disabled for this column.
+
     Arguments:
         transform: callable to transform each item to text, it gets an item as argument
             and must return a string-like representation of the item.
@@ -21,6 +24,7 @@ class ManyToManyColumn(Column):
         filter: callable to filter, limit or order the QuerySet, it gets the
             `ManyRelatedManager` as first argument and must return.
             By default, it returns `all()``
+        separator: separator string to join the items with. default: ', '
 
     For example, when displaying a list of friends with their full name::
 
@@ -37,14 +41,17 @@ class ManyToManyColumn(Column):
         # tables.py
         class PersonTable(tables.Table):
             name = tables.Column(order_by=('last_name', 'first_name'))
-            friends = tables.ManyToManyColumn(transform=lamda user: u.name)
+            friends = tables.ManyToManyColumn(transform=lambda user: u.name)
 
     '''
-    def __init__(self, transform=None, filter=None, *args, **kwargs):
+    def __init__(self, transform=None, filter=None, separator=', ', *args, **kwargs):
         if transform is not None:
             self.transform = transform
         if filter is not None:
             self.filter = filter
+        self.separator = separator
+
+        kwargs.setdefault('orderable', False)
 
         super(ManyToManyColumn, self).__init__(*args, **kwargs)
 
@@ -62,10 +69,15 @@ class ManyToManyColumn(Column):
         return qs.all()
 
     def render(self, value):
+        # if value is None or not value.exists():
         if not value.exists():
             return '-'
 
-        return ', '.join(map(self.transform, self.filter(value)))
+        return mark_safe(
+            conditional_escape(self.separator).join(
+                map(conditional_escape, map(self.transform, self.filter(value)))
+            )
+        )
 
     @classmethod
     def from_field(cls, field):

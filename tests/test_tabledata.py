@@ -76,33 +76,3 @@ def test_tabledata_knows_its_name():
 
     assert data.verbose_name == 'person'
     assert data.verbose_name_plural == 'people'
-
-
-# def test_tabledata_is_untouched():
-#     '''
-#     Ensure that data that is provided to the table (the datasource) is not
-#     modified by table operations.
-#     '''
-#
-#     MEMORY_DATA = [
-#         {'i': 2, 'alpha': 'b', 'beta': 'b'},
-#         {'i': 1, 'alpha': 'a', 'beta': 'c'},
-#         {'i': 3, 'alpha': 'c', 'beta': 'a'},
-#     ]
-#
-#     class Table(tables.Table):
-#         i = tables.Column()
-#         alpha = tables.Column()
-#         beta = tables.Column()
-#
-#     original_data = deepcopy(MEMORY_DATA)
-#
-#     table = Table(MEMORY_DATA)
-#     table.order_by = 'i'
-#     list(table.rows)
-#     assert MEMORY_DATA == original_data
-#
-#     table = Table(MEMORY_DATA)
-#     table.order_by = 'beta'
-#     list(table.rows)
-#     assert MEMORY_DATA == original_data

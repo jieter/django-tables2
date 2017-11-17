@@ -161,7 +161,7 @@ def test_even_odd_css_class():
     assert count == 5
 
     # Important!
-    # Length of data is three because pinned rows are not added to data list.
-    # Pinned rows are added only in the iteration on BoundRows.
-    # First object from rows is not BoundPinnedRow but BoundRow.
-    assert len(simple_table.rows) == 3
+    # Length of data is five because pinned rows are added to data list.
+    # If pinned rows are added only in the iteration on BoundRows,
+    # then nothing will display if there are *only* pinned rows
+    assert len(simple_table.rows) == 5

@@ -1,4 +1,4 @@
-.. _table-data:
+.. _table_data:
 
 Populating a table with data
 ============================

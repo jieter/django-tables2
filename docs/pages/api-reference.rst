@@ -1,3 +1,5 @@
+.. _api-public:
+
 API Reference
 =============
 
@@ -255,114 +257,126 @@ API Reference
     unlocalize (str or tuple): Specifies which fields should be unlocalized in
         the table. Read :ref:`localization-control` for more information.
 
+Columns
+-------
 
 `.Column`
----------
+~~~~~~~~~
 
 .. autoclass:: django_tables2.columns.Column
     :members: render, value, order
 
 
 `.BooleanColumn`
-----------------
+~~~~~~~~~~~~~~~~
 
 .. autoclass:: django_tables2.columns.BooleanColumn
 
 
 `.CheckBoxColumn`
------------------
+~~~~~~~~~~~~~~~~~
 
 .. autoclass:: django_tables2.columns.CheckBoxColumn
     :members:
 
 
 `.DateColumn`
--------------
+~~~~~~~~~~~~~
 
 .. autoclass:: django_tables2.columns.DateColumn
     :members:
 
 
 `.DateTimeColumn`
------------------
+~~~~~~~~~~~~~~~~~
 
 .. autoclass:: django_tables2.columns.DateTimeColumn
     :members:
 
 
 `.EmailColumn`
---------------
+~~~~~~~~~~~~~~
 
 .. autoclass:: django_tables2.columns.EmailColumn
     :members:
 
 
 `.FileColumn`
--------------
+~~~~~~~~~~~~~
 
 .. autoclass:: django_tables2.columns.FileColumn
     :members:
 
 
 `.JSONColumn`
--------------
+~~~~~~~~~~~~~
 
 .. autoclass:: django_tables2.columns.JSONColumn
     :members:
 
 `.LinkColumn`
--------------
+~~~~~~~~~~~~~
 
 .. autoclass:: django_tables2.columns.LinkColumn
     :members:
 
 `.ManyToManyColumn`
--------------------
+~~~~~~~~~~~~~~~~~~~
 
 .. autoclass:: django_tables2.columns.ManyToManyColumn
     :members:
 
 `.RelatedLinkColumn`
---------------------
+~~~~~~~~~~~~~~~~~~~~
 
 .. autoclass:: django_tables2.columns.RelatedLinkColumn
     :members:
 
 
 `.TemplateColumn`
------------------
+~~~~~~~~~~~~~~~~~
 
 .. autoclass:: django_tables2.columns.TemplateColumn
     :members:
 
 
 `.URLColumn`
-------------
+~~~~~~~~~~~~
 
 .. autoclass:: django_tables2.columns.URLColumn
     :members:
 
+Views and view mixins
+---------------------
+
 `.SingleTableMixin`
--------------------
+~~~~~~~~~~~~~~~~~~~
 
 .. autoclass:: django_tables2.views.SingleTableMixin
     :members:
 
 
 `.MultiTableMixin`
-------------------
+~~~~~~~~~~~~~~~~~~
 
 .. autoclass:: django_tables2.views.MultiTableMixin
     :members:
 
+`.SingleTableView`
+~~~~~~~~~~~~~~~~~~
+
+.. autoclass:: django_tables2.views.SingleTableView
+    :members: get_table, get_table_kwargs
+
+
 `.export.TableExport`
----------------------
+~~~~~~~~~~~~~~~~~~~~~
 
 .. autoclass:: django_tables2.export.TableExport
     :members:
 
 `.export.ExportMixin`
----------------------
+~~~~~~~~~~~~~~~~~~~~~
 
 .. autoclass:: django_tables2.export.ExportMixin
     :members:

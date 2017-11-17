@@ -79,7 +79,7 @@ class SingleTableMixin(TableMixinBase):
         sorting and pagination.
         '''
         table_class = self.get_table_class()
-        table = table_class(self.get_table_data(), **kwargs)
+        table = table_class(data=self.get_table_data(), **kwargs)
         RequestConfig(self.request, paginate=self.get_table_pagination(table)).configure(table)
         return table
 
@@ -102,6 +102,14 @@ class SingleTableMixin(TableMixinBase):
     def get_table_kwargs(self):
         '''
         Return the keyword arguments for instantiating the table.
+
+        Allows passing customized arguments to the table constructor, for example, to remove the buttons column,
+        you could define this method in your View::
+
+            def get_table_kwargs(self):
+                return {
+                    'exclude': ('buttons', )
+                }
         '''
         return {}
 

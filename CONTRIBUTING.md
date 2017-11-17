@@ -15,7 +15,7 @@ With `tox` installed, you can run the test suite by typing `tox`.
 It will take care of installing the correct dependencies. During development,
 you might not want to wait for the tests to run in all environments.
 In that case, use the `-e` argument to specify an environment:
-`tox -e py27-1.9` to run the tests in python 2.7 with Django 1.9,
+`tox -e py27-1.11` to run the tests in python 2.7 with Django 1.11,
 or `PYTHONPATH=. py.test` to run the tests against your current environment (which is even quicker).
 
 ## Code coverage
@@ -39,6 +39,6 @@ Publishing a release
 --------------------
 
 1. Bump the version in `django-tables2/__init__.py`.
-2. Update CHANGELOG.md`.
-3. Create a tag `./setup.py tag` or `git tag -a v1.0.6 -m 'tagging v1.0.6'`
-4. Run `./setup.py publish` or `python setup.py sdist upload --sign --identity=<your gpg identity>`.
+2. Update `CHANGELOG.md`.
+3. Create a tag `./setup.py tag`.
+4. Run `./setup.py publish`

@@ -4,9 +4,12 @@ from __future__ import unicode_literals
 from random import randint, sample
 
 import pytest
+from django.utils.html import format_html, mark_safe, strip_tags
 
 import django_tables2 as tables
 from tests.app.models import Person
+
+pytestmark = pytest.mark.django_db
 
 FAKE_NAMES = (
     ('Kyle', 'Strader'),
@@ -30,7 +33,6 @@ def create_Persons():
         person.save()
 
 
-@pytest.mark.django_db
 def test_ManyToManyColumn_from_model():
     '''
     Automaticcally uses the ManyToManyColumn for a ManyToManyField, and calls the
@@ -54,8 +56,50 @@ def test_ManyToManyColumn_from_model():
             assert Person.objects.filter(first_name=friend).exists()
 
 
-@pytest.mark.django_db
-def test_ManyToManyColumn_complete_exmplae():
+def test_custom_separator():
+    create_Persons()
+
+    def assert_sep(sep):
+        class Table(tables.Table):
+            friends = tables.ManyToManyColumn(separator=sep)
+
+        table = Table(Person.objects.all().order_by('last_name'))
+        for row in table.rows:
+            friends = row.get_cell('friends').split(sep)
+
+            for friend in friends:
+                assert Person.objects.filter(first_name=friend).exists()
+
+    # normal string, will not be escaped
+    assert_sep('|')
+
+    # html tag, would normally be escaped, but should not be escaped because
+    # it is mark_safe()'ed
+    assert_sep(mark_safe('<br />'))
+
+
+def test_transform_returns_html():
+    create_Persons()
+
+    class Table(tables.Table):
+        friends = tables.ManyToManyColumn(transform=lambda m: format_html('<span>{}</span>', m.first_name))
+
+    table = Table(Person.objects.all().order_by('last_name'))
+    for row in table.rows:
+        friends = row.get_cell('friends').split(', ')
+        for friend in friends:
+            stripped = strip_tags(friend)
+            assert Person.objects.filter(first_name=stripped).exists()
+
+
+def test_orderable_is_false():
+    class Table(tables.Table):
+        friends = tables.ManyToManyColumn(orderable=False)
+
+    Table([])
+
+
+def test_ManyToManyColumn_complete_example():
     create_Persons()
 
     # add a friendless person

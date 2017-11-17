@@ -33,6 +33,11 @@ class OrderedTable(UnorderedTable):
         order_by = 'alpha'
 
 
+def test_omitting_data():
+    with pytest.raises(TypeError):
+        UnorderedTable()
+
+
 def test_column_named_items():
     '''
     A column named items must not make the table fail

@@ -9,6 +9,29 @@ import django_tables2 as tables
 from ..utils import build_request
 
 
+def test_should_render_in_pinned_row():
+    class TestOnlyPinnedTable(tables.Table):
+        foo = tables.TemplateColumn('value={{ value }}')
+
+        def __init__(self, data):
+            self.pinned = data
+            revised_data = []
+
+            super(TestOnlyPinnedTable, self).__init__(revised_data)
+
+        def get_top_pinned_data(self):
+            return self.pinned
+
+    table = TestOnlyPinnedTable([{'foo': 'bar'}])
+    for row in table.rows:
+        assert row.get_cell('foo') == 'value=bar'
+
+    template = Template('{% load django_tables2 %}{% render_table table %}')
+    html = template.render(Context({'request': build_request(), 'table': table}))
+
+    assert '<td class="foo">value=bar</td>' in html
+
+
 def test_should_handle_context_on_table():
     class TestTable(tables.Table):
         col_code = tables.TemplateColumn(template_code='code:{{ record.col }}-{{ foo }}')
@@ -74,3 +97,12 @@ def test_should_support_value_with_curly_braces():
 
     table = Table([{'track': 'Beat it {Freestyle}'}])
     assert table.rows[0].get_cell('track') == 'track: Beat it {Freestyle}'
+
+
+def test_should_strip_tags_for_value():
+    class Table(tables.Table):
+        track = tables.TemplateColumn('<span>{{ value }}</span>')
+
+    table = Table([{'track': 'Space Oddity'}])
+
+    assert list(table.as_values()) == [['Track'], ['Space Oddity']]

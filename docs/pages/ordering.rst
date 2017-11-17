@@ -119,3 +119,30 @@ This can be achieved like this::
                 amount=F('shirts') + F('pants')
             ).order_by(('-' if is_descending else '') + 'amount')
             return (queryset, True)
+
+
+Using :meth:`Column.order` on custom columns
+--------------------------------------------
+
+If you created a custom column, which also requires custom ordering like
+explained above, you can add the body of your ``order_foo`` method to the
+order method on your custom column, to allow easier reuse.
+
+For example, the `PersonTable` from above could also be defined like this::
+
+    class ClothingColumn(tables.Column):
+        def render(self, record):
+            return str(record.shirts + record.pants)
+
+        def order(self, queryset, is_descending):
+            queryset = queryset.annotate(
+                amount=F('shirts') + F('pants')
+            ).order_by(('-' if is_descending else '') + 'amount')
+            return (queryset, True)
+
+
+    class PersonTable(tables.Table):
+        clothing = ClothingColumn()
+
+        class Meta:
+            model = Person

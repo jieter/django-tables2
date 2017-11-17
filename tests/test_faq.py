@@ -24,33 +24,9 @@ def _test_counter(Table, expected='<td class="counter">0</td>'):
     return html
 
 
-def test_row_counter_using_render_method():
+def test_row_counter_using_templateColumn():
     class CountryTable(tables.Table):
-        counter = tables.Column(empty_values=(), orderable=False)
-        name = tables.Column()
-
-        def render_counter(self):
-            self.row_counter = getattr(self, 'row_counter', itertools.count())
-            return next(self.row_counter)
-
-    _test_counter(CountryTable)
-
-
-def test_row_counter_special_column():
-    class CounterColumn(tables.Column):
-        def __init__(self, *args, **kwargs):
-            self.counter = itertools.count()
-            kwargs.update({
-                'empty_values': (),
-                'orderable': False
-            })
-            super(CounterColumn, self).__init__(*args, **kwargs)
-
-        def render(self):
-            return next(self.counter)
-
-    class CountryTable(tables.Table):
-        counter = CounterColumn()
+        counter = tables.TemplateColumn('{{ row_counter }}')
         name = tables.Column()
 
     _test_counter(CountryTable)

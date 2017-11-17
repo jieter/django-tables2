@@ -10,9 +10,9 @@ from django.shortcuts import render
 import django_tables2 as tables
 from django_tables2.config import RequestConfig
 
-from ..app.models import Occupation, Person, Region
-from ..test_views import DispatchHookMixin
-from ..utils import build_request
+from .app.models import Occupation, Person, Region
+from .test_views import DispatchHookMixin
+from .utils import build_request
 
 # Skip if tablib is not installed (required for debian packaging)
 pytest.importorskip('tablib')
@@ -85,6 +85,34 @@ def test_view_should_support_json_export():
 
     response, view = View.as_view()(build_request('/?_export=json'))
     assert json.loads(response.getvalue().decode('utf8')) == EXPECTED_JSON
+
+
+@pytest.mark.django_db
+def test_view_should_support_custom_trigger_param():
+
+    class View(DispatchHookMixin, ExportMixin, tables.SingleTableView):
+        table_class = Table
+        export_trigger_param = 'export_to'
+        model = Person  # required for ListView
+
+    create_test_persons()
+
+    response, view = View.as_view()(build_request('/?export_to=json'))
+    assert json.loads(response.getvalue().decode('utf8')) == EXPECTED_JSON
+
+
+@pytest.mark.django_db
+def test_view_should_support_custom_filename():
+
+    class View(DispatchHookMixin, ExportMixin, tables.SingleTableView):
+        table_class = Table
+        export_name = 'people'
+        model = Person  # required for ListView
+
+    create_test_persons()
+
+    response, view = View.as_view()(build_request('/?_export=json'))
+    assert response['Content-Disposition'] == 'attachment; filename="people.json"'
 
 
 @pytest.mark.django_db

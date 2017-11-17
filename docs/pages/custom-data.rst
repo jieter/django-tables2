@@ -87,6 +87,8 @@ argument.
     a default value is rendered instead (both `.Column.render` and
     ``Table.render_FOO`` are skipped).
 
+.. _table.value_foo:
+
 `Table.value_foo` methods
 -------------------------
 
@@ -94,7 +96,7 @@ If you want to use `Table.as_values` to export your data, you might want to defi
 a method ``value_foo``, which is analogous to ``render_foo``, but used to render the
 values rather than the HTML output.
 
-Please refer to `~.Table.as_values` for an example.
+Please refer to `.Table.as_values` for an example.
 
 .. _subclassing-column:
 

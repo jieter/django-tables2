@@ -30,7 +30,14 @@ a csv file containing your data. Supported export formats are:
 
     csv, json, latex, ods, tsv, xls, xlsx, yml
 
-If you must use a function view, you might use someting like this::
+To customize the name of the query parameter add an ``export_trigger_param``
+attribute to your class.
+
+By default, the file will be named ``table.ext``, where ``ext`` is the requested
+export format extension. To customize this name, add a ``export_name`` attribute
+to your class. The correct extension will be appended automatically to this value.
+
+If you must use a function view, you might use something like this::
 
     from django_tables2.config import RequestConfig
     from django_tables2.export.export import TableExport
@@ -51,6 +58,23 @@ If you must use a function view, you might use someting like this::
         return render(request, 'table.html', {
             'table': table
         })
+
+What exacly is exported?
+------------------------
+
+The export views use the `.Table.as_values()` method to get the data from the table.
+Because we often use HTML in our table cells, we need to specify something else for the
+export to make sense.
+
+If you use :ref:`table.render_foo`-methods to customize the output for a column,
+you should define a :ref:`table.value_foo`-method, returning the value you want
+to be exported.
+
+If you are creating your own custom columns, you should know that each column
+defines a `value()` method, which is used in `Table.as_values()`.
+By default, it just calls the `render()` method on that column.
+If your custom column produces HTML, you should override this method and return
+the actual value.
 
 
 Excluding columns
@@ -77,3 +101,28 @@ If you use the ``~.ExportMixin``, add an ``exclude_columns`` attribute to your c
         model = Person
         template_name = 'django_tables2/bootstrap.html'
         exclude_column = ('buttons', )
+
+
+Generating export urls
+----------------------
+
+You can use the ``querystring`` template tag included with django_tables2
+to render a link to export the data as ``csv``::
+
+    {% querystring '_export'='csv' %}
+
+This will make sure any other query string parameters will be preserved, for example
+in combination when filtering table items.
+
+If you want to render more than one button, you could use something like this::
+
+    {% for format in table.export_formats %}
+        <a href="{% querystring '_export'=format %}">
+            download  <code>.{{ format }}</code>
+        </a>
+    {% endfor %}
+
+.. note::
+
+    This example assumes you define a list of possible
+    export formats on your table instance in attribute ``export_formats``

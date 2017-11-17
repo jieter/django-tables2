@@ -344,7 +344,7 @@ class Accessor(str):
                 if current is None:
                     break
             return current
-        except:
+        except Exception:
             if not quiet:
                 raise
 

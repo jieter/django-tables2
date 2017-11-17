@@ -1,8 +1,32 @@
 # Change log
 
-## master (unreleased)
+## master
+ - Added `as=varname` keyword argument to the `{% querystring %}` template tag,
+   fixes [#481](https://github.com/jieter/django-tables2/issues/481)
+ - Updated the tutorial to reflect current state of Django a bit better
+
+## 1.14.2 (2017-10-30)
+ - Added a `row_counter` variable to the template context in `TemplateColumn` (fixes [#448](https://github.com/jieter/django-tables2/issues/488))
+
+## 1.14.1 (2017-10-30)
+ - Do not fail if `orderable=False` is passed to `ManyToManyColumn()`
+
+## 1.14.0 (2017-10-30)
+ - Added `separator` argument to `ManyToManyColumn`.
+ - Allow `mark_safe()`'d strings from `ManyToManyColumn.tranform()`
+ - Disabled ordering on `ManyToManyColumns` by default.
+
+## 1.13.0 (2017-10-17)
+ - Made positional `data` argument to the table `__init__()` a keyword argument to make inheritance easier. Will raise a `TypeError` if ommitted.
+
+## 1.12.0 (2017-10-10)
+ - Allow export filename customization [#484](https://github.com/bradleyayers/django-tables2/pull/484) by [@federicobond](https://github.com/federicobond)
+ - Fixed a bug where template columns were not rendered for pinned rows ([#483](https://github.com/bradleyayers/django-tables2/pull/483) by [@khirstinova](https://github.com/khirstinova), fixes [#482](https://github.com/bradleyayers/django-tables2/issues/482))
+
+## 1.11.0 (2017-09-15)
  - Added Hungarian translation [#471](https://github.com/bradleyayers/django-tables2/pull/471) by [@hmikihth](https://github.com/hmikihth).
- - 
+ - Added TemplateColumn.value() and enhanced export docs (fixes [#470](https://github.com/bradleyayers/django-tables2/issues/470))
+ - Fixed display of pinned rows if table has no data. [#477](https://github.com/bradleyayers/django-tables2/pull/477) by [@khirstinova](https://github.com/khirstinova)
 
 ## 1.10.0 (2017-06-30)
  - Added `ManyToManyColumn` automatically added for `ManyToManyField`s.
@@ -106,15 +130,13 @@ _Full disclosure: as of april 1st, 2017, I am an employee of [Zostera](http://zo
 - table footers (#323)
 - Non-field based `LinkColumn` only renders default value if lookup fails. (#322)
 - Accept `text` parameter in `BaseLinkColumn`-based columns. (#322)
-- Pass the table instance into SingleTableMixin's get_table_pagination (#320 by [@georgema1982](https://github.com/georgema1982), fixes #319)
+- Pass the table instance into SingleTableMixin's `get_table_pagination` (#320 by [@georgema1982](https://github.com/georgema1982), fixes #319)
 - Check if the view has `paginate_by` before before trying to access it. (fixes #326)
 
 ## v1.2.0 (2016-05-02)
 - Allow custom attributes for rows (fixes #47)
 
 ## v1.1.8 (2016-05-02)
-- Pass the table instance into `SingleTableMixin.get_table_pagination()` (#320 by
-(@georgema1982)[https://github.com/georgema1982])
 - Ability to change the body of the `<a>`-tag, by passing `text` kwarg to the columns inheriting from BaseLinkColumn (#318 by [@desecho](https://github.com/desecho), #322)
 - Non-field based LinkColumn only renders default value if lookup fails and text is not set. (#322, fixes #257)
 

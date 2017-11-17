@@ -64,6 +64,8 @@ class BoundRow(object):
         self._record = record
         self._table = table
 
+        self.row_counter = next(table._counter)
+
     @property
     def table(self):
         '''
@@ -78,7 +80,7 @@ class BoundRow(object):
         Return:
             string: `even` for even records, `odd` otherwise.
         '''
-        return 'odd' if next(self._table._counter) % 2 else 'even'
+        return 'odd' if self.row_counter % 2 else 'even'
 
     @property
     def attrs(self):
@@ -253,22 +255,6 @@ class BoundPinnedRow(BoundRow):
         row_attrs['class'] = css_class
         return AttributeDict(row_attrs)
 
-    def _get_and_render_with(self, name, render_func, default):
-        '''
-        Get raw value from record for render in table.
-        This value using by render_func.
-
-        Arguments:
-            name: String describing a path from one object to another.
-            render_func: Only for compatibility - not used.
-
-        Return:
-            object: Raw value from record for single cell.
-        '''
-        accessor = A(name)
-        value = accessor.resolve(context=self._record, quiet=True) or default
-        return value
-
 
 class BoundRows(object):
     '''
@@ -324,7 +310,12 @@ class BoundRows(object):
             yield pinned_record
 
     def __len__(self):
-        return len(self.data)
+        length = len(self.data)
+        pinned_top = self.pinned_data.get('top')
+        pinned_bottom = self.pinned_data.get('bottom')
+        length += 0 if pinned_top is None else len(pinned_top)
+        length += 0 if pinned_bottom is None else len(pinned_bottom)
+        return length
 
     def __getitem__(self, key):
         '''

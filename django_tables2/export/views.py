@@ -10,10 +10,11 @@ class ExportMixin(object):
     `ExportMixin` looks for some attributes on the class to change it's behaviour:
 
     Attributes:
+        export_name (str): is the name of file that will be exported, without extension.
         export_trigger_param (str): is the name of the GET attribute used to trigger
             the export. It's value decides the export format, refer to
             `TableExport` for a list of available formats.
-        excude_columns (iterable): column names excluded from the export.
+        exclude_columns (iterable): column names excluded from the export.
             For example, one might want to exclude columns containing buttons from
             the export. Excluding columns from the export is also possible using the
             `exclude_from_export` argument to the `.Column` constructor::
@@ -22,11 +23,12 @@ class ExportMixin(object):
                     name = tables.Column()
                     buttons = tables.TemplateColumn(exclude_from_export=True, template_name=...)
     '''
+    export_name = 'table'
     export_trigger_param = '_export'
     exclude_columns = ()
 
     def get_export_filename(self, export_format):
-        return 'table.{}'.format(export_format)
+        return '{}.{}'.format(self.export_name, export_format)
 
     def create_export(self, export_format):
         exporter = TableExport(
