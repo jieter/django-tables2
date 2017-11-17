@@ -7,3 +7,4 @@ pytest
 pytest-django
 pytest-cov
 tablib==0.11.4
+BeautifulSoup4
