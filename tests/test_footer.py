@@ -1,4 +1,6 @@
 # coding: utf-8
+from bs4 import BeautifulSoup
+
 import django_tables2 as tables
 
 from .utils import build_request
@@ -34,8 +36,12 @@ def test_footer():
 
     html = table.as_html(build_request('/'))
 
-    assert '<td>Total:</td>' in html
-    assert '<td>18833000</td>' in html
+    soup = BeautifulSoup(html, "lxml")
+    row = soup.find("tfoot").tr
+    columns = row.find_all("td")
+
+    assert columns[1].text == "Total:"
+    assert columns[2].text == "18833000"
 
 
 def test_footer_disable_on_table():
@@ -51,18 +57,24 @@ def test_footer_disable_on_table():
     assert table.has_footer() is False
 
 
+class SummingColumn(tables.Column):
+    def render_footer(self, bound_column, table):
+        return sum(bound_column.accessor.resolve(row) for row in table.data)
+
+
+class TestTable(tables.Table):
+    name = tables.Column()
+    country = tables.Column(footer='Total:')
+    population = SummingColumn()
+
+
 def test_footer_column_method():
-
-    class SummingColumn(tables.Column):
-        def render_footer(self, bound_column, table):
-            return sum(bound_column.accessor.resolve(row) for row in table.data)
-
-    class Table(tables.Table):
-        name = tables.Column()
-        country = tables.Column(footer='Total:')
-        population = SummingColumn()
-
-    table = Table(MEMORY_DATA)
+    table = TestTable(MEMORY_DATA)
     html = table.as_html(build_request('/'))
-    assert '<td>Total:</td>' in html
-    assert '<td>18833000</td>' in html
+
+    soup = BeautifulSoup(html, "lxml")
+    row = soup.find("tfoot").tr
+    columns = row.find_all("td")
+
+    assert columns[1].text == "Total:"
+    assert columns[2].text == "18833000"
