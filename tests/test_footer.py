@@ -78,3 +78,14 @@ def test_footer_column_method():
 
     assert columns[1].text == "Total:"
     assert columns[2].text == "18833000"
+
+
+def test_footer_has_class():
+    table = TestTable(MEMORY_DATA)
+    html = table.as_html(build_request('/'))
+
+    soup = BeautifulSoup(html, "lxml")
+    row = soup.find("tfoot").tr
+    columns = row.find_all("td")
+
+    assert "class" in columns[1].attrs
