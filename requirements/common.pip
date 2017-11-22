@@ -1,7 +1,8 @@
 django-haystack>=2.6.1
+# mocks/stubs for tests
 fudge
+# xml parsing
 lxml
-pylint
 pytz>0
 pytest
 pytest-django
