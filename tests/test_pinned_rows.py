@@ -1,6 +1,5 @@
 # encoding: utf-8
 import pytest
-from django.db import models
 
 import django_tables2 as tables
 from django_tables2.rows import BoundRow, BoundRows

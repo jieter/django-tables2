@@ -5,9 +5,8 @@ from django.shortcuts import render
 from django.utils.lorem_ipsum import words
 from django.views.generic.base import TemplateView
 
-from django_filters.views import FilterMixin, FilterView
+from django_filters.views import FilterView
 from django_tables2 import MultiTableMixin, RequestConfig, SingleTableMixin, SingleTableView
-from django_tables2.export.views import ExportMixin
 
 from .data import COUNTRIES
 from .filters import PersonFilter

@@ -460,7 +460,7 @@ def test_computable_td_attrs_defined_in_column_class_attribute():
     class MyColumn(tables.Column):
         attrs = {
             'td': {
-                'data-test': lambda table: table.data[0].last_name
+                'data-test': lambda value: value
             }
         }
 
@@ -469,5 +469,30 @@ def test_computable_td_attrs_defined_in_column_class_attribute():
 
     table = Table(Person.objects.all())
     html = table.as_html(request)
-
     assert '<td data-test="Pietersz." class="last_name">' in html
+    assert '<td data-test="Jansen" class="last_name">' in html
+
+
+@pytest.mark.django_db
+def test_computable_td_attrs_defined_in_column_class_attribute_record():
+    Person.objects.create(first_name='Jan', last_name='Pietersz.')
+    Person.objects.create(first_name='Sjon', last_name='Jansen')
+
+    class PersonColumn(tables.Column):
+        attrs = {
+            'td': {
+                'data-first': lambda record: record.first_name,
+                'data-last': lambda record: record.last_name,
+            }
+        }
+
+        def render(self, record):
+            return '{} {}'.format(record.first_name, record.last_name)
+
+    class Table(tables.Table):
+        person = PersonColumn(empty_values=())
+
+    table = Table(Person.objects.all(), show_header=False)
+    html = table.as_html(request)
+
+    assert '<td data-first="Jan" data-last="Pietersz." class="person">Jan Pietersz.</td>' in html

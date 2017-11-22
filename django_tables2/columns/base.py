@@ -280,6 +280,8 @@ class BoundColumn(object):
         self.column = column
         self.name = name
 
+        self.current_value = None
+
     def __str__(self):
         return six.text_type(self.header)
 
@@ -311,7 +313,9 @@ class BoundColumn(object):
         # override with attrs defined specifically for th and td respectively.
         kwargs = {
             'table': self._table,
-            'column': self
+            'bound_column': self,
+            'record': getattr(self, 'current_record', None),
+            'value': getattr(self, 'current_value', None)
         }
         attrs['th'] = computed_values(attrs.get('th', cell_attrs), kwargs=kwargs)
         attrs['td'] = computed_values(attrs.get('td', cell_attrs), kwargs=kwargs)
@@ -642,7 +646,7 @@ class BoundColumns(object):
 
     def __contains__(self, item):
         '''
-        Check if a column is contained within a `Columns` object.
+        Check if a column is contained within a `BoundColumns` object.
 
         *item* can either be a `~.BoundColumn` object, or the name of a column.
         '''
