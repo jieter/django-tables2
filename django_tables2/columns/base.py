@@ -123,7 +123,8 @@ class Column(object):
         self.verbose_name = verbose_name
         self.visible = visible
         self.orderable = orderable
-        self.attrs = attrs or {}
+        self.attrs = attrs or getattr(self, 'attrs', {})
+
         # massage order_by into an OrderByTuple or None
         order_by = (order_by, ) if isinstance(order_by, six.string_types) else order_by
         self.order_by = OrderByTuple(order_by) if order_by is not None else None

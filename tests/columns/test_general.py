@@ -450,3 +450,24 @@ def test_computable_td_attrs():
     assert '<td data-length="2" class="person">' in html
     # td should only affect <td>
     assert '<td class="first_name status-2">' in html
+
+
+@pytest.mark.django_db
+def test_computable_td_attrs_defined_in_column_class_attribute():
+    Person.objects.create(first_name='Jan', last_name='Pietersz.')
+    Person.objects.create(first_name='Sjon', last_name='Jansen')
+
+    class MyColumn(tables.Column):
+        attrs = {
+            'td': {
+                'data-test': lambda table: table.data[0].last_name
+            }
+        }
+
+    class Table(tables.Table):
+        last_name = MyColumn()
+
+    table = Table(Person.objects.all())
+    html = table.as_html(request)
+
+    assert '<td data-test="Pietersz." class="last_name">' in html

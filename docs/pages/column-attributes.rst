@@ -37,6 +37,20 @@ with the return value added. For example::
 will render the ``<td>``'s in the tables ``<body>`` with a (not very meaningful)
 data-length attribute containing the number or records in the table.
 
+This `attrs` can also be defined when subclassing a column, to allow better reuse::
+
+    class PersonColumn(tables.Column):
+        attrs = {
+            'td': {
+                'data-length': lambda table: len(table.data)
+            }
+        }
+
+    class Table(tables.Table):
+        person = PersonColumn()
+
+is equivalent to the previous example.
+
 .. _row-attributes:
 
 Row attributes
