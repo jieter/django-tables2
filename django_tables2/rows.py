@@ -329,9 +329,9 @@ class BoundRows(object):
         '''
         if isinstance(key, slice):
             return BoundRows(
-                self.data[key],
+                data=self.data[key],
                 table=self.table,
                 pinned_data=self.pinned_data
             )
         else:
-            return BoundRow(self.data[key], table=self.table)
+            return BoundRow(record=self.data[key], table=self.table)
