@@ -648,7 +648,7 @@ def test_td_attrs_from_table():
         class Meta:
             attrs = {
                 'td': {
-                    'data-column-name': lambda column: column.name
+                    'data-column-name': lambda bound_column: bound_column.name
                 }
             }
     table = Table(MEMORY_DATA)

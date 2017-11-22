@@ -24,27 +24,30 @@ For ``th`` and ``td``, the column name will be added as a class name. This makes
 selecting the row for styling easier.
 Have a look at each column's API reference to find which elements are supported.
 
-Callables passed in this dict will be called, with optional kwargs `table` and `column`,
-with the return value added. For example::
+Callables passed in this dict will be called, with optional kwargs ``table``,
+``bound_column`` and ``value``, with the return value added. For example::
 
     class Table(tables.Table):
         person = tables.Column(attrs={
             'td': {
-                'data-length': lambda table: len(table.data)
+                'data-length': lambda value: len(value)
             }
         })
 
-will render the ``<td>``'s in the tables ``<body>`` with a (not very meaningful)
-data-length attribute containing the number or records in the table.
+will render the ``<td>``'s in the tables ``<body>`` with a ``data-length`` attribute
+containing the number of characters in the value.
 
 This `attrs` can also be defined when subclassing a column, to allow better reuse::
 
     class PersonColumn(tables.Column):
         attrs = {
             'td': {
-                'data-length': lambda table: len(table.data)
+                'data-first-name': lambda record: record.first_name
+                'data-last-name': lambda record: record.last_name
             }
         }
+        def render(self, record):
+            return '{} {}'.format(record.first_name, record.last_name)
 
     class Table(tables.Table):
         person = PersonColumn()
