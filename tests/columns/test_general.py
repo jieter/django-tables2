@@ -437,8 +437,16 @@ def test_computable_td_attrs():
                 'data-length': lambda table: len(table.data)
             }
         })
-        first_name = tables.Column()
+        first_name = tables.Column(attrs={
+            'td': {
+                'class': lambda table: 'status-{}'.format(len(table.data))
+            }
+        })
 
     table = Table(Person.objects.all())
     html = table.as_html(request)
+    # cell should affect both <th> and <td>
+    assert '<th data-length="2" class="orderable person">' in html
     assert '<td data-length="2" class="person">' in html
+    # td should only affect <td>
+    assert '<td class="first_name status-2">' in html

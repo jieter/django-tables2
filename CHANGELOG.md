@@ -3,7 +3,8 @@
 ## master
  - Added `as=varname` keyword argument to the `{% querystring %}` template tag,
    fixes [#481](https://github.com/jieter/django-tables2/issues/481)
- - Updated the tutorial to reflect current state of Django a bit better
+ - Updated the tutorial to reflect current state of Django a bit better.
+ - Used `OrderedDict` rather than `dict` as the parent for `utils.AttributeDict` to make the rendered html more consistant accross python versions.
 
 ## 1.14.2 (2017-10-30)
  - Added a `row_counter` variable to the template context in `TemplateColumn` (fixes [#448](https://github.com/jieter/django-tables2/issues/488))
