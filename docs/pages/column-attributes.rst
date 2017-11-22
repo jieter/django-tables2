@@ -24,6 +24,18 @@ For ``th`` and ``td``, the column name will be added as a class name. This makes
 selecting the row for styling easier.
 Have a look at each column's API reference to find which elements are supported.
 
+Callables passed in this dict will be called, with optional kwargs `table` and `column`,
+with the return value added. For example::
+
+    class Table(tables.Table):
+        person = tables.Column(attrs={
+            'td': {
+                'data-length': lambda table: len(table.data)
+            }
+        })
+
+will render the ``<td>``'s in the tables ``<body>`` with a (not very meaningful)
+data-length attribute containing the number or records in the table.
 
 .. _row-attributes:
 
@@ -35,7 +47,9 @@ the ``<tr>`` element on each row. The values of the dict may be
 
 By default, class names *odd* and *even* are supplied to the rows, wich can be
 customized using the ``row_attrs`` `.Table.Meta` attribute or as argument to the
-constructor of `.Table`, for example::
+constructor of `.Table`. String-like values will just be added,
+callables will be called with optional keyword argument `record`, the return value
+will be added. For example::
 
     class Table(tables.Table):
         class Meta:

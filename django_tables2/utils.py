@@ -1,6 +1,7 @@
 # coding: utf-8
 from __future__ import absolute_import, unicode_literals
 
+from collections import OrderedDict
 from functools import total_ordering
 from itertools import chain
 
@@ -399,10 +400,10 @@ class Accessor(str):
 A = Accessor  # alias
 
 
-class AttributeDict(dict):
+class AttributeDict(OrderedDict):
     '''
-    A wrapper around `dict` that knows how to render itself as HTML
-    style tag attributes.
+    A wrapper around `collections.OrderedDict` that knows how to render itself
+    as HTML style tag attributes.
 
     The returned string is marked safe, so it can be used safely in a template.
     See `.as_html` for a usage example.

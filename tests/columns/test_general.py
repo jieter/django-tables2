@@ -437,7 +437,8 @@ def test_computable_td_attrs():
                 'data-length': lambda table: len(table.data)
             }
         })
+        first_name = tables.Column()
 
     table = Table(Person.objects.all())
     html = table.as_html(request)
-    assert 'data-length="2"' in html
+    assert '<td data-length="2" class="person">' in html
