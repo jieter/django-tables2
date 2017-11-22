@@ -469,8 +469,16 @@ def test_computable_td_attrs_defined_in_column_class_attribute():
 
     table = Table(Person.objects.all())
     html = table.as_html(request)
-    assert '<td data-test="Pietersz." class="last_name">' in html
-    assert '<td data-test="Jansen" class="last_name">' in html
+    root = parse(html)
+
+    assert root.findall('.//tbody/tr/td')[0].attrib == {
+        'data-test': 'Pietersz.',
+        'class': 'last_name'
+    }
+    assert root.findall('.//tbody/tr/td')[1].attrib == {
+        'data-test': 'Jansen',
+        'class': 'last_name'
+    }
 
 
 @pytest.mark.django_db
@@ -481,8 +489,8 @@ def test_computable_td_attrs_defined_in_column_class_attribute_record():
     class PersonColumn(tables.Column):
         attrs = {
             'td': {
-                'data-first': lambda record: record.first_name,
-                'data-last': lambda record: record.last_name,
+                'data-first-name': lambda record: record.first_name,
+                'data-last-name': lambda record: record.last_name,
             }
         }
 
@@ -494,5 +502,10 @@ def test_computable_td_attrs_defined_in_column_class_attribute_record():
 
     table = Table(Person.objects.all(), show_header=False)
     html = table.as_html(request)
+    root = parse(html)
 
-    assert '<td data-first="Jan" data-last="Pietersz." class="person">Jan Pietersz.</td>' in html
+    assert root.findall('.//tbody/tr/td')[0].attrib == {
+        'data-first-name': 'Jan',
+        'data-last-name': 'Pietersz.',
+        'class': 'person'
+    }
