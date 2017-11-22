@@ -314,9 +314,15 @@ class BoundColumn(object):
         kwargs = {
             'table': self._table,
             'bound_column': self,
-            'record': getattr(self, 'current_record', None),
-            'value': getattr(self, 'current_value', None)
         }
+        # BoundRow.items() sets current_record and current_value when iterating over
+        # the records in a table.
+        if getattr(self, 'current_record', False) and getattr(self, 'current_value', False):
+            kwargs.update({
+                'record': self.current_record,
+                'value': self.current_value
+            })
+
         attrs['th'] = computed_values(attrs.get('th', cell_attrs), kwargs=kwargs)
         attrs['td'] = computed_values(attrs.get('td', cell_attrs), kwargs=kwargs)
 

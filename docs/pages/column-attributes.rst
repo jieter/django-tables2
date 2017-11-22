@@ -25,7 +25,7 @@ selecting the row for styling easier.
 Have a look at each column's API reference to find which elements are supported.
 
 Callables passed in this dict will be called, with optional kwargs ``table``,
-``bound_column`` and ``value``, with the return value added. For example::
+``bound_column`` ``record`` and ``value``, with the return value added. For example::
 
     class Table(tables.Table):
         person = tables.Column(attrs={
@@ -36,6 +36,28 @@ Callables passed in this dict will be called, with optional kwargs ``table``,
 
 will render the ``<td>``'s in the tables ``<body>`` with a ``data-length`` attribute
 containing the number of characters in the value.
+
+.. note::
+    The kwargs ``record`` and ``value`` only make sense in the context of a row
+    containing data. If you supply a callable with one of these keyword arguments,
+    it will not be executed for the header and footer rows.
+
+    If you also want to customize the attributes of those tags, you must define a
+    callable with a catchall (``**kwargs``) argument::
+
+        def data_first_name(**kwargs):
+            first_name = kwargs.get('first_name', None)
+            if first_name is None:
+                return 'header'
+            else:
+                return first_name
+
+        class Table(tables.Table):
+            first_name = tables.Column(attrs={
+                'td': {
+                    'data-first-name': data_first_name
+                }
+            })
 
 This `attrs` can also be defined when subclassing a column, to allow better reuse::
 
