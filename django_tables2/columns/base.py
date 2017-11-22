@@ -265,8 +265,6 @@ class BoundColumn(object):
     means that a `.BoundColumn` knows the *"variable name"* given to the
     `.Column` when it was declared on the `.Table`.
 
-    For convenience, all `.Column` properties are available from this class.
-
     arguments:
         table (`~.Table`): The table in which this column exists
         column (`~.Column`): The type of column

@@ -5,6 +5,7 @@
    fixes [#481](https://github.com/jieter/django-tables2/issues/481)
  - Updated the tutorial to reflect current state of Django a bit better.
  - Used `OrderedDict` rather than `dict` as the parent for `utils.AttributeDict` to make the rendered html more consistant accross python versions.
+ - Allow reading column `attrs` from a column's attribute, allowing easier reuse of custom column attributes (fixes [#241](https://github.com/jieter/django-tables2/issues/241))
 
 ## 1.14.2 (2017-10-30)
  - Added a `row_counter` variable to the template context in `TemplateColumn` (fixes [#448](https://github.com/jieter/django-tables2/issues/488))
