@@ -302,15 +302,8 @@ class BoundColumn(object):
         what's actually defined in the column attrs. This makes writing
         templates easier.
         '''
-        # Start with table's attrs; Only 'th' and 'td' attributes will be used
-        attrs = dict(self._table.attrs)
 
-        # Update attrs to prefer column's attrs rather than table's
-        attrs.update(dict(self.column.attrs))
-
-        # we take the value for 'cell' as the basis for both the th and td attrs
-        cell_attrs = attrs.get('cell', {})
-        # override with attrs defined specifically for th and td respectively.
+        # prepare kwargs for computed_values()
         kwargs = {
             'table': self._table,
             'bound_column': self,
@@ -323,6 +316,15 @@ class BoundColumn(object):
                 'value': self.current_value
             })
 
+        # Start with table's attrs; Only 'th' and 'td' attributes will be used
+        attrs = dict(self._table.attrs)
+
+        # Update attrs to prefer column's attrs rather than table's
+        attrs.update(dict(self.column.attrs))
+
+        # we take the value for 'cell' as the basis for both the th and td attrs
+        cell_attrs = attrs.get('cell', {})
+        # override with attrs defined specifically for th and td respectively.
         attrs['th'] = computed_values(attrs.get('th', cell_attrs), kwargs=kwargs)
         attrs['td'] = computed_values(attrs.get('td', cell_attrs), kwargs=kwargs)
 
@@ -336,20 +338,27 @@ class BoundColumn(object):
 
         return attrs
 
+    def _get_cell_class(self, attrs):
+        '''
+        return a set of the classes from the class key in ``attrs``, augmented
+        with the column name (or anything else added by Table.get_column_class_names()).
+        '''
+        classes = attrs.get('class', None)
+        classes = set() if classes is None else {c for c in classes.split(' ') if c}
+
+        return self._table.get_column_class_names(classes, self)
+
     def get_td_class(self, td_attrs):
         '''
         Returns the HTML class attribute for a data cell in this column
         '''
-        classes = set((c for c in td_attrs.get('class', '').split(' ') if c))
-        classes = self._table.get_column_class_names(classes, self)
-        return ' '.join(sorted(classes))
+        return ' '.join(sorted(self._get_cell_class(td_attrs)))
 
     def get_th_class(self, th_attrs):
         '''
         Returns the HTML class attribute for a header cell in this column
         '''
-        classes = set((c for c in th_attrs.get('class', '').split(' ') if c))
-        classes = self._table.get_column_class_names(classes, self)
+        classes = self._get_cell_class(th_attrs)
 
         # add classes for ordering
         ordering_class = th_attrs.get('_ordering', {})

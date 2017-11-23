@@ -431,7 +431,7 @@ class AttributeDict(OrderedDict):
             >>> attrs.as_html()
             'class="mytable" id="someid"'
 
-        :rtype: `~django.utils.safestring.SafeUnicode` object
+        returns: `~django.utils.safestring.SafeUnicode` object
 
         '''
         return format_html_join(' ', '{}="{}"', self._iteritems())

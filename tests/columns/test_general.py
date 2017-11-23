@@ -531,7 +531,8 @@ def test_computable_column_td_attrs_record_header():
     class Table(tables.Table):
         first_name = tables.Column(attrs={
             'cell': {
-                'data-first-name': data_first_name
+                'data-first-name': data_first_name,
+                'class': lambda value: 'status-{}'.format(value)
             }
         })
 
@@ -544,6 +545,10 @@ def test_computable_column_td_attrs_record_header():
         'data-first-name': 'header',
     }
     assert root.findall('.//tbody/tr/td')[0].attrib == {
-        'class': 'first_name',
+        'class': 'first_name status-Jan',
         'data-first-name': 'Jan',
+    }
+    assert root.findall('.//tbody/tr/td')[1].attrib == {
+        'class': 'first_name status-Sjon',
+        'data-first-name': 'Sjon',
     }
