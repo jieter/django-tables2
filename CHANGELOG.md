@@ -1,6 +1,6 @@
 # Change log
 
-## 0.15.0
+## 1.15.0 (2017-11-23)
  - Added `as=varname` keyword argument to the `{% querystring %}` template tag,
    fixes [#481](https://github.com/jieter/django-tables2/issues/481)
  - Updated the tutorial to reflect current state of Django a bit better.
