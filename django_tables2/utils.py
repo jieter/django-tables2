@@ -1,6 +1,7 @@
 # coding: utf-8
 from __future__ import absolute_import, unicode_literals
 
+from collections import OrderedDict
 from functools import total_ordering
 from itertools import chain
 
@@ -399,10 +400,12 @@ class Accessor(str):
 A = Accessor  # alias
 
 
-class AttributeDict(dict):
+class AttributeDict(OrderedDict):
     '''
-    A wrapper around `dict` that knows how to render itself as HTML
-    style tag attributes.
+    A wrapper around `collections.OrderedDict` that knows how to render itself
+    as HTML style tag attributes.
+
+    Any key with ``value is None`` will be skipped.
 
     The returned string is marked safe, so it can be used safely in a template.
     See `.as_html` for a usage example.
@@ -411,8 +414,9 @@ class AttributeDict(dict):
 
     def _iteritems(self):
         for k, v in six.iteritems(self):
-            if k not in self.blacklist:
-                yield (k, v() if callable(v) else v)
+            value = v() if callable(v) else v
+            if k not in self.blacklist and value is not None:
+                yield (k, value)
 
     def as_html(self):
         '''
@@ -427,7 +431,7 @@ class AttributeDict(dict):
             >>> attrs.as_html()
             'class="mytable" id="someid"'
 
-        :rtype: `~django.utils.safestring.SafeUnicode` object
+        returns: `~django.utils.safestring.SafeUnicode` object
 
         '''
         return format_html_join(' ', '{}="{}"', self._iteritems())
@@ -513,10 +517,18 @@ def call_with_appropriate(fn, kwargs):
 
     If the kwargs argument is defined, pass all arguments, else provide exactly
     the arguments wanted.
+
+    If one of the arguments of ``fn`` are not contained in kwargs, ``fn`` will not
+    be called and ``None`` will be returned.
     '''
-    args, keyword = signature(fn)
-    if not keyword:
+    args, kwargs_name = signature(fn)
+    # no catch-all defined, we need to exactly pass the arguments specified.
+    if not kwargs_name:
         kwargs = {key: kwargs[key] for key in kwargs if key in args}
+
+        # if any argument of fn is not in kwargs, just return None
+        if any(arg not in kwargs for arg in args):
+            return None
 
     return fn(**kwargs)
 

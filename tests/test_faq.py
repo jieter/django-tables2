@@ -1,5 +1,3 @@
-import itertools
-
 import django_tables2 as tables
 from bs4 import BeautifulSoup
 

@@ -1,11 +1,13 @@
 # Change log
 
-## master
+## 1.15.0 (2017-11-23)
  - Added `as=varname` keyword argument to the `{% querystring %}` template tag,
    fixes [#481](https://github.com/jieter/django-tables2/issues/481)
  - Updated the tutorial to reflect current state of Django a bit better
- - Added `tf` dictionary to `Column.attrs` with default values for the footer,
-   so footers now have `class` attribute by default
+ - Used `OrderedDict` rather than `dict` as the parent for `utils.AttributeDict` to make the rendered html more consistant accross python versions.
+ - Allow reading column `attrs` from a column's attribute, allowing easier reuse of custom column attributes (fixes [#241](https://github.com/jieter/django-tables2/issues/241))
+ - `value` and `record` are optionally passed to the column attrs callables for data rows. [#503](https://github.com/jieter/django-tables2/pull/503), fixes [#500](https://github.com/jieter/django-tables2/issues/500)
+ - Added `tf` dictionary to `Column.attrs` with default values for the footer, so footers now have `class` attribute by default
 
 ## 1.14.2 (2017-10-30)
  - Added a `row_counter` variable to the template context in `TemplateColumn` (fixes [#448](https://github.com/jieter/django-tables2/issues/488))
