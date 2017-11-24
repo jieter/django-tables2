@@ -1,8 +1,7 @@
 # coding: utf-8
 import django_tables2 as tables
-from bs4 import BeautifulSoup
 
-from .utils import build_request
+from .utils import build_request, parse
 
 MEMORY_DATA = [
     {'name': 'Queensland', 'country': 'Australia', 'population': 4750500},
@@ -32,13 +31,9 @@ def test_footer():
 
     table = Table(MEMORY_DATA)
     assert table.has_footer() is True
-
     html = table.as_html(build_request('/'))
 
-    soup = BeautifulSoup(html, "lxml")
-    row = soup.find("tfoot").tr
-    columns = row.find_all("td")
-
+    columns = parse(html).findall(".//tfoot/tr")[-1].findall("td")
     assert columns[1].text == "Total:"
     assert columns[2].text == "18833000"
 
@@ -70,10 +65,7 @@ def test_footer_column_method():
     table = TestTable(MEMORY_DATA)
     html = table.as_html(build_request('/'))
 
-    soup = BeautifulSoup(html, "lxml")
-    row = soup.find("tfoot").tr
-    columns = row.find_all("td")
-
+    columns = parse(html).findall(".//tfoot/tr")[-1].findall("td")
     assert columns[1].text == "Total:"
     assert columns[2].text == "18833000"
 
@@ -92,11 +84,8 @@ def test_footer_has_class():
     table = TestTable(MEMORY_DATA)
     html = table.as_html(build_request('/'))
 
-    soup = BeautifulSoup(html, "lxml")
-    row = soup.find("tfoot").tr
-    columns = row.find_all("td")
-
-    assert "class" in columns[1].attrs
+    columns = parse(html).findall(".//tfoot/tr")[-1].findall("td")
+    assert "class" in columns[1].attrib
 
 
 def test_footer_custom_attriubtes():
@@ -114,7 +103,5 @@ def test_footer_custom_attriubtes():
     table.columns['country'].attrs['tf'] = {'align': 'right'}
     html = table.as_html(build_request('/'))
 
-    soup = BeautifulSoup(html, "lxml")
-    row = soup.find("tfoot").tr
-    columns = row.find_all("td")
-    assert "align" in columns[1].attrs
+    columns = parse(html).findall(".//tfoot/tr")[-1].findall("td")
+    assert "align" in columns[1].attrib
