@@ -228,7 +228,12 @@ class BoundRow(object):
         ``rendered within ``<td>``.
         '''
         for column in self.table.columns:
-            yield (column, self.get_cell(column.name))
+            # column gets some attributes relevant only relevant in this iteration,
+            # used to allow passing the value/record to a callable Column.attrs /
+            # Table.attrs item.
+            column.current_value = self.get_cell(column.name)
+            column.current_record = self.record
+            yield (column, column.current_value)
 
 
 class BoundPinnedRow(BoundRow):
@@ -324,9 +329,9 @@ class BoundRows(object):
         '''
         if isinstance(key, slice):
             return BoundRows(
-                self.data[key],
+                data=self.data[key],
                 table=self.table,
                 pinned_data=self.pinned_data
             )
         else:
-            return BoundRow(self.data[key], table=self.table)
+            return BoundRow(record=self.data[key], table=self.table)

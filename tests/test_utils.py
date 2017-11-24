@@ -161,6 +161,11 @@ def test_attribute_dict_handles_escaping():
     assert x.as_html() == 'x="&quot;&#39;x&amp;"'
 
 
+def test_attribute_dict_omits_None():
+    x = AttributeDict({'x': None})
+    assert x.as_html() == ''
+
+
 def test_computed_values_supports_shallow_structures():
     x = computed_values({'foo': lambda: 'bar'})
     assert x == {'foo': 'bar'}
@@ -178,6 +183,11 @@ def test_computed_values_with_argument():
         }
     }, kwargs=dict(y=2))
     assert x == {'foo': {'bar': 'baz-2'}}
+
+
+def test_computed_values_returns_None_if_not_enough_kwargs():
+    x = computed_values({'foo': lambda x: 'bar'})
+    assert x == {'foo': None}
 
 
 def test_segment_should_return_all_candidates():

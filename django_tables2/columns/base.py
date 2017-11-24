@@ -123,7 +123,8 @@ class Column(object):
         self.verbose_name = verbose_name
         self.visible = visible
         self.orderable = orderable
-        self.attrs = attrs or {}
+        self.attrs = attrs or getattr(self, 'attrs', {})
+
         # massage order_by into an OrderByTuple or None
         order_by = (order_by, ) if isinstance(order_by, six.string_types) else order_by
         self.order_by = OrderByTuple(order_by) if order_by is not None else None
@@ -264,8 +265,6 @@ class BoundColumn(object):
     means that a `.BoundColumn` knows the *"variable name"* given to the
     `.Column` when it was declared on the `.Table`.
 
-    For convenience, all `.Column` properties are available from this class.
-
     arguments:
         table (`~.Table`): The table in which this column exists
         column (`~.Column`): The type of column
@@ -280,6 +279,8 @@ class BoundColumn(object):
         self._table = table
         self.column = column
         self.name = name
+
+        self.current_value = None
 
     def __str__(self):
         return six.text_type(self.header)
@@ -302,6 +303,20 @@ class BoundColumn(object):
         templates easier. ``tf`` is not actually a HTML tag, but this key name
         will be used for attributes for column's footer, if the column has one.
         '''
+
+        # prepare kwargs for computed_values()
+        kwargs = {
+            'table': self._table,
+            'bound_column': self,
+        }
+        # BoundRow.items() sets current_record and current_value when iterating over
+        # the records in a table.
+        if getattr(self, 'current_record', False) and getattr(self, 'current_value', False):
+            kwargs.update({
+                'record': self.current_record,
+                'value': self.current_value
+            })
+
         # Start with table's attrs; Only 'th' and 'td' attributes will be used
         attrs = dict(self._table.attrs)
 
@@ -311,10 +326,6 @@ class BoundColumn(object):
         # we take the value for 'cell' as the basis for both the th and td attrs
         cell_attrs = attrs.get('cell', {})
         # override with attrs defined specifically for th and td respectively.
-        kwargs = {
-            'table': self._table,
-            'column': self
-        }
         attrs['th'] = computed_values(attrs.get('th', cell_attrs), kwargs=kwargs)
         attrs['td'] = computed_values(attrs.get('td', cell_attrs), kwargs=kwargs)
         attrs['tf'] = computed_values(attrs.get('tf', cell_attrs), kwargs=kwargs)
@@ -331,20 +342,27 @@ class BoundColumn(object):
 
         return attrs
 
+    def _get_cell_class(self, attrs):
+        '''
+        return a set of the classes from the class key in ``attrs``, augmented
+        with the column name (or anything else added by Table.get_column_class_names()).
+        '''
+        classes = attrs.get('class', None)
+        classes = set() if classes is None else {c for c in classes.split(' ') if c}
+
+        return self._table.get_column_class_names(classes, self)
+
     def get_td_class(self, td_attrs):
         '''
         Returns the HTML class attribute for a data cell in this column
         '''
-        classes = set((c for c in td_attrs.get('class', '').split(' ') if c))
-        classes = self._table.get_column_class_names(classes, self)
-        return ' '.join(sorted(classes))
+        return ' '.join(sorted(self._get_cell_class(td_attrs)))
 
     def get_th_class(self, th_attrs):
         '''
         Returns the HTML class attribute for a header cell in this column
         '''
-        classes = set((c for c in th_attrs.get('class', '').split(' ') if c))
-        classes = self._table.get_column_class_names(classes, self)
+        classes = self._get_cell_class(th_attrs)
 
         # add classes for ordering
         ordering_class = th_attrs.get('_ordering', {})
@@ -647,7 +665,7 @@ class BoundColumns(object):
 
     def __contains__(self, item):
         '''
-        Check if a column is contained within a `Columns` object.
+        Check if a column is contained within a `BoundColumns` object.
 
         *item* can either be a `~.BoundColumn` object, or the name of a column.
         '''

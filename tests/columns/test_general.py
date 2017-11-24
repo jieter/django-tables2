@@ -426,10 +426,15 @@ def test_override_column_class_names():
 
 
 @pytest.mark.django_db
-def test_computable_td_attrs():
-    '''Computable attrs for columns, using table argument'''
+def test_Persons():
     Person.objects.create(first_name='Jan', last_name='Pietersz.')
     Person.objects.create(first_name='Sjon', last_name='Jansen')
+
+
+@pytest.mark.django_db
+def test_computable_td_attrs():
+    '''Computable attrs for columns, using table argument'''
+    test_Persons()
 
     class Table(tables.Table):
         person = tables.Column(attrs={
@@ -437,7 +442,113 @@ def test_computable_td_attrs():
                 'data-length': lambda table: len(table.data)
             }
         })
+        first_name = tables.Column(attrs={
+            'td': {
+                'class': lambda table: 'status-{}'.format(len(table.data))
+            }
+        })
 
     table = Table(Person.objects.all())
     html = table.as_html(request)
-    assert 'data-length="2"' in html
+    # cell should affect both <th> and <td>
+    assert '<th data-length="2" class="orderable person">' in html
+    assert '<td data-length="2" class="person">' in html
+    # td should only affect <td>
+    assert '<td class="first_name status-2">' in html
+
+
+@pytest.mark.django_db
+def test_computable_td_attrs_defined_in_column_class_attribute():
+    '''Computable attrs for columns, using custom Column'''
+    test_Persons()
+
+    class MyColumn(tables.Column):
+        attrs = {
+            'td': {
+                'data-test': lambda table: len(table.data)
+            }
+        }
+
+    class Table(tables.Table):
+        last_name = MyColumn()
+
+    table = Table(Person.objects.all())
+    html = table.as_html(request)
+    root = parse(html)
+
+    assert root.findall('.//tbody/tr/td')[0].attrib == {
+        'data-test': '2',
+        'class': 'last_name'
+    }
+    assert root.findall('.//tbody/tr/td')[1].attrib == {
+        'data-test': '2',
+        'class': 'last_name'
+    }
+
+
+@pytest.mark.django_db
+def test_computable_td_attrs_defined_in_column_class_attribute_record():
+    '''Computable attrs for columns, using custom column'''
+    test_Persons()
+
+    class PersonColumn(tables.Column):
+        attrs = {
+            'td': {
+                'data-first-name': lambda record: record.first_name,
+                'data-last-name': lambda record: record.last_name,
+            }
+        }
+
+        def render(self, record):
+            return '{} {}'.format(record.first_name, record.last_name)
+
+    class Table(tables.Table):
+        person = PersonColumn(empty_values=())
+
+    table = Table(Person.objects.all())
+    html = table.as_html(request)
+    root = parse(html)
+
+    assert root.findall('.//tbody/tr/td')[0].attrib == {
+        'data-first-name': 'Jan',
+        'data-last-name': 'Pietersz.',
+        'class': 'person'
+    }
+
+
+@pytest.mark.django_db
+def test_computable_column_td_attrs_record_header():
+    '''
+    Computable attrs for columns, using custom column with a callable containing
+    a catch-all argument.
+    '''
+    test_Persons()
+
+    def data_first_name(**kwargs):
+        record = kwargs.get('record', None)
+        return 'header' if not record else record.first_name
+
+    class Table(tables.Table):
+        first_name = tables.Column(attrs={
+            'cell': {
+                'data-first-name': data_first_name,
+                'class': lambda value: 'status-{}'.format(value)
+            }
+        })
+
+    table = Table(Person.objects.all())
+    html = table.as_html(request)
+    root = parse(html)
+
+    assert root.findall('.//thead/tr/th')[0].attrib == {
+        'class': 'first_name orderable',
+        'data-first-name': 'header',
+    }
+    assert root.findall('.//tbody/tr/td')[0].attrib == {
+        'class': 'first_name status-Jan',
+        'data-first-name': 'Jan',
+    }
+    assert root.findall('.//tbody/tr/td')[1].attrib == {
+        'class': 'first_name status-Sjon',
+        'data-first-name': 'Sjon',
+    }
