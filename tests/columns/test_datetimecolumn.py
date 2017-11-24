@@ -4,10 +4,10 @@ from __future__ import unicode_literals
 from datetime import datetime
 
 import pytest
+import pytz
 from django.db import models
 
 import django_tables2 as tables
-import pytz
 
 
 '''
