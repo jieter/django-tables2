@@ -262,9 +262,12 @@ def test_bound_columns_should_support_indexing():
     assert 'b' == table.columns['b'].name
 
 
-def test_cell_attrs_applies_to_td_and_th():
+def test_cell_attrs_applies_to_td_and_th_and_footer_td():
     class SimpleTable(tables.Table):
-        a = tables.Column(attrs={'cell': {'key': 'value'}})
+        a = tables.Column(
+            attrs={'cell': {'key': 'value'}},
+            footer=lambda table: len(table.data)
+        )
 
     # providing data ensures 1 row is rendered
     table = SimpleTable([{'a': 'value'}])
@@ -272,6 +275,7 @@ def test_cell_attrs_applies_to_td_and_th():
 
     assert root.findall('.//thead/tr/th')[0].attrib == {'key': 'value', 'class': 'a orderable'}
     assert root.findall('.//tbody/tr/td')[0].attrib == {'key': 'value', 'class': 'a'}
+    assert root.findall('.//tfoot/tr/td')[0].attrib == {'key': 'value', 'class': 'a'}
 
 
 def test_cells_are_automatically_given_column_name_as_class():
