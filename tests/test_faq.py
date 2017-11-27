@@ -1,6 +1,6 @@
 import django_tables2 as tables
 
-from .utils import build_request
+from .utils import build_request, parse
 
 TEST_DATA = [
     {'name': 'Belgium', 'population': 11200000},
@@ -42,4 +42,5 @@ def test_row_footer_total():
     table = CountryTable(TEST_DATA)
     html = table.as_html(build_request())
 
-    assert '<td>Total: 77740000</td>' in html
+    columns = parse(html).findall(".//tfoot/tr")[-1].findall("td")
+    assert columns[1].text == "Total: 77740000"

@@ -43,7 +43,7 @@
                 {% if table.has_footer %}
                 <tr>
                 {% for column in table.columns %}
-                    <td>{{ column.footer }}</td>
+                    <td {{ column.attrs.tf.as_html }}>{{ column.footer }}</td>
                 {% endfor %}
                 </tr>
                 {% endif %}

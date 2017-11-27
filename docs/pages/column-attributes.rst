@@ -21,8 +21,11 @@ Depending on the column, different elements are supported, however ``th``,
 
 
 For ``th`` and ``td``, the column name will be added as a class name. This makes
-selecting the row for styling easier.
-Have a look at each column's API reference to find which elements are supported.
+selecting the row for styling easier. Have a look at each column's API
+reference to find which elements are supported.
+
+If you need to add some extra attributes to column's tags rendered in the
+footer, use key name ``tf``, as described in section on :ref:`css`.
 
 Callables passed in this dict will be called, with optional kwargs ``table``,
 ``bound_column`` ``record`` and ``value``, with the return value added. For example::

@@ -1,7 +1,7 @@
 # coding: utf-8
 import django_tables2 as tables
 
-from .utils import build_request
+from .utils import build_request, parse
 
 MEMORY_DATA = [
     {'name': 'Queensland', 'country': 'Australia', 'population': 4750500},
@@ -31,11 +31,11 @@ def test_footer():
 
     table = Table(MEMORY_DATA)
     assert table.has_footer() is True
-
     html = table.as_html(build_request('/'))
 
-    assert '<td>Total:</td>' in html
-    assert '<td>18833000</td>' in html
+    columns = parse(html).findall(".//tfoot/tr")[-1].findall("td")
+    assert columns[1].text == "Total:"
+    assert columns[2].text == "18833000"
 
 
 def test_footer_disable_on_table():
@@ -52,17 +52,56 @@ def test_footer_disable_on_table():
 
 
 def test_footer_column_method():
-
     class SummingColumn(tables.Column):
         def render_footer(self, bound_column, table):
-            return sum(bound_column.accessor.resolve(row) for row in table.data)
+            return sum(
+                bound_column.accessor.resolve(row) for row in table.data)
 
-    class Table(tables.Table):
+    class TestTable(tables.Table):
         name = tables.Column()
         country = tables.Column(footer='Total:')
         population = SummingColumn()
 
-    table = Table(MEMORY_DATA)
+    table = TestTable(MEMORY_DATA)
     html = table.as_html(build_request('/'))
-    assert '<td>Total:</td>' in html
-    assert '<td>18833000</td>' in html
+
+    columns = parse(html).findall(".//tfoot/tr")[-1].findall("td")
+    assert columns[1].text == "Total:"
+    assert columns[2].text == "18833000"
+
+
+def test_footer_has_class():
+    class SummingColumn(tables.Column):
+        def render_footer(self, bound_column, table):
+            return sum(
+                bound_column.accessor.resolve(row) for row in table.data)
+
+    class TestTable(tables.Table):
+        name = tables.Column()
+        country = tables.Column(footer='Total:')
+        population = SummingColumn()
+
+    table = TestTable(MEMORY_DATA)
+    html = table.as_html(build_request('/'))
+
+    columns = parse(html).findall(".//tfoot/tr")[-1].findall("td")
+    assert "class" in columns[1].attrib
+
+
+def test_footer_custom_attriubtes():
+    class SummingColumn(tables.Column):
+        def render_footer(self, bound_column, table):
+            return sum(
+                bound_column.accessor.resolve(row) for row in table.data)
+
+    class TestTable(tables.Table):
+        name = tables.Column()
+        country = tables.Column(footer='Total:', attrs={'tf': {'align': 'right'}})
+        population = SummingColumn()
+
+    table = TestTable(MEMORY_DATA)
+    table.columns['country'].attrs['tf'] = {'align': 'right'}
+    html = table.as_html(build_request('/'))
+
+    columns = parse(html).findall(".//tfoot/tr")[-1].findall("td")
+    assert "align" in columns[1].attrib

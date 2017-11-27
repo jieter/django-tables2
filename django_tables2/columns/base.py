@@ -83,7 +83,7 @@ class Column(object):
             the data iterator returned from as_values().
         footer (str, callable): Defines the footer of this column. If a callable
             is passed, it can take optional keyword argumetns `column`,
-            `bound_colun` and `table`.
+            `bound_column` and `table`.
         order_by (str, tuple or `.Accessor`): Allows one or more accessors to be
             used for ordering rather than *accessor*.
         orderable (bool): If `False`, this column will not be allowed to
@@ -298,9 +298,10 @@ class BoundColumn(object):
         '''
         Proxy to `.Column.attrs` but injects some values of our own.
 
-        A ``th`` and ``td`` are guaranteed to be defined (irrespective of
-        what's actually defined in the column attrs. This makes writing
-        templates easier.
+        A ``th``, ``td`` and ``tf`` are guaranteed to be defined (irrespective
+        of what's actually defined in the column attrs. This makes writing
+        templates easier. ``tf`` is not actually a HTML tag, but this key name
+        will be used for attributes for column's footer, if the column has one.
         '''
 
         # prepare kwargs for computed_values()
@@ -327,14 +328,17 @@ class BoundColumn(object):
         # override with attrs defined specifically for th and td respectively.
         attrs['th'] = computed_values(attrs.get('th', cell_attrs), kwargs=kwargs)
         attrs['td'] = computed_values(attrs.get('td', cell_attrs), kwargs=kwargs)
+        attrs['tf'] = computed_values(attrs.get('tf', cell_attrs), kwargs=kwargs)
 
         # wrap in AttributeDict
         attrs['th'] = AttributeDict(attrs['th'])
         attrs['td'] = AttributeDict(attrs['td'])
+        attrs['tf'] = AttributeDict(attrs['tf'])
 
         # Override/add classes
         attrs['th']['class'] = self.get_th_class(attrs['th'])
         attrs['td']['class'] = self.get_td_class(attrs['td'])
+        attrs['tf']['class'] = self.get_td_class(attrs['tf'])
 
         return attrs
 
