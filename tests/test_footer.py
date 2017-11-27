@@ -33,9 +33,9 @@ def test_footer():
     assert table.has_footer() is True
     html = table.as_html(build_request('/'))
 
-    columns = parse(html).findall(".//tfoot/tr")[-1].findall("td")
-    assert columns[1].text == "Total:"
-    assert columns[2].text == "18833000"
+    columns = parse(html).findall('.//tfoot/tr/td')
+    assert columns[1].text == 'Total:'
+    assert columns[2].text == '18833000'
 
 
 def test_footer_disable_on_table():
@@ -65,9 +65,9 @@ def test_footer_column_method():
     table = TestTable(MEMORY_DATA)
     html = table.as_html(build_request('/'))
 
-    columns = parse(html).findall(".//tfoot/tr")[-1].findall("td")
-    assert columns[1].text == "Total:"
-    assert columns[2].text == "18833000"
+    columns = parse(html).findall('.//tfoot/tr/td')
+    assert columns[1].text == 'Total:'
+    assert columns[2].text == '18833000'
 
 
 def test_footer_has_class():
@@ -84,8 +84,8 @@ def test_footer_has_class():
     table = TestTable(MEMORY_DATA)
     html = table.as_html(build_request('/'))
 
-    columns = parse(html).findall(".//tfoot/tr")[-1].findall("td")
-    assert "class" in columns[1].attrib
+    columns = parse(html).findall('.//tfoot/tr/td')
+    assert 'class' in columns[1].attrib
 
 
 def test_footer_custom_attriubtes():
@@ -103,5 +103,5 @@ def test_footer_custom_attriubtes():
     table.columns['country'].attrs['tf'] = {'align': 'right'}
     html = table.as_html(build_request('/'))
 
-    columns = parse(html).findall(".//tfoot/tr")[-1].findall("td")
-    assert "align" in columns[1].attrib
+    columns = parse(html).findall('.//tfoot/tr/td')
+    assert 'align' in columns[1].attrib
