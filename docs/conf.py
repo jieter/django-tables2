@@ -14,7 +14,7 @@ sys.path.insert(0, os.path.abspath('../'))
 
 project = 'django-tables2'
 with open('../django_tables2/__init__.py', 'rb') as f:
-    release = re.search('__version__ = \'(.+?)\'', f.read()).group(1)
+    release = str(re.search('__version__ = \'(.+?)\'', f.read().decode('utf-8')).group(1))
 version = release.rpartition('.')[0]
 
 
