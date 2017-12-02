@@ -4,7 +4,8 @@ fudge
 # xml parsing
 lxml
 pytz>0
-pytest
+# pin pytest to not use 3.3 as it does not support python 3.3 anymore.
+pytest==3.2.5
 pytest-django
 pytest-cov
 tablib==0.11.4
