@@ -1,5 +1,8 @@
 # Change log
 
+## master
+ - Dropped support for Django 1.9 and 1.10.
+
 ## 1.16.0 (2017-11-27)
  - Added `tf` dictionary to `Column.attrs` with default values for the footer, so footers now have `class` attribute by default [#501](https://github.com/jieter/django-tables2/pull/501) by [@mpasternak](https://github.com/mpasternak)
 
