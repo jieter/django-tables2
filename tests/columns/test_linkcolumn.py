@@ -4,18 +4,13 @@ from __future__ import unicode_literals
 import pytest
 from django.template import Context, Template
 from django.utils.html import mark_safe
+from django.urls import reverse
 
 import django_tables2 as tables
 from django_tables2 import A
 
 from ..app.models import Occupation, Person
 from ..utils import attrs, build_request
-
-try:
-    from django.urls import reverse
-except ImportError:
-    # to keep backward (Django <= 1.9) compatibility
-    from django.core.urlresolvers import reverse
 
 
 def test_unicode():
