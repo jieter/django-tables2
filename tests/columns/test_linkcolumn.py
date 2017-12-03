@@ -3,8 +3,8 @@ from __future__ import unicode_literals
 
 import pytest
 from django.template import Context, Template
-from django.utils.html import mark_safe
 from django.urls import reverse
+from django.utils.html import mark_safe
 
 import django_tables2 as tables
 from django_tables2 import A
