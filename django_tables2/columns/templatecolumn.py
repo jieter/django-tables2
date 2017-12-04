@@ -18,7 +18,7 @@ class TemplateColumn(Column):
     Arguments:
         template_code (str): template code to render
         template_name (str): name of the template to render
-        context (dict): template variables used to (optional)
+        extra_context (dict): template variables used to (optional)
 
     A `~django.template.Template` object is created from the
     *template_code* or *template_name* and rendered with a context containing:
@@ -37,17 +37,17 @@ class TemplateColumn(Column):
             foo = tables.TemplateColumn('{{ record.bar }}')
             # contents of `myapp/bar_column.html` is `{{label}}: {{ value }}`
             bar = tables.TemplateColumn(template_name='myapp/name2_column.html',
-                                        context={'label': 'Label'})
+                                        extra_context={'label': 'Label'})
 
     Both columns will have the same output.
     '''
     empty_values = ()
 
-    def __init__(self, template_code=None, template_name=None, context=None, **extra):
+    def __init__(self, template_code=None, template_name=None, extra_context=None, **extra):
         super(TemplateColumn, self).__init__(**extra)
         self.template_code = template_code
         self.template_name = template_name
-        self.context = context or {}
+        self.extra_context = extra_context or {}
 
         if not self.template_code and not self.template_name:
             raise ValueError('A template must be provided')
@@ -56,7 +56,7 @@ class TemplateColumn(Column):
         # If the table is being rendered using `render_table`, it hackily
         # attaches the context to the table as a gift to `TemplateColumn`.
         context = getattr(table, 'context', Context())
-        context.update(self.context)
+        context.update(self.extra_context)
         context.update({
             'default': bound_column.default,
             'column': bound_column,
