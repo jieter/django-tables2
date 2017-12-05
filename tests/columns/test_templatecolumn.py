@@ -36,14 +36,18 @@ def test_should_handle_context_on_table():
     class TestTable(tables.Table):
         col_code = tables.TemplateColumn(template_code='code:{{ record.col }}-{{ foo }}')
         col_name = tables.TemplateColumn(template_name='test_template_column.html')
+        col_context = tables.TemplateColumn(template_code="{{ label }}:{{ record.col }}-{{ foo }}",
+                                            extra_context={'label': 'label'})
 
     table = TestTable([{'col': 'brad'}])
     assert table.rows[0].get_cell('col_code') == 'code:brad-'
     assert table.rows[0].get_cell('col_name') == 'name:brad-empty\n'
+    assert table.rows[0].get_cell("col_context") == "label:brad-"
 
     table.context = Context({'foo': 'author'})
     assert table.rows[0].get_cell('col_code') == 'code:brad-author'
     assert table.rows[0].get_cell('col_name') == 'name:brad-author\n'
+    assert table.rows[0].get_cell("col_context") == "label:brad-author"
 
     # new table and render using the 'render_table' template tag.
     table = TestTable([{'col': 'brad'}])
