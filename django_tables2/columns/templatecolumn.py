@@ -35,7 +35,7 @@ class TemplateColumn(Column):
 
         class ExampleTable(tables.Table):
             foo = tables.TemplateColumn('{{ record.bar }}')
-            # contents of `myapp/bar_column.html` is `{{label}}: {{ value }}`
+            # contents of `myapp/bar_column.html` is `{{ label }}: {{ value }}`
             bar = tables.TemplateColumn(template_name='myapp/name2_column.html',
                                         extra_context={'label': 'Label'})
 
