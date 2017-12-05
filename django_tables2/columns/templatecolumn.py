@@ -18,7 +18,7 @@ class TemplateColumn(Column):
     Arguments:
         template_code (str): template code to render
         template_name (str): name of the template to render
-        extra_context (dict): template variables used to (optional)
+        extra_content (dict): optional extra template context
 
     A `~django.template.Template` object is created from the
     *template_code* or *template_name* and rendered with a context containing:
@@ -27,7 +27,7 @@ class TemplateColumn(Column):
     - *value*       -- value from `record` that corresponds to the current column
     - *default*     -- appropriate default value to use as fallback
     - *row_counter* -- The number of the row this cell is being rendered in.
-    - context variables pass as argument to column
+    - any context variables passed using the `extra_context` argument to `TemplateColumn`.
 
     Example:
 
