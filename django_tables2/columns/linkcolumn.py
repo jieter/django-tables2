@@ -82,7 +82,7 @@ class LinkColumn(BaseLinkColumn):
     rendered ``<a href="...">`` tag.
 
     Arguments:
-        viewname (str): See `~django.urls.reverse`, or use `None`
+        viewname (str or None): See `~django.urls.reverse`, or use `None`
             to use the model's `get_absolute_url`
         urlconf (str): See `~django.urls.reverse`.
         args (list): See `~django.urls.reverse`. [2]_
