@@ -1,9 +1,11 @@
 # Change log
 
 ## master
- - Dropped support for Django 1.9 and 1.10.
+ - Dropped support for Django 1.8, 1.9 and 1.10.
+ - Add `extra_context` argument to `TemplateColumn` [#509](https://github.com/jieter/django-tables2/pull/509) by [@ad-m](https://github.com/ad-m)
 
 ## 1.16.0 (2017-11-27)
+This is the last version supporting Django 1.8, 1.9 and 1.10. Django 1.8 is only supported until april 2018, so consider upgrading to Django 1.11!
  - Added `tf` dictionary to `Column.attrs` with default values for the footer, so footers now have `class` attribute by default [#501](https://github.com/jieter/django-tables2/pull/501) by [@mpasternak](https://github.com/mpasternak)
 
 ## 1.15.0 (2017-11-23)
