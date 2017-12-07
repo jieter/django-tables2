@@ -1,17 +1,12 @@
 # coding: utf-8
 from __future__ import absolute_import, unicode_literals
 
+from django.urls import reverse
 from django.utils.html import format_html
 
 from django_tables2.utils import Accessor, AttributeDict
 
 from .base import Column, library
-
-try:
-    from django.urls import reverse
-except ImportError:
-    # to keep backward (Django <= 1.9) compatibility
-    from django.core.urlresolvers import reverse
 
 
 class BaseLinkColumn(Column):

@@ -373,12 +373,6 @@ class Accessor(str):
                 rel = getattr(field, 'remote_field', None)
                 model = getattr(rel, 'model', model)
 
-            # !!! Support only for Django <= 1.8
-            # Remove this when support for Django 1.8 is over
-            else:
-                rel = getattr(field, 'rel', None)
-                model = getattr(rel, 'to', model)
-
         return field
 
     def penultimate(self, context, quiet=True):

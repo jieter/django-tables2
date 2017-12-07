@@ -1,21 +1,12 @@
 # coding: utf-8
 from __future__ import unicode_literals
 
-import pytest
+from django.contrib.postgres.fields import HStoreField, JSONField
 from django.db import models
 
 import django_tables2 as tables
 
-try:
-    from django.contrib.postgres.fields import HStoreField, JSONField
-    JSONFIELD_AVAILABLE = True
-except ImportError:
-    # fields are introduced in django == 1.9
-    # remove shim wen we drop support for django 1.8
-    JSONFIELD_AVAILABLE = False
 
-
-@pytest.mark.skipif(not JSONFIELD_AVAILABLE, reason='JSONField added in django 1.9')
 def test_should_be_used_for_json_and_hstore_fields():
     class Model(models.Model):
         json = JSONField()

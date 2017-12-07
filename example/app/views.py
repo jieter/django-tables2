@@ -2,6 +2,7 @@
 from random import choice
 
 from django.shortcuts import render
+from django.urls import reverse
 from django.utils.lorem_ipsum import words
 from django.views.generic.base import TemplateView
 
@@ -12,12 +13,6 @@ from .data import COUNTRIES
 from .filters import PersonFilter
 from .models import Country, Person
 from .tables import BootstrapTable, CountryTable, PersonTable, SemanticTable, ThemedCountryTable
-
-try:
-    from django.urls import reverse
-except ImportError:
-    # to keep backward (Django <= 1.9) compatibility
-    from django.core.urlresolvers import reverse
 
 
 def create_fake_data():
