@@ -1,6 +1,8 @@
 # coding: utf-8
 from __future__ import unicode_literals
 
+from collections import defaultdict
+
 import pytest
 from django.db.models.functions import Length
 from django.utils import six
@@ -436,3 +438,42 @@ def test_single_query_for_non_paginated_table():
 
     with assertNumQueries(1):
         list(table.as_values())
+
+
+def test_model__str__calls():
+    for i in range(3):
+        Person.objects.create(first_name='Bob %d' % i, last_name='Builder')
+
+    Person.original__str__ = Person.__str__
+    calls = defaultdict(int)
+
+    def counting__str__(self):
+        calls[self.pk] += 1
+        return self.original__str__()
+
+    setattr(Person, '__str__', counting__str__)
+
+    # check that call counting works
+    person = Person.objects.first()
+    (str(person), str(person), str(person))
+    assert calls == {person.pk: 3}
+    calls = defaultdict(int)
+    
+
+    class PersonTable(tables.Table):
+        class Meta:
+            model = Person
+            orderable = False
+            fields = ['name']
+
+        edit = tables.Column(orderable=False, empty_values=[])
+        render_edit = lambda self, value: 'lala'
+
+    assert calls == {}
+
+    table = PersonTable(Person.objects.all())
+    html = table.as_html(build_request())
+
+
+    assert calls == {}
+    setattr(Person, '__str__', Person.original__str__)
