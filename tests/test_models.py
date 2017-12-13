@@ -2,7 +2,6 @@
 from __future__ import unicode_literals
 
 from collections import defaultdict
-from unittest import mock
 
 import pytest
 from django.db.models.functions import Length
@@ -10,6 +9,7 @@ from django.utils import six
 from django.utils.translation import override as translation_override
 
 import django_tables2 as tables
+import mock
 
 from .app.models import Occupation, Person, PersonProxy
 from .utils import assertNumQueries, build_request
@@ -452,7 +452,6 @@ def test_model__str__calls():
         calls[self.pk] += 1
         return self.first_name
 
-
     with mock.patch('tests.app.models.Person.__str__', counting__str__):
         for i in range(1, 4):
             Person.objects.create(first_name='Bob %d' % i, last_name='Builder')
@@ -467,6 +466,6 @@ def test_model__str__calls():
         assert calls == {}
 
         table = PersonTable(Person.objects.all())
-        html = table.as_html(build_request())
+        table.as_html(build_request())
 
         assert calls == {}
