@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 from collections import defaultdict
+from unittest import mock
 
 import pytest
 from django.db.models.functions import Length
@@ -441,39 +442,31 @@ def test_single_query_for_non_paginated_table():
 
 
 def test_model__str__calls():
-    for i in range(3):
-        Person.objects.create(first_name='Bob %d' % i, last_name='Builder')
-
-    Person.original__str__ = Person.__str__
+    '''
+    Custom column introduces unnecessary calls to a model's __str__
+    method
+    '''
     calls = defaultdict(int)
 
     def counting__str__(self):
         calls[self.pk] += 1
-        return self.original__str__()
-
-    setattr(Person, '__str__', counting__str__)
-
-    # check that call counting works
-    person = Person.objects.first()
-    (str(person), str(person), str(person))
-    assert calls == {person.pk: 3}
-    calls = defaultdict(int)
-    
-
-    class PersonTable(tables.Table):
-        class Meta:
-            model = Person
-            orderable = False
-            fields = ['name']
-
-        edit = tables.Column(orderable=False, empty_values=[])
-        render_edit = lambda self, value: 'lala'
-
-    assert calls == {}
-
-    table = PersonTable(Person.objects.all())
-    html = table.as_html(build_request())
+        return self.first_name
 
 
-    assert calls == {}
-    setattr(Person, '__str__', Person.original__str__)
+    with mock.patch('tests.app.models.Person.__str__', counting__str__):
+        for i in range(1, 4):
+            Person.objects.create(first_name='Bob %d' % i, last_name='Builder')
+
+        class PersonTable(tables.Table):
+            class Meta:
+                model = Person
+                fields = ['first_name', 'last_name']
+
+            edit = tables.Column()
+
+        assert calls == {}
+
+        table = PersonTable(Person.objects.all())
+        html = table.as_html(build_request())
+
+        assert calls == {}
