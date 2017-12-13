@@ -5,6 +5,7 @@ from collections import OrderedDict
 from functools import total_ordering
 from itertools import chain
 
+from django.db import models
 from django.db.models.fields import FieldDoesNotExist
 from django.utils import six
 from django.utils.html import format_html_join
@@ -279,6 +280,9 @@ class Accessor(str):
     '''
     SEPARATOR = '.'
 
+    ALTERS_DATA_ERROR_FMT = 'Refusing to call {method}() because `.alters_data = True`'
+    LOOKUP_ERROR_FMT = 'Failed lookup for key [{key}] in {context}, when resolving the accessor {accessor}'
+
     def resolve(self, context, safe=True, quiet=False):
         '''
         Return an object described by the accessor by traversing the attributes
@@ -314,6 +318,7 @@ class Accessor(str):
             TypeError`, `AttributeError`, `KeyError`, `ValueError`
             (unless `quiet` == `True`)
         '''
+
         try:
             current = context
             for bit in self.bits:
@@ -330,13 +335,16 @@ class Accessor(str):
                                 KeyError,    # dict without `int(bit)` key
                                 TypeError,   # unsubscriptable object
                                 ):
-                            raise ValueError('Failed lookup for key [%s] in %r'
-                                             ', when resolving the accessor %s' % (bit, current, self)
-                                             )
+                            current_context = type(current) if isinstance(current, models.Model) else current
+
+                            raise ValueError(
+                                self.LOOKUP_ERROR_FMT.format(key=bit, context=current_context, accessor=self)
+                            )
                 if callable(current):
                     if safe and getattr(current, 'alters_data', False):
-                        raise ValueError('refusing to call %s() because `.alters_data = True`'
-                                         % repr(current))
+                        raise ValueError(
+                            self.ALTERS_DATA_ERROR_FMT.format(method=repr(current))
+                        )
                     if not getattr(current, 'do_not_call_in_templates', False):
                         current = current()
                 # important that we break in None case, or a relationship

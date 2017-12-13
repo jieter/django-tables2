@@ -1,12 +1,15 @@
 # coding: utf-8
 from __future__ import unicode_literals
 
+from collections import defaultdict
+
 import pytest
 from django.db.models.functions import Length
 from django.utils import six
 from django.utils.translation import override as translation_override
 
 import django_tables2 as tables
+import mock
 
 from .app.models import Occupation, Person, PersonProxy
 from .utils import assertNumQueries, build_request
@@ -436,3 +439,33 @@ def test_single_query_for_non_paginated_table():
 
     with assertNumQueries(1):
         list(table.as_values())
+
+
+def test_model__str__calls():
+    '''
+    Custom column introduces unnecessary calls to a model's __str__
+    method
+    '''
+    calls = defaultdict(int)
+
+    def counting__str__(self):
+        calls[self.pk] += 1
+        return self.first_name
+
+    with mock.patch('tests.app.models.Person.__str__', counting__str__):
+        for i in range(1, 4):
+            Person.objects.create(first_name='Bob %d' % i, last_name='Builder')
+
+        class PersonTable(tables.Table):
+            class Meta:
+                model = Person
+                fields = ['first_name', 'last_name']
+
+            edit = tables.Column()
+
+        assert calls == {}
+
+        table = PersonTable(Person.objects.all())
+        table.as_html(build_request())
+
+        assert calls == {}
