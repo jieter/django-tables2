@@ -14,30 +14,6 @@ def parse(html):
     return lxml.html.fromstring(html)
 
 
-class assertNumQueries(object):
-    '''
-    Assert the number of queries made through the django ORM in a with-block
-    '''
-    def __init__(self, count=1):
-        self.count = count
-        from django.conf import settings
-        settings.DEBUG = True
-
-    def query_count(self):
-        from django.db import connection
-        return len(connection.queries)
-
-    def __enter__(self):
-        self.original = self.query_count()
-
-    def __exit__(self, exc_type, exc_value, traceback):
-        expected = self.original + self.count
-        count = self.query_count()
-        assert expected == count, 'Expected {} queries, but got {}.'.format(
-            self.count, self.query_count() - self.original
-        )
-
-
 def attrs(xml):
     '''
     Helper function that returns a dict of XML attributes, given an element.
