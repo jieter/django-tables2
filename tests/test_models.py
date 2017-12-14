@@ -13,7 +13,7 @@ import django_tables2 as tables
 import mock
 
 from .app.models import Occupation, Person, PersonProxy
-from .utils import build_request
+from .utils import build_request, parse
 
 request = build_request()
 
@@ -124,13 +124,14 @@ class ModelsTest(TestCase):
         table = Table(Person.objects.all())
         assert len(table.columns.names()) == 0
 
-    def test_ordering(self):
+    def test_compound_ordering(self):
         class SimpleTable(tables.Table):
             name = tables.Column(order_by=('first_name', 'last_name'))
 
         table = SimpleTable(Person.objects.all(), order_by='name')
-        assert table.as_html(request)
-        # TODO: add meaningfull assertion, maybe remove here.
+        html = table.as_html(request)
+        root = parse(html)
+        self.assertEquals(root.findall('.//thead/tr/th/a')[0].attrib, {'href': '?sort=-name'})
 
     def test_default_order(self):
         '''
