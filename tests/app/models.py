@@ -79,8 +79,8 @@ class PersonProxy(Person):
 class Occupation(models.Model):
     name = models.CharField(max_length=200)
     region = models.ForeignKey('Region', null=True, on_delete=models.CASCADE)
-    boolean = models.BooleanField(null=True)
-    boolean_with_choices = models.BooleanField(null=True, choices=(
+    boolean = models.NullBooleanField(null=True)
+    boolean_with_choices = models.NullBooleanField(null=True, choices=(
         (True, 'Yes'),
         (False, 'No')
     ))

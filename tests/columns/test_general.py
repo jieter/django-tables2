@@ -1,7 +1,6 @@
 # coding: utf-8
 from __future__ import unicode_literals
 
-import pytest
 from django.db import models
 from django.test import TestCase
 from django.utils.safestring import SafeData, mark_safe
@@ -47,12 +46,12 @@ class ColumnGeneralTest(TestCase):
         assert isinstance(table.columns['safe'].header, SafeData)
 
     def test_should_raise_on_invalid_accessor(self):
-        with pytest.raises(TypeError):
+        with self.assertRaises(TypeError):
             class SimpleTable(tables.Table):
                 column = tables.Column(accessor={})
 
     def test_column_with_callable_accessor_should_not_have_default(self):
-        with pytest.raises(TypeError):
+        with self.assertRaises(TypeError):
             class SimpleTable(tables.Table):
                 column = tables.Column(accessor=lambda: 'foo', default='')
 
@@ -318,7 +317,7 @@ class ColumnGeneralTest(TestCase):
         table = Table([{'column': 'foo'}])
 
         row = table.rows[0]
-        with pytest.raises(TypeError):
+        with self.assertRaises(TypeError):
             row[table]
 
 
