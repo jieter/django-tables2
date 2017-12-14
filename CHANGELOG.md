@@ -1,7 +1,7 @@
 # Change log
 
 ## master
- - Fixed related columns added through `Table.Meta.fields` do not get the correct type ([#498](https://github.com/jieter/django-tables2/issues/498))
+ - Follow relations when detecting column type for fields in `Table.Meta.fields` (fixes [#498](https://github.com/jieter/django-tables2/issues/498))
 
 ## 1.17.1 (2017-12-14)
  - Fix typo in setup.py for `extras_require`.
