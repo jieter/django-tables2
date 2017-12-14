@@ -28,9 +28,11 @@ NAMES = [
     ('Gerardo', 'Castelein'),
 ]
 
-EXPECTED_CSV = '\r\n'.join(
+CSV_SEP = '\r\n'
+
+EXPECTED_CSV = CSV_SEP.join(
     ('First Name,Surname', ) + tuple(','.join(name) for name in NAMES)
-) + '\r\n'
+) + CSV_SEP
 
 EXPECTED_JSON = list([
     {'First Name': first_name, 'Surname': last_name}
@@ -48,6 +50,42 @@ class View(DispatchHookMixin, ExportMixin, tables.SingleTableView):
     table_pagination = {'per_page': 1}
     model = Person  # required for ListView
     template_name = 'django_tables2/bootstrap.html'
+
+
+@skipIf(TableExport is None, 'Tablib is required to run the export tests')
+class TableExportTest(TestCase):
+    '''
+    github issue #474: null/None values in exports
+    '''
+    def test_None_values(self):
+        table = Table([
+            {'first_name': 'Yildiz', 'last_name': 'van der Kuil'},
+            {'first_name': 'Jan', 'last_name': None}
+        ])
+
+        exporter = TableExport('csv', table)
+        expected = (
+            'First Name,Last Name',
+            'Yildiz,van der Kuil',
+            'Jan,'
+        )
+        self.assertEquals(exporter.export(), CSV_SEP.join(expected) + CSV_SEP)
+
+    def test_null_values(self):
+        Person.objects.create(first_name='Jan', last_name='Coen')
+
+        class Table(tables.Table):
+            first_name = tables.Column()
+            last_name = tables.Column(verbose_name='Last Name')
+            occupation = tables.Column(verbose_name='Occupation')
+
+        table = Table(Person.objects.all())
+        exporter = TableExport('csv', table)
+        expected = (
+            'First Name,Last Name,Occupation',
+            'Jan,Coen,'
+        )
+        self.assertEquals(exporter.export(), CSV_SEP.join(expected) + CSV_SEP)
 
 
 @skipIf(TableExport is None, 'Tablib is required to run the export tests')
