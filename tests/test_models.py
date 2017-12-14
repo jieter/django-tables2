@@ -389,15 +389,6 @@ class OrderingDataTest(TestCase):
         assert table.rows[0].get_cell('first_name') == 'VeryLongFirstName'
 
 
-# def test_foreign_key():
-#     class PersonTable(tables.Table):
-#         class Meta:
-#             model = Person
-#             fields = ('foreign_key', )
-#
-#     # TODO: implement
-
-
 class ModelSantityTest(TestCase):
     def setUp(self):
         for i in range(10):
