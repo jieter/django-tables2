@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 from django.db import models
+from django.test import SimpleTestCase
 
 import django_tables2 as tables
 
@@ -12,53 +13,50 @@ MEMORY_DATA = [
 ]
 
 
-def test_should_turn_url_into_hyperlink():
-    class TestTable(tables.Table):
-        url = tables.URLColumn()
+class UrlColumnTest(SimpleTestCase):
+    def test_should_turn_url_into_hyperlink(self):
+        class TestTable(tables.Table):
+            url = tables.URLColumn()
 
-    table = TestTable(MEMORY_DATA)
+        table = TestTable(MEMORY_DATA)
 
-    assert table.rows[0].get_cell('url') == '<a href="http://example.com">http://example.com</a>'
-    assert table.rows[1].get_cell('url') == '<a href="https://example.com">https://example.com</a>'
+        assert table.rows[0].get_cell('url') == '<a href="http://example.com">http://example.com</a>'
+        assert table.rows[1].get_cell('url') == '<a href="https://example.com">https://example.com</a>'
 
+    def test_should_be_used_for_urlfields(self):
+        class URLModel(models.Model):
+            field = models.URLField()
 
-def test_should_be_used_for_urlfields():
-    class URLModel(models.Model):
-        field = models.URLField()
+            class Meta:
+                app_label = 'django_tables2_test'
 
-        class Meta:
-            app_label = 'django_tables2_test'
+        class Table(tables.Table):
+            class Meta:
+                model = URLModel
 
-    class Table(tables.Table):
-        class Meta:
-            model = URLModel
+        assert type(Table.base_columns['field']) == tables.URLColumn
 
-    assert type(Table.base_columns['field']) == tables.URLColumn
+    def test_text_can_be_overridden(self):
+        class Table(tables.Table):
+            url = tables.URLColumn(text='link')
 
+        table = Table(MEMORY_DATA)
 
-def test_text_can_be_overridden():
-    class Table(tables.Table):
-        url = tables.URLColumn(text='link')
+        assert table.rows[0].get_cell('url') == '<a href="http://example.com">link</a>'
 
-    table = Table(MEMORY_DATA)
+    def test_text_can_be_overridden_with_callable(self):
+        class Table(tables.Table):
+            url = tables.URLColumn(text=lambda record: record['name'])
 
-    assert table.rows[0].get_cell('url') == '<a href="http://example.com">link</a>'
+        table = Table(MEMORY_DATA)
 
+        assert table.rows[0].get_cell('url') == '<a href="http://example.com">Example</a>'
+        assert table.rows[1].get_cell('url') == '<a href="https://example.com">Example (https)</a>'
 
-def test_text_can_be_overridden_with_callable():
-    class Table(tables.Table):
-        url = tables.URLColumn(text=lambda record: record['name'])
+    def test_value_returns_a_raw_value_without_html(self):
+        class TestTable(tables.Table):
+            col = tables.URLColumn()
 
-    table = Table(MEMORY_DATA)
+        table = TestTable([{'col': 'http://example.com'}])
 
-    assert table.rows[0].get_cell('url') == '<a href="http://example.com">Example</a>'
-    assert table.rows[1].get_cell('url') == '<a href="https://example.com">Example (https)</a>'
-
-
-def test_value_returns_a_raw_value_without_html():
-    class TestTable(tables.Table):
-        col = tables.URLColumn()
-
-    table = TestTable([{'col': 'http://example.com'}])
-
-    assert table.rows[0].get_cell_value('col') == 'http://example.com'
+        assert table.rows[0].get_cell_value('col') == 'http://example.com'
