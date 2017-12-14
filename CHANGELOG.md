@@ -4,6 +4,7 @@
  - Dropped support for Django 1.8, 1.9 and 1.10.
  - Add `extra_context` argument to `TemplateColumn` [#509](https://github.com/jieter/django-tables2/pull/509) by [@ad-m](https://github.com/ad-m)
  - Remove unnecessary cast of record to `str` [#514](https://github.com/jieter/django-tables2/pull/514), fixes [#511](https://github.com/jieter/django-tables2/issues/511)
+ - Use `django.test.TestCase` for all tests, and remove dependency on pytest and reorganized some tests [#515](https://github.com/jieter/django-tables2/pull/515)
 
 ## 1.16.0 (2017-11-27)
 This is the last version supporting Django 1.8, 1.9 and 1.10. Django 1.8 is only supported until april 2018, so consider upgrading to Django 1.11!
