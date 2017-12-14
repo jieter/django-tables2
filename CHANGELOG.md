@@ -1,6 +1,6 @@
 # Change log
 
-## master
+## 1.17.0 (2017-12-14)
  - Dropped support for Django 1.8, 1.9 and 1.10.
  - Add `extra_context` argument to `TemplateColumn` [#509](https://github.com/jieter/django-tables2/pull/509) by [@ad-m](https://github.com/ad-m)
  - Remove unnecessary cast of record to `str` [#514](https://github.com/jieter/django-tables2/pull/514), fixes [#511](https://github.com/jieter/django-tables2/issues/511)
