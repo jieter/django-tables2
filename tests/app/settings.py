@@ -10,7 +10,6 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.auth',
     'django_tables2',
-    'haystack',
 ]
 
 ROOT_URLCONF = 'tests.app.urls'
