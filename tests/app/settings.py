@@ -32,9 +32,3 @@ TEMPLATES = [
 TIME_ZONE = "Australia/Brisbane"
 
 USE_TZ = True
-
-HAYSTACK_CONNECTIONS = {
-    'default': {
-        'ENGINE': 'haystack.backends.simple_backend.SimpleEngine',
-    }
-}

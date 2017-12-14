@@ -9,8 +9,6 @@ from django.utils import six
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext, ugettext_lazy
 
-from haystack import indexes
-
 
 @six.python_2_unicode_compatible
 class Person(models.Model):
@@ -108,15 +106,3 @@ class PersonInformation(models.Model):
         verbose_name='Information',
         on_delete=models.CASCADE
     )
-
-
-# -- haystack -----------------------------------------------------------------
-
-class PersonIndex(indexes.SearchIndex, indexes.Indexable):
-    first_name = indexes.CharField(document=True)
-
-    def get_model(self):
-        return Person
-
-    def index_queryset(self, using=None):
-        return self.get_model().objects.all()

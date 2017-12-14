@@ -1,4 +1,4 @@
-django-haystack>=2.6.1
+django-haystack
 # mocks/stubs for tests
 fudge
 # xml parsing
