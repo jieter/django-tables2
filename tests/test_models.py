@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 from collections import defaultdict
 
 from django.db.models.functions import Length
+from django.template import Context, Template
 from django.test import TestCase
 from django.utils import six
 from django.utils.translation import override as translation_override
@@ -438,6 +439,44 @@ class ModelSantityTest(TestCase):
 
         assert calls == {}
 
+    def test_render_table_template_tag_numqueries(self):
+        class PersonTable(tables.Table):
+            class Meta:
+                model = Person
+                per_page = 1
+
+        request = build_request('/')
+
+        with self.assertNumQueries(0):
+            table = PersonTable(Person.objects.all())
+
+        with self.assertNumQueries(1):
+            # one query for pagination: .count()
+            tables.RequestConfig(request).configure(table)
+
+        template = Template('{% load django_tables2 %}{% render_table table %}')
+        context = Context({'table': table, 'request': request})
+
+        with self.assertNumQueries(1):
+            # one query for page records
+            template.render(context)
+
+        with self.assertNumQueries(0):
+            # re-render should not produce extra queries
+            template.render(context)
+
+        # second page
+        request = build_request('/?page=2')
+        context = Context({'table': table, 'request': request})
+
+        with self.assertNumQueries(0):
+            # count is already done, not needed anymore
+            tables.RequestConfig(request).configure(table)
+
+        with self.assertNumQueries(1):
+            # one query for page records
+            template.render(context)
+
     def test_single_query_for_non_paginated_table(self):
         '''
         A non-paginated table should not generate a query for each row, but only
@@ -459,8 +498,6 @@ class ModelSantityTest(TestCase):
         class PersonTable(tables.Table):
             class Meta:
                 model = Person
-
-        Person.objects.create(first_name='John', last_name='Doo')
 
         with self.assertNumQueries(2):
             PersonTable(Person.objects.all()).as_html(build_request())
