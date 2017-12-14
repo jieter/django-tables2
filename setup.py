@@ -34,8 +34,8 @@ setup(
     include_package_data=True,  # declarations in MANIFEST.in
 
     install_requires=['Django>=1.11'],
-    extra_require={
-        'tablib': 'tablib'
+    extras_require={
+        'tablib': ['tablib']
     },
 
     classifiers=[
