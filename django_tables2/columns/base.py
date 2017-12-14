@@ -29,12 +29,15 @@ class Library(object):
         Returns:
             `.Column` object or `None`
         '''
+        if field is None:
+            return self.columns[0]()
+
         # iterate in reverse order as columns are registered in order
         # of least to most specialised (i.e. Column is registered
         # first). This also allows user-registered columns to be
         # favoured.
         for candidate in reversed(self.columns):
-            if not hasattr(candidate, "from_field"):
+            if not hasattr(candidate, 'from_field'):
                 continue
             column = candidate.from_field(field)
             if column is None:

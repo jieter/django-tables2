@@ -1,8 +1,11 @@
 # Change log
 
+## master
+ - Fixed related columns added through `Table.Meta.fields` do not get the correct type ([#498](https://github.com/jieter/django-tables2/issues/498))
+
 ## 1.17.1 (2017-12-14)
  - Fix typo in setup.py for `extras_require`.
- -
+
 ## 1.17.0 (2017-12-14)
  - Dropped support for Django 1.8, 1.9 and 1.10.
  - Add `extra_context` argument to `TemplateColumn` [#509](https://github.com/jieter/django-tables2/pull/509) by [@ad-m](https://github.com/ad-m)

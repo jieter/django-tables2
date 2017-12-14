@@ -7,7 +7,6 @@ from itertools import count
 
 from django.conf import settings
 from django.core.paginator import Paginator
-from django.db.models.fields import FieldDoesNotExist
 from django.template.loader import get_template
 from django.utils import six
 from django.utils.encoding import force_text
@@ -16,7 +15,7 @@ from . import columns
 from .config import RequestConfig
 from .data import TableData
 from .rows import BoundRows
-from .utils import AttributeDict, OrderBy, OrderByTuple, Sequence
+from .utils import Accessor, AttributeDict, OrderBy, OrderByTuple, Sequence
 
 
 class DeclarativeColumnsMetaclass(type):
@@ -59,13 +58,8 @@ class DeclarativeColumnsMetaclass(type):
                 # Each item in opts.fields is the name of a model field or a
                 # normal attribute on the model
                 for field_name in opts.fields:
-                    try:
-                        field = opts.model._meta.get_field(field_name)
-                    except FieldDoesNotExist:
-                        extra[field_name] = columns.Column()
-                    else:
-                        extra[field_name] = columns.library.column_for_field(field)
-
+                    field = Accessor(field_name).get_field(opts.model)
+                    extra[field_name] = columns.library.column_for_field(field)
             else:
                 for field in opts.model._meta.fields:
                     extra[field.name] = columns.library.column_for_field(field)
@@ -280,7 +274,6 @@ class TableBase(object):
         base_columns = OrderedDict((
             (x, base_columns[x]) for x in sequence if x in base_columns
         ))
-
         self.columns = columns.BoundColumns(self, base_columns)
         # `None` value for order_by means no order is specified. This means we
         # `shouldn't touch our data's ordering in any way. *However*

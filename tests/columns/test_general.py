@@ -70,7 +70,6 @@ class ColumnGeneralTest(TestCase):
         assert table.columns['acronym'].header == ''
 
     def test_handle_verbose_name_of_many2onerel(self):
-
         class Table(tables.Table):
             count = tables.Column(accessor='info_list.count')
 
@@ -319,6 +318,21 @@ class ColumnGeneralTest(TestCase):
         row = table.rows[0]
         with self.assertRaises(TypeError):
             row[table]
+
+    def test_related_fields_get_correct_type(self):
+        '''
+        Types of related fields should also lead to the correct type of column.
+        '''
+        class PersonTable(tables.Table):
+            class Meta:
+                model = Person
+                fields = ['first_name', 'occupation.boolean']
+
+        table = PersonTable([])
+        self.assertEquals(
+            [type(column).__name__ for column in table.base_columns.values()],
+            ['Column', 'BooleanColumn']
+        )
 
 
 class MyModel(models.Model):

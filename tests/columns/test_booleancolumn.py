@@ -7,7 +7,7 @@ from django.test import TestCase
 import django_tables2 as tables
 
 from ..app.models import Occupation, Person
-from ..utils import attrs, build_request
+from ..utils import attrs, build_request, parse
 
 
 class BooleanColumnTest(TestCase):
@@ -125,7 +125,7 @@ class BooleanColumnTest(TestCase):
             boolean = tables.BooleanColumn(yesno='waar,onwaar')
 
             class Meta:
-                model = Person
+                model = Occupation
                 fields = ('boolean', 'name')
 
         Occupation.objects.create(name='Waar', boolean=True),
@@ -133,6 +133,7 @@ class BooleanColumnTest(TestCase):
         Occupation.objects.create(name='Onduidelijk')
 
         html = Table(Occupation.objects.all()).as_html(build_request())
+        root = parse(html)
 
-        assert 'Waar' in html
-        assert 'Onwaar' in html
+        self.assertEquals(root.findall('.//tbody/tr[1]/td')[1].text, 'Waar')
+        self.assertEquals(root.findall('.//tbody/tr[2]/td')[1].text, 'Onwaar')

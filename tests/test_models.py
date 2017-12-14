@@ -130,8 +130,10 @@ class ModelsTest(TestCase):
 
         table = SimpleTable(Person.objects.all(), order_by='name')
         html = table.as_html(request)
-        root = parse(html)
-        self.assertEquals(root.findall('.//thead/tr/th/a')[0].attrib, {'href': '?sort=-name'})
+        self.assertEquals(
+            parse(html).findall('.//thead/tr/th/a')[0].attrib,
+            {'href': '?sort=-name'}
+        )
 
     def test_default_order(self):
         '''
