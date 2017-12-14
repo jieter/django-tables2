@@ -1,7 +1,7 @@
 # coding: utf-8
 from __future__ import unicode_literals
 
-from os.path import dirname, join
+import os
 
 from django.core.files.base import ContentFile
 from django.core.files.storage import FileSystemStorage
@@ -16,7 +16,7 @@ from ..utils import parse
 
 def storage():
     '''Provide a storage that exposes the test templates'''
-    root = join(dirname(__file__), '..', 'app', 'templates')
+    root = os.path.join(os.path.dirname(__file__), '..', 'app', 'templates')
     return FileSystemStorage(location=root, base_url='/baseurl/')
 
 
