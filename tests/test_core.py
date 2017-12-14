@@ -187,7 +187,6 @@ class CoreTest(SimpleTestCase):
 
         assert len(table.rows) == 2
 
-# @pytest.mark.django_db
 # def test_should_support_haystack_data_source():
 #     Person.objects.create(first_name='Foo', last_name='Bar')
 #     Person.objects.create(first_name='Brad', last_name='Pitt')
