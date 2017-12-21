@@ -18,7 +18,7 @@ class TemplateColumn(Column):
     Arguments:
         template_code (str): template code to render
         template_name (str): name of the template to render
-        extra_content (dict): optional extra template context
+        extra_context (dict): optional extra template context
 
     A `~django.template.Template` object is created from the
     *template_code* or *template_name* and rendered with a context containing:
