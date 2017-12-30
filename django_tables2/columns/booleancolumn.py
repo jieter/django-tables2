@@ -31,7 +31,7 @@ class BooleanColumn(Column):
     def __init__(self, null=False, yesno='✔,✘', **kwargs):
         self.yesno = (yesno.split(',') if isinstance(yesno, six.string_types)
                       else tuple(yesno))
-        if null:
+        if not null:
             kwargs['empty_values'] = ()
         super(BooleanColumn, self).__init__(**kwargs)
 
