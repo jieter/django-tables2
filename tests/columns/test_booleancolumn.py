@@ -24,7 +24,7 @@ class BooleanColumnTest(TestCase):
 
         column = Table.base_columns['field']
         assert type(column) == tables.BooleanColumn
-        assert column.empty_values != ()
+        assert column.empty_values == ()
 
     def test_should_be_used_for_nullbooleanfield(self):
         class NullBoolModel(models.Model):
@@ -39,18 +39,18 @@ class BooleanColumnTest(TestCase):
 
         column = Table.base_columns['field']
         assert type(column) == tables.BooleanColumn
-        assert column.empty_values == ()
+        assert column.empty_values != ()
 
     def test_treat_none_different_from_false(self):
         class Table(tables.Table):
-            col = tables.BooleanColumn(null=False, default='---')
+            col = tables.BooleanColumn(null=True, default='---')
 
         table = Table([{'col': None}])
         assert table.rows[0].get_cell('col') == '---'
 
     def test_treat_none_as_false(self):
         class Table(tables.Table):
-            col = tables.BooleanColumn(null=True)
+            col = tables.BooleanColumn(null=False, default='---')
 
         table = Table([{'col': None}])
         assert table.rows[0].get_cell('col') == '<span class="false">✘</span>'
