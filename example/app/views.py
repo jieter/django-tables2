@@ -1,7 +1,7 @@
 # coding: utf-8
 from random import choice
 
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.utils.lorem_ipsum import words
 from django.views.generic.base import TemplateView
