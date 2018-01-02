@@ -11,6 +11,7 @@
 </head>
 <body>
     <div class="container">
+        {% block body %}
 
         <h3>django_tables2 with bootstrap template example</h3>
 
@@ -27,6 +28,7 @@
                 {% render_table table 'django_tables2/bootstrap.html' %}
             </div>
         </div>
+        {% endblock %}
     </div>
 </body>
 </html>

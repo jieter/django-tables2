@@ -1,7 +1,7 @@
 # coding: utf-8
 from random import choice
 
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
 from django.utils.lorem_ipsum import words
 from django.views.generic.base import TemplateView
@@ -136,3 +136,10 @@ class FilteredPersonListView(SingleTableMixin, FilterView):
     template_name = 'bootstrap_template.html'
 
     filterset_class = PersonFilter
+
+
+def country_detail(request, pk):
+    country = get_object_or_404(Country, pk=pk)
+    return render(request, 'country_detail.html', {
+        'country': country
+    })

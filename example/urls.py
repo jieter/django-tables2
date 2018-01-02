@@ -4,9 +4,8 @@ from django.conf.urls import include, url
 from django.contrib import admin
 from django.views import static
 
-from app.views import ClassBased, FilteredPersonListView, MultipleTables, bootstrap, index, multiple, semantic, tutorial
-
-admin.autodiscover()
+from app.views import (ClassBased, FilteredPersonListView, MultipleTables, bootstrap, country_detail, index, multiple,
+                       semantic, tutorial)
 
 urlpatterns = [
     url(r'^$', index),
@@ -20,9 +19,17 @@ urlpatterns = [
     url(r'^semantic/$', semantic, name='semantic'),
 
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
-    url(r'^admin/', include(admin.site.urls)),
+    url(r'^admin/', admin.site.urls),
+
+    url(r'^country/(?P<pk>[0-9]+)/$', country_detail, name='country_detail'),
 
     url(r'^media/(?P<path>.*)$', static.serve, {
         'document_root': settings.MEDIA_ROOT,
     }),
 ]
+
+if settings.DEBUG:
+    import debug_toolbar
+    urlpatterns = [
+        url(r'^__debug__/', include(debug_toolbar.urls)),
+    ] + urlpatterns

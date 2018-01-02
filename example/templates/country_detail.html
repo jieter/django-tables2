@@ -1,0 +1,7 @@
+{% extends 'semantic_template.html' %}
+{% load django_tables2 %}
+
+{% block body %}
+<h1>{{ country }}</h2>
+{% render_table country.person_set.all 'django_tables2/semantic.html' %}
+{% endblock %}

@@ -9,8 +9,10 @@
 </head>
 <body>
     <div class="ui container">
+        {% block body %}
         <h3>django_tables2 with Semantic UI template example</h3>
         {% render_table table %}
+        {% endblock %}
     </div>
 </body>
 </html>
