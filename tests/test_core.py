@@ -408,27 +408,27 @@ class CoreTest(SimpleTestCase):
         assert '1-page' == table.prefixed_page_field
         assert '1-per_page' == table.prefixed_per_page_field
 
-    def test_should_support_a_template_to_be_specified(self):
+    def test_should_support_a_template_name_to_be_specified(self):
         class ConstructorSpecifiedTemplateTable(tables.Table):
             name = tables.Column()
 
         table = ConstructorSpecifiedTemplateTable([], template='dummy.html')
-        assert table.template == 'dummy.html'
+        assert table.template_name == 'dummy.html'
 
         class PropertySpecifiedTemplateTable(tables.Table):
             name = tables.Column()
 
         table = PropertySpecifiedTemplateTable([])
-        table.template = 'dummy.html'
-        assert table.template == 'dummy.html'
+        table.template_name = 'dummy.html'
+        assert table.template_name == 'dummy.html'
 
         class DefaultTable(tables.Table):
             pass
 
         table = DefaultTable([])
-        assert table.template == 'django_tables2/table.html'
+        assert table.template_name == 'django_tables2/table.html'
 
-    def test_template_in_meta_class_declaration_should_be_honored(self):
+    def test_template_name_in_meta_class_declaration_should_be_honored(self):
         class MetaDeclarationSpecifiedTemplateTable(tables.Table):
             name = tables.Column()
 
@@ -436,7 +436,7 @@ class CoreTest(SimpleTestCase):
                 template = 'dummy.html'
 
         table = MetaDeclarationSpecifiedTemplateTable([])
-        assert table.template == 'dummy.html'
+        assert table.template_name == 'dummy.html'
         assert table.as_html(request) == 'dummy template contents\n'
 
     def test_should_support_rendering_multiple_times(self):

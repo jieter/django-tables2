@@ -60,7 +60,7 @@
 
                         {% if table.page.has_previous or table.page.has_next %}
                             {% block pagination.current %}
-                                    <div class="item">{% blocktrans with table.page.number as current and table.paginator.num_pages as total %}Page {{ current }} of {{ total }}{% endblocktrans %}</div>
+                                <div class="item">{% blocktrans with table.page.number as current and table.paginator.num_pages as total %}Page {{ current }} of {{ total }}{% endblocktrans %}</div>
                             {% endblock pagination.current %}
                         {% endif %}
 

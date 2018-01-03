@@ -243,11 +243,11 @@ API Reference
             This functionality is also available via the ``orderable`` keyword
             argument to a table's constructor.
 
-    template (str): The default template to use when rendering the table.
+    template_name (str): The name of template to use when rendering the table.
 
         .. note::
 
-            This functionality is also available via the *template* keyword
+            This functionality is also available via the *template_name* keyword
             argument to a table's constructor.
 
 

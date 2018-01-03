@@ -78,7 +78,7 @@ allow for any customisation. For that, you must define a custom `.Table` class::
     class PersonTable(tables.Table):
         class Meta:
             model = Person
-            template = 'django_tables2/bootstrap.html'
+            template_name = 'django_tables2/bootstrap.html'
 
 
 You will then need to instantiate and configure the table in the view, before
