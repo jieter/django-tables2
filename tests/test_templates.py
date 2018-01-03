@@ -256,7 +256,7 @@ class TemplateLocalizeTest(TestCase):
 
 class BootstrapTable(CountryTable):
     class Meta:
-        template = 'django_tables2/bootstrap.html'
+        template_name = 'django_tables2/bootstrap.html'
         prefix = 'bootstrap-'
         per_page = 2
 
@@ -288,7 +288,7 @@ class BootstrapTemplateTest(SimpleTestCase):
     def test_bootstrap_responsive_template(self):
         class BootstrapResponsiveTable(BootstrapTable):
             class Meta(BootstrapTable.Meta):
-                template = 'django_tables2/bootstrap-responsive.html'
+                template_name = 'django_tables2/bootstrap-responsive.html'
 
         table = BootstrapResponsiveTable(MEMORY_DATA)
         request = build_request('/')
@@ -310,7 +310,7 @@ class SemanticTemplateTest(SimpleTestCase):
     def test_semantic_template(self):
         class SemanticTable(CountryTable):
             class Meta:
-                template = 'django_tables2/semantic.html'
+                template_name = 'django_tables2/semantic.html'
                 prefix = 'semantic-'
                 per_page = 2
 
