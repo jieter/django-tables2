@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 import copy
+import warnings
 from collections import OrderedDict
 from itertools import count
 
@@ -135,7 +136,11 @@ class TableOptions(object):
         self.sequence = Sequence(getattr(options, 'sequence', ()))
         self.orderable = getattr(options, 'orderable', True)
         self.model = getattr(options, 'model', None)
-        self.template = getattr(options, 'template', DJANGO_TABLES2_TEMPLATE)
+        if hasattr(options, 'template'):
+            self.template_name = getattr(options, 'template', DJANGO_TABLES2_TEMPLATE)
+            warnings.warn('Table.Meta.template is deprecated. Use template_name instead.', DeprecationWarning)
+        else:
+            self.template_name = getattr(options, 'template_name', DJANGO_TABLES2_TEMPLATE)
         self.localize = getattr(options, 'localize', ())
         self.unlocalize = getattr(options, 'unlocalize', ())
 
@@ -189,8 +194,9 @@ class TableBase(object):
         per_page_field (str): If not `None`, defines the name of the *per page*
             querystring field.
 
-        template (str): The template to render when using ``{% render_table %}``
-            (default ``'django_tables2/table.html'``)
+        template_name (str): The template to render when using ``{% render_table %}``
+            (defaults to DJANGO_TABLES2_TEMPLATE, which is ``'django_tables2/table.html'``
+            by default).
 
         default (str): Text to render in empty cells (determined by
             `.Column.empty_values`, default `.Table.Meta.default`)
@@ -209,7 +215,7 @@ class TableBase(object):
     def __init__(self, data=None, order_by=None, orderable=None, empty_text=None,
                  exclude=None, attrs=None, row_attrs=None, pinned_row_attrs=None,
                  sequence=None, prefix=None, order_by_field=None, page_field=None,
-                 per_page_field=None, template=None, default=None, request=None,
+                 per_page_field=None, template=None, template_name=None, default=None, request=None,
                  show_header=None, show_footer=True, extra_columns=None):
         super(TableBase, self).__init__()
 
@@ -290,7 +296,11 @@ class TableBase(object):
                 self.order_by = order_by
         else:
             self.order_by = order_by
-        self.template = template
+        if template is not None:
+            self.template_name = template
+            warnings.warn('template argument to Table is deprecated. Use template_name instead.', DeprecationWarning)
+        else:
+            self.template_name = template_name
         # If a request is passed, configure for request
         if request:
             RequestConfig(request).configure(self)
@@ -376,7 +386,7 @@ class TableBase(object):
         '''
         # reset counter for new rendering
         self._counter = count()
-        template = get_template(self.template)
+        template = get_template(self.template_name)
 
         context = {
             'table': self,
@@ -567,14 +577,14 @@ class TableBase(object):
         self._orderable = value
 
     @property
-    def template(self):
+    def template_name(self):
         if self._template is not None:
             return self._template
         else:
-            return self._meta.template
+            return self._meta.template_name
 
-    @template.setter
-    def template(self, value):
+    @template_name.setter
+    def template_name(self, value):
         self._template = value
 
     def get_column_class_names(self, classes_set, bound_column):

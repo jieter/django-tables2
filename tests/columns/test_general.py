@@ -329,7 +329,7 @@ class ColumnGeneralTest(TestCase):
                 fields = ['first_name', 'occupation.boolean']
 
         table = PersonTable([])
-        self.assertEquals(
+        self.assertEqual(
             [type(column).__name__ for column in table.base_columns.values()],
             ['Column', 'BooleanColumn']
         )

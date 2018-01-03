@@ -42,7 +42,7 @@ class TemplateTest(TestCase):
             column = tables.Column()
 
         table = Table({})
-        assert table.template == 'foo/bar.html'
+        assert table.template_name == 'foo/bar.html'
 
     def test_as_html(self):
         request = build_request('/')
@@ -78,7 +78,7 @@ class TemplateTest(TestCase):
         assert len(root.findall('.//tbody/tr/td')) == 16
 
         # with custom template
-        table = CountryTable([], template='django_tables2/table.html')
+        table = CountryTable([], template_name='django_tables2/table.html')
         table.as_html(request)
 
     def test_custom_rendering(self):
@@ -275,12 +275,12 @@ class BootstrapTemplateTest(SimpleTestCase):
         assert len(root.findall('.//tbody/tr')) == 2
         assert len(root.findall('.//tbody/tr/td')) == 8
 
-        self.assertEquals(
+        self.assertEqual(
             root.find('./ul[@class="pager list-inline"]/li[@class="cardinality"]/small').text.strip(),
             'Page 1 of 2'
         )
         # make sure the link is prefixed
-        self.assertEquals(
+        self.assertEqual(
             root.find('./ul[@class="pager list-inline"]/li[@class="next"]/a').get('href'),
             '?bootstrap-page=2'
         )

@@ -130,7 +130,7 @@ class ModelsTest(TestCase):
 
         table = SimpleTable(Person.objects.all(), order_by='name')
         html = table.as_html(request)
-        self.assertEquals(
+        self.assertEqual(
             parse(html).findall('.//thead/tr/th/a')[0].attrib,
             {'href': '?sort=-name'}
         )
@@ -403,7 +403,7 @@ class ModelSantityTest(TestCase):
         table = PersonTable(Person.objects.all())
         table.as_html(request)
 
-        self.assertEquals(Person.objects.all().count(), 10)
+        self.assertEqual(Person.objects.all().count(), 10)
 
     def test_model__str__calls(self):
         '''

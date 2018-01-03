@@ -124,10 +124,10 @@ class RenderTableNode(Node):
         table (~.Table): the table to render
         template (str or list): Name[s] of template to render
     '''
-    def __init__(self, table, template=None):
+    def __init__(self, table, template_name=None):
         super(RenderTableNode, self).__init__()
         self.table = table
-        self.template = template
+        self.template_name = template_name
 
     def render(self, context):
         table = self.table.resolve(context)
@@ -152,16 +152,16 @@ class RenderTableNode(Node):
             klass = type(table).__name__
             raise ValueError('Expected table or queryset, not {}'.format(klass))
 
-        if self.template:
-            template = self.template.resolve(context)
+        if self.template_name:
+            template_name = self.template_name.resolve(context)
         else:
-            template = table.template
+            template_name = table.template_name
 
-        if isinstance(template, six.string_types):
-            template = get_template(template)
+        if isinstance(template_name, six.string_types):
+            template = get_template(template_name)
         else:
             # assume some iterable was given
-            template = select_template(template)
+            template = select_template(template_name)
 
         # Contexts are basically a `MergeDict`, when you `update()`, it
         # internally just adds a dict to the list to attempt lookups from. This

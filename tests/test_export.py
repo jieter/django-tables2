@@ -69,7 +69,7 @@ class TableExportTest(TestCase):
             'Yildiz,van der Kuil',
             'Jan,'
         )
-        self.assertEquals(exporter.export(), CSV_SEP.join(expected) + CSV_SEP)
+        self.assertEqual(exporter.export(), CSV_SEP.join(expected) + CSV_SEP)
 
     def test_null_values(self):
         Person.objects.create(first_name='Jan', last_name='Coen')
@@ -85,7 +85,7 @@ class TableExportTest(TestCase):
             'First Name,Last Name,Occupation',
             'Jan,Coen,'
         )
-        self.assertEquals(exporter.export(), CSV_SEP.join(expected) + CSV_SEP)
+        self.assertEqual(exporter.export(), CSV_SEP.join(expected) + CSV_SEP)
 
 
 @skipIf(TableExport is None, 'Tablib is required to run the export tests')

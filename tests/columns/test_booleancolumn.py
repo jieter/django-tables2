@@ -135,5 +135,5 @@ class BooleanColumnTest(TestCase):
         html = Table(Occupation.objects.all()).as_html(build_request())
         root = parse(html)
 
-        self.assertEquals(root.findall('.//tbody/tr[1]/td')[1].text, 'Waar')
-        self.assertEquals(root.findall('.//tbody/tr[2]/td')[1].text, 'Onwaar')
+        self.assertEqual(root.findall('.//tbody/tr[1]/td')[1].text, 'Waar')
+        self.assertEqual(root.findall('.//tbody/tr[2]/td')[1].text, 'Onwaar')
