@@ -65,14 +65,19 @@
         {% endblock pagination.previous %}
     {% endif %}
 
-    {% if table.page.has_previous or table.page.has_next %}
-        {% block pagination.cardinality %}
-            <li class="cardinality">
-                {% blocktrans with table.page.number as current and table.paginator.num_pages as total %}Page {{ current }} of {{ total }}{% endblocktrans %}
+    {% block pagination.range %}
+        {% for p in table.page|table_page_range:table.paginator %}
+            <li>
+                {% if table.page.number == p or p == '...' %}
+                    {{ p }}
+                {% else %}
+                    <a href="{% querystring table.prefixed_page_field=p %}">
+                        {{ p }}
+                    </a>
+                {% endif %}
             </li>
-        {% endblock pagination.cardinality %}
-    {% endif %}
-
+        {% endfor %}
+    {% endblock pagination.range %}
     {% if table.page.has_next %}
         {% block pagination.next %}
             <li class="next">

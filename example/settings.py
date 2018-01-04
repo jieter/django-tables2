@@ -122,6 +122,7 @@ INSTALLED_APPS = (
 
     'django_filters',
     'bootstrap3',
+    'bootstrap4',
     'django_tables2',
     'debug_toolbar',
 
