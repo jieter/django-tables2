@@ -4,8 +4,8 @@ from django.conf.urls import include, url
 from django.contrib import admin
 from django.views import static
 
-from app.views import (ClassBased, FilteredPersonListView, MultipleTables, bootstrap, country_detail, index, multiple,
-                       semantic, tutorial)
+from app.views import (ClassBased, FilteredPersonListView, MultipleTables, bootstrap, bootstrap4, country_detail, index,
+                       multiple, semantic, tutorial)
 
 urlpatterns = [
     url(r'^$', index),
@@ -16,6 +16,7 @@ urlpatterns = [
 
     url(r'^tutorial/$', tutorial, name='tutorial'),
     url(r'^bootstrap/$', bootstrap, name='bootstrap'),
+    url(r'^bootstrap4/$', bootstrap4, name='bootstrap4'),
     url(r'^semantic/$', semantic, name='semantic'),
 
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
