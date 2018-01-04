@@ -31,6 +31,16 @@ class BootstrapTable(tables.Table):
         exclude = ('friendly', )
 
 
+class Bootstrap4Table(tables.Table):
+    country = tables.RelatedLinkColumn()
+
+    class Meta:
+        model = Person
+        template_name = 'django_tables2/bootstrap4.html'
+        attrs = {'class': 'table table-hover'}
+        exclude = ('friendly', )
+
+
 class SemanticTable(tables.Table):
 
     country = tables.RelatedLinkColumn()
@@ -43,6 +53,6 @@ class SemanticTable(tables.Table):
 
 
 class PersonTable(tables.Table):
-
+    pagination_style = 'range'
     class Meta:
         model = Person
