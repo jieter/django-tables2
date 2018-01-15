@@ -17,11 +17,10 @@ class ConfigTest(SimpleTestCase):
                                       prefixed_order_by_field='sort')
 
     def test_no_querystring(self):
-        table = self.table()
-        request = build_request('/')
-        table = table.has_attr(order_by=NOTSET).expects('paginate')
-        RequestConfig(request).configure(table)
-        assert table.order_by is NOTSET
+        table = self.table().has_attr(order_by=NOTSET).expects('paginate')
+        RequestConfig(build_request('/')).configure(table)
+
+        self.assertEqual(table.order_by, NOTSET)
 
     def test_full_querystring(self):
         table = self.table()
@@ -74,9 +73,6 @@ class ConfigTest(SimpleTestCase):
         class SimpleTable(Table):
             abc = Column()
 
-        table = SimpleTable([
-            {'abc': 'bar'},
-            {'abc': 'rab'}
-        ], request=request)
+        table = SimpleTable([], request=request)
 
         assert table.columns['abc'].is_ordered
