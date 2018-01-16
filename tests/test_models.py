@@ -495,3 +495,13 @@ class ModelSantityTest(TestCase):
 
         with self.assertNumQueries(2):
             PersonTable(Person.objects.all()).as_html(build_request())
+
+
+class TableFactoryTest(TestCase):
+    def test_factory(self):
+        occupation = Occupation.objects.create(name='Programmer')
+        Person.objects.create(first_name='Bradley', last_name='Ayers', occupation=occupation)
+        persons = Person.objects.all()
+        Table = tables.table_factory(Person)
+        table = Table(persons)
+        self.assertIsInstance(table, tables.Table)
