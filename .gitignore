@@ -19,3 +19,4 @@
 .cache/
 .python-version
 .idea
+*.sw[po]
