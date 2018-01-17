@@ -505,3 +505,30 @@ class TableFactoryTest(TestCase):
         Table = tables.table_factory(Person)
         table = Table(persons)
         self.assertIsInstance(table, tables.Table)
+        self.assertEqual(Table.__name__, 'PersonTable')
+
+    def test_factory_fields_argument(self):
+        fields = ('username',)
+        Table = tables.table_factory(Person, fields=fields)
+        self.assertEqual(Table.Meta.fields, fields)
+        self.assertEqual(Table._meta.fields, fields)
+
+    def test_factory_exclude_argument(self):
+        exclude = ('username',)
+        Table = tables.table_factory(Person, exclude=exclude)
+        self.assertEqual(Table.Meta.exclude, exclude)
+        self.assertEqual(Table._meta.exclude, exclude)
+
+    def test_factory_localize_argument(self):
+        localize = ('username',)
+        Table = tables.table_factory(Person, localize=localize)
+        self.assertEqual(Table.Meta.localize, localize)
+        self.assertEqual(Table._meta.localize, localize)
+
+    def test_factory_with_meta(self):
+        localize = ('username',)
+
+        class Meta:
+            fields = ('first_name',)
+
+        tables.table_factory(Person, localize=localize)

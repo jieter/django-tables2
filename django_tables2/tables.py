@@ -622,15 +622,14 @@ class Table(TableBase):
 # Table = DeclarativeColumnsMetaclass(str('Table'), (TableBase, ), {})
 
 
-def table_factory(model, table=Table, fields=None, exclude=None,
-                  localized_columns=None):
+def table_factory(model, table=Table, fields=None, exclude=None, localize=None):
     attrs = {'model': model}
     if fields is not None:
         attrs['fields'] = fields
     if exclude is not None:
         attrs['exclude'] = exclude
-    if localized_columns is not None:
-        attrs['localized_columns'] = localized_columns
+    if localize is not None:
+        attrs['localize'] = localize
     # If parent form class already has an inner Meta, the Meta we're
     # creating needs to inherit from the parent's inner meta.
     parent = (object,)
@@ -638,7 +637,7 @@ def table_factory(model, table=Table, fields=None, exclude=None,
         parent = (table.Meta, object)
     Meta = type(str('Meta'), parent, attrs)
     # Give this new form class a reasonable name.
-    class_name = model.__name__ + str('Table') 
+    class_name = model.__name__ + str('Table')
     # Class attributes for the new form class.
     table_class_attrs = {
         'Meta': Meta,
