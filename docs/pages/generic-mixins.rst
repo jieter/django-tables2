@@ -13,7 +13,8 @@ template.
 
 The following view parameters are supported:
 
-- ``table_class`` –- the table class to use, e.g. ``SimpleTable``
+- ``table_class`` –- the table class to use, e.g. ``SimpleTable``, if not specfied
+  a default table will be provided.
 - ``table_data`` (or ``get_table_data()``) -- the data used to populate the table
 - ``context_table_name`` -- the name of template variable containing the table object
 - ``table_pagination`` (or ``get_table_pagination``) -- pagination
@@ -60,7 +61,7 @@ when one isn't explicitly defined.
 
 
 Multiple tables using `.MultiTableMixin`
---------------------------------------------
+----------------------------------------
 
 If you need more than one table in a single view you can use `MultiTableMixin`.
 It manages multiple tables for you and takes care of adding the appropriate

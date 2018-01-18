@@ -6,8 +6,8 @@ from itertools import count
 from django.core.exceptions import ImproperlyConfigured
 from django.views.generic.list import ListView
 
-from .config import RequestConfig
 from . import tables
+from .config import RequestConfig
 
 
 class TableMixinBase(object):
