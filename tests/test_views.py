@@ -35,6 +35,10 @@ class SimpleView(DispatchHookMixin, tables.SingleTableView):
     model = Region  # required for ListView
 
 
+class SimpleNoTableClassView(DispatchHookMixin, tables.SingleTableView):
+    model = Region  # required for ListView
+
+
 class SimplePaginatedView(DispatchHookMixin, tables.SingleTableView):
     table_class = SimpleTable
     table_pagination = {'per_page': 1}
@@ -101,13 +105,6 @@ class SingleTableViewTest(TestCase):
 
         assert len(table.rows) == 1
         assert table.rows[0].get_cell('name') == 'Queensland'
-
-    def test_should_raise_without_tableclass(self):
-        class WithoutTableclassView(tables.SingleTableView):
-            model = Region
-
-        with self.assertRaises(ImproperlyConfigured):
-            WithoutTableclassView.as_view()(build_request('/'))
 
     def test_should_support_explicit_table_data(self):
         class ExplicitDataView(SimplePaginatedView):
@@ -196,6 +193,16 @@ class SingleTableViewTest(TestCase):
                 return Person.objects.all()
 
         TestView.as_view()(build_request())
+
+    def test_get_tables_class(self):
+        view = SimpleView()
+        table_class = view.get_table_class()
+        self.assertEqual(table_class, view.table_class)
+
+    def test_get_tables_class_auto(self):
+        view = SimpleNoTableClassView()
+        table_class = view.get_table_class()
+        self.assertEqual(table_class.__name__, 'RegionTable')
 
 
 class SingleTableMixinTest(TestCase):
