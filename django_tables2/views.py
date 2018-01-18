@@ -23,9 +23,15 @@ class TableMixinBase(object):
         '''
         Return the class to use for the table.
         '''
-        if self.table_class is None:
-            self.table_class = tables.table_factory(self.model)
-        return self.table_class
+        if self.table_class:
+            return self.table_class
+        if self.model:
+            return tables.table_factory(self.model)
+        klass = type(self).__name__
+        raise ImproperlyConfigured(
+            "You must either specify {0}.table_class or"
+            "{0}.model".format(klass)
+        )
 
     def get_context_table_name(self, table):
         '''

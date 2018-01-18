@@ -526,9 +526,13 @@ class TableFactoryTest(TestCase):
         self.assertEqual(Table._meta.localize, localize)
 
     def test_factory_with_meta(self):
-        localize = ('username',)
+        fields = ('first_name',)
 
-        class Meta:
-            fields = ('first_name',)
+        class TableWithMeta(tables.Table):
+            first_name = tables.Column()
 
-        tables.table_factory(Person, localize=localize)
+            class Meta:
+                fields = ('first_name',)
+
+        Table = tables.table_factory(Person, table=TableWithMeta)
+        self.assertEqual(Table.Meta.fields, fields)

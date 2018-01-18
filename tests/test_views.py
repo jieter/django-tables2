@@ -35,10 +35,6 @@ class SimpleView(DispatchHookMixin, tables.SingleTableView):
     model = Region  # required for ListView
 
 
-class SimpleNoTableClassView(DispatchHookMixin, tables.SingleTableView):
-    model = Region  # required for ListView
-
-
 class SimplePaginatedView(DispatchHookMixin, tables.SingleTableView):
     table_class = SimpleTable
     table_pagination = {'per_page': 1}
@@ -200,9 +196,21 @@ class SingleTableViewTest(TestCase):
         self.assertEqual(table_class, view.table_class)
 
     def test_get_tables_class_auto(self):
+        class SimpleNoTableClassView(tables.SingleTableView):
+            model = Region
+
         view = SimpleNoTableClassView()
         table_class = view.get_table_class()
         self.assertEqual(table_class.__name__, 'RegionTable')
+
+    def test_get_tables_class_raises_no_model(self):
+        class SimpleNoTableClassNoModelView(tables.SingleTableView):
+            model = None
+            table_class = None
+
+        view = SimpleNoTableClassNoModelView()
+        with self.assertRaises(ImproperlyConfigured):
+            view.get_table_class()
 
 
 class SingleTableMixinTest(TestCase):
