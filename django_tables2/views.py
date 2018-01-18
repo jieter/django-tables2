@@ -7,6 +7,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.views.generic.list import ListView
 
 from .config import RequestConfig
+from . import tables
 
 
 class TableMixinBase(object):
@@ -15,18 +16,16 @@ class TableMixinBase(object):
     '''
 
     context_table_name = 'table'
+    table_class = None
     table_pagination = None
 
     def get_table_class(self):
         '''
         Return the class to use for the table.
         '''
-        if self.table_class:
-            return self.table_class
-        klass = type(self).__name__
-        raise ImproperlyConfigured(
-            'A table class was not specified. Define {}.table_class'.format(klass)
-        )
+        if self.table_class is None:
+            self.table_class = tables.table_factory(self.model)
+        return self.table_class
 
     def get_context_table_name(self, table):
         '''

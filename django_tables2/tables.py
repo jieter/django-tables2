@@ -622,14 +622,27 @@ class Table(TableBase):
 # Table = DeclarativeColumnsMetaclass(str('Table'), (TableBase, ), {})
 
 
-def table_factory(model, table=Table, fields=None, exclude=None, localize=None):
+def table_factory(model, table=Table, **kwargs):
+    """
+
+    Arguments:
+        model (`~django.db.models.Model`): Model associated with the new table
+
+        table (`.Table`): Base Table class used to create the new one
+
+        fields (list of str): Fields displayed in tables
+
+        exclude (list of str): Fields exclude in tables
+
+        localize (list of str): Fields to localize
+    """
     attrs = {'model': model}
-    if fields is not None:
-        attrs['fields'] = fields
-    if exclude is not None:
-        attrs['exclude'] = exclude
-    if localize is not None:
-        attrs['localize'] = localize
+    if kwargs.get('fields'):
+        attrs['fields'] = kwargs['fields']
+    if kwargs.get('exclude'):
+        attrs['exclude'] = kwargs['exclude']
+    if kwargs.get('localize'):
+        attrs['localize'] = kwargs['localize']
     # If parent form class already has an inner Meta, the Meta we're
     # creating needs to inherit from the parent's inner meta.
     parent = (object,)
