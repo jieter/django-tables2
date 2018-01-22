@@ -1,0 +1,44 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-01-22 08:20+0100\n"
+"PO-Revision-Date: 2018-01-22 08:21+0100\n"
+"Last-Translator: FULL NAME <ondra.rehounek@seznam.cz>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
+
+#: templates/django_tables2/bootstrap.html:61
+#: templates/django_tables2/semantic.html:57
+msgid "previous"
+msgstr "předchozí"
+
+#: templates/django_tables2/bootstrap.html:69
+#: templates/django_tables2/semantic.html:63
+#: templates/django_tables2/table.html:71
+#, python-format
+msgid "Page %(current)s of %(total)s"
+msgstr "Strana %(current)s z %(total)s"
+
+#: templates/django_tables2/bootstrap.html:77
+#: templates/django_tables2/semantic.html:69
+msgid "next"
+msgstr "další"
+
+#: templates/django_tables2/table.html:63
+msgid "Previous"
+msgstr "Předchozí"
+
+#: templates/django_tables2/table.html:79
+msgid "Next"
+msgstr "Další"
+
