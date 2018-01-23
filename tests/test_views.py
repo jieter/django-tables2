@@ -102,13 +102,6 @@ class SingleTableViewTest(TestCase):
         assert len(table.rows) == 1
         assert table.rows[0].get_cell('name') == 'Queensland'
 
-    def test_should_raise_without_tableclass(self):
-        class WithoutTableclassView(tables.SingleTableView):
-            model = Region
-
-        with self.assertRaises(ImproperlyConfigured):
-            WithoutTableclassView.as_view()(build_request('/'))
-
     def test_should_support_explicit_table_data(self):
         class ExplicitDataView(SimplePaginatedView):
             table_data = MEMORY_DATA
@@ -196,6 +189,28 @@ class SingleTableViewTest(TestCase):
                 return Person.objects.all()
 
         TestView.as_view()(build_request())
+
+    def test_get_tables_class(self):
+        view = SimpleView()
+        table_class = view.get_table_class()
+        self.assertEqual(table_class, view.table_class)
+
+    def test_get_tables_class_auto(self):
+        class SimpleNoTableClassView(tables.SingleTableView):
+            model = Region
+
+        view = SimpleNoTableClassView()
+        table_class = view.get_table_class()
+        self.assertEqual(table_class.__name__, 'RegionTable')
+
+    def test_get_tables_class_raises_no_model(self):
+        class SimpleNoTableClassNoModelView(tables.SingleTableView):
+            model = None
+            table_class = None
+
+        view = SimpleNoTableClassNoModelView()
+        with self.assertRaises(ImproperlyConfigured):
+            view.get_table_class()
 
 
 class SingleTableMixinTest(TestCase):

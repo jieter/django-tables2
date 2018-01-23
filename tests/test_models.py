@@ -495,3 +495,44 @@ class ModelSantityTest(TestCase):
 
         with self.assertNumQueries(2):
             PersonTable(Person.objects.all()).as_html(build_request())
+
+
+class TableFactoryTest(TestCase):
+    def test_factory(self):
+        occupation = Occupation.objects.create(name='Programmer')
+        Person.objects.create(first_name='Bradley', last_name='Ayers', occupation=occupation)
+        persons = Person.objects.all()
+        Table = tables.table_factory(Person)
+        table = Table(persons)
+        self.assertIsInstance(table, tables.Table)
+        self.assertEqual(Table.__name__, 'PersonTable')
+
+    def test_factory_fields_argument(self):
+        fields = ('username',)
+        Table = tables.table_factory(Person, fields=fields)
+        self.assertEqual(Table.Meta.fields, fields)
+        self.assertEqual(Table._meta.fields, fields)
+
+    def test_factory_exclude_argument(self):
+        exclude = ('username',)
+        Table = tables.table_factory(Person, exclude=exclude)
+        self.assertEqual(Table.Meta.exclude, exclude)
+        self.assertEqual(Table._meta.exclude, exclude)
+
+    def test_factory_localize_argument(self):
+        localize = ('username',)
+        Table = tables.table_factory(Person, localize=localize)
+        self.assertEqual(Table.Meta.localize, localize)
+        self.assertEqual(Table._meta.localize, localize)
+
+    def test_factory_with_meta(self):
+        fields = ('first_name',)
+
+        class TableWithMeta(tables.Table):
+            first_name = tables.Column()
+
+            class Meta:
+                fields = ('first_name',)
+
+        Table = tables.table_factory(Person, table=TableWithMeta)
+        self.assertEqual(Table.Meta.fields, fields)

@@ -6,6 +6,7 @@ from itertools import count
 from django.core.exceptions import ImproperlyConfigured
 from django.views.generic.list import ListView
 
+from . import tables
 from .config import RequestConfig
 
 
@@ -15,6 +16,7 @@ class TableMixinBase(object):
     '''
 
     context_table_name = 'table'
+    table_class = None
     table_pagination = None
 
     def get_table_class(self):
@@ -23,9 +25,12 @@ class TableMixinBase(object):
         '''
         if self.table_class:
             return self.table_class
+        if self.model:
+            return tables.table_factory(self.model)
         klass = type(self).__name__
         raise ImproperlyConfigured(
-            'A table class was not specified. Define {}.table_class'.format(klass)
+            "You must either specify {0}.table_class or"
+            "{0}.model".format(klass)
         )
 
     def get_context_table_name(self, table):

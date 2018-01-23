@@ -126,7 +126,10 @@ There are several topic you can read into to futher customize the table:
 - Table data
     - :ref:`Populating the table with data <table_data>`,
     - :ref:`Filtering table data <filtering>`
-- Custumizing the rendered table
+- Customizing the rendered table
     - :ref:`Headers and footers <column-headers-and-footers>`
     - :ref:`pinned_rows`
 - :ref:`api-public`
+
+If you think you don't have a lot customization to do and don't want to make
+a full class declaration use ``django_tables2.tables.table_factory``.
