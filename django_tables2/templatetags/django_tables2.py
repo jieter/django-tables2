@@ -16,7 +16,6 @@ from django.utils.html import escape
 from django.utils.http import urlencode
 
 import django_tables2 as tables
-from django_tables2.config import RequestConfig
 
 register = template.Library()
 kwarg_re = re.compile(r"(?:(.+)=)?(.+)")
@@ -139,15 +138,7 @@ class RenderTableNode(Node):
         elif hasattr(table, 'model'):
             queryset = table
 
-            # We've been given a queryset, create a table using its model and
-            # render that.
-            class OnTheFlyTable(tables.Table):
-                class Meta:
-                    model = queryset.model
-
-            table = OnTheFlyTable(queryset)
-            if request:
-                RequestConfig(request).configure(table)
+            table = tables.table_factory(model=queryset.model)(queryset, request=request)
         else:
             klass = type(table).__name__
             raise ValueError('Expected table or queryset, not {}'.format(klass))

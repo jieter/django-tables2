@@ -625,16 +625,17 @@ class Table(TableBase):
 def table_factory(model, table=Table, fields=None, exclude=None,
                   localize=None):
     """
+    Returns Table class for given `model`, equivalent to defining a custom table class::
+
+        class MyTable(tables.Table):
+            class Meta:
+                model = model
 
     Arguments:
         model (`~django.db.models.Model`): Model associated with the new table
-
         table (`.Table`): Base Table class used to create the new one
-
         fields (list of str): Fields displayed in tables
-
         exclude (list of str): Fields exclude in tables
-
         localize (list of str): Fields to localize
     """
     attrs = {'model': model}
