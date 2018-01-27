@@ -1,7 +1,10 @@
 # Change log
 
-## master
+## 1.18.0 (2018-01-27)
  - Follow relations when detecting column type for fields in `Table.Meta.fields` (fixes [#498](https://github.com/jieter/django-tables2/issues/498))
+ - Renamed `Table.Meta.template` to `template_name` (with deprecation warning for the former) [#542](https://github.com/jieter/django-tables2/pull/524) (fixes [#520](https://github.com/jieter/django-tables2/issues/520))
+ - Added Czech translation [#533](https://github.com/jieter/django-tables2/pull/533) by [@OndraRehounek](https://github.com/OndraRehounek)
+ - Added `table_factory` [#532](https://github.com/jieter/django-tables2/pull/532) by [@ZuluPro](https://github.com/ZuluPro)
 
 ## 1.17.1 (2017-12-14)
  - Fix typo in setup.py for `extras_require`.
