@@ -11,6 +11,7 @@ from django.test import SimpleTestCase, override_settings
 
 import django_tables2 as tables
 from django_tables2.tables import DeclarativeColumnsMetaclass
+from django_tables2.utils import AttributeDict
 
 from .utils import build_request, parse
 
@@ -498,6 +499,44 @@ class CoreTest(SimpleTestCase):
         table = Table([{}], default='abcd')
         table.default = 'efgh'
         assert table.rows[0].get_cell('name') == 'efgh'
+
+
+class BoundColumnTest(SimpleTestCase):
+
+    def test_attrs_bool_error(self):
+        class Table(tables.Table):
+            c_element = tables.Column()
+
+        class ErrorObject(object):
+            def __bool__(self):
+                raise NotImplementedError
+
+        table = Table([{'c_element': ErrorObject()}])
+        list(table.rows[0].items())
+        try:
+            table.columns[0].attrs
+        except NotImplementedError:
+            self.fail('__bool__ should not be evaluated!')
+
+    def test_attrs_falsy_object(self):
+        """Computed attrs in BoundColumn should be passed the column value, even if its __bool__ returns False. """
+        class Table(tables.Table):
+            c_element = tables.Column()
+
+            class Meta:
+                attrs = {
+                    'td': {'data-column-name': lambda value: value.name}
+                }
+
+        class FalsyObject(object):
+            name = 'FalsyObject1'
+
+            def __bool__(self):
+                return False
+
+        table = Table([{'c_element': FalsyObject()}])
+        list(table.rows[0].items())
+        self.assertEqual('FalsyObject1', table.columns[0].attrs['td']['data-column-name'])
 
 
 class AsValuesTest(SimpleTestCase):
