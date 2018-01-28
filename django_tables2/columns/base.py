@@ -314,7 +314,7 @@ class BoundColumn(object):
         }
         # BoundRow.items() sets current_record and current_value when iterating over
         # the records in a table.
-        if getattr(self, 'current_record', False) and getattr(self, 'current_value', False):
+        if getattr(self, 'current_record', None) is not None and getattr(self, 'current_value', None) is not None:
             kwargs.update({
                 'record': self.current_record,
                 'value': self.current_value
