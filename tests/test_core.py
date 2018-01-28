@@ -11,7 +11,6 @@ from django.test import SimpleTestCase, override_settings
 
 import django_tables2 as tables
 from django_tables2.tables import DeclarativeColumnsMetaclass
-from django_tables2.utils import AttributeDict
 
 from .utils import build_request, parse
 
