@@ -182,6 +182,17 @@ class BoundRow(object):
             default=self.table.columns[name].default
         )
 
+    @property
+    def cell(self):
+        class CellReader(object):
+            def __init__(self, row):
+                self.row = row
+
+            def __getattr__(self, name):
+                return self.row.get_cell(name)
+
+        return CellReader(self)
+
     def _call_render(self, bound_column, value=None):
         '''
         Call the column's render method with appropriate kwargs
