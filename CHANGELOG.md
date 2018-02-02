@@ -1,5 +1,9 @@
 # Change log
 
+## master
+ - `BoundColumn.attrs` does not evaluate `current_value` as `bool` [#536](https://github.com/jieter/django-tables2/pull/536) by [@pachewise](https://github.com/pachewise) (fixes [#534](https://github.com/jieter/django-tables2/issues/534))
+ - Allow more flexible access to cell values (especially useful for django templates) (fixes [#485](https://github.com/jieter/django-tables2/issues/485))
+
 ## 1.18.0 (2018-01-27)
  - Follow relations when detecting column type for fields in `Table.Meta.fields` (fixes [#498](https://github.com/jieter/django-tables2/issues/498))
  - Renamed `Table.Meta.template` to `template_name` (with deprecation warning for the former) [#542](https://github.com/jieter/django-tables2/pull/524) (fixes [#520](https://github.com/jieter/django-tables2/issues/520))
