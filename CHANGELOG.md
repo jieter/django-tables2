@@ -1,6 +1,6 @@
 # Change log
 
-## master
+## 1.19.0 (2018-02-02)
  - `BoundColumn.attrs` does not evaluate `current_value` as `bool` [#536](https://github.com/jieter/django-tables2/pull/536) by [@pachewise](https://github.com/pachewise) (fixes [#534](https://github.com/jieter/django-tables2/issues/534))
  - Allow more flexible access to cell values (especially useful for django templates) (fixes [#485](https://github.com/jieter/django-tables2/issues/485))
 
