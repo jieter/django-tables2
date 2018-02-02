@@ -58,6 +58,28 @@ class RowsTest(SimpleTestCase):
         assert 'occupation' in row
         assert 'gamma' not in row
 
+    def test_boud_row_cells(self):
+        class SimpleTable(tables.Table):
+            name = tables.Column()
+            occupation = tables.Column()
+            age = tables.Column()
+
+        record = {'name': 'Bradley', 'age': 20, 'occupation': 'programmer'}
+
+        table = SimpleTable([record])
+        row = table.rows[0]
+        self.assertEqual(row.cells.name, record['name'])
+        self.assertEqual(row.cells.age, record['age'])
+        self.assertEqual(row.cells.name, row.get_cell('name'))
+        self.assertEqual(row.cells[0], record['name'])
+        self.assertEqual(row.cells[0], row.get_cell(0))
+
+        with self.assertRaises(IndexError):
+            row.cells[3]
+
+        with self.assertRaises(KeyError):
+            row.cells['gamma']
+
     def test_row_attrs(self):
         '''
         If a callable returns an empty string, do not add a space to the CSS class
