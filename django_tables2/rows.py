@@ -9,6 +9,20 @@ from .columns.linkcolumn import BaseLinkColumn
 from .utils import A, AttributeDict, call_with_appropriate, computed_values
 
 
+class CellAccessor(object):
+    '''
+    Allows accessing cell contents on a row object (see `BoundRow`)
+    '''
+    def __init__(self, row):
+        self.row = row
+
+    def __getitem__(self, key):
+        return self.row.get_cell(key)
+
+    def __getattr__(self, name):
+        return self.row.get_cell(name)
+
+
 class BoundRow(object):
     '''
     Represents a *specific* row in a table.
@@ -33,25 +47,32 @@ class BoundRow(object):
         1
         <input type="checkbox" name="my_chkbox" value="2" />
 
-    Alternatively you can use row.get_cell() to retrieve a specific cell::
+    Alternatively you can use row.cells[0] to retrieve a specific cell::
 
-        >>> row.get_cell(0)
+        >>> row.cells[0]
         1
-        >>> row.get_cell(1)
-        u'<input type="checkbox" name="my_chkbox" value="2" />'
-        >>> row.get_cell(2)
+        >>> row.cells[1]
+        '<input type="checkbox" name="my_chkbox" value="2" />'
+        >>> row.cells[2]
         ...
         IndexError: list index out of range
 
     Finally you can also use the column names to retrieve a specific cell::
 
-        >>> row.get_cell('a')
+        >>> row.cells.a
         1
-        >>> row.get_cell('b')
-        u'<input type="checkbox" name="my_chkbox" value="2" />'
-        >>> row.get_cell('c')
+        >>> row.cells.b
+        '<input type="checkbox" name="my_chkbox" value="2" />'
+        >>> row.cells.c
         ...
-        KeyError: 'c'
+        KeyError: "Column with name 'c' does not exist; choices are: ['a', 'b']"
+
+    If you have the column name in a variable, you can also treat the `cells`
+    property like a `dict`::
+
+        >>> key = 'a'
+        >>> row.cells[key]
+        1
 
     Arguments:
         table: The `.Table` in which this row exists.
@@ -65,6 +86,8 @@ class BoundRow(object):
         self._table = table
 
         self.row_counter = next(table._counter)
+
+        self.cells = CellAccessor(self)
 
     @property
     def table(self):
@@ -181,17 +204,6 @@ class BoundRow(object):
             render_func=self._call_render,
             default=self.table.columns[name].default
         )
-
-    @property
-    def cell(self):
-        class CellReader(object):
-            def __init__(self, row):
-                self.row = row
-
-            def __getattr__(self, name):
-                return self.row.get_cell(name)
-
-        return CellReader(self)
 
     def _call_render(self, bound_column, value=None):
         '''
