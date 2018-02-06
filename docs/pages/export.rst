@@ -100,7 +100,7 @@ If you use the ``~.ExportMixin``, add an ``exclude_columns`` attribute to your c
         table_class = MyTable
         model = Person
         template_name = 'django_tables2/bootstrap.html'
-        exclude_column = ('buttons', )
+        exclude_columns = ('buttons', )
 
 
 Generating export urls
