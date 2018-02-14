@@ -175,13 +175,20 @@ class MultiTableMixin(TableMixinBase):
 
         return self.tables
 
+    def get_tables_data(self):
+        '''
+        Return an array of table_data that should be used to populate each table
+        '''
+        return self.tables_data
+
     def get_context_data(self, **kwargs):
         context = super(MultiTableMixin, self).get_context_data(**kwargs)
+        data = self.get_tables_data()
 
-        if self.tables_data is None:
+        if data is None:
             tables = self.get_tables()
+
         else:
-            data = self.tables_data
             if len(data) != len(self.get_tables()):
                 klass = type(self).__name__
                 raise ImproperlyConfigured(
