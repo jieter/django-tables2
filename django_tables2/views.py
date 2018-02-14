@@ -142,7 +142,7 @@ class MultiTableMixin(TableMixinBase):
 
     the `tables` attribute must be either a list of `.Table` instances or
     classes extended from `.Table` which are not already instantiated. In that
-    case, `get_tables_data` must be able to return the tables data, either by 
+    case, `get_tables_data` must be able to return the tables data, either by
     having an entry containing the data for each table in `tables`, or by
     overriding this method in order to return this data.
 
