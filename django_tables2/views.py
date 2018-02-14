@@ -72,8 +72,8 @@ class SingleTableMixin(TableMixinBase):
             the *paginate* keyword argument to `.RequestConfig`. As such, any
             Truthy value enables pagination. (default: enable pagination)
 
-    This mixin plays nice with the Django's`.MultipleObjectMixin` by using
-    `.get_queryset`` as a fallback for the table data source.
+    This mixin plays nice with the Django's ``.MultipleObjectMixin`` by using
+    ``.get_queryset`` as a fallback for the table data source.
     '''
     table_class = None
     table_data = None
