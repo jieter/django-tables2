@@ -137,13 +137,14 @@ class SingleTableView(SingleTableMixin, ListView):
 
 class MultiTableMixin(TableMixinBase):
     '''
-    Adds a Table object to the context. Typically used with
+    Add a list with multiple Table object's to the context. Typically used with
     `.TemplateResponseMixin`.
 
     the `tables` attribute must be either a list of `.Table` instances or
     classes extended from `.Table` which are not already instantiated. In that
-    case, tables_data must be defined, having an entry containing the data for
-    each table in `tables`.
+    case, `get_tables_data` must be able to return the tables data, either by
+    having an entry containing the data for each table in `tables`, or by
+    overriding this method in order to return this data.
 
     Attributes:
         tables: list of `.Table` instances or list of `.Table` child objects.
@@ -175,13 +176,20 @@ class MultiTableMixin(TableMixinBase):
 
         return self.tables
 
+    def get_tables_data(self):
+        '''
+        Return an array of table_data that should be used to populate each table
+        '''
+        return self.tables_data
+
     def get_context_data(self, **kwargs):
         context = super(MultiTableMixin, self).get_context_data(**kwargs)
+        data = self.get_tables_data()
 
-        if self.tables_data is None:
+        if data is None:
             tables = self.get_tables()
+
         else:
-            data = self.tables_data
             if len(data) != len(self.get_tables()):
                 klass = type(self).__name__
                 raise ImproperlyConfigured(

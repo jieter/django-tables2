@@ -340,3 +340,19 @@ class MultiTableMixinTest(TestCase):
 
         assert tableA.page.number == 1
         assert tableB.page.number == 3
+
+    def test_get_tables_data(self):
+        class View(tables.MultiTableMixin, TemplateView):
+            tables = (TableA, TableB)
+            template_name = 'multiple.html'
+
+            def get_tables_data(self):
+                return [Person.objects.all(), Region.objects.all()]
+
+        response = View.as_view()(build_request('/'))
+        response.render()
+
+        html = response.rendered_content
+
+        assert '<td class="first_name">Jan Pieter</td>' in html
+        assert '<td class="name">Zuid-Holland</td>' in html
