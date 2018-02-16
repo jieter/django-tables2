@@ -195,10 +195,13 @@ class QuerystringTagTest(SimpleTestCase):
 
     def test_export_url_tag(self):
         template = Template('{% load django_tables2 %}{% export_url "csv" %}')
-
         html = template.render(Context({'request': build_request('?q=foo')}))
-
         self.assertEqual(dict(parse_qs(html[1:])), dict(parse_qs('q=foo&amp;_export=csv')))
+
+        # using a template context variable
+        template = Template('{% load django_tables2 %}{% export_url format %}')
+        html = template.render(Context({'request': build_request('?q=foo'), 'format': 'xls'}))
+        self.assertEqual(dict(parse_qs(html[1:])), dict(parse_qs('q=foo&amp;_export=xls')))
 
 
 class TitleTagTest(SimpleTestCase):

@@ -109,7 +109,7 @@ Generating export urls
 You can use the ``querystring`` template tag included with django_tables2
 to render a link to export the data as ``csv``::
 
-    {% querystring '_export'='csv' %}
+    {% export_url "csv" %}
 
 This will make sure any other query string parameters will be preserved, for example
 in combination when filtering table items.
@@ -117,7 +117,7 @@ in combination when filtering table items.
 If you want to render more than one button, you could use something like this::
 
     {% for format in table.export_formats %}
-        <a href="{% querystring '_export'=format %}">
+        <a href="{% export_url format %}">
             download  <code>.{{ format }}</code>
         </a>
     {% endfor %}
