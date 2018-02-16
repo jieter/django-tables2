@@ -61,6 +61,9 @@ class QuerystringNode(Node):
 
         params = dict(context['request'].GET)
         for key, value in self.updates.items():
+            if isinstance(key, six.string_types):
+                params[key] = value
+                continue
             key = key.resolve(context)
             value = value.resolve(context)
             if key not in ('', None):
@@ -240,3 +243,20 @@ except ImportError:
 
 register.filter('localize', l10n_register.filters['localize'])
 register.filter('unlocalize', l10n_register.filters['unlocalize'])
+
+
+@register.simple_tag(takes_context=True)
+def export_url(context, export_format, export_trigger_param='_export'):
+    '''
+    Returns an export url for the given file `export_format`, preserving current
+    query string parameters.
+
+    Example for a page requested with querystring ``?q=blue``::
+
+        {% export_url "csv" %}
+
+    It will return::
+
+        ?q=blue&amp;_export=csv
+    '''
+    return QuerystringNode(updates={export_trigger_param: export_format}, removals=[]).render(context)

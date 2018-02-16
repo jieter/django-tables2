@@ -193,6 +193,13 @@ class QuerystringTagTest(SimpleTestCase):
         for argstr, expected in tests:
             assert_querystring_asvar(argstr, expected)
 
+    def test_export_url_tag(self):
+        template = Template('{% load django_tables2 %}{% export_url "csv" %}')
+
+        html = template.render(Context({'request': build_request('?q=foo')}))
+
+        self.assertEqual(dict(parse_qs(html[1:])), dict(parse_qs('q=foo&amp;_export=csv')))
+
 
 class TitleTagTest(SimpleTestCase):
     def test_should_only_apply_to_words_without_uppercase_letters(self):
