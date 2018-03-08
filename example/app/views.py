@@ -150,6 +150,9 @@ class FilteredPersonListView(SingleTableMixin, FilterView):
 
     filterset_class = PersonFilter
 
+    def get_table_kwargs(self):
+        return {'template_name': 'django_tables2/bootstrap.html'}
+
 
 def country_detail(request, pk):
     country = get_object_or_404(Country, pk=pk)
