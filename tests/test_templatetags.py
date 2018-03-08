@@ -33,19 +33,19 @@ class RenderTableTagTest(TestCase):
         html = template.render(Context({'request': request, 'table': table}))
 
         root = parse(html)
-        assert len(root.findall('.//thead/tr')) == 1
-        assert len(root.findall('.//thead/tr/th')) == 4
-        assert len(root.findall('.//tbody/tr')) == 4
-        assert len(root.findall('.//tbody/tr/td')) == 16
+        self.assertEqual(len(root.findall('.//thead/tr')), 1)
+        self.assertEqual(len(root.findall('.//thead/tr/th')), 4)
+        self.assertEqual(len(root.findall('.//tbody/tr')), 4)
+        self.assertEqual(len(root.findall('.//tbody/tr/td')), 16)
 
     def test_no_data_without_empty_text(self):
         table = CountryTable([])
         template = Template('{% load django_tables2 %}{% render_table table %}')
         html = template.render(Context({'request': build_request('/'), 'table': table}))
         root = parse(html)
-        assert len(root.findall('.//thead/tr')) == 1
-        assert len(root.findall('.//thead/tr/th')) == 4
-        assert len(root.findall('.//tbody/tr')) == 0
+        self.assertEqual(len(root.findall('.//thead/tr')), 1)
+        self.assertEqual(len(root.findall('.//thead/tr/th')), 4)
+        self.assertEqual(len(root.findall('.//tbody/tr')), 0)
 
     def test_no_data_with_empty_text(self):
         # no data WITH empty_text
@@ -56,12 +56,12 @@ class RenderTableTagTest(TestCase):
         html = template.render(Context({'request': request, 'table': table}))
 
         root = parse(html)
-        assert len(root.findall('.//thead/tr')) == 1
-        assert len(root.findall('.//thead/tr/th')) == 4
-        assert len(root.findall('.//tbody/tr')) == 1
-        assert len(root.findall('.//tbody/tr/td')) == 1
-        assert int(root.find('.//tbody/tr/td').get('colspan')) == len(root.findall('.//thead/tr/th'))
-        assert root.find('.//tbody/tr/td').text == 'this table is empty'
+        self.assertEqual(len(root.findall('.//thead/tr')), 1)
+        self.assertEqual(len(root.findall('.//thead/tr/th')), 4)
+        self.assertEqual(len(root.findall('.//tbody/tr')), 1)
+        self.assertEqual(len(root.findall('.//tbody/tr/td')), 1)
+        self.assertEqual(int(root.find('.//tbody/tr/td').get('colspan')), len(root.findall('.//thead/tr/th')))
+        self.assertEqual(root.find('.//tbody/tr/td').text, 'this table is empty')
 
     @override_settings(DEBUG=True)
     def test_missing_variable(self):
@@ -83,7 +83,7 @@ class RenderTableTagTest(TestCase):
                             '{% render_table table "dummy.html" %}')
 
         context = RequestContext(build_request(), {'table': table})
-        assert template.render(context) == 'dummy template contents\n'
+        self.assertEqual(template.render(context), 'dummy template contents\n')
 
     def test_template_argument_list(self):
         template = Template('{% load django_tables2 %}'
@@ -93,7 +93,7 @@ class RenderTableTagTest(TestCase):
             'table': CountryTable(MEMORY_DATA, order_by=('name', 'population')),
             'template_list': ('dummy.html', 'child/foo.html')
         })
-        assert template.render(context) == 'dummy template contents\n'
+        self.assertEqual(template.render(context), 'dummy template contents\n')
 
     def test_render_table_supports_queryset(self):
         for name in ('Mackay', 'Brisbane', 'Maryborough'):
@@ -105,12 +105,12 @@ class RenderTableTagTest(TestCase):
         }))
 
         root = parse(html)
-        assert [e.text for e in root.findall('.//thead/tr/th/a')] == ['ID', 'Name', 'Mayor']
+        self.assertEqual([e.text for e in root.findall('.//thead/tr/th/a')], ['ID', 'Name', 'Mayor'])
         td = [[td.text for td in tr.findall('td')] for tr in root.findall('.//tbody/tr')]
         db = []
         for region in Region.objects.all():
             db.append([six.text_type(region.id), region.name, "—"])
-        assert td == db
+        self.assertEqual(td, db)
 
 
 class QuerystringTagTest(SimpleTestCase):
@@ -129,10 +129,10 @@ class QuerystringTagTest(SimpleTestCase):
         url = parse(xml).text
 
         qs = parse_qs(url[1:])  # everything after the ?
-        assert qs['name'] == ['Brad']
-        assert qs['age'] == ['21']
-        assert qs['a'] == ['b']
-        assert qs['c'] == ['5']
+        self.assertEqual(qs['name'], ['Brad'])
+        self.assertEqual(qs['age'], ['21'])
+        self.assertEqual(qs['a'], ['b'])
+        self.assertEqual(qs['c'], ['5'])
 
     def test_requires_request(self):
         template = Template('{% load django_tables2 %}{% querystring "name"="Brad" %}')
@@ -149,7 +149,7 @@ class QuerystringTagTest(SimpleTestCase):
                             '<b>{% querystring "name"="Brad" without a_var %}</b>')
         url = parse(template.render(context)).text
         qs = parse_qs(url[1:])  # trim the ?
-        assert set(qs.keys()) == set(['name', 'c'])
+        self.assertEqual(set(qs.keys()), set(['name', 'c']))
 
     def test_only_without(self):
         context = Context({
@@ -160,7 +160,7 @@ class QuerystringTagTest(SimpleTestCase):
                             '<b>{% querystring without "a" "name" %}</b>')
         url = parse(template.render(context)).text
         qs = parse_qs(url[1:])  # trim the ?
-        assert set(qs.keys()) == set(["c"])
+        self.assertEqual(set(qs.keys()), set(["c"]))
 
     def test_querystring_syntax_error(self):
         with self.assertRaises(TemplateSyntaxError):
@@ -180,9 +180,9 @@ class QuerystringTagTest(SimpleTestCase):
                 'foo': {'bar': 'age'},
                 'value': 21,
             }))
-            assert '<b></b>' in xml
+            self.assertIn('<b></b>', xml)
             qs = parse(xml).xpath('.//strong')[0].text[1:]
-            assert parse_qs(qs) == expected
+            self.assertEqual(parse_qs(qs), expected)
 
         tests = (
             ('"name"="Brad" as=varname', dict(name=['Brad'], a=['b'])),
@@ -224,4 +224,4 @@ class TitleTagTest(SimpleTestCase):
 
         for raw, expected in expectations.items():
             template = Template('{% load django_tables2 %}{{ x|title }}')
-            assert template.render(Context({'x': raw})) == expected
+            assert template.render(Context({'x': raw})), expected
