@@ -157,10 +157,6 @@ class RenderTableNode(Node):
             # assume some iterable was given
             template = select_template(template_name)
 
-        # Contexts are basically a `MergeDict`, when you `update()`, it
-        # internally just adds a dict to the list to attempt lookups from. This
-        # is why we're able to `pop()` later.
-        context.update({'table': table})
         try:
             # HACK:
             # TemplateColumn benefits from being able to use the context
@@ -169,10 +165,12 @@ class RenderTableNode(Node):
             # which TemplateColumn then looks for and uses.
             table.context = context
             table.before_render(request)
-            return template.render(context.flatten())
+            return template.render({
+                'request': context['request'],
+                'table': table
+            })
         finally:
             del table.context
-            context.pop()
 
 
 @register.tag
