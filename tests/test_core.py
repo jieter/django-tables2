@@ -4,7 +4,6 @@ from __future__ import absolute_import, unicode_literals
 
 import copy
 import itertools
-import warnings
 
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.test import SimpleTestCase, override_settings
@@ -437,26 +436,6 @@ class CoreTest(SimpleTestCase):
         table = MetaDeclarationSpecifiedTemplateTable([])
         self.assertEqual(table.template_name, 'dummy.html')
         self.assertEqual(table.as_html(request), 'dummy template contents\n')
-
-    def test_warns_for_legacy_template(self):
-        '''
-        Test for DepricationWarning and fallback to current table.template_name
-        attribute.
-        '''
-        with warnings.catch_warnings(record=True) as w:
-
-            class MetaDeclarationSpecifiedTemplateTable(tables.Table):
-                name = tables.Column()
-
-                class Meta:
-                    template = 'dummy.html'
-
-            table = MetaDeclarationSpecifiedTemplateTable([], template='dummy2.html')
-
-        self.assertEqual(len(w), 2)
-        self.assertTrue(issubclass(w[0].category, DeprecationWarning))
-        self.assertTrue(issubclass(w[1].category, DeprecationWarning))
-        self.assertEqual(table.template_name, 'dummy2.html')
 
     def test_should_support_rendering_multiple_times(self):
         class MultiRenderTable(tables.Table):
