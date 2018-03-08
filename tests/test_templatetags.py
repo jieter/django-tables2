@@ -7,7 +7,7 @@ from django.test import SimpleTestCase, TestCase, override_settings
 from django.utils import six
 from django.utils.six.moves.urllib.parse import parse_qs
 
-from django_tables2.config import RequestConfig
+from django_tables2 import RequestConfig, Table, TemplateColumn
 
 from .app.models import Region
 from .test_templates import MEMORY_DATA, CountryTable
@@ -37,6 +37,28 @@ class RenderTableTagTest(TestCase):
         self.assertEqual(len(root.findall('.//thead/tr/th')), 4)
         self.assertEqual(len(root.findall('.//tbody/tr')), 4)
         self.assertEqual(len(root.findall('.//tbody/tr/td')), 16)
+
+    def test_does_not_mutate_context(self):
+        '''
+        Make sure the tag does not change the context of the template the tag is called from
+        https://github.com/jieter/django-tables2/issues/547
+        '''
+        class MyTable(Table):
+            col = TemplateColumn(template_code='{{ value }}')
+
+        table = MyTable([{'col': 'foo'}, {'col': 'bar'}], template_name='minimal.html')
+        template = Template(
+            '{% load django_tables2 %}'
+            '{% with "foo" as table %}{{ table }}{% render_table mytable %}\n{{ table }}{% endwith %}'
+        )
+
+        html = template.render(Context({
+            'request': build_request(),
+            'mytable': table,
+        }))
+        lines = html.splitlines()
+        self.assertEqual(lines[0], 'foo')
+        self.assertEqual(lines[-1], 'foo')
 
     def test_no_data_without_empty_text(self):
         table = CountryTable([])

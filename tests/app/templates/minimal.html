@@ -1,0 +1,15 @@
+{% load django_tables2 %}
+<table>
+    <tr>
+    {% for column in table.columns %}
+        <th>{{ column.header }}</th>
+    {% endfor %}
+    </tr>
+    {% for row in table.paginated_rows %}
+        <tr>
+            {% for column, cell in row.items %}
+                <td>{{ cell }}</td>
+            {% endfor %}
+        </tr>
+    {% endfor %}
+</table>
