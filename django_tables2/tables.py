@@ -2,7 +2,6 @@
 from __future__ import unicode_literals
 
 import copy
-import warnings
 from collections import OrderedDict
 from itertools import count
 
@@ -136,11 +135,7 @@ class TableOptions(object):
         self.sequence = Sequence(getattr(options, 'sequence', ()))
         self.orderable = getattr(options, 'orderable', True)
         self.model = getattr(options, 'model', None)
-        if hasattr(options, 'template'):
-            self.template_name = getattr(options, 'template', DJANGO_TABLES2_TEMPLATE)
-            warnings.warn('Table.Meta.template is deprecated. Use template_name instead.', DeprecationWarning)
-        else:
-            self.template_name = getattr(options, 'template_name', DJANGO_TABLES2_TEMPLATE)
+        self.template_name = getattr(options, 'template_name', DJANGO_TABLES2_TEMPLATE)
         self.localize = getattr(options, 'localize', ())
         self.unlocalize = getattr(options, 'unlocalize', ())
 
@@ -215,7 +210,7 @@ class TableBase(object):
     def __init__(self, data=None, order_by=None, orderable=None, empty_text=None,
                  exclude=None, attrs=None, row_attrs=None, pinned_row_attrs=None,
                  sequence=None, prefix=None, order_by_field=None, page_field=None,
-                 per_page_field=None, template=None, template_name=None, default=None, request=None,
+                 per_page_field=None, template_name=None, default=None, request=None,
                  show_header=None, show_footer=True, extra_columns=None):
         super(TableBase, self).__init__()
 
@@ -297,11 +292,7 @@ class TableBase(object):
                 self.order_by = order_by
         else:
             self.order_by = order_by
-        if template is not None:
-            self.template_name = template
-            warnings.warn('template argument to Table is deprecated. Use template_name instead.', DeprecationWarning)
-        else:
-            self.template_name = template_name
+        self.template_name = template_name
         # If a request is passed, configure for request
         if request:
             RequestConfig(request).configure(self)

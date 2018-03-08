@@ -1,5 +1,11 @@
 # Change log
 
+## django_tables2 2.0 (unreleased)
+ - Cleaned up templates to add consistancy in what is presented accross all templates.
+ - Added bootstrap4.html template
+ - Fixed translation inconsistancies.
+ - **breaking change** removed the `template` argument to the table constructor, use `template_name` instead.
+ -
 
 ## 1.21.2 (2018-03-26)
  - Moved table instantiation from `get_context_data` to `get_tables` [#554](https://github.com/jieter/django-tables2/pull/554) by [@sdolemelipone](https://github.com/sdolemelipone)
