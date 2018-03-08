@@ -7,11 +7,8 @@ class TableData(object):
     '''
     Base class for table data containers.
     '''
-    def __init__(self, data, table):
+    def __init__(self, data):
         self.data = data
-        self.table = table
-
-        super(TableData, self).__init__()
 
     def __getitem__(self, key):
         '''
@@ -44,11 +41,14 @@ class TableData(object):
         return 'items'
 
     @staticmethod
-    def from_data(data, table):
+    def from_data(data):
+        # allow explicit child classes of TableData to be passed to Table()
+        if isinstance(data, TableData):
+            return data
         if TableQuerysetData.validate(data):
-            return TableQuerysetData(data, table)
+            return TableQuerysetData(data)
         elif TableListData.validate(data):
-            return TableListData(list(data), table)
+            return TableListData(list(data))
 
         raise ValueError(
             'data must be QuerySet-like (have count() and order_by()) or support'
@@ -133,7 +133,7 @@ class TableQuerysetData(TableData):
         )
 
     def __len__(self):
-        if not hasattr(self, '_length'):
+        if not hasattr(self, '_length') or self._length is None:
             # Use the queryset count() method to get the length, instead of
             # loading all results into memory. This allows, for example,
             # smart paginators that use len() to perform better.
