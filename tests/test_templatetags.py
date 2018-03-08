@@ -204,7 +204,6 @@ class QuerystringTagTest(SimpleTestCase):
         html = template.render(Context({'request': build_request('?q=foo'), 'format': 'xls'}))
         self.assertEqual(dict(parse_qs(html[1:])), dict(parse_qs('q=foo&amp;_export=xls')))
 
-
     def test_render_attributes_test(self):
         template = Template('{% load django_tables2 %}{% render_attrs attrs class="table" %}')
         html = template.render(Context({}))
