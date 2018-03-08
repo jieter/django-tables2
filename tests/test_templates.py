@@ -42,40 +42,40 @@ class TemplateTest(TestCase):
             column = tables.Column()
 
         table = Table({})
-        assert table.template_name == 'foo/bar.html'
+        self.assertEqual(table.template_name, 'foo/bar.html')
 
     def test_as_html(self):
         request = build_request('/')
         table = CountryTable(MEMORY_DATA)
         root = parse(table.as_html(request))
-        assert len(root.findall('.//thead/tr')) == 1
-        assert len(root.findall('.//thead/tr/th')) == 4
-        assert len(root.findall('.//tbody/tr')) == 4
-        assert len(root.findall('.//tbody/tr/td')) == 16
+        self.assertEqual(len(root.findall('.//thead/tr')), 1)
+        self.assertEqual(len(root.findall('.//thead/tr/th')), 4)
+        self.assertEqual(len(root.findall('.//tbody/tr')), 4)
+        self.assertEqual(len(root.findall('.//tbody/tr/td')), 16)
 
         # no data with no empty_text
         table = CountryTable([])
         root = parse(table.as_html(request))
-        assert 1 == len(root.findall('.//thead/tr'))
-        assert 4 == len(root.findall('.//thead/tr/th'))
-        assert 0 == len(root.findall('.//tbody/tr'))
+        self.assertEqual(1, len(root.findall('.//thead/tr')))
+        self.assertEqual(4, len(root.findall('.//thead/tr/th')))
+        self.assertEqual(0, len(root.findall('.//tbody/tr')))
 
         # no data WITH empty_text
         table = CountryTable([], empty_text='this table is empty')
         root = parse(table.as_html(request))
-        assert 1 == len(root.findall('.//thead/tr'))
-        assert 4 == len(root.findall('.//thead/tr/th'))
-        assert 1 == len(root.findall('.//tbody/tr'))
-        assert 1 == len(root.findall('.//tbody/tr/td'))
-        assert int(root.find('.//tbody/tr/td').get('colspan')) == len(root.findall('.//thead/tr/th'))
-        assert root.find('.//tbody/tr/td').text == 'this table is empty'
+        self.assertEqual(1, len(root.findall('.//thead/tr')))
+        self.assertEqual(4, len(root.findall('.//thead/tr/th')))
+        self.assertEqual(1, len(root.findall('.//tbody/tr')))
+        self.assertEqual(1, len(root.findall('.//tbody/tr/td')))
+        self.assertEqual(int(root.find('.//tbody/tr/td').get('colspan')), len(root.findall('.//thead/tr/th')))
+        self.assertEqual(root.find('.//tbody/tr/td').text, 'this table is empty')
 
         # data without header
         table = CountryTable(MEMORY_DATA, show_header=False)
         root = parse(table.as_html(request))
-        assert len(root.findall('.//thead')) == 0
-        assert len(root.findall('.//tbody/tr')) == 4
-        assert len(root.findall('.//tbody/tr/td')) == 16
+        self.assertEqual(len(root.findall('.//thead')), 0)
+        self.assertEqual(len(root.findall('.//tbody/tr')), 4)
+        self.assertEqual(len(root.findall('.//tbody/tr/td')), 16)
 
         # with custom template
         table = CountryTable([], template_name='django_tables2/table.html')
@@ -267,10 +267,10 @@ class BootstrapTemplateTest(SimpleTestCase):
         root = parse(html)
         self.assertEqual(root.find('.//table').attrib, {'class': 'table'})
 
-        assert len(root.findall('.//thead/tr')) == 1
-        assert len(root.findall('.//thead/tr/th')) == 4
-        assert len(root.findall('.//tbody/tr')) == 2
-        assert len(root.findall('.//tbody/tr/td')) == 8
+        self.assertEqual(len(root.findall('.//thead/tr')), 1)
+        self.assertEqual(len(root.findall('.//thead/tr/th')), 4)
+        self.assertEqual(len(root.findall('.//tbody/tr')), 2)
+        self.assertEqual(len(root.findall('.//tbody/tr/td')), 8)
 
         self.assertEqual(
             root.find('.//ul[@class="pagination"]/li[2]/a').text.strip(),
@@ -294,10 +294,10 @@ class BootstrapTemplateTest(SimpleTestCase):
         template = Template('{% load django_tables2 %}{% render_table table %}')
         html = template.render(Context({'request': request, 'table': table}))
         root = parse(html)
-        assert len(root.findall('.//thead/tr')) == 1
-        assert len(root.findall('.//thead/tr/th')) == 4
-        assert len(root.findall('.//tbody/tr')) == 2
-        assert len(root.findall('.//tbody/tr/td')) == 8
+        self.assertEqual(len(root.findall('.//thead/tr')), 1)
+        self.assertEqual(len(root.findall('.//thead/tr/th')), 4)
+        self.assertEqual(len(root.findall('.//tbody/tr')), 2)
+        self.assertEqual(len(root.findall('.//tbody/tr/td')), 8)
 
         self.assertEqual(
             root.find('.//ul[@class="pagination"]/li[2]/a').text.strip(),
@@ -320,13 +320,11 @@ class SemanticTemplateTest(SimpleTestCase):
         template = Template('{% load django_tables2 %}{% render_table table %}')
         html = template.render(Context({'request': request, 'table': table}))
         root = parse(html)
-        assert len(root.findall('.//thead/tr')) == 1
-        assert len(root.findall('.//thead/tr/th')) == 4
-        assert len(root.findall('.//tbody/tr')) == 2
-        assert len(root.findall('.//tbody/tr/td')) == 8
+        self.assertEqual(len(root.findall('.//thead/tr')), 1)
+        self.assertEqual(len(root.findall('.//thead/tr/th')), 4)
+        self.assertEqual(len(root.findall('.//tbody/tr')), 2)
+        self.assertEqual(len(root.findall('.//tbody/tr/td')), 8)
 
-        pager = './/tfoot/tr/th/div[@class="ui right floated pagination menu"]/div[@class="item"]'
-        assert root.find(pager).text.strip() == 'Page 1 of 2'
         # make sure the link is prefixed
-        next_page = './/tfoot/tr/th/div[@class="ui right floated pagination menu"]/a[@class="icon item"]'
-        assert root.find(next_page).get('href') == '?semantic-page=2'
+        next_page = './/tfoot/tr/th/div[@class="ui right floated pagination menu"]/a[1]'
+        self.assertEqual(root.find(next_page).get('href'), '?semantic-page=1')
