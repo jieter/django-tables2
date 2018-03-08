@@ -27,7 +27,7 @@ class BooleanColumnTest(TestCase):
 
         column = Table.base_columns['field']
         self.assertEqual(type(column), tables.BooleanColumn)
-        self.assertNotEqual(column.empty_values, ())
+        self.assertEqual(column.empty_values, ())
 
     @skipIf(django_version < (2, 1, 0), 'Feature added in django 2.1')
     def test_should_use_nullability_for_booloanfield(self):
@@ -61,18 +61,18 @@ class BooleanColumnTest(TestCase):
 
         column = Table.base_columns['field']
         self.assertEqual(type(column), tables.BooleanColumn)
-        self.assertEqual(column.empty_values, ())
+        self.assertNotEqual(column.empty_values, ())
 
     def test_treat_none_different_from_false(self):
         class Table(tables.Table):
-            col = tables.BooleanColumn(null=False, default='---')
+            col = tables.BooleanColumn(null=True, default='---')
 
         table = Table([{'col': None}])
         self.assertEqual(table.rows[0].get_cell('col'), '---')
 
     def test_treat_none_as_false(self):
         class Table(tables.Table):
-            col = tables.BooleanColumn(null=True)
+            col = tables.BooleanColumn(null=False)
 
         table = Table([{'col': None}])
         self.assertEqual(table.rows[0].get_cell('col'), '<span class="false">✘</span>')
