@@ -45,8 +45,9 @@ def index(request):
             (reverse('filtertableview'), 'Filtered tables'),
             (reverse('singletableview'), 'Using SingleTableMixin'),
             (reverse('multitableview'), 'Using MultiTableMixin'),
-            (reverse('bootstrap'), 'Using the bootstrap template'),
-            (reverse('semantic'), 'Using the Semantic UI template'),
+            (reverse('bootstrap'), 'template: Bootstrap 3 (bootstrap.html)'),
+            (reverse('bootstrap4'), 'template: Bootstrap 4 (bootstrap4.html)'),
+            (reverse('semantic'), 'template: Semantic UI (semantic.html)'),
         )
     })
 

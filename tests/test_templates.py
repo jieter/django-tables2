@@ -242,16 +242,11 @@ class TemplateLocalizeTest(TestCase):
         RequestConfig(request, paginate={'per_page': 10}).configure(table)
 
         with translation_override('en'):
-            assert 'Page 1 of 4' in table.as_html(request)
+            self.assertIn('next', table.as_html(request))
 
         with translation_override('nl'):
-            assert 'Pagina 1 van 4' in table.as_html(request)
+            self.assertIn('Volgende', table.as_html(request))
 
-        with translation_override('it'):
-            assert 'Pagina 1 di 4' in table.as_html(request)
-
-        with translation_override('nb'):
-            assert 'Side 1 av 4' in table.as_html(request)
 
 
 class BootstrapTable(CountryTable):
@@ -262,7 +257,7 @@ class BootstrapTable(CountryTable):
 
 
 class BootstrapTemplateTest(SimpleTestCase):
-    def test_boostrap_template(self):
+    def test_bootstrap_template(self):
         table = BootstrapTable(MEMORY_DATA)
         request = build_request('/')
         RequestConfig(request).configure(table)
@@ -279,12 +274,12 @@ class BootstrapTemplateTest(SimpleTestCase):
         assert len(root.findall('.//tbody/tr/td')) == 8
 
         self.assertEqual(
-            root.find('./ul[@class="pager list-inline"]/li[@class="cardinality"]/small').text.strip(),
-            'Page 1 of 2'
+            root.find('.//ul[@class="pagination"]/li[2]/a').text.strip(),
+            '2'
         )
         # make sure the link is prefixed
         self.assertEqual(
-            root.find('./ul[@class="pager list-inline"]/li[@class="next"]/a').get('href'),
+            root.find('.//ul[@class="pagination"]/li[@class="next"]/a').get('href'),
             '?bootstrap-page=2'
         )
 
@@ -305,8 +300,10 @@ class BootstrapTemplateTest(SimpleTestCase):
         assert len(root.findall('.//tbody/tr')) == 2
         assert len(root.findall('.//tbody/tr/td')) == 8
 
-        pager = './/ul/li[@class="cardinality"]/small'
-        assert root.find(pager).text.strip() == 'Page 1 of 2'
+        self.assertEqual(
+            root.find('.//ul[@class="pagination"]/li[2]/a').text.strip(),
+            '2'
+        )
 
 
 class SemanticTemplateTest(SimpleTestCase):
