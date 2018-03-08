@@ -248,7 +248,7 @@ class QuerystringTagTest(SimpleTestCase):
         self.assertEqual(html, 'class="table"')
 
         html = template.render(Context({
-            'attrs': AttributesDict({'class': 'table table-striped'})
+            'attrs': AttributeDict({'class': 'table table-striped'})
         }))
         self.assertEqual(html, 'class="table table-striped"')
 

@@ -3,7 +3,7 @@
 
 <div class="table-container">
 {% block table %}
-<table{% if table.attrs %} {{ table.attrs.as_html }}{% endif %}>
+<table {% render_attrs table.attrs %}>
     {% block table.thead %}
     {% if table.show_header %}
     <thead>
@@ -21,7 +21,7 @@
     {% endblock table.thead %}
     {% block table.tbody %}
     <tbody>
-        {% for row in table.paginated_rows %}
+    {% for row in table.paginated_rows %}
         {% block table.tbody.row %}
         <tr {{ row.attrs.as_html }}>
             {% for column, cell in row.items %}
@@ -29,13 +29,13 @@
             {% endfor %}
         </tr>
         {% endblock table.tbody.row %}
-        {% empty %}
+    {% empty %}
         {% if table.empty_text %}
         {% block table.tbody.empty_text %}
         <tr><td colspan="{{ table.columns|length }}">{{ table.empty_text }}</td></tr>
         {% endblock table.tbody.empty_text %}
         {% endif %}
-        {% endfor %}
+    {% endfor %}
     </tbody>
     {% endblock table.tbody %}
     {% block table.tfoot %}
@@ -53,8 +53,6 @@
 {% endblock table %}
 
 {% if table.page %}
-{% with table.page.paginator.count as total %}
-{% with table.page.object_list|length as count %}
 {% block pagination %}
 <ul class="pagination">
     {% if table.page.has_previous %}
@@ -87,7 +85,5 @@
     {% endif %}
 </ul>
 {% endblock pagination %}
-{% endwith %}
-{% endwith %}
 {% endif %}
 </div>

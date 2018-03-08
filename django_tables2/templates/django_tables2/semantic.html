@@ -29,7 +29,7 @@
                         {% endfor %}
                     </tr>
                     {% endblock table.tbody.row %}
-                    {% empty %}
+                {% empty %}
                     {% if table.empty_text %}
                     {% block table.tbody.empty_text %}
                     <tr><td colspan="{{ table.columns|length }}">{{ table.empty_text }}</td></tr>
