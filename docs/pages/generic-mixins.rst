@@ -47,7 +47,7 @@ The template could then be as simple as:
 
 .. sourcecode:: django
 
-    {% load render_table from django_tables2 %}
+    {% load django_tables2 %}
     {% render_table table %}
 
 Such little code is possible due to the example above taking advantage of
@@ -85,6 +85,7 @@ In the template, you get a variable `tables`, which you can loop over like this:
 
 .. sourcecode:: django
 
+    {% load django_tables2 %}
     {% for table in tables %}
         {% render_table table %}
     {% endfor %}

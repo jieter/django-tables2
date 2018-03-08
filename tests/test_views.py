@@ -1,6 +1,7 @@
 # coding: utf-8
 
 from django.core.exceptions import ImproperlyConfigured
+from django.core.paginator import Paginator
 from django.test import TestCase
 from django.views.generic.base import TemplateView
 
@@ -231,7 +232,27 @@ class SingleTableMixinTest(TestCase):
 
             template_name = 'dummy.html'
 
-        View.as_view()(build_request('/'))
+        View.as_view()(build_request())
+
+    def test_with_custom_paginator(self):
+        class Table(tables.Table):
+            class Meta:
+                model = Region
+
+        class MyPaginator(Paginator):
+            pass
+
+        class View(DispatchHookMixin, tables.SingleTableView):
+            table_class = Table
+            queryset = Region.objects.all()
+            table_pagination = {
+                'klass': MyPaginator
+            }
+
+        response, view = View.as_view()(build_request())
+
+        context = view.get_context_data()
+        self.assertIsInstance(context['table'].paginator, MyPaginator)
 
 
 class TableA(tables.Table):

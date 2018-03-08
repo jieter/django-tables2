@@ -12,26 +12,10 @@ from .config import RequestConfig
 
 class TableMixinBase(object):
     '''
-    Base mixin for table-related class based views.
+    Base mixin for the Single- and MultiTable class based views
     '''
-
     context_table_name = 'table'
-    table_class = None
     table_pagination = None
-
-    def get_table_class(self):
-        '''
-        Return the class to use for the table.
-        '''
-        if self.table_class:
-            return self.table_class
-        if self.model:
-            return tables.table_factory(self.model)
-        klass = type(self).__name__
-        raise ImproperlyConfigured(
-            "You must either specify {0}.table_class or"
-            "{0}.model".format(klass)
-        )
 
     def get_context_table_name(self, table):
         '''
@@ -70,13 +54,32 @@ class SingleTableMixin(TableMixinBase):
             'table')
         table_pagination (dict): controls table pagination. If a `dict`, passed as
             the *paginate* keyword argument to `.RequestConfig`. As such, any
-            Truthy value enables pagination. (default: enable pagination)
+            Truthy value enables pagination. (default: enable pagination).
+
+            The `dict` can be used to specify values for arguments for the call to
+            `~.tables.Table.paginate`.
+
+            If you want to use a non-standard paginator for example, you can add a key
+            `klass` to the dict, containing a custom `Pagintor` class.
 
     This mixin plays nice with the Django's ``.MultipleObjectMixin`` by using
     ``.get_queryset`` as a fallback for the table data source.
     '''
     table_class = None
     table_data = None
+
+    def get_table_class(self):
+        '''
+        Return the class to use for the table.
+        '''
+        if self.table_class:
+            return self.table_class
+        if self.model:
+            return tables.table_factory(self.model)
+
+        raise ImproperlyConfigured(
+            'You must either specify {0}.table_class or {0}.model'.format(type(self).__name__)
+        )
 
     def get_table(self, **kwargs):
         '''
@@ -85,8 +88,7 @@ class SingleTableMixin(TableMixinBase):
         '''
         table_class = self.get_table_class()
         table = table_class(data=self.get_table_data(), **kwargs)
-        RequestConfig(self.request, paginate=self.get_table_pagination(table)).configure(table)
-        return table
+        return RequestConfig(self.request, paginate=self.get_table_pagination(table)).configure(table)
 
     def get_table_data(self):
         '''
@@ -108,8 +110,8 @@ class SingleTableMixin(TableMixinBase):
         '''
         Return the keyword arguments for instantiating the table.
 
-        Allows passing customized arguments to the table constructor, for example, to remove the buttons column,
-        you could define this method in your View::
+        Allows passing customized arguments to the table constructor, for example,
+        to remove the buttons column, you could define this method in your View::
 
             def get_table_kwargs(self):
                 return {
@@ -132,6 +134,8 @@ class SingleTableMixin(TableMixinBase):
 class SingleTableView(SingleTableMixin, ListView):
     '''
     Generic view that renders a template and passes in a `.Table` instances.
+
+    Mixes ``.SingleTableMixin`` with ``django.views.generic.list.ListView``.
     '''
 
 
@@ -140,7 +144,7 @@ class MultiTableMixin(TableMixinBase):
     Add a list with multiple Table object's to the context. Typically used with
     `.TemplateResponseMixin`.
 
-    the `tables` attribute must be either a list of `.Table` instances or
+    The `tables` attribute must be either a list of `.Table` instances or
     classes extended from `.Table` which are not already instantiated. In that
     case, `get_tables_data` must be able to return the tables data, either by
     having an entry containing the data for each table in `tables`, or by
