@@ -293,9 +293,9 @@ def table_page_range(page, paginator):
 
     ret = range(range_start, range_end)
     if 1 not in ret:
-        ret = [1, '...'] + list(ret)[1:]
+        ret = [1, '...'] + list(ret)[2:]
     if num_pages not in ret:
-        ret = list(ret)[:-1] + ['...', num_pages]
+        ret = list(ret)[:-2] + ['...', num_pages]
     return ret
 
 

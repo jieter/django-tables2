@@ -76,8 +76,8 @@
 
                             {% if table.page.has_next %}
                                 {% block pagination.next %}
-                                <a href="{% querystring table.prefixed_page_field=table.page.next_page_number %}">
-                                    <i class="right chevron item"></i>
+                                <a href="{% querystring table.prefixed_page_field=table.page.next_page_number %}" class="icon item">
+                                    <i class="right chevron icon"></i>
                                 </a>
                                 {% endblock pagination.next %}
                             {% endif %}
