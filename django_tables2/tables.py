@@ -588,6 +588,15 @@ class TableBase(object):
     def template_name(self, value):
         self._template = value
 
+    @property
+    def paginated_rows(self):
+        '''
+        Return the rows for the current page if the table is paginated, else all rows.
+        '''
+        if hasattr(self, 'page'):
+            return self.page.object_list
+        return self.rows
+
     def get_column_class_names(self, classes_set, bound_column):
         '''
         Returns a set of HTML class names for cells (both td and th) of a

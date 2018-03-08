@@ -21,7 +21,7 @@
     {% endblock table.thead %}
     {% block table.tbody %}
     <tbody>
-        {% for row in table.page.object_list|default:table.rows %} {# support pagination #}
+        {% for row in table.paginated_rows %}
         {% block table.tbody.row %}
         <tr {{ row.attrs.as_html }}>
             {% for column, cell in row.items %}
