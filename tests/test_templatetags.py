@@ -8,6 +8,7 @@ from django.utils import six
 from django.utils.six.moves.urllib.parse import parse_qs
 
 from django_tables2 import RequestConfig, Table, TemplateColumn
+from django_tables2.utils import AttributeDict
 
 from .app.models import Region
 from .test_templates import MEMORY_DATA, CountryTable
@@ -239,6 +240,17 @@ class QuerystringTagTest(SimpleTestCase):
         template = Template('{% load django_tables2 %}{% export_url format %}')
         html = template.render(Context({'request': build_request('?q=foo'), 'format': 'xls'}))
         self.assertEqual(dict(parse_qs(html[1:])), dict(parse_qs('q=foo&amp;_export=xls')))
+
+
+    def test_render_attributes_test(self):
+        template = Template('{% load django_tables2 %}{% render_attrs attrs class="table" %}')
+        html = template.render(Context({}))
+        self.assertEqual(html, 'class="table"')
+
+        html = template.render(Context({
+            'attrs': AttributesDict({'class': 'table table-striped'})
+        }))
+        self.assertEqual(html, 'class="table table-striped"')
 
 
 class TitleTagTest(SimpleTestCase):
