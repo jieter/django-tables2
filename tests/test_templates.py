@@ -274,7 +274,10 @@ class BootstrapTemplateTest(SimpleTestCase):
 
         template = Template('{% load django_tables2 %}{% render_table table %}')
         html = template.render(Context({'request': request, 'table': table}))
+
         root = parse(html)
+        self.assertEqual(root.find('.//table').attrib, {'class': 'table'})
+
         assert len(root.findall('.//thead/tr')) == 1
         assert len(root.findall('.//thead/tr/th')) == 4
         assert len(root.findall('.//tbody/tr')) == 2

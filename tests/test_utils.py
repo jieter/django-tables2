@@ -162,21 +162,26 @@ class AccessorModelTests(TestCase):
 class AttributeDictTest(TestCase):
     def test_handles_escaping(self):
         x = AttributeDict({'x': '"\'x&'})
-        assert x.as_html() == 'x="&quot;&#39;x&amp;"'
+        self.assertEqual(x.as_html(), 'x="&quot;&#39;x&amp;"')
 
     def test_omits_None(self):
         x = AttributeDict({'x': None})
-        assert x.as_html() == ''
+        self.assertEqual(x.as_html(), '')
+
+    def test_self_wrap(self):
+        x = AttributeDict({'x': 'y'})
+
+        self.assertEqual(x, AttributeDict(x))
 
 
 class ComputedValuesTest(TestCase):
     def test_supports_shallow_structures(self):
         x = computed_values({'foo': lambda: 'bar'})
-        assert x == {'foo': 'bar'}
+        self.assertEqual(x, {'foo': 'bar'})
 
     def test_supports_nested_structures(self):
         x = computed_values({'foo': lambda: {'bar': lambda: 'baz'}})
-        assert x == {'foo': {'bar': 'baz'}}
+        self.assertEqual(x, {'foo': {'bar': 'baz'}})
 
     def test_with_argument(self):
         x = computed_values({
@@ -184,11 +189,11 @@ class ComputedValuesTest(TestCase):
                 'bar': lambda y: 'baz-{}'.format(y)
             }
         }, kwargs=dict(y=2))
-        assert x == {'foo': {'bar': 'baz-2'}}
+        self.assertEqual(x, {'foo': {'bar': 'baz-2'}})
 
     def test_returns_None_if_not_enough_kwargs(self):
         x = computed_values({'foo': lambda x: 'bar'})
-        assert x == {'foo': None}
+        self.assertEqual(x, {'foo': None})
 
 
 class SegmentTest(TestCase):

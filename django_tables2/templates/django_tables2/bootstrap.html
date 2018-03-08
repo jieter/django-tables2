@@ -3,7 +3,7 @@
 {% block table-wrapper %}
 <div class="table-container">
     {% block table %}
-        <table {% if table.attrs %} {{ table.attrs.as_html }}{% else %}class="table"{% endif %}>
+        <table {% render_attrs table.attrs class="table" %}>
             {% block table.thead %}
             {% if table.show_header %}
                 <thead>

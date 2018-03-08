@@ -17,6 +17,7 @@ from django.utils.html import escape
 from django.utils.http import urlencode
 
 import django_tables2 as tables
+from django_tables2.utils import AttributeDict
 
 register = template.Library()
 kwarg_re = re.compile(r"(?:(.+)=)?(.+)")
@@ -292,3 +293,13 @@ def table_page_range(page, paginator):
     if num_pages not in ret:
         ret = list(ret)[:-1] + ['...', num_pages]
     return ret
+
+
+@register.simple_tag
+def render_attrs(attrs, **kwargs):
+    ret = AttributeDict(kwargs)
+
+    if attrs is not None:
+        ret.update(attrs)
+
+    return ret.as_html()
