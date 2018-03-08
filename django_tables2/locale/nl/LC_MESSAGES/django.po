@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: django-tables2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-04-19 10:23+0200\n"
+"POT-Creation-Date: 2018-03-08 22:41+1000\n"
 "PO-Revision-Date: 2016-04-19 10:21+0200\n"
 "Last-Translator: Jan Pieter Waagmeester <jieter@jieter.nl>\n"
 "Language-Team: Dutch <nl@li.org>\n"
@@ -13,33 +13,14 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: templates/django_tables2/bootstrap.html:35
-msgid "no results"
-msgstr "geen resultaten"
-
-#: templates/django_tables2/bootstrap.html:55
+#: templates/django_tables2/bootstrap.html:64
+#: templates/django_tables2/bootstrap4.html:64
+#: templates/django_tables2/table.html:61
 msgid "previous"
 msgstr "vorige"
 
-#: templates/django_tables2/bootstrap.html:59
-#: templates/django_tables2/table.html:64
-#, python-format
-msgid "Page %(current)s of %(total)s"
-msgstr "Pagina %(current)s van %(total)s"
-
-#: templates/django_tables2/bootstrap.html:64
+#: templates/django_tables2/bootstrap.html:89
+#: templates/django_tables2/bootstrap4.html:82
+#: templates/django_tables2/table.html:82
 msgid "next"
 msgstr "volgende"
-
-#: templates/django_tables2/table.html:56
-msgid "Previous"
-msgstr "Vorige"
-
-#: templates/django_tables2/table.html:72
-msgid "Next"
-msgstr "Volgende"
-
-#: templates/django_tables2/table.html:78
-#, python-format
-msgid "%(count)s of %(total)s"
-msgstr "%(count)s van %(total)s"

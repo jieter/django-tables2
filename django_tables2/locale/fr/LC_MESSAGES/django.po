@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-09-18 03:09+0200\n"
+"POT-Creation-Date: 2018-03-08 22:41+1000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,20 +18,16 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
 
-#: templates/django_tables2/table.html:55
-msgid "Previous"
-msgstr "Précédent"
+#: templates/django_tables2/bootstrap.html:64
+#: templates/django_tables2/bootstrap4.html:64
+#: templates/django_tables2/table.html:61
+#, fuzzy
+#| msgid "Previous"
+msgid "previous"
+msgstr "précédent"
 
-#: templates/django_tables2/table.html:59
-#, python-format
-msgid "Page %(current)s of %(total)s"
-msgstr "Page %(current)s sur %(total)s"
-
-#: templates/django_tables2/table.html:63
-msgid "Next"
-msgstr "Suivant"
-
-#: templates/django_tables2/table.html:66
-#, python-format
-msgid "%(count)s of %(total)s"
-msgstr "%(count)s des %(total)s"
+#: templates/django_tables2/bootstrap.html:89
+#: templates/django_tables2/bootstrap4.html:82
+#: templates/django_tables2/table.html:82
+msgid "next"
+msgstr "suivant"
