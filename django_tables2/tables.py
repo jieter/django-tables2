@@ -525,6 +525,8 @@ class TableBase(object):
         self.paginator = klass(self.rows, per_page, *args, **kwargs)
         self.page = self.paginator.page(page)
 
+        return self
+
     @property
     def per_page_field(self):
         return (self._per_page_field if self._per_page_field is not None
