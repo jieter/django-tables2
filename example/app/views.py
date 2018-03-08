@@ -5,8 +5,8 @@ from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.utils.lorem_ipsum import words
 from django.views.generic.base import TemplateView
-from django_filters.views import FilterView
 
+from django_filters.views import FilterView
 from django_tables2 import MultiTableMixin, RequestConfig, SingleTableMixin, SingleTableView
 
 from .data import COUNTRIES

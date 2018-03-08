@@ -250,8 +250,7 @@ class TemplateLocalizeTest(TestCase):
             self.assertIn('next', table.as_html(request))
 
         with translation_override('nl'):
-            self.assertIn('Volgende', table.as_html(request))
-
+            self.assertIn('volgende', table.as_html(request))
 
 
 class BootstrapTable(CountryTable):

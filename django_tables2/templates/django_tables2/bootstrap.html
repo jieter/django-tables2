@@ -56,16 +56,16 @@
         {% block pagination %}
         <nav aria-label="Table navigation">
             <ul class="pagination">
-                {% if table.page.has_previous %}
-                    {% block pagination.previous %}
-                    <li>
-                        <a href="{% querystring table.prefixed_page_field=table.page.previous_page_number %}">
-                            <span aria-hidden="true">&laquo;</span>
-                            {% trans 'previous' %}
-                        </a>
-                    </li>
-                    {% endblock pagination.previous %}
-                {% endif %}
+            {% if table.page.has_previous %}
+                {% block pagination.previous %}
+                <li>
+                    <a href="{% querystring table.prefixed_page_field=table.page.previous_page_number %}">
+                        <span aria-hidden="true">&laquo;</span>
+                        {% trans 'previous' %}
+                    </a>
+                </li>
+                {% endblock pagination.previous %}
+            {% endif %}
 
             {% if table.page.has_previous or table.page.has_next %}
                 {% block pagination.range %}
@@ -90,7 +90,8 @@
                 </li>
                 {% endblock pagination.next %}
             {% endif %}
-        </ul>
+            </ul>
+        </nav>
         {% endblock pagination %}
     {% endif %}
 </div>

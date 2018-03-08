@@ -54,5 +54,6 @@ class SemanticTable(tables.Table):
 
 class PersonTable(tables.Table):
     pagination_style = 'range'
+
     class Meta:
         model = Person
