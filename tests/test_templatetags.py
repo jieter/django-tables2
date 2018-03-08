@@ -204,6 +204,17 @@ class QuerystringTagTest(SimpleTestCase):
         self.assertEqual(dict(parse_qs(html[1:])), dict(parse_qs('q=foo&amp;_export=xls')))
 
 
+    def test_render_attributes_test(self):
+        template = Template('{% load django_tables2 %}{% render_attrs attrs class="table" %}')
+        html = template.render(Context({}))
+        self.assertEqual(html, 'class="table"')
+
+        html = template.render(Context({
+            'attrs': AttributesDict({'class': 'table table-striped'})
+        }))
+        self.assertEqual(html, 'class="table table-striped"')
+
+
 class TitleTagTest(SimpleTestCase):
     def test_should_only_apply_to_words_without_uppercase_letters(self):
         expectations = {
