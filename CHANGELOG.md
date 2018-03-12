@@ -2,6 +2,8 @@
 
 ## master
  - Add new method `paginated_rows` to `Table` to replace fallback to non-paginated rows in templates.
+ - Prevent mutation of the template context `{% render_table %}` is called from (fixes [#547](https://github.com/jieter/django-tables2/issues/547))
+
 
 ## 1.20.0 (2018-03-08)
  -  Define and use `get_table_data` in `MultiTableMixin` [#538]https://github.com/jieter/django-tables2/pull/538) by [@vCra](https://github.com/vCra) (fixes [#528](https://github.com/jieter/django-tables2/issues/528))
