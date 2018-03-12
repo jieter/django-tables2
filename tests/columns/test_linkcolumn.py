@@ -31,10 +31,10 @@ class LinkColumnTest(TestCase):
             'table': UnicodeTable(dataset)
         }))
 
-        assert 'Brädley' in html
-        assert '∆yers' in html
-        assert 'Chr…s' in html
-        assert 'DÒble' in html
+        self.assertIn('Brädley', html)
+        self.assertIn('∆yers', html)
+        self.assertIn('Chr…s', html)
+        self.assertIn('DÒble', html)
 
     def test_link_text_custom_value(self):
         class CustomLinkTable(tables.Table):
@@ -51,8 +51,8 @@ class LinkColumnTest(TestCase):
 
         html = CustomLinkTable(dataset).as_html(build_request())
 
-        assert 'foo::bar' in html
-        assert 'Doe John' in html
+        self.assertIn('foo::bar', html)
+        self.assertIn('Doe John', html)
 
     def test_link_text_escaping(self):
         class CustomLinkTable(tables.Table):
@@ -68,10 +68,8 @@ class LinkColumnTest(TestCase):
 
         html = CustomLinkTable(dataset).as_html(build_request())
 
-        expected = '<td class="editlink"><a href="{}">edit</a></td>'.format(
-            reverse('person', args=(1, ))
-        )
-        assert expected in html
+        expected = '<td ><a href="{}">edit</a></td>'.format(reverse('person', args=(1, )))
+        self.assertIn(expected, html)
 
     def test_null_foreign_key(self):
         class PersonTable(tables.Table):
@@ -84,7 +82,7 @@ class LinkColumnTest(TestCase):
         table = PersonTable(Person.objects.all())
         html = table.as_html(build_request())
 
-        assert '<td class="occupation">—</td>' in html
+        self.assertIn('<td >—</td>', html)
 
     def test_linkcolumn_non_field_based(self):
         '''Test for issue 257, non-field based columns'''
@@ -96,10 +94,10 @@ class LinkColumnTest(TestCase):
 
         html = Table(Person.objects.all()).as_html(build_request())
 
-        expected = '<td class="delete_link"><a href="{}">delete</a></td>'.format(
+        expected = '<td ><a href="{}">delete</a></td>'.format(
             reverse('person_delete', kwargs={'pk': willem.pk})
         )
-        assert expected in html
+        self.assertIn(expected, html)
 
     def test_kwargs(self):
         class PersonTable(tables.Table):
@@ -107,15 +105,15 @@ class LinkColumnTest(TestCase):
 
         table = PersonTable([{'a': 0}, {'a': 1}])
 
-        assert reverse('occupation', kwargs={'pk': 0}) in table.rows[0].get_cell('a')
-        assert reverse('occupation', kwargs={'pk': 1}) in table.rows[1].get_cell('a')
+        self.assertIn(reverse('occupation', kwargs={'pk': 0}), table.rows[0].get_cell('a'))
+        self.assertIn(reverse('occupation', kwargs={'pk': 1}), table.rows[1].get_cell('a'))
 
     def test_html_escape_value(self):
         class PersonTable(tables.Table):
             name = tables.LinkColumn('escaping', kwargs={'pk': A('pk')})
 
         table = PersonTable([{'name': '<brad>', 'pk': 1}])
-        assert table.rows[0].get_cell('name') == '<a href="/&amp;&#39;%22/1/">&lt;brad&gt;</a>'
+        self.assertEqual(table.rows[0].get_cell('name'), '<a href="/&amp;&#39;%22/1/">&lt;brad&gt;</a>')
 
     def test_a_attrs_should_be_supported(self):
         class TestTable(tables.Table):
@@ -123,10 +121,10 @@ class LinkColumnTest(TestCase):
                                     attrs={'a': {'title': 'Occupation Title'}})
 
         table = TestTable([{'col': 0}])
-        assert attrs(table.rows[0].get_cell('col')) == {
+        self.assertEqual(attrs(table.rows[0].get_cell('col')), {
             'href': reverse('occupation', kwargs={'pk': 0}),
             'title': 'Occupation Title'
-        }
+        })
 
     def test_td_attrs_should_be_supported(self):
         '''LinkColumn should support both <td> and <a> attrs'''
@@ -143,16 +141,13 @@ class LinkColumnTest(TestCase):
         table = Table(Person.objects.all())
 
         a_tag = table.rows[0].get_cell('first_name')
-        assert 'href="{}"'.format(reverse('person', args=(person.pk, ))) in a_tag
-        assert 'style="color: red;"' in a_tag
-        assert person.first_name in a_tag
+        self.assertIn('href="{}"'.format(reverse('person', args=(person.pk, ))), a_tag)
+        self.assertIn('style="color: red;"', a_tag)
+        self.assertIn(person.first_name, a_tag)
 
         html = table.as_html(build_request())
 
-        td_tag_1 = '<td style="background-color: #ddd;" class="first_name">'
-        td_tag_2 = '<td class="first_name" style="background-color: #ddd;">'
-
-        assert td_tag_1 in html or td_tag_2 in html
+        self.assertIn('<td style="background-color: #ddd;">', html)
 
     def test_defaults(self):
         class Table(tables.Table):

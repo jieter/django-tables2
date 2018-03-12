@@ -78,13 +78,13 @@ class FooterTest(SimpleTestCase):
         class TestTable(tables.Table):
             name = tables.Column()
             country = tables.Column(footer='Total:')
-            population = SummingColumn()
+            population = SummingColumn(attrs={'tf': {'class': 'population_sum'}})
 
         table = TestTable(MEMORY_DATA)
         html = table.as_html(build_request('/'))
 
         columns = parse(html).findall('.//tfoot/tr/td')
-        assert 'class' in columns[1].attrib
+        self.assertEqual(columns[2].attrib, {'class': 'population_sum'})
 
     def test_footer_custom_attriubtes(self):
         class SummingColumn(tables.Column):

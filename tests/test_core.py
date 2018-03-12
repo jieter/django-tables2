@@ -119,7 +119,7 @@ class CoreTest(SimpleTestCase):
         self.assertIn('name', table.columns)
         self.assertTrue(table.tweaked)
 
-    def test_attrs(self):
+    def test_table_attrs(self):
         class TestTable(tables.Table):
             class Meta:
                 attrs = {}
@@ -635,7 +635,4 @@ class RowAttrsTest(SimpleTestCase):
         table = Table(MEMORY_DATA)
         html = table.as_html(request)
         td = parse(html).find('.//tbody/tr[1]/td[1]')
-        self.assertEqual(td.attrib, {
-            'data-column-name': 'alpha',
-            'class': 'alpha'
-        })
+        self.assertEqual(td.attrib, {'data-column-name': 'alpha'})

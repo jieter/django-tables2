@@ -4,8 +4,18 @@
  - Cleaned up templates to add consistancy in what is presented accross all templates.
  - Added bootstrap4.html template
  - Fixed translation inconsistancies.
- - **breaking change** removed the `template` argument to the table constructor, use `template_name` instead.
- -
+### breaking changes
+ - Appearance of the paginators might be different from the current 1.x templates. Use a custom template if you need to keep the appearance the same.
+ - Removed the `template` argument to the table constructor, use `template_name` instead.
+ - Stopped adding column names to the class attribute of table cells (`<td>` tags) by default. Previous behaviour can be restored by using this method on your custom table:
+```python
+class MyTable(tables.Table):
+    # columns
+    def get_column_class_names(self, classes_set, bound_column):
+        classes_set = super(MyTable, self).get_column_class_names(classes_set, bound_column)
+        classes_set.add(bound_column.name)
+        return classes_set
+```
 
 ## 1.21.2 (2018-03-26)
  - Moved table instantiation from `get_context_data` to `get_tables` [#554](https://github.com/jieter/django-tables2/pull/554) by [@sdolemelipone](https://github.com/sdolemelipone)

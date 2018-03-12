@@ -151,16 +151,13 @@ class TemplateLocalizeTest(TestCase):
         helper function for defining Table class conditionally
         '''
         class TestTable(tables.Table):
-            name = tables.Column(verbose_name="my column", localize=localizeit)
+            name = tables.Column(verbose_name='my column', localize=localizeit)
 
         self.assert_table_localization(TestTable, expected)
 
     def assert_table_localization(self, TestTable, expected):
         html = TestTable(self.simple_test_data).as_html(build_request())
-        self.assertIn(
-            '<td class="name">{0}</td>'.format(self.expected_results[expected]),
-            html
-        )
+        self.assertIn('<td >{0}</td>'.format(self.expected_results[expected]), html)
 
     def test_localization_check(self):
         self.assert_cond_localized_table(None, None)

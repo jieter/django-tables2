@@ -256,18 +256,9 @@ class ColumnGeneralTest(TestCase):
         table = SimpleTable([{'a': 'value'}])
         root = parse(table.as_html(request))
 
-        assert root.findall('.//thead/tr/th')[0].attrib == {'key': 'value', 'class': 'a orderable'}
-        assert root.findall('.//tbody/tr/td')[0].attrib == {'key': 'value', 'class': 'a'}
-        assert root.findall('.//tfoot/tr/td')[0].attrib == {'key': 'value', 'class': 'a'}
-
-    def test_cells_are_automatically_given_column_name_as_class(self):
-        class SimpleTable(tables.Table):
-            a = tables.Column()
-
-        table = SimpleTable([{'a': 'value'}])
-        root = parse(table.as_html(request))
-        assert root.findall('.//thead/tr/th')[0].attrib == {'class': 'a orderable'}
-        assert root.findall('.//tbody/tr/td')[0].attrib == {'class': 'a'}
+        assert root.findall('.//thead/tr/th')[0].attrib == {'key': 'value', 'class': 'orderable'}
+        assert root.findall('.//tbody/tr/td')[0].attrib == {'key': 'value'}
+        assert root.findall('.//tfoot/tr/td')[0].attrib == {'key': 'value'}
 
     def test_th_are_given_orderable_class_if_column_is_orderable(self):
         class SimpleTable(tables.Table):
@@ -277,9 +268,9 @@ class ColumnGeneralTest(TestCase):
         table = SimpleTable([{'a': 'value'}])
         root = parse(table.as_html(request))
         # return classes of an element as a set
-        classes = lambda x: set(x.attrib['class'].split())
-        assert 'orderable' in classes(root.findall('.//thead/tr/th')[0])
-        assert 'orderable' not in classes(root.findall('.//thead/tr/th')[1])
+        classes = lambda x: set(x.attrib.get('class', '').split())
+        self.assertIn('orderable', classes(root.findall('.//thead/tr/th')[0]))
+        self.assertNotIn('orderable', classes(root.findall('.//thead/tr/th')[1]))
 
         # Now try with an ordered table
         table = SimpleTable([], order_by='a')
@@ -443,10 +434,10 @@ class ColumnAttrsTest(TestCase):
         table = Table(Person.objects.all())
         html = table.as_html(request)
         # cell should affect both <th> and <td>
-        assert '<th data-length="2" class="orderable person">' in html
-        assert '<td data-length="2" class="person">' in html
+        self.assertIn('<th data-length="2" class="orderable">', html)
+        self.assertIn('<td data-length="2">', html)
         # td should only affect <td>
-        assert '<td class="first_name status-2">' in html
+        self.assertIn('<td class="status-2">', html)
 
     def test_computable_td_attrs_defined_in_column_class_attribute(self):
         '''Computable attrs for columns, using custom Column'''
@@ -465,14 +456,8 @@ class ColumnAttrsTest(TestCase):
         html = table.as_html(request)
         root = parse(html)
 
-        assert root.findall('.//tbody/tr/td')[0].attrib == {
-            'data-test': '2',
-            'class': 'last_name'
-        }
-        assert root.findall('.//tbody/tr/td')[1].attrib == {
-            'data-test': '2',
-            'class': 'last_name'
-        }
+        self.assertEqual(root.findall('.//tbody/tr/td')[0].attrib, {'data-test': '2'})
+        self.assertEqual(root.findall('.//tbody/tr/td')[1].attrib, {'data-test': '2'})
 
     def test_computable_td_attrs_defined_in_column_class_attribute_record(self):
         '''Computable attrs for columns, using custom column'''
@@ -495,11 +480,10 @@ class ColumnAttrsTest(TestCase):
         html = table.as_html(request)
         root = parse(html)
 
-        assert root.findall('.//tbody/tr/td')[0].attrib == {
+        self.assertEqual(root.findall('.//tbody/tr/td')[0].attrib, {
             'data-first-name': 'Jan',
-            'data-last-name': 'Pietersz.',
-            'class': 'person'
-        }
+            'data-last-name': 'Pietersz.'
+        })
 
     def test_computable_column_td_attrs_record_header(self):
         '''
@@ -523,15 +507,15 @@ class ColumnAttrsTest(TestCase):
         html = table.as_html(request)
         root = parse(html)
 
-        assert root.findall('.//thead/tr/th')[0].attrib == {
-            'class': 'first_name orderable',
+        self.assertEqual(root.findall('.//thead/tr/th')[0].attrib, {
+            'class': 'orderable',
             'data-first-name': 'header',
-        }
-        assert root.findall('.//tbody/tr/td')[0].attrib == {
-            'class': 'first_name status-Jan',
+        })
+        self.assertEqual(root.findall('.//tbody/tr/td')[0].attrib, {
+            'class': 'status-Jan',
             'data-first-name': 'Jan',
-        }
-        assert root.findall('.//tbody/tr/td')[1].attrib == {
-            'class': 'first_name status-Sjon',
+        })
+        self.assertEqual(root.findall('.//tbody/tr/td')[1].attrib, {
+            'class': 'status-Sjon',
             'data-first-name': 'Sjon',
-        }
+        })

@@ -595,7 +595,7 @@ class TableBase(object):
         Returns a set of HTML class names for cells (both td and th) of a
         **bound column** in this table.
         By default this returns the column class names defined in the table's
-        attributes, and additionally the bound column's name.
+        attributes.
         This method can be overridden to change the default behavior, for
         example to simply `return classes_set`.
 
@@ -611,8 +611,19 @@ class TableBase(object):
 
         Returns:
             A set of class names to be added to cells of this column
+
+        If you want to add the column names to the list of classes for a column,
+        override this method in your custom table::
+
+            class MyTable(tables.Table):
+                ...
+
+                def get_column_class_names(self, classes_set, bound_column):
+                    classes_set = super(MyTable, self).get_column_class_names(classes_set, bound_column)
+                    classes_set.add(bound_column.name)
+
+                    return classes_set
         '''
-        classes_set.add(bound_column.name)
         return classes_set
 
 
