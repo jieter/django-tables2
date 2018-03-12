@@ -133,11 +133,14 @@ class TableQuerysetData(TableData):
         )
 
     def __len__(self):
+        '''Cached data length'''
         if not hasattr(self, '_length') or self._length is None:
-            # Use the queryset count() method to get the length, instead of
-            # loading all results into memory. This allows, for example,
-            # smart paginators that use len() to perform better.
-            self._length = self.data.count()
+            if hasattr(self.table, 'paginator'):
+                # for paginated tables, use QuerySet.count() as we are interested in total number of records.
+                self._length = self.data.count()
+            else:
+                # for non-paginated tables, use the length of the QuerySet
+                self._length = len(self.data)
 
         return self._length
 

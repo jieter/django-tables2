@@ -391,7 +391,7 @@ class OrderingDataTest(TestCase):
         assert table.rows[0].get_cell('first_name') == 'VeryLongFirstName'
 
 
-class ModelSantityTest(TestCase):
+class ModelSanityTest(TestCase):
     def setUp(self):
         for i in range(10):
             Person.objects.create(first_name='Bob %d' % i, last_name='Builder')
@@ -488,13 +488,18 @@ class ModelSantityTest(TestCase):
         with self.assertNumQueries(1):
             list(table.as_values())
 
-    def test_as_html_db_queries(self):
+    def test_as_html_db_queries_nonpaginated(self):
+        '''
+        Basic tables without pagination should NOT result in a COUNT(*) being done,
+        but only fetch the rows.
+        '''
         class PersonTable(tables.Table):
             class Meta:
                 model = Person
 
-        with self.assertNumQueries(2):
-            PersonTable(Person.objects.all()).as_html(build_request())
+        with self.assertNumQueries(1):
+            html = PersonTable(Person.objects.all()).as_html(build_request())
+            self.assertIn('Bob 0', html)
 
 
 class TableFactoryTest(TestCase):

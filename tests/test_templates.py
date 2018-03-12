@@ -113,6 +113,11 @@ class TestQueries(TestCase):
             PersonTable(Person.objects.all()).as_html(request)
 
     def test_render_table_db_queries(self):
+        '''
+        Paginated tables should result in two queries:
+         - one query for pagination: .count()
+         - one query for records on the current page: .all()[start:end]
+        '''
         Person.objects.create(first_name='brad', last_name='ayers')
         Person.objects.create(first_name='davina', last_name='adisusila')
 
@@ -123,14 +128,14 @@ class TestQueries(TestCase):
         request = build_request('/')
 
         with self.assertNumQueries(2):
-            # one query for pagination: .count()
-            # one query for page records: .all()[start:end]
             request = build_request('/')
             table = PersonTable(Person.objects.all())
             RequestConfig(request).configure(table)
-            # render
-            (Template('{% load django_tables2 %}{% render_table table %}')
-             .render(Context({'table': table, 'request': request})))
+            html = Template('{% load django_tables2 %}{% render_table table %}') \
+                .render(Context({'table': table, 'request': request}))
+
+            self.assertIn('brad', html)
+            self.assertIn('ayers', html)
 
 
 class TemplateLocalizeTest(TestCase):

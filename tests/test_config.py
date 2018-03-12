@@ -1,10 +1,11 @@
 # coding: utf-8
 from django.core.paginator import EmptyPage, PageNotAnInteger
-from django.test import SimpleTestCase
+from django.test import SimpleTestCase, TestCase
 from fudge import Fake
 
 from django_tables2 import Column, RequestConfig, Table
 
+from .app.models import Person
 from .utils import build_request
 
 NOTSET = object()  # unique value
@@ -73,6 +74,32 @@ class ConfigTest(SimpleTestCase):
         class SimpleTable(Table):
             abc = Column()
 
-        table = SimpleTable([], request=request)
-
+        table = SimpleTable([{}], request=request)
         assert table.columns['abc'].is_ordered
+
+
+class NoPaginationQueriesTest(TestCase):
+
+    def test_should_not_count_with_paginate_False(self):
+        '''
+        No extra queries with pagination turned off.
+
+        https://github.com/jieter/django-tables2/issues/551
+        '''
+        class MyTable(Table):
+            first_name = Column()
+
+            class Meta:
+                template_name = 'minimal.html'
+
+        request = build_request()
+
+        Person.objects.create(first_name='Talip', last_name='Molenschot')
+
+        table = MyTable(Person.objects.all())
+        RequestConfig(request, paginate=False).configure(table)
+
+        with self.assertNumQueries(1):
+            html = table.as_html(request)
+
+        self.assertIn('<table>', html)
