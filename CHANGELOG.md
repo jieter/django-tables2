@@ -1,5 +1,9 @@
 # Change log
 
+
+## 1.21.1 (2018-03-12)
+ - Do not perform extra `COUNT()` queries for non-paginated tables. Fixes [#551](https://github.com/jieter/django-tables2/issues/551)
+
 ## 1.21.0 (2018-03-12)
  - Add new method `paginated_rows` to `Table` to replace fallback to non-paginated rows in templates.
  - Prevent mutation of the template context `{% render_table %}` is called from (fixes [#547](https://github.com/jieter/django-tables2/issues/547))
