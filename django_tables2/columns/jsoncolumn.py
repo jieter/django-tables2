@@ -5,8 +5,7 @@ import json
 
 from django.utils.html import format_html
 
-from django_tables2.templatetags.django_tables2 import title
-from django_tables2.utils import AttributeDict
+from django_tables2.utils import AttributeDict, ucfirst
 
 from .base import library
 from .linkcolumn import BaseLinkColumn
@@ -58,4 +57,4 @@ class JSONColumn(BaseLinkColumn):
     def from_field(cls, field):
         if POSTGRES_AVAILABLE:
             if isinstance(field, JSONField) or isinstance(field, HStoreField):
-                return cls(verbose_name=title(field.verbose_name))
+                return cls(verbose_name=ucfirst(field.verbose_name))

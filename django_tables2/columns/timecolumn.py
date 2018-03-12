@@ -4,7 +4,7 @@ from __future__ import absolute_import, unicode_literals
 from django.conf import settings
 from django.db import models
 
-from django_tables2.templatetags.django_tables2 import title
+from django_tables2.utils import ucfirst
 
 from .base import library
 from .templatecolumn import TemplateColumn
@@ -30,4 +30,4 @@ class TimeColumn(TemplateColumn):
     @classmethod
     def from_field(cls, field):
         if isinstance(field, models.TimeField):
-            return cls(verbose_name=title(field.verbose_name))
+            return cls(verbose_name=ucfirst(field.verbose_name))

@@ -7,8 +7,8 @@ from itertools import islice
 from django.utils import six
 from django.utils.safestring import SafeData
 
-from django_tables2.templatetags.django_tables2 import title
-from django_tables2.utils import Accessor, AttributeDict, OrderBy, OrderByTuple, call_with_appropriate, computed_values
+from django_tables2.utils import (Accessor, AttributeDict, OrderBy, OrderByTuple, call_with_appropriate,
+                                  computed_values, ucfirst)
 
 
 class Library(object):
@@ -256,7 +256,8 @@ class Column(object):
                 verbose_name = field.get_related_field().verbose_name
             else:
                 verbose_name = getattr(field, 'verbose_name', field.name)
-            return cls(verbose_name=title(verbose_name))
+
+            return cls(verbose_name=ucfirst(verbose_name))
 
 
 @six.python_2_unicode_compatible
@@ -537,7 +538,7 @@ class BoundColumn(object):
             if isinstance(name, SafeData):
                 return name
 
-        return title(name)
+        return ucfirst(name)
 
     @property
     def visible(self):
