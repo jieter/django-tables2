@@ -17,16 +17,16 @@ class FaqTest(SimpleTestCase):
             counter = tables.TemplateColumn('{{ row_counter }}')
             name = tables.Column()
 
-        expected = '<td class="counter">0</td>'
+        expected = '<td >0</td>'
 
         table = CountryTable(TEST_DATA)
         html = table.as_html(build_request())
-        assert expected in html
+        self.assertIn(expected, html)
 
         # the counter should start at zero the second time too
         table = CountryTable(TEST_DATA)
         html = table.as_html(build_request())
-        assert expected in html
+        self.assertIn(expected, html)
 
     def test_row_footer_total(self):
         class CountryTable(tables.Table):
@@ -41,4 +41,4 @@ class FaqTest(SimpleTestCase):
         html = table.as_html(build_request())
 
         columns = parse(html).findall('.//tfoot/tr')[-1].findall('td')
-        assert columns[1].text == 'Total: 77740000'
+        self.assertEqual(columns[1].text, 'Total: 77740000')

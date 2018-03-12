@@ -34,14 +34,14 @@ class DynamicColumnsTest(TestCase):
             name = tables.Column()
 
         # this is obvious:
-        assert list(MyTable(data).columns.columns.keys()) == ['name']
+        self.assertEqual(list(MyTable(data).columns.columns.keys()), ['name'])
 
-        assert list(MyTable(data, extra_columns=[
+        self.assertEqual(list(MyTable(data, extra_columns=[
             ('country', tables.Column())
-        ]).columns.columns.keys()) == ['name', 'country']
+        ]).columns.columns.keys()), ['name', 'country'])
 
         # this new instance should not have the extra columns added to the first instance.
-        assert list(MyTable(data).columns.columns.keys()) == ['name']
+        self.assertEqual(list(MyTable(data).columns.columns.keys()), ['name'])
 
     def test_sorting_on_dynamically_added_columns(self):
         class MyTable(tables.Table):
@@ -52,8 +52,8 @@ class DynamicColumnsTest(TestCase):
         ])
 
         root = parse(table.as_html(build_request()))
-        assert root.find('.//tbody/tr/td[2]').text == 'Chile'
-        assert root.find('.//tbody/tr[4]/td[2]').text == 'Australia'
+        self.assertEqual(root.find('.//tbody/tr/td[2]').text, 'Chile')
+        self.assertEqual(root.find('.//tbody/tr[4]/td[2]').text, 'Australia')
 
     def test_dynamically_override_auto_generated_columns(self):
         for name, country in data:
@@ -65,15 +65,15 @@ class DynamicColumnsTest(TestCase):
                 model = Person
                 fields = ('first_name', 'last_name')
 
-        assert list(MyTable(queryset).columns.columns.keys()) == ['first_name', 'last_name']
+        self.assertEqual(list(MyTable(queryset).columns.columns.keys()), ['first_name', 'last_name'])
 
         table = MyTable(queryset, extra_columns=[
             ('first_name', tables.Column(attrs={'td': {'style': 'color: red;'}}))
         ])
         # we still should have two columns
-        assert list(table.columns.columns.keys()) == ['first_name', 'last_name']
+        self.assertEqual(list(table.columns.columns.keys()), ['first_name', 'last_name'])
         # the attrs should be applied to the `first_name` column
-        assert table.columns['first_name'].attrs['td'] == {'class': 'first_name', 'style': 'color: red;'}
+        self.assertEqual(table.columns['first_name'].attrs['td'], {'style': 'color: red;', 'class': None})
 
     def test_dynamically_add_column_with_sequence(self):
         class MyTable(tables.Table):
@@ -109,18 +109,18 @@ class DynamicColumnsTest(TestCase):
         table = MyTable(data)
         request = build_request(user=User.objects.create(username='Bob'))
         html = table.as_html(request)
-        assert '<th class="name">Name</th>' in html
-        assert '<th class="country">Country</th>' not in html
+        self.assertIn('<th >Name</th>', html)
+        self.assertNotIn('<th >Country</th>', html)
 
         html = template.render(Context({'request': request, 'table': table}))
-        assert '<th class="name">Name</th>' in html
-        assert '<th class="country">Country</th>' not in html
+        self.assertIn('<th >Name</th>', html)
+        self.assertNotIn('<th >Country</th>', html)
 
         request = build_request(user=User.objects.create(username='Alice'))
         html = table.as_html(request)
-        assert '<th class="name">Name</th>' in html
-        assert '<th class="country">Country</th>' in html
+        self.assertIn('<th >Name</th>', html)
+        self.assertIn('<th >Country</th>', html)
 
         html = template.render(Context({'request': request, 'table': table}))
-        assert '<th class="name">Name</th>' in html
-        assert '<th class="country">Country</th>' in html
+        self.assertIn('<th >Name</th>', html)
+        self.assertIn('<th >Country</th>', html)

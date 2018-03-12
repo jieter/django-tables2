@@ -25,12 +25,12 @@ class TemplateColumnTest(SimpleTestCase):
 
         table = TestOnlyPinnedTable([{'foo': 'bar'}])
         for row in table.rows:
-            assert row.get_cell('foo') == 'value=bar'
+            self.assertEqual(row.get_cell('foo'), 'value=bar')
 
         template = Template('{% load django_tables2 %}{% render_table table %}')
         html = template.render(Context({'request': build_request(), 'table': table}))
 
-        assert '<td class="foo">value=bar</td>' in html
+        self.assertIn('<td >value=bar</td>', html)
 
     def test_should_handle_context_on_table(self):
         class TestTable(tables.Table):
@@ -40,47 +40,47 @@ class TemplateColumnTest(SimpleTestCase):
                                                 extra_context={'label': 'label'})
 
         table = TestTable([{'col': 'brad'}])
-        assert table.rows[0].get_cell('col_code') == 'code:brad-'
-        assert table.rows[0].get_cell('col_name') == 'name:brad-empty\n'
-        assert table.rows[0].get_cell("col_context") == "label:brad-"
+        self.assertEqual(table.rows[0].get_cell('col_code'), 'code:brad-')
+        self.assertEqual(table.rows[0].get_cell('col_name'), 'name:brad-empty\n')
+        self.assertEqual(table.rows[0].get_cell('col_context'), 'label:brad-')
 
         table.context = Context({'foo': 'author'})
-        assert table.rows[0].get_cell('col_code') == 'code:brad-author'
-        assert table.rows[0].get_cell('col_name') == 'name:brad-author\n'
-        assert table.rows[0].get_cell("col_context") == "label:brad-author"
+        self.assertEqual(table.rows[0].get_cell('col_code'), 'code:brad-author')
+        self.assertEqual(table.rows[0].get_cell('col_name'), 'name:brad-author\n')
+        self.assertEqual(table.rows[0].get_cell('col_context'), 'label:brad-author')
 
         # new table and render using the 'render_table' template tag.
         table = TestTable([{'col': 'brad'}])
         template = Template('{% load django_tables2 %}{% render_table table %}')
         html = template.render(Context({'request': build_request(), 'table': table, 'foo': 'author'}))
 
-        assert '<td class="col_name">name:brad-author\n</td>' in html
+        self.assertIn('<td >name:brad-author\n</td>', html)
 
     def test_should_support_default(self):
         class Table(tables.Table):
             foo = tables.TemplateColumn('default={{ default }}', default='bar')
 
         table = Table([{}])
-        assert table.rows[0].get_cell('foo') == 'default=bar'
+        self.assertEqual(table.rows[0].get_cell('foo'), 'default=bar')
 
     def test_should_support_value(self):
         class Table(tables.Table):
             foo = tables.TemplateColumn('value={{ value }}')
 
         table = Table([{'foo': 'bar'}])
-        assert table.rows[0].get_cell('foo') == 'value=bar'
+        self.assertEqual(table.rows[0].get_cell('foo'), 'value=bar')
 
         template = Template('{% load django_tables2 %}{% render_table table %}')
         html = template.render(Context({'request': build_request(), 'table': table}))
 
-        assert '<td class="foo">value=bar</td>' in html
+        self.assertIn('<td >value=bar</td>', html)
 
     def test_should_support_column(self):
         class Table(tables.Table):
             tcol = tables.TemplateColumn('column={{ column.name }}')
 
         table = Table([{'foo': 'bar'}])
-        assert table.rows[0].get_cell('tcol') == 'column=tcol'
+        self.assertEqual(table.rows[0].get_cell('tcol'), 'column=tcol')
 
     def test_should_raise_when_called_without_template(self):
         with self.assertRaises(ValueError):
@@ -95,7 +95,7 @@ class TemplateColumnTest(SimpleTestCase):
             track = tables.TemplateColumn('track: {{ value }}')
 
         table = Table([{'track': 'Beat it {Freestyle}'}])
-        assert table.rows[0].get_cell('track') == 'track: Beat it {Freestyle}'
+        self.assertEqual(table.rows[0].get_cell('track'), 'track: Beat it {Freestyle}')
 
     def test_should_strip_tags_for_value(self):
         class Table(tables.Table):
@@ -103,4 +103,4 @@ class TemplateColumnTest(SimpleTestCase):
 
         table = Table([{'track': 'Space Oddity'}])
 
-        assert list(table.as_values()) == [['Track'], ['Space Oddity']]
+        self.assertEqual(list(table.as_values()), [['Track'], ['Space Oddity']])

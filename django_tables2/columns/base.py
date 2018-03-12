@@ -328,6 +328,7 @@ class BoundColumn(object):
 
         # we take the value for 'cell' as the basis for both the th and td attrs
         cell_attrs = attrs.get('cell', {})
+
         # override with attrs defined specifically for th and td respectively.
         attrs['th'] = computed_values(attrs.get('th', cell_attrs), kwargs=kwargs)
         attrs['td'] = computed_values(attrs.get('td', cell_attrs), kwargs=kwargs)
@@ -347,11 +348,10 @@ class BoundColumn(object):
 
     def _get_cell_class(self, attrs):
         '''
-        return a set of the classes from the class key in ``attrs``, augmented
-        with the column name (or anything else added by Table.get_column_class_names()).
+        Return a set of the classes from the class key in ``attrs``.
         '''
         classes = attrs.get('class', None)
-        classes = set() if classes is None else {c for c in classes.split(' ') if c}
+        classes = set() if classes is None else set(classes.split(' '))
 
         return self._table.get_column_class_names(classes, self)
 
@@ -359,7 +359,8 @@ class BoundColumn(object):
         '''
         Returns the HTML class attribute for a data cell in this column
         '''
-        return ' '.join(sorted(self._get_cell_class(td_attrs)))
+        classes = sorted(self._get_cell_class(td_attrs))
+        return None if len(classes) == 0 else ' '.join(classes)
 
     def get_th_class(self, th_attrs):
         '''
@@ -376,7 +377,7 @@ class BoundColumn(object):
                         if self.order_by_alias.is_descending
                         else ordering_class.get('ascending', 'asc'))
 
-        return ' '.join(sorted(classes))
+        return None if len(classes) == 0 else ' '.join(classes)
 
     @property
     def default(self):

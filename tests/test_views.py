@@ -127,7 +127,7 @@ class SingleTableViewTest(TestCase):
                 return Region.objects.all().order_by('name')
 
         response, view = PaginateByDefinedOnView.as_view()(build_request('/'))
-        assert view.get_table().paginator.per_page == 2
+        self.assertEqual(view.get_table().paginator.per_page, 2)
 
     def test_should_pass_kwargs_to_table_constructor(self):
         class PassKwargsView(SimpleView):
@@ -138,10 +138,10 @@ class SingleTableViewTest(TestCase):
                 return super(PassKwargsView, self).get_table(**kwargs)
 
         response, view = SimpleView.as_view()(build_request('/'))
-        assert view.get_table().orderable is True
+        self.assertTrue(view.get_table().orderable)
 
         response, view = PassKwargsView.as_view()(build_request('/'))
-        assert view.get_table().orderable is False
+        self.assertFalse(view.get_table().orderable)
 
     def test_should_override_table_pagination(self):
         class PrefixedTable(SimpleTable):
@@ -289,11 +289,11 @@ class MultiTableMixinTest(TestCase):
 
         html = response.rendered_content
 
-        assert 'table_0-sort=first_name' in html
-        assert 'table_1-sort=name' in html
+        self.assertIn('table_0-sort=first_name', html)
+        self.assertIn('table_1-sort=name', html)
 
-        assert '<td class="first_name">Jan Pieter</td>' in html
-        assert '<td class="name">Zuid-Holland</td>' in html
+        self.assertIn('<td >Jan Pieter</td>', html)
+        self.assertIn('<td >Zuid-Holland</td>', html)
 
     def test_supplying_instances(self):
         class View(tables.MultiTableMixin, TemplateView):
@@ -308,11 +308,11 @@ class MultiTableMixinTest(TestCase):
 
         html = response.rendered_content
 
-        assert 'table_0-sort=first_name' in html
-        assert 'table_1-sort=name' in html
+        self.assertIn('table_0-sort=first_name', html)
+        self.assertIn('table_1-sort=name', html)
 
-        assert '<td class="first_name">Jan Pieter</td>' in html
-        assert '<td class="name">Zuid-Holland</td>' in html
+        self.assertIn('<td >Jan Pieter</td>', html)
+        self.assertIn('<td >Zuid-Holland</td>', html)
 
     def test_without_tables(self):
         class View(tables.MultiTableMixin, TemplateView):
@@ -343,7 +343,7 @@ class MultiTableMixinTest(TestCase):
         response.render()
 
         html = response.rendered_content
-        assert '<h1>Multiple tables using MultiTableMixin</h1>' in html
+        self.assertIn('<h1>Multiple tables using MultiTableMixin</h1>', html)
 
     def test_length_mismatch(self):
         class View(tables.MultiTableMixin, TemplateView):
@@ -370,8 +370,8 @@ class MultiTableMixinTest(TestCase):
 
         tableA, tableB = view.get_tables()
 
-        assert tableA.page.number == 1
-        assert tableB.page.number == 3
+        self.assertEqual(tableA.page.number, 1)
+        self.assertEqual(tableB.page.number, 3)
 
     def test_get_tables_data(self):
         class View(tables.MultiTableMixin, TemplateView):
@@ -386,5 +386,5 @@ class MultiTableMixinTest(TestCase):
 
         html = response.rendered_content
 
-        assert '<td class="first_name">Jan Pieter</td>' in html
-        assert '<td class="name">Zuid-Holland</td>' in html
+        self.assertIn('<td >Jan Pieter</td>', html)
+        self.assertIn('<td >Zuid-Holland</td>', html)
