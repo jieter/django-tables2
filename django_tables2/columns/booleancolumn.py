@@ -5,8 +5,7 @@ from django.db import models
 from django.utils import six
 from django.utils.html import escape, format_html
 
-from django_tables2.templatetags.django_tables2 import title
-from django_tables2.utils import AttributeDict
+from django_tables2.utils import AttributeDict, ucfirst
 
 from .base import Column, library
 
@@ -70,8 +69,8 @@ class BooleanColumn(Column):
     @classmethod
     def from_field(cls, field):
         if isinstance(field, models.NullBooleanField):
-            return cls(verbose_name=title(field.verbose_name), null=True)
+            return cls(verbose_name=ucfirst(field.verbose_name), null=True)
 
         if isinstance(field, models.BooleanField):
             null = getattr(field, 'null', False)
-            return cls(verbose_name=title(field.verbose_name), null=null)
+            return cls(verbose_name=ucfirst(field.verbose_name), null=null)

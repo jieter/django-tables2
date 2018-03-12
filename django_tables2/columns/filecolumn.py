@@ -6,8 +6,7 @@ import os
 from django.db import models
 from django.utils.html import format_html
 
-from django_tables2.templatetags.django_tables2 import title
-from django_tables2.utils import AttributeDict
+from django_tables2.utils import AttributeDict, ucfirst
 
 from .base import library
 from .linkcolumn import BaseLinkColumn
@@ -85,4 +84,4 @@ class FileColumn(BaseLinkColumn):
     @classmethod
     def from_field(cls, field):
         if isinstance(field, models.FileField):
-            return cls(verbose_name=title(field.verbose_name))
+            return cls(verbose_name=ucfirst(field.verbose_name))

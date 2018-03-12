@@ -31,11 +31,11 @@ NAMES = [
 CSV_SEP = '\r\n'
 
 EXPECTED_CSV = CSV_SEP.join(
-    ('First Name,Surname', ) + tuple(','.join(name) for name in NAMES)
+    ('First name,Surname', ) + tuple(','.join(name) for name in NAMES)
 ) + CSV_SEP
 
 EXPECTED_JSON = list([
-    {'First Name': first_name, 'Surname': last_name}
+    {'First name': first_name, 'Surname': last_name}
     for first_name, last_name in NAMES
 ])
 
@@ -65,7 +65,7 @@ class TableExportTest(TestCase):
 
         exporter = TableExport('csv', table)
         expected = (
-            'First Name,Last Name',
+            'First name,Last name',
             'Yildiz,van der Kuil',
             'Jan,'
         )
@@ -76,13 +76,13 @@ class TableExportTest(TestCase):
 
         class Table(tables.Table):
             first_name = tables.Column()
-            last_name = tables.Column(verbose_name='Last Name')
+            last_name = tables.Column(verbose_name='Last name')
             occupation = tables.Column(verbose_name='Occupation')
 
         table = Table(Person.objects.all())
         exporter = TableExport('csv', table)
         expected = (
-            'First Name,Last Name,Occupation',
+            'First name,Last name,Occupation',
             'Jan,Coen,'
         )
         self.assertEqual(exporter.export(), CSV_SEP.join(expected) + CSV_SEP)
@@ -96,14 +96,14 @@ class ExportViewTest(TestCase):
 
     def test_view_should_support_csv_export(self):
         response, view = View.as_view()(build_request('/?_export=csv'))
-        assert response.getvalue().decode('utf8') == EXPECTED_CSV
+        self.assertEqual(response.getvalue().decode('utf8'), EXPECTED_CSV)
 
         # should just render the normal table without the _export query
         response, view = View.as_view()(build_request('/'))
         html = response.render().rendered_content
 
-        assert 'Yildiz' in html
-        assert 'Lindy' not in html
+        self.assertIn('Yildiz', html)
+        self.assertNotIn('Lindy', html)
 
     def test_should_raise_error_for_unsupported_file_type(self):
         table = Table([])
@@ -113,7 +113,7 @@ class ExportViewTest(TestCase):
 
     def test_should_support_json_export(self):
         response, view = View.as_view()(build_request('/?_export=json'))
-        assert json.loads(response.getvalue().decode('utf8')) == EXPECTED_JSON
+        self.assertEqual(json.loads(response.getvalue().decode('utf8')), EXPECTED_JSON)
 
     def test_should_support_custom_trigger_param(self):
         class View(DispatchHookMixin, ExportMixin, tables.SingleTableView):
@@ -122,7 +122,7 @@ class ExportViewTest(TestCase):
             model = Person  # required for ListView
 
         response, view = View.as_view()(build_request('/?export_to=json'))
-        assert json.loads(response.getvalue().decode('utf8')) == EXPECTED_JSON
+        self.assertEqual(json.loads(response.getvalue().decode('utf8')), EXPECTED_JSON)
 
     def test_should_support_custom_filename(self):
         class View(DispatchHookMixin, ExportMixin, tables.SingleTableView):
@@ -131,7 +131,7 @@ class ExportViewTest(TestCase):
             model = Person  # required for ListView
 
         response, view = View.as_view()(build_request('/?_export=json'))
-        assert response['Content-Disposition'] == 'attachment; filename="people.json"'
+        self.assertEqual(response['Content-Disposition'], 'attachment; filename="people.json"')
 
     def test_function_view(self):
         '''
@@ -151,14 +151,14 @@ class ExportViewTest(TestCase):
             })
 
         response = table_view(build_request('/?_export=csv'))
-        assert response.getvalue().decode('utf8') == EXPECTED_CSV
+        self.assertEqual(response.getvalue().decode('utf8'), EXPECTED_CSV)
 
         # must also support the normal html table.
         response = table_view(build_request('/'))
         html = response.content.decode('utf8')
 
-        assert 'Yildiz' in html
-        assert 'Lindy' not in html
+        self.assertIn('Yildiz', html)
+        self.assertNotIn('Lindy', html)
 
 
 class OccupationTable(tables.Table):
@@ -187,9 +187,9 @@ class AdvancedExportViewTest(TestCase):
         response, view = OccupationView.as_view()(build_request('/?_export=xls'))
         data = response.content
         # binary data, so not possible to compare to an exact expectation
-        assert data.find('Vlaanderen'.encode())
-        assert data.find('Ecoloog'.encode())
-        assert data.find('Timmerman'.encode())
+        self.assertTrue(data.find('Vlaanderen'.encode()))
+        self.assertTrue(data.find('Ecoloog'.encode()))
+        self.assertTrue(data.find('Timmerman'.encode()))
 
     def test_should_work_with_foreign_key_fields(self):
         class OccupationWithForeignKeyFieldsTable(tables.Table):
@@ -208,11 +208,11 @@ class AdvancedExportViewTest(TestCase):
         data = response.getvalue().decode('utf8')
 
         expected_csv = '\r\n'.join((
-            'Name,Boolean,Region,First Name',
+            'Name,Boolean,Region,First name',
             'Timmerman,True,Vlaanderen,Richard',
             'Ecoloog,False,Vlaanderen,Richard\r\n'
         ))
-        assert data == expected_csv
+        self.assertEqual(data, expected_csv)
 
     def test_should_allow_exclude_columns(self):
         class OccupationExcludingView(DispatchHookMixin, ExportMixin, tables.SingleTableView):

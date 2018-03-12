@@ -8,8 +8,6 @@ from django import template
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.template import Node, TemplateSyntaxError
-from django.template.defaultfilters import title as old_title
-from django.template.defaultfilters import stringfilter
 from django.template.loader import get_template, select_template
 from django.templatetags.l10n import register as l10n_register
 from django.utils import six
@@ -210,34 +208,6 @@ def render_table(parser, token):
 
     return RenderTableNode(table, template)
 
-
-@register.filter
-@stringfilter
-def title(value):
-    '''
-    A slightly better title template filter.
-
-    Same as Django's builtin `~django.template.defaultfilters.title` filter,
-    but operates on individual words and leaves words unchanged if they already
-    have a capital letter or a digit. Actually Django's filter also skips
-    words with digits but only for latin letters (or at least not for
-    cyrillic ones).
-    '''
-    return ' '.join([
-        any([c.isupper() or c.isdigit() for c in w]) and w or old_title(w)
-        for w in value.split()
-    ])
-
-
-title.is_safe = True
-
-try:
-    from django.utils.functional import keep_lazy_text
-    title = keep_lazy_text(title)
-except ImportError:
-    # to keep backward (Django < 1.10) compatibility
-    from django.utils.functional import lazy
-    title = lazy(title, six.text_type)
 
 register.filter('localize', l10n_register.filters['localize'])
 register.filter('unlocalize', l10n_register.filters['unlocalize'])

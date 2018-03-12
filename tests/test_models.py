@@ -220,22 +220,22 @@ class ColumnNameTest(TestCase):
         table = PersonTable(Person.objects.all())
 
         # Should be generated (capitalized column name)
-        assert 'First Name' == table.columns['first_name'].verbose_name
-        assert 'First Name' == table.columns['fn1'].verbose_name
-        assert 'First Name' == table.columns['fn2'].verbose_name
-        assert 'OVERRIDE' == table.columns['fn3'].verbose_name
-        assert 'override' == table.columns['fn4'].verbose_name
+        self.assertEqual('First name', table.columns['first_name'].verbose_name)
+        self.assertEqual('First name', table.columns['fn1'].verbose_name)
+        self.assertEqual('First name', table.columns['fn2'].verbose_name)
+        self.assertEqual('OVERRIDE', table.columns['fn3'].verbose_name)
+        self.assertEqual('override', table.columns['fn4'].verbose_name)
         # Should use the titlised model field's verbose_name
-        assert 'Surname' == table.columns['last_name'].verbose_name
-        assert 'Surname' == table.columns['ln1'].verbose_name
-        assert 'Surname' == table.columns['ln2'].verbose_name
-        assert 'OVERRIDE' == table.columns['ln3'].verbose_name
-        assert 'Name' == table.columns['region'].verbose_name
-        assert 'Name' == table.columns['r1'].verbose_name
-        assert 'Name' == table.columns['r2'].verbose_name
-        assert 'OVERRIDE' == table.columns['r3'].verbose_name
-        assert 'Translation Test' == table.columns['trans_test'].verbose_name
-        assert 'Translation Test Lazy' == table.columns['trans_test_lazy'].verbose_name
+        self.assertEqual('Surname', table.columns['last_name'].verbose_name)
+        self.assertEqual('Surname', table.columns['ln1'].verbose_name)
+        self.assertEqual('Surname', table.columns['ln2'].verbose_name)
+        self.assertEqual('OVERRIDE', table.columns['ln3'].verbose_name)
+        self.assertEqual('Name', table.columns['region'].verbose_name)
+        self.assertEqual('Name', table.columns['r1'].verbose_name)
+        self.assertEqual('Name', table.columns['r2'].verbose_name)
+        self.assertEqual('OVERRIDE', table.columns['r3'].verbose_name)
+        self.assertEqual('Translation test', table.columns['trans_test'].verbose_name)
+        self.assertEqual('Translation test lazy', table.columns['trans_test_lazy'].verbose_name)
 
     def test_using_Meta_model(self):
         # Now we'll try using a table with Meta.model
@@ -247,22 +247,19 @@ class ColumnNameTest(TestCase):
 
         # Issue #16
         table = PersonTable(Person.objects.all())
-        assert 'Translation Test' == table.columns['trans_test'].verbose_name
-        assert 'Translation Test Lazy' == table.columns['trans_test_lazy'].verbose_name
-        assert 'Web Site' == table.columns['website'].verbose_name
-        assert 'Birthdate' == table.columns['birthdate'].verbose_name
-        assert 'OVERRIDE' == table.columns['first_name'].verbose_name
+        self.assertEqual('Translation test', table.columns['trans_test'].verbose_name)
+        self.assertEqual('Translation test lazy', table.columns['trans_test_lazy'].verbose_name)
+        self.assertEqual('Web site', table.columns['website'].verbose_name)
+        self.assertEqual('Birthdate', table.columns['birthdate'].verbose_name)
+        self.assertEqual('OVERRIDE', table.columns['first_name'].verbose_name)
 
-        # Verbose name should be lazy if it comes from the model field and
-        # the column was not declared explicitly
         class PersonTable(tables.Table):
             class Meta:
                 model = Person
 
         table = PersonTable(Person.objects.all())
-        assert type(table.columns['trans_test_lazy'].verbose_name) is not six.text_type
         with translation_override('ua'):
-            assert 'Тест Ленивого Перекладу' == table.columns['trans_test_lazy'].verbose_name
+            self.assertEqual('Тест ленивого перекладу', table.columns['trans_test_lazy'].verbose_name)
 
     def test_data_verbose_name(self):
         table = tables.Table(Person.objects.all())

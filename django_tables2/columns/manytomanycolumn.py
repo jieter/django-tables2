@@ -5,7 +5,7 @@ from django.db import models
 from django.utils.encoding import force_text
 from django.utils.html import conditional_escape, mark_safe
 
-from django_tables2.templatetags.django_tables2 import title
+from django_tables2.utils import ucfirst
 
 from .base import Column, library
 
@@ -82,4 +82,4 @@ class ManyToManyColumn(Column):
     @classmethod
     def from_field(cls, field):
         if isinstance(field, models.ManyToManyField):
-            return cls(verbose_name=title(field.verbose_name))
+            return cls(verbose_name=ucfirst(field.verbose_name))

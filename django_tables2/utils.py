@@ -7,8 +7,19 @@ from itertools import chain
 
 from django.db import models
 from django.db.models.fields import FieldDoesNotExist
+from django.template.defaultfilters import stringfilter
 from django.utils import six
+from django.utils.functional import keep_lazy_text
 from django.utils.html import format_html_join
+
+
+@keep_lazy_text
+@stringfilter
+def ucfirst(s):
+    if not isinstance(s, six.string_types):
+        return ''
+    else:
+        return s[0].upper() + s[1:]
 
 
 class Sequence(list):
