@@ -279,9 +279,7 @@ class CoreTest(SimpleTestCase):
             name = tables.Column()
 
         # create some sample data
-        data = []
-        for i in range(100):
-            data.append({'name': 'Book No. %d' % i})
+        data = list([{'name': 'Book No. %d' % i} for i in range(100)])
         books = BookTable(data)
 
         # external paginator

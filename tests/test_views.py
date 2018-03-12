@@ -48,8 +48,8 @@ class SingleTableViewTest(TestCase):
             Region.objects.create(name=region['name'])
 
         response, view = SimplePaginatedView.as_view()(build_request('/'))
-        assert view.get_table().paginator.num_pages == len(MEMORY_DATA)
-        assert view.get_table().paginator.per_page == 1
+        self.assertEqual(view.get_table().paginator.num_pages, len(MEMORY_DATA))
+        self.assertEqual(view.get_table().paginator.per_page, 1)
 
     def test_should_support_default_pagination(self):
         class PaginateDefault(DispatchHookMixin, tables.SingleTableView):
@@ -59,8 +59,8 @@ class SingleTableViewTest(TestCase):
 
         response, view = PaginateDefault.as_view()(build_request('/'))
         table = view.get_table()
-        assert table.paginator.per_page == 25
-        assert len(table.page) == 4
+        self.assertEqual(table.paginator.per_page, 25)
+        self.assertEqual(len(table.page), 4)
 
     def test_should_support_default_pagination_with_table_options(self):
         class Table(tables.Table):
@@ -75,8 +75,8 @@ class SingleTableViewTest(TestCase):
 
         response, view = PaginateByDefinedOnView.as_view()(build_request('/'))
         table = view.get_table()
-        assert table.paginator.per_page == 2
-        assert len(table.page) == 2
+        self.assertEqual(table.paginator.per_page, 2)
+        self.assertEqual(len(table.page), 2)
 
     def test_should_support_disabling_pagination_options(self):
         class SimpleNotPaginatedView(DispatchHookMixin, tables.SingleTableView):
@@ -87,7 +87,7 @@ class SingleTableViewTest(TestCase):
 
         response, view = SimpleNotPaginatedView.as_view()(build_request('/'))
         table = view.get_table()
-        assert not hasattr(table, 'page')
+        self.assertFalse(hasattr(table, 'page'))
 
     def test_data_from_get_queryset(self):
         for region in MEMORY_DATA:
@@ -100,15 +100,15 @@ class SingleTableViewTest(TestCase):
         response, view = GetQuerysetView.as_view()(build_request('/'))
         table = view.get_table()
 
-        assert len(table.rows) == 1
-        assert table.rows[0].get_cell('name') == 'Queensland'
+        self.assertEqual(len(table.rows), 1)
+        self.assertEqual(table.rows[0].get_cell('name'), 'Queensland')
 
     def test_should_support_explicit_table_data(self):
         class ExplicitDataView(SimplePaginatedView):
             table_data = MEMORY_DATA
 
         response, view = ExplicitDataView.as_view()(build_request('/'))
-        assert view.get_table().paginator.num_pages == len(MEMORY_DATA)
+        self.assertEqual(view.get_table().paginator.num_pages, len(MEMORY_DATA))
 
     def test_paginate_by_on_view_class(self):
         Region.objects.create(name='Friesland')
