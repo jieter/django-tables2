@@ -205,7 +205,8 @@ class TableBase(object):
             even if some columns have a footer, defaults to `True`.
 
         extra_columns (str, `.Column`): list of `(name, column)`-tuples containing
-            extra columns to add to the instance.
+            extra columns to add to the instance. If `column` is `None`, the column
+            with `name` will be removed from the table.
     '''
     def __init__(self, data=None, order_by=None, orderable=None, empty_text=None,
                  exclude=None, attrs=None, row_attrs=None, pinned_row_attrs=None,
@@ -254,7 +255,10 @@ class TableBase(object):
 
         if extra_columns is not None:
             for name, column in extra_columns:
-                base_columns[name] = column
+                if column is None and name in base_columns:
+                    del base_columns[name]
+                else:
+                    base_columns[name] = column
 
         # Keep fully expanded ``sequence`` at _sequence so it's easily accessible
         # during render. The priority is as follows:
