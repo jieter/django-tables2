@@ -5,6 +5,7 @@ from django.template import Context, Template
 from django.test import SimpleTestCase, TestCase, override_settings
 from django.utils.translation import override as translation_override
 from django.utils.translation import ugettext_lazy
+from lxml import etree
 
 import django_tables2 as tables
 from django_tables2.config import RequestConfig
@@ -330,3 +331,48 @@ class SemanticTemplateTest(SimpleTestCase):
         # make sure the link is prefixed
         next_page = './/tfoot/tr/th/div[@class="ui right floated pagination menu"]/a[1]'
         self.assertEqual(root.find(next_page).get('href'), '?semantic-page=1')
+
+
+class ValidHTMLTest(SimpleTestCase):
+    template = '''<!doctype html>
+<html>
+<head>
+    <title>Basic html template to render a table</title>
+</head>
+<body>
+    {% load django_tables2 %}{% render_table table %}
+</body>
+</html>
+'''
+    allowed_errors = {
+        etree.ErrorTypes.HTML_UNKNOWN_TAG: ['Tag nav invalid'],
+    }
+    context_lines = 4
+
+    def test_templates(self):
+        parser = etree.HTMLParser()
+
+        for name in ('table', 'semantic', 'bootstrap', 'bootstrap4'):
+            table = CountryTable(
+                list([MEMORY_DATA] * 10),
+                template_name='django_tables2/{}.html'.format(name)
+            ).paginate(per_page=5)
+
+            html = Template(self.template).render(Context({
+                'request': build_request(),
+                'table': table,
+            }))
+
+            # will raise lxml.etree.XMLSyntaxError if markup is incorrect
+            etree.fromstring(html, parser)
+
+            for error in parser.error_log:
+                if error.type in self.allowed_errors and error.message in self.allowed_errors[error.type]:
+                    continue
+
+                lines = html.splitlines()
+                start, end = max(0, error.line - self.context_lines), min(error.line + self.context_lines, len(lines))
+                context = '\n'.join(
+                    ['{}: {}'.format(i, line) for i, line in zip(range(start + 1, end + 1), lines[start:end])]
+                )
+                raise AssertionError(str(error) + '\n' + context)
