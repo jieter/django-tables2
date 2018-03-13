@@ -43,6 +43,21 @@ class DynamicColumnsTest(TestCase):
         # this new instance should not have the extra columns added to the first instance.
         self.assertEqual(list(MyTable(data).columns.columns.keys()), ['name'])
 
+    def test_dynamically_removing_columns(self):
+        class MyTable(tables.Table):
+            name = tables.Column()
+
+        # this is obvious:
+        self.assertEqual(list(MyTable(data).columns.columns.keys()), ['name'])
+
+        self.assertEqual(list(MyTable(data, extra_columns=[
+            ('country', tables.Column()),
+            ('name', None)
+        ]).columns.columns.keys()), ['country'])
+
+        # this new instance should not have the extra columns added to the first instance.
+        self.assertEqual(list(MyTable(data).columns.columns.keys()), ['name'])
+
     def test_sorting_on_dynamically_added_columns(self):
         class MyTable(tables.Table):
             name = tables.Column()
