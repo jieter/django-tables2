@@ -31,7 +31,7 @@ class MyTable(tables.Table):
  - Prevent mutation of the template context `{% render_table %}` is called from (fixes [#547](https://github.com/jieter/django-tables2/issues/547))
 
 ## 1.20.0 (2018-03-08)
- -  Define and use `get_table_data` in `MultiTableMixin` [#538]https://github.com/jieter/django-tables2/pull/538) by [@vCra](https://github.com/vCra) (fixes [#528](https://github.com/jieter/django-tables2/issues/528))
+ -  Define and use `get_table_data` in `MultiTableMixin` [#538](https://github.com/jieter/django-tables2/pull/538) by [@vCra](https://github.com/vCra) (fixes [#528](https://github.com/jieter/django-tables2/issues/528))
  - Added `{% export_url <format> %}` template tag.
  - Allow passing a `TableData`-derived class to the data argument of the `Table` constructor, instead of a QuerySet or list of dicts.
 
