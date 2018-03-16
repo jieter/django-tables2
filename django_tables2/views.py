@@ -186,7 +186,7 @@ class MultiTableMixin(TableMixinBase):
 
             return self.tables
         else:
-            if len(data) != len(self.get_tables()):
+            if len(data) != len(self.tables):
                 klass = type(self).__name__
                 raise ImproperlyConfigured(
                     'len({}.tables_data) != len({}.tables)'.format(klass, klass)
