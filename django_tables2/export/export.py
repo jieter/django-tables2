@@ -82,7 +82,8 @@ class TableExport(object):
         Builds and returns a `HttpResponse` containing the exported data
 
         Arguments:
-            filename (str): if not `None`,
+            filename (str): if not `None`, the filename is attached to the
+                `Content-Disposition` header of the response.
         '''
         response = HttpResponse(content_type=self.content_type())
         if filename is not None:
