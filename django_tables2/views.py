@@ -172,9 +172,9 @@ class MultiTableMixin(TableMixinBase):
     context_table_name = 'tables'
 
     def get_tables(self):
-        """
+        '''
         Return an array of table instances containing data.
-        """
+        '''
         data = self.get_tables_data()
 
         if data is None:
