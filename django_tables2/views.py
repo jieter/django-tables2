@@ -172,13 +172,27 @@ class MultiTableMixin(TableMixinBase):
     context_table_name = 'tables'
 
     def get_tables(self):
-        if not self.tables:
-            klass = type(self).__name__
-            raise ImproperlyConfigured(
-                'No tables were specified. Define {}.tables'.format(klass)
-            )
+        """
+        Return an array of table instances containing data.
+        """
+        data = self.get_tables_data()
 
-        return self.tables
+        if data is None:
+            if not self.tables:
+                klass = type(self).__name__
+                raise ImproperlyConfigured(
+                    'No tables were specified. Define {}.tables'.format(klass)
+                )
+
+            return self.tables
+        else:
+            if len(data) != len(self.get_tables()):
+                klass = type(self).__name__
+                raise ImproperlyConfigured(
+                    'len({}.tables_data) != len({}.tables)'.format(klass, klass)
+                )
+            return list(Table(data[i]) for i, Table in enumerate(self.tables))
+
 
     def get_tables_data(self):
         '''
@@ -188,18 +202,7 @@ class MultiTableMixin(TableMixinBase):
 
     def get_context_data(self, **kwargs):
         context = super(MultiTableMixin, self).get_context_data(**kwargs)
-        data = self.get_tables_data()
-
-        if data is None:
-            tables = self.get_tables()
-
-        else:
-            if len(data) != len(self.get_tables()):
-                klass = type(self).__name__
-                raise ImproperlyConfigured(
-                    'len({}.tables_data) != len({}.tables)'.format(klass, klass)
-                )
-            tables = list(Table(data[i]) for i, Table in enumerate(self.tables))
+        tables = self.get_tables()
 
         # apply prefixes and execute requestConfig for each table
         table_counter = count()
