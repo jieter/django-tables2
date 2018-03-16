@@ -193,7 +193,6 @@ class MultiTableMixin(TableMixinBase):
                 )
             return list(Table(data[i]) for i, Table in enumerate(self.tables))
 
-
     def get_tables_data(self):
         '''
         Return an array of table_data that should be used to populate each table
