@@ -1,6 +1,9 @@
 # Change log
 
 
+## mastser
+ - Moved table instantiation from `get_context_data` to `get_tables` [#554](https://github.com/jieter/django-tables2/pull/554) by [@sdolemelipone](https://github.com/sdolemelipone)
+
 ## 1.21.1 (2018-03-12)
  - Do not perform extra `COUNT()` queries for non-paginated tables. Fixes [#551](https://github.com/jieter/django-tables2/issues/551)
 
