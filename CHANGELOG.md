@@ -1,7 +1,7 @@
 # Change log
 
 
-## mastser
+## master
  - Moved table instantiation from `get_context_data` to `get_tables` [#554](https://github.com/jieter/django-tables2/pull/554) by [@sdolemelipone](https://github.com/sdolemelipone)
 
 ## 1.21.1 (2018-03-12)
