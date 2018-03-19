@@ -20,14 +20,14 @@ msgstr ""
 #: templates/django_tables2/bootstrap.html:61
 #: templates/django_tables2/semantic.html:57
 msgid "previous"
-msgstr "下一页"
+msgstr "上一页"
 
 #: templates/django_tables2/bootstrap.html:69
 #: templates/django_tables2/semantic.html:63
 #: templates/django_tables2/table.html:71
 #, python-format
 msgid "Page %(current)s of %(total)s"
-msgstr "第 %(current) 页,共% (total) 页"
+msgstr "第 %(current)s 页,共 %(total)s 页"
 
 #: templates/django_tables2/bootstrap.html:77
 #: templates/django_tables2/semantic.html:69
