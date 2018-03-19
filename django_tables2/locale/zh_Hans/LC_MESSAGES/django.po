@@ -1,0 +1,43 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-03-19 15:20+0800\n"
+"PO-Revision-Date: 2018-03-19 16:20+0800\n"
+"Last-Translator: Zhong Chang<726608501@qq.com>\n"
+"Language-Team: \n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: templates/django_tables2/bootstrap.html:61
+#: templates/django_tables2/semantic.html:57
+msgid "previous"
+msgstr "上一页"
+
+#: templates/django_tables2/bootstrap.html:69
+#: templates/django_tables2/semantic.html:63
+#: templates/django_tables2/table.html:71
+#, python-format
+msgid "Page %(current)s of %(total)s"
+msgstr "第 %(current)s 页,共 %(total)s 页"
+
+#: templates/django_tables2/bootstrap.html:77
+#: templates/django_tables2/semantic.html:69
+msgid "next"
+msgstr "下一页"
+
+#: templates/django_tables2/table.html:63
+msgid "Previous"
+msgstr "上一页"
+
+#: templates/django_tables2/table.html:79
+msgid "Next"
+msgstr "下一页"
