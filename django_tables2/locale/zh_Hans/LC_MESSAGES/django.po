@@ -22,22 +22,7 @@ msgstr ""
 msgid "previous"
 msgstr "上一页"
 
-#: templates/django_tables2/bootstrap.html:69
-#: templates/django_tables2/semantic.html:63
-#: templates/django_tables2/table.html:71
-#, python-format
-msgid "Page %(current)s of %(total)s"
-msgstr "第 %(current)s 页,共 %(total)s 页"
-
 #: templates/django_tables2/bootstrap.html:77
 #: templates/django_tables2/semantic.html:69
 msgid "next"
-msgstr "下一页"
-
-#: templates/django_tables2/table.html:63
-msgid "Previous"
-msgstr "上一页"
-
-#: templates/django_tables2/table.html:79
-msgid "Next"
 msgstr "下一页"
