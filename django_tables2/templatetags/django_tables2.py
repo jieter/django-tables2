@@ -165,10 +165,8 @@ class RenderTableNode(Node):
             # which TemplateColumn then looks for and uses.
             table.context = context
             table.before_render(request)
-            return template.render({
-                'request': context['request'],
-                'table': table
-            })
+
+            return template.render(context={'table': table}, request=request)
         finally:
             del table.context
 

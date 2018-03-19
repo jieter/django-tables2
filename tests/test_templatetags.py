@@ -15,6 +15,7 @@ from .utils import build_request, parse
 
 
 class RenderTableTagTest(TestCase):
+
     def test_invalid_type(self):
         template = Template('{% load django_tables2 %}{% render_table table %}')
 
@@ -59,6 +60,20 @@ class RenderTableTagTest(TestCase):
         lines = html.splitlines()
         self.assertEqual(lines[0], 'foo')
         self.assertEqual(lines[-1], 'foo')
+
+    def test_table_context_is_RequestContext(self):
+        class MyTable(Table):
+            col = TemplateColumn(template_code='{{ value }}')
+
+        template = Template('{% load django_tables2 %}{% render_table table %}')
+        html = template.render(Context({
+            'request': build_request(),
+            'table': MyTable([], template_name='csrf.html')
+        }))
+        input_tag = parse(html)
+        self.assertEqual(input_tag.get('type'), 'hidden')
+        self.assertEqual(input_tag.get('name'), 'csrfmiddlewaretoken')
+        self.assertEqual(len(input_tag.get('value')), 64)
 
     def test_no_data_without_empty_text(self):
         table = CountryTable([])
