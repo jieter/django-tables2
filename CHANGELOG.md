@@ -3,7 +3,7 @@
 
 ## 1.21.2 (2018-03-26)
  - Moved table instantiation from `get_context_data` to `get_tables` [#554](https://github.com/jieter/django-tables2/pull/554) by [@sdolemelipone](https://github.com/sdolemelipone)
- - Pass request as kwarg to template.render, rather than as part of context.
+ - Pass request as kwarg to `template.render()`, rather than as part of context.
  (fixes [#552](https://github.com/jieter/django-tables2/issues/552))
 
 ## 1.21.1 (2018-03-12)
