@@ -1,6 +1,9 @@
 # coding: utf-8
 from __future__ import unicode_literals
 
+from unittest import skipIf
+
+from django import VERSION as django_version
 from django.db import models
 from django.test import TestCase
 
@@ -23,8 +26,27 @@ class BooleanColumnTest(TestCase):
                 model = BoolModel
 
         column = Table.base_columns['field']
-        assert type(column) == tables.BooleanColumn
-        assert column.empty_values != ()
+        self.assertEqual(type(column), tables.BooleanColumn)
+        self.assertNotEqual(column.empty_values, ())
+
+    @skipIf(django_version < (2, 1, 0), 'Feature added in django 2.1')
+    def test_should_use_nullability_for_booloanfield(self):
+        '''
+        Django 2.1 supports null=(True|False) for BooleanField.
+        '''
+        class BoolModel(models.Model):
+            field = models.BooleanField(null=True)
+
+            class Meta:
+                app_label = 'django_tables2_test'
+
+        class Table(tables.Table):
+            class Meta:
+                model = BoolModel
+
+        column = Table.base_columns['field']
+        self.assertEqual(type(column), tables.BooleanColumn)
+        self.assertEqual(column.empty_values, ())
 
     def test_should_be_used_for_nullbooleanfield(self):
         class NullBoolModel(models.Model):
@@ -38,37 +60,37 @@ class BooleanColumnTest(TestCase):
                 model = NullBoolModel
 
         column = Table.base_columns['field']
-        assert type(column) == tables.BooleanColumn
-        assert column.empty_values == ()
+        self.assertEqual(type(column), tables.BooleanColumn)
+        self.assertEqual(column.empty_values, ())
 
     def test_treat_none_different_from_false(self):
         class Table(tables.Table):
             col = tables.BooleanColumn(null=False, default='---')
 
         table = Table([{'col': None}])
-        assert table.rows[0].get_cell('col') == '---'
+        self.assertEqual(table.rows[0].get_cell('col'), '---')
 
     def test_treat_none_as_false(self):
         class Table(tables.Table):
             col = tables.BooleanColumn(null=True)
 
         table = Table([{'col': None}])
-        assert table.rows[0].get_cell('col') == '<span class="false">✘</span>'
+        self.assertEqual(table.rows[0].get_cell('col'), '<span class="false">✘</span>')
 
     def test_value_returns_a_raw_value_without_html(self):
         class Table(tables.Table):
             col = tables.BooleanColumn()
 
         table = Table([{'col': True}, {'col': False}])
-        assert table.rows[0].get_cell_value('col') == 'True'
-        assert table.rows[1].get_cell_value('col') == 'False'
+        self.assertEqual(table.rows[0].get_cell_value('col'), 'True')
+        self.assertEqual(table.rows[1].get_cell_value('col'), 'False')
 
     def test_span_attrs(self):
         class Table(tables.Table):
             col = tables.BooleanColumn(attrs={'span': {'key': 'value'}})
 
         table = Table([{'col': True}])
-        assert attrs(table.rows[0].get_cell('col')) == {'class': 'true', 'key': 'value'}
+        self.assertEqual(attrs(table.rows[0].get_cell('col')), {'class': 'true', 'key': 'value'})
 
     def test_boolean_field_choices_with_real_model_instances(self):
         '''
@@ -90,8 +112,8 @@ class BooleanColumnTest(TestCase):
 
         table = Table([BoolModelChoices(field=True), BoolModelChoices(field=False)])
 
-        assert table.rows[0].get_cell('field') == '<span class="true">✔</span>'
-        assert table.rows[1].get_cell('field') == '<span class="false">✘</span>'
+        self.assertEqual(table.rows[0].get_cell('field'), '<span class="true">✔</span>')
+        self.assertEqual(table.rows[1].get_cell('field'), '<span class="false">✘</span>')
 
     def test_boolean_field_choices_spanning_relations(self):
         'The inverse lookup voor boolean choices should also work on related models'
@@ -116,8 +138,8 @@ class BooleanColumnTest(TestCase):
             Person(first_name='True', last_name='False', occupation=model_false)
         ])
 
-        assert table.rows[0].get_cell('boolean') == '<span class="true">✔</span>'
-        assert table.rows[1].get_cell('boolean') == '<span class="false">✘</span>'
+        self.assertEqual(table.rows[0].get_cell('boolean'), '<span class="true">✔</span>')
+        self.assertEqual(table.rows[1].get_cell('boolean'), '<span class="false">✘</span>')
 
     def test_boolean_should_not_prevent_rendering_of_other_columns(self):
         '''Test for issue 360'''

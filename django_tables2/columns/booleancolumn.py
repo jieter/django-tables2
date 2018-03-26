@@ -69,7 +69,9 @@ class BooleanColumn(Column):
 
     @classmethod
     def from_field(cls, field):
-        if isinstance(field, models.BooleanField):
-            return cls(verbose_name=title(field.verbose_name), null=False)
         if isinstance(field, models.NullBooleanField):
             return cls(verbose_name=title(field.verbose_name), null=True)
+
+        if isinstance(field, models.BooleanField):
+            null = getattr(field, 'null', False)
+            return cls(verbose_name=title(field.verbose_name), null=null)
