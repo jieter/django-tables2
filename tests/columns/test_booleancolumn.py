@@ -34,7 +34,7 @@ class BooleanColumnTest(TestCase):
         '''
         Django 2.1 supports null=(True|False) for BooleanField.
         '''
-        class BoolModel(models.Model):
+        class BoolModel2(models.Model):
             field = models.BooleanField(null=True)
 
             class Meta:
@@ -42,11 +42,11 @@ class BooleanColumnTest(TestCase):
 
         class Table(tables.Table):
             class Meta:
-                model = BoolModel
+                model = BoolModel2
 
         column = Table.base_columns['field']
         self.assertEqual(type(column), tables.BooleanColumn)
-        self.assertEqual(column.empty_values, ())
+        self.assertEqual(column.empty_values, (None, ''))
 
     def test_should_be_used_for_nullbooleanfield(self):
         class NullBoolModel(models.Model):
