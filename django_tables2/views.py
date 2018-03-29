@@ -175,23 +175,22 @@ class MultiTableMixin(TableMixinBase):
         '''
         Return an array of table instances containing data.
         '''
+        if self.tables is None:
+            klass = type(self).__name__
+            raise ImproperlyConfigured(
+                'No tables were specified. Define {}.tables'.format(klass)
+            )
         data = self.get_tables_data()
 
         if data is None:
-            if not self.tables:
-                klass = type(self).__name__
-                raise ImproperlyConfigured(
-                    'No tables were specified. Define {}.tables'.format(klass)
-                )
-
             return self.tables
-        else:
-            if len(data) != len(self.tables):
-                klass = type(self).__name__
-                raise ImproperlyConfigured(
-                    'len({}.tables_data) != len({}.tables)'.format(klass, klass)
-                )
-            return list(Table(data[i]) for i, Table in enumerate(self.tables))
+
+        if len(data) != len(self.tables):
+            klass = type(self).__name__
+            raise ImproperlyConfigured(
+                'len({}.tables_data) != len({}.tables)'.format(klass, klass)
+            )
+        return list(Table(data[i]) for i, Table in enumerate(self.tables))
 
     def get_tables_data(self):
         '''

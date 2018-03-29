@@ -334,6 +334,17 @@ class MultiTableMixinTest(TestCase):
         html = response.rendered_content
         assert '<h1>Multiple tables using MultiTableMixin</h1>' in html
 
+    def test_with_empty_class_tables_list(self):
+        class View(tables.MultiTableMixin, TemplateView):
+            template_name = 'multiple.html'
+            tables = []
+
+        response = View.as_view()(build_request('/'))
+        response.render()
+
+        html = response.rendered_content
+        assert '<h1>Multiple tables using MultiTableMixin</h1>' in html
+
     def test_length_mismatch(self):
         class View(tables.MultiTableMixin, TemplateView):
             tables = (TableA, TableB)
