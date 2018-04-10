@@ -9,4 +9,3 @@ released to `pypi <https://pypi.python.org/pypi/django-tables2>`_.
     :maxdepth: 1
 
     CHANGELOG.md
-    upgrading-from-v1
