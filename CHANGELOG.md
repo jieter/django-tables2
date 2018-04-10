@@ -1,6 +1,7 @@
 # Change log
 
-## django_tables2 2.0 (unreleased)
+## django-tables2 2.0.0a
+
  - Cleaned up templates to add consistancy in what is presented accross all templates.
  - Added bootstrap4.html template
  - Fixed translation inconsistancies.
