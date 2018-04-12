@@ -1,6 +1,8 @@
 # coding: utf-8
 from os.path import abspath, dirname, join
 
+from django.utils.translation import ugettext_lazy as _
+
 ROOT = dirname(abspath(__file__))
 
 DEBUG = True
@@ -29,13 +31,34 @@ TIME_ZONE = 'America/Chicago'
 
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'en'
 
 SITE_ID = 1
 
 # If you set this to False, Django will make some optimizations so as not
 # to load the internationalization machinery.
 USE_I18N = True
+
+
+LANGUAGES = [
+    ('cs', _('Czech')),
+    ('de', _('German')),
+    ('el', _('Greek')),
+    ('en', _('English')),
+    ('es', _('Spanish')),
+    ('fr', _('French')),
+    ('hu', _('Hungarian')),
+    ('it', _('Italian')),
+    ('nb', _('Norwegian bokmål')),
+    ('nl', _('Dutch')),
+    ('pl', _('Polish')),
+    ('pt-br', _('Portuguese (Brasil)')),
+    ('pt-pt', _('Portuguese (Portugal)')),
+    ('ru', _('Russian')),
+    ('sv', _('Swedish')),
+    ('uk', _('Ukrainian')),
+    ('zh-hans', _('Chinese (Simplified)')),
+]
 
 # If you set this to False, Django will not format dates, numbers and
 # calendars according to the current locale
@@ -106,6 +129,7 @@ MIDDLEWARE = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
 )
 
 ROOT_URLCONF = 'urls'
