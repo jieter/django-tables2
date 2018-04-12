@@ -1,8 +1,9 @@
 # Change log
 
+## 2.0.0a1 (2018-04-12)
+ - Fixed translation of 'previous' for some languages (fixes [#563](https://github.com/jieter/django-tables2/issues/563))
 
-## django-tables2 2.0.0a (2018-04-10)
-
+## django-tables2 2.0.0a0 (2018-04-10)
  - Cleaned up templates to add consistancy in what is presented accross all templates.
  - Added bootstrap4.html template
  - Fixed translation inconsistancies.
