@@ -21,7 +21,7 @@ class FooterTest(SimpleTestCase):
             population = tables.Column()
 
         table = Table(MEMORY_DATA)
-        assert table.has_footer() is False
+        self.assertFalse(table.has_footer())
 
     def test_footer(self):
         class Table(tables.Table):
@@ -32,12 +32,12 @@ class FooterTest(SimpleTestCase):
             )
 
         table = Table(MEMORY_DATA)
-        assert table.has_footer() is True
+        self.assertTrue(table.has_footer())
         html = table.as_html(build_request('/'))
 
         columns = parse(html).findall('.//tfoot/tr/td')
-        assert columns[1].text == 'Total:'
-        assert columns[2].text == '18833000'
+        self.assertEqual(columns[1].text, 'Total:')
+        self.assertEqual(columns[2].text, '18833000')
 
     def test_footer_disable_on_table(self):
         '''
@@ -49,7 +49,7 @@ class FooterTest(SimpleTestCase):
             country = tables.Column(footer='Total:')
 
         table = Table(MEMORY_DATA, show_footer=False)
-        assert table.has_footer() is False
+        self.assertFalse(table.has_footer())
 
     def test_footer_column_method(self):
         class SummingColumn(tables.Column):
@@ -66,8 +66,8 @@ class FooterTest(SimpleTestCase):
         html = table.as_html(build_request('/'))
 
         columns = parse(html).findall('.//tfoot/tr/td')
-        assert columns[1].text == 'Total:'
-        assert columns[2].text == '18833000'
+        self.assertEqual(columns[1].text, 'Total:')
+        self.assertEqual(columns[2].text, '18833000')
 
     def test_footer_has_class(self):
         class SummingColumn(tables.Column):
