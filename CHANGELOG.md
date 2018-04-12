@@ -1,5 +1,12 @@
 # Change log
 
+## 2.0.0a2 (not released)
+ - Another round of template re-cleanup.
+ - Fresh screenshots
+ - Prevent crash in `RelatedLinkColumn` for records without `get_absolute_url()`.
+ - Raise `ValueError` when `Table.Meta.model != QuerySet.Model`.
+ - Raise `TypeError` when incorrect types are used for `Table.Meta` attributes (fixes [#517](https://github.com/jieter/django-tables2/issues/517))
+
 ## 2.0.0a1 (2018-04-12)
  - Fixed translation of 'previous' for some languages (fixes [#563](https://github.com/jieter/django-tables2/issues/563))
 
