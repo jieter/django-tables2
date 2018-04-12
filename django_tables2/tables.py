@@ -7,6 +7,7 @@ from itertools import count
 
 from django.conf import settings
 from django.core.paginator import Paginator
+from django.db import models
 from django.template.loader import get_template
 from django.utils import six
 from django.utils.encoding import force_text
@@ -25,7 +26,7 @@ class DeclarativeColumnsMetaclass(type):
     `base_columns` as well.
     '''
     def __new__(mcs, name, bases, attrs):
-        attrs['_meta'] = opts = TableOptions(attrs.get('Meta', None))
+        attrs['_meta'] = opts = TableOptions(attrs.get('Meta', None), name)
 
         # extract declared columns
         cols, remainder = [], {}
@@ -109,8 +110,9 @@ class TableOptions(object):
     Arguments:
         options (`.Table.Meta`): options for a table from `.Table.Meta`
     '''
-    def __init__(self, options=None):
+    def __init__(self, options, class_name):
         super(TableOptions, self).__init__()
+        self._check_types(options, class_name)
 
         DJANGO_TABLES2_TEMPLATE = getattr(settings, 'DJANGO_TABLES2_TEMPLATE', 'django_tables2/table.html')
         DJANGO_TABLES2_TABLE_ATTRS = getattr(settings, 'DJANGO_TABLES2_TABLE_ATTRS', {})
@@ -138,6 +140,33 @@ class TableOptions(object):
         self.template_name = getattr(options, 'template_name', DJANGO_TABLES2_TEMPLATE)
         self.localize = getattr(options, 'localize', ())
         self.unlocalize = getattr(options, 'unlocalize', ())
+
+    def _check_types(self, options, class_name):
+        if options is None:
+            return
+
+        checks = {
+            (bool, ): ['show_header', 'orderable'],
+            (tuple, list, set): ['fields', 'sequence', 'exclude', 'localize', 'unlocalize'],
+            six.string_types: ['default', 'empty_text', 'template_name', 'prefix', 'order_by_field'],
+            (dict, ): ['attrs', 'row_attrs', 'pinned_row_attrs'],
+            (tuple, str, six.text_type): ['order_by'],
+            (type(models.Model), ): ['model', ]
+        }
+
+        for types, keys in checks.items():
+            for key in keys:
+                value = getattr(options, key, None)
+                if value is not None and not isinstance(value, types):
+                    expression = '{}.{} = {}'.format(class_name, key, value.__repr__())
+
+                    raise TypeError(
+                        '{} (type {}), but type must be one of ({})'.format(
+                            expression,
+                            type(value).__name__,
+                            ', '.join([t.__name__ for t in types])
+                        )
+                    )
 
 
 class TableBase(object):

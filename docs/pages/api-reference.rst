@@ -142,7 +142,7 @@ API Reference
                 This functionality is also available via the ``show_header``
                 keyword argument to a table's constructor.
 
-        exclude (typle or str): Exclude columns from the table.
+        exclude (typle): Exclude columns from the table.
             This is useful in subclasses to exclude columns in a parent::
 
                 >>> class Person(tables.Table):
@@ -170,7 +170,7 @@ API Reference
             to it. i.e. you can't use the constructor's ``exclude`` argument to
             *undo* an exclusion.
 
-    fields (`tuple` or `str`): Fields to show in the table.
+    fields (`tuple`): Fields to show in the table.
         Used in conjunction with `~.Table.Meta.model`, specifies which fields
         should have columns in the table. If `None`, all fields are used,
         otherwise only those named::
@@ -251,10 +251,10 @@ API Reference
             argument to a table's constructor.
 
 
-    localize (str or tuple): Specifies which fields should be localized in the
+    localize (tuple): Specifies which fields should be localized in the
         table. Read :ref:`localization-control` for more information.
 
-    unlocalize (str or tuple): Specifies which fields should be unlocalized in
+    unlocalize (tuple): Specifies which fields should be unlocalized in
         the table. Read :ref:`localization-control` for more information.
 
 Columns

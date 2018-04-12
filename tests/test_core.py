@@ -119,6 +119,22 @@ class CoreTest(SimpleTestCase):
         self.assertIn('name', table.columns)
         self.assertTrue(table.tweaked)
 
+    def test_Meta_attribute_incorrect_types(self):
+        with self.assertRaises(TypeError):
+            class MetaTable1(tables.Table):
+                class Meta:
+                    exclude = ('foo')
+
+        with self.assertRaises(TypeError):
+            class MetaTable2(tables.Table):
+                class Meta:
+                    sequence = ('...')
+
+        with self.assertRaises(TypeError):
+            class MetaTable3(tables.Table):
+                class Meta:
+                    model = {}
+
     def test_table_attrs(self):
         class TestTable(tables.Table):
             class Meta:
