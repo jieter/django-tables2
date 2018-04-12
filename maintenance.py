@@ -31,8 +31,8 @@ if sys.argv[-1] == 'screenshots':
         print('Starting to sleep for {}s...'.format(delay))
         time.sleep(delay)
         chrome.kill()
-
-        os.rename('screenshot.png', dest)
+        os.system('convert screenshot.png -trim -bordercolor White -border 10x10 {}'.format(dest))
+        os.remove('screenshot.png')
         print('Saved file to', dest)
 
     images = {
