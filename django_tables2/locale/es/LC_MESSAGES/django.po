@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: django-tables2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-08 22:41+1000\n"
+"POT-Creation-Date: 2018-04-12 10:06+0200\n"
 "PO-Revision-Date: 2013-08-21 07:06-0500\n"
 "Last-Translator: Pablo Martín <goinnn@gmail.com>\n"
 "Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
@@ -16,8 +16,6 @@ msgstr ""
 #: templates/django_tables2/bootstrap.html:64
 #: templates/django_tables2/bootstrap4.html:64
 #: templates/django_tables2/table.html:61
-#, fuzzy
-#| msgid "Previous"
 msgid "previous"
 msgstr "anterior"
 

@@ -232,7 +232,7 @@ class TemplateLocalizeTest(TestCase):
             # test unlocalize has higher precedence
             self.assert_table_localization(TableLocalizePrecedence, False)
 
-    def test_localization_of_pagination_string(self):
+    def test_localization_of_pagination_strings(self):
         class Table(tables.Table):
             foo = tables.Column(verbose_name='my column')
             bar = tables.Column()
@@ -241,14 +241,23 @@ class TemplateLocalizeTest(TestCase):
                 default = '---'
 
         table = Table(map(lambda x: [x, x + 100], range(40)))
-        request = build_request('/')
+        request = build_request('/?page=2')
         RequestConfig(request, paginate={'per_page': 10}).configure(table)
 
         with translation_override('en'):
-            self.assertIn('next', table.as_html(request))
+            html = table.as_html(request)
+            self.assertIn('previous', html)
+            self.assertIn('next', html)
 
         with translation_override('nl'):
-            self.assertIn('volgende', table.as_html(request))
+            html = table.as_html(request)
+            self.assertIn('vorige', html)
+            self.assertIn('volgende', html)
+
+        with translation_override('fr'):
+            html = table.as_html(request)
+            self.assertIn('précédent', html)
+            self.assertIn('suivant', html)
 
 
 class BootstrapTable(CountryTable):

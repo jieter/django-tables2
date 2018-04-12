@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-19 15:20+0800\n"
+"POT-Creation-Date: 2018-04-12 10:06+0200\n"
 "PO-Revision-Date: 2018-03-19 16:20+0800\n"
 "Last-Translator: Zhong Chang<726608501@qq.com>\n"
 "Language-Team: \n"
@@ -17,12 +17,14 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: templates/django_tables2/bootstrap.html:61
-#: templates/django_tables2/semantic.html:57
+#: templates/django_tables2/bootstrap.html:64
+#: templates/django_tables2/bootstrap4.html:64
+#: templates/django_tables2/table.html:61
 msgid "previous"
 msgstr "上一页"
 
-#: templates/django_tables2/bootstrap.html:77
-#: templates/django_tables2/semantic.html:69
+#: templates/django_tables2/bootstrap.html:89
+#: templates/django_tables2/bootstrap4.html:82
+#: templates/django_tables2/table.html:82
 msgid "next"
 msgstr "下一页"
