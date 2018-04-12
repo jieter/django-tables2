@@ -25,7 +25,17 @@ class TableData(object):
         '''
         return iter(self.data)
 
-    def get_model(self):
+    def set_table(self, table):
+        '''
+        Table.__init__ calls this method to inject an instance of itself into the
+        TableData instance.
+        Good place to do additional checks if Table and TableData instance will work
+        together properly.
+        '''
+        self.table = table
+
+    @property
+    def model(self):
         return getattr(self.data, 'model', None)
 
     @property
@@ -143,6 +153,16 @@ class TableQuerysetData(TableData):
                 self._length = len(self.data)
 
         return self._length
+
+    def set_table(self, table):
+        super(TableQuerysetData, self).set_table(table)
+        if self.model and getattr(table._meta, 'model', None) and self.model != table._meta.model:
+            raise ValueError(
+                'table data is of type {} but {} is specified in Table.Meta.model'.format(
+                    self.model,
+                    table._meta.model
+                )
+            )
 
     @property
     def ordering(self):

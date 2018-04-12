@@ -168,7 +168,7 @@ class LinkColumnTest(TestCase):
             reverse('person', args=(person.pk, )),
             person.last_name
         )
-        assert table.rows[0].get_cell('last_name') == expected
+        self.assertEqual(table.rows[0].cells['last_name'], expected)
 
     def test_get_absolute_url_not_defined(self):
         '''
@@ -191,17 +191,26 @@ class LinkColumnTest(TestCase):
         Person.objects.create(first_name='Bob', last_name='Builder', occupation=carpenter)
 
         class Table(tables.Table):
-            first_name = tables.LinkColumn()
-            last_name = tables.Column()
             occupation = tables.RelatedLinkColumn()
 
         table = Table(Person.objects.all())
 
-        assert table.rows[0].get_cell('occupation') == '<a href="/occupations/%d/">Carpenter</a>' % carpenter.pk
+        self.assertEqual(
+            table.rows[0].cells['occupation'],
+            '<a href="/occupations/%d/">Carpenter</a>' % carpenter.pk
+        )
+
+    def test_RelatedLinkColumn_without_model(self):
+        class Table(tables.Table):
+            occupation = tables.RelatedLinkColumn()
+
+        table = Table([{'occupation': 'Fabricator'}])
+
+        self.assertEqual(table.rows[0].cells['occupation'], '<a href="#">Fabricator</a>')
 
     def test_value_returns_a_raw_value_without_html(self):
         class Table(tables.Table):
             col = tables.LinkColumn('occupation', args=(A('id'), ))
 
         table = Table([{'col': 'link-text', 'id': 1}])
-        assert table.rows[0].get_cell_value('col') == 'link-text'
+        self.assertEqual(table.rows[0].get_cell_value('col'), 'link-text')

@@ -223,7 +223,8 @@ class TableBase(object):
         self.exclude = exclude or self._meta.exclude
         self.sequence = sequence
         self.data = TableData.from_data(data=data)
-        self.data.table = self
+        self.data.set_table(self)
+
         if default is None:
             default = self._meta.default
         self.default = default

@@ -525,7 +525,7 @@ class BoundColumn(object):
         name = self.name.replace('_', ' ')
 
         # Try to use a model field's verbose_name
-        model = self._table.data.get_model()
+        model = self._table.data.model
         if model:
             field = Accessor(self.accessor).get_field(model)
             if field:
