@@ -134,6 +134,7 @@ class TableOptions(object):
         self.per_page_field = getattr(options, 'per_page_field', 'per_page')
         self.prefix = getattr(options, 'prefix', '')
         self.show_header = getattr(options, 'show_header', True)
+        self.show_footer = getattr(options, 'show_footer', True)
         self.sequence = Sequence(getattr(options, 'sequence', ()))
         self.orderable = getattr(options, 'orderable', True)
         self.model = getattr(options, 'model', None)
@@ -146,9 +147,12 @@ class TableOptions(object):
             return
 
         checks = {
-            (bool, ): ['show_header', 'orderable'],
+            (bool, ): ['show_header', 'show_footer', 'orderable'],
+            (int, ): ['per_page'],
             (tuple, list, set): ['fields', 'sequence', 'exclude', 'localize', 'unlocalize'],
-            six.string_types: ['default', 'empty_text', 'template_name', 'prefix', 'order_by_field'],
+            six.string_types: [
+                'default', 'empty_text', 'template_name', 'prefix', 'order_by_field', 'page_field', 'per_page_field'
+            ],
             (dict, ): ['attrs', 'row_attrs', 'pinned_row_attrs'],
             (tuple, str, six.text_type): ['order_by'],
             (type(models.Model), ): ['model', ]
@@ -193,11 +197,11 @@ class TableBase(object):
             When accessing the attribute, the value is always returned as an
             `.AttributeDict` to allow easily conversion to HTML.
 
-        row_attrs: Add custom html attributes to the table rows.
+        row_attrs (dict): Add custom html attributes to the table rows.
             Allows custom HTML attributes to be specified which will be added
             to the ``<tr>`` tag of the rendered table.
 
-        pinned_row_attrs: Same as row_attrs but for pinned rows.
+        pinned_row_attrs (dict): Same as row_attrs but for pinned rows.
 
         sequence (iterable): The sequence/order of columns the columns (from
             left to right).
