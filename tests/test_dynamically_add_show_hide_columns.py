@@ -22,6 +22,11 @@ data = [
 
 
 class DynamicColumnsTest(TestCase):
+
+    # shim can be dropped when we drop support for python 2.7 and 3.4
+    assertRegex = getattr(TestCase, 'assertRegex', TestCase.assertRegexpMatches)
+    assertNotRegex = getattr(TestCase, 'assertNotRegex', TestCase.assertNotRegexpMatches)
+
     def test_dynamically_adding_columns(self):
         '''
         When adding columns to self.base_columns, they were actually added to
@@ -127,18 +132,18 @@ class DynamicColumnsTest(TestCase):
         table = MyTable(data)
         request = build_request(user=User.objects.create(username='Bob'))
         html = table.as_html(request)
-        self.assertRegexpMatches(html, re_Name)
-        self.assertNotRegexpMatches(html, re_Country)
+        self.assertRegex(html, re_Name)
+        self.assertNotRegex(html, re_Country)
 
         html = template.render(Context({'request': request, 'table': table}))
-        self.assertRegexpMatches(html, re_Name)
-        self.assertNotRegexpMatches(html, re_Country)
+        self.assertRegex(html, re_Name)
+        self.assertNotRegex(html, re_Country)
 
         request = build_request(user=User.objects.create(username='Alice'))
         html = table.as_html(request)
-        self.assertRegexpMatches(html, re_Name)
-        self.assertRegexpMatches(html, re_Country)
+        self.assertRegex(html, re_Name)
+        self.assertRegex(html, re_Country)
 
         html = template.render(Context({'request': request, 'table': table}))
-        self.assertRegexpMatches(html, re_Name)
-        self.assertRegexpMatches(html, re_Country)
+        self.assertRegex(html, re_Name)
+        self.assertRegex(html, re_Country)
