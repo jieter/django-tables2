@@ -477,10 +477,9 @@ class BoundColumn(object):
 
         '''
         order_by = OrderBy((self._table.order_by or {}).get(self.name, self.name))
-        if self.column.default_descending_ordering:
-            order_by.next = order_by if self.is_ordered else order_by.opposite
-        else:
-            order_by.next = order_by.opposite if self.is_ordered else order_by
+        order_by.next = order_by.opposite if self.is_ordered else order_by
+        if self.column.default_descending_ordering and not self.is_ordered:
+            order_by.next = order_by.opposite
         return order_by
 
     @property
