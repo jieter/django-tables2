@@ -189,10 +189,16 @@ class LinkColumn(BaseLinkColumn):
 class RelatedLinkColumn(LinkColumn):
     '''
     Render a link to a related object using related object's ``get_absolute_url``,
-    same parameters as ``~.LinkColumn``
+    same parameters as ``~.LinkColumn``.
+
+    If the ``record`` does not have a method called ``get_absolute_url``, or it is not,
+    callable, the link will be rendered as '#'.
     '''
 
     def compose_url(self, record, bound_column):
         accessor = self.accessor if self.accessor else Accessor(bound_column.name)
 
-        return accessor.resolve(record).get_absolute_url()
+        try:
+            return accessor.resolve(record).get_absolute_url()
+        except (AttributeError, TypeError):
+            return '#'
