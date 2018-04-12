@@ -1,12 +1,13 @@
-{% load render_table from django_tables2 %}
+{% load django_tables2 %}
 {% load static %}
-
 <!doctype html>
 <html>
     <head>
-        <link rel="stylesheet" href="{% static 'django_tables2/themes/paleblue/css/screen.css' />
+        <link rel="stylesheet" href="{% static 'django_tables2/themes/paleblue/css/screen.css' %}" />
     </head>
     <body>
-        {% render_table people %}
+        <h3>django_tables2 with the default template example</h3>
+
+        {% render_table table %}
     </body>
 </html>

@@ -140,7 +140,9 @@ class MultipleTables(MultiTableMixin, TemplateView):
 
 
 def tutorial(request):
-    return render(request, 'tutorial.html', {'people': Person.objects.all()})
+    table = PersonTable(Person.objects.all(), attrs={'class': 'paleblue'}, template_name='django_tables2/table.html')
+    RequestConfig(request, paginate={'per_page': 10}).configure(table)
+    return render(request, 'tutorial.html', {'table': table})
 
 
 class FilteredPersonListView(SingleTableMixin, FilterView):

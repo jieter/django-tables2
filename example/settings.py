@@ -5,11 +5,13 @@ from django.utils.translation import ugettext_lazy as _
 
 ROOT = dirname(abspath(__file__))
 
-DEBUG = True
+DEBUG = False
 
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
 )
+
+ALLOWED_HOSTS = ['*']
 
 MANAGERS = ADMINS
 
