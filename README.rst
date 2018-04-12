@@ -33,13 +33,13 @@ Features:
 - Template tag to enable trivial rendering to HTML.
 - Generic view mixin.
 
-.. image:: https://cdn.rawgit.com/jieter/django-tables2/59594f3/docs/img/example.png
+.. image:: https://cdn.rawgit.com/jieter/django-tables2/master/docs/img/example.png
     :alt: An example table rendered using django-tables2
 
-.. image:: https://cdn.rawgit.com/jieter/django-tables2/59594f3/docs/img/bootstrap.png
+.. image:: https://cdn.rawgit.com/jieter/django-tables2/master/docs/img/bootstrap.png
     :alt: An example table rendered using django-tables2 and bootstrap theme
 
-.. image:: https://cdn.rawgit.com/jieter/django-tables2/59594f3/docs/img/semantic.png
+.. image:: https://cdn.rawgit.com/jieter/django-tables2/master/docs/img/semantic.png
     :alt: An example table rendered using django-tables2 and semantic-ui theme
 
 Example
