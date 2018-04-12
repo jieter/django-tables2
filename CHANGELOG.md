@@ -1,6 +1,7 @@
 # Change log
 
-## django-tables2 2.0.0a
+
+## django-tables2 2.0.0a (2018-04-10)
 
  - Cleaned up templates to add consistancy in what is presented accross all templates.
  - Added bootstrap4.html template
@@ -30,6 +31,7 @@ class MyTable(tables.Table):
 ## 1.21.0 (2018-03-12)
  - Add new method `paginated_rows` to `Table` to replace fallback to non-paginated rows in templates.
  - Prevent mutation of the template context `{% render_table %}` is called from (fixes [#547](https://github.com/jieter/django-tables2/issues/547))
+   **Possible breaking change**: the context variables of the template `{% render_table %}` is called from is no longer available in the table's template. The `table` variable has an attribute `context`, which is the context of the calling template. Use `{{ table.context.variable }}` instead of `{{ variable }}`.
 
 ## 1.20.0 (2018-03-08)
  -  Define and use `get_table_data` in `MultiTableMixin` [#538](https://github.com/jieter/django-tables2/pull/538) by [@vCra](https://github.com/vCra) (fixes [#528](https://github.com/jieter/django-tables2/issues/528))
