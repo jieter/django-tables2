@@ -87,6 +87,7 @@ class BoundRow(object):
 
         self.row_counter = next(table._counter)
 
+        # support accessing cells from a template: {{ row.cells.column_name }}
         self.cells = CellAccessor(self)
 
     @property
@@ -262,7 +263,6 @@ class BoundRow(object):
 class BoundPinnedRow(BoundRow):
     '''
     Represents a *pinned* row in a table.
-    Inherited from BoundRow.
     '''
 
     @property
@@ -320,10 +320,9 @@ class BoundRows(object):
         if data is not None:
             if hasattr(data, '__iter__') is False:
                 raise ValueError('The data for pinned rows must be iterable')
-            else:
-                # If pinned data is iterable
-                for pinned_record in data:
-                    yield BoundPinnedRow(pinned_record, table=self.table)
+
+            for pinned_record in data:
+                yield BoundPinnedRow(pinned_record, table=self.table)
 
     def __iter__(self):
         # Top pinned rows

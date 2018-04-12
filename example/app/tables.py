@@ -27,8 +27,20 @@ class BootstrapTable(tables.Table):
     class Meta:
         model = Person
         template_name = 'django_tables2/bootstrap.html'
-        attrs = {'class': 'table table-bordered table-striped table-hover'}
         exclude = ('friendly', )
+
+
+class BootstrapTablePinnedRows(BootstrapTable):
+
+    class Meta(BootstrapTable.Meta):
+        pinned_row_attrs = {
+            'class': 'info'
+        }
+
+    def get_top_pinned_data(self):
+        return [
+            {'name': 'Most used country: ', 'country': Country.objects.filter(name='Cameroon').first()}
+        ]
 
 
 class Bootstrap4Table(tables.Table):
@@ -48,12 +60,10 @@ class SemanticTable(tables.Table):
     class Meta:
         model = Person
         template_name = 'django_tables2/semantic.html'
-        # attrs = {'class': 'ui table table-bordered table-striped table-hover'}
         exclude = ('friendly', )
 
 
 class PersonTable(tables.Table):
-    pagination_style = 'range'
-
     class Meta:
         model = Person
+        template_name = 'django_tables2/bootstrap.html'

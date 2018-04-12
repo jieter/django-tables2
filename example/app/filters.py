@@ -8,5 +8,5 @@ class PersonFilter(FilterSet):
         model = Person
         fields = {
             'name': ['exact', 'contains'],
-            # 'tz': ['exact'],
+            'country': ['exact']
         }

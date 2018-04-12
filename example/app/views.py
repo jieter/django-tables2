@@ -12,7 +12,8 @@ from django_tables2 import MultiTableMixin, RequestConfig, SingleTableMixin, Sin
 from .data import COUNTRIES
 from .filters import PersonFilter
 from .models import Country, Person
-from .tables import Bootstrap4Table, BootstrapTable, CountryTable, PersonTable, SemanticTable, ThemedCountryTable
+from .tables import (Bootstrap4Table, BootstrapTable, BootstrapTablePinnedRows, CountryTable, PersonTable,
+                     SemanticTable, ThemedCountryTable)
 
 
 def create_fake_data():
@@ -122,21 +123,20 @@ class ClassBased(SingleTableView):
     template_name = 'class_based.html'
 
 
-# note that this is not really the way to go because the queryset is not re
-# -evaluated after the first time the view is requested.
-qs = Person.objects.all()
-
-
 class MultipleTables(MultiTableMixin, TemplateView):
     template_name = 'multiTable.html'
-    tables = [
-        PersonTable(qs),
-        PersonTable(qs, exclude=('country', ))
-    ]
 
     table_pagination = {
         'per_page': 10
     }
+
+    def get_tables(self):
+        qs = Person.objects.all()
+        return [
+            PersonTable(qs),
+            PersonTable(qs, exclude=('country', )),
+            BootstrapTablePinnedRows(qs)
+        ]
 
 
 def tutorial(request):
@@ -149,6 +149,9 @@ class FilteredPersonListView(SingleTableMixin, FilterView):
     template_name = 'bootstrap_template.html'
 
     filterset_class = PersonFilter
+
+    def get_queryset(self):
+        return super(FilteredPersonListView, self).get_queryset().select_related('country')
 
     def get_table_kwargs(self):
         return {'template_name': 'django_tables2/bootstrap.html'}

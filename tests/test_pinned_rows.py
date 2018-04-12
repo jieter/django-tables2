@@ -19,10 +19,7 @@ class SimpleTable(tables.Table):
     age = tables.Column()
 
     def get_top_pinned_data(self):
-        return [
-            PinnedObj("Ron", 90),
-            PinnedObj("Jon", 10),
-        ]
+        return [PinnedObj('Ron', 90), PinnedObj('Jon', 10)]
 
     def get_bottom_pinned_data(self):
         return [{'occupation': 'Sum age', 'age': 130}]
@@ -32,6 +29,9 @@ class PinnedRowsTest(SimpleTestCase):
     def test_bound_rows_with_pinned_data(self):
         record = {'name': 'Grzegorz', 'age': 30, 'occupation': 'programmer'}
         table = SimpleTable([record])
+
+        self.assertEqual(len(table.rows), 4)  # rows + pinned data
+
         row = table.rows[0]
 
         with self.assertRaises(IndexError):
@@ -40,16 +40,16 @@ class PinnedRowsTest(SimpleTestCase):
         with self.assertRaises(IndexError):
             row.get_cell(3)
 
-        assert row.get_cell('name') == record['name']
-        assert row.get_cell('occupation') == record['occupation']
-        assert row.get_cell('age') == record['age']
+        self.assertEqual(row.get_cell('name'), record['name'])
+        self.assertEqual(row.get_cell('occupation'), record['occupation'])
+        self.assertEqual(row.get_cell('age'), record['age'])
 
         with self.assertRaises(KeyError):
             row.get_cell('gamma')
 
-        assert 'name' in row
-        assert 'occupation' in row
-        assert 'gamma' not in row
+        self.assertIn('name', row)
+        self.assertIn('occupation', row)
+        self.assertNotIn('gamma', row)
 
     def test_as_html(self):
         '''
