@@ -384,4 +384,4 @@ class ValidHTMLTest(SimpleTestCase):
                 context = '\n'.join(
                     ['{}: {}'.format(i, line) for i, line in zip(range(start + 1, end + 1), lines[start:end])]
                 )
-                raise AssertionError(str(error) + '\n' + context)
+                raise AssertionError('template: {}; {} \n {}'.format(table.template_name, str(error), context))

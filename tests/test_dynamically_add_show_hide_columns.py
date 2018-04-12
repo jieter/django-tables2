@@ -121,21 +121,24 @@ class DynamicColumnsTest(TestCase):
 
         template = Template('{% load django_tables2 %}{% render_table table %}')
 
+        re_Name = r'<th >\s*Name\s*</th>'
+        re_Country = r'<th >\s*Country\s*</th>'
+
         table = MyTable(data)
         request = build_request(user=User.objects.create(username='Bob'))
         html = table.as_html(request)
-        self.assertIn('<th >Name</th>', html)
-        self.assertNotIn('<th >Country</th>', html)
+        self.assertRegexpMatches(html, re_Name)
+        self.assertNotRegexpMatches(html, re_Country)
 
         html = template.render(Context({'request': request, 'table': table}))
-        self.assertIn('<th >Name</th>', html)
-        self.assertNotIn('<th >Country</th>', html)
+        self.assertRegexpMatches(html, re_Name)
+        self.assertNotRegexpMatches(html, re_Country)
 
         request = build_request(user=User.objects.create(username='Alice'))
         html = table.as_html(request)
-        self.assertIn('<th >Name</th>', html)
-        self.assertIn('<th >Country</th>', html)
+        self.assertRegexpMatches(html, re_Name)
+        self.assertRegexpMatches(html, re_Country)
 
         html = template.render(Context({'request': request, 'table': table}))
-        self.assertIn('<th >Name</th>', html)
-        self.assertIn('<th >Country</th>', html)
+        self.assertRegexpMatches(html, re_Name)
+        self.assertRegexpMatches(html, re_Country)
