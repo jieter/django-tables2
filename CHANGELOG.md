@@ -1,6 +1,6 @@
 # Change log
 
-## 2.0.0a2 (not released)
+## 2.0.0a2 (2018-04-13)
  - Another round of template re-cleanup.
  - Fresh screenshots
  - Prevent crash in `RelatedLinkColumn` for records without `get_absolute_url()`.

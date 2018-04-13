@@ -9,7 +9,7 @@ from .utils import A
 from .views import SingleTableMixin, SingleTableView, MultiTableMixin
 
 
-__version__ = '2.0.0a1'
+__version__ = '2.0.0a2'
 
 __all__ = (
     'Table', 'TableBase', 'table_factory',
