@@ -149,3 +149,36 @@ class DynamicColumnsTest(TestCase):
         html = template.render(Context({'request': request, 'table': table}))
         self.assertRegex(html, re_Name)
         self.assertRegex(html, re_Country)
+
+    def test_sequence_and_extra_columns(self):
+        '''
+        https://github.com/jieter/django-tables2/issues/486
+
+        The exact moment the '...' is expanded is crucial here.
+        '''
+
+        add_occupation_column = True
+
+        class MyTable(tables.Table):
+
+            class Meta:
+                model = Person
+                fields = ('first_name', 'friends',)
+                sequence = ('first_name', '...', 'friends')
+
+            def __init__(self, data, *args, **kwargs):
+                kwargs['extra_columns'] = kwargs.get('extra_columns', [])
+
+                if add_occupation_column:
+                    kwargs['extra_columns'].append(
+                        ('occupation', tables.RelatedLinkColumn(orderable=False,))
+                    )
+
+                super(MyTable, self).__init__(data, *args, **kwargs)
+
+        table = MyTable(Person.objects.all())
+        self.assertEqual([c.name for c in table.columns], ['first_name', 'occupation', 'friends'])
+
+        add_occupation_column = False
+        table = MyTable(Person.objects.all())
+        self.assertEqual([c.name for c in table.columns], ['first_name', 'friends'])

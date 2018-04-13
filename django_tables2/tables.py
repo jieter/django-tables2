@@ -135,7 +135,7 @@ class TableOptions(object):
         self.prefix = getattr(options, 'prefix', '')
         self.show_header = getattr(options, 'show_header', True)
         self.show_footer = getattr(options, 'show_footer', True)
-        self.sequence = Sequence(getattr(options, 'sequence', ()))
+        self.sequence = getattr(options, 'sequence', ())
         self.orderable = getattr(options, 'orderable', True)
         self.model = getattr(options, 'model', None)
         self.template_name = getattr(options, 'template_name', DJANGO_TABLES2_TEMPLATE)
@@ -300,14 +300,16 @@ class TableBase(object):
         # 2. sequence declared in ``Meta``
         # 3. sequence defaults to '...'
         if sequence is not None:
-            sequence = Sequence(sequence)
+            sequence = sequence
         elif self._meta.sequence:
             sequence = self._meta.sequence
         else:
             if self._meta.fields is not None:
-                sequence = Sequence(tuple(self._meta.fields) + ('...', ))
+                sequence = tuple(self._meta.fields) + ('...', )
             else:
-                sequence = Sequence(('...', ))
+                sequence = ('...', )
+
+        sequence = Sequence(sequence)
         self._sequence = sequence.expand(base_columns.keys())
 
         # reorder columns based on sequence.
