@@ -191,8 +191,8 @@ class RelatedLinkColumn(LinkColumn):
     Render a link to a related object using related object's ``get_absolute_url``,
     same parameters as ``~.LinkColumn``.
 
-    If the ``record`` does not have a method called ``get_absolute_url``, or it is not,
-    callable, the link will be rendered as '#'.
+    If the related object does not have a method called ``get_absolute_url``,
+    or if it is not callable, the link will be rendered as '#'.
 
     Traversing relations is also supported, suppose a Person has a foreign key to
     Country which in turn has a foreign key to Continent::
