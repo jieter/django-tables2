@@ -8,16 +8,26 @@ from django.utils.translation import ugettext_lazy as _
 
 
 @python_2_unicode_compatible
+class Continent(models.Model):
+    name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
+
+
+@python_2_unicode_compatible
 class Country(models.Model):
     '''
     Represents a geographical Country
     '''
     name = models.CharField(max_length=100)
     population = models.PositiveIntegerField(verbose_name=_('population'))
-    tz = models.CharField(max_length=50)
+    tz = models.CharField(max_length=50, blank=True)
     visits = models.PositiveIntegerField()
     commonwealth = models.NullBooleanField()
-    flag = models.FileField(upload_to='country/flags/')
+    flag = models.FileField(upload_to='country/flags/', blank=True)
+
+    continent = models.ForeignKey(Continent, null=True, on_delete=models.CASCADE)
 
     class Meta:
         verbose_name_plural = _('countries')

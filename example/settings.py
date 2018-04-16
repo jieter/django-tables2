@@ -5,7 +5,7 @@ from django.utils.translation import ugettext_lazy as _
 
 ROOT = dirname(abspath(__file__))
 
-DEBUG = False
+DEBUG = True
 
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),

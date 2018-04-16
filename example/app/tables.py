@@ -45,6 +45,7 @@ class BootstrapTablePinnedRows(BootstrapTable):
 
 class Bootstrap4Table(tables.Table):
     country = tables.RelatedLinkColumn()
+    # continent = tables.RelatedLinkColumn(accessor='country.continent')
 
     class Meta:
         model = Person
@@ -64,6 +65,8 @@ class SemanticTable(tables.Table):
 
 
 class PersonTable(tables.Table):
+    country = tables.RelatedLinkColumn()
+
     class Meta:
         model = Person
         template_name = 'django_tables2/bootstrap.html'
