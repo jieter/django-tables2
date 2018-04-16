@@ -193,10 +193,30 @@ class RelatedLinkColumn(LinkColumn):
 
     If the ``record`` does not have a method called ``get_absolute_url``, or it is not,
     callable, the link will be rendered as '#'.
+
+    Traversing relations is also supported, suppose a Person has a foreign key to
+    Country which in turn has a foreign key to Continent::
+
+        class PersonTable(tables.Table):
+            name = tables.Column()
+            country = tables.RelatedLinkColumn()
+            continent = tables.RelatedLinkColumn(accessor='country.continent')
+
+    will render:
+
+     - in column 'country', link to ``person.country.get_absolute_url()`` with the output of
+       ``str(person.country)`` as ``<a>`` contents.
+     - in column 'continent', a link to ``person.country.continent.get_absolute_url()`` with
+       the output of ``str(person.country.continent)`` as ``<a>`` contents.
+
+    Alternative contents of ``<a>`` can be supplied using the ``text`` keyword argument as
+    documented for `~.columns.LinkColumn`.
     '''
 
     def compose_url(self, record, bound_column):
         accessor = self.accessor if self.accessor else Accessor(bound_column.name)
+
+        print(accessor, accessor.resolve(record))
 
         try:
             return accessor.resolve(record).get_absolute_url()
