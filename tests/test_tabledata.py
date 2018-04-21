@@ -7,6 +7,7 @@ from django_tables2 import Table
 from django_tables2.data import TableData, TableListData, TableQuerysetData
 
 from .app.models import Person, Region
+from .utils import build_request
 
 
 class TableDataFactoryTest(TestCase):
@@ -129,3 +130,21 @@ class TableQuerysetDataTest(TestCase):
 
         with self.assertRaises(ValueError):
             MyTable(Region.objects.all())
+
+    def test_queryset_union(self):
+        for i in range(10):
+            Person.objects.create(first_name='first {}'.format(i), last_name='foo')
+            Person.objects.create(first_name='first {}'.format(i * 2), last_name='bar')
+
+        class MyTable(Table):
+            class Meta:
+                model = Person
+                fields = ('first_name', )
+
+        qs = Person.objects.filter(last_name='bar').union(Person.objects.filter(last_name='foo'))
+        table = MyTable(qs.order_by('-last_name'))
+        self.assertEqual(len(table.rows), 20)
+
+        html = table.as_html(build_request())
+        self.assertIn('first 18', html)
+        self.assertIn('first 10', html)

@@ -216,8 +216,6 @@ class RelatedLinkColumn(LinkColumn):
     def compose_url(self, record, bound_column):
         accessor = self.accessor if self.accessor else Accessor(bound_column.name)
 
-        print(accessor, accessor.resolve(record))
-
         try:
             return accessor.resolve(record).get_absolute_url()
         except (AttributeError, TypeError):
