@@ -19,6 +19,7 @@ def test_default_descending_ordering_affects_order_by_alias_next():
 
     class TableDescOrd(tables.Table):
         field = tables.Column(default_descending_ordering=True)
+
         class Meta:
             model = IntModel
 
