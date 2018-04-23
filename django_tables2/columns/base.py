@@ -98,6 +98,7 @@ class Column(object):
               - If `None` (default), localization depends on the ``USE_L10N`` setting.
         default_descending_ordering (bool): If 'True',
             column.order_by_alias.next will return descending ordering if not ordered.
+            Otherwise - default behavior.
 
 
     .. [1] The provided callable object must not expect to receive any arguments.
