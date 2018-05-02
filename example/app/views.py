@@ -1,4 +1,6 @@
 # coding: utf-8
+from __future__ import unicode_literals
+
 from random import choice
 
 from django.shortcuts import get_object_or_404, render
@@ -85,7 +87,7 @@ def bootstrap(request):
     '''Demonstrate the use of the bootstrap template'''
 
     create_fake_data()
-    table = BootstrapTable(Person.objects.all(), order_by='-name')
+    table = BootstrapTable(Person.objects.all().select_related('country'), order_by='-name')
     RequestConfig(request, paginate={'per_page': 10}).configure(table)
 
     return render(request, 'bootstrap_template.html', {

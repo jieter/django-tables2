@@ -1,4 +1,6 @@
 # coding: utf-8
+from __future__ import unicode_literals
+
 import django_tables2 as tables
 
 from .models import Country, Person
@@ -23,6 +25,7 @@ class ThemedCountryTable(CountryTable):
 class BootstrapTable(tables.Table):
 
     country = tables.RelatedLinkColumn()
+    continent = tables.Column(accessor='country.continent.name', verbose_name='Continent')
 
     class Meta:
         model = Person
