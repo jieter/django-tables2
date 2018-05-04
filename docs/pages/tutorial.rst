@@ -93,7 +93,7 @@ adding it to the context::
     def people(request):
         table = PersonTable(Person.objects.all())
         RequestConfig(request).configure(table)
-        return render(request, 'people.html', {'table': table})
+        return render(request, 'tutorial/people.html', {'table': table})
 
 Using `.RequestConfig` automatically pulls values from ``request.GET`` and
 updates the table accordingly. This enables data ordering and pagination.
