@@ -205,7 +205,7 @@ class MultiTableMixin(TableMixinBase):
         # apply prefixes and execute requestConfig for each table
         table_counter = count()
         for table in tables:
-            table.prefix = self.table_prefix.format(next(table_counter))
+            table.prefix = table.prefix or self.table_prefix.format(next(table_counter))
 
             RequestConfig(self.request, paginate=self.get_table_pagination(table)).configure(table)
 

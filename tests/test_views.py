@@ -388,3 +388,21 @@ class MultiTableMixinTest(TestCase):
 
         self.assertIn('<td >Jan Pieter</td>', html)
         self.assertIn('<td >Zuid-Holland</td>', html)
+
+    def test_table_prefix(self):
+        class View(tables.MultiTableMixin, TemplateView):
+            tables = (
+                TableB(Region.objects.all(), prefix='test_prefix'),
+                TableB(Region.objects.all())
+            )
+            template_name = 'multiple.html'
+
+        response = View.as_view()(build_request('/'))
+
+        tableA = response.context_data['tables'][0]
+        tableB = response.context_data['tables'][1]
+
+        self.assertIn('test_prefix', tableA.prefix)
+        self.assertIn('table', tableB.prefix)
+
+
