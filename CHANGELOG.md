@@ -1,5 +1,8 @@
 # Change log
 
+## master
+- Fix table prefix being overwritten in multi table view, [#576](https://github.com/jieter/django-tables2/pull/576) by [@ETinLV](https://github.com/ETinLV), (fixes [#572](https://github.com/jieter/django-tables2/issues/572)
+
 ## 2.0.0a2 (2018-04-13)
  - Another round of template re-cleanup.
  - Fresh screenshots
