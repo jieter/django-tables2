@@ -17,19 +17,17 @@ class BooleanColumn(Column):
 
     Arguments:
         null (bool): is `None` different from `False`?
-        yesno (str): text to display for True/False values, comma separated
+        yesno (str): comma separated values string or 2-tuple to display for True/False values.
 
-    Rendered values are wrapped in a ``<span>`` to allow customisation by
-    themes. By default the span is given the class ``true``, ``false``.
+    Rendered values are wrapped in a ``<span>`` to allow customisation by using CSS. By default the span is given
+    the class ``true``, ``false``.
 
-    In addition to *attrs* keys supported by `~.Column`, the following are
-    available:
+    In addition to *attrs* keys supported by `~.Column`, the following are available:
 
      - *span* -- adds attributes to the ``<span>`` tag
     '''
     def __init__(self, null=False, yesno='✔,✘', **kwargs):
-        self.yesno = (yesno.split(',') if isinstance(yesno, six.string_types)
-                      else tuple(yesno))
+        self.yesno = (yesno.split(',') if isinstance(yesno, six.string_types) else tuple(yesno))
         if not null:
             kwargs['empty_values'] = ()
         super(BooleanColumn, self).__init__(**kwargs)
@@ -53,11 +51,7 @@ class BooleanColumn(Column):
         attrs = {'class': six.text_type(value).lower()}
         attrs.update(self.attrs.get('span', {}))
 
-        return format_html(
-            '<span {}>{}</span>',
-            AttributeDict(attrs).as_html(),
-            escape(text)
-        )
+        return format_html('<span {}>{}</span>', AttributeDict(attrs).as_html(), escape(text))
 
     def value(self, record, value, bound_column):
         '''
