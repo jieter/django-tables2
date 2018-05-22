@@ -402,7 +402,5 @@ class MultiTableMixinTest(TestCase):
         tableA = response.context_data['tables'][0]
         tableB = response.context_data['tables'][1]
 
-        self.assertIn('test_prefix', tableA.prefix)
+        self.assertEqual('test_prefix', tableA.prefix)
         self.assertIn('table', tableB.prefix)
-
-
