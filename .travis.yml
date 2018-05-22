@@ -15,3 +15,7 @@ script:
 
 after_success:
     coveralls
+
+matrix:
+  allow_failures:
+    - pythobn: 3.7-dev
