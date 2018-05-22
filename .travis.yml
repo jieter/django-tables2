@@ -5,7 +5,6 @@ python:
     - "3.4"
     - "3.5"
     - "3.6"
-    - "3.7-dev"
 
 install:
   - pip install tox-travis python-coveralls
@@ -15,7 +14,3 @@ script:
 
 after_success:
     coveralls
-
-matrix:
-  allow_failures:
-    - pythobn: 3.7-dev
