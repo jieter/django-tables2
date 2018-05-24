@@ -9,6 +9,14 @@ python:
 install:
   - pip install tox-travis python-coveralls
 
+addons:
+    apt:
+       packages:
+           - enchant
+           - myspell-nl
+           - myspell-fr
+           - aspell-en
+
 script:
   - tox
 
