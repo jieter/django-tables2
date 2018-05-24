@@ -7,6 +7,7 @@ import itertools
 
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.test import SimpleTestCase, override_settings
+from django.utils.translation import gettext_lazy, override
 
 import django_tables2 as tables
 from django_tables2.tables import DeclarativeColumnsMetaclass
@@ -350,6 +351,20 @@ class CoreTest(SimpleTestCase):
 
         table = TestTable2([], empty_text='still nothing')
         self.assertEqual(table.empty_text, 'still nothing')
+
+    def test_empty_text_gettext_lazy(self):
+        class TestTable(tables.Table):
+            a = tables.Column()
+
+            class Meta:
+                empty_text = gettext_lazy('next')
+
+        table = TestTable([])
+        self.assertEqual(table.empty_text, 'next')
+
+        with override('nl'):
+            table = TestTable([])
+            self.assertEqual(table.empty_text, 'volgende')
 
     def test_prefix(self):
         '''

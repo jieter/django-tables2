@@ -143,6 +143,9 @@ class TableOptions(object):
         self.unlocalize = getattr(options, 'unlocalize', ())
 
     def _check_types(self, options, class_name):
+        """
+        Check class Meta attributes to prevent common mistakes.
+        """
         if options is None:
             return
 
@@ -151,10 +154,10 @@ class TableOptions(object):
             (int, ): ['per_page'],
             (tuple, list, set): ['fields', 'sequence', 'exclude', 'localize', 'unlocalize'],
             six.string_types: [
-                'default', 'empty_text', 'template_name', 'prefix', 'order_by_field', 'page_field', 'per_page_field'
+                'template_name', 'prefix', 'order_by_field', 'page_field', 'per_page_field'
             ],
             (dict, ): ['attrs', 'row_attrs', 'pinned_row_attrs'],
-            (tuple, str, six.text_type): ['order_by'],
+            (tuple, ) + six.string_types: ['order_by'],
             (type(models.Model), ): ['model', ]
         }
 
