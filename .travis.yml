@@ -13,9 +13,10 @@ addons:
     apt:
        packages:
            - enchant
-           - myspell-nl
-           - myspell-fr
+           - myspell-de-de
            - aspell-en
+           - myspell-fr
+           - myspell-nl
 
 script:
   - tox
