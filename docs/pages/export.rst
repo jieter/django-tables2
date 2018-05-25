@@ -25,7 +25,7 @@ Adding ability to export the table data to a class based views looks like this::
         template_name = 'django_tables2/bootstrap.html'
 
 
-Now, if you append ``_export=csv`` to the querystring, the browser will download
+Now, if you append ``_export=csv`` to the query string, the browser will download
 a csv file containing your data. Supported export formats are:
 
     csv, json, latex, ods, tsv, xls, xlsx, yml
@@ -59,8 +59,8 @@ If you must use a function view, you might use something like this::
             'table': table
         })
 
-What exacly is exported?
-------------------------
+What exactly is exported?
+-------------------------
 
 The export views use the `.Table.as_values()` method to get the data from the table.
 Because we often use HTML in our table cells, we need to specify something else for the
@@ -103,7 +103,7 @@ If you use the ``~.ExportMixin``, add an ``exclude_columns`` attribute to your c
         exclude_columns = ('buttons', )
 
 
-Generating export urls
+Generating export URLs
 ----------------------
 
 You can use the ``querystring`` template tag included with django_tables2

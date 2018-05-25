@@ -12,23 +12,22 @@ class TableData(object):
 
     def __getitem__(self, key):
         '''
-        Slicing returns a new `.TableData` instance, indexing returns a
-        single record.
+        Slicing returns a new `.TableData` instance, indexing returns a single record.
         '''
         return self.data[key]
 
     def __iter__(self):
         '''
         for ... in ... default to using this. There's a bug in Django 1.3
-        with indexing into querysets, so this side-steps that problem (as well
+        with indexing into QuerySets, so this side-steps that problem (as well
         as just being a better way to iterate).
         '''
         return iter(self.data)
 
     def set_table(self, table):
         '''
-        Table.__init__ calls this method to inject an instance of itself into the
-        TableData instance.
+        `Table.__init__` calls this method to inject an instance of itself into the
+        `TableData` instance.
         Good place to do additional checks if Table and TableData instance will work
         together properly.
         '''

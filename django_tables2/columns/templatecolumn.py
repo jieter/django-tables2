@@ -25,7 +25,7 @@ class TemplateColumn(Column):
 
     - *record*      -- data record for the current row
     - *value*       -- value from `record` that corresponds to the current column
-    - *default*     -- appropriate default value to use as fallback
+    - *default*     -- appropriate default value to use as fallback.
     - *row_counter* -- The number of the row this cell is being rendered in.
     - any context variables passed using the `extra_context` argument to `TemplateColumn`.
 
@@ -76,7 +76,7 @@ class TemplateColumn(Column):
     def value(self, **kwargs):
         '''
         The value returned from a call to `value()` on a `TemplateColumn` is
-        the rendered tamplate with `django.utils.html.strip_tags` applied.
+        the rendered template with `django.utils.html.strip_tags` applied.
         '''
         html = super(TemplateColumn, self).value(**kwargs)
         if isinstance(html, six.string_types):

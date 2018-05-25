@@ -269,7 +269,7 @@ class BoundPinnedRow(BoundRow):
     def attrs(self):
         '''
         Return the attributes for a certain pinned row.
-        Add css clases `pinned-row` to `class` attribute.
+        Add CSS classes `pinned-row` and `odd` or `even` to `class` attribute.
 
         Return:
             AttributeDict: Attributes for pinned rows.
@@ -312,10 +312,10 @@ class BoundRows(object):
         Top and bottom pinned rows generator.
 
         Arguments:
-            data: Iterable datas for all records for top or bottom pinned rows.
+            data: Iterable data for all records for top or bottom pinned rows.
 
         Yields:
-            BoundPinnedRow: Top or bottom BoundPinnedRow object for single pinned record.
+            BoundPinnedRow: Top or bottom `BoundPinnedRow` object for single pinned record.
         '''
         if data is not None:
             if hasattr(data, '__iter__') is False:

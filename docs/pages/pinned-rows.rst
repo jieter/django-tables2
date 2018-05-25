@@ -36,7 +36,7 @@ Attributes for pinned rows
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 You can override the attributes used to render the ``<tr>`` tag of the pinned rows using: ``pinned_row_attrs``.
-This works excactly like :ref:`row-attributes`.
+This works exactly like :ref:`row-attributes`.
 
 .. note:: By default the ``<tr>`` tags for pinned rows will get the attribute ``class="pinned-row"``.
 

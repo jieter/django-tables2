@@ -13,9 +13,9 @@ except ImportError:  # pragma: no cover
 
 class TableExport(object):
     '''
-    Export data from a table to the filetype specified.
+    Export data from a table to the file type specified.
 
-    Argumenents:
+    Arguments:
         export_format (str): one of `csv, json, latex, ods, tsv, xls, xlsx, yml`
 
         table (`~.Table`): instance of the table to export the data from

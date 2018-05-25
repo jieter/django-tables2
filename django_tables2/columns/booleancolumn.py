@@ -19,7 +19,7 @@ class BooleanColumn(Column):
         null (bool): is `None` different from `False`?
         yesno (str): comma separated values string or 2-tuple to display for True/False values.
 
-    Rendered values are wrapped in a ``<span>`` to allow customisation by using CSS. By default the span is given
+    Rendered values are wrapped in a ``<span>`` to allow customization by using CSS. By default the span is given
     the class ``true``, ``false``.
 
     In addition to *attrs* keys supported by `~.Column`, the following are available:

@@ -25,7 +25,7 @@ Glossary
         A prefixed column name that describes how a column should impact the
         order of data within the table. This allows the implementation of how
         a column affects ordering to be abstracted, which is useful (e.g. in
-        querystrings).
+        query strings).
 
         .. sourcecode:: python
 
@@ -33,7 +33,7 @@ Glossary
                 name = tables.Column(order_by=('first_name', 'last_name'))
 
         In this example ``-name`` and ``name`` are valid order by aliases. In
-        a querystring you might then have ``?order=-name``.
+        a query string you might then have ``?order=-name``.
 
     table
         The traditional concept of a table. i.e. a grid of rows and columns
@@ -53,5 +53,5 @@ Glossary
         A Django template.
 
     table data
-        An interable of :term:`records <record>` that
+        An iterable of :term:`records <record>` that
         `.Table` uses to populate its rows.

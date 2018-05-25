@@ -10,10 +10,10 @@ Adding column headers
 ---------------------
 
 The header cell for each column comes from `~.Column.header`. By default this
-method returns `~.Column.verbose_name`, falling back to the titlised attribute
+method returns `~.Column.verbose_name`, falling back to the capitalized attribute
 name of the column in the table class.
 
-When using queryset data and a verbose name hasn't been explicitly defined for
+When using QuerySet data and a verbose name hasn't been explicitly defined for
 a column, the corresponding model field's `verbose_name` will be used.
 
 Consider the following:

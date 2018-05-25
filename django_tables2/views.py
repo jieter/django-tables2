@@ -63,7 +63,7 @@ class SingleTableMixin(TableMixinBase):
             `klass` to the dict, containing a custom `Pagintor` class.
 
     This mixin plays nice with the Django's ``.MultipleObjectMixin`` by using
-    ``.get_queryset`` as a fallback for the table data source.
+    ``.get_queryset`` as a fall back for the table data source.
     '''
     table_class = None
     table_data = None
@@ -122,7 +122,7 @@ class SingleTableMixin(TableMixinBase):
 
     def get_context_data(self, **kwargs):
         '''
-        Overriden version of `.TemplateResponseMixin` to inject the table into
+        Overridden version of `.TemplateResponseMixin` to inject the table into
         the template's context.
         '''
         context = super(SingleTableMixin, self).get_context_data(**kwargs)
@@ -153,7 +153,7 @@ class MultiTableMixin(TableMixinBase):
     Attributes:
         tables: list of `.Table` instances or list of `.Table` child objects.
         tables_data: if defined, `tables` is assumed to be a list of table
-            classes which will be instatiated with the corresponding item from
+            classes which will be instantiated with the corresponding item from
             this list of `.TableData` instances.
         table_prefix(str): Prefix to be used for each table. The string must
             contain one instance of `{}`, which will be replaced by an integer

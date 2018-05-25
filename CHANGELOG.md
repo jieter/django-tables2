@@ -17,13 +17,13 @@ Hello from [DjangoCon Europe](https://2018.djangocon.eu/)!
  - Fixed translation of 'previous' for some languages (fixes [#563](https://github.com/jieter/django-tables2/issues/563))
 
 ## django-tables2 2.0.0a0 (2018-04-10)
- - Cleaned up templates to add consistancy in what is presented accross all templates.
+ - Cleaned up templates to add consistency in what is presented across all templates.
  - Added bootstrap4.html template
- - Fixed translation inconsistancies.
+ - Fixed translation inconsistencies.
 ### breaking changes
  - Appearance of the paginators might be different from the current 1.x templates. Use a custom template if you need to keep the appearance the same.
  - Removed the `template` argument to the table constructor, use `template_name` instead.
- - Stopped adding column names to the class attribute of table cells (`<td>` tags) by default. Previous behaviour can be restored by using this method on your custom table:
+ - Stopped adding column names to the class attribute of table cells (`<td>` tags) by default. Previous behavior can be restored by using this method on your custom table:
 ```python
 class MyTable(tables.Table):
     # columns
@@ -73,14 +73,14 @@ class MyTable(tables.Table):
  - Remove traces of django-haystack tests from the tests, there were no actual tests.
 
 ## 1.16.0 (2017-11-27)
-This is the last version supporting Django 1.8, 1.9 and 1.10. Django 1.8 is only supported until april 2018, so consider upgrading to Django 1.11!
+This is the last version supporting Django 1.8, 1.9 and 1.10. Django 1.8 is only supported until April 2018, so consider upgrading to Django 1.11!
  - Added `tf` dictionary to `Column.attrs` with default values for the footer, so footers now have `class` attribute by default [#501](https://github.com/jieter/django-tables2/pull/501) by [@mpasternak](https://github.com/mpasternak)
 
 ## 1.15.0 (2017-11-23)
  - Added `as=varname` keyword argument to the `{% querystring %}` template tag,
    fixes [#481](https://github.com/jieter/django-tables2/issues/481)
  - Updated the tutorial to reflect current state of Django a bit better.
- - Used `OrderedDict` rather than `dict` as the parent for `utils.AttributeDict` to make the rendered html more consistant accross python versions.
+ - Used `OrderedDict` rather than `dict` as the parent for `utils.AttributeDict` to make the rendered html more consistent across python versions.
  - Allow reading column `attrs` from a column's attribute, allowing easier reuse of custom column attributes (fixes [#241](https://github.com/jieter/django-tables2/issues/241))
  - `value` and `record` are optionally passed to the column attrs callables for data rows. [#503](https://github.com/jieter/django-tables2/pull/503), fixes [#500](https://github.com/jieter/django-tables2/issues/500)
 
@@ -96,7 +96,7 @@ This is the last version supporting Django 1.8, 1.9 and 1.10. Django 1.8 is only
  - Disabled ordering on `ManyToManyColumns` by default.
 
 ## 1.13.0 (2017-10-17)
- - Made positional `data` argument to the table `__init__()` a keyword argument to make inheritance easier. Will raise a `TypeError` if ommitted.
+ - Made positional `data` argument to the table `__init__()` a keyword argument to make inheritance easier. Will raise a `TypeError` if omitted.
 
 ## 1.12.0 (2017-10-10)
  - Allow export filename customization [#484](https://github.com/bradleyayers/django-tables2/pull/484) by [@federicobond](https://github.com/federicobond)
@@ -113,7 +113,7 @@ This is the last version supporting Django 1.8, 1.9 and 1.10. Django 1.8 is only
 ## 1.9.1 (2017-06-29)
  - Allow customizing the value used in `Table.as_values()` (when using a `render_<name>` method) using a `value_<name>` method. (fixes [#458](https://github.com/bradleyayers/django-tables2/issues/458))
  - Allow excluding columns from the `Table.as_values()` output. (fixes [#459](https://github.com/bradleyayers/django-tables2/issues/459))
- - Fixed unicode handling for columhn headers in `Table.as_values()`
+ - Fixed unicode handling for column headers in `Table.as_values()`
 
 ## 1.9.0 (2017-06-22)
 - Allow computable attrs for `<td>`-tags from `Table.attrs` ([#457](https://github.com/bradleyayers/django-tables2/pull/457), fixes [#451](https://github.com/bradleyayers/django-tables2/issues/451))
@@ -128,7 +128,7 @@ This is the last version supporting Django 1.8, 1.9 and 1.10. Django 1.8 is only
 
 ## 1.7.0 (2017-06-01)
  - Make `title()` lazy ([#443](https://github.com/bradleyayers/django-tables2/pull/443) by [@ygwain](https://github.com/ygwain), fixes [#438](https://github.com/bradleyayers/django-tables2/issues/438))
- - Fix `__all__` by populating them with the names of the items to export instead of the items themself.
+ - Fix `__all__` by populating them with the names of the items to export instead of the items themselves.
  - Allow adding extra columns to an instance using the `extra_columns` argument. Fixes [#403](https://github.com/bradleyayers/django-tables2/issues/403), [#70](https://github.com/bradleyayers/django-tables2/issues/70)
  - Added a hook `before_render` to allow last-minute changes to the table before rendering.
  - Added `BoundColumns.show()` and `BoundColumns.hide()` to show/hide columns on an instance of a `Table`.
@@ -142,7 +142,7 @@ This is the last version supporting Django 1.8, 1.9 and 1.10. Django 1.8 is only
 
 ## 1.5.0 (2017-04-18)
 _Full disclosure: as of april 1st, 2017, I am an employee of [Zostera](http://zostera.nl/), as such I will continue to maintain and improve django-tables2._
- - Made `TableBase.as_values()` an interator ([#432](https://github.com/bradleyayers/django-tables2/pull/432) by [@pziarsolo](https://github.com/pziarsolo))
+ - Made `TableBase.as_values()` an iterator ([#432](https://github.com/bradleyayers/django-tables2/pull/432) by [@pziarsolo](https://github.com/pziarsolo))
  - Added `JSONField` for data in JSON format.
  - Added `__all__` in `django_tables2/__init__.py` and `django_tables2/columns/__init__.py`
  - Added a setting `DJANGO_TABLES2_TEMPLATE` to allow project-wide overriding of the template used to render tables (fixes [#434](https://github.com/bradleyayers/django-tables2/issues/434)).
@@ -152,8 +152,8 @@ _Full disclosure: as of april 1st, 2017, I am an employee of [Zostera](http://zo
  - Fix an issue where `ValueError` was raised while using a view with a `get_queryset()` method defined. (fix with [#423](https://github.com/bradleyayers/django-tables2/pull/423) by [@desecho](https://github.com/desecho))
 
 ## 1.4.1 (2017-02-27)
- - Fix urls to screenshots in on pypi description (fixes [ #398](https://github.com/bradleyayers/django-tables2/issues/398))
- - Prevent superfluous spaces when a callable `row_attrs['class']` returns an empty string ([#417](https://github.com/bradleyayers/django-tables2/pull/417 by [@Superman8218](https://github.com/Superman8218)), fixes [#416](https://github.com/bradleyayers/django-tables2/issues/416))
+ - Fix URLS to screenshots in on PyPi description (fixes [ #398](https://github.com/bradleyayers/django-tables2/issues/398))
+ - Prevent superfluous spaces when a callable `row_attrs['class']` returns an empty string ([#417](https://github.com/bradleyayers/django-tables2/pull/417) by [@Superman8218](https://github.com/Superman8218)), fixes [#416](https://github.com/bradleyayers/django-tables2/issues/416))
 
 
 ## 1.4.0 (2017-02-27)
@@ -183,7 +183,7 @@ _Full disclosure: as of april 1st, 2017, I am an employee of [Zostera](http://zo
 ## 1.2.6 (2016-09-06)
 - Added `get_table_kwargs()` method to `SingleTableMixin` to allow passing custom keyword arguments to the `Table` constructor. ([#366](https://github.com/bradleyayers/django-tables2/pull/366) by [@fritz-k](https://github.com/fritz-k))
 - Allow the children of `TableBase` render in the `{% render_table %}` template tag. ([#377](https://github.com/bradleyayers/django-tables2/pull/377) by [@shawnnapora](https://github.com/shawnnapora))
-- Refactor `BoundColumn` attributes to allow override of CSS class names, fixes [#349](https://github.com/bradleyayers/django-tables2/issues/349) ([#370](https://github.com/bradleyayers/django-tables2/pull/370) by [@graup](https://github.com/graup)). Current behaviour should be intact, we will change the default in the future so it will **not** add the column name to the list of CSS classes.
+- Refactor `BoundColumn` attributes to allow override of CSS class names, fixes [#349](https://github.com/bradleyayers/django-tables2/issues/349) ([#370](https://github.com/bradleyayers/django-tables2/pull/370) by [@graup](https://github.com/graup)). Current behavior should be intact, we will change the default in the future so it will **not** add the column name to the list of CSS classes.
 
 ## 1.2.5 (2016-07-30)
 - Fixed an issue preventing the rest of the row being rendered if a `BooleanColumn` was in the table for a model without custom choices defined on the model field. ([#360](https://github.com/bradleyayers/django-tables2/issues/360))
@@ -200,7 +200,7 @@ _Full disclosure: as of april 1st, 2017, I am an employee of [Zostera](http://zo
 ## v1.2.2 (2016-06-04)
 - Allow use of custom class names for ordered columns through `attrs`. (
 [#329](https://github.com/bradleyayers/django-tables2/pull/329) by [@theTarkus](https://github.com/theTarkus))
-- Column ordering queryset passthrough ([#330](https://github.com/bradleyayers/django-tables2/pull/330) by [@theTarkus](https://github.com/theTarkus))
+- Column ordering QuerySet pass through ([#330](https://github.com/bradleyayers/django-tables2/pull/330) by [@theTarkus](https://github.com/theTarkus))
 - Cleanup/restructuring of [documentation](http://django-tables2.readthedocs.io/), ([#325](https://github.com/bradleyayers/django-tables2/pull/325))
 - Fixed an issue where explicitly defined column options where not preserved over inheritance ([#339](https://github.com/bradleyayers/django-tables2/pull/339), [issue #337](https://github.com/bradleyayers/django-tables2/issues/337))
 - Fixed an issue where `exclude` in combination with `sequence` raised a KeyError ([#341](https://github.com/bradleyayers/django-tables2/pull/341), [issue #205](https://github.com/bradleyayers/django-tables2/issues/205))
@@ -235,17 +235,17 @@ _Full disclosure: as of april 1st, 2017, I am an employee of [Zostera](http://zo
 
 ## v1.1.3 (2016-03-21)
 - Drop support for Django 1.7
-- Add argument to CheckBoxColumn to render it as checked (original PR: #208)
+- Add argument to `CheckBoxColumn` to render it as checked (original PR: #208)
 
 ## v1.1.2 (2016-02-16)
 - Fix `BooleanColumn` with choices set will always render as if `True` (#301)
 - Fix a bug with `TemplateColumn` while using cached template loader (#75)
 
 ## v1.1.1 (2016-01-26)
-- Allow Meta.fields to be a list as well as a tuple (#250)
+- Allow `Meta.fields` to be a list as well as a tuple (#250)
 - Call template.render with a dict in Django >= 1.8. (#298)
 - Added `RelatedLinkColumn()` to render links to related objects (#297)
-- Remove default value from request param to table.as_html()
+- Remove default value from request parameter to `table.as_html()`
 
 ## v1.1.0 (2016-01-19)
 - Add tests for `TimeColumn`
@@ -259,23 +259,23 @@ _Full disclosure: as of april 1st, 2017, I am an employee of [Zostera](http://zo
 ## v1.0.7 (2016-01-03)
 - Explicitly check if `column.verbose_name` is not None to support empty column headers (fixes #280)
 - Cleanup the example project to make it work with modern Django versions.
-- Do not sort queryset when orderable=False (#204 by [@bmihelac](https://github.com/bmihelac))
+- Do not sort `QuerySet` when `orderable=False` (#204 by [@bmihelac](https://github.com/bmihelac))
 - `show_header` attribute on `Table` allows disabling the header (#175 by [@kviktor](https://github.com/kviktor))
 - `LinkColumn` now tries to call `get_absolute_url` on a record if no `viewname` is provided (#283, fixes #231).
 - Add `request` argument to `Table.as_html()` to allow passing correct request objects instead of poorly generated ones #282
 - Add coverage reporting to build #282
-- Drop support for python 3.2 (because of coverage), support ends feb 2016 #282
+- Drop support for python 3.2 (because of coverage), support ends February 2016 #282
 - move `build_request` from `django_table2.utils` to `tests.utils` and amend tests #282
 
 ## v1.0.6 (2015-12-29)
-- Support for custom text value in LinkColumn (#277 by [@toudi](https://github.com/toudi))
-- Refactor LinkColumn.render_link() to not escape twice #279
+- Support for custom text value in `LinkColumn` (#277 by [@toudi](https://github.com/toudi))
+- Refactor `LinkColumn.render_link()` to not escape twice #279
 - Removed `Attrs` (wrapper for dict), deprecated on 2012-09-18
 - Convert README.md to rst in setup.py to make PyPI look nice (fixes #97)
 
 ## v1.0.5 (2015-12-17)
 - First version released by new maintainer [@jieter](https://github.com/jieter)
-- Dropped support for django 1.5 and 1.6, add python 3.5 with django 1.8 and 1.9 to the build matrix (#273)
+- Dropped support for Django 1.5 and 1.6, add python 3.5 with Django 1.8 and 1.9 to the build matrix (#273)
 - Prevent `SingleTableView` from calling `get_queryset` twice. (fixes #155)
 - Don't call managers when resolving accessors. (#214 by [@mbertheau](https://github.com/mbertheau), fixes #211)
 
@@ -283,10 +283,10 @@ _Full disclosure: as of april 1st, 2017, I am an employee of [Zostera](http://zo
 - Fix bug in retrieving `field.verbose_name` under Django 1.8.
 
 ## v1.0.3
-- Remove setup.cfg as PyPI doesn't actually support it, instead it's a distutils2 thing that's been discontinued.
+- Remove `setup.cfg` as PyPI doesn't actually support it, instead it is a distutils2 thing that is been discontinued.
 
 ## v1.0.2
-- Add setup.cfg to declare README.md for PyPI.
+- Add `setup.cfg` to declare `README.md` for PyPI.
 
 ## v1.0.1
 - Convert README to markdown so it's formatted nicely on PyPI.
@@ -295,11 +295,11 @@ _Full disclosure: as of april 1st, 2017, I am an employee of [Zostera](http://zo
 - Travis CI builds pass.
 - Added Python 3.4 support.
 - Added Django 1.7 and Django 1.8 support.
-- Convert tests to using py.test.
+- Convert tests to using `py.test`.
 
 ## v0.16.0
 - Django 1.8 fixes
-- `BoundColumn.verbose_name` now titlises only if no verbose_name was given. `verbose_name` is used verbatim.
+- `BoundColumn.verbose_name` now only is capitalized only if no verbose_name was given. `verbose_name` is used verbatim.
 - Add max_length attribute to person CharField
 - Add Swedish translation
 - Update docs presentation on readthedocs
@@ -314,8 +314,8 @@ _Full disclosure: as of april 1st, 2017, I am an employee of [Zostera](http://zo
 - Add Travis CI support
 - Add support for Django 1.5
 - Add L10N control for columns #120 (ignored in < Django 1.3)
-- Drop Python 2.6.4 support in favour of Python 3.2 support
-- Non-queryset data ordering is different between Python 3 and 2. When comparing different types, their truth values are now compared before falling back to string representations of their type.
+- Drop Python 2.6.4 support in favor of Python 3.2 support
+- Non-QuerySet data ordering is different between Python 3 and 2. When comparing different types, their truth values are now compared before falling back to string representations of their type.
 
 ## v0.13.0
 - Add FileColumn.
@@ -335,9 +335,9 @@ _Full disclosure: as of april 1st, 2017, I am an employee of [Zostera](http://zo
  - Add `DateTimeColumn` and `DateColumn` to handle formatting `datetime`
    and timezones.
  - Add `BooleanColumn` to handle bool values
- - `render_table` can now build and render a table for a queryset, rather than
+ - `render_table` can now build and render a table for a QuerySet, rather than
    needing to be passed a table instance
- - Table columns created automatically from a model now use specialised columns
+ - Table columns created automatically from a model now use specialized columns
  - `Column.render` is now skipped if the value is considered *empty*, the
    default value is used instead. Empty values are specified via
    `Column.empty_values`, by default is `(None, '')` (backward incompatible)
@@ -365,7 +365,7 @@ _Full disclosure: as of april 1st, 2017, I am an employee of [Zostera](http://zo
  - Upgrade django-attest to fix problem with tests on Django 1.3.1
 
 ## v0.10.1
- - Fixed support for Django 1.4's paginator (thanks koledennix)
+ - Fixed support for Django 1.4's paginator (thanks @koledennix)
  - Some juggling of internal implementation.
    `TableData` now supports slicing and returns new `TableData` instances.
    `BoundRows` now takes a single argument `data` (a `TableData` instance).
@@ -390,14 +390,14 @@ _Full disclosure: as of april 1st, 2017, I am an employee of [Zostera](http://zo
  - Introduced concept of an `order by alias`, see glossary in the docs for details.
 
 ## v0.9.6
- - Fix bug that caused an ordered column's th to have no HTML attributes.
+ - Fix bug that caused an ordered column's `<th>` to have no HTML attributes.
 
 ## v0.9.5
- - Updated example project to add colspan on footer cell so table border renders correctly in Webkit.
+ - Updated example project to add `colspan` on footer cell so table border renders correctly in Webkit.
  - Fix regression that caused 'sortable' class on <th>.
- - Table.__init__ no longer *always* calls .order_by() on querysets, fixes #55.
+ - `Table.__init__` no longer *always* calls `.order_by()` on QuerySets, fixes #55.
    This does introduce a slight backwards incompatibility. `Table.order_by` now has the possibility of returning `None`, previously it would *always* return an `OrderByTuple`.
- - DeclarativeColumnsMetaclass.__new__ now uses super()
+ - `DeclarativeColumnsMetaclass.__new__` now uses `super()``
  - Testing now requires pylint and Attest >=0.5.3
 
 ## v0.9.4
@@ -416,24 +416,24 @@ _Full disclosure: as of april 1st, 2017, I am an employee of [Zostera](http://zo
  - Add `title` template filter. It differs from Django's built-in `title` filter
    because it operates on an individual word basis and leaves words containing
    capitals untouched. **Warning**: use `{% load ... from ... %}` to avoid
-   inadvertantly replacing Django's builtin `title` template filter.
- - `BoundColumn.verbose_name` no longer does `capfirst`, titlising is now the
-   responsbility of `Column.header`.
+   inadvertently replacing Django's built-in `title` template filter.
+ - `BoundColumn.verbose_name` no longer does `capfirst`, capitalizing is now the
+   responsibility of `Column.header`.
  - `BoundColumn.__unicode__` now uses `BoundColumn.header` rather than
    `BoundColumn.verbose_name`.
 
 ## v0.9.1
- - Fix version in setup.py (doh)
+ - Fix version in `setup.py`
 
 ## v0.9.0
  - Add support for column attributes (see Attrs)
- - Add BoundRows.items() to yield (bound_column, cell) pairs
+ - Add `BoundRows.items()` to yield `(bound_column, cell)` pairs
  - Tried to make docs more concise. Much stronger promotion of using
-   RequestConfig and {% querystring %}
+   `RequestConfig` and `{% querystring %}`
 
 ## v0.8.4
  - Removed random 'print' statements.
- - Tweaked 'paleblue' theme css to be more flexible:
+ - Tweaked `paleblue` theme css to be more flexible:
    - removed `whitespace: no-wrap`
    - header background image to support more than 2 rows of text
 
@@ -451,7 +451,7 @@ _Full disclosure: as of april 1st, 2017, I am an employee of [Zostera](http://zo
 ## v0.8.0
  - Added translation support in the default template via `{% trans %}`
  - Removed `basic_table.html`, `Table.as_html()` now renders `table.html` but
-   will clobber the querystring of the current request. Use the `render_table`
+   will clobber the query string of the current request. Use the `render_table`
    template tag instead
  - `render_table` now supports an optional second argument -- the template to
    use when rendering the table
@@ -462,10 +462,9 @@ _Full disclosure: as of april 1st, 2017, I am an employee of [Zostera](http://zo
    extend to change small pieces
  - Fixed table template parsing problems being hidden due to a subsequent
    exception being raised
- - Http404 exceptions are no longer raised during a call to `Table.paginate()`,
+ - `Http404` exceptions are no longer raised during a call to `Table.paginate()`,
    instead it now occurs when `Table.page` is accessed
- - Fixed bug where a table couldn't be rendered more than once if it was
-   paginated
+ - Fixed bug where a table couldn't be rendered more than once if it was paginated.
  - Accessing `Table.page` now returns a new page every time, rather than reusing
    a single object
 

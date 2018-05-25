@@ -7,7 +7,7 @@ class ExportMixin(object):
     '''
     Support various export formats for the table data.
 
-    `ExportMixin` looks for some attributes on the class to change it's behaviour:
+    `ExportMixin` looks for some attributes on the class to change it's behavior:
 
     Attributes:
         export_name (str): is the name of file that will be exported, without extension.

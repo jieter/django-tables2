@@ -181,7 +181,7 @@ class TableBase(object):
     A representation of a table.
 
     Arguments:
-        data (queryset, list of dicts): The data to display.
+        data (QuerySet, list of dicts): The data to display.
             This is a required variable, a `TypeError` will be raised if it's not passed.
 
         order_by: (tuple or str): The default ordering tuple or comma separated str.
@@ -213,17 +213,17 @@ class TableBase(object):
             `'...'` (string containing three periods). `'...'` can be used as a
             catch-all for columns that aren't specified.
 
-        prefix (str): A prefix for querystring fields.
+        prefix (str): A prefix for query string fields.
             To avoid name-clashes when  using multiple tables on single page.
 
         order_by_field (str): If not `None`, defines the name of the *order by*
-            querystring field in the url.
+            query string field in the URL.
 
         page_field (str): If not `None`, defines the name of the *current page*
-            querystring field.
+            query string field.
 
         per_page_field (str): If not `None`, defines the name of the *per page*
-            querystring field.
+            query string field.
 
         template_name (str): The template to render when using ``{% render_table %}``
             (defaults to DJANGO_TABLES2_TEMPLATE, which is ``'django_tables2/table.html'``
@@ -345,9 +345,9 @@ class TableBase(object):
     def get_top_pinned_data(self):
         '''
         Return data for top pinned rows containing data for each row.
-        Iterable type like: queryset, list of dicts, list of objects.
+        Iterable type like: QuerySet, list of dicts, list of objects.
         Having a non-zero number of pinned rows
-        will not result in an empty resultset message being rendered,
+        will not result in an empty result set message being rendered,
         even if there are no regular data rows
 
         Returns:
@@ -369,9 +369,9 @@ class TableBase(object):
     def get_bottom_pinned_data(self):
         '''
         Return data for bottom pinned rows containing data for each row.
-        Iterable type like: queryset, list of dicts, list of objects.
+        Iterable type like: QuerySet, list of dicts, list of objects.
         Having a non-zero number of pinned rows
-        will not result in an empty resultset message being rendered,
+        will not result in an empty result set message being rendered,
         even if there are no regular data rows
 
         Returns:
@@ -635,7 +635,7 @@ class TableBase(object):
 
     def get_column_class_names(self, classes_set, bound_column):
         '''
-        Returns a set of HTML class names for cells (both td and th) of a
+        Returns a set of HTML class names for cells (both ``td`` and ``th``) of a
         **bound column** in this table.
         By default this returns the column class names defined in the table's
         attributes.

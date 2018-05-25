@@ -34,10 +34,10 @@ class BaseLinkColumn(Column):
 
     def render_link(self, uri, record, value, attrs=None):
         '''
-        Render a hyperlink.
+        Render a link (`<a>`).
 
         Arguments:
-            uri (str): URI for the hyperlink
+            uri (str): URI for the link
             record: record currently being rendered
             value (str): value to be wrapped in ``<a></a>``, might be overridden
                 by ``self.text``
@@ -152,7 +152,7 @@ class LinkColumn(BaseLinkColumn):
         self.current_app = current_app
 
     def compose_url(self, record, *args, **kwargs):
-        '''Compose the url if the column is constructed with a viewname.'''
+        '''Compose the URL if the column is constructed with a ``viewname`` argument.'''
 
         if self.viewname is None:
             if not hasattr(record, 'get_absolute_url'):

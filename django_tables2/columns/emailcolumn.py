@@ -12,7 +12,7 @@ from .linkcolumn import BaseLinkColumn
 @library.register
 class EmailColumn(BaseLinkColumn):
     '''
-    Render email addresses to mailto-links.
+    Render email addresses to `mailto:`-links.
 
     Arguments:
         attrs (dict): HTML attributes that are added to the rendered

@@ -96,7 +96,7 @@ class OrderBy(str):
     @property
     def opposite(self):
         '''
-        Provides the opposite of the current sorting directon.
+        Provides the opposite of the current sorting direction.
 
         Returns:
             `.OrderBy`: object with an opposite sort influence.
@@ -263,7 +263,7 @@ class OrderByTuple(tuple):
 
     def get(self, key, fallback):
         '''
-        Identical to __getitem__, but supports fallback value.
+        Identical to `__getitem__`, but supports fallback value.
         '''
         try:
             return self[key]

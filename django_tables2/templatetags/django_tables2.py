@@ -84,8 +84,8 @@ class QuerystringNode(Node):
 @register.tag
 def querystring(parser, token):
     '''
-    Creates a URL (containing only the querystring [including "?"]) derived
-    from the current URL's querystring, by updating it with the provided
+    Creates a URL (containing only the query string [including "?"]) derived
+    from the current URL's query string, by updating it with the provided
     keyword arguments.
 
     Example (imagine URL is ``/abc/?gender=male&name=Brad``)::
@@ -216,7 +216,7 @@ register.filter('unlocalize', l10n_register.filters['unlocalize'])
 @register.simple_tag(takes_context=True)
 def export_url(context, export_format, export_trigger_param='_export'):
     '''
-    Returns an export url for the given file `export_format`, preserving current
+    Returns an export URL for the given file `export_format`, preserving current
     query string parameters.
 
     Example for a page requested with querystring ``?q=blue``::

@@ -24,7 +24,7 @@ has native support for pagination and sorting. It does for HTML tables what
 
 Features:
 
-- Any iterable can be a data-source, but special support for Django querysets is included.
+- Any iterable can be a data-source, but special support for Django `QuerySets` is included.
 - The builtin UI does not rely on JavaScript.
 - Support for automatic table generation based on a Django model.
 - Supports custom column functionality via subclassing.

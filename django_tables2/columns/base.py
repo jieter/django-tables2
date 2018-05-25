@@ -85,7 +85,7 @@ class Column(object):
         exclude_from_export (bool): If `True`, this column will not be added to
             the data iterator returned from as_values().
         footer (str, callable): Defines the footer of this column. If a callable
-            is passed, it can take optional keyword argumetns `column`,
+            is passed, it can take optional keyword arguments `column`,
             `bound_column` and `table`.
         order_by (str, tuple or `.Accessor`): Allows one or more accessors to be
             used for ordering rather than *accessor*.
@@ -222,14 +222,14 @@ class Column(object):
 
     def order(self, queryset, is_descending):
         '''
-        Returns the queryset of the table.
+        Returns the QuerySet of the table.
 
         This method can be overridden by :ref:`table.order_FOO` methods on the
         table or by subclassing `.Column`; but only overrides if second element
         in return tuple is True.
 
         returns:
-            Tuple (queryset, boolean)
+            Tuple (QuerySet, boolean)
         '''
         return (queryset, False)
 
@@ -502,15 +502,15 @@ class BoundColumn(object):
 
         In order of preference, this will return:
           1) The column's explicitly defined `verbose_name`
-          2) The titlised model's `verbose_name` (if applicable)
-          3) Fallback to the titlised column name.
+          2) The model's `verbose_name` with the first letter capitalized (if applicable)
+          3) Fall back to the column name, with first letter capitalized.
 
         Any `verbose_name` that was not passed explicitly in the column
-        definition is returned titlised in keeping with the Django convention
-        of `verbose_name` being defined in lowercase and uppercased/titlised
-        as needed by the application.
+        definition is returned with the first character capitalized in keeping
+        with the Django convention of `verbose_name` being defined in lowercase and
+        uppercased as needed by the application.
 
-        If the table is using queryset data, then use the corresponding model
+        If the table is using `QuerySet` data, then use the corresponding model
         field's `~.db.Field.verbose_name`. If it's traversing a relationship,
         then get the last field in the accessor (i.e. stop when the
         relationship turns from ORM relationships to object attributes [e.g.
@@ -520,7 +520,7 @@ class BoundColumn(object):
         if self.column.verbose_name is not None:
             return self.column.verbose_name
 
-        # This is our reasonable fallback, should the next section not result
+        # This is our reasonable fall back, should the next section not result
         # in anything useful.
         name = self.name.replace('_', ' ')
 
@@ -567,7 +567,7 @@ class BoundColumns(object):
     A `BoundColumns` object is a container for holding `BoundColumn` objects.
     It provides methods that make accessing columns easier than if they were
     stored in a `list` or `dict`. `Columns` has a similar API to a `dict` (it
-    actually uses a `~collections.OrderedDict` interally).
+    actually uses a `~collections.OrderedDict` internally).
 
     At the moment you'll only come across this class when you access a
     `.Table.columns` property.
@@ -594,7 +594,7 @@ class BoundColumns(object):
     def iterall(self):
         '''
         Return an iterator that exposes all `.BoundColumn` objects,
-        regardless of visiblity or sortability.
+        regardless of visibility or sortability.
         '''
         return (column for name, column in self.iteritems())
 

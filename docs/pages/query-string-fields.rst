@@ -1,12 +1,12 @@
 .. _query-string-fields:
 
-Querystring fields
-==================
+Query string fields
+===================
 
-Tables pass data via the querystring to indicate ordering and pagination
+Tables pass data via the query string to indicate ordering and pagination
 preferences.
 
-The names of the querystring variables are configurable via the options:
+The names of the query string variables are configurable via the options:
 
 - ``order_by_field`` -- default: ``'sort'``
 - ``page_field`` -- default: ``'page'``
