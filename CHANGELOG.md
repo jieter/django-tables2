@@ -2,7 +2,7 @@
 
 ## 2.0.0a3 (2018-05-24)
 Hello from [DjangoCon Europe](https://2018.djangocon.eu/)!
-- Fix table prefix being overwritten in multi table view, [#576](https://github.com/jieter/django-tables2/pull/576) by [@ETinLV](https://github.com/ETinLV), (fixes [#572](https://github.com/jieter/django-tables2/issues/572))
+- Fix table prefix being overwritten in `MultiTableView`, [#576](https://github.com/jieter/django-tables2/pull/576) by [@ETinLV](https://github.com/ETinLV), (fixes [#572](https://github.com/jieter/django-tables2/issues/572))
  - Fix `empty_text` cannot be translated (fixes [#579](https://github.com/jieter/django-tables2/issues/579))
 
 ## 2.0.0a2 (2018-04-13)
@@ -99,7 +99,7 @@ This is the last version supporting Django 1.8, 1.9 and 1.10. Django 1.8 is only
  - Made positional `data` argument to the table `__init__()` a keyword argument to make inheritance easier. Will raise a `TypeError` if omitted.
 
 ## 1.12.0 (2017-10-10)
- - Allow export filename customization [#484](https://github.com/bradleyayers/django-tables2/pull/484) by [@federicobond](https://github.com/federicobond)
+ - Allow export file name customization [#484](https://github.com/bradleyayers/django-tables2/pull/484) by [@federicobond](https://github.com/federicobond)
  - Fixed a bug where template columns were not rendered for pinned rows ([#483](https://github.com/bradleyayers/django-tables2/pull/483) by [@khirstinova](https://github.com/khirstinova), fixes [#482](https://github.com/bradleyayers/django-tables2/issues/482))
 
 ## 1.11.0 (2017-09-15)

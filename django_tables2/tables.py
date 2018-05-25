@@ -193,7 +193,7 @@ class TableBase(object):
         empty_text (str): Empty text to render when the table has no data.
             (default `.Table.Meta.empty_text`)
 
-        exclude (iterable or str): The names of columns that shouldn't be
+        exclude (iterable or str): The names of columns that should not be
             included in the table.
 
         attrs (dict): HTML attributes to add to the ``<table>`` tag.
@@ -211,7 +211,7 @@ class TableBase(object):
 
             Items in the sequence must be :term:`column names <column name>`, or
             `'...'` (string containing three periods). `'...'` can be used as a
-            catch-all for columns that aren't specified.
+            catch-all for columns that are not specified.
 
         prefix (str): A prefix for query string fields.
             To avoid name-clashes when  using multiple tables on single page.

@@ -11,7 +11,7 @@ The names of the query string variables are configurable via the options:
 - ``order_by_field`` -- default: ``'sort'``
 - ``page_field`` -- default: ``'page'``
 - ``per_page_field`` -- default: ``'per_page'``, **note:** this field currently
-  isn't used by ``{% render_table %}``
+  is not used by ``{% render_table %}``
 
 Each of these can be specified in three places:
 
@@ -19,7 +19,7 @@ Each of these can be specified in three places:
 - ``Table(..., foo=...)``
 - ``Table(...).foo = ...``
 
-If you're using multiple tables on a single page, you'll want to prefix these
+If you are using multiple tables on a single page, you will want to prefix these
 fields with a table-specific name, in order to prevent links on one table
 interfere with those on another table::
 

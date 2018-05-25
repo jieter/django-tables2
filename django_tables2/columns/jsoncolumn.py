@@ -38,7 +38,7 @@ class JSONColumn(BaseLinkColumn):
         attrs (dict): In addition to *attrs* keys supported by `~.Column`, the
             following are available:
 
-             - *pre* -- ``<pre>`` around the rendered JSON string in ``<td>`` elements.
+             - ``pre`` -- ``<pre>`` around the rendered JSON string in ``<td>`` elements.
 
     '''
     def __init__(self, json_dumps_kwargs=None, **kwargs):

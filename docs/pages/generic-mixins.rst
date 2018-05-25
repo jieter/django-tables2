@@ -52,7 +52,7 @@ The template could then be as simple as:
 
 Such little code is possible due to the example above taking advantage of
 default values and `.SingleTableMixin`'s eagerness at finding data sources
-when one isn't explicitly defined.
+when one is not explicitly defined.
 
 .. note::
 

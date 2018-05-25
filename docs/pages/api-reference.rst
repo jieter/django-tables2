@@ -207,7 +207,7 @@ API Reference
         in the Table) to be overridden.
 
         The special item `'...'` can be used as a placeholder that will be
-        replaced with all the columns that weren't explicitly listed. This
+        replaced with all the columns that were not explicitly listed. This
         allows you to add columns to the front or back when using inheritance.
 
         Example::
@@ -223,7 +223,7 @@ API Reference
             ['last_name', 'first_name']
 
         The ``'...'`` item can be used at most once in the sequence value. If
-        it's not used, every column *must* be explicitly included. e.g. in the
+        it is not used, every column *must* be explicitly included. For example in the
         above example, ``sequence = ('last_name', )`` would be **invalid**
         because neither ``'...'`` or ``'first_name'`` were included.
 
@@ -247,7 +247,7 @@ API Reference
 
         .. note::
 
-            This functionality is also available via the *template_name* keyword
+            This functionality is also available via the ``template_name`` keyword
             argument to a table's constructor.
 
 

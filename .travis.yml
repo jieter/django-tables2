@@ -13,8 +13,7 @@ addons:
     apt:
        packages:
            - enchant
-           - myspell-de-de
-           - aspell-en
+           - myspell-en-us
            - myspell-fr
            - myspell-nl
 

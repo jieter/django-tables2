@@ -3,9 +3,9 @@
 Populating a table with data
 ============================
 
-Tables can be created from a range of input data structures. If you've seen the
-tutorial you'll have seen a QuerySet being used, however any iterable that
-supports :func:`len` and contains items that expose key-based access to column
+Tables can be created from a range of input data structures. If you have seen the
+tutorial you will have seen a ``QuerySet`` being used, however any iterable that
+supports :func:`len` and contains items that exposes key-based access to column
 values is fine.
 
 

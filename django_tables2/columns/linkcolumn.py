@@ -17,10 +17,10 @@ class BaseLinkColumn(Column):
         text (str or callable): If set, this value will be used to render the
             text inside link instead of value. The callable gets the record
             being rendered as argument.
-        attrs (dict): In addition to *attrs* keys supported by `~.Column`, the
+        attrs (dict): In addition to ``attrs`` keys supported by `~.Column`, the
             following are available:
 
-             - *a* -- ``<a>`` in ``<td>`` elements.
+             - `a` -- ``<a>`` in ``<td>`` elements.
     '''
     def __init__(self, attrs=None, text=None, *args, **kwargs):
         kwargs['attrs'] = attrs
@@ -43,8 +43,7 @@ class BaseLinkColumn(Column):
                 by ``self.text``
             attrs (dict): ``<a>`` tag attributes
         '''
-        attrs = AttributeDict(attrs if attrs is not None else
-                              self.attrs.get('a', {}))
+        attrs = AttributeDict(attrs if attrs is not None else self.attrs.get('a', {}))
         attrs['href'] = uri
 
         return format_html(
@@ -132,7 +131,7 @@ class LinkColumn(BaseLinkColumn):
     In addition to *attrs* keys supported by `.Column`, the following are
     available:
 
-    - *a* -- ``<a>`` elements in ``<td>``.
+    - `a` -- ``<a>`` elements in ``<td>``.
 
     Adding attributes to the ``<a>``-tag looks like this::
 
