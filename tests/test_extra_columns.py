@@ -151,11 +151,11 @@ class DynamicColumnsTest(TestCase):
         self.assertRegex(html, re_Country)
 
     def test_sequence_and_extra_columns(self):
-        '''
+        """
         https://github.com/jieter/django-tables2/issues/486
 
         The exact moment the '...' is expanded is crucial here.
-        '''
+        """
 
         add_occupation_column = True
 
@@ -182,3 +182,18 @@ class DynamicColumnsTest(TestCase):
         add_occupation_column = False
         table = MyTable(Person.objects.all())
         self.assertEqual([c.name for c in table.columns], ['first_name', 'friends'])
+
+    def test_change_attributes(self):
+        """
+        https://github.com/jieter/django-tables2/issues/574
+        """
+
+        class Table(tables.Table):
+            mycolumn = tables.Column(orderable=False)
+
+            def __init__(self, *args, **kwargs):
+                self.base_columns['mycolumn'].verbose_name = 'Monday'
+                super(Table, self).__init__(*args, **kwargs)
+
+        table = Table([])
+        self.assertEqual(table.columns['mycolumn'].verbose_name, 'Monday')
