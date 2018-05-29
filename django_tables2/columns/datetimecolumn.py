@@ -12,7 +12,7 @@ from .templatecolumn import TemplateColumn
 @library.register
 class DateTimeColumn(TemplateColumn):
     '''
-    A column that renders datetimes in the local timezone.
+    A column that renders `datetime` instances in the local timezone.
 
     Arguments:
         format (str): format string for datetime (optional).

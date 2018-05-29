@@ -76,7 +76,7 @@ Template name                            Description
 django_tables2/table.html                Basic table template (default).
 django_tables2/bootstrap.html            Template using bootstrap 3 structure/classes
 django_tables2/bootstrap4.html           Template using bootstrap 4 structure/classes
-django_tables2/bootstrap-responsive.html Same as boostrap, but wrapped in ``.table-responsive``
+django_tables2/bootstrap-responsive.html Same as bootstrap, but wrapped in ``.table-responsive``
 django_tables2/semantic.html             Template using semantic UI
 ======================================== ======================================================
 

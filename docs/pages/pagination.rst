@@ -18,7 +18,7 @@ If you're using `.RequestConfig`, pass pagination options to the constructor::
         RequestConfig(request, paginate={'per_page': 25}).configure(table)
         return render(request, 'people_listing.html', {'table': table})
 
-If you're using a cbv mixin, specify paginate_by in your class::
+If you're using a class based view mixin, specify ``paginate_by`` in your class::
 
     class PeopleCBV(SingleTableView):
         paginate_by = 10

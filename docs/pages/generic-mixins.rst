@@ -13,7 +13,7 @@ template.
 
 The following view parameters are supported:
 
-- ``table_class`` –- the table class to use, e.g. ``SimpleTable``, if not specfied
+- ``table_class`` –- the table class to use, e.g. ``SimpleTable``, if not specified
   and ``model`` is provided, a default table will be created on-the-fly.
 - ``table_data`` (or ``get_table_data()``) -- the data used to populate the table
 - ``context_table_name`` -- the name of template variable containing the table object
@@ -52,7 +52,7 @@ The template could then be as simple as:
 
 Such little code is possible due to the example above taking advantage of
 default values and `.SingleTableMixin`'s eagerness at finding data sources
-when one isn't explicitly defined.
+when one is not explicitly defined.
 
 .. note::
 

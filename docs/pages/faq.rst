@@ -41,8 +41,8 @@ which should be pretty clear, but here is an example template configuration anyw
 How to create a row counter?
 ----------------------------
 
-You can use `itertools.counter` to add row count to a table. Note that in a
-paginated table, every page's counter will start at zero.
+You can use ``itertools.counter`` to add row count to a table. Note that in a
+paginated table, every page's counter will start at zero::
 
     class CountryTable(tables.Table):
         counter = tables.TemplateColumn('{{ row_counter }}')

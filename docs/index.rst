@@ -6,8 +6,8 @@ django-tables2 - An app for creating HTML tables
 
 Its features include:
 
-- Any iterable can be a data-source, but special support for Django querysets is included.
-- The builtin UI does not rely on JavaScript.
+- Any iterable can be a data-source, but special support for Django QuerySets is included.
+- The built in UI does not rely on JavaScript.
 - Support for automatic table generation based on a Django model.
 - Supports custom column functionality via subclassing.
 - Pagination.
@@ -37,7 +37,7 @@ Table of contents
 
 .. toctree::
     :maxdepth: 1
-    :caption: Customisation
+    :caption: Customization
 
     pages/custom-data
     pages/ordering

@@ -23,7 +23,7 @@ def ucfirst(s):
 
 
 class Sequence(list):
-    '''
+    '''x
     Represents a column sequence, e.g. ``('first_name', '...', 'last_name')``
 
     This is used to represent `.Table.Meta.sequence` or the `.Table`
@@ -31,7 +31,7 @@ class Sequence(list):
 
     The sequence must be a list of column names and is used to specify the
     order of the columns on a table. Optionally a '...' item can be inserted,
-    which is treated as a *catch-all* for column names that aren't explicitly
+    which is treated as a *catch-all* for column names that are not explicitly
     specified.
     '''
     def expand(self, columns):
@@ -73,8 +73,9 @@ class Sequence(list):
 
 class OrderBy(str):
     '''
-    A single item in an `.OrderByTuple` object. This class is essentially just
-    a `str` with some extra properties.
+    A single item in an `.OrderByTuple` object.
+
+    This class is essentially just a `str` with some extra properties.
     '''
 
     QUERYSET_SEPARATOR = '__'
@@ -96,7 +97,7 @@ class OrderBy(str):
     @property
     def opposite(self):
         '''
-        Provides the opposite of the current sorting directon.
+        Provides the opposite of the current sorting direction.
 
         Returns:
             `.OrderBy`: object with an opposite sort influence.
@@ -135,9 +136,9 @@ class OrderBy(str):
 @six.python_2_unicode_compatible
 class OrderByTuple(tuple):
     '''
-    Stores ordering as (as `.OrderBy` objects). The `~.Table.order_by` property
-    is always converted to an `.OrderByTuple` object.
+    Stores ordering as (as `.OrderBy` objects).
 
+    The `~.Table.order_by` property is always converted to an `.OrderByTuple` object.
     This class is essentially just a `tuple` with some useful extras.
 
     Example::
@@ -263,7 +264,7 @@ class OrderByTuple(tuple):
 
     def get(self, key, fallback):
         '''
-        Identical to __getitem__, but supports fallback value.
+        Identical to `__getitem__`, but supports fallback value.
         '''
         try:
             return self[key]

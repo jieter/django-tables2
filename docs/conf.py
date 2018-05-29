@@ -39,6 +39,7 @@ extensions = [
     'sphinx.ext.napoleon',
     'sphinx.ext.viewcode',
     'sphinx.ext.doctest',
+    'sphinxcontrib.spelling',
 ]
 
 intersphinx_mapping = {
@@ -52,3 +53,18 @@ master_doc = 'index'
 html_theme = 'sphinx_rtd_theme'
 html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 html_static_path = ['_static']
+
+# -- Options for Spelling output ------------------------------------------
+
+# String specifying the language, as understood by PyEnchant and enchant.
+# Defaults to en_US for US English.
+spelling_lang = 'en_US'
+
+# String specifying a file containing a list of words known to be spelled
+# correctly but that do not appear in the language dictionary selected by
+# spelling_lang. The file should contain one word per line.
+spelling_word_list_filename = 'spelling_wordlist.txt'
+
+# Boolean controlling whether suggestions for misspelled words are printed.
+# Defaults to False.
+spelling_show_suggestions = True

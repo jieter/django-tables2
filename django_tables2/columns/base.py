@@ -66,9 +66,9 @@ class Column(object):
 
             By default `.Column` supports:
 
-             - *th* -- ``table/thead/tr/th`` elements
-             - *td* -- ``table/tbody/tr/td`` elements
-             - *cell* -- fallback if *th* or *td* isn't defined
+             - ``th`` -- ``table/thead/tr/th`` elements
+             - ``td`` -- ``table/tbody/tr/td`` elements
+             - ``cell`` -- fallback if ``th`` or ``td`` is not defined
         accessor (str or `~.Accessor`): An accessor that describes how to
             extract values for this column from the :term:`table data`.
         default (str or callable): The default value for the column. This can be
@@ -85,7 +85,7 @@ class Column(object):
         exclude_from_export (bool): If `True`, this column will not be added to
             the data iterator returned from as_values().
         footer (str, callable): Defines the footer of this column. If a callable
-            is passed, it can take optional keyword argumetns `column`,
+            is passed, it can take optional keyword arguments `column`,
             `bound_column` and `table`.
         order_by (str, tuple or `.Accessor`): Allows one or more accessors to be
             used for ordering rather than *accessor*.
@@ -159,10 +159,10 @@ class Column(object):
 
         .. note::
 
-            This property typically isn't accessed directly when a table is
+            This property typically is not accessed directly when a table is
             rendered. Instead, `.BoundColumn.header` is accessed which in turn
             accesses this property. This allows the header to fallback to the
-            column name (it's only available on a `.BoundColumn` object hence
+            column name (it is only available on a `.BoundColumn` object hence
             accessing that first) when this property doesn't return something
             useful.
         '''
@@ -222,14 +222,14 @@ class Column(object):
 
     def order(self, queryset, is_descending):
         '''
-        Returns the queryset of the table.
+        Returns the QuerySet of the table.
 
         This method can be overridden by :ref:`table.order_FOO` methods on the
         table or by subclassing `.Column`; but only overrides if second element
         in return tuple is True.
 
         returns:
-            Tuple (queryset, boolean)
+            Tuple (QuerySet, boolean)
         '''
         return (queryset, False)
 
@@ -243,11 +243,11 @@ class Column(object):
         Returns:
             `.Column` object or `None`
 
-        If the column isn't specialised for the given model field, it should
+        If the column is not specialised for the given model field, it should
         return `None`. This gives other columns the opportunity to do better.
 
         If the column is specialised, it should return an instance of itself
-        that's configured appropriately for the field.
+        that is configured appropriately for the field.
         '''
         # Since this method is inherited by every subclass, only provide a
         # column if this class was asked directly.
@@ -303,7 +303,7 @@ class BoundColumn(object):
         Proxy to `.Column.attrs` but injects some values of our own.
 
         A ``th``, ``td`` and ``tf`` are guaranteed to be defined (irrespective
-        of what's actually defined in the column attrs. This makes writing
+        of what is actually defined in the column attrs. This makes writing
         templates easier. ``tf`` is not actually a HTML tag, but this key name
         will be used for attributes for column's footer, if the column has one.
         '''
@@ -442,7 +442,7 @@ class BoundColumn(object):
 
         Having an alias *and* a keys version is necessary because an N-tuple
         (of data source keys) can be used by the column to order the data, and
-        it's ambiguous when mapping from N-tuple to column (since multiple
+        it is ambiguous when mapping from N-tuple to column (since multiple
         columns could use the same N-tuple).
 
         The solution is to use order by *aliases* (which are really just
@@ -463,7 +463,7 @@ class BoundColumn(object):
 
         The `OrderBy` returned has been patched to include an extra attribute
         ``next``, which returns a version of the alias that would be
-        transitioned to if the user toggles sorting on this column, e.g.::
+        transitioned to if the user toggles sorting on this column, for example::
 
             not sorted -> ascending
             ascending  -> descending
@@ -502,16 +502,16 @@ class BoundColumn(object):
 
         In order of preference, this will return:
           1) The column's explicitly defined `verbose_name`
-          2) The titlised model's `verbose_name` (if applicable)
-          3) Fallback to the titlised column name.
+          2) The model's `verbose_name` with the first letter capitalized (if applicable)
+          3) Fall back to the column name, with first letter capitalized.
 
         Any `verbose_name` that was not passed explicitly in the column
-        definition is returned titlised in keeping with the Django convention
-        of `verbose_name` being defined in lowercase and uppercased/titlised
-        as needed by the application.
+        definition is returned with the first character capitalized in keeping
+        with the Django convention of `verbose_name` being defined in lowercase and
+        uppercased as needed by the application.
 
-        If the table is using queryset data, then use the corresponding model
-        field's `~.db.Field.verbose_name`. If it's traversing a relationship,
+        If the table is using `QuerySet` data, then use the corresponding model
+        field's `~.db.Field.verbose_name`. If it is traversing a relationship,
         then get the last field in the accessor (i.e. stop when the
         relationship turns from ORM relationships to object attributes [e.g.
         person.upper should stop at person]).
@@ -520,7 +520,7 @@ class BoundColumn(object):
         if self.column.verbose_name is not None:
             return self.column.verbose_name
 
-        # This is our reasonable fallback, should the next section not result
+        # This is our reasonable fall back, should the next section not result
         # in anything useful.
         name = self.name.replace('_', ' ')
 
@@ -567,7 +567,7 @@ class BoundColumns(object):
     A `BoundColumns` object is a container for holding `BoundColumn` objects.
     It provides methods that make accessing columns easier than if they were
     stored in a `list` or `dict`. `Columns` has a similar API to a `dict` (it
-    actually uses a `~collections.OrderedDict` interally).
+    actually uses a `~collections.OrderedDict` internally).
 
     At the moment you'll only come across this class when you access a
     `.Table.columns` property.
@@ -594,7 +594,7 @@ class BoundColumns(object):
     def iterall(self):
         '''
         Return an iterator that exposes all `.BoundColumn` objects,
-        regardless of visiblity or sortability.
+        regardless of visibility or sortability.
         '''
         return (column for name, column in self.iteritems())
 

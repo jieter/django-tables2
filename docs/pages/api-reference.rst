@@ -83,9 +83,9 @@ API Reference
                         attrs = {'class': 'paleblue'}
 
             If you supply a a callable as a value in the dict, it will be called
-            at table instatiation an de returned value will be used:
+            at table instantiation an the returned value will be used:
 
-            Consider this example where each table gets an unieque ``"id"``
+            Consider this example where each table gets an unique ``"id"``
             attribute::
 
                 import itertools
@@ -133,7 +133,7 @@ API Reference
                 This functionality is also available via the ``empty_text`` keyword
                 argument to a table's constructor.
 
-        show_header (bool): Wether or not to show the table header.
+        show_header (bool): Whether or not to show the table header.
             Defines whether the table header should be displayed or not, by
             default, the header shows the column names.
 
@@ -142,7 +142,7 @@ API Reference
                 This functionality is also available via the ``show_header``
                 keyword argument to a table's constructor.
 
-        exclude (typle): Exclude columns from the table.
+        exclude (tuple): Exclude columns from the table.
             This is useful in subclasses to exclude columns in a parent::
 
                 >>> class Person(tables.Table):
@@ -207,7 +207,7 @@ API Reference
         in the Table) to be overridden.
 
         The special item `'...'` can be used as a placeholder that will be
-        replaced with all the columns that weren't explicitly listed. This
+        replaced with all the columns that were not explicitly listed. This
         allows you to add columns to the front or back when using inheritance.
 
         Example::
@@ -223,7 +223,7 @@ API Reference
             ['last_name', 'first_name']
 
         The ``'...'`` item can be used at most once in the sequence value. If
-        it's not used, every column *must* be explicitly included. e.g. in the
+        it is not used, every column *must* be explicitly included. For example in the
         above example, ``sequence = ('last_name', )`` would be **invalid**
         because neither ``'...'`` or ``'first_name'`` were included.
 
@@ -234,7 +234,7 @@ API Reference
 
     orderable (bool): Default value for column's *orderable* attribute.
         If the table and column don't specify a value, a column's ``orderable``
-        value will fallback to this. This provides an easy mechanism to disable
+        value will fall back to this. This provides an easy mechanism to disable
         ordering on an entire table, without adding ``orderable=False`` to each
         column in a table.
 
@@ -247,7 +247,7 @@ API Reference
 
         .. note::
 
-            This functionality is also available via the *template_name* keyword
+            This functionality is also available via the ``template_name`` keyword
             argument to a table's constructor.
 
 

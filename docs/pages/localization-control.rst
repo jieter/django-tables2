@@ -29,10 +29,10 @@ to `True` or `False`. Like so::
 
 .. note::
     The default value of the `localize` attribute is `None` which means the formatting
-    of columns is dependant from the `USE_L10N` setting.
+    of columns is depending on the `USE_L10N` setting.
 
 The second way is to define a `~.Table.Meta.localize` and/or `~.Table.Meta.unlocalize`
-tuples in your tables Meta class (jutst like with `~.Table.Meta.fields`
+tuples in your tables Meta class (like with `~.Table.Meta.fields`
 or `~.Table.Meta.exclude`). You can do this like so::
 
      class PersonTable(tables.Table):

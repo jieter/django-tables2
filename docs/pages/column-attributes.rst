@@ -85,7 +85,7 @@ Row attributes
 Row attributes can be specified using a dict defining the HTML attributes for
 the ``<tr>`` element on each row. The values of the dict may be
 
-By default, class names *odd* and *even* are supplied to the rows, wich can be
+By default, class names *odd* and *even* are supplied to the rows, which can be
 customized using the ``row_attrs`` `.Table.Meta` attribute or as argument to the
 constructor of `.Table`. String-like values will just be added,
 callables will be called with optional keyword argument `record`, the return value

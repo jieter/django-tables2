@@ -22,7 +22,7 @@ The basis of a filtered table is a `SingleTableMixin` combined with a
         filterset_class = PersonFilter
 
 
-The filterset is added to the template context in a ``filter`` variable by
+The ``FilterSet`` is added to the template context in a ``filter`` variable by
 default. A basic template rendering the filter (using django-bootstrap3) and
 table looks like this::
 
