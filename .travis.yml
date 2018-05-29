@@ -1,3 +1,5 @@
+dist: trusty
+sudo: false
 language: python
 
 python:
@@ -15,6 +17,7 @@ addons:
            - enchant
            - myspell-en-us
            - myspell-fr
+           - myspell-de-de
            - myspell-nl
 
 script:

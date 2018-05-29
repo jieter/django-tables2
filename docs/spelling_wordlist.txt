@@ -56,7 +56,7 @@ Sapovits
 screenshots
 sortability
 subclassing
-subclassing
+subclasses
 truthy
 tsv
 tuple
@@ -70,3 +70,4 @@ whitespace
 xls
 xlsx
 yml
+th
