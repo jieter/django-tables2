@@ -14,8 +14,8 @@ from django_tables2 import MultiTableMixin, RequestConfig, SingleTableMixin, Sin
 from .data import COUNTRIES
 from .filters import PersonFilter
 from .models import Country, Person
-from .tables import (Bootstrap4Table, BootstrapTable, BootstrapTablePinnedRows, CountryTable, PersonTable,
-                     SemanticTable, ThemedCountryTable)
+from .tables import (Bootstrap4Table, BootstrapTable, BootstrapTablePinnedRows, CheckboxTable, CountryTable,
+                     PersonTable, SemanticTable, ThemedCountryTable)
 
 
 def create_fake_data():
@@ -80,6 +80,16 @@ def multiple(request):
         'example3': example3,
         'example4': example4,
         'example5': example5,
+    })
+
+
+def checkbox(request):
+    create_fake_data()
+    table = CheckboxTable(Country.objects.all(), order_by='name')
+    RequestConfig(request, paginate={'per_page': 15}).configure(table)
+
+    return render(request, 'checkbox_example.html', {
+        'table': table
     })
 
 

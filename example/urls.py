@@ -4,8 +4,8 @@ from django.conf.urls import include, url
 from django.contrib import admin
 from django.views import static
 
-from app.views import (ClassBased, FilteredPersonListView, MultipleTables, bootstrap, bootstrap4, country_detail, index,
-                       multiple, semantic, tutorial)
+from app.views import (ClassBased, FilteredPersonListView, MultipleTables, bootstrap, bootstrap4, checkbox,
+                       country_detail, index, multiple, semantic, tutorial)
 
 urlpatterns = [
     url(r'^$', index),
@@ -13,6 +13,7 @@ urlpatterns = [
     url(r'^class-based/$', ClassBased.as_view(), name='singletableview'),
     url(r'^class-based-multiple/$', MultipleTables.as_view(), name='multitableview'),
     url(r'^class-based-filtered/$', FilteredPersonListView.as_view(), name='filtertableview'),
+    url(r'^checkbox/$', checkbox, name='checkbox'),
 
     url(r'^tutorial/$', tutorial, name='tutorial'),
     url(r'^bootstrap/$', bootstrap, name='bootstrap'),

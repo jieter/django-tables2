@@ -22,6 +22,17 @@ class ThemedCountryTable(CountryTable):
         attrs = {'class': 'paleblue'}
 
 
+class CheckboxTable(tables.Table):
+    select = tables.CheckBoxColumn(empty_values=(), footer='')
+
+    population = tables.Column(attrs={'cell': {'class': 'population'}})
+
+    class Meta:
+        model = Country
+        template_name = 'django_tables2/bootstrap.html'
+        fields = ('select', 'name', 'population')
+
+
 class BootstrapTable(tables.Table):
 
     country = tables.RelatedLinkColumn()
