@@ -11,7 +11,7 @@ from .base import Column, library
 
 @library.register
 class TemplateColumn(Column):
-    '''
+    """
     A subclass of `.Column` that renders some template code to use as
     the cell value.
 
@@ -40,7 +40,8 @@ class TemplateColumn(Column):
                                         extra_context={'label': 'Label'})
 
     Both columns will have the same output.
-    '''
+    """
+
     empty_values = ()
 
     def __init__(self, template_code=None, template_name=None, extra_context=None, **extra):
@@ -50,20 +51,22 @@ class TemplateColumn(Column):
         self.extra_context = extra_context or {}
 
         if not self.template_code and not self.template_name:
-            raise ValueError('A template must be provided')
+            raise ValueError("A template must be provided")
 
     def render(self, record, table, value, bound_column, **kwargs):
         # If the table is being rendered using `render_table`, it hackily
         # attaches the context to the table as a gift to `TemplateColumn`.
-        context = getattr(table, 'context', Context())
+        context = getattr(table, "context", Context())
         context.update(self.extra_context)
-        context.update({
-            'default': bound_column.default,
-            'column': bound_column,
-            'record': record,
-            'value': value,
-            'row_counter': kwargs['bound_row'].row_counter
-        })
+        context.update(
+            {
+                "default": bound_column.default,
+                "column": bound_column,
+                "record": record,
+                "value": value,
+                "row_counter": kwargs["bound_row"].row_counter,
+            }
+        )
 
         try:
             if self.template_code:
@@ -74,10 +77,10 @@ class TemplateColumn(Column):
             context.pop()
 
     def value(self, **kwargs):
-        '''
+        """
         The value returned from a call to `value()` on a `TemplateColumn` is
         the rendered template with `django.utils.html.strip_tags` applied.
-        '''
+        """
         html = super(TemplateColumn, self).value(**kwargs)
         if isinstance(html, six.string_types):
             return strip_tags(html)

@@ -12,6 +12,7 @@ from .linkcolumn import BaseLinkColumn
 
 try:
     from django.contrib.postgres.fields import HStoreField, JSONField
+
     POSTGRES_AVAILABLE = True
 except ImportError:
     # psycopg2 is not available, cannot import from django.contrib.postgres.
@@ -21,7 +22,7 @@ except ImportError:
 
 @library.register
 class JSONColumn(BaseLinkColumn):
-    '''
+    """
     Render the contents of `~django.contrib.postgres.fields.JSONField` or
     `~django.contrib.postgres.fields.HStoreField` as an indented string.
 
@@ -40,17 +41,20 @@ class JSONColumn(BaseLinkColumn):
 
              - ``pre`` -- ``<pre>`` around the rendered JSON string in ``<td>`` elements.
 
-    '''
+    """
+
     def __init__(self, json_dumps_kwargs=None, **kwargs):
-        self.json_dumps_kwargs = json_dumps_kwargs if json_dumps_kwargs is not None else {'indent': 2}
+        self.json_dumps_kwargs = (
+            json_dumps_kwargs if json_dumps_kwargs is not None else {"indent": 2}
+        )
 
         super(JSONColumn, self).__init__(**kwargs)
 
     def render(self, record, value):
         return format_html(
-            '<pre {}>{}</pre>',
-            AttributeDict(self.attrs.get('pre', {})).as_html(),
-            json.dumps(value, **self.json_dumps_kwargs)
+            "<pre {}>{}</pre>",
+            AttributeDict(self.attrs.get("pre", {})).as_html(),
+            json.dumps(value, **self.json_dumps_kwargs),
         )
 
     @classmethod

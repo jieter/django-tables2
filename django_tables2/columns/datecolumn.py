@@ -11,7 +11,7 @@ from .templatecolumn import TemplateColumn
 
 @library.register
 class DateColumn(TemplateColumn):
-    '''
+    """
     A column that renders dates in the local timezone.
 
     Arguments:
@@ -19,10 +19,11 @@ class DateColumn(TemplateColumn):
                       filter (optional)
         short (bool): if `format` is not specified, use Django's
                       ``SHORT_DATE_FORMAT`` setting, otherwise use ``DATE_FORMAT``
-    '''
+    """
+
     def __init__(self, format=None, short=True, *args, **kwargs):
         if format is None:
-            format = 'SHORT_DATE_FORMAT' if short else 'DATE_FORMAT'
+            format = "SHORT_DATE_FORMAT" if short else "DATE_FORMAT"
         template = '{{ value|date:"%s"|default:default }}' % format
         super(DateColumn, self).__init__(template_code=template, *args, **kwargs)
 

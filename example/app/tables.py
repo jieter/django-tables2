@@ -9,9 +9,9 @@ from .models import Country, Person
 class CountryTable(tables.Table):
     name = tables.Column()
     population = tables.Column()
-    tz = tables.Column(verbose_name='time zone')
+    tz = tables.Column(verbose_name="time zone")
     visits = tables.Column()
-    summary = tables.Column(order_by=('name', 'population'))
+    summary = tables.Column(order_by=("name", "population"))
 
     class Meta:
         model = Country
@@ -19,41 +19,41 @@ class CountryTable(tables.Table):
 
 class ThemedCountryTable(CountryTable):
     class Meta:
-        attrs = {'class': 'paleblue'}
+        attrs = {"class": "paleblue"}
 
 
 class CheckboxTable(tables.Table):
-    select = tables.CheckBoxColumn(empty_values=(), footer='')
+    select = tables.CheckBoxColumn(empty_values=(), footer="")
 
-    population = tables.Column(attrs={'cell': {'class': 'population'}})
+    population = tables.Column(attrs={"cell": {"class": "population"}})
 
     class Meta:
         model = Country
-        template_name = 'django_tables2/bootstrap.html'
-        fields = ('select', 'name', 'population')
+        template_name = "django_tables2/bootstrap.html"
+        fields = ("select", "name", "population")
 
 
 class BootstrapTable(tables.Table):
 
     country = tables.RelatedLinkColumn()
-    continent = tables.Column(accessor='country.continent.name', verbose_name='Continent')
+    continent = tables.Column(accessor="country.continent.name", verbose_name="Continent")
 
     class Meta:
         model = Person
-        template_name = 'django_tables2/bootstrap.html'
-        exclude = ('friendly', )
+        template_name = "django_tables2/bootstrap.html"
+        exclude = ("friendly",)
 
 
 class BootstrapTablePinnedRows(BootstrapTable):
-
     class Meta(BootstrapTable.Meta):
-        pinned_row_attrs = {
-            'class': 'info'
-        }
+        pinned_row_attrs = {"class": "info"}
 
     def get_top_pinned_data(self):
         return [
-            {'name': 'Most used country: ', 'country': Country.objects.filter(name='Cameroon').first()}
+            {
+                "name": "Most used country: ",
+                "country": Country.objects.filter(name="Cameroon").first(),
+            }
         ]
 
 
@@ -63,9 +63,9 @@ class Bootstrap4Table(tables.Table):
 
     class Meta:
         model = Person
-        template_name = 'django_tables2/bootstrap4.html'
-        attrs = {'class': 'table table-hover'}
-        exclude = ('friendly', )
+        template_name = "django_tables2/bootstrap4.html"
+        attrs = {"class": "table table-hover"}
+        exclude = ("friendly",)
 
 
 class SemanticTable(tables.Table):
@@ -74,8 +74,8 @@ class SemanticTable(tables.Table):
 
     class Meta:
         model = Person
-        template_name = 'django_tables2/semantic.html'
-        exclude = ('friendly', )
+        template_name = "django_tables2/semantic.html"
+        exclude = ("friendly",)
 
 
 class PersonTable(tables.Table):
@@ -83,4 +83,4 @@ class PersonTable(tables.Table):
 
     class Meta:
         model = Person
-        template_name = 'django_tables2/bootstrap.html'
+        template_name = "django_tables2/bootstrap.html"

@@ -14,43 +14,35 @@ from django.utils.translation import ugettext, ugettext_lazy
 class Person(models.Model):
     first_name = models.CharField(max_length=200)
 
-    last_name = models.CharField(max_length=200, verbose_name='surname')
+    last_name = models.CharField(max_length=200, verbose_name="surname")
 
     occupation = models.ForeignKey(
-        'Occupation',
-        related_name='people',
+        "Occupation",
+        related_name="people",
         null=True,
-        verbose_name='occupation of the person',
-        on_delete=models.CASCADE
+        verbose_name="occupation of the person",
+        on_delete=models.CASCADE,
     )
 
     trans_test = models.CharField(
-        max_length=200, blank=True,
-        verbose_name=ugettext("translation test"))
+        max_length=200, blank=True, verbose_name=ugettext("translation test")
+    )
 
     trans_test_lazy = models.CharField(
-        max_length=200, blank=True,
-        verbose_name=ugettext_lazy("translation test lazy"))
+        max_length=200, blank=True, verbose_name=ugettext_lazy("translation test lazy")
+    )
 
-    safe = models.CharField(
-        max_length=200, blank=True, verbose_name=mark_safe("<b>Safe</b>"))
+    safe = models.CharField(max_length=200, blank=True, verbose_name=mark_safe("<b>Safe</b>"))
 
-    website = models.URLField(
-        max_length=200, null=True, blank=True,
-        verbose_name="web site")
+    website = models.URLField(max_length=200, null=True, blank=True, verbose_name="web site")
 
     birthdate = models.DateField(null=True)
 
-    content_type = models.ForeignKey(
-        ContentType,
-        null=True,
-        blank=True,
-        on_delete=models.CASCADE
-    )
+    content_type = models.ForeignKey(ContentType, null=True, blank=True, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField(null=True, blank=True)
     foreign_key = GenericForeignKey()
 
-    friends = models.ManyToManyField('Person')
+    friends = models.ManyToManyField("Person")
 
     class Meta:
         verbose_name = "person"
@@ -64,27 +56,26 @@ class Person(models.Model):
         return "%s %s" % (self.first_name, self.last_name)
 
     def get_absolute_url(self):
-        return reverse('person', args=(self.pk, ))
+        return reverse("person", args=(self.pk,))
 
 
 class PersonProxy(Person):
     class Meta:
         proxy = True
-        ordering = ('last_name', )
+        ordering = ("last_name",)
 
 
 @six.python_2_unicode_compatible
 class Occupation(models.Model):
     name = models.CharField(max_length=200)
-    region = models.ForeignKey('Region', null=True, on_delete=models.CASCADE)
+    region = models.ForeignKey("Region", null=True, on_delete=models.CASCADE)
     boolean = models.NullBooleanField(null=True)
-    boolean_with_choices = models.NullBooleanField(null=True, choices=(
-        (True, 'Yes'),
-        (False, 'No')
-    ))
+    boolean_with_choices = models.NullBooleanField(
+        null=True, choices=((True, "Yes"), (False, "No"))
+    )
 
     def get_absolute_url(self):
-        return reverse('occupation', args=(self.pk, ))
+        return reverse("occupation", args=(self.pk,))
 
     def __str__(self):
         return self.name
@@ -101,8 +92,5 @@ class Region(models.Model):
 
 class PersonInformation(models.Model):
     person = models.ForeignKey(
-        Person,
-        related_name='info_list',
-        verbose_name='Information',
-        on_delete=models.CASCADE
+        Person, related_name="info_list", verbose_name="Information", on_delete=models.CASCADE
     )

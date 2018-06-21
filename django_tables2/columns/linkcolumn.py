@@ -10,7 +10,7 @@ from .base import Column, library
 
 
 class BaseLinkColumn(Column):
-    '''
+    """
     The base for other columns that render links.
 
     Arguments:
@@ -21,9 +21,10 @@ class BaseLinkColumn(Column):
             following are available:
 
              - `a` -- ``<a>`` in ``<td>`` elements.
-    '''
+    """
+
     def __init__(self, attrs=None, text=None, *args, **kwargs):
-        kwargs['attrs'] = attrs
+        kwargs["attrs"] = attrs
         self.text = text
         super(BaseLinkColumn, self).__init__(*args, **kwargs)
 
@@ -33,7 +34,7 @@ class BaseLinkColumn(Column):
         return self.text(record) if callable(self.text) else self.text
 
     def render_link(self, uri, record, value, attrs=None):
-        '''
+        """
         Render a link (`<a>`).
 
         Arguments:
@@ -42,27 +43,25 @@ class BaseLinkColumn(Column):
             value (str): value to be wrapped in ``<a></a>``, might be overridden
                 by ``self.text``
             attrs (dict): ``<a>`` tag attributes
-        '''
-        attrs = AttributeDict(attrs if attrs is not None else self.attrs.get('a', {}))
-        attrs['href'] = uri
+        """
+        attrs = AttributeDict(attrs if attrs is not None else self.attrs.get("a", {}))
+        attrs["href"] = uri
 
         return format_html(
-            '<a {attrs}>{text}</a>',
-            attrs=attrs.as_html(),
-            text=self.text_value(record, value)
+            "<a {attrs}>{text}</a>", attrs=attrs.as_html(), text=self.text_value(record, value)
         )
 
     def value(self, record, value):
-        '''
+        """
         Returns the content for a specific cell similarly to `.render` however
         without any html content.
-        '''
+        """
         return self.text_value(record, value)
 
 
 @library.register
 class LinkColumn(BaseLinkColumn):
-    '''
+    """
     Renders a normal value as an internal hyperlink to another page.
 
     It's common to have the primary value in a row hyperlinked to the page
@@ -140,9 +139,18 @@ class LinkColumn(BaseLinkColumn):
                 'a': {'style': 'color: red;'}
             })
 
-    '''
-    def __init__(self, viewname=None, urlconf=None, args=None, kwargs=None,
-                 current_app=None, attrs=None, **extra):
+    """
+
+    def __init__(
+        self,
+        viewname=None,
+        urlconf=None,
+        args=None,
+        kwargs=None,
+        current_app=None,
+        attrs=None,
+        **extra
+    ):
         super(LinkColumn, self).__init__(attrs, **extra)
         self.viewname = viewname
         self.urlconf = urlconf
@@ -151,11 +159,11 @@ class LinkColumn(BaseLinkColumn):
         self.current_app = current_app
 
     def compose_url(self, record, *args, **kwargs):
-        '''Compose the URL if the column is constructed with a ``viewname`` argument.'''
+        """Compose the URL if the column is constructed with a ``viewname`` argument."""
 
         if self.viewname is None:
-            if not hasattr(record, 'get_absolute_url'):
-                raise TypeError('if viewname=None, record must define a get_absolute_url')
+            if not hasattr(record, "get_absolute_url"):
+                raise TypeError("if viewname=None, record must define a get_absolute_url")
             return record.get_absolute_url()
 
         def resolve_if_accessor(val):
@@ -166,27 +174,23 @@ class LinkColumn(BaseLinkColumn):
         # Collect the optional arguments for django's reverse()
         params = {}
         if self.urlconf:
-            params['urlconf'] = resolve_if_accessor(self.urlconf)
+            params["urlconf"] = resolve_if_accessor(self.urlconf)
         if self.args:
-            params['args'] = [resolve_if_accessor(a) for a in self.args]
+            params["args"] = [resolve_if_accessor(a) for a in self.args]
         if self.kwargs:
-            params['kwargs'] = {key: resolve_if_accessor(val) for key, val in self.kwargs.items()}
+            params["kwargs"] = {key: resolve_if_accessor(val) for key, val in self.kwargs.items()}
         if self.current_app:
-            params['current_app'] = resolve_if_accessor(self.current_app)
+            params["current_app"] = resolve_if_accessor(self.current_app)
 
         return reverse(viewname, **params)
 
     def render(self, value, record, bound_column):
-        return self.render_link(
-            self.compose_url(record, bound_column),
-            record=record,
-            value=value
-        )
+        return self.render_link(self.compose_url(record, bound_column), record=record, value=value)
 
 
 @library.register
 class RelatedLinkColumn(LinkColumn):
-    '''
+    """
     Render a link to a related object using related object's ``get_absolute_url``,
     same parameters as ``~.LinkColumn``.
 
@@ -210,7 +214,7 @@ class RelatedLinkColumn(LinkColumn):
 
     Alternative contents of ``<a>`` can be supplied using the ``text`` keyword argument as
     documented for `~.columns.LinkColumn`.
-    '''
+    """
 
     def compose_url(self, record, bound_column):
         accessor = self.accessor if self.accessor else Accessor(bound_column.name)
@@ -218,4 +222,4 @@ class RelatedLinkColumn(LinkColumn):
         try:
             return accessor.resolve(record).get_absolute_url()
         except (AttributeError, TypeError):
-            return '#'
+            return "#"

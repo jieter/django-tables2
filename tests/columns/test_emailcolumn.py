@@ -12,39 +12,42 @@ class EmailColumnTest(SimpleTestCase):
         class Table(tables.Table):
             email = tables.EmailColumn()
 
-        table = Table([{'email': 'test@example.com'}])
-        assert table.rows[0].get_cell('email') == '<a href="mailto:test@example.com">test@example.com</a>'
+        table = Table([{"email": "test@example.com"}])
+        assert (
+            table.rows[0].get_cell("email")
+            == '<a href="mailto:test@example.com">test@example.com</a>'
+        )
 
     def test_should_render_default_for_blank(self):
         class Table(tables.Table):
-            email = tables.EmailColumn(default='---')
+            email = tables.EmailColumn(default="---")
 
-        table = Table([{'email': ''}])
-        assert table.rows[0].get_cell('email') == '---'
+        table = Table([{"email": ""}])
+        assert table.rows[0].get_cell("email") == "---"
 
     def test_should_be_used_for_emailfields(self):
         class EmailModel(models.Model):
             field = models.EmailField()
 
             class Meta:
-                app_label = 'test'
+                app_label = "test"
 
         class Table(tables.Table):
             class Meta:
                 model = EmailModel
 
-        assert type(Table.base_columns['field']) == tables.EmailColumn
+        assert type(Table.base_columns["field"]) == tables.EmailColumn
 
     def test_text_should_be_overridable(self):
         class Table(tables.Table):
-            email = tables.EmailColumn(text='@')
+            email = tables.EmailColumn(text="@")
 
-        table = Table([{'email': 'test@example.com'}])
-        assert table.rows[0].get_cell('email') == '<a href="mailto:test@example.com">@</a>'
+        table = Table([{"email": "test@example.com"}])
+        assert table.rows[0].get_cell("email") == '<a href="mailto:test@example.com">@</a>'
 
     def test_value_returns_a_raw_value_without_html(self):
         class Table(tables.Table):
             col = tables.EmailColumn()
 
-        table = Table([{'col': 'test@example.com'}])
-        assert table.rows[0].get_cell_value('col') == 'test@example.com'
+        table = Table([{"col": "test@example.com"}])
+        assert table.rows[0].get_cell_value("col") == "test@example.com"

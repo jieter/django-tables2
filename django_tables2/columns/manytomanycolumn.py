@@ -12,7 +12,7 @@ from .base import Column, library
 
 @library.register
 class ManyToManyColumn(Column):
-    '''
+    """
     Display the list of objects from a `ManyRelatedManager`
 
     Ordering is disabled for this column.
@@ -43,35 +43,36 @@ class ManyToManyColumn(Column):
             name = tables.Column(order_by=('last_name', 'first_name'))
             friends = tables.ManyToManyColumn(transform=lambda user: u.name)
 
-    '''
-    def __init__(self, transform=None, filter=None, separator=', ', *args, **kwargs):
+    """
+
+    def __init__(self, transform=None, filter=None, separator=", ", *args, **kwargs):
         if transform is not None:
             self.transform = transform
         if filter is not None:
             self.filter = filter
         self.separator = separator
 
-        kwargs.setdefault('orderable', False)
+        kwargs.setdefault("orderable", False)
 
         super(ManyToManyColumn, self).__init__(*args, **kwargs)
 
     def transform(self, obj):
-        '''
+        """
         Transform is applied to each item of the list of objects from the ManyToMany relation.
-        '''
+        """
         return force_text(obj)
 
     def filter(self, qs):
-        '''
+        """
         Filter is called on the ManyRelatedManager to allow ordering, filtering or limiting
         on the set of related objects.
-        '''
+        """
         return qs.all()
 
     def render(self, value):
         # if value is None or not value.exists():
         if not value.exists():
-            return '-'
+            return "-"
 
         return mark_safe(
             conditional_escape(self.separator).join(

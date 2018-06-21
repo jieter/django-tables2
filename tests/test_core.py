@@ -1,5 +1,5 @@
 # coding: utf-8
-'''Test the core table functionality.'''
+"""Test the core table functionality."""
 from __future__ import absolute_import, unicode_literals
 
 import copy
@@ -14,12 +14,12 @@ from django_tables2.tables import DeclarativeColumnsMetaclass
 
 from .utils import build_request, parse
 
-request = build_request('/')
+request = build_request("/")
 
 MEMORY_DATA = [
-    {'i': 2, 'alpha': 'b', 'beta': 'b'},
-    {'i': 1, 'alpha': 'a', 'beta': 'c'},
-    {'i': 3, 'alpha': 'c', 'beta': 'a'},
+    {"i": 2, "alpha": "b", "beta": "b"},
+    {"i": 1, "alpha": "a", "beta": "c"},
+    {"i": 3, "alpha": "c", "beta": "a"},
 ]
 
 
@@ -31,7 +31,7 @@ class UnorderedTable(tables.Table):
 
 class OrderedTable(UnorderedTable):
     class Meta:
-        order_by = 'alpha'
+        order_by = "alpha"
 
 
 class CoreTest(SimpleTestCase):
@@ -40,34 +40,36 @@ class CoreTest(SimpleTestCase):
             UnorderedTable()
 
     def test_column_named_items(self):
-        '''
+        """
         A column named items must not make the table fail
         https://github.com/bradleyayers/django-tables2/issues/316
-        '''
+        """
+
         class ItemsTable(tables.Table):
             items = tables.Column()
 
-        table = ItemsTable([{'items': 123}, {'items': 2345}])
+        table = ItemsTable([{"items": 123}, {"items": 2345}])
 
         html = table.as_html(request)
-        self.assertIn('123', html)
-        self.assertIn('2345', html)
+        self.assertIn("123", html)
+        self.assertIn("2345", html)
 
     def test_declarations(self):
-        '''Test defining tables by declaration.'''
+        """Test defining tables by declaration."""
+
         class GeoAreaTable(tables.Table):
             name = tables.Column()
             population = tables.Column()
 
         self.assertEqual(len(GeoAreaTable.base_columns), 2)
-        self.assertIn('name', GeoAreaTable.base_columns)
-        self.assertFalse(hasattr(GeoAreaTable, 'name'))
+        self.assertIn("name", GeoAreaTable.base_columns)
+        self.assertFalse(hasattr(GeoAreaTable, "name"))
 
         class CountryTable(GeoAreaTable):
             capital = tables.Column()
 
         self.assertEqual(len(CountryTable.base_columns), 3)
-        self.assertIn('capital', CountryTable.base_columns)
+        self.assertIn("capital", CountryTable.base_columns)
 
         # multiple inheritance
         class AddedMixin(tables.Table):
@@ -77,7 +79,7 @@ class CoreTest(SimpleTestCase):
             mayor = tables.Column()
 
         self.assertEqual(len(CityTable.base_columns), 4)
-        self.assertIn('added', CityTable.base_columns)
+        self.assertIn("added", CityTable.base_columns)
 
         # overwrite a column with a non-column
         class MayorlessCityTable(CityTable):
@@ -87,9 +89,10 @@ class CoreTest(SimpleTestCase):
 
     def test_metaclass_inheritance(self):
         class Tweaker(type):
-            '''Adds an attribute "tweaked" to all classes'''
+            """Adds an attribute "tweaked" to all classes"""
+
             def __new__(cls, name, bases, attrs):
-                attrs['tweaked'] = True
+                attrs["tweaked"] = True
                 return super(Tweaker, cls).__new__(cls, name, bases, attrs)
 
         class Meta(Tweaker, DeclarativeColumnsMetaclass):
@@ -100,10 +103,10 @@ class CoreTest(SimpleTestCase):
             name = tables.Column()
 
         # Python 2/3 compatible way to enable the metaclass
-        TweakedTable = Meta(str('TweakedTable'), (TweakedTableBase, ), {})
+        TweakedTable = Meta(str("TweakedTable"), (TweakedTableBase,), {})
 
         table = TweakedTable([])
-        self.assertIn('name', table.columns)
+        self.assertIn("name", table.columns)
         self.assertTrue(table.tweaked)
 
         # now flip the order
@@ -114,24 +117,29 @@ class CoreTest(SimpleTestCase):
             name = tables.Column()
 
         # Python 2/3 compatible way to enable the metaclass
-        FlippedTweakedTable = FlippedMeta(str('FlippedTweakedTable'), (FlippedTweakedTableBase, ), {})
+        FlippedTweakedTable = FlippedMeta(
+            str("FlippedTweakedTable"), (FlippedTweakedTableBase,), {}
+        )
 
         table = FlippedTweakedTable([])
-        self.assertIn('name', table.columns)
+        self.assertIn("name", table.columns)
         self.assertTrue(table.tweaked)
 
     def test_Meta_attribute_incorrect_types(self):
         with self.assertRaises(TypeError):
+
             class MetaTable1(tables.Table):
                 class Meta:
-                    exclude = ('foo')
+                    exclude = "foo"
 
         with self.assertRaises(TypeError):
+
             class MetaTable2(tables.Table):
                 class Meta:
-                    sequence = ('...')
+                    sequence = "..."
 
         with self.assertRaises(TypeError):
+
             class MetaTable3(tables.Table):
                 class Meta:
                     model = {}
@@ -140,56 +148,59 @@ class CoreTest(SimpleTestCase):
         class TestTable(tables.Table):
             class Meta:
                 attrs = {}
+
         self.assertEqual({}, TestTable([]).attrs)
 
         class TestTable2(tables.Table):
             class Meta:
-                attrs = {'a': 'b'}
-        self.assertEqual({'a': 'b'}, TestTable2([]).attrs)
+                attrs = {"a": "b"}
+
+        self.assertEqual({"a": "b"}, TestTable2([]).attrs)
 
         class TestTable3(tables.Table):
             pass
+
         self.assertEqual({}, TestTable3([]).attrs)
-        self.assertEqual({'a': 'b'}, TestTable3([], attrs={'a': 'b'}).attrs)
+        self.assertEqual({"a": "b"}, TestTable3([], attrs={"a": "b"}).attrs)
 
         class TestTable4(tables.Table):
             class Meta:
-                attrs = {'a': 'b'}
-        self.assertEqual({'c': 'd'}, TestTable4([], attrs={'c': 'd'}).attrs)
+                attrs = {"a": "b"}
+
+        self.assertEqual({"c": "d"}, TestTable4([], attrs={"c": "d"}).attrs)
 
     def test_attrs_support_computed_values(self):
         counter = itertools.count()
 
         class TestTable(tables.Table):
             class Meta:
-                attrs = {'id': lambda: 'test_table_%d' % next(counter)}
+                attrs = {"id": lambda: "test_table_%d" % next(counter)}
 
         self.assertEqual('id="test_table_0"', TestTable([]).attrs.as_html())
         self.assertEqual('id="test_table_1"', TestTable([]).attrs.as_html())
 
-    @override_settings(DJANGO_TABLES2_TABLE_ATTRS={'class': 'table-compact'})
+    @override_settings(DJANGO_TABLES2_TABLE_ATTRS={"class": "table-compact"})
     def test_attrs_from_settings(self):
-
         class Table(tables.Table):
             column = tables.Column()
 
         table = Table({})
-        self.assertEqual(table.attrs, {'class': 'table-compact'})
+        self.assertEqual(table.attrs, {"class": "table-compact"})
 
     def test_datasource_untouched(self):
-        '''
+        """
         Ensure that data that is provided to the table (the datasource) is not
         modified by table operations.
-        '''
+        """
         original_data = copy.deepcopy(MEMORY_DATA)
 
         table = UnorderedTable(MEMORY_DATA)
-        table.order_by = 'i'
+        table.order_by = "i"
         list(table.rows)
         self.assertEqual(MEMORY_DATA, original_data)
 
         table = UnorderedTable(MEMORY_DATA)
-        table.order_by = 'beta'
+        table.order_by = "beta"
         list(table.rows)
         self.assertEqual(MEMORY_DATA, original_data)
 
@@ -197,10 +208,7 @@ class CoreTest(SimpleTestCase):
         class SimpleTable(tables.Table):
             name = tables.Column()
 
-        table = SimpleTable((
-            {'name': 'brad'},
-            {'name': 'davina'},
-        ))
+        table = SimpleTable(({"name": "brad"}, {"name": "davina"}))
 
         self.assertEqual(len(table.rows), 2)
 
@@ -214,88 +222,92 @@ class CoreTest(SimpleTestCase):
 
     def test_column_accessor(self):
         class SimpleTable(UnorderedTable):
-            col1 = tables.Column(accessor='alpha.upper.isupper')
-            col2 = tables.Column(accessor='alpha.upper')
+            col1 = tables.Column(accessor="alpha.upper.isupper")
+            col2 = tables.Column(accessor="alpha.upper")
+
         table = SimpleTable(MEMORY_DATA)
 
-        self.assertTrue(table.rows[0].get_cell('col1'))
-        self.assertEqual(table.rows[0].get_cell('col2'), 'B')
+        self.assertTrue(table.rows[0].get_cell("col1"))
+        self.assertEqual(table.rows[0].get_cell("col2"), "B")
 
     def test_exclude_columns(self):
-        '''
+        """
         Defining ``Table.Meta.exclude`` or providing an ``exclude`` argument when
         instantiating a table should have the same effect -- exclude those columns
         from the table. It should have the same effect as not defining the
         columns originally.
-        '''
-        table = UnorderedTable([], exclude=('i'))
-        self.assertEqual(table.columns.names(), ['alpha', 'beta'])
+        """
+        table = UnorderedTable([], exclude=("i"))
+        self.assertEqual(table.columns.names(), ["alpha", "beta"])
 
         # Table.Meta: exclude=...
         class PartialTable(UnorderedTable):
             class Meta:
-                exclude = ('alpha', )
+                exclude = ("alpha",)
+
         table = PartialTable([])
-        self.assertEqual(table.columns.names(), ['i', 'beta'])
+        self.assertEqual(table.columns.names(), ["i", "beta"])
 
         # Inheritence -- exclude in parent, add in child
         class AddonTable(PartialTable):
             added = tables.Column()
+
         table = AddonTable([])
-        self.assertEqual(table.columns.names(), ['i', 'beta', 'added'])
+        self.assertEqual(table.columns.names(), ["i", "beta", "added"])
 
         # Inheritence -- exclude in child
         class ExcludeTable(UnorderedTable):
             added = tables.Column()
 
             class Meta:
-                exclude = ('beta', )
+                exclude = ("beta",)
 
         table = ExcludeTable([])
-        self.assertEqual(table.columns.names(), ['i', 'alpha', 'added'])
+        self.assertEqual(table.columns.names(), ["i", "alpha", "added"])
 
     def test_table_exclude_property_should_override_constructor_argument(self):
         class SimpleTable(tables.Table):
             a = tables.Column()
             b = tables.Column()
 
-        table = SimpleTable([], exclude=('b', ))
-        self.assertEqual(table.columns.names(), ['a'])
-        table.exclude = ('a', )
-        self.assertEqual(table.columns.names(), ['b'])
+        table = SimpleTable([], exclude=("b",))
+        self.assertEqual(table.columns.names(), ["a"])
+        table.exclude = ("a",)
+        self.assertEqual(table.columns.names(), ["b"])
 
     def test_exclude_should_work_on_sequence_too(self):
-        '''
+        """
         It should be possible to define a sequence on a table
         and exclude it in a child of that table.
-        '''
+        """
+
         class PersonTable(tables.Table):
             first_name = tables.Column()
             last_name = tables.Column()
             occupation = tables.Column()
 
             class Meta:
-                sequence = ('first_name', 'last_name', 'occupation')
+                sequence = ("first_name", "last_name", "occupation")
 
         class AnotherPersonTable(PersonTable):
             class Meta(PersonTable.Meta):
-                exclude = ('first_name', 'last_name')
+                exclude = ("first_name", "last_name")
 
         tableA = PersonTable([])
-        self.assertEqual(tableA.columns.names(), ['first_name', 'last_name', 'occupation'])
+        self.assertEqual(tableA.columns.names(), ["first_name", "last_name", "occupation"])
 
         tableB = AnotherPersonTable([])
-        self.assertEqual(tableB.columns.names(), ['occupation'])
+        self.assertEqual(tableB.columns.names(), ["occupation"])
 
-        tableC = PersonTable([], exclude=('first_name'))
-        self.assertEqual(tableC.columns.names(), ['last_name', 'occupation'])
+        tableC = PersonTable([], exclude=("first_name"))
+        self.assertEqual(tableC.columns.names(), ["last_name", "occupation"])
 
     def test_pagination(self):
         class BookTable(tables.Table):
             name = tables.Column()
 
         # create some sample data
-        data = list([{'name': 'Book No. %d' % i} for i in range(100)])
+        data = list([{"name": "Book No. %d" % i} for i in range(100)])
         books = BookTable(data)
 
         # external paginator
@@ -307,7 +319,7 @@ class CoreTest(SimpleTestCase):
 
         # integrated paginator
         books.paginate(page=1)
-        self.assertTrue(hasattr(books, 'page'))
+        self.assertTrue(hasattr(books, "page"))
 
         books.paginate(page=1, per_page=10)
         self.assertEqual(len(list(books.page.object_list)), 10)
@@ -322,13 +334,13 @@ class CoreTest(SimpleTestCase):
             books.paginate(Paginator, page=9999, per_page=10)
 
         with self.assertRaises(PageNotAnInteger):
-            books.paginate(Paginator, page='abc', per_page=10)
+            books.paginate(Paginator, page="abc", per_page=10)
 
     def test_pagination_shouldnt_prevent_multiple_rendering(self):
         class SimpleTable(tables.Table):
             name = tables.Column()
 
-        table = SimpleTable([{'name': 'brad'}])
+        table = SimpleTable([{"name": "brad"}])
         table.paginate()
 
         self.assertEqual(table.as_html(request), table.as_html(request))
@@ -344,172 +356,172 @@ class CoreTest(SimpleTestCase):
             a = tables.Column()
 
             class Meta:
-                empty_text = 'nothing here'
+                empty_text = "nothing here"
 
         table = TestTable2([])
-        self.assertEqual(table.empty_text, 'nothing here')
+        self.assertEqual(table.empty_text, "nothing here")
 
-        table = TestTable2([], empty_text='still nothing')
-        self.assertEqual(table.empty_text, 'still nothing')
+        table = TestTable2([], empty_text="still nothing")
+        self.assertEqual(table.empty_text, "still nothing")
 
     def test_empty_text_gettext_lazy(self):
         class TestTable(tables.Table):
             a = tables.Column()
 
             class Meta:
-                empty_text = gettext_lazy('next')
+                empty_text = gettext_lazy("next")
 
         table = TestTable([])
-        self.assertEqual(table.empty_text, 'next')
+        self.assertEqual(table.empty_text, "next")
 
-        with override('nl'):
+        with override("nl"):
             table = TestTable([])
-            self.assertEqual(table.empty_text, 'volgende')
+            self.assertEqual(table.empty_text, "volgende")
 
     def test_prefix(self):
-        '''
+        """
         Test that table prefixes affect the names of querystring parameters
-        '''
+        """
+
         class TableA(tables.Table):
             name = tables.Column()
 
             class Meta:
-                prefix = 'x'
+                prefix = "x"
 
         table = TableA([])
-        html = table.as_html(build_request('/'))
+        html = table.as_html(build_request("/"))
 
-        self.assertEqual('x', table.prefix)
-        self.assertIn('xsort=name', html)
+        self.assertEqual("x", table.prefix)
+        self.assertIn("xsort=name", html)
 
         class TableB(tables.Table):
             last_name = tables.Column()
 
-        self.assertEqual('', TableB([]).prefix)
-        self.assertEqual('x', TableB([], prefix='x').prefix)
+        self.assertEqual("", TableB([]).prefix)
+        self.assertEqual("x", TableB([], prefix="x").prefix)
 
         table = TableB([])
-        table.prefix = 'x-'
-        html = table.as_html(build_request('/'))
+        table.prefix = "x-"
+        html = table.as_html(build_request("/"))
 
-        self.assertEqual('x-', table.prefix)
-        self.assertIn('x-sort=last_name', html)
+        self.assertEqual("x-", table.prefix)
+        self.assertIn("x-sort=last_name", html)
 
     def test_field_names(self):
         class TableA(tables.Table):
             class Meta:
-                order_by_field = 'abc'
-                page_field = 'def'
-                per_page_field = 'ghi'
+                order_by_field = "abc"
+                page_field = "def"
+                per_page_field = "ghi"
 
         table = TableA([])
-        self.assertEqual('abc', table.order_by_field)
-        self.assertEqual('def', table.page_field)
-        self.assertEqual('ghi', table.per_page_field)
+        self.assertEqual("abc", table.order_by_field)
+        self.assertEqual("def", table.page_field)
+        self.assertEqual("ghi", table.per_page_field)
 
     def test_field_names_with_prefix(self):
         class TableA(tables.Table):
             class Meta:
-                order_by_field = 'sort'
-                page_field = 'page'
-                per_page_field = 'per_page'
-                prefix = '1-'
+                order_by_field = "sort"
+                page_field = "page"
+                per_page_field = "per_page"
+                prefix = "1-"
 
         table = TableA([])
-        self.assertEqual('1-sort', table.prefixed_order_by_field)
-        self.assertEqual('1-page', table.prefixed_page_field)
-        self.assertEqual('1-per_page', table.prefixed_per_page_field)
+        self.assertEqual("1-sort", table.prefixed_order_by_field)
+        self.assertEqual("1-page", table.prefixed_page_field)
+        self.assertEqual("1-per_page", table.prefixed_per_page_field)
 
         class TableB(tables.Table):
             class Meta:
-                order_by_field = 'sort'
-                page_field = 'page'
-                per_page_field = 'per_page'
+                order_by_field = "sort"
+                page_field = "page"
+                per_page_field = "per_page"
 
-        table = TableB([], prefix='1-')
-        self.assertEqual('1-sort', table.prefixed_order_by_field)
-        self.assertEqual('1-page', table.prefixed_page_field)
-        self.assertEqual('1-per_page', table.prefixed_per_page_field)
+        table = TableB([], prefix="1-")
+        self.assertEqual("1-sort", table.prefixed_order_by_field)
+        self.assertEqual("1-page", table.prefixed_page_field)
+        self.assertEqual("1-per_page", table.prefixed_per_page_field)
 
         table = TableB([])
-        table.prefix = '1-'
-        self.assertEqual('1-sort', table.prefixed_order_by_field)
-        self.assertEqual('1-page', table.prefixed_page_field)
-        self.assertEqual('1-per_page', table.prefixed_per_page_field)
+        table.prefix = "1-"
+        self.assertEqual("1-sort", table.prefixed_order_by_field)
+        self.assertEqual("1-page", table.prefixed_page_field)
+        self.assertEqual("1-per_page", table.prefixed_per_page_field)
 
     def test_should_support_a_template_name_to_be_specified(self):
         class ConstructorSpecifiedTemplateTable(tables.Table):
             name = tables.Column()
 
-        table = ConstructorSpecifiedTemplateTable([], template_name='dummy.html')
-        self.assertEqual(table.template_name, 'dummy.html')
+        table = ConstructorSpecifiedTemplateTable([], template_name="dummy.html")
+        self.assertEqual(table.template_name, "dummy.html")
 
         class PropertySpecifiedTemplateTable(tables.Table):
             name = tables.Column()
 
         table = PropertySpecifiedTemplateTable([])
-        table.template_name = 'dummy.html'
-        self.assertEqual(table.template_name, 'dummy.html')
+        table.template_name = "dummy.html"
+        self.assertEqual(table.template_name, "dummy.html")
 
         class DefaultTable(tables.Table):
             pass
 
         table = DefaultTable([])
-        self.assertEqual(table.template_name, 'django_tables2/table.html')
+        self.assertEqual(table.template_name, "django_tables2/table.html")
 
     def test_template_name_in_meta_class_declaration_should_be_honored(self):
         class MetaDeclarationSpecifiedTemplateTable(tables.Table):
             name = tables.Column()
 
             class Meta:
-                template_name = 'dummy.html'
+                template_name = "dummy.html"
 
         table = MetaDeclarationSpecifiedTemplateTable([])
-        self.assertEqual(table.template_name, 'dummy.html')
-        self.assertEqual(table.as_html(request), 'dummy template contents\n')
+        self.assertEqual(table.template_name, "dummy.html")
+        self.assertEqual(table.as_html(request), "dummy template contents\n")
 
     def test_should_support_rendering_multiple_times(self):
         class MultiRenderTable(tables.Table):
             name = tables.Column()
 
         # test list data
-        table = MultiRenderTable([{'name': 'brad'}])
+        table = MultiRenderTable([{"name": "brad"}])
         self.assertEqual(table.as_html(request), table.as_html(request))
 
     def test_column_defaults_are_honored(self):
         class Table(tables.Table):
-            name = tables.Column(default='abcd')
+            name = tables.Column(default="abcd")
 
             class Meta:
-                default = 'efgh'
+                default = "efgh"
 
-        table = Table([{}], default='ijkl')
-        self.assertEqual(table.rows[0].get_cell('name'), 'abcd')
+        table = Table([{}], default="ijkl")
+        self.assertEqual(table.rows[0].get_cell("name"), "abcd")
 
     def test_table_meta_defaults_are_honored(self):
         class Table(tables.Table):
             name = tables.Column()
 
             class Meta:
-                default = 'abcd'
+                default = "abcd"
 
         table = Table([{}])
-        self.assertEqual(table.rows[0].get_cell('name'), 'abcd')
+        self.assertEqual(table.rows[0].get_cell("name"), "abcd")
 
     def test_table_defaults_are_honored(self):
         class Table(tables.Table):
             name = tables.Column()
 
-        table = Table([{}], default='abcd')
-        self.assertEqual(table.rows[0].get_cell('name'), 'abcd')
+        table = Table([{}], default="abcd")
+        self.assertEqual(table.rows[0].get_cell("name"), "abcd")
 
-        table = Table([{}], default='abcd')
-        table.default = 'efgh'
-        self.assertEqual(table.rows[0].get_cell('name'), 'efgh')
+        table = Table([{}], default="abcd")
+        table.default = "efgh"
+        self.assertEqual(table.rows[0].get_cell("name"), "efgh")
 
 
 class BoundColumnTest(SimpleTestCase):
-
     def test_attrs_bool_error(self):
         class Table(tables.Table):
             c_element = tables.Column()
@@ -518,40 +530,39 @@ class BoundColumnTest(SimpleTestCase):
             def __bool__(self):
                 raise NotImplementedError
 
-        table = Table([{'c_element': ErrorObject()}])
+        table = Table([{"c_element": ErrorObject()}])
         list(table.rows[0].items())
         try:
             table.columns[0].attrs
         except NotImplementedError:
-            self.fail('__bool__ should not be evaluated!')
+            self.fail("__bool__ should not be evaluated!")
 
     def test_attrs_falsy_object(self):
         """Computed attrs in BoundColumn should be passed the column value, even if its __bool__ returns False. """
+
         class Table(tables.Table):
             c_element = tables.Column()
 
             class Meta:
-                attrs = {
-                    'td': {'data-column-name': lambda value: value.name}
-                }
+                attrs = {"td": {"data-column-name": lambda value: value.name}}
 
         class FalsyObject(object):
-            name = 'FalsyObject1'
+            name = "FalsyObject1"
 
             def __bool__(self):
                 return False
 
-        table = Table([{'c_element': FalsyObject()}])
+        table = Table([{"c_element": FalsyObject()}])
         list(table.rows[0].items())
-        self.assertEqual('FalsyObject1', table.columns[0].attrs['td']['data-column-name'])
+        self.assertEqual("FalsyObject1", table.columns[0].attrs["td"]["data-column-name"])
 
 
 class AsValuesTest(SimpleTestCase):
     AS_VALUES_DATA = [
-        {'name': 'Adrian', 'country': 'Australia'},
-        {'name': 'Adrian', 'country': 'Brazil'},
-        {'name': 'Audrey', 'country': 'Chile'},
-        {'name': 'Bassie', 'country': 'Belgium'},
+        {"name": "Adrian", "country": "Australia"},
+        {"name": "Adrian", "country": "Brazil"},
+        {"name": "Audrey", "country": "Chile"},
+        {"name": "Bassie", "country": "Belgium"},
     ]
 
     def test_as_values(self):
@@ -559,7 +570,7 @@ class AsValuesTest(SimpleTestCase):
             name = tables.Column()
             country = tables.Column()
 
-        expected = [['Name', 'Country']] + [[r['name'], r['country']] for r in self.AS_VALUES_DATA]
+        expected = [["Name", "Country"]] + [[r["name"], r["country"]] for r in self.AS_VALUES_DATA]
         table = Table(self.AS_VALUES_DATA)
 
         self.assertEqual(list(table.as_values()), expected)
@@ -569,33 +580,34 @@ class AsValuesTest(SimpleTestCase):
             name = tables.Column()
             country = tables.Column()
 
-        expected = [['Name']] + [[r['name']] for r in self.AS_VALUES_DATA]
+        expected = [["Name"]] + [[r["name"]] for r in self.AS_VALUES_DATA]
         table = Table(self.AS_VALUES_DATA)
 
-        self.assertEqual(list(table.as_values(exclude_columns=('country', ))), expected)
+        self.assertEqual(list(table.as_values(exclude_columns=("country",))), expected)
 
     def test_as_values_exclude_from_export(self):
         class Table(tables.Table):
             name = tables.Column()
             buttons = tables.Column(exclude_from_export=True)
 
-        self.assertEqual(list(Table([]).as_values()), [['Name'], ])
+        self.assertEqual(list(Table([]).as_values()), [["Name"]])
 
     def test_as_values_empty_values(self):
-        '''
+        """
         Table's as_values() method returns `None` for missing values
-        '''
+        """
+
         class Table(tables.Table):
             name = tables.Column()
             country = tables.Column()
 
         data = [
-            {'name': 'Adrian', 'country': 'Brazil'},
-            {'name': 'Audrey'},
-            {'name': 'Bassie', 'country': 'Belgium'},
-            {'country': 'France'},
+            {"name": "Adrian", "country": "Brazil"},
+            {"name": "Audrey"},
+            {"name": "Bassie", "country": "Belgium"},
+            {"country": "France"},
         ]
-        expected = [['Name', 'Country']] + [[r.get('name'), r.get('country')] for r in data]
+        expected = [["Name", "Country"]] + [[r.get("name"), r.get("country")] for r in data]
         table = Table(data)
         self.assertEqual(list(table.as_values()), expected)
 
@@ -605,9 +617,11 @@ class AsValuesTest(SimpleTestCase):
             country = tables.Column()
 
             def render_country(self, value):
-                return value + ' test'
+                return value + " test"
 
-        expected = [['Name', 'Country']] + [[r['name'], r['country'] + ' test'] for r in self.AS_VALUES_DATA]
+        expected = [["Name", "Country"]] + [
+            [r["name"], r["country"] + " test"] for r in self.AS_VALUES_DATA
+        ]
 
         self.assertEqual(list(Table(self.AS_VALUES_DATA).as_values()), expected)
 
@@ -617,12 +631,14 @@ class AsValuesTest(SimpleTestCase):
             country = tables.Column()
 
             def render_country(self, value):
-                return value + ' test'
+                return value + " test"
 
             def value_country(self, value):
-                return value + ' different'
+                return value + " different"
 
-        expected = [['Name', 'Country']] + [[r['name'], r['country'] + ' different'] for r in self.AS_VALUES_DATA]
+        expected = [["Name", "Country"]] + [
+            [r["name"], r["country"] + " different"] for r in self.AS_VALUES_DATA
+        ]
 
         self.assertEqual(list(Table(self.AS_VALUES_DATA).as_values()), expected)
 
@@ -633,11 +649,11 @@ class RowAttrsTest(SimpleTestCase):
             alpha = tables.Column()
             beta = tables.Column()
 
-        table = Table(MEMORY_DATA, row_attrs={
-            'class': lambda record: 'row-id-{}'.format(record['i']),
-        })
+        table = Table(
+            MEMORY_DATA, row_attrs={"class": lambda record: "row-id-{}".format(record["i"])}
+        )
 
-        self.assertEqual(table.rows[0].attrs, {'class': 'row-id-2 even'})
+        self.assertEqual(table.rows[0].attrs, {"class": "row-id-2 even"})
 
     def test_row_attrs_in_meta(self):
         class Table(tables.Table):
@@ -645,12 +661,10 @@ class RowAttrsTest(SimpleTestCase):
             beta = tables.Column()
 
             class Meta:
-                row_attrs = {
-                    'class': lambda record: 'row-id-{}'.format(record['i']),
-                }
+                row_attrs = {"class": lambda record: "row-id-{}".format(record["i"])}
 
         table = Table(MEMORY_DATA)
-        self.assertEqual(table.rows[0].attrs, {'class': 'row-id-2 even'})
+        self.assertEqual(table.rows[0].attrs, {"class": "row-id-2 even"})
 
     def test_td_attrs_from_table(self):
         class Table(tables.Table):
@@ -658,12 +672,9 @@ class RowAttrsTest(SimpleTestCase):
             beta = tables.Column()
 
             class Meta:
-                attrs = {
-                    'td': {
-                        'data-column-name': lambda bound_column: bound_column.name
-                    }
-                }
+                attrs = {"td": {"data-column-name": lambda bound_column: bound_column.name}}
+
         table = Table(MEMORY_DATA)
         html = table.as_html(request)
-        td = parse(html).find('.//tbody/tr[1]/td[1]')
-        self.assertEqual(td.attrib, {'data-column-name': 'alpha'})
+        td = parse(html).find(".//tbody/tr[1]/td[1]")
+        self.assertEqual(td.attrib, {"data-column-name": "alpha"})
