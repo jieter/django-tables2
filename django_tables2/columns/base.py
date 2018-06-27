@@ -99,6 +99,9 @@ class Column(object):
               - If `True`, force localization
               - If `False`, values are not localized
               - If `None` (default), localization depends on the ``USE_L10N`` setting.
+        default_descending_ordering (bool): If 'True',
+            column.order_by_alias.next will return descending ordering if not ordered.
+            Otherwise - default behavior.
 
 
     .. [1] The provided callable object must not expect to receive any arguments.
@@ -114,7 +117,7 @@ class Column(object):
     def __init__(self, verbose_name=None, accessor=None, default=None,
                  visible=True, orderable=None, attrs=None, order_by=None,
                  empty_values=None, localize=None, footer=None,
-                 exclude_from_export=False):
+                 exclude_from_export=False, default_descending_ordering=False):
         if not (accessor is None or isinstance(accessor, six.string_types) or
                 callable(accessor)):
             raise TypeError('accessor must be a string or callable, not %s' %
@@ -127,6 +130,7 @@ class Column(object):
         self.visible = visible
         self.orderable = orderable
         self.attrs = attrs or getattr(self, 'attrs', {})
+        self.default_descending_ordering = default_descending_ordering
 
         # massage order_by into an OrderByTuple or None
         order_by = (order_by, ) if isinstance(order_by, six.string_types) else order_by
@@ -480,6 +484,8 @@ class BoundColumn(object):
         '''
         order_by = OrderBy((self._table.order_by or {}).get(self.name, self.name))
         order_by.next = order_by.opposite if self.is_ordered else order_by
+        if self.column.default_descending_ordering and not self.is_ordered:
+            order_by.next = order_by.opposite
         return order_by
 
     @property
