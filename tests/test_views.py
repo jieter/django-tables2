@@ -11,17 +11,18 @@ from .app.models import Person, Region
 from .utils import build_request
 
 MEMORY_DATA = [
-    {'name': 'Queensland'},
-    {'name': 'New South Wales'},
-    {'name': 'Victoria'},
-    {'name': 'Tasmania'}
+    {"name": "Queensland"},
+    {"name": "New South Wales"},
+    {"name": "Victoria"},
+    {"name": "Tasmania"},
 ]
 
 
 class DispatchHookMixin(object):
-    '''
+    """
     Returns a response *and* reference to the view.
-    '''
+    """
+
     def dispatch(self, *args, **kwargs):
         return super(DispatchHookMixin, self).dispatch(*args, **kwargs), self
 
@@ -38,16 +39,16 @@ class SimpleView(DispatchHookMixin, tables.SingleTableView):
 
 class SimplePaginatedView(DispatchHookMixin, tables.SingleTableView):
     table_class = SimpleTable
-    table_pagination = {'per_page': 1}
+    table_pagination = {"per_page": 1}
     model = Region  # required for ListView
 
 
 class SingleTableViewTest(TestCase):
     def test_should_support_pagination_options(self):
         for region in MEMORY_DATA:
-            Region.objects.create(name=region['name'])
+            Region.objects.create(name=region["name"])
 
-        response, view = SimplePaginatedView.as_view()(build_request('/'))
+        response, view = SimplePaginatedView.as_view()(build_request("/"))
         self.assertEqual(view.get_table().paginator.num_pages, len(MEMORY_DATA))
         self.assertEqual(view.get_table().paginator.per_page, 1)
 
@@ -57,7 +58,7 @@ class SingleTableViewTest(TestCase):
             model = Region
             table_data = MEMORY_DATA
 
-        response, view = PaginateDefault.as_view()(build_request('/'))
+        response, view = PaginateDefault.as_view()(build_request("/"))
         table = view.get_table()
         self.assertEqual(table.paginator.per_page, 25)
         self.assertEqual(len(table.page), 4)
@@ -73,7 +74,7 @@ class SingleTableViewTest(TestCase):
             model = Region
             table_data = MEMORY_DATA
 
-        response, view = PaginateByDefinedOnView.as_view()(build_request('/'))
+        response, view = PaginateByDefinedOnView.as_view()(build_request("/"))
         table = view.get_table()
         self.assertEqual(table.paginator.per_page, 2)
         self.assertEqual(len(table.page), 2)
@@ -85,33 +86,33 @@ class SingleTableViewTest(TestCase):
             table_pagination = False
             model = Region  # required for ListView
 
-        response, view = SimpleNotPaginatedView.as_view()(build_request('/'))
+        response, view = SimpleNotPaginatedView.as_view()(build_request("/"))
         table = view.get_table()
-        self.assertFalse(hasattr(table, 'page'))
+        self.assertFalse(hasattr(table, "page"))
 
     def test_data_from_get_queryset(self):
         for region in MEMORY_DATA:
-            Region.objects.create(name=region['name'])
+            Region.objects.create(name=region["name"])
 
         class GetQuerysetView(SimpleView):
             def get_queryset(self):
-                return Region.objects.filter(name__startswith='Q')
+                return Region.objects.filter(name__startswith="Q")
 
-        response, view = GetQuerysetView.as_view()(build_request('/'))
+        response, view = GetQuerysetView.as_view()(build_request("/"))
         table = view.get_table()
 
         self.assertEqual(len(table.rows), 1)
-        self.assertEqual(table.rows[0].get_cell('name'), 'Queensland')
+        self.assertEqual(table.rows[0].get_cell("name"), "Queensland")
 
     def test_should_support_explicit_table_data(self):
         class ExplicitDataView(SimplePaginatedView):
             table_data = MEMORY_DATA
 
-        response, view = ExplicitDataView.as_view()(build_request('/'))
+        response, view = ExplicitDataView.as_view()(build_request("/"))
         self.assertEqual(view.get_table().paginator.num_pages, len(MEMORY_DATA))
 
     def test_paginate_by_on_view_class(self):
-        Region.objects.create(name='Friesland')
+        Region.objects.create(name="Friesland")
 
         class Table(tables.Table):
             class Meta:
@@ -124,9 +125,9 @@ class SingleTableViewTest(TestCase):
             table_data = MEMORY_DATA
 
             def get_queryset(self):
-                return Region.objects.all().order_by('name')
+                return Region.objects.all().order_by("name")
 
-        response, view = PaginateByDefinedOnView.as_view()(build_request('/'))
+        response, view = PaginateByDefinedOnView.as_view()(build_request("/"))
         self.assertEqual(view.get_table().paginator.per_page, 2)
 
     def test_should_pass_kwargs_to_table_constructor(self):
@@ -134,19 +135,19 @@ class SingleTableViewTest(TestCase):
             table_data = []
 
             def get_table(self, **kwargs):
-                kwargs.update({'orderable': False})
+                kwargs.update({"orderable": False})
                 return super(PassKwargsView, self).get_table(**kwargs)
 
-        response, view = SimpleView.as_view()(build_request('/'))
+        response, view = SimpleView.as_view()(build_request("/"))
         self.assertTrue(view.get_table().orderable)
 
-        response, view = PassKwargsView.as_view()(build_request('/'))
+        response, view = PassKwargsView.as_view()(build_request("/"))
         self.assertFalse(view.get_table().orderable)
 
     def test_should_override_table_pagination(self):
         class PrefixedTable(SimpleTable):
             class Meta(SimpleTable.Meta):
-                prefix = 'p_'
+                prefix = "p_"
 
         class PrefixedView(SimpleView):
             table_class = PrefixedTable
@@ -157,25 +158,25 @@ class SingleTableViewTest(TestCase):
             def get_table_pagination(self, table):
                 assert isinstance(table, tables.Table)
 
-                per_page = self.request.GET.get('%s_override' % table.prefixed_per_page_field)
+                per_page = self.request.GET.get("%s_override" % table.prefixed_per_page_field)
                 if per_page is not None:
-                    return {'per_page': per_page}
+                    return {"per_page": per_page}
                 return super(PaginationOverrideView, self).get_table_pagination(table)
 
-        response, view = PaginationOverrideView.as_view()(build_request('/?p_per_page_override=2'))
+        response, view = PaginationOverrideView.as_view()(build_request("/?p_per_page_override=2"))
         assert view.get_table().paginator.per_page == 2
 
     def test_using_get_queryset(self):
-        '''
+        """
         Should not raise a value-error for a View using View.get_queryset()
         (test for reverting regressing in #423)
-        '''
-        Person.objects.create(first_name='Anton', last_name='Sam')
+        """
+        Person.objects.create(first_name="Anton", last_name="Sam")
 
         class Table(tables.Table):
             class Meta(object):
                 model = Person
-                fields = ('first_name', 'last_name')
+                fields = ("first_name", "last_name")
 
         class TestView(tables.SingleTableView):
             model = Person
@@ -184,6 +185,7 @@ class SingleTableViewTest(TestCase):
             def get(self, request, *args, **kwargs):
                 self.get_table()
                 from django.http import HttpResponse
+
                 return HttpResponse()
 
             def get_queryset(self):
@@ -202,7 +204,7 @@ class SingleTableViewTest(TestCase):
 
         view = SimpleNoTableClassView()
         table_class = view.get_table_class()
-        self.assertEqual(table_class.__name__, 'RegionTable')
+        self.assertEqual(table_class.__name__, "RegionTable")
 
     def test_get_tables_class_raises_no_model(self):
         class SimpleNoTableClassNoModelView(tables.SingleTableView):
@@ -216,11 +218,11 @@ class SingleTableViewTest(TestCase):
 
 class SingleTableMixinTest(TestCase):
     def test_with_non_paginated_view(self):
-        '''
+        """
         SingleTableMixin should not assume it is mixed with a ListView
 
         Github issue #326
-        '''
+        """
 
         class Table(tables.Table):
             class Meta:
@@ -230,7 +232,7 @@ class SingleTableMixinTest(TestCase):
             table_class = Table
             table_data = MEMORY_DATA
 
-            template_name = 'dummy.html'
+            template_name = "dummy.html"
 
         View.as_view()(build_request())
 
@@ -245,14 +247,12 @@ class SingleTableMixinTest(TestCase):
         class View(DispatchHookMixin, tables.SingleTableView):
             table_class = Table
             queryset = Region.objects.all()
-            table_pagination = {
-                'klass': MyPaginator
-            }
+            table_pagination = {"klass": MyPaginator}
 
         response, view = View.as_view()(build_request())
 
         context = view.get_context_data()
-        self.assertIsInstance(context['table'].paginator, MyPaginator)
+        self.assertIsInstance(context["table"].paginator, MyPaginator)
 
 
 class TableA(tables.Table):
@@ -263,17 +263,25 @@ class TableA(tables.Table):
 class TableB(tables.Table):
     class Meta:
         model = Region
-        exclude = ('id', )
+        exclude = ("id",)
 
 
 class MultiTableMixinTest(TestCase):
     def setUp(self):
-        Person.objects.create(first_name='Jan Pieter', last_name='W')
+        Person.objects.create(first_name="Jan Pieter", last_name="W")
 
         NL_PROVICES = (
-            'Flevoland', 'Friesland', 'Gelderland', 'Groningen', 'Limburg',
-            'Noord-Brabant', 'Noord-Holland', 'Overijssel', 'Utrecht',
-            'Zeeland', 'Zuid-Holland',
+            "Flevoland",
+            "Friesland",
+            "Gelderland",
+            "Groningen",
+            "Limburg",
+            "Noord-Brabant",
+            "Noord-Holland",
+            "Overijssel",
+            "Utrecht",
+            "Zeeland",
+            "Zuid-Holland",
         )
         for name in NL_PROVICES:
             Region.objects.create(name=name)
@@ -282,91 +290,83 @@ class MultiTableMixinTest(TestCase):
         class View(tables.MultiTableMixin, TemplateView):
             tables = (TableA, TableB)
             tables_data = (Person.objects.all(), Region.objects.all())
-            template_name = 'multiple.html'
+            template_name = "multiple.html"
 
-        response = View.as_view()(build_request('/'))
+        response = View.as_view()(build_request("/"))
         response.render()
 
         html = response.rendered_content
 
-        self.assertIn('table_0-sort=first_name', html)
-        self.assertIn('table_1-sort=name', html)
+        self.assertIn("table_0-sort=first_name", html)
+        self.assertIn("table_1-sort=name", html)
 
-        self.assertIn('<td >Jan Pieter</td>', html)
-        self.assertIn('<td >Zuid-Holland</td>', html)
+        self.assertIn("<td >Jan Pieter</td>", html)
+        self.assertIn("<td >Zuid-Holland</td>", html)
 
     def test_supplying_instances(self):
         class View(tables.MultiTableMixin, TemplateView):
-            tables = (
-                TableA(Person.objects.all()),
-                TableB(Region.objects.all())
-            )
-            template_name = 'multiple.html'
+            tables = (TableA(Person.objects.all()), TableB(Region.objects.all()))
+            template_name = "multiple.html"
 
-        response = View.as_view()(build_request('/'))
+        response = View.as_view()(build_request("/"))
         response.render()
 
         html = response.rendered_content
 
-        self.assertIn('table_0-sort=first_name', html)
-        self.assertIn('table_1-sort=name', html)
+        self.assertIn("table_0-sort=first_name", html)
+        self.assertIn("table_1-sort=name", html)
 
-        self.assertIn('<td >Jan Pieter</td>', html)
-        self.assertIn('<td >Zuid-Holland</td>', html)
+        self.assertIn("<td >Jan Pieter</td>", html)
+        self.assertIn("<td >Zuid-Holland</td>", html)
 
     def test_without_tables(self):
         class View(tables.MultiTableMixin, TemplateView):
-            template_name = 'multiple.html'
+            template_name = "multiple.html"
 
         with self.assertRaises(ImproperlyConfigured):
-            View.as_view()(build_request('/'))
+            View.as_view()(build_request("/"))
 
     def test_with_empty_get_tables_list(self):
         class View(tables.MultiTableMixin, TemplateView):
-            template_name = 'multiple.html'
+            template_name = "multiple.html"
 
             def get_tables(self):
                 return []
 
-        response = View.as_view()(build_request('/'))
+        response = View.as_view()(build_request("/"))
         response.render()
 
         html = response.rendered_content
-        assert '<h1>Multiple tables using MultiTableMixin</h1>' in html
+        assert "<h1>Multiple tables using MultiTableMixin</h1>" in html
 
     def test_with_empty_class_tables_list(self):
         class View(tables.MultiTableMixin, TemplateView):
-            template_name = 'multiple.html'
+            template_name = "multiple.html"
             tables = []
 
-        response = View.as_view()(build_request('/'))
+        response = View.as_view()(build_request("/"))
         response.render()
 
         html = response.rendered_content
-        self.assertIn('<h1>Multiple tables using MultiTableMixin</h1>', html)
+        self.assertIn("<h1>Multiple tables using MultiTableMixin</h1>", html)
 
     def test_length_mismatch(self):
         class View(tables.MultiTableMixin, TemplateView):
             tables = (TableA, TableB)
-            tables_data = (Person.objects.all(), )
-            template_name = 'multiple.html'
+            tables_data = (Person.objects.all(),)
+            template_name = "multiple.html"
 
         with self.assertRaises(ImproperlyConfigured):
-            View.as_view()(build_request('/'))
+            View.as_view()(build_request("/"))
 
     def test_pagination(self):
         class View(DispatchHookMixin, tables.MultiTableMixin, TemplateView):
-            tables = (
-                TableB(Region.objects.all()),
-                TableB(Region.objects.all())
-            )
-            template_name = 'multiple.html'
+            tables = (TableB(Region.objects.all()), TableB(Region.objects.all()))
+            template_name = "multiple.html"
 
-            table_pagination = {
-                'per_page': 5
-            }
+            table_pagination = {"per_page": 5}
 
-        response, view = View.as_view()(build_request('/?table_1-page=3'))
+        response, view = View.as_view()(build_request("/?table_1-page=3"))
 
         tableA, tableB = view.get_tables()
 
@@ -376,31 +376,31 @@ class MultiTableMixinTest(TestCase):
     def test_get_tables_data(self):
         class View(tables.MultiTableMixin, TemplateView):
             tables = (TableA, TableB)
-            template_name = 'multiple.html'
+            template_name = "multiple.html"
 
             def get_tables_data(self):
                 return [Person.objects.all(), Region.objects.all()]
 
-        response = View.as_view()(build_request('/'))
+        response = View.as_view()(build_request("/"))
         response.render()
 
         html = response.rendered_content
 
-        self.assertIn('<td >Jan Pieter</td>', html)
-        self.assertIn('<td >Zuid-Holland</td>', html)
+        self.assertIn("<td >Jan Pieter</td>", html)
+        self.assertIn("<td >Zuid-Holland</td>", html)
 
     def test_table_prefix(self):
         class View(tables.MultiTableMixin, TemplateView):
             tables = (
-                TableB(Region.objects.all(), prefix='test_prefix'),
-                TableB(Region.objects.all())
+                TableB(Region.objects.all(), prefix="test_prefix"),
+                TableB(Region.objects.all()),
             )
-            template_name = 'multiple.html'
+            template_name = "multiple.html"
 
-        response = View.as_view()(build_request('/'))
+        response = View.as_view()(build_request("/"))
 
-        tableA = response.context_data['tables'][0]
-        tableB = response.context_data['tables'][1]
+        tableA = response.context_data["tables"][0]
+        tableB = response.context_data["tables"][1]
 
-        self.assertEqual('test_prefix', tableA.prefix)
-        self.assertIn('table', tableB.prefix)
+        self.assertEqual("test_prefix", tableA.prefix)
+        self.assertIn("table", tableB.prefix)

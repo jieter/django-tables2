@@ -17,13 +17,13 @@ from django.utils.html import format_html_join
 @stringfilter
 def ucfirst(s):
     if not isinstance(s, six.string_types):
-        return ''
+        return ""
     else:
         return s[0].upper() + s[1:]
 
 
 class Sequence(list):
-    '''x
+    """x
     Represents a column sequence, e.g. ``('first_name', '...', 'last_name')``
 
     This is used to represent `.Table.Meta.sequence` or the `.Table`
@@ -33,9 +33,10 @@ class Sequence(list):
     order of the columns on a table. Optionally a '...' item can be inserted,
     which is treated as a *catch-all* for column names that are not explicitly
     specified.
-    '''
+    """
+
     def expand(self, columns):
-        '''
+        """
         Expands the ``'...'`` item in the sequence into the appropriate column
         names that should be placed there.
 
@@ -46,7 +47,7 @@ class Sequence(list):
 
         raises:
             `ValueError` if the sequence is invalid for the columns.
-        '''
+        """
         ellipses = self.count("...")
         if ellipses > 1:
             raise ValueError("'...' must be used at most once in a sequence.")
@@ -72,17 +73,17 @@ class Sequence(list):
 
 
 class OrderBy(str):
-    '''
+    """
     A single item in an `.OrderByTuple` object.
 
     This class is essentially just a `str` with some extra properties.
-    '''
+    """
 
-    QUERYSET_SEPARATOR = '__'
+    QUERYSET_SEPARATOR = "__"
 
     @property
     def bare(self):
-        '''
+        """
         Returns:
             `.OrderBy`: the bare form.
 
@@ -91,12 +92,12 @@ class OrderBy(str):
 
         Example: ``age`` is the bare form of ``-age``
 
-        '''
-        return OrderBy(self[1:]) if self[:1] == '-' else self
+        """
+        return OrderBy(self[1:]) if self[:1] == "-" else self
 
     @property
     def opposite(self):
-        '''
+        """
         Provides the opposite of the current sorting direction.
 
         Returns:
@@ -108,34 +109,34 @@ class OrderBy(str):
             >>> order_by.opposite
             '-name'
 
-        '''
-        return OrderBy(self[1:]) if self.is_descending else OrderBy('-' + self)
+        """
+        return OrderBy(self[1:]) if self.is_descending else OrderBy("-" + self)
 
     @property
     def is_descending(self):
-        '''
+        """
         Returns `True` if this object induces *descending* ordering.
-        '''
-        return self.startswith('-')
+        """
+        return self.startswith("-")
 
     @property
     def is_ascending(self):
-        '''
+        """
         Returns `True` if this object induces *ascending* ordering.
-        '''
+        """
         return not self.is_descending
 
     def for_queryset(self):
-        '''
+        """
         Returns the current instance usable in Django QuerySet's order_by
         arguments.
-        '''
+        """
         return self.replace(Accessor.SEPARATOR, OrderBy.QUERYSET_SEPARATOR)
 
 
 @six.python_2_unicode_compatible
 class OrderByTuple(tuple):
-    '''
+    """
     Stores ordering as (as `.OrderBy` objects).
 
     The `~.Table.order_by` property is always converted to an `.OrderByTuple` object.
@@ -151,7 +152,8 @@ class OrderByTuple(tuple):
         >>> x['age'].opposite
         'age'
 
-    '''
+    """
+
     def __new__(cls, iterable):
         transformed = []
         for item in iterable:
@@ -161,10 +163,10 @@ class OrderByTuple(tuple):
         return super(OrderByTuple, cls).__new__(cls, transformed)
 
     def __str__(self):
-        return ','.join(self)
+        return ",".join(self)
 
     def __contains__(self, name):
-        '''
+        """
         Determine if a column has an influence on ordering.
 
         Example::
@@ -180,7 +182,7 @@ class OrderByTuple(tuple):
 
         Returns:
             bool: `True` if the column with `name` influences the ordering.
-        '''
+        """
         name = OrderBy(name).bare
         for order_by in self:
             if order_by.bare == name:
@@ -188,7 +190,7 @@ class OrderByTuple(tuple):
         return False
 
     def __getitem__(self, index):
-        '''
+        """
         Allows an `.OrderBy` object to be extracted via named or integer
         based indexing.
 
@@ -207,7 +209,7 @@ class OrderByTuple(tuple):
 
         Returns:
             `.OrderBy`: for the ordering at the index.
-        '''
+        """
         if isinstance(index, six.string_types):
             for order_by in self:
                 if order_by == index or order_by.bare == index:
@@ -260,12 +262,13 @@ class OrderByTuple(tuple):
                         b_type = type(b)
                         return (repr(a_type), id(a_type)) < (repr(b_type), id(b_type))
                 return False
+
         return Comparator
 
     def get(self, key, fallback):
-        '''
+        """
         Identical to `__getitem__`, but supports fallback value.
-        '''
+        """
         try:
             return self[key]
         except (KeyError, IndexError):
@@ -273,30 +276,33 @@ class OrderByTuple(tuple):
 
     @property
     def opposite(self):
-        '''
+        """
         Return version with each `.OrderBy` prefix toggled::
 
             >>> order_by = OrderByTuple(('name', '-age'))
             >>> order_by.opposite
             ('-name', 'age')
-        '''
+        """
         return type(self)((o.opposite for o in self))
 
 
 class Accessor(str):
-    '''
+    """
     A string describing a path from one object to another via attribute/index
     accesses. For convenience, the class has an alias `.A` to allow for more concise code.
 
     Relations are separated by a ``.`` character.
-    '''
-    SEPARATOR = '.'
+    """
 
-    ALTERS_DATA_ERROR_FMT = 'Refusing to call {method}() because `.alters_data = True`'
-    LOOKUP_ERROR_FMT = 'Failed lookup for key [{key}] in {context}, when resolving the accessor {accessor}'
+    SEPARATOR = "."
+
+    ALTERS_DATA_ERROR_FMT = "Refusing to call {method}() because `.alters_data = True`"
+    LOOKUP_ERROR_FMT = (
+        "Failed lookup for key [{key}] in {context}, when resolving the accessor {accessor}"
+    )
 
     def resolve(self, context, safe=True, quiet=False):
-        '''
+        """
         Return an object described by the accessor by traversing the attributes
         of *context*.
 
@@ -329,7 +335,7 @@ class Accessor(str):
         Raises:
             TypeError`, `AttributeError`, `KeyError`, `ValueError`
             (unless `quiet` == `True`)
-        '''
+        """
 
         try:
             current = context
@@ -342,22 +348,25 @@ class Accessor(str):
                     except (TypeError, AttributeError):
                         try:  # list-index lookup
                             current = current[int(bit)]
-                        except (IndexError,  # list index out of range
-                                ValueError,  # invalid literal for int()
-                                KeyError,    # dict without `int(bit)` key
-                                TypeError,   # unsubscriptable object
-                                ):
-                            current_context = type(current) if isinstance(current, models.Model) else current
+                        except (
+                            IndexError,  # list index out of range
+                            ValueError,  # invalid literal for int()
+                            KeyError,  # dict without `int(bit)` key
+                            TypeError,  # unsubscriptable object
+                        ):
+                            current_context = (
+                                type(current) if isinstance(current, models.Model) else current
+                            )
 
                             raise ValueError(
-                                self.LOOKUP_ERROR_FMT.format(key=bit, context=current_context, accessor=self)
+                                self.LOOKUP_ERROR_FMT.format(
+                                    key=bit, context=current_context, accessor=self
+                                )
                             )
                 if callable(current):
-                    if safe and getattr(current, 'alters_data', False):
-                        raise ValueError(
-                            self.ALTERS_DATA_ERROR_FMT.format(method=repr(current))
-                        )
-                    if not getattr(current, 'do_not_call_in_templates', False):
+                    if safe and getattr(current, "alters_data", False):
+                        raise ValueError(self.ALTERS_DATA_ERROR_FMT.format(method=repr(current)))
+                    if not getattr(current, "do_not_call_in_templates", False):
                         current = current()
                 # important that we break in None case, or a relationship
                 # spanning across a null-key will raise an exception in the
@@ -371,15 +380,15 @@ class Accessor(str):
 
     @property
     def bits(self):
-        if self == '':
+        if self == "":
             return ()
         return self.split(self.SEPARATOR)
 
     def get_field(self, model):
-        '''
+        """
         Return the django model field for model in context, following relations.
-        '''
-        if not hasattr(model, '_meta'):
+        """
+        if not hasattr(model, "_meta"):
             return
 
         field = None
@@ -389,14 +398,14 @@ class Accessor(str):
             except FieldDoesNotExist:
                 break
 
-            if hasattr(field, 'remote_field'):
-                rel = getattr(field, 'remote_field', None)
-                model = getattr(rel, 'model', model)
+            if hasattr(field, "remote_field"):
+                rel = getattr(field, "remote_field", None)
+                model = getattr(rel, "model", model)
 
         return field
 
     def penultimate(self, context, quiet=True):
-        '''
+        """
         Split the accessor on the right-most dot '.', return a tuple with:
          - the resolved left part.
          - the remainder
@@ -406,8 +415,8 @@ class Accessor(str):
             >>> Accessor('a.b.c').penultimate({'a': {'a': 1, 'b': {'c': 2, 'd': 4}}})
             ({'c': 2, 'd': 4}, 'c')
 
-        '''
-        path, _, remainder = self.rpartition('.')
+        """
+        path, _, remainder = self.rpartition(".")
         return A(path).resolve(context, quiet=quiet), remainder
 
 
@@ -415,7 +424,7 @@ A = Accessor  # alias
 
 
 class AttributeDict(OrderedDict):
-    '''
+    """
     A wrapper around `collections.OrderedDict` that knows how to render itself
     as HTML style tag attributes.
 
@@ -423,8 +432,9 @@ class AttributeDict(OrderedDict):
 
     The returned string is marked safe, so it can be used safely in a template.
     See `.as_html` for a usage example.
-    '''
-    blacklist = ('th', 'td', '_ordering')
+    """
+
+    blacklist = ("th", "td", "_ordering")
 
     def _iteritems(self):
         for k, v in six.iteritems(self):
@@ -433,7 +443,7 @@ class AttributeDict(OrderedDict):
                 yield (k, value)
 
     def as_html(self):
-        '''
+        """
         Render to HTML tag attributes.
 
         Example:
@@ -447,12 +457,12 @@ class AttributeDict(OrderedDict):
 
         returns: `~django.utils.safestring.SafeUnicode` object
 
-        '''
-        return format_html_join(' ', '{}="{}"', self._iteritems())
+        """
+        return format_html_join(" ", '{}="{}"', self._iteritems())
 
 
 def segment(sequence, aliases):
-    '''
+    """
     Translates a flat sequence of items into a set of prefixed aliases.
 
     This allows the value set by `.QuerySet.order_by` to be translated into
@@ -465,7 +475,7 @@ def segment(sequence, aliases):
         ...               'z': ('-b', 'c')}))
         [('x', '-y'), ('x', 'z')]
 
-    '''
+    """
     if not (sequence or aliases):
         return
     for alias, parts in aliases.items():
@@ -475,10 +485,10 @@ def segment(sequence, aliases):
             OrderBy(alias).opposite: OrderByTuple(parts).opposite,
         }
         for valias, vparts in variants.items():
-            if list(sequence[:len(vparts)]) == list(vparts):
+            if list(sequence[: len(vparts)]) == list(vparts):
                 tail_aliases = dict(aliases)
                 del tail_aliases[alias]
-                tail_sequence = sequence[len(vparts):]
+                tail_sequence = sequence[len(vparts) :]
                 if tail_sequence:
                     for tail in segment(tail_sequence, tail_aliases):
                         yield tuple(chain([valias], tail))
@@ -489,15 +499,16 @@ def segment(sequence, aliases):
 
 
 def signature(fn):
-    '''
+    """
     Returns:
         tuple: Returns a (arguments, kwarg_name)-tuple:
              - the arguments (positional or keyword)
              - the name of the ** kwarg catch all.
 
     The self-argument for methods is always removed.
-    '''
+    """
     import inspect
+
     # getargspec is Deprecated since version 3.0, so if not PY2, use the new
     # inspect api.
 
@@ -505,7 +516,7 @@ def signature(fn):
         argspec = inspect.getargspec(fn)
         args = argspec.args
         if len(args) > 0:
-            args = tuple(args[1:] if args[0] == 'self' else args)
+            args = tuple(args[1:] if args[0] == "self" else args)
 
         return (args, argspec.keywords)
 
@@ -526,7 +537,7 @@ def signature(fn):
 
 
 def call_with_appropriate(fn, kwargs):
-    '''
+    """
     Calls the function ``fn`` with the keyword arguments from ``kwargs`` it expects
 
     If the kwargs argument is defined, pass all arguments, else provide exactly
@@ -534,7 +545,7 @@ def call_with_appropriate(fn, kwargs):
 
     If one of the arguments of ``fn`` are not contained in kwargs, ``fn`` will not
     be called and ``None`` will be returned.
-    '''
+    """
     args, kwargs_name = signature(fn)
     # no catch-all defined, we need to exactly pass the arguments specified.
     if not kwargs_name:
@@ -548,7 +559,7 @@ def call_with_appropriate(fn, kwargs):
 
 
 def computed_values(d, kwargs=None):
-    '''
+    """
     Returns a new `dict` that has callable values replaced with the return values.
 
     Example::
@@ -584,7 +595,7 @@ def computed_values(d, kwargs=None):
 
     Returns:
         dict: with callable values replaced.
-    '''
+    """
     kwargs = kwargs or {}
     result = {}
     for k, v in six.iteritems(d):

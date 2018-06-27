@@ -11,7 +11,7 @@ from .linkcolumn import BaseLinkColumn
 
 @library.register
 class URLColumn(BaseLinkColumn):
-    '''
+    """
     Renders URL values as hyperlinks.
 
     Arguments:
@@ -27,7 +27,8 @@ class URLColumn(BaseLinkColumn):
         >>> table = CompaniesTable([{'www': 'http://google.com'}])
         >>> table.rows[0].get_cell('www')
         '<a href="http://google.com">http://google.com</a>'
-    '''
+    """
+
     def render(self, record, value):
         return self.render_link(value, record=record, value=value)
 

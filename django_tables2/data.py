@@ -4,38 +4,39 @@ from .utils import OrderBy, OrderByTuple, segment
 
 
 class TableData(object):
-    '''
+    """
     Base class for table data containers.
-    '''
+    """
+
     def __init__(self, data):
         self.data = data
 
     def __getitem__(self, key):
-        '''
+        """
         Slicing returns a new `.TableData` instance, indexing returns a single record.
-        '''
+        """
         return self.data[key]
 
     def __iter__(self):
-        '''
+        """
         for ... in ... default to using this. There's a bug in Django 1.3
         with indexing into QuerySets, so this side-steps that problem (as well
         as just being a better way to iterate).
-        '''
+        """
         return iter(self.data)
 
     def set_table(self, table):
-        '''
+        """
         `Table.__init__` calls this method to inject an instance of itself into the
         `TableData` instance.
         Good place to do additional checks if Table and TableData instance will work
         together properly.
-        '''
+        """
         self.table = table
 
     @property
     def model(self):
-        return getattr(self.data, 'model', None)
+        return getattr(self.data, "model", None)
 
     @property
     def ordering(self):
@@ -43,11 +44,11 @@ class TableData(object):
 
     @property
     def verbose_name(self):
-        return 'item'
+        return "item"
 
     @property
     def verbose_name_plural(self):
-        return 'items'
+        return "items"
 
     @staticmethod
     def from_data(data):
@@ -60,13 +61,13 @@ class TableData(object):
             return TableListData(list(data))
 
         raise ValueError(
-            'data must be QuerySet-like (have count() and order_by()) or support'
-            ' list(data) -- {} has neither'.format(type(data).__name__)
+            "data must be QuerySet-like (have count() and order_by()) or support"
+            " list(data) -- {} has neither".format(type(data).__name__)
         )
 
 
 class TableListData(TableData):
-    '''
+    """
     Table data container for a list of dicts, for example::
 
     [
@@ -78,16 +79,15 @@ class TableListData(TableData):
 
         Other structures might have worked in the past, but are not explicitly
         supported or tested.
-    '''
+    """
 
     @staticmethod
     def validate(data):
-        '''
+        """
         Validates `data` for use in this container
-        '''
-        return (
-            hasattr(data, '__iter__') or
-            (hasattr(data, '__len__') and hasattr(data, '__getitem__'))
+        """
+        return hasattr(data, "__iter__") or (
+            hasattr(data, "__len__") and hasattr(data, "__getitem__")
         )
 
     def __len__(self):
@@ -95,14 +95,16 @@ class TableListData(TableData):
 
     @property
     def verbose_name(self):
-        return getattr(self.data, 'verbose_name', super(TableListData, self).verbose_name)
+        return getattr(self.data, "verbose_name", super(TableListData, self).verbose_name)
 
     @property
     def verbose_name_plural(self):
-        return getattr(self.data, 'verbose_name_plural', super(TableListData, self).verbose_name_plural)
+        return getattr(
+            self.data, "verbose_name_plural", super(TableListData, self).verbose_name_plural
+        )
 
     def order_by(self, aliases):
-        '''
+        """
         Order the data based on order by aliases (prefixed column names) in the
         table.
 
@@ -110,7 +112,7 @@ class TableListData(TableData):
             aliases (`~.utils.OrderByTuple`): optionally prefixed names of
                 columns ('-' indicates descending order) in order of
                 significance with regard to data ordering.
-        '''
+        """
         accessors = []
         for alias in aliases:
             bound_column = self.table.columns[OrderBy(alias).bare]
@@ -127,24 +129,26 @@ class TableListData(TableData):
 
 
 class TableQuerysetData(TableData):
-    '''
+    """
     Table data container for a queryset.
-    '''
+    """
 
     @staticmethod
     def validate(data):
-        '''
+        """
         Validates `data` for use in this container
-        '''
+        """
         return (
-            hasattr(data, 'count') and callable(data.count) and
-            hasattr(data, 'order_by') and callable(data.order_by)
+            hasattr(data, "count")
+            and callable(data.count)
+            and hasattr(data, "order_by")
+            and callable(data.order_by)
         )
 
     def __len__(self):
-        '''Cached data length'''
-        if not hasattr(self, '_length') or self._length is None:
-            if hasattr(self.table, 'paginator'):
+        """Cached data length"""
+        if not hasattr(self, "_length") or self._length is None:
+            if hasattr(self.table, "paginator"):
                 # for paginated tables, use QuerySet.count() as we are interested in total number of records.
                 self._length = self.data.count()
             else:
@@ -155,17 +159,16 @@ class TableQuerysetData(TableData):
 
     def set_table(self, table):
         super(TableQuerysetData, self).set_table(table)
-        if self.model and getattr(table._meta, 'model', None) and self.model != table._meta.model:
+        if self.model and getattr(table._meta, "model", None) and self.model != table._meta.model:
             raise ValueError(
-                'table data is of type {} but {} is specified in Table.Meta.model'.format(
-                    self.model,
-                    table._meta.model
+                "table data is of type {} but {} is specified in Table.Meta.model".format(
+                    self.model, table._meta.model
                 )
             )
 
     @property
     def ordering(self):
-        '''
+        """
         Returns the list of order by aliases that are enforcing ordering on the
         data.
 
@@ -174,7 +177,7 @@ class TableQuerysetData(TableData):
 
         This works by inspecting the actual underlying data. As such it's only
         supported for querysets.
-        '''
+        """
 
         aliases = {}
         for bound_column in self.table.columns:
@@ -185,7 +188,7 @@ class TableQuerysetData(TableData):
             pass
 
     def order_by(self, aliases):
-        '''
+        """
         Order the data based on order by aliases (prefixed column names) in the
         table.
 
@@ -193,7 +196,7 @@ class TableQuerysetData(TableData):
             aliases (`~.utils.OrderByTuple`): optionally prefixed names of
                 columns ('-' indicates descending order) in order of
                 significance with regard to data ordering.
-        '''
+        """
         modified_any = False
         accessors = []
         for alias in aliases:
@@ -207,7 +210,7 @@ class TableQuerysetData(TableData):
                 accessors += bound_column.order_by
 
             if bound_column:
-                queryset, modified = bound_column.order(self.data, alias[0] == '-')
+                queryset, modified = bound_column.order(self.data, alias[0] == "-")
 
                 if modified:
                     self.data = queryset
@@ -224,18 +227,18 @@ class TableQuerysetData(TableData):
 
     @cached_property
     def verbose_name(self):
-        '''
+        """
         The full (singular) name for the data.
 
         Model's `~django.db.Model.Meta.verbose_name` is honored.
-        '''
+        """
         return self.data.model._meta.verbose_name
 
     @cached_property
     def verbose_name_plural(self):
-        '''
+        """
         The full (plural) name for the data.
 
         Model's `~django.db.Model.Meta.verbose_name` is honored.
-        '''
+        """
         return self.data.model._meta.verbose_name_plural

@@ -38,12 +38,12 @@ class TableDataFactoryTest(TestCase):
         self.assertIsInstance(data, TableQuerysetData)
 
     def test_valid_list_of_dicts(self):
-        data = TableData.from_data([{'name': 'John'}, {'name': 'Pete'}])
+        data = TableData.from_data([{"name": "John"}, {"name": "Pete"}])
         self.assertIsInstance(data, TableListData)
         self.assertEqual(len(data), 2)
 
     def test_valid_tuple_of_dicts(self):
-        data = TableData.from_data(({'name': 'John'}, {'name': 'Pete'}))
+        data = TableData.from_data(({"name": "John"}, {"name": "Pete"}))
         self.assertIsInstance(data, TableListData)
         self.assertEqual(len(data), 2)
 
@@ -55,7 +55,7 @@ class TableDataFactoryTest(TestCase):
             def __getitem__(self, pos):
                 if pos != 0:
                     raise IndexError()
-                return {'a': 1}
+                return {"a": 1}
 
         data = TableData.from_data(Datasource())
         self.assertEqual(len(data), 1)
@@ -64,24 +64,19 @@ class TableDataFactoryTest(TestCase):
 class TableDataTest(TestCase):
     def test_knows_its_default_name(self):
         data = TableData.from_data([{}])
-        self.assertEqual(data.verbose_name, 'item')
-        self.assertEqual(data.verbose_name_plural, 'items')
+        self.assertEqual(data.verbose_name, "item")
+        self.assertEqual(data.verbose_name_plural, "items")
 
     def test_knows_its_name(self):
         data = TableData.from_data(Person.objects.all())
 
-        self.assertEqual(data.verbose_name, 'person')
-        self.assertEqual(data.verbose_name_plural, 'people')
+        self.assertEqual(data.verbose_name, "person")
+        self.assertEqual(data.verbose_name_plural, "people")
 
 
 def generator(max_value):
     for i in range(max_value):
-        yield {
-            'foo': i,
-            'bar': chr(i),
-            'baz': hex(i),
-            'inv': max_value - i
-        }
+        yield {"foo": i, "bar": chr(i), "baz": hex(i), "inv": max_value - i}
 
 
 class TableListsDataTest(TestCase):
@@ -90,31 +85,32 @@ class TableListsDataTest(TestCase):
         data = TableListData(list_data)
 
         self.assertEqual(len(list_data), len(data))
-        self.assertEqual(data.verbose_name, 'item')
-        self.assertEqual(data.verbose_name_plural, 'items')
+        self.assertEqual(data.verbose_name, "item")
+        self.assertEqual(data.verbose_name_plural, "items")
 
     def test_TableListData_with_verbose_name(self):
-        '''
+        """
         TableListData uses the attributes on the listlike object to generate
         it's verbose_name.
-        '''
+        """
+
         class listlike(list):
-            verbose_name = 'unit'
-            verbose_name_plural = 'units'
+            verbose_name = "unit"
+            verbose_name_plural = "units"
 
         list_data = listlike(generator(100))
         data = TableListData(list_data)
 
         self.assertEqual(len(list_data), len(data))
-        self.assertEqual(data.verbose_name, 'unit')
-        self.assertEqual(data.verbose_name_plural, 'units')
+        self.assertEqual(data.verbose_name, "unit")
+        self.assertEqual(data.verbose_name_plural, "units")
 
 
 class TableQuerysetDataTest(TestCase):
     def test_custom_TableData(self):
-        '''If TableQuerysetData._length is set, no count() query will be performed'''
+        """If TableQuerysetData._length is set, no count() query will be performed"""
         for i in range(20):
-            Person.objects.create(first_name='first {}'.format(i))
+            Person.objects.create(first_name="first {}".format(i))
 
         data = TableQuerysetData(Person.objects.all())
         data._length = 10
@@ -123,7 +119,6 @@ class TableQuerysetDataTest(TestCase):
         self.assertEqual(len(table.data), 10)
 
     def test_model_mismatch(self):
-
         class MyTable(Table):
             class Meta:
                 model = Person
@@ -133,18 +128,18 @@ class TableQuerysetDataTest(TestCase):
 
     def test_queryset_union(self):
         for i in range(10):
-            Person.objects.create(first_name='first {}'.format(i), last_name='foo')
-            Person.objects.create(first_name='first {}'.format(i * 2), last_name='bar')
+            Person.objects.create(first_name="first {}".format(i), last_name="foo")
+            Person.objects.create(first_name="first {}".format(i * 2), last_name="bar")
 
         class MyTable(Table):
             class Meta:
                 model = Person
-                fields = ('first_name', )
+                fields = ("first_name",)
 
-        qs = Person.objects.filter(last_name='bar').union(Person.objects.filter(last_name='foo'))
-        table = MyTable(qs.order_by('-last_name'))
+        qs = Person.objects.filter(last_name="bar").union(Person.objects.filter(last_name="foo"))
+        table = MyTable(qs.order_by("-last_name"))
         self.assertEqual(len(table.rows), 20)
 
         html = table.as_html(build_request())
-        self.assertIn('first 18', html)
-        self.assertIn('first 10', html)
+        self.assertIn("first 18", html)
+        self.assertIn("first 10", html)

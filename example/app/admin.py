@@ -7,7 +7,7 @@ from .models import Continent, Country
 class CountryAdmin(admin.ModelAdmin):
     list_per_page = 20
 
-    list_display = ('name', 'continent')
+    list_display = ("name", "continent")
 
 
 admin.site.register(Country, CountryAdmin)

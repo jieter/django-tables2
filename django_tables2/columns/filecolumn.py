@@ -14,7 +14,7 @@ from .linkcolumn import BaseLinkColumn
 
 @library.register
 class FileColumn(BaseLinkColumn):
-    '''
+    """
     Attempts to render `.FieldFile` (or other storage backend `.File`) as a
     hyperlink.
 
@@ -36,7 +36,8 @@ class FileColumn(BaseLinkColumn):
         text (str or callable): Either static text, or a callable. If set, this
             will be used to render the text inside the link instead of
             the file's ``basename`` (default)
-    '''
+    """
+
     def __init__(self, verify_exists=True, **kwargs):
         self.verify_exists = verify_exists
         super(FileColumn, self).__init__(**kwargs)
@@ -47,7 +48,7 @@ class FileColumn(BaseLinkColumn):
         return super(FileColumn, self).text_value(record, value)
 
     def render(self, record, value):
-        storage = getattr(value, 'storage', None)
+        storage = getattr(value, "storage", None)
         exists = None
         url = None
         if storage:
@@ -57,28 +58,28 @@ class FileColumn(BaseLinkColumn):
             url = storage.url(value.name)
 
         else:
-            if self.verify_exists and hasattr(value, 'name'):
+            if self.verify_exists and hasattr(value, "name"):
                 # ignore negatives, perhaps the file has a name but it doesn't
                 # represent a local path... better to stay neutral than give a
                 # false negative.
                 exists = os.path.exists(value.name) or exists
 
-        tag = 'a' if url else 'span'
+        tag = "a" if url else "span"
         attrs = AttributeDict(self.attrs.get(tag, {}))
-        attrs['title'] = value.name
+        attrs["title"] = value.name
 
-        classes = [c for c in attrs.get('class', '').split(' ') if c]
+        classes = [c for c in attrs.get("class", "").split(" ") if c]
         if exists is not None:
-            classes.append('exists' if exists else 'missing')
-        attrs['class'] = ' '.join(classes)
+            classes.append("exists" if exists else "missing")
+        attrs["class"] = " ".join(classes)
 
         if url:
             return self.render_link(url, record=record, value=value, attrs=attrs)
         else:
             return format_html(
-                '<span {attrs}>{text}</span>',
+                "<span {attrs}>{text}</span>",
                 attrs=attrs.as_html(),
-                text=self.text_value(record, value)
+                text=self.text_value(record, value),
             )
 
     @classmethod

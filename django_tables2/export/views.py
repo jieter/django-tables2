@@ -4,7 +4,7 @@ from .export import TableExport
 
 
 class ExportMixin(object):
-    '''
+    """
     Support various export formats for the table data.
 
     `ExportMixin` looks for some attributes on the class to change it's behavior:
@@ -22,19 +22,20 @@ class ExportMixin(object):
                 class Table(tables.Table):
                     name = tables.Column()
                     buttons = tables.TemplateColumn(exclude_from_export=True, template_name=...)
-    '''
-    export_name = 'table'
-    export_trigger_param = '_export'
+    """
+
+    export_name = "table"
+    export_trigger_param = "_export"
     exclude_columns = ()
 
     def get_export_filename(self, export_format):
-        return '{}.{}'.format(self.export_name, export_format)
+        return "{}.{}".format(self.export_name, export_format)
 
     def create_export(self, export_format):
         exporter = TableExport(
             export_format=export_format,
             table=self.get_table(**self.get_table_kwargs()),
-            exclude_columns=self.exclude_columns
+            exclude_columns=self.exclude_columns,
         )
 
         return exporter.response(filename=self.get_export_filename(export_format))

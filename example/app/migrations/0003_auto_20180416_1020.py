@@ -5,19 +5,15 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('app', '0002_auto_20180416_0959'),
-    ]
+    dependencies = [("app", "0002_auto_20180416_0959")]
 
     operations = [
         migrations.AlterField(
-            model_name='country',
-            name='flag',
-            field=models.FileField(blank=True, upload_to='country/flags/'),
+            model_name="country",
+            name="flag",
+            field=models.FileField(blank=True, upload_to="country/flags/"),
         ),
         migrations.AlterField(
-            model_name='country',
-            name='tz',
-            field=models.CharField(blank=True, max_length=50),
+            model_name="country", name="tz", field=models.CharField(blank=True, max_length=50)
         ),
     ]
