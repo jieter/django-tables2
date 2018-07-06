@@ -4,6 +4,7 @@ from __future__ import absolute_import, unicode_literals
 from collections import OrderedDict
 from itertools import islice
 
+from django.urls import reverse
 from django.utils import six
 from django.utils.safestring import SafeData
 
@@ -57,6 +58,51 @@ class Library(object):
 # current use is to allow the table metaclass to ask columns if they're a
 # suitable match for a model field, and if so to return an approach instance.
 library = Library()
+
+
+class CellLink(object):
+    def __init__(self, **kwargs):
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+
+    def compose_url(self, record, bound_column):
+        accessor = Accessor(self.accessor if self.accessor is not None else bound_column.name)
+        if self.viewname is None:
+            context = accessor.resolve(record)
+            if not hasattr(context, "get_absolute_url"):
+                if hasattr(record, "get_absolute_url"):
+                    context = record
+                else:
+                    raise TypeError(
+                        "if viewname=None, record {} must define a get_absolute_url".format(
+                            context.__repr__()
+                        )
+                    )
+            return context.get_absolute_url()
+
+        def resolve_if_accessor(val):
+            return val.resolve(record) if isinstance(val, Accessor) else val
+
+        viewname = resolve_if_accessor(self.viewname)
+
+        # Collect the optional arguments for django's reverse()
+        params = {}
+        if self.urlconf:
+            params["urlconf"] = resolve_if_accessor(self.urlconf)
+        if self.args:
+            params["args"] = [resolve_if_accessor(a) for a in self.args]
+        if self.kwargs:
+            params["kwargs"] = {key: resolve_if_accessor(val) for key, val in self.kwargs.items()}
+        if self.current_app:
+            params["current_app"] = resolve_if_accessor(self.current_app)
+
+        return reverse(viewname, **params)
+
+    def get_attrs(self, record, bound_column):
+        attrs = AttributeDict(self.attrs or {})
+        attrs["href"] = self.compose_url(record, bound_column)
+
+        return attrs
 
 
 @library.register
@@ -115,6 +161,9 @@ class Column(object):
     # Tracks each time a Column instance is created. Used to retain order.
     creation_counter = 0
     empty_values = (None, "")
+
+    # by default, contents are not wrapped in an <a>-tag.
+    link = None
 
     # Explicit is set to True if the column is defined as an attribute of a
     # class, used to give explicit columns precedence.
@@ -248,6 +297,31 @@ class Column(object):
         """
         return (queryset, False)
 
+    def linkify(
+        self,
+        viewname=None,
+        urlconf=None,
+        args=None,
+        kwargs=None,
+        current_app=None,
+        attrs=None,
+        accessor=None,
+    ):
+        """
+        Wraps the content of the current cell into an <a> tag.
+        """
+        self.link = CellLink(
+            viewname=viewname,
+            urlconf=urlconf,
+            args=args,
+            kwargs=kwargs,
+            current_app=current_app,
+            accessor=accessor or self.accessor,
+            attrs=attrs,
+        )
+
+        return self  # support chaining
+
     @classmethod
     def from_field(cls, field):
         """
@@ -299,6 +373,7 @@ class BoundColumn(object):
         self._table = table
         self.column = column
         self.name = name
+        self.link = column.link
 
         self.current_value = None
 

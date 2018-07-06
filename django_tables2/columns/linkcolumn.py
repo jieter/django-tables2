@@ -6,7 +6,7 @@ from django.utils.html import format_html
 
 from django_tables2.utils import Accessor, AttributeDict
 
-from .base import Column, library
+from .base import CellLink, Column, library
 
 
 class BaseLinkColumn(Column):
@@ -152,40 +152,17 @@ class LinkColumn(BaseLinkColumn):
         **extra
     ):
         super(LinkColumn, self).__init__(attrs, **extra)
-        self.viewname = viewname
-        self.urlconf = urlconf
-        self.args = args
-        self.kwargs = kwargs
-        self.current_app = current_app
 
-    def compose_url(self, record, *args, **kwargs):
-        """Compose the URL if the column is constructed with a ``viewname`` argument."""
-
-        if self.viewname is None:
-            if not hasattr(record, "get_absolute_url"):
-                raise TypeError("if viewname=None, record must define a get_absolute_url")
-            return record.get_absolute_url()
-
-        def resolve_if_accessor(val):
-            return val.resolve(record) if isinstance(val, Accessor) else val
-
-        viewname = resolve_if_accessor(self.viewname)
-
-        # Collect the optional arguments for django's reverse()
-        params = {}
-        if self.urlconf:
-            params["urlconf"] = resolve_if_accessor(self.urlconf)
-        if self.args:
-            params["args"] = [resolve_if_accessor(a) for a in self.args]
-        if self.kwargs:
-            params["kwargs"] = {key: resolve_if_accessor(val) for key, val in self.kwargs.items()}
-        if self.current_app:
-            params["current_app"] = resolve_if_accessor(self.current_app)
-
-        return reverse(viewname, **params)
-
-    def render(self, value, record, bound_column):
-        return self.render_link(self.compose_url(record, bound_column), record=record, value=value)
+        self.link = CellLink(
+            column=self,
+            viewname=viewname,
+            urlconf=urlconf,
+            args=args,
+            kwargs=kwargs,
+            current_app=current_app,
+            accessor=None,
+            attrs=attrs.get("a", {}) if attrs else None,
+        )
 
 
 @library.register

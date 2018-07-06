@@ -4,6 +4,7 @@ from __future__ import absolute_import, unicode_literals
 from django.db import models
 from django.db.models.fields import FieldDoesNotExist
 from django.utils import six
+from django.utils.html import format_html
 
 from .columns.linkcolumn import BaseLinkColumn
 from .utils import A, AttributeDict, call_with_appropriate, computed_values
@@ -144,9 +145,7 @@ class BoundRow(object):
             # is correct – it's what __getitem__ expects.
             yield value
 
-    def _get_and_render_with(self, name, render_func, default):
-        bound_column = self.table.columns[name]
-
+    def _get_and_render_with(self, bound_column, render_func, default):
         value = None
         accessor = A(bound_column.accessor)
 
@@ -201,24 +200,35 @@ class BoundRow(object):
         Returns the final rendered html for a cell in the row, given the name
         of a column.
         """
+        bound_column = self.table.columns[name]
+
         return self._get_and_render_with(
-            name, render_func=self._call_render, default=self.table.columns[name].default
+            bound_column, render_func=self._call_render, default=bound_column.default
         )
 
     def _call_render(self, bound_column, value=None):
         """
         Call the column's render method with appropriate kwargs
         """
-        return call_with_appropriate(
-            bound_column.render, self._optional_cell_arguments(bound_column, value)
+        render_kwargs = self._optional_cell_arguments(bound_column, value)
+        content = call_with_appropriate(bound_column.render, render_kwargs)
+
+        if not bound_column.link:
+            return content
+
+        attrs = bound_column.link.get_attrs(
+            bound_column=render_kwargs["bound_column"], record=render_kwargs["record"]
         )
+        return format_html("<a {}>{}</a>", attrs.as_html(), content)
 
     def get_cell_value(self, name):
         """
         Returns the final rendered value (excluding any html) for a cell in the
         row, given the name of a column.
         """
-        return self._get_and_render_with(name, render_func=self._call_value, default=None)
+        return self._get_and_render_with(
+            self.table.columns[name], render_func=self._call_value, default=None
+        )
 
     def _call_value(self, bound_column, value=None):
         """

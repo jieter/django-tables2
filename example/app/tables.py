@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 import django_tables2 as tables
+from django_tables2 import A
 
 from .models import Country, Person
 
@@ -34,9 +35,9 @@ class CheckboxTable(tables.Table):
 
 
 class BootstrapTable(tables.Table):
-
-    country = tables.RelatedLinkColumn()
-    continent = tables.Column(accessor="country.continent.name", verbose_name="Continent")
+    id = tables.Column().linkify()
+    country = tables.Column().linkify()
+    continent = tables.Column(accessor="country.continent.name", verbose_name="Continent").linkify()
 
     class Meta:
         model = Person
@@ -58,8 +59,8 @@ class BootstrapTablePinnedRows(BootstrapTable):
 
 
 class Bootstrap4Table(tables.Table):
-    country = tables.RelatedLinkColumn()
-    # continent = tables.RelatedLinkColumn(accessor='country.continent')
+    country = tables.Column().linkify()
+    continent = tables.Column(accessor="country.continent").linkify()
 
     class Meta:
         model = Person
@@ -79,7 +80,8 @@ class SemanticTable(tables.Table):
 
 
 class PersonTable(tables.Table):
-    country = tables.RelatedLinkColumn()
+    id = tables.Column().linkify()
+    country = tables.Column().linkify()
 
     class Meta:
         model = Person
