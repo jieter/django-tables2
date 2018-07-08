@@ -1,11 +1,6 @@
 # coding: utf-8
 from __future__ import absolute_import, unicode_literals
 
-from django.urls import reverse
-from django.utils.html import format_html
-
-from django_tables2.utils import Accessor, AttributeDict
-
 from .base import CellLink, Column, library
 
 
@@ -23,39 +18,23 @@ class BaseLinkColumn(Column):
              - `a` -- ``<a>`` in ``<td>`` elements.
     """
 
-    def __init__(self, attrs=None, text=None, *args, **kwargs):
-        kwargs["attrs"] = attrs
-        self.text = text
+    def __init__(self, text=None, *args, **kwargs):
         super(BaseLinkColumn, self).__init__(*args, **kwargs)
+        self.text = text
 
     def text_value(self, record, value):
         if self.text is None:
             return value
         return self.text(record) if callable(self.text) else self.text
 
-    def render_link(self, uri, record, value, attrs=None):
-        """
-        Render a link (`<a>`).
-
-        Arguments:
-            uri (str): URI for the link
-            record: record currently being rendered
-            value (str): value to be wrapped in ``<a></a>``, might be overridden
-                by ``self.text``
-            attrs (dict): ``<a>`` tag attributes
-        """
-        attrs = AttributeDict(attrs if attrs is not None else self.attrs.get("a", {}))
-        attrs["href"] = uri
-
-        return format_html(
-            "<a {attrs}>{text}</a>", attrs=attrs.as_html(), text=self.text_value(record, value)
-        )
-
     def value(self, record, value):
         """
         Returns the content for a specific cell similarly to `.render` however
         without any html content.
         """
+        return self.text_value(record, value)
+
+    def render(self, record, value):
         return self.text_value(record, value)
 
 
@@ -146,12 +125,13 @@ class LinkColumn(BaseLinkColumn):
         viewname=None,
         urlconf=None,
         args=None,
+        uri=None,
         kwargs=None,
         current_app=None,
         attrs=None,
         **extra
     ):
-        super(LinkColumn, self).__init__(attrs, **extra)
+        super(LinkColumn, self).__init__(attrs=attrs, **extra)
 
         self.link = CellLink(
             column=self,
@@ -192,11 +172,3 @@ class RelatedLinkColumn(LinkColumn):
     Alternative contents of ``<a>`` can be supplied using the ``text`` keyword argument as
     documented for `~.columns.LinkColumn`.
     """
-
-    def compose_url(self, record, bound_column):
-        accessor = self.accessor if self.accessor else Accessor(bound_column.name)
-
-        try:
-            return accessor.resolve(record).get_absolute_url()
-        except (AttributeError, TypeError):
-            return "#"

@@ -203,7 +203,9 @@ class LinkColumnTest(TestCase):
 
         table = Table([{"occupation": "Fabricator"}])
 
-        self.assertEqual(table.rows[0].cells["occupation"], '<a href="#">Fabricator</a>')
+        msg = "if viewname=None, 'Fabricator' must have a method get_absolute_url"
+        with self.assertRaisesMessage(TypeError, msg):
+            table.rows[0].cells["occupation"]
 
     def test_value_returns_a_raw_value_without_html(self):
         class Table(tables.Table):

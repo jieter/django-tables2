@@ -216,9 +216,9 @@ class BoundRow(object):
         if not bound_column.link:
             return content
 
-        attrs = bound_column.link.get_attrs(
-            bound_column=render_kwargs["bound_column"], record=render_kwargs["record"]
-        )
+        attrs = bound_column.link.get_attrs(**render_kwargs)
+        if attrs["href"] is None:
+            return content
         return format_html("<a {}>{}</a>", attrs.as_html(), content)
 
     def get_cell_value(self, name):

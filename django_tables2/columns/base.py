@@ -65,7 +65,13 @@ class CellLink(object):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def compose_url(self, record, bound_column):
+    def compose_url(self, **kwargs):
+        if hasattr(self, "uri"):
+            return call_with_appropriate(self.uri, kwargs)
+
+        bound_column = kwargs["bound_column"]
+        record = kwargs["record"]
+
         accessor = Accessor(self.accessor if self.accessor is not None else bound_column.name)
         if self.viewname is None:
             context = accessor.resolve(record)
@@ -74,8 +80,8 @@ class CellLink(object):
                     context = record
                 else:
                     raise TypeError(
-                        "if viewname=None, record {} must define a get_absolute_url".format(
-                            context.__repr__()
+                        "if viewname=None, '{}' must have a method get_absolute_url".format(
+                            str(context)
                         )
                     )
             return context.get_absolute_url()
@@ -98,9 +104,9 @@ class CellLink(object):
 
         return reverse(viewname, **params)
 
-    def get_attrs(self, record, bound_column):
+    def get_attrs(self, **kwargs):
         attrs = AttributeDict(self.attrs or {})
-        attrs["href"] = self.compose_url(record, bound_column)
+        attrs["href"] = self.compose_url(**kwargs)
 
         return attrs
 
@@ -308,7 +314,7 @@ class Column(object):
         accessor=None,
     ):
         """
-        Wraps the content of the current cell into an <a> tag.
+        Wraps the content of the current cell into an <a> tag. Overrides the currenly setup link.
         """
         self.link = CellLink(
             viewname=viewname,
