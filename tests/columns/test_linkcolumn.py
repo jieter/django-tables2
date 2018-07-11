@@ -159,14 +159,17 @@ class LinkColumnTest(TestCase):
         class PersonTable(tables.Table):
             first_name = tables.Column()
             last_name = tables.LinkColumn()
+            other_last_name = tables.Column(accessor="last_name", linkify=True)
 
         person = Person.objects.create(first_name="Jan Pieter", last_name="Waagmeester")
         table = PersonTable(Person.objects.all())
 
-        expected = '<a href="{}">{}</a>'.format(
-            reverse("person", args=(person.pk,)), person.last_name
-        )
+        expected = '<a href="{}">{}</a>'.format(person.get_absolute_url(), person.last_name)
         self.assertEqual(table.rows[0].cells["last_name"], expected)
+
+        self.assertEqual(
+            table.rows[0].get_cell("other_last_name"), table.rows[0].get_cell("last_name")
+        )
 
     def test_get_absolute_url_not_defined(self):
         """

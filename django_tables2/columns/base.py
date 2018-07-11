@@ -61,13 +61,17 @@ library = Library()
 
 
 class CellLink(object):
+    viewname = None
+    accessor = None
+    attrs = None
+
     def __init__(self, **kwargs):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
     def compose_url(self, **kwargs):
-        if hasattr(self, "uri"):
-            return call_with_appropriate(self.uri, kwargs)
+        if hasattr(self, "url"):
+            return call_with_appropriate(self.url, kwargs)
 
         bound_column = kwargs["bound_column"]
         record = kwargs["record"]
@@ -129,6 +133,8 @@ class Column(object):
              - ``th`` -- ``table/thead/tr/th`` elements
              - ``td`` -- ``table/tbody/tr/td`` elements
              - ``cell`` -- fallback if ``th`` or ``td`` is not defined
+             - ``a`` -- To control the attributes for the ``a`` tag if the cell
+               is wrapped in a link.
         accessor (str or `~.Accessor`): An accessor that describes how to
             extract values for this column from the :term:`table data`.
         default (str or callable): The default value for the column. This can be
@@ -159,7 +165,12 @@ class Column(object):
               - If `True`, force localization
               - If `False`, values are not localized
               - If `None` (default), localization depends on the ``USE_L10N`` setting.
-
+        linkify (bool, str, callable, dict): Controls if cell content will be wrapped in an
+            ``a`` tag. If True, the model's ``get_absolute_url`` is used as the
+            ``href`` attribute. If a callable is passed, the returned value is used,
+            if it's not ``None``.
+            If a dict is passed, it's passed as keyword arguments to
+            ``~django.urls.reverse``.
 
     .. [1] The provided callable object must not expect to receive any arguments.
     """
@@ -188,6 +199,7 @@ class Column(object):
         localize=None,
         footer=None,
         exclude_from_export=False,
+        linkify=False,
     ):
         if not (accessor is None or isinstance(accessor, six.string_types) or callable(accessor)):
             raise TypeError(
@@ -209,13 +221,21 @@ class Column(object):
             self.empty_values = empty_values
 
         self.localize = localize
+        self._footer = footer
+        self.exclude_from_export = exclude_from_export
+
+        link_attrs = self.attrs.get("a", {})
+        if callable(linkify) or hasattr(self, "get_url"):
+            linkify = linkify if callable(linkify) else self.get_url
+            self.link = CellLink(column=self, url=linkify, attrs=link_attrs)
+        elif isinstance(linkify, dict):
+            linkify.setdefault("attrs", link_attrs)
+            self.link = CellLink(column=self, **linkify)
+        elif linkify is True:
+            self.link = CellLink(column=self, attrs=link_attrs, accessor=self.accessor)
 
         self.creation_counter = Column.creation_counter
         Column.creation_counter += 1
-
-        self._footer = footer
-
-        self.exclude_from_export = exclude_from_export
 
     @property
     def default(self):
@@ -302,31 +322,6 @@ class Column(object):
             Tuple (QuerySet, boolean)
         """
         return (queryset, False)
-
-    def linkify(
-        self,
-        viewname=None,
-        urlconf=None,
-        args=None,
-        kwargs=None,
-        current_app=None,
-        attrs=None,
-        accessor=None,
-    ):
-        """
-        Wraps the content of the current cell into an <a> tag. Overrides the currenly setup link.
-        """
-        self.link = CellLink(
-            viewname=viewname,
-            urlconf=urlconf,
-            args=args,
-            kwargs=kwargs,
-            current_app=current_app,
-            accessor=accessor or self.accessor,
-            attrs=attrs,
-        )
-
-        return self  # support chaining
 
     @classmethod
     def from_field(cls, field):

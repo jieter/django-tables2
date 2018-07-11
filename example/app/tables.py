@@ -34,9 +34,11 @@ class CheckboxTable(tables.Table):
 
 
 class BootstrapTable(tables.Table):
-    id = tables.Column().linkify()
-    country = tables.Column().linkify()
-    continent = tables.Column(accessor="country.continent.name", verbose_name="Continent").linkify()
+    id = tables.Column(linkify=True)
+    country = tables.Column(linkify=True)
+    continent = tables.Column(
+        accessor="country.continent.name", verbose_name="Continent", linkify=True
+    )
 
     class Meta:
         model = Person
@@ -58,8 +60,8 @@ class BootstrapTablePinnedRows(BootstrapTable):
 
 
 class Bootstrap4Table(tables.Table):
-    country = tables.Column().linkify()
-    continent = tables.Column(accessor="country.continent").linkify()
+    country = tables.Column(linkify=True)
+    continent = tables.Column(accessor="country.continent", linkify=True)
 
     class Meta:
         model = Person
@@ -79,8 +81,8 @@ class SemanticTable(tables.Table):
 
 
 class PersonTable(tables.Table):
-    id = tables.Column().linkify()
-    country = tables.Column().linkify()
+    id = tables.Column(linkify=True)
+    country = tables.Column(linkify=True)
 
     class Meta:
         model = Person

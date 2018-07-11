@@ -8,7 +8,7 @@ from django.utils.html import format_html
 
 from django_tables2.utils import AttributeDict, ucfirst
 
-from .base import CellLink, library
+from .base import library
 from .linkcolumn import BaseLinkColumn
 
 
@@ -42,9 +42,7 @@ class FileColumn(BaseLinkColumn):
         self.verify_exists = verify_exists
         super(FileColumn, self).__init__(**kwargs)
 
-        self.link = CellLink(column=self, uri=self.get_uri, attrs=self.attrs.get("a"))
-
-    def get_uri(self, value, record):
+    def get_url(self, value, record):
         storage = getattr(value, "storage", None)
         if not storage:
             return None

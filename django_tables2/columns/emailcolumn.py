@@ -5,7 +5,7 @@ from django.db import models
 
 from django_tables2.utils import ucfirst
 
-from .base import CellLink, library
+from .base import library
 from .linkcolumn import BaseLinkColumn
 
 
@@ -36,12 +36,8 @@ class EmailColumn(BaseLinkColumn):
         # [...]<a href="mailto:email@example.com">email@example.com</a>
     """
 
-    def __init__(self, *args, **kwargs):
-        super(EmailColumn, self).__init__(*args, **kwargs)
-
-        self.link = CellLink(
-            column=self, uri=lambda value: "mailto:{}".format(value), attrs=self.attrs.get("a")
-        )
+    def get_url(self, value):
+        return "mailto:{}".format(value)
 
     @classmethod
     def from_field(cls, field):

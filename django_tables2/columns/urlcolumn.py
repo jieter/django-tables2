@@ -5,7 +5,7 @@ from django.db import models
 
 from django_tables2.utils import ucfirst
 
-from .base import CellLink, library
+from .base import library
 from .linkcolumn import BaseLinkColumn
 
 
@@ -29,10 +29,8 @@ class URLColumn(BaseLinkColumn):
         '<a href="http://google.com">http://google.com</a>'
     """
 
-    def __init__(self, *args, **kwargs):
-        super(URLColumn, self).__init__(*args, **kwargs)
-
-        self.link = CellLink(column=self, uri=lambda value: value, attrs=self.attrs.get("a"))
+    def get_url(self, value):
+        return value
 
     @classmethod
     def from_field(cls, field):
