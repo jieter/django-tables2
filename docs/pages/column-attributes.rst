@@ -39,7 +39,7 @@ will render the ``<td>``'s in the tables ``<body>`` with a ``data-length`` attri
 containing the number of characters in the value.
 
 .. note::
-    The kwargs ``record`` and ``value`` only make sense in the context of a row
+    The keyword arguments ``record`` and ``value`` only make sense in the context of a row
     containing data. If you supply a callable with one of these keyword arguments,
     it will not be executed for the header and footer rows.
 
@@ -47,7 +47,7 @@ containing the number of characters in the value.
     callable with a catchall (``**kwargs``) argument::
 
         def data_first_name(**kwargs):
-            first_name = kwargs.get('first_name', None)
+            first_name = kwargs.get('value', None)
             if first_name is None:
                 return 'header'
             else:
