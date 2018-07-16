@@ -43,6 +43,11 @@ class LinkColumn(BaseLinkColumn):
     """
     Renders a normal value as an internal hyperlink to another page.
 
+    .. note ::
+
+        This column should not be used anymore, the `linkify` keyword argument to
+        regular columns can achieve the same results.
+
     It's common to have the primary value in a row hyperlinked to the page
     dedicated to that record.
 
@@ -148,6 +153,11 @@ class RelatedLinkColumn(LinkColumn):
     """
     Render a link to a related object using related object's ``get_absolute_url``,
     same parameters as ``~.LinkColumn``.
+
+    .. note ::
+
+        This column should not be used anymore, the `linkify` keyword argument to
+        regular columns can achieve the same results.
 
     If the related object does not have a method called ``get_absolute_url``,
     or if it is not callable, the link will be rendered as '#'.

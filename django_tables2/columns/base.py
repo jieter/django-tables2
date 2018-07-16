@@ -197,12 +197,15 @@ class Column(object):
               - If `True`, force localization
               - If `False`, values are not localized
               - If `None` (default), localization depends on the ``USE_L10N`` setting.
-        linkify (bool, str, callable, dict): Controls if cell content will be wrapped in an
-            ``a`` tag. If True, the model's ``get_absolute_url`` is used as the
-            ``href`` attribute. If a callable is passed, the returned value is used,
-            if it's not ``None``.
-            If a dict is passed, it's passed as keyword arguments to
-            ``~django.urls.reverse``.
+        linkify (bool, str, callable, dict, tuple): Controls if cell content will be wrapped in an
+            ``a`` tag. The different ways to define the ``href`` attribute:
+
+             - If `True`, the ``record.get_absolute_url()`` or the related model's
+               `get_absolute_url()` is used.
+             - If a callable is passed, the returned value is used, if it's not ``None``.
+             - If a `dict` is passed, it's passed on to ``~django.urls.reverse``.
+             - If a `tuple` is passed, it must be either a (viewname, args) or (viewname, kwargs)
+               tuple, which is also passed to ``~django.urls.reverse``.
 
     .. [1] The provided callable object must not expect to receive any arguments.
     """
