@@ -11,10 +11,11 @@ setup(
     name="django-tables2",
     version=VERSION,
     description="Table/data-grid framework for Django",
+    long_description=open("README.rst").read(),
     author="Bradley Ayers",
     author_email="bradley.ayers@gmail.com",
     license="Simplified BSD",
-    url="https://github.com/bradleyayers/django-tables2/",
+    url="https://github.com/jieter/django-tables2/",
     packages=find_packages(exclude=["tests.*", "tests", "example.*", "example"]),
     include_package_data=True,  # declarations in MANIFEST.in
     install_requires=["Django>=1.11"],
