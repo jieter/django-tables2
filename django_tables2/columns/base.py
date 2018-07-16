@@ -61,52 +61,84 @@ library = Library()
 
 
 class CellLink(object):
+    """
+    Object used to generate attributes for the `<a>`-tag to wrap the cell content in.
+    """
+
     viewname = None
     accessor = None
     attrs = None
 
-    def __init__(self, **kwargs):
-        for key, value in kwargs.items():
-            setattr(self, key, value)
+    def __init__(self, column, url=None, accessor=None, attrs=None, reverse_args=None):
+        """
+        arguments:
+            column (Column): The column to be wrapped.
+            url (callable): If supplied, the result of this callable will be used as ``href`` attribute.
+            accessor (Accessor): if supplied, the accessor will be used to decide on which object
+                ``get_absolute_url()`` is called.
+            attrs (dict): Customize attributes for the ``<a>`` tag.
+            reverse_args (dict, tuple): Arguments to ``django.urls.reverse()``. If dict, the arguments
+                are assumed to be keyword arguments to ``reverse()``, if tuple, a ``(viewname, args)``
+                or ``(viewname, kwargs)``
+        """
+        self.column = column
+        self.url = url
+        self.attrs = attrs
+        self.accessor = accessor
+
+        if isinstance(reverse_args, (list, tuple)):
+            viewname, args = reverse_args
+            reverse_args = {"viewname": viewname}
+            reverse_args["kwargs" if isinstance(args, dict) else "args"] = args
+
+        self.reverse_args = reverse_args or {}
 
     def compose_url(self, **kwargs):
-        if hasattr(self, "url"):
+        if self.url and callable(self.url):
             return call_with_appropriate(self.url, kwargs)
 
         bound_column = kwargs["bound_column"]
         record = kwargs["record"]
 
+        if self.reverse_args.get("viewname", None) is not None:
+            return self.call_reverse(record=record)
+
         accessor = Accessor(self.accessor if self.accessor is not None else bound_column.name)
-        if self.viewname is None:
-            context = accessor.resolve(record)
-            if not hasattr(context, "get_absolute_url"):
-                if hasattr(record, "get_absolute_url"):
-                    context = record
-                else:
-                    raise TypeError(
-                        "if viewname=None, '{}' must have a method get_absolute_url".format(
-                            str(context)
-                        )
+        context = accessor.resolve(record)
+        if not hasattr(context, "get_absolute_url"):
+            if hasattr(record, "get_absolute_url"):
+                context = record
+            else:
+                raise TypeError(
+                    "if viewname=None, '{}' must have a method get_absolute_url".format(
+                        str(context)
                     )
-            return context.get_absolute_url()
+                )
+        return context.get_absolute_url()
+
+    def call_reverse(self, record):
+        """
+        Prepares the arguments to reverse() for this record and calls reverse()
+        """
 
         def resolve_if_accessor(val):
             return val.resolve(record) if isinstance(val, Accessor) else val
 
-        viewname = resolve_if_accessor(self.viewname)
+        params = self.reverse_args.copy()
 
-        # Collect the optional arguments for django's reverse()
-        params = {}
-        if self.urlconf:
-            params["urlconf"] = resolve_if_accessor(self.urlconf)
-        if self.args:
-            params["args"] = [resolve_if_accessor(a) for a in self.args]
-        if self.kwargs:
-            params["kwargs"] = {key: resolve_if_accessor(val) for key, val in self.kwargs.items()}
-        if self.current_app:
-            params["current_app"] = resolve_if_accessor(self.current_app)
+        params["viewname"] = resolve_if_accessor(params["viewname"])
+        if params.get("urlconf", None):
+            params["urlconf"] = resolve_if_accessor(params["urlconf"])
+        if params.get("args", None):
+            params["args"] = [resolve_if_accessor(a) for a in params["args"]]
+        if params.get("kwargs", None):
+            params["kwargs"] = {
+                key: resolve_if_accessor(val) for key, val in params["kwargs"].items()
+            }
+        if params.get("current_app", None):
+            params["current_app"] = resolve_if_accessor(params["current_app"])
 
-        return reverse(viewname, **params)
+        return reverse(**params)
 
     def get_attrs(self, **kwargs):
         attrs = AttributeDict(self.attrs or {})
@@ -224,15 +256,16 @@ class Column(object):
         self._footer = footer
         self.exclude_from_export = exclude_from_export
 
-        link_attrs = self.attrs.get("a", {})
+        link_kwargs = None
         if callable(linkify) or hasattr(self, "get_url"):
-            linkify = linkify if callable(linkify) else self.get_url
-            self.link = CellLink(column=self, url=linkify, attrs=link_attrs)
-        elif isinstance(linkify, dict):
-            linkify.setdefault("attrs", link_attrs)
-            self.link = CellLink(column=self, **linkify)
+            link_kwargs = dict(url=linkify if callable(linkify) else self.get_url)
+        elif isinstance(linkify, (dict, tuple)):
+            link_kwargs = dict(reverse_args=linkify)
         elif linkify is True:
-            self.link = CellLink(column=self, attrs=link_attrs, accessor=self.accessor)
+            link_kwargs = dict(accessor=self.accessor)
+
+        if link_kwargs is not None:
+            self.link = CellLink(column=self, attrs=self.attrs.get("a", {}), **link_kwargs)
 
         self.creation_counter = Column.creation_counter
         Column.creation_counter += 1

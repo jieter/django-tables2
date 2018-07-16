@@ -70,6 +70,7 @@ class LinkColumnTest(TestCase):
             first_name = tables.Column()
             last_name = tables.Column()
             occupation = tables.LinkColumn("occupation", args=[A("occupation.pk")])
+            occupation_linkify = tables.Column(linkify=("occupation", A("occupation.pk")))
 
         Person.objects.create(first_name="bradley", last_name="ayers")
 
@@ -89,12 +90,12 @@ class LinkColumnTest(TestCase):
 
         willem = Person.objects.create(first_name="Willem", last_name="Wever")
 
-        html = Table(Person.objects.all()).as_html(build_request())
+        table = Table(Person.objects.all())
 
-        expected = '<td ><a href="{}">delete</a></td>'.format(
+        expected = '<a href="{}">delete</a>'.format(
             reverse("person_delete", kwargs={"pk": willem.pk})
         )
-        self.assertIn(expected, html)
+        self.assertEqual(table.rows[0].get_cell("delete_link"), expected)
 
     def test_kwargs(self):
         class PersonTable(tables.Table):
@@ -108,16 +109,23 @@ class LinkColumnTest(TestCase):
     def test_html_escape_value(self):
         class PersonTable(tables.Table):
             name = tables.LinkColumn("escaping", kwargs={"pk": A("pk")})
+            name_linkify = tables.Column(accessor="name", linkify=("escaping", {"pk": A("pk")}))
 
         table = PersonTable([{"name": "<brad>", "pk": 1}])
         self.assertEqual(
             table.rows[0].get_cell("name"), '<a href="/&amp;&#39;%22/1/">&lt;brad&gt;</a>'
         )
+        self.assertEqual(table.rows[0].get_cell("name"), table.rows[0].get_cell("name_linkify"))
 
     def test_a_attrs_should_be_supported(self):
         class TestTable(tables.Table):
             col = tables.LinkColumn(
                 "occupation", kwargs={"pk": A("col")}, attrs={"a": {"title": "Occupation Title"}}
+            )
+            col_linkify = tables.Column(
+                accessor="col",
+                attrs={"a": {"title": "Occupation Title"}},
+                linkify=("occupation", {"pk": A("col")}),
             )
 
         table = TestTable([{"col": 0}])
@@ -125,6 +133,7 @@ class LinkColumnTest(TestCase):
             attrs(table.rows[0].get_cell("col")),
             {"href": reverse("occupation", kwargs={"pk": 0}), "title": "Occupation Title"},
         )
+        self.assertEqual(table.rows[0].get_cell("col"), table.rows[0].get_cell("col_linkify"))
 
     def test_td_attrs_should_be_supported(self):
         """LinkColumn should support both <td> and <a> attrs"""
@@ -192,12 +201,13 @@ class LinkColumnTest(TestCase):
 
         class Table(tables.Table):
             occupation = tables.RelatedLinkColumn()
+            occupation_linkify = tables.Column(accessor="occupation", linkify=True)
 
         table = Table(Person.objects.all())
 
         self.assertEqual(
             table.rows[0].cells["occupation"],
-            '<a href="/occupations/%d/">Carpenter</a>' % carpenter.pk,
+            '<a href="{}">Carpenter</a>'.format(reverse("occupation", args=[carpenter.pk])),
         )
 
     def test_RelatedLinkColumn_without_model(self):

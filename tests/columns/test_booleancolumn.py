@@ -89,9 +89,16 @@ class BooleanColumnTest(TestCase):
     def test_span_attrs(self):
         class Table(tables.Table):
             col = tables.BooleanColumn(attrs={"span": {"key": "value"}})
+            col_linkify = tables.BooleanColumn(
+                accessor="col",
+                attrs={"span": {"key": "value"}},
+                linkify=lambda value: "/bool/{}".format(value),
+            )
 
-        table = Table([{"col": True}])
+        table = Table([{"col": True}, {"col": False}])
         self.assertEqual(attrs(table.rows[0].get_cell("col")), {"class": "true", "key": "value"})
+        self.assertEqual(attrs(table.rows[1].get_cell("col")), {"class": "false", "key": "value"})
+        self.assertIn(table.rows[0].get_cell("col"), table.rows[0].get_cell("col_linkify"))
 
     def test_boolean_field_choices_with_real_model_instances(self):
         """

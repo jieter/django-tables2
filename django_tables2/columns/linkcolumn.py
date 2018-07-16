@@ -1,7 +1,7 @@
 # coding: utf-8
 from __future__ import absolute_import, unicode_literals
 
-from .base import CellLink, Column, library
+from .base import Column, library
 
 
 class BaseLinkColumn(Column):
@@ -125,23 +125,21 @@ class LinkColumn(BaseLinkColumn):
         viewname=None,
         urlconf=None,
         args=None,
-        uri=None,
         kwargs=None,
         current_app=None,
         attrs=None,
         **extra
     ):
-        super(LinkColumn, self).__init__(attrs=attrs, **extra)
-
-        self.link = CellLink(
-            column=self,
-            viewname=viewname,
-            urlconf=urlconf,
-            args=args,
-            kwargs=kwargs,
-            current_app=current_app,
-            accessor=None,
-            attrs=attrs.get("a", {}) if attrs else None,
+        super(LinkColumn, self).__init__(
+            attrs=attrs,
+            linkify=dict(
+                viewname=viewname,
+                urlconf=urlconf,
+                args=args,
+                kwargs=kwargs,
+                current_app=current_app,
+            ),
+            **extra
         )
 
 
