@@ -1,5 +1,13 @@
 # Change log
 
+## 2.0.0a4 (2018-07-16)
+ - Add `linkify` keyword argument to all columns, to allow wrapping the content in a `<a>` tag. It accepts one of these ways to define the link:
+     - `True` to use the record return value of `record.get_absolute_url()`,
+     - a callable to use its return value
+     - a dict which is passed on to `django.urls.reverse()`
+     - a (viewname, args) or (viewname, kwargs)-tuple which is also passed on to `django.urls.reverse()`.
+   Implementation should be backwards compatible, so all use of `LinkColumn` and `RelatedLinkColum` should still work. [#590](https://github.com/jieter/django-tables2/pull/590)
+
 ## 2.0.0a3 (2018-05-24)
 Hello from [DjangoCon Europe](https://2018.djangocon.eu/)!
 - Fix table prefix being overwritten in `MultiTableView`, [#576](https://github.com/jieter/django-tables2/pull/576) by [@ETinLV](https://github.com/ETinLV), (fixes [#572](https://github.com/jieter/django-tables2/issues/572))
