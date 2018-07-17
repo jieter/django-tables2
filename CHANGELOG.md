@@ -1,6 +1,6 @@
 # Change log
 
-## 2.0.0a4 (2018-07-16)
+## 2.0.0a4 (2018-07-17)
  - Add `linkify` keyword argument to all columns, to allow wrapping the content in a `<a>` tag. It accepts one of these ways to define the link:
      - `True` to use the record return value of `record.get_absolute_url()`,
      - a callable to use its return value
