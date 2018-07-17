@@ -110,7 +110,7 @@ class CellLink(object):
                 context = record
             else:
                 raise TypeError(
-                    "if viewname=None, '{}' must have a method get_absolute_url".format(
+                    "for linkify=True, '{}' must have a method get_absolute_url".format(
                         str(context)
                     )
                 )

@@ -162,7 +162,7 @@ class LinkColumnTest(TestCase):
             link = tables.LinkColumn("occupation", kwargs={"pk": 1}, default="xyz")
 
         table = Table([{}])
-        assert table.rows[0].get_cell("link") == "xyz"
+        self.assertEqual(table.rows[0].get_cell("link"), "xyz")
 
     def test_get_absolute_url(self):
         class PersonTable(tables.Table):
@@ -216,7 +216,7 @@ class LinkColumnTest(TestCase):
 
         table = Table([{"occupation": "Fabricator"}])
 
-        msg = "if viewname=None, 'Fabricator' must have a method get_absolute_url"
+        msg = "for linkify=True, 'Fabricator' must have a method get_absolute_url"
         with self.assertRaisesMessage(TypeError, msg):
             table.rows[0].cells["occupation"]
 
