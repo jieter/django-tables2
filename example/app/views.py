@@ -182,3 +182,9 @@ def country_detail(request, pk):
     # hide the country column, as it is not very interesting for a list of persons for a country.
     table = PersonTable(country.person_set.all(), extra_columns=(("country", None),))
     return render(request, "country_detail.html", {"country": country, "table": table})
+
+
+def person_detail(request, pk):
+    person = get_object_or_404(Person, pk=pk)
+
+    return render(request, "person_detail.html", {"person": person})

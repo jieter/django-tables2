@@ -20,11 +20,11 @@ class UrlColumnTest(SimpleTestCase):
 
         table = TestTable(MEMORY_DATA)
 
-        assert (
-            table.rows[0].get_cell("url") == '<a href="http://example.com">http://example.com</a>'
+        self.assertEqual(
+            table.rows[0].get_cell("url"), '<a href="http://example.com">http://example.com</a>'
         )
-        assert (
-            table.rows[1].get_cell("url") == '<a href="https://example.com">https://example.com</a>'
+        self.assertEqual(
+            table.rows[1].get_cell("url"), '<a href="https://example.com">https://example.com</a>'
         )
 
     def test_should_be_used_for_urlfields(self):

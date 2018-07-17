@@ -412,8 +412,8 @@ class Accessor(str):
 
         Example::
 
-            >>> Accessor('a.b.c').penultimate({'a': {'a': 1, 'b': {'c': 2, 'd': 4}}})
-            ({'c': 2, 'd': 4}, 'c')
+            >>> Accessor("a.b.c").penultimate({"a": {"a": 1, "b": {"c": 2, "d": 4}}})
+            ({"c": 2, "d": 4}, "c")
 
         """
         path, _, remainder = self.rpartition(".")

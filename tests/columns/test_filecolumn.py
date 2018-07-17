@@ -36,7 +36,7 @@ class FileColumnTest(SimpleTestCase):
             class Meta:
                 model = FileModel
 
-        assert type(Table.base_columns["field"]) == tables.FileColumn
+        self.assertEqual(type(Table.base_columns["field"]), tables.FileColumn)
 
     def test_filecolumn_supports_storage_file(self):
         file_ = storage().open("child/foo.html")
@@ -44,51 +44,52 @@ class FileColumnTest(SimpleTestCase):
             root = parse(column().render(value=file_, record=None))
         finally:
             file_.close()
-        path = file_.name
-        assert root.tag == "span"
-        assert root.attrib == {"class": "span exists", "title": path}
-        assert root.text == "foo.html"
+
+        self.assertEqual(root.tag, "span")
+        self.assertEqual(root.attrib, {"class": "span exists", "title": file_.name})
+        self.assertEqual(root.text, "foo.html")
 
     def test_filecolumn_supports_contentfile(self):
         name = "foobar.html"
         file_ = ContentFile("")
         file_.name = name
+
         root = parse(column().render(value=file_, record=None))
-        assert root.tag == "span"
-        assert root.attrib == {"title": name, "class": "span"}
-        assert root.text == "foobar.html"
+        self.assertEqual(root.tag, "span")
+        self.assertEqual(root.attrib, {"title": name, "class": "span"})
+        self.assertEqual(root.text, "foobar.html")
 
     def test_filecolumn_supports_fieldfile(self):
         field = models.FileField(storage=storage())
         name = "child/foo.html"
-        fieldfile = FieldFile(instance=None, field=field, name=name)
-        root = parse(column().render(value=fieldfile, record=None))
-        assert root.tag == "a"
-        assert root.attrib == {
-            "class": "a exists",
-            "title": name,
-            "href": "/baseurl/child/foo.html",
-        }
-        assert root.text == "foo.html"
+
+        class Table(tables.Table):
+            filecolumn = column()
+
+        table = Table([{"filecolumn": FieldFile(instance=None, field=field, name=name)}])
+        html = table.rows[0].get_cell("filecolumn")
+        root = parse(html)
+
+        self.assertEqual(root.tag, "a")
+        self.assertEqual(root.attrib, {"class": "a", "href": "/baseurl/child/foo.html"})
+        span = root.find("span")
+        self.assertEqual(span.tag, "span")
+        self.assertEqual(span.text, "foo.html")
 
         # Now try a file that doesn't exist
         name = "child/does_not_exist.html"
         fieldfile = FieldFile(instance=None, field=field, name=name)
-        html = column().render(value=fieldfile, record=None)
-        root = parse(html)
-        assert root.tag == "a"
-        assert root.attrib == {
-            "class": "a missing",
-            "title": name,
-            "href": "/baseurl/child/does_not_exist.html",
-        }
-        assert root.text == "does_not_exist.html"
+        root = parse(column().render(value=fieldfile, record=None))
+
+        self.assertEqual(root.tag, "span")
+        self.assertEqual(root.attrib, {"class": "span missing", "title": name})
+        self.assertEqual(root.text, "does_not_exist.html")
 
     def test_filecolumn_text_custom_value(self):
-        name = "foobar.html"
         file_ = ContentFile("")
-        file_.name = name
+        file_.name = "foobar.html"
+
         root = parse(tables.FileColumn(text="Download").render(value=file_, record=None))
-        assert root.tag == "span"
-        assert root.attrib == {"title": name, "class": ""}
-        assert root.text == "Download"
+        self.assertEqual(root.tag, "span")
+        self.assertEqual(root.attrib, {"title": file_.name, "class": ""})
+        self.assertEqual(root.text, "Download")

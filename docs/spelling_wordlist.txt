@@ -19,8 +19,8 @@ datasets
 dicts
 distutils
 django
-django-tables2
 django_tables2
+django-tables2
 dramon
 fallback
 filename
@@ -42,7 +42,6 @@ ods
 orderable
 paginator
 paginators
-pagintors
 py
 pylint
 pypi
@@ -55,8 +54,9 @@ rst
 Sapovits
 screenshots
 sortability
-subclassing
 subclasses
+subclassing
+th
 truthy
 tsv
 tuple
@@ -65,9 +65,9 @@ unicode
 unlocalize
 unlocalized
 uppercased
+viewname
 webkit
 whitespace
 xls
 xlsx
 yml
-th

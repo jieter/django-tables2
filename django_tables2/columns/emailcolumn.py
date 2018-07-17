@@ -36,8 +36,8 @@ class EmailColumn(BaseLinkColumn):
         # [...]<a href="mailto:email@example.com">email@example.com</a>
     """
 
-    def render(self, record, value):
-        return self.render_link(uri="mailto:{}".format(value), record=record, value=value)
+    def get_url(self, value):
+        return "mailto:{}".format(value)
 
     @classmethod
     def from_field(cls, field):

@@ -50,7 +50,7 @@ class ManyToManyColumnTest(TestCase):
             friends = row.get_cell("friends").split(", ")
 
             for friend in friends:
-                assert Person.objects.filter(first_name=friend).exists()
+                self.assertTrue(Person.objects.filter(first_name=friend).exists())
 
     def test_custom_separator(self):
         def assert_sep(sep):
@@ -62,7 +62,7 @@ class ManyToManyColumnTest(TestCase):
                 friends = row.get_cell("friends").split(sep)
 
                 for friend in friends:
-                    assert Person.objects.filter(first_name=friend).exists()
+                    self.assertTrue(Person.objects.filter(first_name=friend).exists())
 
         # normal string, will not be escaped
         assert_sep("|")
@@ -82,7 +82,7 @@ class ManyToManyColumnTest(TestCase):
             friends = row.get_cell("friends").split(", ")
             for friend in friends:
                 stripped = strip_tags(friend)
-                assert Person.objects.filter(first_name=stripped).exists()
+                self.assertTrue(Person.objects.filter(first_name=stripped).exists())
 
     def test_orderable_is_false(self):
         class Table(tables.Table):
@@ -105,9 +105,9 @@ class ManyToManyColumnTest(TestCase):
         for row in table.rows:
             friends = row.get_cell("friends")
             if friends == "-":
-                assert row.get_cell("name") == remi.name
+                self.assertEqual(row.get_cell("name"), remi.name)
                 continue
 
+            # verify the list is sorted descending
             friends = list(map(lambda o: o.split(" "), friends.split(", ")))
-
-            assert friends == sorted(friends, key=lambda item: item[1], reverse=True)
+            self.assertEqual(friends, sorted(friends, key=lambda item: item[1], reverse=True))

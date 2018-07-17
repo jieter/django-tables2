@@ -29,8 +29,8 @@ class URLColumn(BaseLinkColumn):
         '<a href="http://google.com">http://google.com</a>'
     """
 
-    def render(self, record, value):
-        return self.render_link(value, record=record, value=value)
+    def get_url(self, value):
+        return value
 
     @classmethod
     def from_field(cls, field):

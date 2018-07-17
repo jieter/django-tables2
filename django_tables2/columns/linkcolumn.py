@@ -1,11 +1,6 @@
 # coding: utf-8
 from __future__ import absolute_import, unicode_literals
 
-from django.urls import reverse
-from django.utils.html import format_html
-
-from django_tables2.utils import Accessor, AttributeDict
-
 from .base import Column, library
 
 
@@ -23,33 +18,14 @@ class BaseLinkColumn(Column):
              - `a` -- ``<a>`` in ``<td>`` elements.
     """
 
-    def __init__(self, attrs=None, text=None, *args, **kwargs):
-        kwargs["attrs"] = attrs
-        self.text = text
+    def __init__(self, text=None, *args, **kwargs):
         super(BaseLinkColumn, self).__init__(*args, **kwargs)
+        self.text = text
 
     def text_value(self, record, value):
         if self.text is None:
             return value
         return self.text(record) if callable(self.text) else self.text
-
-    def render_link(self, uri, record, value, attrs=None):
-        """
-        Render a link (`<a>`).
-
-        Arguments:
-            uri (str): URI for the link
-            record: record currently being rendered
-            value (str): value to be wrapped in ``<a></a>``, might be overridden
-                by ``self.text``
-            attrs (dict): ``<a>`` tag attributes
-        """
-        attrs = AttributeDict(attrs if attrs is not None else self.attrs.get("a", {}))
-        attrs["href"] = uri
-
-        return format_html(
-            "<a {attrs}>{text}</a>", attrs=attrs.as_html(), text=self.text_value(record, value)
-        )
 
     def value(self, record, value):
         """
@@ -58,11 +34,19 @@ class BaseLinkColumn(Column):
         """
         return self.text_value(record, value)
 
+    def render(self, record, value):
+        return self.text_value(record, value)
+
 
 @library.register
 class LinkColumn(BaseLinkColumn):
     """
     Renders a normal value as an internal hyperlink to another page.
+
+    .. note ::
+
+        This column should not be used anymore, the `linkify` keyword argument to
+        regular columns can be used to achieve the same results.
 
     It's common to have the primary value in a row hyperlinked to the page
     dedicated to that record.
@@ -151,41 +135,17 @@ class LinkColumn(BaseLinkColumn):
         attrs=None,
         **extra
     ):
-        super(LinkColumn, self).__init__(attrs, **extra)
-        self.viewname = viewname
-        self.urlconf = urlconf
-        self.args = args
-        self.kwargs = kwargs
-        self.current_app = current_app
-
-    def compose_url(self, record, *args, **kwargs):
-        """Compose the URL if the column is constructed with a ``viewname`` argument."""
-
-        if self.viewname is None:
-            if not hasattr(record, "get_absolute_url"):
-                raise TypeError("if viewname=None, record must define a get_absolute_url")
-            return record.get_absolute_url()
-
-        def resolve_if_accessor(val):
-            return val.resolve(record) if isinstance(val, Accessor) else val
-
-        viewname = resolve_if_accessor(self.viewname)
-
-        # Collect the optional arguments for django's reverse()
-        params = {}
-        if self.urlconf:
-            params["urlconf"] = resolve_if_accessor(self.urlconf)
-        if self.args:
-            params["args"] = [resolve_if_accessor(a) for a in self.args]
-        if self.kwargs:
-            params["kwargs"] = {key: resolve_if_accessor(val) for key, val in self.kwargs.items()}
-        if self.current_app:
-            params["current_app"] = resolve_if_accessor(self.current_app)
-
-        return reverse(viewname, **params)
-
-    def render(self, value, record, bound_column):
-        return self.render_link(self.compose_url(record, bound_column), record=record, value=value)
+        super(LinkColumn, self).__init__(
+            attrs=attrs,
+            linkify=dict(
+                viewname=viewname,
+                urlconf=urlconf,
+                args=args,
+                kwargs=kwargs,
+                current_app=current_app,
+            ),
+            **extra
+        )
 
 
 @library.register
@@ -193,6 +153,11 @@ class RelatedLinkColumn(LinkColumn):
     """
     Render a link to a related object using related object's ``get_absolute_url``,
     same parameters as ``~.LinkColumn``.
+
+    .. note ::
+
+        This column should not be used anymore, the `linkify` keyword argument to
+        regular columns can be used achieve the same results.
 
     If the related object does not have a method called ``get_absolute_url``,
     or if it is not callable, the link will be rendered as '#'.
@@ -215,11 +180,3 @@ class RelatedLinkColumn(LinkColumn):
     Alternative contents of ``<a>`` can be supplied using the ``text`` keyword argument as
     documented for `~.columns.LinkColumn`.
     """
-
-    def compose_url(self, record, bound_column):
-        accessor = self.accessor if self.accessor else Accessor(bound_column.name)
-
-        try:
-            return accessor.resolve(record).get_absolute_url()
-        except (AttributeError, TypeError):
-            return "#"

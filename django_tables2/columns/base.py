@@ -4,6 +4,7 @@ from __future__ import absolute_import, unicode_literals
 from collections import OrderedDict
 from itertools import islice
 
+from django.urls import reverse
 from django.utils import six
 from django.utils.safestring import SafeData
 
@@ -59,6 +60,93 @@ class Library(object):
 library = Library()
 
 
+class CellLink(object):
+    """
+    Object used to generate attributes for the `<a>`-tag to wrap the cell content in.
+    """
+
+    viewname = None
+    accessor = None
+    attrs = None
+
+    def __init__(self, column, url=None, accessor=None, attrs=None, reverse_args=None):
+        """
+        arguments:
+            column (Column): The column to be wrapped.
+            url (callable): If supplied, the result of this callable will be used as ``href`` attribute.
+            accessor (Accessor): if supplied, the accessor will be used to decide on which object
+                ``get_absolute_url()`` is called.
+            attrs (dict): Customize attributes for the ``<a>`` tag.
+            reverse_args (dict, tuple): Arguments to ``django.urls.reverse()``. If dict, the arguments
+                are assumed to be keyword arguments to ``reverse()``, if tuple, a ``(viewname, args)``
+                or ``(viewname, kwargs)``
+        """
+        self.column = column
+        self.url = url
+        self.attrs = attrs
+        self.accessor = accessor
+
+        if isinstance(reverse_args, (list, tuple)):
+            viewname, args = reverse_args
+            reverse_args = {"viewname": viewname}
+            reverse_args["kwargs" if isinstance(args, dict) else "args"] = args
+
+        self.reverse_args = reverse_args or {}
+
+    def compose_url(self, **kwargs):
+        if self.url and callable(self.url):
+            return call_with_appropriate(self.url, kwargs)
+
+        bound_column = kwargs["bound_column"]
+        record = kwargs["record"]
+
+        if self.reverse_args.get("viewname", None) is not None:
+            return self.call_reverse(record=record)
+
+        accessor = Accessor(self.accessor if self.accessor is not None else bound_column.name)
+        context = accessor.resolve(record)
+        if not hasattr(context, "get_absolute_url"):
+            if hasattr(record, "get_absolute_url"):
+                context = record
+            else:
+                raise TypeError(
+                    "for linkify=True, '{}' must have a method get_absolute_url".format(
+                        str(context)
+                    )
+                )
+        return context.get_absolute_url()
+
+    def call_reverse(self, record):
+        """
+        Prepares the arguments to reverse() for this record and calls reverse()
+        """
+
+        def resolve_if_accessor(val):
+            return val.resolve(record) if isinstance(val, Accessor) else val
+
+        params = self.reverse_args.copy()
+
+        params["viewname"] = resolve_if_accessor(params["viewname"])
+        if params.get("urlconf", None):
+            params["urlconf"] = resolve_if_accessor(params["urlconf"])
+        if params.get("args", None):
+            params["args"] = [resolve_if_accessor(a) for a in params["args"]]
+        if params.get("kwargs", None):
+            params["kwargs"] = {
+                key: resolve_if_accessor(val) for key, val in params["kwargs"].items()
+            }
+        if params.get("current_app", None):
+            params["current_app"] = resolve_if_accessor(params["current_app"])
+
+        return reverse(**params)
+
+    def get_attrs(self, **kwargs):
+        attrs = AttributeDict(self.attrs or {})
+        attrs["href"] = self.compose_url(**kwargs)
+
+        return attrs
+
+
 @library.register
 class Column(object):
     """
@@ -77,6 +165,8 @@ class Column(object):
              - ``th`` -- ``table/thead/tr/th`` elements
              - ``td`` -- ``table/tbody/tr/td`` elements
              - ``cell`` -- fallback if ``th`` or ``td`` is not defined
+             - ``a`` -- To control the attributes for the ``a`` tag if the cell
+               is wrapped in a link.
         accessor (str or `~.Accessor`): An accessor that describes how to
             extract values for this column from the :term:`table data`.
         default (str or callable): The default value for the column. This can be
@@ -107,7 +197,15 @@ class Column(object):
               - If `True`, force localization
               - If `False`, values are not localized
               - If `None` (default), localization depends on the ``USE_L10N`` setting.
+        linkify (bool, str, callable, dict, tuple): Controls if cell content will be wrapped in an
+            ``a`` tag. The different ways to define the ``href`` attribute:
 
+             - If `True`, the ``record.get_absolute_url()`` or the related model's
+               `get_absolute_url()` is used.
+             - If a callable is passed, the returned value is used, if it's not ``None``.
+             - If a `dict` is passed, it's passed on to ``~django.urls.reverse``.
+             - If a `tuple` is passed, it must be either a (viewname, args) or (viewname, kwargs)
+               tuple, which is also passed to ``~django.urls.reverse``.
 
     .. [1] The provided callable object must not expect to receive any arguments.
     """
@@ -115,6 +213,9 @@ class Column(object):
     # Tracks each time a Column instance is created. Used to retain order.
     creation_counter = 0
     empty_values = (None, "")
+
+    # by default, contents are not wrapped in an <a>-tag.
+    link = None
 
     # Explicit is set to True if the column is defined as an attribute of a
     # class, used to give explicit columns precedence.
@@ -133,6 +234,7 @@ class Column(object):
         localize=None,
         footer=None,
         exclude_from_export=False,
+        linkify=False,
     ):
         if not (accessor is None or isinstance(accessor, six.string_types) or callable(accessor)):
             raise TypeError(
@@ -154,13 +256,22 @@ class Column(object):
             self.empty_values = empty_values
 
         self.localize = localize
+        self._footer = footer
+        self.exclude_from_export = exclude_from_export
+
+        link_kwargs = None
+        if callable(linkify) or hasattr(self, "get_url"):
+            link_kwargs = dict(url=linkify if callable(linkify) else self.get_url)
+        elif isinstance(linkify, (dict, tuple)):
+            link_kwargs = dict(reverse_args=linkify)
+        elif linkify is True:
+            link_kwargs = dict(accessor=self.accessor)
+
+        if link_kwargs is not None:
+            self.link = CellLink(column=self, attrs=self.attrs.get("a", {}), **link_kwargs)
 
         self.creation_counter = Column.creation_counter
         Column.creation_counter += 1
-
-        self._footer = footer
-
-        self.exclude_from_export = exclude_from_export
 
     @property
     def default(self):
@@ -299,6 +410,7 @@ class BoundColumn(object):
         self._table = table
         self.column = column
         self.name = name
+        self.link = column.link
 
         self.current_value = None
 

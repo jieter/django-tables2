@@ -14,6 +14,7 @@ from app.views import (
     country_detail,
     index,
     multiple,
+    person_detail,
     semantic,
     tutorial,
 )
@@ -32,6 +33,7 @@ urlpatterns = [
     url(r"^admin/doc/", include("django.contrib.admindocs.urls")),
     url(r"^admin/", admin.site.urls),
     url(r"^country/(?P<pk>[0-9]+)/$", country_detail, name="country_detail"),
+    url(r"^person/(?P<pk>[0-9]+)/$", person_detail, name="person_detail"),
     url(r"^media/(?P<path>.*)$", static.serve, {"document_root": settings.MEDIA_ROOT}),
     url(r"^i18n/", include("django.conf.urls.i18n")),
 ]

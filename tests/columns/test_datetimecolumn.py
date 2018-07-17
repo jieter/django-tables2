@@ -10,6 +10,10 @@ from django.test import SimpleTestCase, override_settings
 import django_tables2 as tables
 
 
+def isoformat_link(value):
+    return "/test/{}/".format(value.isoformat())
+
+
 class DateTimeColumnTest(SimpleTestCase):
     """
     Format string: https://docs.djangoproject.com/en/stable/ref/templates/builtins/#date
@@ -27,12 +31,19 @@ class DateTimeColumnTest(SimpleTestCase):
     def test_should_handle_explicit_format(self):
         class TestTable(tables.Table):
             date = tables.DateTimeColumn(format="D b Y")
+            date_linkify = tables.DateTimeColumn(
+                format="D b Y", accessor="date", linkify=isoformat_link
+            )
 
             class Meta:
                 default = "—"
 
         table = TestTable([{"date": self.dt()}, {"date": None}])
         assert table.rows[0].get_cell("date") == "Tue sep 2012"
+        self.assertEqual(
+            table.rows[0].get_cell("date_linkify"),
+            '<a href="/test/2012-09-11T12:30:00+10:00/">Tue sep 2012</a>',
+        )
         assert table.rows[1].get_cell("date") == "—"
 
     @override_settings(DATETIME_FORMAT="D Y b A f")

@@ -2,5 +2,6 @@
 Sphinx==1.6.5
 sphinx_rtd_theme
 recommonmark
+django
 sphinxcontrib-spelling
 pyenchant
