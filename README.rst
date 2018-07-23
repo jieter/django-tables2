@@ -9,7 +9,7 @@ django-tables2 - An app for creating HTML tables
 
 .. image:: https://travis-ci.org/jieter/django-tables2.svg?branch=master
     :target: https://travis-ci.org/jieter/django-tables2
-    :alt: Travis CI
+    :alt: Travis CI
 
 .. image:: https://img.shields.io/badge/code%20style-black-000000.svg
     :target: https://github.com/ambv/black
