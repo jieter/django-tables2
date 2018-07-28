@@ -1,6 +1,4 @@
 import re
-import warnings
-from contextlib import contextmanager
 
 import lxml.etree
 import lxml.html
@@ -19,14 +17,6 @@ def attrs(xml):
     Helper function that returns a dict of XML attributes, given an element.
     """
     return lxml.html.fromstring(xml).attrib
-
-
-@contextmanager
-def warns(warning_class):
-    with warnings.catch_warnings(record=True) as ws:
-        warnings.simplefilter("always")
-        yield ws
-        assert any((issubclass(w.category, DeprecationWarning) for w in ws))
 
 
 def build_request(uri="/", user=None):
@@ -60,8 +50,3 @@ def build_request(uri="/", user=None):
     if user is not None:
         request.user = user
     return request
-
-
-def clean_output(s):
-    """Remove double newlines with whitespace in between and reduce the level of indentation"""
-    return re.sub("\n( *\n)+", "\n", s).replace("    ", "  ")
