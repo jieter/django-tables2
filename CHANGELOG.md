@@ -1,5 +1,9 @@
 # Change log
 
+## 2.0.0a5 (2018-07-28)
+ - Added `linkify_item` keyword argument to `ManyToManyColumn`, fixes [#594](https://github.com/jieter/django-tables2/issues/594)
+ - Fixed an encoding issue in `README.md` preventing installation in some environments.
+
 ## 2.0.0a4 (2018-07-17)
  - Add `linkify` keyword argument to all columns, to allow wrapping the content in a `<a>` tag. It accepts one of these ways to define the link:
      - `True` to use the record return value of `record.get_absolute_url()`,
