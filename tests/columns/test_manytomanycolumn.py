@@ -52,6 +52,19 @@ class ManyToManyColumnTest(TestCase):
             for friend in friends:
                 self.assertTrue(Person.objects.filter(first_name=friend).exists())
 
+    def test_ManyToManyColumn_linkify_item(self):
+        class Table(tables.Table):
+            name = tables.Column(accessor="name", order_by=("last_name", "first_name"))
+            friends = tables.ManyToManyColumn(linkify_item=True)
+
+        table = Table(Person.objects.all())
+        for row in table.rows:
+            friends = row.get_cell("friends")
+
+            for friend in row.record.friends.all():
+                self.assertIn(friend.get_absolute_url(), friends)
+                self.assertIn(str(friend), friends)
+
     def test_custom_separator(self):
         def assert_sep(sep):
             class Table(tables.Table):
@@ -88,8 +101,9 @@ class ManyToManyColumnTest(TestCase):
         class Table(tables.Table):
             friends = tables.ManyToManyColumn(orderable=False)
 
-        Table([])
-        # TODO: assertions
+        table = Table([])
+
+        self.assertFalse(table.columns["friends"].orderable)
 
     def test_ManyToManyColumn_complete_example(self):
         # add a friendless person

@@ -4,7 +4,6 @@ from __future__ import absolute_import, unicode_literals
 from django.db import models
 from django.db.models.fields import FieldDoesNotExist
 from django.utils import six
-from django.utils.html import format_html
 
 from .columns.linkcolumn import BaseLinkColumn
 from .utils import A, AttributeDict, call_with_appropriate, computed_values
@@ -213,13 +212,7 @@ class BoundRow(object):
         render_kwargs = self._optional_cell_arguments(bound_column, value)
         content = call_with_appropriate(bound_column.render, render_kwargs)
 
-        if not bound_column.link:
-            return content
-
-        attrs = bound_column.link.get_attrs(**render_kwargs)
-        if attrs["href"] is None:
-            return content
-        return format_html("<a {}>{}</a>", attrs.as_html(), content)
+        return bound_column.link(content, **render_kwargs) if bound_column.link else content
 
     def get_cell_value(self, name):
         """

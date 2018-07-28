@@ -6,6 +6,7 @@ from itertools import islice
 
 from django.urls import reverse
 from django.utils import six
+from django.utils.html import format_html
 from django.utils.safestring import SafeData
 
 from django_tables2.utils import (
@@ -60,7 +61,7 @@ class Library(object):
 library = Library()
 
 
-class CellLink(object):
+class LinkTransform(object):
     """
     Object used to generate attributes for the `<a>`-tag to wrap the cell content in.
     """
@@ -69,10 +70,9 @@ class CellLink(object):
     accessor = None
     attrs = None
 
-    def __init__(self, column, url=None, accessor=None, attrs=None, reverse_args=None):
+    def __init__(self, url=None, accessor=None, attrs=None, reverse_args=None):
         """
         arguments:
-            column (Column): The column to be wrapped.
             url (callable): If supplied, the result of this callable will be used as ``href`` attribute.
             accessor (Accessor): if supplied, the accessor will be used to decide on which object
                 ``get_absolute_url()`` is called.
@@ -81,7 +81,6 @@ class CellLink(object):
                 are assumed to be keyword arguments to ``reverse()``, if tuple, a ``(viewname, args)``
                 or ``(viewname, kwargs)``
         """
-        self.column = column
         self.url = url
         self.attrs = attrs
         self.accessor = accessor
@@ -97,13 +96,16 @@ class CellLink(object):
         if self.url and callable(self.url):
             return call_with_appropriate(self.url, kwargs)
 
-        bound_column = kwargs["bound_column"]
+        bound_column = kwargs.get("bound_column", None)
         record = kwargs["record"]
 
         if self.reverse_args.get("viewname", None) is not None:
             return self.call_reverse(record=record)
 
-        accessor = Accessor(self.accessor if self.accessor is not None else bound_column.name)
+        if bound_column is None and self.accessor is None:
+            accessor = Accessor("")
+        else:
+            accessor = Accessor(self.accessor if self.accessor is not None else bound_column.name)
         context = accessor.resolve(record)
         if not hasattr(context, "get_absolute_url"):
             if hasattr(record, "get_absolute_url"):
@@ -145,6 +147,13 @@ class CellLink(object):
         attrs["href"] = self.compose_url(**kwargs)
 
         return attrs
+
+    def __call__(self, content, **kwargs):
+        attrs = self.get_attrs(**kwargs)
+        if attrs["href"] is None:
+            return content
+
+        return format_html("<a {}>{}</a>", attrs.as_html(), content)
 
 
 @library.register
@@ -268,7 +277,7 @@ class Column(object):
             link_kwargs = dict(accessor=self.accessor)
 
         if link_kwargs is not None:
-            self.link = CellLink(column=self, attrs=self.attrs.get("a", {}), **link_kwargs)
+            self.link = LinkTransform(attrs=self.attrs.get("a", {}), **link_kwargs)
 
         self.creation_counter = Column.creation_counter
         Column.creation_counter += 1

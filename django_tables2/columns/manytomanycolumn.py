@@ -7,7 +7,7 @@ from django.utils.html import conditional_escape, mark_safe
 
 from django_tables2.utils import ucfirst
 
-from .base import Column, library
+from .base import Column, LinkTransform, library
 
 
 @library.register
@@ -25,6 +25,8 @@ class ManyToManyColumn(Column):
             `ManyRelatedManager` as first argument and must return.
             By default, it returns `all()``
         separator: separator string to join the items with. default: ', '
+        linkify_item: callable, arguments to reverse() or `True` to wrap items in a ``<a>`` tag.
+            For a detailed explanation, see ``linkify`` argument to ``Column``.
 
     For example, when displaying a list of friends with their full name::
 
@@ -42,19 +44,30 @@ class ManyToManyColumn(Column):
         class PersonTable(tables.Table):
             name = tables.Column(order_by=('last_name', 'first_name'))
             friends = tables.ManyToManyColumn(transform=lambda user: u.name)
-
     """
 
-    def __init__(self, transform=None, filter=None, separator=", ", *args, **kwargs):
+    def __init__(
+        self, transform=None, filter=None, separator=", ", linkify_item=None, *args, **kwargs
+    ):
+        kwargs.setdefault("orderable", False)
+        super(ManyToManyColumn, self).__init__(*args, **kwargs)
+
         if transform is not None:
             self.transform = transform
         if filter is not None:
             self.filter = filter
         self.separator = separator
 
-        kwargs.setdefault("orderable", False)
+        link_kwargs = None
+        if callable(linkify_item):
+            link_kwargs = dict(url=linkify_item)
+        elif isinstance(linkify_item, (dict, tuple)):
+            link_kwargs = dict(reverse_args=linkify_item)
+        elif linkify_item is True:
+            link_kwargs = dict()
 
-        super(ManyToManyColumn, self).__init__(*args, **kwargs)
+        if link_kwargs is not None:
+            self.linkify_item = LinkTransform(attrs=self.attrs.get("a", {}), **link_kwargs)
 
     def transform(self, obj):
         """
@@ -74,11 +87,15 @@ class ManyToManyColumn(Column):
         if not value.exists():
             return "-"
 
-        return mark_safe(
-            conditional_escape(self.separator).join(
-                map(conditional_escape, map(self.transform, self.filter(value)))
-            )
-        )
+        items = []
+        for item in self.filter(value):
+            content = conditional_escape(self.transform(item))
+            if hasattr(self, "linkify_item"):
+                content = self.linkify_item(content=content, record=item)
+
+            items.append(content)
+
+        return mark_safe(conditional_escape(self.separator).join(items))
 
     @classmethod
     def from_field(cls, field):
