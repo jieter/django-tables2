@@ -25,7 +25,7 @@ Add some data so you have something to display in the table::
     >>> Person.objects.bulk_create([Person(name='Jieter'), Person(name='Bradley')])
     [<Person: Person object>, <Person: Person object>]
 
-Now write a view to pass a ``Person`` queryset into a template::
+Now write a view to pass a ``Person`` QuerySet into a template::
 
     # tutorial/views.py
     from django.shortcuts import render
@@ -68,8 +68,8 @@ you should see:
     :align: center
     :alt: An example table rendered using django-tables2
 
-While simple, passing a queryset directly to ``{% render_table %}`` does not
-allow for any customisation. For that, you must define a custom `.Table` class::
+While simple, passing a QuerySet directly to ``{% render_table %}`` does not
+allow for any customization. For that, you must define a custom `.Table` class::
 
     # tutorial/tables.py
     import django_tables2 as tables
@@ -78,7 +78,7 @@ allow for any customisation. For that, you must define a custom `.Table` class::
     class PersonTable(tables.Table):
         class Meta:
             model = Person
-            template = 'django_tables2/bootstrap.html'
+            template_name = 'django_tables2/bootstrap.html'
 
 
 You will then need to instantiate and configure the table in the view, before
@@ -93,12 +93,12 @@ adding it to the context::
     def people(request):
         table = PersonTable(Person.objects.all())
         RequestConfig(request).configure(table)
-        return render(request, 'people.html', {'table': table})
+        return render(request, 'tutorial/people.html', {'table': table})
 
 Using `.RequestConfig` automatically pulls values from ``request.GET`` and
 updates the table accordingly. This enables data ordering and pagination.
 
-Rather than passing a queryset to ``{% render_table %}``, instead pass the
+Rather than passing a QuerySet to ``{% render_table %}``, instead pass the
 table instance::
 
     {# tutorial/templates/tutorial/people.html #}
@@ -114,19 +114,22 @@ table instance::
         </body>
     </html>
 
-This results in a table rendered with the bootstrap3 stylesheet:
+This results in a table rendered with the bootstrap3 style sheet:
 
 .. figure:: /_static/tutorial-bootstrap.png
     :align: center
     :alt: An example table rendered using django-tables2 with the bootstrap template
 
-At this point you have not actually customised anything but the template.
-There are several topic you can read into to futher customize the table:
+At this point you have not actually customized anything but the template.
+There are several topic you can read into to further customize the table:
 
 - Table data
     - :ref:`Populating the table with data <table_data>`,
     - :ref:`Filtering table data <filtering>`
-- Custumizing the rendered table
+- Customizing the rendered table
     - :ref:`Headers and footers <column-headers-and-footers>`
     - :ref:`pinned_rows`
 - :ref:`api-public`
+
+If you think you don't have a lot customization to do and don't want to make
+a full class declaration use ``django_tables2.tables.table_factory``.

@@ -25,7 +25,7 @@ Adding ability to export the table data to a class based views looks like this::
         template_name = 'django_tables2/bootstrap.html'
 
 
-Now, if you append ``_export=csv`` to the querystring, the browser will download
+Now, if you append ``_export=csv`` to the query string, the browser will download
 a csv file containing your data. Supported export formats are:
 
     csv, json, latex, ods, tsv, xls, xlsx, yml
@@ -59,8 +59,8 @@ If you must use a function view, you might use something like this::
             'table': table
         })
 
-What exacly is exported?
-------------------------
+What exactly is exported?
+-------------------------
 
 The export views use the `.Table.as_values()` method to get the data from the table.
 Because we often use HTML in our table cells, we need to specify something else for the
@@ -100,16 +100,16 @@ If you use the ``~.ExportMixin``, add an ``exclude_columns`` attribute to your c
         table_class = MyTable
         model = Person
         template_name = 'django_tables2/bootstrap.html'
-        exclude_column = ('buttons', )
+        exclude_columns = ('buttons', )
 
 
-Generating export urls
+Generating export URLs
 ----------------------
 
 You can use the ``querystring`` template tag included with django_tables2
 to render a link to export the data as ``csv``::
 
-    {% querystring '_export'='csv' %}
+    {% export_url "csv" %}
 
 This will make sure any other query string parameters will be preserved, for example
 in combination when filtering table items.
@@ -117,7 +117,7 @@ in combination when filtering table items.
 If you want to render more than one button, you could use something like this::
 
     {% for format in table.export_formats %}
-        <a href="{% querystring '_export'=format %}">
+        <a href="{% export_url format %}">
             download  <code>.{{ format }}</code>
         </a>
     {% endfor %}

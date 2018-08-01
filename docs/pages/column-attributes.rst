@@ -17,12 +17,10 @@ Depending on the column, different elements are supported, however ``th``,
     ...     name = tables.Column(attrs={'th': {'id': 'foo'}})
     ...
     >>> # will render something like this:
-    '{snip}<thead><tr><th id="foo" class="name">{snip}<tbody><tr><td class="name">{snip}'
+    '{snip}<thead><tr><th id="foo">{snip}<tbody><tr><td>{snip}'
 
 
-For ``th`` and ``td``, the column name will be added as a class name. This makes
-selecting the row for styling easier. Have a look at each column's API
-reference to find which elements are supported.
+Have a look at each column's API reference to find which elements are supported.
 
 If you need to add some extra attributes to column's tags rendered in the
 footer, use key name ``tf``, as described in section on :ref:`css`.
@@ -41,7 +39,7 @@ will render the ``<td>``'s in the tables ``<body>`` with a ``data-length`` attri
 containing the number of characters in the value.
 
 .. note::
-    The kwargs ``record`` and ``value`` only make sense in the context of a row
+    The keyword arguments ``record`` and ``value`` only make sense in the context of a row
     containing data. If you supply a callable with one of these keyword arguments,
     it will not be executed for the header and footer rows.
 
@@ -49,7 +47,7 @@ containing the number of characters in the value.
     callable with a catchall (``**kwargs``) argument::
 
         def data_first_name(**kwargs):
-            first_name = kwargs.get('first_name', None)
+            first_name = kwargs.get('value', None)
             if first_name is None:
                 return 'header'
             else:
@@ -87,7 +85,7 @@ Row attributes
 Row attributes can be specified using a dict defining the HTML attributes for
 the ``<tr>`` element on each row. The values of the dict may be
 
-By default, class names *odd* and *even* are supplied to the rows, wich can be
+By default, class names *odd* and *even* are supplied to the rows, which can be
 customized using the ``row_attrs`` `.Table.Meta` attribute or as argument to the
 constructor of `.Table`. String-like values will just be added,
 callables will be called with optional keyword argument `record`, the return value

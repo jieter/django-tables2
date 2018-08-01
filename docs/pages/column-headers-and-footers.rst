@@ -10,10 +10,10 @@ Adding column headers
 ---------------------
 
 The header cell for each column comes from `~.Column.header`. By default this
-method returns `~.Column.verbose_name`, falling back to the titlised attribute
+method returns `~.Column.verbose_name`, falling back to the capitalized attribute
 name of the column in the table class.
 
-When using queryset data and a verbose name hasn't been explicitly defined for
+When using QuerySet data and a verbose name has not been explicitly defined for
 a column, the corresponding model field's `verbose_name` will be used.
 
 Consider the following:
@@ -109,7 +109,7 @@ Adding column footers
 By default, no footer will be rendered. If you want to add a footer, define a
 footer on at least one column.
 
-That will make the table render a footer on every view of the table. It's up to
+That will make the table render a footer on every view of the table. It is up to
 you to decide if that makes sense if your table is paginated.
 
 Pass `footer`-argument to the `~.Column` constructor.
@@ -149,5 +149,5 @@ Then use this column like so::
 
 .. note::
 
-    If you are `sum`\ ming over tables with big datasets, chances are it's going
+    If you are summing over tables with big datasets, chances are it is going
     to be slow. You should use some database aggregation function instead.

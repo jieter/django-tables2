@@ -10,35 +10,45 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Country',
+            name="Country",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=100)),
-                ('population', models.PositiveIntegerField(verbose_name='population')),
-                ('tz', models.CharField(max_length=50)),
-                ('visits', models.PositiveIntegerField()),
-                ('commonwealth', models.NullBooleanField()),
-                ('flag', models.FileField(upload_to='country/flags/')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("name", models.CharField(max_length=100)),
+                ("population", models.PositiveIntegerField(verbose_name="population")),
+                ("tz", models.CharField(max_length=50)),
+                ("visits", models.PositiveIntegerField()),
+                ("commonwealth", models.NullBooleanField()),
+                ("flag", models.FileField(upload_to="country/flags/")),
             ],
-            options={
-                'verbose_name_plural': 'countries',
-            },
+            options={"verbose_name_plural": "countries"},
         ),
         migrations.CreateModel(
-            name='Person',
+            name="Person",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=200, verbose_name='full name')),
-                ('friendly', models.BooleanField(default=True)),
-                ('country', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='app.Country')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("name", models.CharField(max_length=200, verbose_name="full name")),
+                ("friendly", models.BooleanField(default=True)),
+                (
+                    "country",
+                    models.ForeignKey(
+                        null=True, on_delete=django.db.models.deletion.CASCADE, to="app.Country"
+                    ),
+                ),
             ],
-            options={
-                'verbose_name_plural': 'people',
-            },
+            options={"verbose_name_plural": "people"},
         ),
     ]

@@ -5,7 +5,7 @@ from django.core.paginator import EmptyPage, PageNotAnInteger
 
 
 class RequestConfig(object):
-    '''
+    """
     A configurator that uses request data to setup a table.
 
     A single RequestConfig can be used for multiple tables in one view.
@@ -20,40 +20,39 @@ class RequestConfig(object):
             A special *silent* item can be used to enable automatic handling of
             pagination exceptions using the following logic:
 
-             - If `~django.core.paginator.PageNotAnInteger` is raised, show the
-               first page.
-             - If `~django.core.paginator.EmptyPage` is raised, show the last
-               page.
+             - If `~django.core.paginator.PageNotAnInteger` is raised, show the first page.
+             - If `~django.core.paginator.EmptyPage` is raised, show the last page.
 
-    '''
+    """
+
     def __init__(self, request, paginate=True):
         self.request = request
         self.paginate = paginate
 
     def configure(self, table):
-        '''
+        """
         Configure a table using information from the request.
 
         Arguments:
             table (`~.Table`): table to be configured
-        '''
+        """
         order_by = self.request.GET.getlist(table.prefixed_order_by_field)
         if order_by:
             table.order_by = order_by
         if self.paginate:
-            if hasattr(self.paginate, 'items'):
+            if hasattr(self.paginate, "items"):
                 kwargs = dict(self.paginate)
             else:
                 kwargs = {}
             # extract some options from the request
-            for arg in ('page', 'per_page'):
-                name = getattr(table, 'prefixed_%s_field' % arg)
+            for arg in ("page", "per_page"):
+                name = getattr(table, "prefixed_%s_field" % arg)
                 try:
                     kwargs[arg] = int(self.request.GET[name])
                 except (ValueError, KeyError):
                     pass
 
-            silent = kwargs.pop('silent', True)
+            silent = kwargs.pop("silent", True)
             if not silent:
                 table.paginate(**kwargs)
             else:
@@ -63,3 +62,5 @@ class RequestConfig(object):
                     table.page = table.paginator.page(1)
                 except EmptyPage:
                     table.page = table.paginator.page(table.paginator.num_pages)
+
+        return table

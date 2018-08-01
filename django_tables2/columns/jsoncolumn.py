@@ -5,14 +5,14 @@ import json
 
 from django.utils.html import format_html
 
-from django_tables2.templatetags.django_tables2 import title
-from django_tables2.utils import AttributeDict
+from django_tables2.utils import AttributeDict, ucfirst
 
 from .base import library
 from .linkcolumn import BaseLinkColumn
 
 try:
     from django.contrib.postgres.fields import HStoreField, JSONField
+
     POSTGRES_AVAILABLE = True
 except ImportError:
     # psycopg2 is not available, cannot import from django.contrib.postgres.
@@ -22,7 +22,7 @@ except ImportError:
 
 @library.register
 class JSONColumn(BaseLinkColumn):
-    '''
+    """
     Render the contents of `~django.contrib.postgres.fields.JSONField` or
     `~django.contrib.postgres.fields.HStoreField` as an indented string.
 
@@ -39,23 +39,26 @@ class JSONColumn(BaseLinkColumn):
         attrs (dict): In addition to *attrs* keys supported by `~.Column`, the
             following are available:
 
-             - *pre* -- ``<pre>`` around the rendered JSON string in ``<td>`` elements.
+             - ``pre`` -- ``<pre>`` around the rendered JSON string in ``<td>`` elements.
 
-    '''
+    """
+
     def __init__(self, json_dumps_kwargs=None, **kwargs):
-        self.json_dumps_kwargs = json_dumps_kwargs if json_dumps_kwargs is not None else {'indent': 2}
+        self.json_dumps_kwargs = (
+            json_dumps_kwargs if json_dumps_kwargs is not None else {"indent": 2}
+        )
 
         super(JSONColumn, self).__init__(**kwargs)
 
     def render(self, record, value):
         return format_html(
-            '<pre {}>{}</pre>',
-            AttributeDict(self.attrs.get('pre', {})).as_html(),
-            json.dumps(value, **self.json_dumps_kwargs)
+            "<pre {}>{}</pre>",
+            AttributeDict(self.attrs.get("pre", {})).as_html(),
+            json.dumps(value, **self.json_dumps_kwargs),
         )
 
     @classmethod
     def from_field(cls, field):
         if POSTGRES_AVAILABLE:
             if isinstance(field, JSONField) or isinstance(field, HStoreField):
-                return cls(verbose_name=title(field.verbose_name))
+                return cls(verbose_name=ucfirst(field.verbose_name))

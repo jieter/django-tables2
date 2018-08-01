@@ -1,7 +1,7 @@
 Alternative column ordering
 ===========================
 
-When using queryset data, one might want to show a computed value which is not
+When using QuerySet data, one might want to show a computed value which is not
 in the database. In this case, attempting to order the column will cause an
 exception::
 
@@ -56,16 +56,16 @@ the ``orderable`` argument::
 --------------------------------
 
 Another solution for alternative ordering is being able to chain functions on to
-the original queryset. This method allows more complex functionality giving the
+the original QuerySet. This method allows more complex functionality giving the
 ability to use all of Django's QuerySet API.
 
 Adding a `Table.order_FOO` method (where `FOO` is the name of the column),
-gives you the ability to chain to, or modify, the original queryset when that
+gives you the ability to chain to, or modify, the original QuerySet when that
 column is selected to be ordered.
 
-The method takes two arguments: `queryset`, and `is_descending`. The return
-must be a tuple of two elements. The first being the queryset and the second
-being a boolean; note that modified queryset will only be used if the boolean is
+The method takes two arguments: `QuerySet`, and `is_descending`. The return
+must be a tuple of two elements. The first being the QuerySet and the second
+being a boolean; note that modified QuerySet will only be used if the boolean is
 `True`.
 
 For example, let's say instead of ordering alphabetically, ordering by
@@ -79,11 +79,11 @@ The implementation would look like this:
     class PersonTable(tables.Table):
         name = tables.Column()
 
-        def order_name(self, queryset, is_descending):
-            queryset = queryset.annotate(
+        def order_name(self, QuerySet, is_descending):
+            QuerySet = QuerySet.annotate(
                 length=Length('first_name')
             ).order_by(('-' if is_descending else '') + 'length')
-            return (queryset, True)
+            return (QuerySet, True)
 
 
 
@@ -114,11 +114,11 @@ This can be achieved like this::
         def render_clothing(self, record):
             return str(record.shirts + record.pants)
 
-        def order_clothing(self, queryset, is_descending):
-            queryset = queryset.annotate(
+        def order_clothing(self, QuerySet, is_descending):
+            QuerySet = QuerySet.annotate(
                 amount=F('shirts') + F('pants')
             ).order_by(('-' if is_descending else '') + 'amount')
-            return (queryset, True)
+            return (QuerySet, True)
 
 
 Using :meth:`Column.order` on custom columns
@@ -134,11 +134,11 @@ For example, the `PersonTable` from above could also be defined like this::
         def render(self, record):
             return str(record.shirts + record.pants)
 
-        def order(self, queryset, is_descending):
-            queryset = queryset.annotate(
+        def order(self, QuerySet, is_descending):
+            QuerySet = QuerySet.annotate(
                 amount=F('shirts') + F('pants')
             ).order_by(('-' if is_descending else '') + 'amount')
-            return (queryset, True)
+            return (QuerySet, True)
 
 
     class PersonTable(tables.Table):

@@ -13,7 +13,8 @@ template.
 
 The following view parameters are supported:
 
-- ``table_class`` –- the table class to use, e.g. ``SimpleTable``
+- ``table_class`` –- the table class to use, e.g. ``SimpleTable``, if not specified
+  and ``model`` is provided, a default table will be created on-the-fly.
 - ``table_data`` (or ``get_table_data()``) -- the data used to populate the table
 - ``context_table_name`` -- the name of template variable containing the table object
 - ``table_pagination`` (or ``get_table_pagination``) -- pagination
@@ -46,12 +47,12 @@ The template could then be as simple as:
 
 .. sourcecode:: django
 
-    {% load render_table from django_tables2 %}
+    {% load django_tables2 %}
     {% render_table table %}
 
 Such little code is possible due to the example above taking advantage of
 default values and `.SingleTableMixin`'s eagerness at finding data sources
-when one isn't explicitly defined.
+when one is not explicitly defined.
 
 .. note::
 
@@ -60,7 +61,7 @@ when one isn't explicitly defined.
 
 
 Multiple tables using `.MultiTableMixin`
---------------------------------------------
+----------------------------------------
 
 If you need more than one table in a single view you can use `MultiTableMixin`.
 It manages multiple tables for you and takes care of adding the appropriate
@@ -84,6 +85,7 @@ In the template, you get a variable `tables`, which you can loop over like this:
 
 .. sourcecode:: django
 
+    {% load django_tables2 %}
     {% for table in tables %}
         {% render_table table %}
     {% endfor %}

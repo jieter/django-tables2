@@ -63,6 +63,48 @@ to column tags in table header (``th``), rows (``td``) or footer (``tf``)
     '<tfoot><tr> ... <td class="age" bgcolor="red"></tr></tfoot>''
 
 
+.. _available-templates:
+
+Available templates
+-------------------
+
+We ship a couple of different templates:
+
+======================================== ======================================================
+Template name                            Description
+======================================== ======================================================
+django_tables2/table.html                Basic table template (default).
+django_tables2/bootstrap.html            Template using bootstrap 3 structure/classes
+django_tables2/bootstrap4.html           Template using bootstrap 4 structure/classes
+django_tables2/bootstrap-responsive.html Same as bootstrap, but wrapped in ``.table-responsive``
+django_tables2/semantic.html             Template using semantic UI
+======================================== ======================================================
+
+By default, django-tables2 looks for the ``DJANGO_TABLES2_TEMPLATE`` setting
+which is ``django_tables2/table.html`` by default.
+
+If you use bootstrap 3 for your site, it makes sense to set the default to
+the bootstrap 3 template::
+
+    DJANGO_TABLES2_TEMPLATE = 'django_tables2/bootstrap.html'
+
+If you want to specify a custom template for selected tables in your project,
+you can set a ``template_name`` attribute to your custom ``Table.Meta`` class::
+
+    class PersonTable(tables.Table):
+
+        class Meta:
+            model = Person
+            template_name = 'django_tables2/semantic.html'
+
+You can also use the ``template_name`` argument to the ``Table`` constructor to
+override the template for a certain instance::
+
+    table = PersonTable(data, template_name='django_tables2/bootstrap-responsive.html')
+
+For none of the templates any CSS file is added to the HTML. You are responsible for
+including the relevant style sheets for a template.
+
 .. _custom-template:
 
 Custom Template
@@ -72,7 +114,4 @@ And of course if you want full control over the way the table is rendered,
 ignore the built-in generation tools, and instead pass an instance of your
 `.Table` subclass into your own template, and render it yourself.
 
-Have a look at the ``django_tables2/table.html`` template for an example.
-
-You can set `DJANGO_TABLES2_TEMPLATE` in your django settings to change the
-default template django-tables2 looks for.
+You should use one of the provided templates as a basis.

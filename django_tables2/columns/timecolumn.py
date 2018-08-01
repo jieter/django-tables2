@@ -4,7 +4,7 @@ from __future__ import absolute_import, unicode_literals
 from django.conf import settings
 from django.db import models
 
-from django_tables2.templatetags.django_tables2 import title
+from django_tables2.utils import ucfirst
 
 from .base import library
 from .templatecolumn import TemplateColumn
@@ -12,7 +12,7 @@ from .templatecolumn import TemplateColumn
 
 @library.register
 class TimeColumn(TemplateColumn):
-    '''
+    """
     A column that renders times in the local timezone.
 
     Arguments:
@@ -20,7 +20,8 @@ class TimeColumn(TemplateColumn):
             filter (optional)
         short (bool): if *format* is not specified, use Django's ``TIME_FORMAT``
             setting
-    '''
+    """
+
     def __init__(self, format=None, *args, **kwargs):
         if format is None:
             format = settings.TIME_FORMAT
@@ -30,4 +31,4 @@ class TimeColumn(TemplateColumn):
     @classmethod
     def from_field(cls, field):
         if isinstance(field, models.TimeField):
-            return cls(verbose_name=title(field.verbose_name))
+            return cls(verbose_name=ucfirst(field.verbose_name))

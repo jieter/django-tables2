@@ -3,9 +3,9 @@
 Populating a table with data
 ============================
 
-Tables can be created from a range of input data structures. If you've seen the
-tutorial you'll have seen a queryset being used, however any iterable that
-supports :func:`len` and contains items that expose key-based access to column
+Tables can be created from a range of input data structures. If you have seen the
+tutorial you will have seen a ``QuerySet`` being used, however any iterable that
+supports :func:`len` and contains items that exposes key-based access to column
 values is fine.
 
 
@@ -28,7 +28,7 @@ it is necessary to declare each column::
     table = NameTable(data)
 
 
-Querysets
+QuerySets
 ---------
 
 If you build use tables to display `~django.db.models.query.QuerySet` data,
@@ -79,7 +79,7 @@ avoid converting the `~django.db.models.query.QuerySet` instances to lists by
 using SQL to slice the data and should be able to handle datasets with 100k
 records without a problem.
 
-However, when using one of the customisation methods described in this
-documentation, there is lot's of oppurtunity to introduce slowness.
-If you experience that, try to strip the table of customisations and re-add them
+However, when using one of the customization methods described in this
+documentation, there is lot's of opportunity to introduce slowness.
+If you experience that, try to strip the table of customizations and re-add them
 one by one, checking for performance after each step.

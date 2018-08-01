@@ -38,13 +38,13 @@ Please refer to the Django documentation for the TEMPLATES-setting_.
 
 .. _template-tags.querystring:
 
-querystring
------------
+``querystring``
+---------------
 
 A utility that allows you to update a portion of the query-string without
 overwriting the entire thing.
 
-Let's assume we have the querystring ``?search=pirates&sort=name&page=5`` and
+Let's assume we have the query string ``?search=pirates&sort=name&page=5`` and
 we want to update the ``sort`` parameter:
 
 .. sourcecode:: django

@@ -7,13 +7,13 @@ django-tables2 - An app for creating HTML tables
     :target: https://pypi.python.org/pypi/django-tables2
     :alt: Latest PyPI version
 
-.. image:: https://travis-ci.org/bradleyayers/django-tables2.svg?branch=master
-    :target: https://travis-ci.org/bradleyayers/django-tables2
+.. image:: https://travis-ci.org/jieter/django-tables2.svg?branch=master
+    :target: https://travis-ci.org/jieter/django-tables2
     :alt: Travis CI
 
-.. image:: https://app.fossa.io/api/projects/git%2Bgithub.com%2Fjieter%2Fdjango-tables2.svg
-    :target: https://app.fossa.io/projects/git%2Bgithub.com%2Fjieter%2Fdjango-tables2?ref=badge_shield
-    :alt: FOSSA Status
+.. image:: https://img.shields.io/badge/code%20style-black-000000.svg
+    :target: https://github.com/ambv/black
+    :alt: Any color you like
 
 django-tables2 simplifies the task of turning sets of data into HTML tables. It
 has native support for pagination and sorting. It does for HTML tables what
@@ -22,13 +22,13 @@ has native support for pagination and sorting. It does for HTML tables what
 - `Available on pypi <https://pypi.python.org/pypi/django-tables2>`_
 - Tested against currently supported versions of Django
   `and the python versions Django supports <https://docs.djangoproject.com/en/dev/faq/install/#what-python-version-can-i-use-with-django>`_
-  (see `Travis CI <https://travis-ci.org/bradleyayers/django-tables2>`_)
+  (see `Travis CI <https://travis-ci.org/jieter/django-tables2>`_)
 - `Documentation on readthedocs.org <https://django-tables2.readthedocs.io/en/latest/>`_
-- `Bug tracker <http://github.com/bradleyayers/django-tables2/issues>`_
+- `Bug tracker <http://github.com/jieter/django-tables2/issues>`_
 
 Features:
 
-- Any iterable can be a data-source, but special support for Django querysets is included.
+- Any iterable can be a data-source, but special support for Django `QuerySets` is included.
 - The builtin UI does not rely on JavaScript.
 - Support for automatic table generation based on a Django model.
 - Supports custom column functionality via subclassing.
@@ -37,13 +37,13 @@ Features:
 - Template tag to enable trivial rendering to HTML.
 - Generic view mixin.
 
-.. image:: https://cdn.rawgit.com/bradleyayers/django-tables2/1044316e/docs/img/example.png
+.. image:: https://cdn.rawgit.com/jieter/django-tables2/master/docs/img/example.png
     :alt: An example table rendered using django-tables2
 
-.. image:: https://cdn.rawgit.com/bradleyayers/django-tables2/1044316e/docs/img/bootstrap.png
+.. image:: https://cdn.rawgit.com/jieter/django-tables2/master/docs/img/bootstrap.png
     :alt: An example table rendered using django-tables2 and bootstrap theme
 
-.. image:: https://cdn.rawgit.com/bradleyayers/django-tables2/1044316e/docs/img/semantic.png
+.. image:: https://cdn.rawgit.com/jieter/django-tables2/master/docs/img/semantic.png
     :alt: An example table rendered using django-tables2 and semantic-ui theme
 
 Example

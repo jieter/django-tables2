@@ -1,78 +1,145 @@
 # coding: utf-8
 from __future__ import unicode_literals
 
-import pytest
+from django.test import TestCase
 
+from django_tables2 import Table
 from django_tables2.data import TableData, TableListData, TableQuerysetData
 
-from .app.models import Person
+from .app.models import Person, Region
+from .utils import build_request
 
 
-def test_TableData_factory_invalid_data_None():
-    with pytest.raises(ValueError):
-        TableData.from_data(None, table={})
+class TableDataFactoryTest(TestCase):
+    def test_invalid_data_None(self):
+        with self.assertRaises(ValueError):
+            TableData.from_data(None)
 
+    def test_invalid_data_int(self):
+        with self.assertRaises(ValueError):
+            TableData.from_data(1)
 
-def test_TableData_factory_invalid_data_int():
-    with pytest.raises(ValueError):
-        TableData.from_data(1, table={})
-
-
-def test_TableData_factory_invalid_data_classes():
-    class Klass(object):
-        pass
-
-    with pytest.raises(ValueError):
-        TableData.from_data(Klass(), table={})
-
-    class Bad(object):
-        def __len__(self):
+    def test_invalid_data_classes(self):
+        class Klass(object):
             pass
 
-    with pytest.raises(ValueError):
-        TableData.from_data(Bad(), table={})
+        with self.assertRaises(ValueError):
+            TableData.from_data(Klass())
+
+        class Bad(object):
+            def __len__(self):
+                pass
+
+        with self.assertRaises(ValueError):
+            TableData.from_data(Bad())
+
+    def test_valid_QuerySet(self):
+        data = TableData.from_data(Person.objects.all())
+        self.assertIsInstance(data, TableQuerysetData)
+
+    def test_valid_list_of_dicts(self):
+        data = TableData.from_data([{"name": "John"}, {"name": "Pete"}])
+        self.assertIsInstance(data, TableListData)
+        self.assertEqual(len(data), 2)
+
+    def test_valid_tuple_of_dicts(self):
+        data = TableData.from_data(({"name": "John"}, {"name": "Pete"}))
+        self.assertIsInstance(data, TableListData)
+        self.assertEqual(len(data), 2)
+
+    def test_valid_class(self):
+        class Datasource(object):
+            def __len__(self):
+                return 1
+
+            def __getitem__(self, pos):
+                if pos != 0:
+                    raise IndexError()
+                return {"a": 1}
+
+        data = TableData.from_data(Datasource())
+        self.assertEqual(len(data), 1)
 
 
-@pytest.mark.django_db
-def test_TableData_factory_valid_QuerySet():
-    data = TableData.from_data(Person.objects.all(), table={})
-    assert isinstance(data, TableQuerysetData)
+class TableDataTest(TestCase):
+    def test_knows_its_default_name(self):
+        data = TableData.from_data([{}])
+        self.assertEqual(data.verbose_name, "item")
+        self.assertEqual(data.verbose_name_plural, "items")
+
+    def test_knows_its_name(self):
+        data = TableData.from_data(Person.objects.all())
+
+        self.assertEqual(data.verbose_name, "person")
+        self.assertEqual(data.verbose_name_plural, "people")
 
 
-def test_TableData_factory_valid_list_of_dicts():
-    data = TableData.from_data([{'name': 'John'}, {'name': 'Pete'}], table={})
-    assert isinstance(data, TableListData)
-    assert len(data) == 2
+def generator(max_value):
+    for i in range(max_value):
+        yield {"foo": i, "bar": chr(i), "baz": hex(i), "inv": max_value - i}
 
 
-def test_TableData_factory_valid_tuple_of_dicts():
-    data = TableData.from_data(({'name': 'John'}, {'name': 'Pete'}), table={})
-    assert isinstance(data, TableListData)
-    assert len(data) == 2
+class TableListsDataTest(TestCase):
+    def test_TableListData_basic_list(self):
+        list_data = list(generator(100))
+        data = TableListData(list_data)
+
+        self.assertEqual(len(list_data), len(data))
+        self.assertEqual(data.verbose_name, "item")
+        self.assertEqual(data.verbose_name_plural, "items")
+
+    def test_TableListData_with_verbose_name(self):
+        """
+        TableListData uses the attributes on the listlike object to generate
+        it's verbose_name.
+        """
+
+        class listlike(list):
+            verbose_name = "unit"
+            verbose_name_plural = "units"
+
+        list_data = listlike(generator(100))
+        data = TableListData(list_data)
+
+        self.assertEqual(len(list_data), len(data))
+        self.assertEqual(data.verbose_name, "unit")
+        self.assertEqual(data.verbose_name_plural, "units")
 
 
-def test_TableData_factory_valid_class():
-    class Datasource(object):
-        def __len__(self):
-            return 1
+class TableQuerysetDataTest(TestCase):
+    def test_custom_TableData(self):
+        """If TableQuerysetData._length is set, no count() query will be performed"""
+        for i in range(20):
+            Person.objects.create(first_name="first {}".format(i))
 
-        def __getitem__(self, pos):
-            if pos != 0:
-                raise IndexError()
-            return {'a': 1}
+        data = TableQuerysetData(Person.objects.all())
+        data._length = 10
 
-    data = TableData.from_data(Datasource(), table={})
-    assert len(data) == 1
+        table = Table(data=data)
+        self.assertEqual(len(table.data), 10)
 
+    def test_model_mismatch(self):
+        class MyTable(Table):
+            class Meta:
+                model = Person
 
-def test_tabledata_knows_its_default_name():
-    data = TableData.from_data([{}], table={})
-    assert data.verbose_name == 'item'
-    assert data.verbose_name_plural == 'items'
+        with self.assertRaises(ValueError):
+            MyTable(Region.objects.all())
 
+    def test_queryset_union(self):
+        for i in range(10):
+            Person.objects.create(first_name="first {}".format(i), last_name="foo")
+            Person.objects.create(first_name="first {}".format(i * 2), last_name="bar")
 
-def test_tabledata_knows_its_name():
-    data = TableData.from_data(Person.objects.all(), table={})
+        class MyTable(Table):
+            class Meta:
+                model = Person
+                fields = ("first_name",)
 
-    assert data.verbose_name == 'person'
-    assert data.verbose_name_plural == 'people'
+        qs = Person.objects.filter(last_name="bar").union(Person.objects.filter(last_name="foo"))
+        table = MyTable(qs.order_by("-last_name"))
+        self.assertEqual(len(table.rows), 20)
+
+        html = table.as_html(build_request())
+        self.assertIn("first 18", html)
+        self.assertIn("first 10", html)

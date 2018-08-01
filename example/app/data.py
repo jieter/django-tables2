@@ -1,4 +1,4 @@
-COUNTRIES = '''Aruba;104822
+COUNTRIES = """Aruba;104822
 Afghanistan;34656032
 Angola;28813463
 Albania;2876101
@@ -43,4 +43,4 @@ Congo, Rep.;5125821
 Colombia;48653419
 Comoros;795601
 Cabo Verde;539560
-'''
+"""

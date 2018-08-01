@@ -1,0 +1,37 @@
+{% load static %}
+{% load render_table from django_tables2 %}
+{% load bootstrap4 %}
+<!doctype html>
+<html>
+<head>
+    <title>django_tables2 with bootstrap 4 template example</title>
+    {% bootstrap_css %}
+
+</head>
+<body>
+    <div class="container">
+        {% block body %}
+
+        <a href="https://getbootstrap.com/docs/4.0/content/tables/">Bootstrap 4 - tables docs</a> |
+        <a href="https://getbootstrap.com/docs/4.0/components/pagination/">Bootstrap 4 - pagination docs</a>
+
+        <h3>django_tables2 with <a href="https://getbootstrap.com/docs/4.0/">Bootstrap 4</a> template example</h3>
+
+
+        <div class="row">
+            {% if filter %}
+                <div class="col-sm-10">
+                    <form action="" method="get" class="form form-inline">
+                        {% bootstrap_form filter.form layout='inline' %}
+                        {% bootstrap_button 'filter' %}
+                    </form>
+                </div>
+            {% endif %}
+            <div class="col-sm-10">
+                {% render_table table %}
+            </div>
+        </div>
+        {% endblock %}
+    </div>
+</body>
+</html>

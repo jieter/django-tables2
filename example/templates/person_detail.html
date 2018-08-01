@@ -1,0 +1,8 @@
+{% extends 'semantic_template.html' %}
+{% load django_tables2 %}
+
+{% block body %}
+<h1>{{ person }}</h1>
+
+country: <a href="{{ person.country.get_absolute_url }}">{{ person.country }}</a>
+{% endblock %}

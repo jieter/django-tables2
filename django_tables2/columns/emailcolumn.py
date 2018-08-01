@@ -3,7 +3,7 @@ from __future__ import absolute_import, unicode_literals
 
 from django.db import models
 
-from django_tables2.templatetags.django_tables2 import title
+from django_tables2.utils import ucfirst
 
 from .base import library
 from .linkcolumn import BaseLinkColumn
@@ -11,8 +11,8 @@ from .linkcolumn import BaseLinkColumn
 
 @library.register
 class EmailColumn(BaseLinkColumn):
-    '''
-    Render email addresses to mailto-links.
+    """
+    Render email addresses to `mailto:`-links.
 
     Arguments:
         attrs (dict): HTML attributes that are added to the rendered
@@ -34,15 +34,12 @@ class EmailColumn(BaseLinkColumn):
 
         # result
         # [...]<a href="mailto:email@example.com">email@example.com</a>
-    '''
-    def render(self, record, value):
-        return self.render_link(
-            uri='mailto:{}'.format(value),
-            record=record,
-            value=value
-        )
+    """
+
+    def get_url(self, value):
+        return "mailto:{}".format(value)
 
     @classmethod
     def from_field(cls, field):
         if isinstance(field, models.EmailField):
-            return cls(verbose_name=title(field.verbose_name))
+            return cls(verbose_name=ucfirst(field.verbose_name))

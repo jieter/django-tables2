@@ -3,25 +3,27 @@
 {% block table-wrapper %}
 <div class="table-container">
     {% block table %}
-        <table {% if table.attrs %} {{ table.attrs.as_html }}{% else %}class="table"{% endif %}>
+        <table {% render_attrs table.attrs class="table" %}>
             {% block table.thead %}
             {% if table.show_header %}
                 <thead>
-                <tr>
-                {% for column in table.columns %}
-                    {% if column.orderable %}
-                        <th {{ column.attrs.th.as_html }}><a href="{% querystring table.prefixed_order_by_field=column.order_by_alias.next %}">{{ column.header }}</a></th>
-                    {% else %}
-                        <th {{ column.attrs.th.as_html }}>{{ column.header }}</th>
-                    {% endif %}
-                {% endfor %}
-                </tr>
+                    <tr>
+                    {% for column in table.columns %}
+                        <th {{ column.attrs.th.as_html }}>
+                            {% if column.orderable %}
+                                <a href="{% querystring table.prefixed_order_by_field=column.order_by_alias.next %}">{{ column.header }}</a>
+                            {% else %}
+                                {{ column.header }}
+                            {% endif %}
+                        </th>
+                    {% endfor %}
+                    </tr>
                 </thead>
             {% endif %}
             {% endblock table.thead %}
             {% block table.tbody %}
                 <tbody>
-                {% for row in table.page.object_list|default:table.rows %} {# support pagination #}
+                {% for row in table.paginated_rows %}
                     {% block table.tbody.row %}
                     <tr {{ row.attrs.as_html }}>
                         {% for column, cell in row.items %}
@@ -29,7 +31,7 @@
                         {% endfor %}
                     </tr>
                     {% endblock table.tbody.row %}
-                    {% empty %}
+                {% empty %}
                     {% if table.empty_text %}
                     {% block table.tbody.empty_text %}
                         <tr><td colspan="{{ table.columns|length }}">{{ table.empty_text }}</td></tr>
@@ -40,13 +42,13 @@
             {% endblock table.tbody %}
             {% block table.tfoot %}
             {% if table.has_footer %}
-            <tfoot>
-                <tr>
-                {% for column in table.columns %}
-                    <td {{ column.attrs.tf.as_html }}>{{ column.footer }}</td>
-                {% endfor %}
-                </tr>
-            </tfoot>
+                <tfoot>
+                    <tr>
+                    {% for column in table.columns %}
+                        <td {{ column.attrs.tf.as_html }}>{{ column.footer }}</td>
+                    {% endfor %}
+                    </tr>
+                </tfoot>
             {% endif %}
             {% endblock table.tfoot %}
         </table>
@@ -54,31 +56,46 @@
 
     {% if table.page and table.paginator.num_pages > 1 %}
         {% block pagination %}
-        <ul class="pager list-inline">
+        <nav aria-label="Table navigation">
+            <ul class="pagination">
             {% if table.page.has_previous %}
                 {% block pagination.previous %}
-                <li class="previous">
-                    <a href="{% querystring table.prefixed_page_field=table.page.previous_page_number %}" class="btn btn-default"><span aria-hidden="true">&larr;</span> {% trans 'previous' %}</a>
-                </li>
+                    <li class="previous">
+                        <a href="{% querystring table.prefixed_page_field=table.page.previous_page_number %}">
+                            <span aria-hidden="true">&laquo;</span>
+                            {% trans 'previous' %}
+                        </a>
+                    </li>
                 {% endblock pagination.previous %}
             {% endif %}
-
             {% if table.page.has_previous or table.page.has_next %}
-                {% block pagination.current %}
-                    <li class="cardinality">
-                        <small>{% blocktrans with table.page.number as current and table.paginator.num_pages as total %}Page {{ current }} of {{ total }}{% endblocktrans %}</small>
-                    </li>
-                {% endblock pagination.current %}
+                {% block pagination.range %}
+                    {% for p in table.page|table_page_range:table.paginator %}
+                        <li {% if p == table.page.number %}class="active"{% endif %}>
+                            {% if p == '...' %}
+                                <a href="#">{{ p }}</a>
+                            {% else %}
+                                <a href="{% querystring table.prefixed_page_field=p %}">
+                                    {{ p }}
+                                </a>
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                {% endblock pagination.range %}
             {% endif %}
 
             {% if table.page.has_next %}
                 {% block pagination.next %}
                 <li class="next">
-                    <a href="{% querystring table.prefixed_page_field=table.page.next_page_number %}" class="btn btn-default">{% trans 'next' %} <span aria-hidden="true">&rarr;</span></a>
+                    <a href="{% querystring table.prefixed_page_field=table.page.next_page_number %}">
+                        {% trans 'next' %}
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
                 </li>
                 {% endblock pagination.next %}
             {% endif %}
-        </ul>
+            </ul>
+        </nav>
         {% endblock pagination %}
     {% endif %}
 </div>

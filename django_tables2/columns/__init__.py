@@ -13,8 +13,21 @@ from .urlcolumn import URLColumn
 from .timecolumn import TimeColumn
 
 __all__ = (
-    'library', 'BoundColumn', 'BoundColumns', 'Column',
-    'BooleanColumn', 'CheckBoxColumn', 'DateColumn', 'DateTimeColumn',
-    'EmailColumn', 'FileColumn', 'JSONColumn', 'LinkColumn', 'ManyToManyColumn',
-    'RelatedLinkColumn', 'TemplateColumn', 'URLColumn', 'TimeColumn'
+    "library",
+    "BoundColumn",
+    "BoundColumns",
+    "Column",
+    "BooleanColumn",
+    "CheckBoxColumn",
+    "DateColumn",
+    "DateTimeColumn",
+    "EmailColumn",
+    "FileColumn",
+    "JSONColumn",
+    "LinkColumn",
+    "ManyToManyColumn",
+    "RelatedLinkColumn",
+    "TemplateColumn",
+    "URLColumn",
+    "TimeColumn",
 )

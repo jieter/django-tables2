@@ -3,64 +3,42 @@
 Pinned rows
 ===========
 
-By using Pinned Rows, you can pin particular rows to the top or bottom of your table.
-To add pinned rows to your table, you must override `get_top_pinned_data` and/or `get_bottom_pinned_data`
-methods in your `.Table` class.
+This feature allows one to pin certain rows to the top or bottom of your table.
+Provide an implementation for one or two of these methods, returning an iterable
+(QuerySet, list of dicts, list objects) representing the pinned data:
 
-* `get_top_pinned_data(self)` - Display the pinned rows on top.
-* `get_bottom_pinned_data(self)` - Display the pinned rows on bottom.
+* `get_top_pinned_data(self)` - Displays the returned rows on top.
+* `get_bottom_pinned_data(self)` - Displays the returned rows at the bottom.
 
-By default both methods return `None` value and pinned rows aren't visible.
-Return data for pinned rows should be iterable type like: queryset, list of dicts, list of objects.
-
+Pinned rows are not affected by sorting and pagination, they will be present on every
+page of the table, regardless of ordering.
+Values will be rendered just like you are used to for normal rows.
 
 Example::
 
     class Table(tables.Table):
+        first_name = tables.Column()
+        last_name = tables.Column()
 
         def get_top_pinned_data(self):
             return [
-                # First top pinned row
-                {
-                    'column_a' : 'value for A column',
-                    'column_b' : 'value for B column'
-                },
-                # Second top pinned row
-                {
-                    'column_a' : 'extra value for A column'
-                    'column_b' : None
-                }
+                {'first_name': 'Janet', 'last_name': 'Crossen'},
+                # key 'last_name' is None here, so the default value will be rendered.
+                {'first_name': 'Trine', 'last_name': None}
             ]
 
-        def get_top_pinned_data(self):
-            return [{
-                'column_c' : 'value for C column',
-                'column_d' : 'value for D column'
-            }]
-
-
-.. note:: Sorting and pagination for pinned rows not working.
-
-Value for cell in pinned row will be shown only when **key** in object has the same name as column.
-You can decide which columns for pinned rows will visible or not.
-If you want show value for only one column, use only one column name as key.
-Non existing keys won't be shown in pinned rows.
-
-
-.. warning:: Pinned rows not exist in ``table.rows``. If table has some pinned rows and
-   one normal row then length of ``table.rows`` is 1.
-
+.. note:: If you need very different rendering for the bottom pinned rows, chances are
+          you actually want to use column footers: :ref:`column-footers`
 
 .. _pinned_row_attributes:
 
 Attributes for pinned rows
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If you want to override HTML attributes for pinned rows you should use: ``pinned_row_attrs``.
-Pinned row attributes can be specified using a `dict` defining the HTML attributes for
-the ``<tr>`` element on each row. See more: :ref:`row-attributes`.
+You can override the attributes used to render the ``<tr>`` tag of the pinned rows using: ``pinned_row_attrs``.
+This works exactly like :ref:`row-attributes`.
 
-.. note:: By default pinned rows have ``pinned-row`` css class.
+.. note:: By default the ``<tr>`` tags for pinned rows will get the attribute ``class="pinned-row"``.
 
     .. sourcecode:: django
 

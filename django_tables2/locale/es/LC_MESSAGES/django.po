@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: django-tables2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-08-21 07:06-0500\n"
+"POT-Creation-Date: 2018-04-12 10:06+0200\n"
 "PO-Revision-Date: 2013-08-21 07:06-0500\n"
 "Last-Translator: Pablo Martín <goinnn@gmail.com>\n"
 "Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
@@ -13,20 +13,14 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: templates/django_tables2/table.html:55
-msgid "Previous"
-msgstr "Anterior"
+#: templates/django_tables2/bootstrap.html:64
+#: templates/django_tables2/bootstrap4.html:64
+#: templates/django_tables2/table.html:61
+msgid "previous"
+msgstr "anterior"
 
-#: templates/django_tables2/table.html:59
-#, python-format
-msgid "Page %(current)s of %(total)s"
-msgstr "Página %(current)s de %(total)s"
-
-#: templates/django_tables2/table.html:63
-msgid "Next"
-msgstr "Siguiente"
-
-#: templates/django_tables2/table.html:66
-#, python-format
-msgid "%(count)s of %(total)s"
-msgstr "%(count)s de %(total)s"
+#: templates/django_tables2/bootstrap.html:89
+#: templates/django_tables2/bootstrap4.html:82
+#: templates/django_tables2/table.html:82
+msgid "next"
+msgstr "siguiente"

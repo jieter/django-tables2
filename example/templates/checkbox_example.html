@@ -1,0 +1,31 @@
+{% extends 'bootstrap_template.html' %}
+{% load bootstrap3 %}
+
+{% block title %}django-tables2 <code>CheckBoxColumn</code> example{% endblock %}
+{% block body %}
+{{ block.super }}
+
+{% bootstrap_javascript jquery=True %}
+<script>
+$(function () {
+
+    // calculate the sum of the population column for the selected rows.
+    function update_sum() {
+        var sum = 0;
+        $('tbody input[type=checkbox]').each(function () {
+            if ($(this).is(':checked')) {
+                sum += parseInt($(this).parents('tr').find('.population').html());
+            }
+        });
+
+        $('tfoot .population').html(sum);
+    }
+
+    // update the sum after each change
+    $('tbody input[type=checkbox]').on('change', update_sum);
+
+    // update the sum initially.
+    update_sum();
+});
+</script>
+{% endblock %}
