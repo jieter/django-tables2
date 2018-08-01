@@ -215,7 +215,7 @@ class Column(object):
              - If a `dict` is passed, it's passed on to ``~django.urls.reverse``.
              - If a `tuple` is passed, it must be either a (viewname, args) or (viewname, kwargs)
                tuple, which is also passed to ``~django.urls.reverse``.
-        initial_sort_descending (bool): If 'True',
+        initial_sort_descending (bool): If `True`,
             column.order_by_alias.next will return descending ordering if not ordered.
             Otherwise - default behavior. Defaults to `False`
 
