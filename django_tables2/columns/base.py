@@ -206,14 +206,8 @@ class Column(object):
               - If `True`, force localization
               - If `False`, values are not localized
               - If `None` (default), localization depends on the ``USE_L10N`` setting.
-<<<<<<< HEAD
-        default_descending_ordering (bool): If 'True',
-            column.order_by_alias.next will return descending ordering if not ordered.
-            Otherwise - default behavior.
-=======
         linkify (bool, str, callable, dict, tuple): Controls if cell content will be wrapped in an
             ``a`` tag. The different ways to define the ``href`` attribute:
->>>>>>> master
 
              - If `True`, the ``record.get_absolute_url()`` or the related model's
                `get_absolute_url()` is used.
@@ -221,6 +215,9 @@ class Column(object):
              - If a `dict` is passed, it's passed on to ``~django.urls.reverse``.
              - If a `tuple` is passed, it must be either a (viewname, args) or (viewname, kwargs)
                tuple, which is also passed to ``~django.urls.reverse``.
+        initial_sort_descending (bool): If 'True',
+            column.order_by_alias.next will return descending ordering if not ordered.
+            Otherwise - default behavior. Defaults to `False`
 
     .. [1] The provided callable object must not expect to receive any arguments.
     """
@@ -236,16 +233,6 @@ class Column(object):
     # class, used to give explicit columns precedence.
     _explicit = False
 
-<<<<<<< HEAD
-    def __init__(self, verbose_name=None, accessor=None, default=None,
-                 visible=True, orderable=None, attrs=None, order_by=None,
-                 empty_values=None, localize=None, footer=None,
-                 exclude_from_export=False, default_descending_ordering=False):
-        if not (accessor is None or isinstance(accessor, six.string_types) or
-                callable(accessor)):
-            raise TypeError('accessor must be a string or callable, not %s' %
-                            type(accessor).__name__)
-=======
     def __init__(
         self,
         verbose_name=None,
@@ -260,12 +247,12 @@ class Column(object):
         footer=None,
         exclude_from_export=False,
         linkify=False,
+        initial_sort_descending=False,
     ):
         if not (accessor is None or isinstance(accessor, six.string_types) or callable(accessor)):
             raise TypeError(
                 "accessor must be a string or callable, not %s" % type(accessor).__name__
             )
->>>>>>> master
         if callable(accessor) and default is not None:
             raise TypeError("accessor must be string when default is used, not callable")
         self.accessor = Accessor(accessor) if accessor else None
@@ -273,12 +260,7 @@ class Column(object):
         self.verbose_name = verbose_name
         self.visible = visible
         self.orderable = orderable
-<<<<<<< HEAD
         self.attrs = attrs or getattr(self, 'attrs', {})
-        self.default_descending_ordering = default_descending_ordering
-=======
-        self.attrs = attrs or getattr(self, "attrs", {})
->>>>>>> master
 
         # massage order_by into an OrderByTuple or None
         order_by = (order_by,) if isinstance(order_by, six.string_types) else order_by
@@ -300,6 +282,8 @@ class Column(object):
 
         if link_kwargs is not None:
             self.link = LinkTransform(attrs=self.attrs.get("a", {}), **link_kwargs)
+
+        self.initial_sort_descending = initial_sort_descending
 
         self.creation_counter = Column.creation_counter
         Column.creation_counter += 1
@@ -637,7 +621,7 @@ class BoundColumn(object):
         """
         order_by = OrderBy((self._table.order_by or {}).get(self.name, self.name))
         order_by.next = order_by.opposite if self.is_ordered else order_by
-        if self.column.default_descending_ordering and not self.is_ordered:
+        if self.column.initial_sort_descending and not self.is_ordered:
             order_by.next = order_by.opposite
         return order_by
 
