@@ -1,7 +1,6 @@
 # coding: utf-8
 from __future__ import unicode_literals
 
-
 from django.db import models
 from django.test import TestCase
 
@@ -67,4 +66,3 @@ class InitialSortColumnTest(TestCase):
         self.assertEqual(table_desc.rows[0].get_cell("field"), 5)
         self.assertEqual(table_desc.rows[1].get_cell("field"), 3)
         self.assertEqual(table_desc.rows[2].get_cell("field"), 1)
-
