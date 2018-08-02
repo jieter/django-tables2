@@ -49,7 +49,7 @@ class InitialSortColumnTest(TestCase):
         self.assertEqual(table_desc.rows[1].get_cell("field"), 3)
         self.assertEqual(table_desc.rows[2].get_cell("field"), 5)
 
-        # with descending ordering
+        # with initial descending ordering
 
         table = Table(data, order_by=("-field",))
         table_desc = TableDescOrd(data, order_by=("-field",))
