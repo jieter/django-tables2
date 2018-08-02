@@ -25,11 +25,7 @@ class InitialSortColumnTest(TestCase):
             class Meta:
                 model = IntModel
 
-        data = [
-            {"field": 1},
-            {"field": 5},
-            {"field": 3},
-        ]
+        data = [{"field": 1}, {"field": 5}, {"field": 3}]
 
         # no initial ordering
 
