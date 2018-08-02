@@ -215,6 +215,9 @@ class Column(object):
              - If a `dict` is passed, it's passed on to ``~django.urls.reverse``.
              - If a `tuple` is passed, it must be either a (viewname, args) or (viewname, kwargs)
                tuple, which is also passed to ``~django.urls.reverse``.
+        initial_sort_descending (bool): If `True`, a column will sort in descending order
+            on "first click" after table has been rendered. If `False`, column will follow
+            default behavior, and sort ascending on "first click". Defaults to `False`.
 
     .. [1] The provided callable object must not expect to receive any arguments.
     """
@@ -244,6 +247,7 @@ class Column(object):
         footer=None,
         exclude_from_export=False,
         linkify=False,
+        initial_sort_descending=False,
     ):
         if not (accessor is None or isinstance(accessor, six.string_types) or callable(accessor)):
             raise TypeError(
@@ -278,6 +282,8 @@ class Column(object):
 
         if link_kwargs is not None:
             self.link = LinkTransform(attrs=self.attrs.get("a", {}), **link_kwargs)
+
+        self.initial_sort_descending = initial_sort_descending
 
         self.creation_counter = Column.creation_counter
         Column.creation_counter += 1
@@ -615,6 +621,8 @@ class BoundColumn(object):
         """
         order_by = OrderBy((self._table.order_by or {}).get(self.name, self.name))
         order_by.next = order_by.opposite if self.is_ordered else order_by
+        if self.column.initial_sort_descending and not self.is_ordered:
+            order_by.next = order_by.opposite
         return order_by
 
     @property
