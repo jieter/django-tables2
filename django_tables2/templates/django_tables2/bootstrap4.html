@@ -60,7 +60,7 @@
             <ul class="pagination justify-content-center">
             {% if table.page.has_previous %}
                 {% block pagination.previous %}
-                <li class="previous age-item">
+                <li class="previous page-item">
                     <a href="{% querystring table.prefixed_page_field=table.page.previous_page_number %}" class="page-link">
                         <span aria-hidden="true">&laquo;</span>
                         {% trans 'previous' %}
