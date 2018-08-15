@@ -1,5 +1,3 @@
-import re
-
 import lxml.etree
 import lxml.html
 from django.core.handlers.wsgi import WSGIRequest
