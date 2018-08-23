@@ -21,7 +21,7 @@ def build_request(uri="/", user=None):
     """
     Return a fresh HTTP GET / request.
 
-    This is essentially a heavily cutdown version of Django 1.3's
+    This is essentially a heavily cutdown version of Django's
     `~django.test.client.RequestFactory`.
     """
     path, _, querystring = uri.partition("?")
