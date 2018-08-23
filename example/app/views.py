@@ -10,6 +10,7 @@ from django.views.generic.base import TemplateView
 
 from django_filters.views import FilterView
 from django_tables2 import MultiTableMixin, RequestConfig, SingleTableMixin, SingleTableView
+from django_tables2.paginators import LazyPaginator
 
 from .data import COUNTRIES
 from .filters import PersonFilter
@@ -109,7 +110,7 @@ def bootstrap(request):
 
     create_fake_data()
     table = BootstrapTable(Person.objects.all().select_related("country"), order_by="-name")
-    RequestConfig(request, paginate={"per_page": 10}).configure(table)
+    RequestConfig(request, paginate={"klass": LazyPaginator, "per_page": 10}).configure(table)
 
     return render(request, "bootstrap_template.html", {"table": table})
 

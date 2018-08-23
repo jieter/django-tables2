@@ -61,7 +61,7 @@ class SingleTableMixin(TableMixinBase):
             `~.tables.Table.paginate`.
 
             If you want to use a non-standard paginator for example, you can add a key
-            `klass` to the dict, containing a custom `Pagintor` class.
+            `klass` to the dict, containing a custom `Paginator` class.
 
     This mixin plays nice with the Django's ``.MultipleObjectMixin`` by using
     ``.get_queryset`` as a fall back for the table data source.
