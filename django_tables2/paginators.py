@@ -8,6 +8,14 @@ class LazyPaginator(Paginator):
     """
     Implement lazy pagination, preventing any count() queries.
 
+    Usage with SingleTableView::
+
+        class UserListView(SingleTableView):
+            table_class = UserTable
+            table_data = User.objects.all()
+            table_pagination = {
+                "klass": LazyPaginator
+            }
     """
 
     def __init__(self, object_list, per_page, **kwargs):
