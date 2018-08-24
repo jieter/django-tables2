@@ -4,28 +4,6 @@ from django.core.paginator import EmptyPage, Page, PageNotAnInteger, Paginator
 from django.utils.translation import ugettext as _
 
 
-class CustomPage(Page):
-    """Handle different number of items on the first page."""
-
-    def start_index(self):
-        """Return the 1-based index of the first item on this page."""
-        paginator = self.paginator
-        # Special case, return zero if no items.
-        if paginator.count == 0:
-            return 0
-        elif self.number == 1:
-            return 1
-        return (self.number - 2) * paginator.per_page + paginator.first_page + 1
-
-    def end_index(self):
-        """Return the 1-based index of the last item on this page."""
-        paginator = self.paginator
-        # Special case for the last page because there can be orphans.
-        if self.number == paginator.num_pages:
-            return paginator.count
-        return (self.number - 1) * paginator.per_page + paginator.first_page
-
-
 class LazyPaginator(Paginator):
     """
     Implement lazy pagination.
@@ -71,11 +49,11 @@ class LazyPaginator(Paginator):
             # In any case,  return only objects for this page.
             objects = objects[:current_per_page]
         elif (number != 1) and (objects_count <= self.orphans):
-            raise EmptyPage("That page contains no results")
+            raise EmptyPage(_("That page contains no results"))
         else:
             # This is the last page.
             self._num_pages = number
-        return CustomPage(objects, number, self)
+        return Page(objects, number, self)
 
     def _get_count(self):
         raise NotImplementedError
