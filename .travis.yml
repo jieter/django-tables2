@@ -6,9 +6,6 @@ addons:
        packages:
            - enchant
            - myspell-en-us
-           - myspell-fr
-           - myspell-de-de
-           - myspell-nl
 
 install:
   - pip install tox python-coveralls
@@ -33,7 +30,6 @@ matrix:
     - { python: 3.6, env: TOXENV=docs }
     - { python: 3.6, env: TOXENV=flake8 }
     - { python: 3.6, env: TOXENV=isort }
-    - { python: 3.6, env: TOXENV=potypo }
 
   # we allow failures for versions which are not yet released:
   allow_failures:
