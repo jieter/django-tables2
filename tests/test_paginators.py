@@ -1,25 +1,35 @@
 from __future__ import absolute_import, unicode_literals
 
-from django.core.paginator import EmptyPage, PageNotAnInteger
+from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.test import TestCase
 
 from django_tables2 import LazyPaginator
 
 
+class FakeQuerySet:
+    objects = range(1, 10 ** 6)
+
+    def count(self):
+        raise AssertionError("LazyPaginator should not call QuerySet.count()")
+
+    def __getitem__(self, key):
+        return self.objects[key]
+
+    def __iter__(self):
+        yield next(self.objects)
+
+
 class LazyPaginatorTest(TestCase):
+    def test_compare_to_default_paginator(self):
+        objects = list(range(1, 1000))
+
+        paginator = Paginator(objects, 10)
+        lazy_paginator = LazyPaginator(objects, 10)
+        self.assertEqual(paginator.page(1).object_list, lazy_paginator.page(1).object_list)
+        self.assertEqual(paginator.page(10).object_list, lazy_paginator.page(10).object_list)
+        self.assertEqual(paginator.page(100).object_list, lazy_paginator.page(100).object_list)
+
     def test_no_count_call(self):
-        class FakeQuerySet:
-            objects = range(1, 10 ** 6)
-
-            def count(self):
-                raise AssertionError("LazyPaginator should not call QuerySet.count()")
-
-            def __getitem__(self, key):
-                return self.objects[key]
-
-            def __iter__(self):
-                yield next(self.objects)
-
         paginator = LazyPaginator(FakeQuerySet(), 10)
         # num_pages initially is None, but is page_number + 1 after requesting a page.
         self.assertEqual(paginator.num_pages, None)

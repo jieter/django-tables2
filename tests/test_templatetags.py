@@ -263,3 +263,6 @@ class TablePageRangeTest(SimpleTestCase):
         paginator = LazyPaginator(range(1, 1000), 10)
 
         self.assertEqual(table_page_range(paginator.page(1), paginator), range(1, 3))
+        self.assertEqual(
+            table_page_range(paginator.page(10), paginator), [1, "...", 4, 5, 6, 7, 8, 9, 10, 11]
+        )
