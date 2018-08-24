@@ -1,5 +1,8 @@
 # Change log
 
+## 2.0.0b1 (2018-08-24)
+ - Added `LazyPaginator` to prevent making `.count()` queries ([#604](https://github.com/jieter/django-tables2/pull/604)).+
+
 ## 2.0.0a5 (2018-07-28)
  - Added `linkify_item` keyword argument to `ManyToManyColumn`, fixes [#594](https://github.com/jieter/django-tables2/issues/594)
  - Fixed an encoding issue in `README.md` preventing installation in some environments.
