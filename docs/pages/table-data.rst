@@ -79,7 +79,9 @@ avoid converting the `~django.db.models.query.QuerySet` instances to lists by
 using SQL to slice the data and should be able to handle datasets with 100k
 records without a problem.
 
-However, when using one of the customization methods described in this
-documentation, there is lot's of opportunity to introduce slowness.
-If you experience that, try to strip the table of customizations and re-add them
-one by one, checking for performance after each step.
+However, when performance is degrading, these tips might help:
+
+1. For large datasets, try to use `.LazyPaginator`.
+2. Try to strip the table of customizations and check if performance improves.
+   If so, re-add them one by one, checking for performance after each step.
+   This should help to narrow down the source of your performance problems.

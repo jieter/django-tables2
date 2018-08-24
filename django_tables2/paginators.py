@@ -8,6 +8,28 @@ class LazyPaginator(Paginator):
     """
     Implement lazy pagination, preventing any count() queries.
 
+    For any valid page, the total number of pages for the paginator will be
+     - `current + 1` if the number of records fetched for the current page offset is
+       bigger than the number of records per page.
+     - `current` if the number of records fetched is less than the number of records per page.
+
+    So::
+
+        paginator = LazyPaginator(range(10000), 10)
+
+        >>> paginator.page(1).object_list
+        [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+        >>> paginator.num_pages
+        2
+        >>> paginator.page(10).object_list
+        [91, 92, 93, 94, 95, 96, 97, 98, 99, 100]
+        >>> paginator.num_pages
+        11
+        >>> paginator.page(1000).object_list
+        [9991, 9992, 9993, 9994, 9995, 9996, 9997, 9998, 9999]
+        >>> paginator.num_pages
+        1000
+
     Usage with SingleTableView::
 
         class UserListView(SingleTableView):

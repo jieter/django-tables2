@@ -346,8 +346,8 @@ Columns
 .. autoclass:: django_tables2.columns.URLColumn
     :members:
 
-Views and view mixins
----------------------
+Views, view mixins and paginators
+---------------------------------
 
 `.SingleTableMixin`
 ~~~~~~~~~~~~~~~~~~~
@@ -380,6 +380,12 @@ Views and view mixins
 
 .. autoclass:: django_tables2.export.ExportMixin
     :members:
+
+`.LazyPaginator`
+~~~~~~~~~~~~~~~~
+
+.. autoclass:: django_tables2.paginators.LazyPaginator
+
 
 
 See :doc:`internal` for internal classes.

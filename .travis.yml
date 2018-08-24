@@ -36,7 +36,6 @@ matrix:
       - env: TOXENV=py35-master
       - env: TOXENV=py36-master
       - env: TOXENV=py37-master
-      - env: TOXENV=py37-2.1
 
 after_success:
     coveralls
