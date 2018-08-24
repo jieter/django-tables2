@@ -18,6 +18,7 @@ from .columns import (
 )
 from .config import RequestConfig
 from .utils import A
+from .paginators import LazyPaginator
 from .views import SingleTableMixin, SingleTableView, MultiTableMixin
 
 
@@ -46,4 +47,5 @@ __all__ = (
     "SingleTableMixin",
     "SingleTableView",
     "MultiTableMixin",
+    "LazyPaginator",
 )

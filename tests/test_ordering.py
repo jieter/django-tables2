@@ -7,7 +7,7 @@ from django.test import TestCase
 from django.utils import six
 
 import django_tables2 as tables
-from django_tables2.tables import RequestConfig
+from django_tables2 import RequestConfig
 
 from .app.models import Person
 from .utils import build_request
