@@ -240,25 +240,3 @@ class QuerystringTagTest(SimpleTestCase):
 
         html = template.render(Context({"attrs": AttributeDict({"class": "table table-striped"})}))
         self.assertEqual(html, 'class="table table-striped"')
-
-
-class TitleTagTest(SimpleTestCase):
-    def test_should_only_apply_to_words_without_uppercase_letters(self):
-        expectations = {
-            "a brown fox": "A Brown Fox",
-            "a brown foX": "A Brown foX",
-            "black FBI": "Black FBI",
-            "f.b.i": "F.B.I",
-            "start 6pm": "Start 6pm",
-            # Some cyrillic samples
-            "руда лисиця": "Руда Лисиця",
-            "руда лисицЯ": "Руда лисицЯ",
-            "діяльність СБУ": "Діяльність СБУ",
-            "а.б.в": "А.Б.В",
-            "вага 6кг": "Вага 6кг",
-            "у 80-их роках": "У 80-их Роках",
-        }
-
-        for raw, expected in expectations.items():
-            template = Template("{% load django_tables2 %}{{ x|title }}")
-            assert template.render(Context({"x": raw})), expected
