@@ -2,12 +2,14 @@
 from __future__ import unicode_literals
 
 from django.core.exceptions import ImproperlyConfigured
+from django.core.paginator import Paginator
 from django.template import Context, RequestContext, Template, TemplateSyntaxError
 from django.test import SimpleTestCase, TestCase, override_settings
 from django.utils import six
 from django.utils.six.moves.urllib.parse import parse_qs
 
-from django_tables2 import RequestConfig, Table, TemplateColumn
+from django_tables2 import LazyPaginator, RequestConfig, Table, TemplateColumn
+from django_tables2.templatetags.django_tables2 import table_page_range
 from django_tables2.utils import AttributeDict
 
 from .app.models import Region
@@ -240,3 +242,24 @@ class QuerystringTagTest(SimpleTestCase):
 
         html = template.render(Context({"attrs": AttributeDict({"class": "table table-striped"})}))
         self.assertEqual(html, 'class="table table-striped"')
+
+
+class TablePageRangeTest(SimpleTestCase):
+    def test_table_page_range(self):
+        paginator = Paginator(range(1, 1000), 10)
+        self.assertEqual(
+            table_page_range(paginator.page(1), paginator), [1, 2, 3, 4, 5, 6, 7, 8, "...", 100]
+        )
+        self.assertEqual(
+            table_page_range(paginator.page(10), paginator),
+            [1, "...", 7, 8, 9, 10, 11, 12, "...", 100],
+        )
+        self.assertEqual(
+            table_page_range(paginator.page(100), paginator),
+            [1, "...", 93, 94, 95, 96, 97, 98, 99, 100],
+        )
+
+    def test_table_page_range_lazy(self):
+        paginator = LazyPaginator(range(1, 1000), 10)
+
+        self.assertEqual(table_page_range(paginator.page(1), paginator), range(1, 3))
