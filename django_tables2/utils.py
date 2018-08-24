@@ -434,7 +434,7 @@ class AttributeDict(OrderedDict):
     See `.as_html` for a usage example.
     """
 
-    blacklist = ("th", "td", "_ordering", "tbody", "tfoot")
+    blacklist = ("th", "td", "_ordering", "thead", "tbody", "tfoot")
 
     def _iteritems(self):
         for k, v in six.iteritems(self):

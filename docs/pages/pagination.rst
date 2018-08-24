@@ -33,7 +33,7 @@ which might be an expensive operation for large QuerySets. In those cases, you c
 but also does not know what the total amount of pages will be.
 It will always fetch the number of records for the page plus one.
 If the number of records returned is equal to or smaller than the configured number of
-records per page, it nows that the current page is the last page, and will make sure the
+records per page, it knows that the current page is the last page, and will make sure the
 next button is not rendered.
 
 Usage with `SingleTableView`::
