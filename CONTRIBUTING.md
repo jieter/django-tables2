@@ -34,8 +34,8 @@ You can also run the tests only in your current environment, using
 
 To generate a html coverage report:
 ```
-covarage run --source=django_tables2 manage.py test -s
-cov
+coverage run --source=django_tables2 manage.py test
+coverage html
 ```
 
 ## Building the documentation
