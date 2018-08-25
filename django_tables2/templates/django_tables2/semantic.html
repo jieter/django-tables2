@@ -6,7 +6,7 @@
         <table {% render_attrs table.attrs class="ui celled table" %}>
             {% block table.thead %}
             {% if table.show_header %}
-                <thead>
+                <thead {{ table.attrs.thead.as_html }}>
                     <tr>
                     {% for column in table.columns %}
                         <th {{ column.attrs.th.as_html }}>
@@ -22,7 +22,7 @@
             {% endif %}
             {% endblock table.thead %}
             {% block table.tbody %}
-                <tbody>
+                <tbody {{ table.attrs.tbody.as_html }}>
                 {% for row in table.paginated_rows %}
                     {% block table.tbody.row %}
                     <tr {{ row.attrs.as_html }}>
@@ -41,7 +41,7 @@
                 </tbody>
             {% endblock table.tbody %}
             {% block table.tfoot %}
-            <tfoot>
+            <tfoot {{ table.attrs.tfoot.as_html }}>
                 {% if table.has_footer %}
                 <tr>
                 {% for column in table.columns %}
