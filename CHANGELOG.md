@@ -1,5 +1,8 @@
 # Change log
 
+## 2.0.0b3 (2018-08-27)
+ - Fixed a bug in the implementation of [#606](https://github.com/jieter/django-tables2/pull/606)
+
 ## 2.0.0b2 (2018-08-27)
  - Added the ability to change the html attributes for `thead`, `tbody`, `tfoot` tags [#606](https://github.com/jieter/django-tables2/pull/606) by [@roelbouwman](https://github.com/roelbouwman)
 
@@ -24,7 +27,7 @@ Hello from [DjangoCon Europe](https://2018.djangocon.eu/)!
  - Fix `empty_text` cannot be translated (fixes [#579](https://github.com/jieter/django-tables2/issues/579))
 
 ## 2.0.0a2 (2018-04-13)
- - Another round of template re-cleanup.
+ - Another round of template cleanup.
  - Fresh screenshots
  - Prevent crash in `RelatedLinkColumn` for records without `get_absolute_url()`.
  - Raise `ValueError` when `Table.Meta.model != QuerySet.Model`.
