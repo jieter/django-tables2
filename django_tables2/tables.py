@@ -121,7 +121,7 @@ class TableOptions(object):
         )
         DJANGO_TABLES2_TABLE_ATTRS = getattr(settings, "DJANGO_TABLES2_TABLE_ATTRS", {})
 
-        self.attrs = AttributeDict(getattr(options, "attrs", DJANGO_TABLES2_TABLE_ATTRS))
+        self.attrs = getattr(options, "attrs", DJANGO_TABLES2_TABLE_ATTRS)
         self.row_attrs = getattr(options, "row_attrs", {})
         self.pinned_row_attrs = getattr(options, "pinned_row_attrs", {})
         self.default = getattr(options, "default", "—")
@@ -298,6 +298,10 @@ class TableBase(object):
 
         self.rows = BoundRows(data=self.data, table=self, pinned_data=self.pinned_data)
         self.attrs = AttributeDict(attrs if attrs is not None else self._meta.attrs)
+
+        for tag in ["thead", "tbody", "tfoot"]:
+            if tag in self.attrs:
+                self.attrs[tag] = AttributeDict(self.attrs[tag])
 
         self.row_attrs = AttributeDict(row_attrs or self._meta.row_attrs)
         self.empty_text = empty_text if empty_text is not None else self._meta.empty_text

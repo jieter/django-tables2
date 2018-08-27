@@ -182,10 +182,28 @@ class CoreTest(SimpleTestCase):
     @override_settings(DJANGO_TABLES2_TABLE_ATTRS={"class": "table-compact"})
     def test_attrs_from_settings(self):
         class Table(tables.Table):
-            column = tables.Column()
+            pass
 
         table = Table({})
         self.assertEqual(table.attrs, {"class": "table-compact"})
+
+    def test_table_attrs_thead_tbody_tfoot(self):
+        class Table(tables.Table):
+            column = tables.Column(footer="foo")
+
+            class Meta:
+                attrs = {
+                    "class": "table-class",
+                    "thead": {"class": "thead-class"},
+                    "tbody": {"class": "tbody-class"},
+                    "tfoot": {"class": "tfoot-class"},
+                }
+
+        html = Table([]).as_html(build_request())
+        self.assertIn('<table class="table-class">', html)
+        self.assertIn('<thead class="thead-class">', html)
+        self.assertIn('<tbody class="tbody-class">', html)
+        self.assertIn('<tfoot class="tfoot-class">', html)
 
     def test_datasource_untouched(self):
         """
