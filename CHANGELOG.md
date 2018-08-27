@@ -1,7 +1,10 @@
 # Change log
 
+## 2.0.0b2 (2018-08-27)
+ - Added the ability to change the html attributes for `thead`, `tbody`, `tfoot` tags [#606](https://github.com/jieter/django-tables2/pull/606) by [@roelbouwman](https://github.com/roelbouwman)
+
 ## 2.0.0b1 (2018-08-24)
- - Added `LazyPaginator` to prevent making `.count()` queries ([#604](https://github.com/jieter/django-tables2/pull/604)).+
+ - Added `LazyPaginator` to prevent making `.count()` queries ([#604](https://github.com/jieter/django-tables2/pull/604)).
 
 ## 2.0.0a5 (2018-07-28)
  - Added `linkify_item` keyword argument to `ManyToManyColumn`, fixes [#594](https://github.com/jieter/django-tables2/issues/594)
