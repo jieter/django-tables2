@@ -12,7 +12,6 @@ import django_tables2 as tables
 from django_tables2.config import RequestConfig
 
 from .app.models import Occupation, Person, Region
-from .test_views import DispatchHookMixin
 from .utils import build_request
 
 try:
@@ -40,7 +39,7 @@ class Table(tables.Table):
     last_name = tables.Column()
 
 
-class View(DispatchHookMixin, ExportMixin, tables.SingleTableView):
+class View(ExportMixin, tables.SingleTableView):
     table_class = Table
     table_pagination = {"per_page": 1}
     model = Person  # required for ListView
@@ -86,11 +85,11 @@ class ExportViewTest(TestCase):
             Person.objects.create(first_name=first_name, last_name=last_name)
 
     def test_view_should_support_csv_export(self):
-        response, view = View.as_view()(build_request("/?_export=csv"))
+        response = View.as_view()(build_request("/?_export=csv"))
         self.assertEqual(response.getvalue().decode("utf8"), EXPECTED_CSV)
 
         # should just render the normal table without the _export query
-        response, view = View.as_view()(build_request("/"))
+        response = View.as_view()(build_request("/"))
         html = response.render().rendered_content
 
         self.assertIn("Yildiz", html)
@@ -103,25 +102,25 @@ class ExportViewTest(TestCase):
             TableExport(table=table, export_format="exe")
 
     def test_should_support_json_export(self):
-        response, view = View.as_view()(build_request("/?_export=json"))
+        response = View.as_view()(build_request("/?_export=json"))
         self.assertEqual(json.loads(response.getvalue().decode("utf8")), EXPECTED_JSON)
 
     def test_should_support_custom_trigger_param(self):
-        class View(DispatchHookMixin, ExportMixin, tables.SingleTableView):
+        class View(ExportMixin, tables.SingleTableView):
             table_class = Table
             export_trigger_param = "export_to"
             model = Person  # required for ListView
 
-        response, view = View.as_view()(build_request("/?export_to=json"))
+        response = View.as_view()(build_request("/?export_to=json"))
         self.assertEqual(json.loads(response.getvalue().decode("utf8")), EXPECTED_JSON)
 
     def test_should_support_custom_filename(self):
-        class View(DispatchHookMixin, ExportMixin, tables.SingleTableView):
+        class View(ExportMixin, tables.SingleTableView):
             table_class = Table
             export_name = "people"
             model = Person  # required for ListView
 
-        response, view = View.as_view()(build_request("/?_export=json"))
+        response = View.as_view()(build_request("/?_export=json"))
         self.assertEqual(response["Content-Disposition"], 'attachment; filename="people.json"')
 
     def test_function_view(self):
@@ -157,7 +156,7 @@ class OccupationTable(tables.Table):
     region = tables.Column()
 
 
-class OccupationView(DispatchHookMixin, ExportMixin, tables.SingleTableView):
+class OccupationView(ExportMixin, tables.SingleTableView):
     table_class = OccupationTable
     table_pagination = {"per_page": 1}
     model = Occupation
@@ -166,7 +165,10 @@ class OccupationView(DispatchHookMixin, ExportMixin, tables.SingleTableView):
 
 @skipIf(TableExport is None, "Tablib is required to run the export tests")
 class AdvancedExportViewTest(TestCase):
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):
+        super(AdvancedExportViewTest, cls).setUpClass()
+
         richard = Person.objects.create(first_name="Richard", last_name="Queener")
 
         vlaanderen = Region.objects.create(name="Vlaanderen", mayor=richard)
@@ -174,7 +176,7 @@ class AdvancedExportViewTest(TestCase):
         Occupation.objects.create(name="Ecoloog", boolean=False, region=vlaanderen)
 
     def test_should_work_with_foreign_keys(self):
-        response, view = OccupationView.as_view()(build_request("/?_export=xls"))
+        response = OccupationView.as_view()(build_request("/?_export=xls"))
         data = response.content
         # binary data, so not possible to compare to an exact expectation
         self.assertTrue(data.find("Vlaanderen".encode()))
@@ -188,13 +190,13 @@ class AdvancedExportViewTest(TestCase):
             region = tables.Column()
             mayor = tables.Column(accessor="region.mayor.first_name")
 
-        class View(DispatchHookMixin, ExportMixin, tables.SingleTableView):
+        class View(ExportMixin, tables.SingleTableView):
             table_class = OccupationWithForeignKeyFieldsTable
             table_pagination = {"per_page": 1}
             model = Occupation
             template_name = "django_tables2/bootstrap.html"
 
-        response, view = View.as_view()(build_request("/?_export=csv"))
+        response = View.as_view()(build_request("/?_export=csv"))
         data = response.getvalue().decode("utf8")
 
         expected_csv = "\r\n".join(
@@ -207,17 +209,17 @@ class AdvancedExportViewTest(TestCase):
         self.assertEqual(data, expected_csv)
 
     def test_should_allow_exclude_columns(self):
-        class OccupationExcludingView(DispatchHookMixin, ExportMixin, tables.SingleTableView):
+        class OccupationExcludingView(ExportMixin, tables.SingleTableView):
             table_class = OccupationTable
             table_pagination = {"per_page": 1}
             model = Occupation
             template_name = "django_tables2/bootstrap.html"
             exclude_columns = ("boolean",)
 
-        response, view = OccupationExcludingView.as_view()(build_request("/?_export=csv"))
+        response = OccupationExcludingView.as_view()(build_request("/?_export=csv"))
         data = response.getvalue().decode("utf8")
 
-        assert data.splitlines()[0] == "Name,Region"
+        self.assertEqual(data.splitlines()[0], "Name,Region")
 
 
 @skipIf(TableExport is None, "Tablib is required to run the export tests")
@@ -228,17 +230,15 @@ class UnicodeExportViewTest(TestCase):
 
         expected_csv = "Name,Boolean,Region\r\n{},,\r\n".format(unicode_name)
 
-        response, view = OccupationView.as_view()(build_request("/?_export=csv"))
-        assert response.getvalue().decode("utf8") == expected_csv
+        response = OccupationView.as_view()(build_request("/?_export=csv"))
+        self.assertEqual(response.getvalue().decode("utf8"), expected_csv)
 
         # smoke tests, hard to test this binary format for string containment
-        response, view = OccupationView.as_view()(build_request("/?_export=xls"))
-        data = response.content
-        assert len(data) > len(expected_csv)
+        response = OccupationView.as_view()(build_request("/?_export=xls"))
+        self.assertGreater(len(response.content), len(expected_csv))
 
-        response, view = OccupationView.as_view()(build_request("/?_export=xlsx"))
-        data = response.content
-        assert len(data) > len(expected_csv)
+        response = OccupationView.as_view()(build_request("/?_export=xlsx"))
+        self.assertGreater(len(response.content), len(expected_csv))
 
     def test_exporting_unicode_header(self):
         unicode_header = "hé"
@@ -248,7 +248,7 @@ class UnicodeExportViewTest(TestCase):
 
         exporter = TableExport("csv", Table([]))
         response = exporter.response()
-        assert response.getvalue().decode("utf8") == unicode_header + "\r\n"
+        self.assertEqual(response.getvalue().decode("utf8"), unicode_header + "\r\n")
 
         exporter = TableExport("xls", Table([]))
         # this would fail if the header contains unicode and string converstion is attempted.
