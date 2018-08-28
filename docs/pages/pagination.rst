@@ -18,29 +18,31 @@ If you are using `.RequestConfig`, pass pagination options to the constructor::
         RequestConfig(request, paginate={'per_page': 25}).configure(table)
         return render(request, 'people_listing.html', {'table': table})
 
-If you are using a class based view mixin, specify ``paginate_by`` in your class::
+If you are using `SingleTableView`, the table will get paginated by default::
 
-    class PeopleCBV(SingleTableView):
-        paginate_by = 10
+    class PeopleListView(SingleTableView):
+        table = PeopleTable
 
+Disabling pagination
+~~~~~~~~~~~~~~~~~~~~
+
+If you are using `SingleTableView` and want to disable the default behavior,
+set `SingleTableView.table_pagination = False`
 
 Lazy pagination
 ~~~~~~~~~~~~~~~
 
 The default `~django.core.paginators.Paginator` want to count the number of items,
-which might be an expensive operation for large QuerySets. In those cases, you can use
-`.LazyPaginator`, which does not perform a count,
+which might be an expensive operation for large QuerySets.
+In those cases, you can use `.LazyPaginator`, which does not perform a count,
 but also does not know what the total amount of pages will be.
-It will always fetch the number of records for the page plus one.
-If the number of records returned is equal to or smaller than the configured number of
-records per page, it knows that the current page is the last page, and will make sure the
-next button is not rendered.
 
+The `.LazyPaginator` does this by fetching `n + 1` records where the number of records
+per page is `n`. If it receives `n` or less records, it knows it is on the last page,
+preventing rendering of the 'next' button.
 Usage with `SingleTableView`::
 
     class UserListView(SingleTableView):
         table_class = UserTable
         table_data = User.objects.all()
-        table_pagination = {
-            "klass": LazyPaginator
-        }
+        paginator_class = LazyPaginator

@@ -36,7 +36,7 @@ class LazyPaginator(Paginator):
             table_class = UserTable
             table_data = User.objects.all()
             table_pagination = {
-                "klass": LazyPaginator
+                "paginator_class": LazyPaginator
             }
     """
 

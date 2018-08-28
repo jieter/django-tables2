@@ -1,5 +1,9 @@
 # Change log
 
+## unreleased
+ - The `klass` argument to `Table.paginate()` is renamed to `paginator_class`
+ - Table views/mixins now take `ListView` attributes `paginator_class` and `paginate_orphans` into account.
+
 ## 2.0.0b3 (2018-08-27)
  - Fixed a bug in the implementation of [#606](https://github.com/jieter/django-tables2/pull/606)
 

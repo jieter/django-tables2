@@ -18,48 +18,53 @@ MEMORY_DATA = [
 ]
 
 
-class DispatchHookMixin(object):
-    """
-    Returns a response *and* reference to the view.
-    """
-
-    def dispatch(self, *args, **kwargs):
-        return super(DispatchHookMixin, self).dispatch(*args, **kwargs), self
-
-
 class SimpleTable(tables.Table):
     class Meta:
         model = Region
 
 
-class SimpleView(DispatchHookMixin, tables.SingleTableView):
+class SimpleView(tables.SingleTableView):
     table_class = SimpleTable
-    model = Region  # required for ListView
-
-
-class SimplePaginatedView(DispatchHookMixin, tables.SingleTableView):
-    table_class = SimpleTable
-    table_pagination = {"per_page": 1}
     model = Region  # required for ListView
 
 
 class SingleTableViewTest(TestCase):
-    def test_should_support_pagination_options(self):
+    @classmethod
+    def setUpClass(cls):
+        super(SingleTableViewTest, cls).setUpClass()
         for region in MEMORY_DATA:
             Region.objects.create(name=region["name"])
 
-        response, view = SimplePaginatedView.as_view()(build_request("/"))
-        self.assertEqual(view.get_table().paginator.num_pages, len(MEMORY_DATA))
-        self.assertEqual(view.get_table().paginator.per_page, 1)
+    def test_should_support_pagination_options(self):
+        class SimplePaginatedView(tables.SingleTableView):
+            table_class = SimpleTable
+            table_pagination = {"per_page": 1}
+            model = Region
+
+        response = SimplePaginatedView.as_view()(build_request())
+        table = response.context_data["table"]
+        self.assertEqual(table.paginator.num_pages, len(MEMORY_DATA))
+        self.assertEqual(table.paginator.per_page, 1)
+
+    def test_should_support_pagination_options_listView(self):
+        class SimplePaginatedView(tables.SingleTableView):
+            table_class = SimpleTable
+            paginate_by = 1
+            model = Region
+
+        response = SimplePaginatedView.as_view()(build_request())
+        table = response.context_data["table"]
+        self.assertEqual(table.paginator.num_pages, len(MEMORY_DATA))
+        self.assertEqual(table.paginator.per_page, 1)
 
     def test_should_support_default_pagination(self):
-        class PaginateDefault(DispatchHookMixin, tables.SingleTableView):
+        class PaginateDefault(tables.SingleTableView):
             table_class = SimpleTable
             model = Region
             table_data = MEMORY_DATA
 
-        response, view = PaginateDefault.as_view()(build_request("/"))
-        table = view.get_table()
+        response = PaginateDefault.as_view()(build_request())
+        table = response.context_data["table"]
         self.assertEqual(table.paginator.per_page, 25)
         self.assertEqual(len(table.page), 4)
 
@@ -69,56 +74,55 @@ class SingleTableViewTest(TestCase):
                 model = Region
                 per_page = 2
 
-        class PaginateByDefinedOnView(DispatchHookMixin, tables.SingleTableView):
+        class PaginateByDefinedOnView(tables.SingleTableView):
             table_class = Table
             model = Region
             table_data = MEMORY_DATA
 
-        response, view = PaginateByDefinedOnView.as_view()(build_request("/"))
-        table = view.get_table()
+        response = PaginateByDefinedOnView.as_view()(build_request())
+        table = response.context_data["table"]
         self.assertEqual(table.paginator.per_page, 2)
         self.assertEqual(len(table.page), 2)
 
     def test_should_support_disabling_pagination_options(self):
-        class SimpleNotPaginatedView(DispatchHookMixin, tables.SingleTableView):
+        class SimpleNotPaginatedView(tables.SingleTableView):
             table_class = SimpleTable
             table_data = MEMORY_DATA
             table_pagination = False
             model = Region  # required for ListView
 
-        response, view = SimpleNotPaginatedView.as_view()(build_request("/"))
-        table = view.get_table()
+        response = SimpleNotPaginatedView.as_view()(build_request())
+        table = response.context_data["table"]
         self.assertFalse(hasattr(table, "page"))
 
     def test_data_from_get_queryset(self):
-        for region in MEMORY_DATA:
-            Region.objects.create(name=region["name"])
-
         class GetQuerysetView(SimpleView):
             def get_queryset(self):
                 return Region.objects.filter(name__startswith="Q")
 
-        response, view = GetQuerysetView.as_view()(build_request("/"))
-        table = view.get_table()
+        response = GetQuerysetView.as_view()(build_request())
+        table = response.context_data["table"]
 
         self.assertEqual(len(table.rows), 1)
         self.assertEqual(table.rows[0].get_cell("name"), "Queensland")
 
     def test_should_support_explicit_table_data(self):
-        class ExplicitDataView(SimplePaginatedView):
+        class ExplicitDataView(tables.SingleTableView):
+            table_class = SimpleTable
+            table_pagination = {"per_page": 1}
+            model = Region
             table_data = MEMORY_DATA
 
-        response, view = ExplicitDataView.as_view()(build_request("/"))
-        self.assertEqual(view.get_table().paginator.num_pages, len(MEMORY_DATA))
+        response = ExplicitDataView.as_view()(build_request())
+        table = response.context_data["table"]
+        self.assertEqual(table.paginator.num_pages, len(MEMORY_DATA))
 
     def test_paginate_by_on_view_class(self):
-        Region.objects.create(name="Friesland")
-
         class Table(tables.Table):
             class Meta:
                 model = Region
 
-        class PaginateByDefinedOnView(DispatchHookMixin, tables.SingleTableView):
+        class PaginateByDefinedOnView(tables.SingleTableView):
             table_class = Table
             model = Region
             paginate_by = 2
@@ -127,8 +131,9 @@ class SingleTableViewTest(TestCase):
             def get_queryset(self):
                 return Region.objects.all().order_by("name")
 
-        response, view = PaginateByDefinedOnView.as_view()(build_request("/"))
-        self.assertEqual(view.get_table().paginator.per_page, 2)
+        response = PaginateByDefinedOnView.as_view()(build_request())
+        table = response.context_data["table"]
+        self.assertEqual(table.paginator.per_page, 2)
 
     def test_should_pass_kwargs_to_table_constructor(self):
         class PassKwargsView(SimpleView):
@@ -138,11 +143,11 @@ class SingleTableViewTest(TestCase):
                 kwargs.update({"orderable": False})
                 return super(PassKwargsView, self).get_table(**kwargs)
 
-        response, view = SimpleView.as_view()(build_request("/"))
-        self.assertTrue(view.get_table().orderable)
+        response = SimpleView.as_view()(build_request("/"))
+        self.assertTrue(response.context_data["table"].orderable)
 
-        response, view = PassKwargsView.as_view()(build_request("/"))
-        self.assertFalse(view.get_table().orderable)
+        response = PassKwargsView.as_view()(build_request("/"))
+        self.assertFalse(response.context_data["table"].orderable)
 
     def test_should_override_table_pagination(self):
         class PrefixedTable(SimpleTable):
@@ -163,8 +168,8 @@ class SingleTableViewTest(TestCase):
                     return {"per_page": per_page}
                 return super(PaginationOverrideView, self).get_table_pagination(table)
 
-        response, view = PaginationOverrideView.as_view()(build_request("/?p_per_page_override=2"))
-        assert view.get_table().paginator.per_page == 2
+        response = PaginationOverrideView.as_view()(build_request("/?p_per_page_override=2"))
+        self.assertEqual(response.context_data["table"].paginator.per_page, 2)
 
     def test_using_get_queryset(self):
         """
@@ -244,15 +249,15 @@ class SingleTableMixinTest(TestCase):
         class MyPaginator(Paginator):
             pass
 
-        class View(DispatchHookMixin, tables.SingleTableView):
+        class View(tables.SingleTableView):
             table_class = Table
             queryset = Region.objects.all()
-            table_pagination = {"klass": MyPaginator}
+            paginator_class = MyPaginator
 
-        response, view = View.as_view()(build_request())
+        response = View.as_view()(build_request())
 
-        context = view.get_context_data()
-        self.assertIsInstance(context["table"].paginator, MyPaginator)
+        table = response.context_data["table"]
+        self.assertIsInstance(table.paginator, MyPaginator)
 
 
 class TableA(tables.Table):
@@ -360,16 +365,15 @@ class MultiTableMixinTest(TestCase):
             View.as_view()(build_request("/"))
 
     def test_pagination(self):
-        class View(DispatchHookMixin, tables.MultiTableMixin, TemplateView):
+        class View(tables.MultiTableMixin, TemplateView):
             tables = (TableB(Region.objects.all()), TableB(Region.objects.all()))
             template_name = "multiple.html"
 
             table_pagination = {"per_page": 5}
 
-        response, view = View.as_view()(build_request("/?table_1-page=3"))
+        response = View.as_view()(build_request("/?table_1-page=3"))
 
-        tableA, tableB = view.get_tables()
-
+        tableA, tableB = response.context_data["tables"]
         self.assertEqual(tableA.page.number, 1)
         self.assertEqual(tableB.page.number, 3)
 

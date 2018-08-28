@@ -26,21 +26,30 @@ class TableMixinBase(object):
 
     def get_table_pagination(self, table):
         """
-        Returns pagination options: True for standard pagination (default),
-        False for no pagination, and a dictionary for custom pagination.
+        Returns pagination options passed to `.RequestConfig`:
+            - True for standard pagination (default),
+            - False for no pagination,
+            - a dictionary for custom pagination.
+
+        `ListView`s pagination attributes are taken into account, overriding the values
+        defined in `table_pagination`
+
+        Override this method to further customize pagination for a `View`.
         """
         paginate = self.table_pagination
+        if paginate is False:
+            return False
 
-        if hasattr(self, "paginate_by") and self.paginate_by is not None:
-            # Since ListView knows the concept paginate_by, we use that if no
-            # other pagination is configured.
-            paginate = paginate or {}
+        paginate = self.table_pagination or {}
+
+        if getattr(self, "paginate_by", None) is not None:
             paginate["per_page"] = self.paginate_by
+        if hasattr(self, "paginator_class"):
+            paginate["paginator_class"] = self.paginator_class
+        if getattr(self, "paginate_orphans", 0) is not 0:
+            paginate["orphans"] = self.paginate_orphans
 
-        if paginate is None:
-            return True
-
-        return paginate
+        return True if paginate is None else paginate
 
 
 class SingleTableMixin(TableMixinBase):
@@ -61,7 +70,7 @@ class SingleTableMixin(TableMixinBase):
             `~.tables.Table.paginate`.
 
             If you want to use a non-standard paginator for example, you can add a key
-            `klass` to the dict, containing a custom `Paginator` class.
+            `paginator_class` to the dict, containing a custom `Paginator` class.
 
     This mixin plays nice with the Django's ``.MultipleObjectMixin`` by using
     ``.get_queryset`` as a fall back for the table data source.

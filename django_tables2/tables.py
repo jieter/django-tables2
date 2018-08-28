@@ -560,13 +560,13 @@ class TableBase(object):
     def page_field(self, value):
         self._page_field = value
 
-    def paginate(self, klass=Paginator, per_page=None, page=1, *args, **kwargs):
+    def paginate(self, paginator_class=Paginator, per_page=None, page=1, *args, **kwargs):
         """
         Paginates the table using a paginator and creates a ``page`` property
         containing information for the current page.
 
         Arguments:
-            klass (`~django.core.paginator.Paginator`): A paginator class to
+            paginator_class (`~django.core.paginator.Paginator`): A paginator class to
                 paginate the results.
 
             per_page (int): Number of records to display on each page.
@@ -580,7 +580,7 @@ class TableBase(object):
         """
 
         per_page = per_page or self._meta.per_page
-        self.paginator = klass(self.rows, per_page, *args, **kwargs)
+        self.paginator = paginator_class(self.rows, per_page, *args, **kwargs)
         self.page = self.paginator.page(page)
 
         return self
