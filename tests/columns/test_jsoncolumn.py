@@ -21,26 +21,26 @@ class JsonColumnTestCase(SimpleTestCase):
             class Meta:
                 model = Model
 
-        assert isinstance(Table.base_columns["json"], tables.JSONColumn)
-        assert isinstance(Table.base_columns["hstore"], tables.JSONColumn)
+        self.assertIsInstance(Table.base_columns["json"], tables.JSONColumn)
+        self.assertIsInstance(Table.base_columns["hstore"], tables.JSONColumn)
 
     def test_jsoncolumn_dict(self):
         column = tables.JSONColumn()
 
         record = {"json": {"species": "Falcon"}}
         html = column.render(value=record["json"], record=record)
-        assert html == "<pre >{\n  &quot;species&quot;: &quot;Falcon&quot;\n}</pre>"
+        self.assertEqual(html, "<pre >{\n  &quot;species&quot;: &quot;Falcon&quot;\n}</pre>")
 
     def test_jsoncolumn_string(self):
         column = tables.JSONColumn()
 
         record = {"json": "really?"}
         html = column.render(value=record["json"], record=record)
-        assert html == "<pre >&quot;really?&quot;</pre>"
+        self.assertEqual(html, "<pre >&quot;really?&quot;</pre>")
 
     def test_jsoncolumn_number(self):
         column = tables.JSONColumn()
 
         record = {"json": 3.14}
         html = column.render(value=record["json"], record=record)
-        assert html == "<pre >3.14</pre>"
+        self.assertEqual(html, "<pre >3.14</pre>")

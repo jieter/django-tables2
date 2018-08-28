@@ -34,7 +34,7 @@ class ModelsTest(TestCase):
         table = PersonTable(Person.objects.all())
         expected = list(Person.objects.all())
         for i, actual in enumerate([row.record for row in table.rows]):
-            assert expected[i] == actual
+            self.assertEqual(expected[i], actual)
 
     def test_should_support_rendering_multiple_times(self):
         class MultiRenderTable(tables.Table):
@@ -42,7 +42,7 @@ class ModelsTest(TestCase):
 
         # test queryset data
         table = MultiRenderTable(Person.objects.all())
-        assert table.as_html(request) == table.as_html(request)
+        self.assertEqual(table.as_html(request), table.as_html(request))
 
     def test_doesnotexist_from_accessor_should_use_default(self):
         class Table(tables.Table):
@@ -52,8 +52,8 @@ class ModelsTest(TestCase):
                 fields = ("first_name", "last_name", "region")
 
         table = Table(Person.objects.all())
-        assert table.rows[0].get_cell("first_name") == "Bradley"
-        assert table.rows[0].get_cell("region") == "abc"
+        self.assertEqual(table.rows[0].get_cell("first_name"), "Bradley")
+        self.assertEqual(table.rows[0].get_cell("region"), "abc")
 
     def test_unicode_field_names(self):
         class Table(tables.Table):
@@ -62,7 +62,7 @@ class ModelsTest(TestCase):
                 fields = (six.text_type("first_name"),)
 
         table = Table(Person.objects.all())
-        assert table.rows[0].get_cell("first_name") == "Bradley"
+        self.assertEqual(table.rows[0].get_cell("first_name"), "Bradley")
 
     def test_Meta_option_model_table(self):
         """
@@ -75,7 +75,7 @@ class ModelsTest(TestCase):
                 model = Occupation
 
         expected = ["id", "name", "region", "boolean", "boolean_with_choices"]
-        assert expected == list(OccupationTable.base_columns.keys())
+        self.assertEqual(expected, list(OccupationTable.base_columns.keys()))
 
         class OccupationTable2(tables.Table):
             extra = tables.Column()
@@ -84,7 +84,7 @@ class ModelsTest(TestCase):
                 model = Occupation
 
         expected.append("extra")
-        assert expected == list(OccupationTable2.base_columns.keys())
+        self.assertEqual(expected, list(OccupationTable2.base_columns.keys()))
 
         # be aware here, we already have *models* variable, but we're importing
         # over the top
@@ -102,7 +102,7 @@ class ModelsTest(TestCase):
             class Meta:
                 model = ComplexModel
 
-        assert ["id", "char", "fk"] == list(ComplexTable.base_columns.keys())
+        self.assertEqual(["id", "char", "fk"], list(ComplexTable.base_columns.keys()))
 
     def test_mixins(self):
         class TableMixin(tables.Table):
@@ -114,8 +114,10 @@ class ModelsTest(TestCase):
             class Meta:
                 model = Occupation
 
-        expected = ["extra", "id", "name", "region", "boolean", "boolean_with_choices", "extra2"]
-        assert expected == list(OccupationTable.base_columns.keys())
+        self.assertEqual(
+            list(OccupationTable.base_columns.keys()),
+            ["extra", "id", "name", "region", "boolean", "boolean_with_choices", "extra2"],
+        )
 
     def test_fields_empty_list_means_no_fields(self):
         class Table(tables.Table):
@@ -124,7 +126,7 @@ class ModelsTest(TestCase):
                 fields = ()
 
         table = Table(Person.objects.all())
-        assert len(table.columns.names()) == 0
+        self.assertEqual(len(table.columns.names()), 0)
 
     def test_compound_ordering(self):
         class SimpleTable(tables.Table):
@@ -146,7 +148,7 @@ class ModelsTest(TestCase):
 
         table = PersonTable(PersonProxy.objects.all())
         table.data.order_by([])
-        assert list(table.rows[0]) == ["Bradley", "Ayers"]
+        self.assertEqual(list(table.rows[0]), ["Bradley", "Ayers"])
 
     def test_fields_should_implicitly_set_sequence(self):
         class PersonTable(tables.Table):
@@ -157,7 +159,7 @@ class ModelsTest(TestCase):
                 fields = ("last_name", "first_name")
 
         table = PersonTable(Person.objects.all())
-        assert table.columns.names() == ["last_name", "first_name", "extra"]
+        self.assertEqual(table.columns.names(), ["last_name", "first_name", "extra"])
 
     def test_model_properties_should_be_useable_for_columns(self):
         class PersonTable(tables.Table):
@@ -166,7 +168,7 @@ class ModelsTest(TestCase):
                 fields = ("name", "first_name")
 
         table = PersonTable(Person.objects.all())
-        assert list(table.rows[0]) == ["Bradley Ayers", "Bradley"]
+        self.assertEqual(list(table.rows[0]), ["Bradley Ayers", "Bradley"])
 
     def test_meta_fields_may_be_list(self):
         class PersonTable(tables.Table):
@@ -175,7 +177,7 @@ class ModelsTest(TestCase):
                 fields = ["name", "first_name"]
 
         table = PersonTable(Person.objects.all())
-        assert list(table.rows[0]) == ["Bradley Ayers", "Bradley"]
+        self.assertEqual(list(table.rows[0]), ["Bradley Ayers", "Bradley"])
 
 
 class ColumnNameTest(TestCase):
@@ -268,8 +270,8 @@ class ColumnNameTest(TestCase):
 
     def test_data_verbose_name(self):
         table = tables.Table(Person.objects.all())
-        assert table.data.verbose_name == "person"
-        assert table.data.verbose_name_plural == "people"
+        self.assertEqual(table.data.verbose_name, "person")
+        self.assertEqual(table.data.verbose_name_plural, "people")
 
     def test_column_named_delete(self):
         class DeleteTable(tables.Table):
@@ -284,8 +286,8 @@ class ColumnNameTest(TestCase):
 
         DeleteTable(Person.objects.all()).as_html(build_request())
 
-        assert Person.objects.get(pk=person1.pk) == person1
-        assert Person.objects.get(pk=person2.pk) == person2
+        self.assertEqual(Person.objects.get(pk=person1.pk), person1)
+        self.assertEqual(Person.objects.get(pk=person2.pk), person2)
 
 
 class ModelFieldTest(TestCase):
@@ -321,8 +323,8 @@ class ModelFieldTest(TestCase):
             ]
         )
 
-        assert "English" == table.rows[0].get_cell("language")
-        assert "Russian" == table.rows[1].get_cell("language")
+        self.assertEqual("English", table.rows[0].get_cell("language"))
+        self.assertEqual("Russian", table.rows[1].get_cell("language"))
 
     def test_column_mapped_to_nonexistant_field(self):
         """
@@ -340,8 +342,11 @@ class ModelFieldTest(TestCase):
 class OrderingDataTest(TestCase):
     NAMES = ("Bradley Ayers", "Stevie Armstrong", "VeryLongFirstName VeryLongLastName")
 
-    def setUp(self):
-        for name in self.NAMES:
+    @classmethod
+    def setUpClass(cls):
+        super(OrderingDataTest, cls).setUpClass()
+
+        for name in cls.NAMES:
             first_name, last_name = name.split()
             Person.objects.create(first_name=first_name, last_name=last_name)
 
@@ -352,15 +357,16 @@ class OrderingDataTest(TestCase):
             name = tables.Column(order_by=("first_name", "last_name"))
             occupation = tables.Column(order_by=("occupation__name",))
 
-        assert PersonTable(
-            queryset.order_by("first_name", "last_name", "-occupation__name")
-        ).order_by == ("name", "-occupation")
+        self.assertEqual(
+            PersonTable(queryset.order_by("first_name", "last_name", "-occupation__name")).order_by,
+            ("name", "-occupation"),
+        )
 
         class PersonTable(PersonTable):
             class Meta:
                 order_by = ("occupation",)
 
-        assert PersonTable(queryset.all()).order_by == ("occupation",)
+        self.assertEqual(PersonTable(queryset.all()).order_by, ("occupation",))
 
     def test_queryset_table_data_supports_ordering(self):
         class Table(tables.Table):
@@ -368,9 +374,9 @@ class OrderingDataTest(TestCase):
                 model = Person
 
         table = Table(Person.objects.all())
-        assert table.rows[0].get_cell("first_name") == "Bradley"
+        self.assertEqual(table.rows[0].get_cell("first_name"), "Bradley")
         table.order_by = "-first_name"
-        assert table.rows[0].get_cell("first_name") == "VeryLongFirstName"
+        self.assertEqual(table.rows[0].get_cell("first_name"), "VeryLongFirstName")
 
     def test_queryset_table_data_supports_custom_ordering(self):
         class Table(tables.Table):
@@ -388,15 +394,17 @@ class OrderingDataTest(TestCase):
         table = Table(Person.objects.all())
 
         # Shortest full names first
-        assert table.rows[0].get_cell("first_name") == "Bradley"
+        self.assertEqual(table.rows[0].get_cell("first_name"), "Bradley")
 
         # Longest full names first
         table.order_by = "-first_name"
-        assert table.rows[0].get_cell("first_name") == "VeryLongFirstName"
+        self.assertEqual(table.rows[0].get_cell("first_name"), "VeryLongFirstName")
 
 
 class ModelSanityTest(TestCase):
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):
+        super(ModelSanityTest, cls).setUpClass()
         for i in range(10):
             Person.objects.create(first_name="Bob %d" % i, last_name="Builder")
 
@@ -430,12 +438,12 @@ class ModelSanityTest(TestCase):
                 model = Person
                 fields = ["first_name", "last_name"]
 
-        assert calls == {}
+        self.assertEqual(calls, {})
 
         table = PersonTable(Person.objects.all())
         table.as_html(build_request())
 
-        assert calls == {}
+        self.assertEqual(calls, {})
 
     def test_render_table_template_tag_numqueries(self):
         class PersonTable(tables.Table):

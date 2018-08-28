@@ -82,7 +82,7 @@ class ConfigTest(SimpleTestCase):
             abc = Column()
 
         table = SimpleTable([{}], request=request)
-        assert table.columns["abc"].is_ordered
+        self.assertTrue(table.columns["abc"].is_ordered)
 
 
 class NoPaginationQueriesTest(TestCase):

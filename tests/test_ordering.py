@@ -36,43 +36,35 @@ class OrderedTable(UnorderedTable):
 class OrderingTest(TestCase):
     def test_ordering(self):
         # fallback to Table.Meta
-        assert ("alpha",) == OrderedTable([], order_by=None).order_by == OrderedTable([]).order_by
+        self.assertEqual(OrderedTable([], order_by=None).order_by, ("alpha",))
+        self.assertEqual(OrderedTable([]).order_by, ("alpha",))
 
         # values of order_by are wrapped in tuples before being returned
-        assert OrderedTable([], order_by="alpha").order_by == ("alpha",)
-        assert OrderedTable([], order_by=("beta",)).order_by == ("beta",)
+        self.assertEqual(OrderedTable([], order_by="alpha").order_by, ("alpha",))
+        self.assertEqual(OrderedTable([], order_by=("beta",)).order_by, ("beta",))
 
-        table = OrderedTable([])
-        table.order_by = []
-        assert () == table.order_by == OrderedTable([], order_by=[]).order_by
-
-        table = OrderedTable([])
-        table.order_by = ()
-        assert () == table.order_by == OrderedTable([], order_by=()).order_by
-
-        table = OrderedTable([])
-        table.order_by = ""
-        assert () == table.order_by == OrderedTable([], order_by="").order_by
+        for test in [[], (), ""]:
+            table = OrderedTable([])
+            table.order_by = test
+            self.assertEqual(table.order_by, ())
+            self.assertEqual(table.order_by, OrderedTable([], order_by=[]).order_by)
 
         # apply an ordering
         table = UnorderedTable([])
         table.order_by = "alpha"
-        assert ("alpha",) == UnorderedTable([], order_by="alpha").order_by == table.order_by
-
-        table = OrderedTable([])
-        table.order_by = "alpha"
-        assert ("alpha",) == OrderedTable([], order_by="alpha").order_by == table.order_by
+        self.assertEqual(table.order_by, ("alpha",))
+        self.assertEqual(UnorderedTable([], order_by="alpha").order_by, ("alpha",))
 
         # let's check the data
         table = OrderedTable(MEMORY_DATA, order_by="beta")
-        assert 3 == table.rows[0].get_cell("i")
+        self.assertEqual(table.rows[0].get_cell("i"), 3)
 
         table = OrderedTable(MEMORY_DATA, order_by="-beta")
-        assert 1 == table.rows[0].get_cell("i")
+        self.assertEqual(table.rows[0].get_cell("i"), 1)
 
         # allow fallback to Table.Meta.order_by
         table = OrderedTable(MEMORY_DATA)
-        assert 1 == table.rows[0].get_cell("i")
+        self.assertEqual(table.rows[0].get_cell("i"), 1)
 
         # column's can't be ordered if they're not allowed to be
         class TestTable2(tables.Table):
@@ -80,10 +72,10 @@ class OrderingTest(TestCase):
             b = tables.Column()
 
         table = TestTable2([], order_by="a")
-        assert table.order_by == ()
+        self.assertEqual(table.order_by, ())
 
         table = TestTable2([], order_by="b")
-        assert table.order_by == ("b",)
+        self.assertEqual(table.order_by, ("b",))
 
         # ordering disabled by default
         class TestTable3(tables.Table):
@@ -94,13 +86,13 @@ class OrderingTest(TestCase):
                 orderable = False
 
         table = TestTable3([], order_by="a")
-        assert table.order_by == ("a",)
+        self.assertEqual(table.order_by, ("a",))
 
         table = TestTable3([], order_by="b")
-        assert table.order_by == ()
+        self.assertEqual(table.order_by, ())
 
         table = TestTable3([], orderable=True, order_by="b")
-        assert table.order_by == ("b",)
+        self.assertEqual(table.order_by, ("b",))
 
     def test_ordering_different_types(self):
         data = [
@@ -110,16 +102,13 @@ class OrderingTest(TestCase):
         ]
 
         table = OrderedTable(data)
-        assert "—" == table.rows[0].get_cell("alpha")
+        self.assertEqual(table.rows[0].get_cell("alpha"), "—")
 
         table = OrderedTable(data, order_by="i")
-        if six.PY3:
-            assert {} == table.rows[0].get_cell("i")
-        else:
-            assert 1 == table.rows[0].get_cell("i")
+        self.assertEqual(table.rows[0].get_cell("i"), {} if six.PY3 else 1)
 
         table = OrderedTable(data, order_by="beta")
-        assert [] == table.rows[0].get_cell("beta")
+        self.assertEqual(table.rows[0].get_cell("beta"), [])
 
     def get_people(self):
         brad = {"first_name": "Bradley", "last_name": "Ayers"}
@@ -139,10 +128,10 @@ class OrderingTest(TestCase):
         brad, brad2, chris, davina, ross = people
 
         table = PersonTable(people, order_by=("first_name", "last_name"))
-        assert [brad, brad2, chris, davina, ross] == [r.record for r in table.rows]
+        self.assertEqual([brad, brad2, chris, davina, ross], [r.record for r in table.rows])
 
         table = PersonTable(people, order_by=("first_name", "-last_name"))
-        assert [brad2, brad, chris, davina, ross] == [r.record for r in table.rows]
+        self.assertEqual([brad2, brad, chris, davina, ross], [r.record for r in table.rows])
 
     def test_multi_column_ordering_by_column(self):
         # let's try column order_by using multiple keys
@@ -155,13 +144,13 @@ class OrderingTest(TestCase):
         # add 'name' key for each person.
         for person in people:
             person["name"] = "{p[first_name]} {p[last_name]}".format(p=person)
-        assert brad["name"] == "Bradley Ayers"
+        self.assertEqual(brad["name"], "Bradley Ayers")
 
         table = PersonTable(people, order_by="name")
-        assert [brad, brad2, chris, davina, ross] == [r.record for r in table.rows]
+        self.assertEqual([brad, brad2, chris, davina, ross], [r.record for r in table.rows])
 
         table = PersonTable(people, order_by="-name")
-        assert [ross, davina, chris, brad2, brad] == [r.record for r in table.rows]
+        self.assertEqual([ross, davina, chris, brad2, brad], [r.record for r in table.rows])
 
     def test_ordering_by_custom_field(self):
         """
@@ -199,7 +188,7 @@ class OrderingTest(TestCase):
         request = build_request("/?sort=full_name&sort=first_name")
         RequestConfig(request).configure(table)
 
-        assert table.rows[0].record.first_name == "Bob"
+        self.assertEqual(table.rows[0].record.first_name, "Bob")
 
     def test_list_table_data_supports_ordering(self):
         class Table(tables.Table):
@@ -208,9 +197,9 @@ class OrderingTest(TestCase):
         data = [{"name": "Bradley"}, {"name": "Davina"}]
 
         table = Table(data)
-        assert table.rows[0].get_cell("name") == "Bradley"
+        self.assertEqual(table.rows[0].get_cell("name"), "Bradley")
         table.order_by = "-name"
-        assert table.rows[0].get_cell("name") == "Davina"
+        self.assertEqual(table.rows[0].get_cell("name"), "Davina")
 
     def test_ordering_non_database_data(self):
         class Table(tables.Table):
@@ -225,12 +214,12 @@ class OrderingTest(TestCase):
         ]
         table = Table(data, order_by=("-name", "-country"))
 
-        assert table.rows[0].get_cell("name") == "Bassie"
-        assert table.rows[1].get_cell("name") == "Audrey"
-        assert table.rows[2].get_cell("name") == "Adrian"
-        assert table.rows[2].get_cell("country") == "Brazil"
-        assert table.rows[3].get_cell("name") == "Adrian"
-        assert table.rows[3].get_cell("country") == "Australia"
+        self.assertEqual(table.rows[0].get_cell("name"), "Bassie")
+        self.assertEqual(table.rows[1].get_cell("name"), "Audrey")
+        self.assertEqual(table.rows[2].get_cell("name"), "Adrian")
+        self.assertEqual(table.rows[2].get_cell("country"), "Brazil")
+        self.assertEqual(table.rows[3].get_cell("name"), "Adrian")
+        self.assertEqual(table.rows[3].get_cell("country"), "Australia")
 
     def test_table_ordering_attributes(self):
         class Table(tables.Table):
@@ -252,9 +241,9 @@ class OrderingTest(TestCase):
             order_by="alpha",
         )
 
-        assert "sortable" in table.columns[0].attrs["th"]["class"]
-        assert "ascend" in table.columns[0].attrs["th"]["class"]
-        assert "custom-header-class" in table.columns[1].attrs["th"]["class"]
+        self.assertIn("sortable", table.columns[0].attrs["th"]["class"])
+        self.assertIn("ascend", table.columns[0].attrs["th"]["class"])
+        self.assertIn("custom-header-class", table.columns[1].attrs["th"]["class"])
 
     def test_table_ordering_attributes_in_meta(self):
         class Table(tables.Table):
@@ -275,9 +264,9 @@ class OrderingTest(TestCase):
 
         table = Table(MEMORY_DATA)
 
-        assert "sortable" in table.columns[0].attrs["th"]["class"]
-        assert "ascend" in table.columns[0].attrs["th"]["class"]
-        assert "custom-header-class-in-meta" in table.columns[1].attrs["th"]["class"]
+        self.assertIn("sortable", table.columns[0].attrs["th"]["class"])
+        self.assertIn("ascend", table.columns[0].attrs["th"]["class"])
+        self.assertIn("custom-header-class-in-meta", table.columns[1].attrs["th"]["class"])
 
     def test_column_ordering_attributes(self):
         class Table(tables.Table):
@@ -295,8 +284,8 @@ class OrderingTest(TestCase):
 
         table = Table(MEMORY_DATA, attrs={"class": "only-on-table"}, order_by="alpha")
 
-        assert "only-on-table" not in table.columns[0].attrs["th"]["class"]
-        assert "custom-header-class" in table.columns[0].attrs["th"]["class"]
-        assert "ascending" in table.columns[0].attrs["th"]["class"]
-        assert "sort" in table.columns[0].attrs["th"]["class"]
-        assert "canOrder" in table.columns[1].attrs["th"]["class"]
+        self.assertNotIn("only-on-table", table.columns[0].attrs["th"]["class"])
+        self.assertIn("custom-header-class", table.columns[0].attrs["th"]["class"])
+        self.assertIn("ascending", table.columns[0].attrs["th"]["class"])
+        self.assertIn("sort", table.columns[0].attrs["th"]["class"])
+        self.assertIn("canOrder", table.columns[1].attrs["th"]["class"])
