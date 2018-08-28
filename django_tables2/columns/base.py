@@ -4,6 +4,7 @@ from __future__ import absolute_import, unicode_literals
 from collections import OrderedDict
 from itertools import islice
 
+from django.core.exceptions import ImproperlyConfigured
 from django.urls import reverse
 from django.utils import six
 from django.utils.html import format_html
@@ -29,6 +30,10 @@ class Library(object):
         self.columns = []
 
     def register(self, column):
+        if not hasattr(column, "from_field"):
+            raise ImproperlyConfigured(
+                "{} is not a subclass of Column".format(column.__class__.__name__)
+            )
         self.columns.append(column)
         return column
 
@@ -47,8 +52,6 @@ class Library(object):
         # first). This also allows user-registered columns to be
         # favoured.
         for candidate in reversed(self.columns):
-            if not hasattr(candidate, "from_field"):
-                continue
             column = candidate.from_field(field)
             if column is None:
                 continue
