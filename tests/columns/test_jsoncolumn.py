@@ -24,6 +24,13 @@ class JsonColumnTestCase(SimpleTestCase):
         self.assertIsInstance(Table.base_columns["json"], tables.JSONColumn)
         self.assertIsInstance(Table.base_columns["hstore"], tables.JSONColumn)
 
+    def test_jsoncolumn_number(self):
+        column = tables.JSONColumn(attrs={"pre": {"class": "json"}})
+
+        record = {"json": "foo"}
+        html = column.render(value=record["json"], record=record)
+        self.assertEqual(html, '<pre class="json">"foo"</pre>')
+
     def test_jsoncolumn_dict(self):
         column = tables.JSONColumn()
 
