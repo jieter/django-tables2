@@ -60,39 +60,39 @@ class PinnedRowsTest(SimpleTestCase):
         root = parse(table.as_html(request))
 
         # One row for header
-        assert len(root.findall(".//thead/tr")) == 1
+        self.assertEqual(len(root.findall(".//thead/tr")), 1)
 
         # In the header should be 3 cell.
-        assert len(root.findall(".//thead/tr/th")) == 3
+        self.assertEqual(len(root.findall(".//thead/tr/th")), 3)
 
         # In the body, should be one original record and 3 pinned rows.
-        assert len(root.findall(".//tbody/tr")) == 4
-        assert len(root.findall(".//tbody/tr/td")) == 12
+        self.assertEqual(len(root.findall(".//tbody/tr")), 4)
+        self.assertEqual(len(root.findall(".//tbody/tr/td")), 12)
 
         # First top pinned row.
         tr = root.findall(".//tbody/tr")
         td = tr[0].findall("td")
-        assert td[0].text == "Ron"
-        assert td[1].text == table.default
-        assert td[2].text == "90"
+        self.assertEqual(td[0].text, "Ron")
+        self.assertEqual(td[1].text, table.default)
+        self.assertEqual(td[2].text, "90")
 
         # Second top pinned row.
         td = tr[1].findall("td")
-        assert td[0].text == "Jon"
-        assert td[1].text == table.default
-        assert td[2].text == "10"
+        self.assertEqual(td[0].text, "Jon")
+        self.assertEqual(td[1].text, table.default)
+        self.assertEqual(td[2].text, "10")
 
         # Original row
         td = tr[2].findall("td")
-        assert td[0].text == "Grzegorz"
-        assert td[1].text == "programmer"
-        assert td[2].text == "30"
+        self.assertEqual(td[0].text, "Grzegorz")
+        self.assertEqual(td[1].text, "programmer")
+        self.assertEqual(td[2].text, "30")
 
         # First bottom pinned row.
         td = tr[3].findall("td")
-        assert td[0].text == table.default
-        assert td[1].text == "Sum age"
-        assert td[2].text == "130"
+        self.assertEqual(td[0].text, table.default)
+        self.assertEqual(td[1].text, "Sum age")
+        self.assertEqual(td[2].text, "130")
 
     def test_pinned_row_attrs(self):
         """
@@ -105,9 +105,9 @@ class PinnedRowsTest(SimpleTestCase):
         table = SimpleTable([record], pinned_row_attrs=pinned_row_attrs)
         html = table.as_html(request)
 
-        assert "pinned-row" in html
-        assert "super-mega-row" in html
-        assert "data-foo" in html
+        self.assertIn("pinned-row", html)
+        self.assertIn("super-mega-row", html)
+        self.assertIn("data-foo", html)
 
     def test_ordering(self):
         """
@@ -122,20 +122,20 @@ class PinnedRowsTest(SimpleTestCase):
         table = SimpleTable(records, order_by="age")
         root = parse(table.as_html(request))
         tr = root.findall(".//tbody/tr")
-        assert tr[0].findall("td")[2].text == "90"
-        assert tr[1].findall("td")[2].text == "10"
-        assert tr[2].findall("td")[2].text == "30"
-        assert tr[3].findall("td")[2].text == "42"
-        assert tr[4].findall("td")[2].text == "130"
+        self.assertEqual(tr[0].findall("td")[2].text, "90")
+        self.assertEqual(tr[1].findall("td")[2].text, "10")
+        self.assertEqual(tr[2].findall("td")[2].text, "30")
+        self.assertEqual(tr[3].findall("td")[2].text, "42")
+        self.assertEqual(tr[4].findall("td")[2].text, "130")
 
         table = SimpleTable(records, order_by="-age")
         root = parse(table.as_html(request))
         tr = root.findall(".//tbody/tr")
-        assert tr[0].findall("td")[2].text == "90"
-        assert tr[1].findall("td")[2].text == "10"
-        assert tr[2].findall("td")[2].text == "42"
-        assert tr[3].findall("td")[2].text == "30"
-        assert tr[4].findall("td")[2].text == "130"
+        self.assertEqual(tr[0].findall("td")[2].text, "90")
+        self.assertEqual(tr[1].findall("td")[2].text, "10")
+        self.assertEqual(tr[2].findall("td")[2].text, "42")
+        self.assertEqual(tr[3].findall("td")[2].text, "30")
+        self.assertEqual(tr[4].findall("td")[2].text, "130")
 
     def test_bound_rows_getitem(self):
         """
@@ -150,10 +150,10 @@ class PinnedRowsTest(SimpleTestCase):
         ]
 
         table = SimpleTable(records, order_by="age")
-        assert isinstance(table.rows[0], BoundRow) is True
-        assert isinstance(table.rows[0:2], BoundRows) is True
-        assert table.rows[0:2][0].get_cell("name") == "Greg"
-        assert len(table.rows[:]) == 6
+        self.assertIsInstance(table.rows[0], BoundRow)
+        self.assertIsInstance(table.rows[0:2], BoundRows)
+        self.assertEqual(table.rows[0:2][0].get_cell("name"), "Greg")
+        self.assertEqual(len(table.rows[:]), 6)
 
     def test_uniterable_pinned_data(self):
         """

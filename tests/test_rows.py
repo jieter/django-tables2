@@ -20,7 +20,7 @@ class RowsTest(SimpleTestCase):
         records = []
         for row in table.rows:
             records.append(row.record)
-        assert records == data
+        self.assertEqual(records, data)
 
     def test_bound_row(self):
         class SimpleTable(tables.Table):
@@ -34,25 +34,25 @@ class RowsTest(SimpleTestCase):
         row = table.rows[0]
 
         # integer indexing into a row
-        assert row.get_cell(0) == record["name"]
-        assert row.get_cell(1) == record["occupation"]
-        assert row.get_cell(2) == record["age"]
+        self.assertEqual(row.get_cell(0), record["name"])
+        self.assertEqual(row.get_cell(1), record["occupation"])
+        self.assertEqual(row.get_cell(2), record["age"])
 
         with self.assertRaises(IndexError):
             row.get_cell(3)
 
         # column name indexing into a row
-        assert row.get_cell("name") == record["name"]
-        assert row.get_cell("occupation") == record["occupation"]
-        assert row.get_cell("age") == record["age"]
+        self.assertEqual(row.get_cell("name"), record["name"])
+        self.assertEqual(row.get_cell("occupation"), record["occupation"])
+        self.assertEqual(row.get_cell("age"), record["age"])
 
         with self.assertRaises(KeyError):
             row.get_cell("gamma")
 
         # row should support contains check
-        assert "name" in row
-        assert "occupation" in row
-        assert "gamma" not in row
+        self.assertIn("name", row)
+        self.assertIn("occupation", row)
+        self.assertNotIn("gamma", row)
 
     def test_boud_row_cells(self):
         class SimpleTable(tables.Table):
@@ -91,9 +91,9 @@ class RowsTest(SimpleTestCase):
 
         table = Table([{"name": "Brian"}, {"name": "Thomas"}, {"name": "John"}])
 
-        assert table.rows[0].attrs["class"] == "even"
-        assert table.rows[1].attrs["class"] == "bla odd"
-        assert table.rows[1].attrs["class"] == "even"
+        self.assertEqual(table.rows[0].attrs["class"], "even")
+        self.assertEqual(table.rows[1].attrs["class"], "bla odd")
+        self.assertEqual(table.rows[1].attrs["class"], "even")
 
     def test_get_cell_display(self):
         class A(models.Model):
@@ -126,7 +126,7 @@ class RowsTest(SimpleTestCase):
 
         tab = Tab([c])
         row = tab.rows[0]
-        assert row.get_cell("a") == "valA"
+        self.assertEqual(row.get_cell("a"), "valA")
 
     def test_even_odd_css_class(self):
         """
@@ -150,18 +150,18 @@ class RowsTest(SimpleTestCase):
         prev = None
         for row in simple_table.rows:
             if prev:
-                assert row.get_even_odd_css_class() != prev.get_even_odd_css_class()
+                self.assertNotEqual(row.get_even_odd_css_class(), prev.get_even_odd_css_class())
             prev = row
             count += 1
 
         # count should be 5 because:
-        # First row is a top pinned row.
-        # Three defaults rows with data.
-        # Last row is a bottom pinned row.
-        assert count == 5
+        # - First row is a top pinned row.
+        # - Three defaults rows with data.
+        # - Last row is a bottom pinned row.
+        self.assertEqual(count, 5)
 
         # Important!
         # Length of data is five because pinned rows are added to data list.
         # If pinned rows are added only in the iteration on BoundRows,
         # then nothing will display if there are *only* pinned rows
-        assert len(simple_table.rows) == 5
+        self.assertEqual(len(simple_table.rows), 5)
