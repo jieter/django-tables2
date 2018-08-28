@@ -13,6 +13,14 @@ class LazyPaginator(Paginator):
        bigger than the number of records per page.
      - `current` if the number of records fetched is less than the number of records per page.
 
+    The number of additional records fetched can be adjusted using `look_ahead`, which
+    defaults to 1 page. If you like to provide a little more extra information on how much
+    pages follow the current page, you can use a higher value.
+
+    .. note:
+        The number of records fetched for each page is `per_page * look_ahead + 1`, so increasing
+        the value for `look_ahead` makes the query a bit more expensive.
+
     So::
 
         paginator = LazyPaginator(range(10000), 10)
@@ -35,15 +43,14 @@ class LazyPaginator(Paginator):
         class UserListView(SingleTableView):
             table_class = UserTable
             table_data = User.objects.all()
-            table_pagination = {
-                "paginator_class": LazyPaginator
-            }
+            pagination_class = LazyPaginator
 
     .. versionadded :: 2.0.0
     """
 
-    def __init__(self, object_list, per_page, **kwargs):
+    def __init__(self, object_list, per_page, look_ahead=1, **kwargs):
         self._num_pages = None
+        self.look_ahead = (look_ahead - 1) * per_page + 1
 
         super(LazyPaginator, self).__init__(object_list, per_page, **kwargs)
 
@@ -64,11 +71,11 @@ class LazyPaginator(Paginator):
         bottom = (number - 1) * self.per_page
         top = bottom + self.per_page
         # Retrieve more objects to check if there is a next page.
-        objects = list(self.object_list[bottom : top + self.orphans + 1])
+        objects = list(self.object_list[bottom : top + self.orphans + self.look_ahead])
         objects_count = len(objects)
         if objects_count > (self.per_page + self.orphans):
             # If another page is found, increase the total number of pages.
-            self._num_pages = number + 1
+            self._num_pages = number + (objects_count // self.per_page)
             # In any case,  return only objects for this page.
             objects = objects[: self.per_page]
         elif (number != 1) and (objects_count <= self.orphans):

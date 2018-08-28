@@ -61,3 +61,13 @@ class LazyPaginatorTest(TestCase):
 
         with self.assertRaises(EmptyPage):
             paginator.page(last_page_number + 1)
+
+    def test_lookahead(self):
+        objects = list(range(1, 1000))
+        paginator = LazyPaginator(objects, 10, look_ahead=3)
+
+        self.assertEqual(paginator.page(1).object_list, list(range(1, 11)))
+        self.assertEqual(paginator.num_pages, 4)
+
+        self.assertEqual(paginator.page(98).object_list, list(range(971, 981)))
+        self.assertEqual(paginator.num_pages, 100)
