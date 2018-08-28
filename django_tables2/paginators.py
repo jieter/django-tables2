@@ -38,6 +38,8 @@ class LazyPaginator(Paginator):
             table_pagination = {
                 "paginator_class": LazyPaginator
             }
+
+    .. versionadded :: 2.0.0
     """
 
     def __init__(self, object_list, per_page, **kwargs):
