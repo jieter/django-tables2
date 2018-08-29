@@ -1,5 +1,9 @@
 # Change log
 
+## 2.0.0b5 (2018-08-29)
+ - Change order of logic in `get_table_pagination` to make sure we are able to override the paginator using
+ `View.paginator_class` attribute.
+
 ## 2.0.0b4 (2018-08-29)
  - The `klass` argument to `Table.paginate()` is renamed to `paginator_class`
  - Table views/mixins now take `ListView` attributes `paginator_class` and `paginate_orphans` into account.
