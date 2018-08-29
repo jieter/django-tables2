@@ -1,7 +1,6 @@
 # coding: utf-8
 
 from django.core.exceptions import ImproperlyConfigured
-from django.core.paginator import Paginator
 from django.test import TestCase
 from django.views.generic.base import TemplateView
 
@@ -242,22 +241,23 @@ class SingleTableMixinTest(TestCase):
         View.as_view()(build_request())
 
     def test_with_custom_paginator(self):
-        class Table(tables.Table):
-            class Meta:
-                model = Region
-
-        class MyPaginator(Paginator):
-            pass
-
+        # defined in paginator_class
         class View(tables.SingleTableView):
-            table_class = Table
+            table_class = tables.Table
             queryset = Region.objects.all()
-            paginator_class = MyPaginator
+            paginator_class = tables.LazyPaginator
 
         response = View.as_view()(build_request())
+        self.assertIsInstance(response.context_data["table"].paginator, tables.LazyPaginator)
 
-        table = response.context_data["table"]
-        self.assertIsInstance(table.paginator, MyPaginator)
+        # defined in table_pagination
+        class View(tables.SingleTableView):
+            table_class = tables.Table
+            queryset = Region.objects.all()
+            table_pagination = {"paginator_class": tables.LazyPaginator}
+
+        response = View.as_view()(build_request())
+        self.assertIsInstance(response.context_data["table"].paginator, tables.LazyPaginator)
 
 
 class TableA(tables.Table):
@@ -272,7 +272,9 @@ class TableB(tables.Table):
 
 
 class MultiTableMixinTest(TestCase):
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):
+        super(MultiTableMixinTest, cls).setUpClass()
         Person.objects.create(first_name="Jan Pieter", last_name="W")
 
         NL_PROVICES = (
@@ -364,12 +366,25 @@ class MultiTableMixinTest(TestCase):
         with self.assertRaises(ImproperlyConfigured):
             View.as_view()(build_request("/"))
 
-    def test_pagination(self):
+    def test_table_pagination(self):
         class View(tables.MultiTableMixin, TemplateView):
             tables = (TableB(Region.objects.all()), TableB(Region.objects.all()))
             template_name = "multiple.html"
 
             table_pagination = {"per_page": 5}
+
+        response = View.as_view()(build_request("/?table_1-page=3"))
+
+        tableA, tableB = response.context_data["tables"]
+        self.assertEqual(tableA.page.number, 1)
+        self.assertEqual(tableB.page.number, 3)
+
+    def test_paginate_by(self):
+        class View(tables.MultiTableMixin, TemplateView):
+            tables = (TableB(Region.objects.all()), TableB(Region.objects.all()))
+            template_name = "multiple.html"
+
+            paginate_by = 5
 
         response = View.as_view()(build_request("/?table_1-page=3"))
 

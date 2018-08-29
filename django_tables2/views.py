@@ -31,8 +31,8 @@ class TableMixinBase(object):
             - False for no pagination,
             - a dictionary for custom pagination.
 
-        `ListView`s pagination attributes are taken into account, overriding the values
-        defined in `table_pagination`
+        `ListView`s pagination attributes are taken into account, if `table_pagination` does not
+        define the corresponding value.
 
         Override this method to further customize pagination for a `View`.
         """
@@ -40,8 +40,7 @@ class TableMixinBase(object):
         if paginate is False:
             return False
 
-        paginate = self.table_pagination or {}
-
+        paginate = {}
         if getattr(self, "paginate_by", None) is not None:
             paginate["per_page"] = self.paginate_by
         if hasattr(self, "paginator_class"):
@@ -49,7 +48,11 @@ class TableMixinBase(object):
         if getattr(self, "paginate_orphans", 0) is not 0:
             paginate["orphans"] = self.paginate_orphans
 
-        return True if paginate is None else paginate
+        # table_pagination overrides any MultipleObjectMixin attributes
+        if self.table_pagination:
+            paginate.update(self.table_pagination)
+
+        return paginate
 
 
 class SingleTableMixin(TableMixinBase):
