@@ -8,7 +8,8 @@ class LazyPaginator(Paginator):
     """
     Implement lazy pagination, preventing any count() queries.
 
-    For any valid page, the total number of pages for the paginator will be
+    By default, for any valid page, the total number of pages for the paginator will be
+
      - `current + 1` if the number of records fetched for the current page offset is
        bigger than the number of records per page.
      - `current` if the number of records fetched is less than the number of records per page.
@@ -17,9 +18,10 @@ class LazyPaginator(Paginator):
     defaults to 1 page. If you like to provide a little more extra information on how much
     pages follow the current page, you can use a higher value.
 
-    .. note:
+    .. note::
+
         The number of records fetched for each page is `per_page * look_ahead + 1`, so increasing
-        the value for `look_ahead` makes the query a bit more expensive.
+        the value for `look_ahead` makes the view a bit more expensive.
 
     So::
 
@@ -48,9 +50,12 @@ class LazyPaginator(Paginator):
     .. versionadded :: 2.0.0
     """
 
-    def __init__(self, object_list, per_page, look_ahead=1, **kwargs):
+    look_ahead = 1
+
+    def __init__(self, object_list, per_page, look_ahead=None, **kwargs):
         self._num_pages = None
-        self.look_ahead = (look_ahead - 1) * per_page + 1
+        if look_ahead is not None:
+            self.look_ahead = (look_ahead - 1) * per_page + 1
 
         super(LazyPaginator, self).__init__(object_list, per_page, **kwargs)
 
