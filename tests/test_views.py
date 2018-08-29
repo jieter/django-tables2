@@ -255,9 +255,12 @@ class SingleTableMixinTest(TestCase):
             table_class = tables.Table
             queryset = Region.objects.all()
             table_pagination = {"paginator_class": tables.LazyPaginator}
+            paginate_orphans = 10
 
         response = View.as_view()(build_request())
-        self.assertIsInstance(response.context_data["table"].paginator, tables.LazyPaginator)
+        paginator = response.context_data["table"].paginator
+        self.assertIsInstance(paginator, tables.LazyPaginator)
+        self.assertEqual(paginator.orphans, 10)
 
 
 class TableA(tables.Table):
