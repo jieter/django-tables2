@@ -55,7 +55,7 @@ class LazyPaginator(Paginator):
     def __init__(self, object_list, per_page, look_ahead=None, **kwargs):
         self._num_pages = None
         if look_ahead is not None:
-            self.look_ahead = (look_ahead - 1) * per_page + 1
+            self.look_ahead = look_ahead
 
         super(LazyPaginator, self).__init__(object_list, per_page, **kwargs)
 
@@ -76,7 +76,8 @@ class LazyPaginator(Paginator):
         bottom = (number - 1) * self.per_page
         top = bottom + self.per_page
         # Retrieve more objects to check if there is a next page.
-        objects = list(self.object_list[bottom : top + self.orphans + self.look_ahead])
+        look_ahead_items = (self.look_ahead - 1) * self.per_page + 1
+        objects = list(self.object_list[bottom : top + self.orphans + look_ahead_items])
         objects_count = len(objects)
         if objects_count > (self.per_page + self.orphans):
             # If another page is found, increase the total number of pages.

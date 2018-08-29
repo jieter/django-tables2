@@ -66,6 +66,7 @@ class LazyPaginatorTest(TestCase):
         objects = list(range(1, 1000))
         paginator = LazyPaginator(objects, 10, look_ahead=3)
 
+        self.assertEqual(paginator.look_ahead, 3)
         self.assertEqual(paginator.page(1).object_list, list(range(1, 11)))
         self.assertEqual(paginator.num_pages, 4)
 
