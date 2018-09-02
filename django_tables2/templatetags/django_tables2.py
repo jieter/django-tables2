@@ -215,7 +215,7 @@ register.filter("unlocalize", l10n_register.filters["unlocalize"])
 
 
 @register.simple_tag(takes_context=True)
-def export_url(context, export_format, export_trigger_param="_export"):
+def export_url(context, export_format, export_trigger_param=None):
     """
     Returns an export URL for the given file `export_format`, preserving current
     query string parameters.
@@ -228,7 +228,10 @@ def export_url(context, export_format, export_trigger_param="_export"):
 
         ?q=blue&amp;_export=csv
     """
-    return QuerystringNode(updates={export_trigger_param: export_format}, removals=[]).render(
+
+    export_param = export_trigger_param or context['view'].export_trigger_param
+
+    return QuerystringNode(updates={export_param: export_format}, removals=[]).render(
         context
     )
 
