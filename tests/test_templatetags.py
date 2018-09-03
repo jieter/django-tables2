@@ -9,6 +9,7 @@ from django.utils import six
 from django.utils.six.moves.urllib.parse import parse_qs
 
 from django_tables2 import LazyPaginator, RequestConfig, Table, TemplateColumn
+from django_tables2.export import ExportMixin
 from django_tables2.templatetags.django_tables2 import table_page_range
 from django_tables2.utils import AttributeDict
 
@@ -226,14 +227,28 @@ class QuerystringTagTest(SimpleTestCase):
             assert_querystring_asvar(argstr, expected)
 
     def test_export_url_tag(self):
+
+        class View(ExportMixin):
+            export_trigger_param = "_do_export"
+
         template = Template('{% load django_tables2 %}{% export_url "csv" %}')
-        html = template.render(Context({"request": build_request("?q=foo")}))
-        self.assertEqual(dict(parse_qs(html[1:])), dict(parse_qs("q=foo&amp;_export=csv")))
+        html = template.render(Context({"request": build_request("?q=foo"), "view": View()}))
+        self.assertEqual(dict(parse_qs(html[1:])), dict(parse_qs("q=foo&amp;_do_export=csv")))
+
+        # using a template context variable and a view
+        template = Template("{% load django_tables2 %}{% export_url format %}")
+        html = template.render(Context({"request": build_request("?q=foo"), "format": "xls", "view": View()}))
+        self.assertEqual(dict(parse_qs(html[1:])), dict(parse_qs("q=foo&amp;_do_export=xls")))
 
         # using a template context variable
         template = Template("{% load django_tables2 %}{% export_url format %}")
         html = template.render(Context({"request": build_request("?q=foo"), "format": "xls"}))
         self.assertEqual(dict(parse_qs(html[1:])), dict(parse_qs("q=foo&amp;_export=xls")))
+
+        # using a template context and change export parameter
+        template = Template('{% load django_tables2 %}{% export_url "xls" "_other_export_param" %}')
+        html = template.render(Context({"request": build_request("?q=foo"), "format": "xls"}))
+        self.assertEqual(dict(parse_qs(html[1:])), dict(parse_qs("q=foo&amp;_other_export_param=xls")))
 
     def test_render_attributes_test(self):
         template = Template('{% load django_tables2 %}{% render_attrs attrs class="table" %}')
