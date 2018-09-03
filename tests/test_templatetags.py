@@ -9,9 +9,9 @@ from django.utils import six
 from django.utils.six.moves.urllib.parse import parse_qs
 
 from django_tables2 import LazyPaginator, RequestConfig, Table, TemplateColumn
+from django_tables2.export import ExportMixin
 from django_tables2.templatetags.django_tables2 import table_page_range
 from django_tables2.utils import AttributeDict
-from django_tables2.export import ExportMixin
 
 from .app.models import Region
 from .test_templates import MEMORY_DATA, CountryTable
@@ -244,7 +244,7 @@ class QuerystringTagTest(SimpleTestCase):
         template = Template("{% load django_tables2 %}{% export_url format %}")
         html = template.render(Context({"request": build_request("?q=foo"), "format": "xls"}))
         self.assertEqual(dict(parse_qs(html[1:])), dict(parse_qs("q=foo&amp;_export=xls")))
-        
+
         # using a template context and change export parameter
         template = Template('{% load django_tables2 %}{% export_url "xls" "_other_export_param" %}')
         html = template.render(Context({"request": build_request("?q=foo"), "format": "xls"}))
