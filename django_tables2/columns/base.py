@@ -218,9 +218,32 @@ class Column(object):
              - If a `dict` is passed, it's passed on to ``~django.urls.reverse``.
              - If a `tuple` is passed, it must be either a (viewname, args) or (viewname, kwargs)
                tuple, which is also passed to ``~django.urls.reverse``.
+
         initial_sort_descending (bool): If `True`, a column will sort in descending order
             on "first click" after table has been rendered. If `False`, column will follow
             default behavior, and sort ascending on "first click". Defaults to `False`.
+
+    Examples, assuming this model::
+
+        class Blog(models.Model):
+            title = models.CharField(max_length=100)
+            body = model.TextField()
+            user = model.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+
+    Using the ``linkify`` argument to control the linkification. These columns will all display
+    the value returned from `str(record.user)`::
+
+        # If the column is named 'user', the column will use record.user.get_absolute_url()
+        user = tables.Column(linkify=True)
+
+        # We can also do that explicitly:
+        user = tables.Column(linkify=lambda record: record.user.get_absolute_url())
+
+        # or, if no get_absolute_url is defined, or a custom link is required, we have a couple
+        # of ways to define what is passed to reverse()
+        user = tables.Column(linkify={"viewname": "user_detail", args=(tables.A("user.pk"))})
+        user = tables.Column(linkify=("user_detail", (tables.A("user.pk"), )))
+        user = tables.Column(linkify=("user_detail", {"pk": tables.A("user.pk")}))
 
     .. [1] The provided callable object must not expect to receive any arguments.
     """
