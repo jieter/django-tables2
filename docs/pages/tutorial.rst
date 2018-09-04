@@ -13,6 +13,17 @@ Now, add a model to your ``tutorial/models.py``::
     class Person(models.Model):
         name = models.CharField(max_length=100, verbose_name='full name')
 
+
+If you are using Class Based Views the template is setup like this:
+
+    # tutorial/views.py
+    from django.views.generic import ListView
+    from .models import Person
+
+    class PersonListView(ListView):
+        model = Person
+        template_name = 'tutorial/people.html'
+
 Create the database tables for the newly added model::
 
     $ python manage.py makemigrations tutorial
@@ -46,7 +57,20 @@ Add the view to your ``urls.py``::
         url(r'^admin/', admin.site.urls),
         url(r'^people/', people)
     ]
+    
+If you are using Django 2.0 and above::
 
+    # urls.py
+    from django.urls import path
+    from django.contrib import admin
+
+    from tutorial.views import people
+
+    urlpatterns = [
+        path('admin/', admin.site.urls),
+        path('people/', views.PersonListView.as_view(), name = people)
+    ]
+    
 Finally, create the template::
 
     {# tutorial/templates/tutorial/people.html #}
@@ -94,6 +118,24 @@ adding it to the context::
         table = PersonTable(Person.objects.all())
         RequestConfig(request).configure(table)
         return render(request, 'tutorial/people.html', {'table': table})
+
+If you are using Class Based Views you will have configure the table through ``get_context_data``::
+
+    # tutorial/views.py
+    from django.views.generic import ListView
+    from django_tables2 import RequestConfig
+    from .models import Person
+    from .tables import PersonTable
+
+    class PersonListView(ListView):
+        model = Person
+        template_name = 'tutorial/people.html'
+        def get_context_data(self, *args, **kwargs):
+            context = super(PersonListView, self).get_context_data(**kwargs)
+            table = SpeciesTable(Person.objects.all())
+            RequestConfig(self.request).configure(table)
+            context['table'] = table
+            return context
 
 Using `.RequestConfig` automatically pulls values from ``request.GET`` and
 updates the table accordingly. This enables data ordering and pagination.
