@@ -133,7 +133,10 @@ class RenderTableNode(Node):
         self.template_name = template_name
 
     def render(self, context):
-        table = self.table.resolve(context)
+        table = self.table.resolve(context, ignore_failures=True)
+
+        if table is None:
+            return context.template.engine.string_if_invalid
 
         request = context.get("request")
 

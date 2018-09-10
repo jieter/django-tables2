@@ -24,6 +24,11 @@ class RenderTableTagTest(TestCase):
 
         with self.assertRaises(ValueError):
             template.render(Context({"request": build_request(), "table": dict()}))
+            
+    def test_invalid_variable(self):
+        template = Template("{% load django_tables2 %}{% render_table table %}")
+
+        self.assertEqual(len(template.render(Context({"request": build_request()}))), 0)
 
     def test_basic(self):
         request = build_request("/")
