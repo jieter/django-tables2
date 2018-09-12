@@ -80,30 +80,40 @@ Python's `inspect.getargspec` is used to only pass the arguments declared by the
 function. This means it's not necessary to add a catch all (``**``) keyword
 argument.
 
-The render function can also be used to display the data from two columns in one column. In the following example we can see the field `last_name` is appended to the `name` field using the render function. Note that `value` is return the value in the column and `record` is used to access the values in the `last_name` column::
+The `render_foo` method can also be used to combine data from two columns into one column.
+The following example shows how the the value for the `last_name` field is appended to the
+`name` field using the `render_name` function.
+Note that `value` is the value in the column and `record` is used to access the values in
+the `last_name` column::
 
-    #models.py
-    >>> class Customers(models.Model):
-    ...    name = models.CharField(max_length=50, null=False, blank=False)
-    ...    last_name = models.CharField(max_length=50, null=False, blank=False)
-    ...    description = models.TextField(blank=True)
+    # models.py
+    class Customers(models.Model):
+        name = models.CharField(max_length=50, null=False, blank=False)
+        last_name = models.CharField(max_length=50, null=False, blank=False)
+        description = models.TextField(blank=True)
 
-    #tables.py
-    >>> from .models import Customers
-    ...   
-    >>> class CustomerTable(tables.Table):
-    ...     name = tables.Column()
-    ...     description = tables.Column()
-    ...     
-    ...     def render_name(self, value,record):
-    ...         return format_html("<b>{} {}</b>", value, record.last_name)
+    # tables.py
+    from .models import Customers
+
+    class CustomerTable(tables.Table):
+        name = tables.Column()
+        description = tables.Column()
+
+        def render_name(self, value, record):
+            return format_html("<b>{} {}</b>", value, record.last_name)
 
 .. important::
 
-    `render` methods are *only* called if the value for a cell is determined to
+    `render_foo` methods are *only* called if the value for a cell is determined to
     be not an :term:`empty value`. When a value is in `.Column.empty_values`,
     a default value is rendered instead (both `.Column.render` and
     ``Table.render_FOO`` are skipped).
+
+.. important::
+
+    `render_foo` methods determine what value is rendered, but which make sorting the
+    column have unexpected results. In those cases, you might want to also define a
+    :ref:`table.order_foo` method.
 
 .. _table.value_foo:
 
