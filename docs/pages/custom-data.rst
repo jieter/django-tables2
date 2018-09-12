@@ -83,26 +83,20 @@ argument.
 The render function can also be used to display the data from two columns in one column. In the following example we can see the field `last_name` is appended to the `name` field using the render function. Note that `value` is return the value in the column and `record` is used to access the values in the `last_name` column::
 
     #models.py
-    class Customers(models.Model):
-        name = models.CharField(max_length=50, null=False, blank=False)
-        last_name = models.CharField(max_length=50, null=False, blank=False)
-        description = models.TextField(blank=True)
+    >>> class Customers(models.Model):
+    ...    name = models.CharField(max_length=50, null=False, blank=False)
+    ...    last_name = models.CharField(max_length=50, null=False, blank=False)
+    ...    description = models.TextField(blank=True)
 
     #tables.py
-    from .models import Customers
-    
-    class CustomerTable(tables.Table):
-	    name = tables.Column()
-        description = tables.Column()
-        class Meta:
-		    model = Customers
-		    template_name = 'django_tables2/bootstrap4.html'
-            fields = ['name', 'description']
-            
-        def render_name(self, value,record):
-		    return mark_safe('<b>%s %s</b>' % (value, record.last_name))
-      
-
+    >>> from .models import Customers
+    ...   
+    >>> class CustomerTable(tables.Table):
+    ...     name = tables.Column()
+    ...     description = tables.Column()
+    ...     
+    ...     def render_name(self, value,record):
+    ...         return format_html("<b>{} {}</b>", value, record.last_name)
 
 .. important::
 
