@@ -229,10 +229,10 @@ def export_url(context, export_format, export_trigger_param=None):
         ?q=blue&amp;_export=csv
     """
 
-    if export_trigger_param is None and 'view' in context:
-        export_trigger_param = getattr(context['view'], 'export_trigger_param', None)
+    if export_trigger_param is None and "view" in context:
+        export_trigger_param = getattr(context["view"], "export_trigger_param", None)
 
-    export_trigger_param = export_trigger_param or '_export'
+    export_trigger_param = export_trigger_param or "_export"
 
     return QuerystringNode(updates={export_trigger_param: export_format}, removals=[]).render(
         context

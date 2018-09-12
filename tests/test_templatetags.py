@@ -227,7 +227,6 @@ class QuerystringTagTest(SimpleTestCase):
             assert_querystring_asvar(argstr, expected)
 
     def test_export_url_tag(self):
-
         class View(ExportMixin):
             export_trigger_param = "_do_export"
 
@@ -237,7 +236,9 @@ class QuerystringTagTest(SimpleTestCase):
 
         # using a template context variable and a view
         template = Template("{% load django_tables2 %}{% export_url format %}")
-        html = template.render(Context({"request": build_request("?q=foo"), "format": "xls", "view": View()}))
+        html = template.render(
+            Context({"request": build_request("?q=foo"), "format": "xls", "view": View()})
+        )
         self.assertEqual(dict(parse_qs(html[1:])), dict(parse_qs("q=foo&amp;_do_export=xls")))
 
         # using a template context variable
@@ -248,7 +249,9 @@ class QuerystringTagTest(SimpleTestCase):
         # using a template context and change export parameter
         template = Template('{% load django_tables2 %}{% export_url "xls" "_other_export_param" %}')
         html = template.render(Context({"request": build_request("?q=foo"), "format": "xls"}))
-        self.assertEqual(dict(parse_qs(html[1:])), dict(parse_qs("q=foo&amp;_other_export_param=xls")))
+        self.assertEqual(
+            dict(parse_qs(html[1:])), dict(parse_qs("q=foo&amp;_other_export_param=xls"))
+        )
 
     def test_render_attributes_test(self):
         template = Template('{% load django_tables2 %}{% render_attrs attrs class="table" %}')
