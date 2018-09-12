@@ -42,7 +42,7 @@ If the resulting value is callable, it is called and the return value is used.
 To change how a column is rendered, define a ``render_foo`` method on
 the table for example: `render_row_number()` for a column named `row_number`.
 This approach is suitable if you have a one-off change that you do not want to
-use in multiple tables.
+use in multiple tables or if you want to combine the data from two columns into one.
 
 Supported keyword arguments include:
 
@@ -79,6 +79,24 @@ This example shows how to render the row number in the first row::
 Python's `inspect.getargspec` is used to only pass the arguments declared by the
 function. This means it's not necessary to add a catch all (``**``) keyword
 argument.
+
+The render function can also be used to display the data from two columns in one column. In the following example we can see the field `last_name` is appended to the `name` field using the render function. Note that `value` is return the value in the column and `record` is used to access the values in the `last_name` column::
+
+    #models.py
+    >>> class Customers(models.Model):
+    ...    name = models.CharField(max_length=50, null=False, blank=False)
+    ...    last_name = models.CharField(max_length=50, null=False, blank=False)
+    ...    description = models.TextField(blank=True)
+
+    #tables.py
+    >>> from .models import Customers
+    ...   
+    >>> class CustomerTable(tables.Table):
+    ...     name = tables.Column()
+    ...     description = tables.Column()
+    ...     
+    ...     def render_name(self, value,record):
+    ...         return format_html("<b>{} {}</b>", value, record.last_name)
 
 .. important::
 
