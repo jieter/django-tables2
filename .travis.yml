@@ -30,6 +30,7 @@ matrix:
     - { python: 3.6, env: TOXENV=docs }
     - { python: 3.6, env: TOXENV=flake8 }
     - { python: 3.6, env: TOXENV=isort }
+    - { python: 3.6, env: TOXENV=black }
 
   # we allow failures for versions which are not yet released:
   allow_failures:
