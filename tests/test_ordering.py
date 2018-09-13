@@ -49,13 +49,6 @@ class OrderingTest(TestCase):
 
         self.assertEqual(Table([]).order_by, ("i", "alpha"))
 
-    def test_meta_ordering_set(self):
-        class Table(UnorderedTable):
-            class Meta:
-                order_by = {"i", "alpha"}
-
-        self.assertEqual(Table([]).order_by, ("i", "alpha"))
-
     def test_ordering(self):
         # fallback to Table.Meta
         self.assertEqual(OrderedTable([], order_by=None).order_by, ("alpha",))

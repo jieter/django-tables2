@@ -165,7 +165,7 @@ class TableOptions(object):
                 "per_page_field",
             ],
             (dict,): ["attrs", "row_attrs", "pinned_row_attrs"],
-            (tuple, list, set) + six.string_types: ["order_by"],
+            (tuple, list) + six.string_types: ["order_by"],
             (type(models.Model),): ["model"],
         }
 
