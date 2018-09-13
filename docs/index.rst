@@ -19,7 +19,9 @@ Its features include:
 About the app:
 
 - `Available on pypi <https://pypi.python.org/pypi/django-tables2>`_
-- Tested with python 2.7, 3.4, 3.5, 3.6 and Django 1.11, `Travis CI <https://travis-ci.org/jieter/django-tables2>`_
+- Tested against currently supported versions of Django
+  `and the python versions Django supports <https://docs.djangoproject.com/en/dev/faq/install/#what-python-version-can-i-use-with-django>`_
+  (see `Travis CI <https://travis-ci.org/jieter/django-tables2>`_)
 - `Documentation on readthedocs.org <https://django-tables2.readthedocs.io/en/latest/>`_
 - `Bug tracker <http://github.com/jieter/django-tables2/issues>`_
 

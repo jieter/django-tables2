@@ -11,7 +11,7 @@ setup(
     name="django-tables2",
     version=VERSION,
     description="Table/data-grid framework for Django",
-    long_description=open("README.rst").read(),
+    long_description=open("README.md").read(),
     author="Bradley Ayers",
     author_email="bradley.ayers@gmail.com",
     license="Simplified BSD",
