@@ -29,11 +29,6 @@ class UnorderedTable(tables.Table):
     beta = tables.Column()
 
 
-class OrderedTable(UnorderedTable):
-    class Meta:
-        order_by = "alpha"
-
-
 class CoreTest(SimpleTestCase):
     def test_omitting_data(self):
         with self.assertRaises(TypeError):

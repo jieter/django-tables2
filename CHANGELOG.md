@@ -1,5 +1,8 @@
 # Change log
 
+## 2.0.1 (2018-09-13)
+ - Fixed a regression which did not allow `Table.Meta.order_by` to be a list.
+
 ## 2.0.0 (2018-09-13)
 Not much changed in this final version, but quite a lot if you are still on 1.21.2. Some [breaking changes](#breaking-changes-200) were introduced in version 2.0.0a0, so before upgrading from 1.21.2, please have a look through them carefully.
 
