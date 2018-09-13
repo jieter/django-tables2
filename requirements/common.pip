@@ -5,4 +5,4 @@ lxml
 pytz>0
 tablib==0.11.4
 mock
-psycopg2
+psycopg2-binary
