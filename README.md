@@ -46,7 +46,7 @@ INSTALLED_APPS = (
 
 Creating a table for a model `Simple` is as simple as:
 
-```
+```python
 import django_tables2 as tables
 
 class SimpleTable(tables.Table):
