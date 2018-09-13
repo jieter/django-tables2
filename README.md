@@ -2,7 +2,6 @@
 
 [![Latest PyPI version](https://badge.fury.io/py/django-tables2.svg)](https://pypi.python.org/pypi/django-tables2)
 [![Travis CI](https://travis-ci.org/jieter/django-tables2.svg?branch=master)](https://travis-ci.org/jieter/django-tables2)
-
 [![Any color you like](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
 
 django-tables2 simplifies the task of turning sets of data into HTML tables. It
