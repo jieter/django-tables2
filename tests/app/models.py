@@ -65,6 +65,17 @@ class PersonProxy(Person):
         ordering = ("last_name",)
 
 
+class Group(models.Model):
+    name = models.CharField(max_length=200)
+    members = models.ManyToManyField("Person")
+
+    def __str__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return "/group/{}/".format(self.pk)
+
+
 @six.python_2_unicode_compatible
 class Occupation(models.Model):
     name = models.CharField(max_length=200)

@@ -7,7 +7,7 @@ from django.test import TestCase
 from django.utils.html import format_html, mark_safe, strip_tags
 
 import django_tables2 as tables
-from tests.app.models import Person
+from tests.app.models import Group, Person
 
 
 class ManyToManyColumnTest(TestCase):
@@ -31,6 +31,14 @@ class ManyToManyColumnTest(TestCase):
             person.friends.add(*sample(persons, randint(1, 3)))
             person.save()
 
+        # add a person without friends
+        self.remi = Person.objects.create(first_name="Remi", last_name="Barberin")
+
+        self.developers = Group.objects.create(name="developers")
+        self.developers.members.add(
+            Person.objects.get(first_name="James"), Person.objects.get(first_name="Simone")
+        )
+
     def test_ManyToManyColumn_from_model(self):
         """
         Automatically uses the ManyToManyColumn for a ManyToManyField, and calls the
@@ -47,9 +55,11 @@ class ManyToManyColumnTest(TestCase):
         table = Table(Person.objects.all())
 
         for row in table.rows:
-            friends = row.get_cell("friends").split(", ")
+            cell = row.get_cell("friends")
+            if cell == "-":
+                continue
 
-            for friend in friends:
+            for friend in cell.split(", "):
                 self.assertTrue(Person.objects.filter(first_name=friend).exists())
 
     def test_ManyToManyColumn_linkify_item(self):
@@ -65,16 +75,40 @@ class ManyToManyColumnTest(TestCase):
                 self.assertIn(friend.get_absolute_url(), friends)
                 self.assertIn(str(friend), friends)
 
+    def test_ManyToManyColumn_linkify_item_different_model(self):
+        """
+        Make sure the correct get_absolute_url() is used to linkify the items.
+        """
+
+        class GroupTable(tables.Table):
+            name = tables.Column(linkify=True)
+            members = tables.ManyToManyColumn(linkify_item=True)
+
+        table = GroupTable(Group.objects.all())
+
+        row = table.rows[0]
+        self.assertEqual(
+            row.get_cell("name"),
+            '<a href="/group/{}/">{}</a>'.format(self.developers.pk, self.developers.name),
+        )
+        self.assertEqual(
+            row.get_cell("members"),
+            '<a href="/people/3/">James</a>, <a href="/people/6/">Simone</a>',
+        )
+
     def test_custom_separator(self):
         def assert_sep(sep):
             class Table(tables.Table):
                 friends = tables.ManyToManyColumn(separator=sep)
 
             table = Table(Person.objects.all().order_by("last_name"))
-            for row in table.rows:
-                friends = row.get_cell("friends").split(sep)
 
-                for friend in friends:
+            for row in table.rows:
+                cell = row.get_cell("friends")
+                if cell == "-":
+                    continue
+
+                for friend in cell.split(sep):
                     self.assertTrue(Person.objects.filter(first_name=friend).exists())
 
         # normal string, will not be escaped
@@ -92,8 +126,11 @@ class ManyToManyColumnTest(TestCase):
 
         table = Table(Person.objects.all().order_by("last_name"))
         for row in table.rows:
-            friends = row.get_cell("friends").split(", ")
-            for friend in friends:
+            cell = row.get_cell("friends")
+            if cell == "-":
+                continue
+
+            for friend in cell.split(", "):
                 stripped = strip_tags(friend)
                 self.assertTrue(Person.objects.filter(first_name=stripped).exists())
 
@@ -106,9 +143,6 @@ class ManyToManyColumnTest(TestCase):
         self.assertFalse(table.columns["friends"].orderable)
 
     def test_ManyToManyColumn_complete_example(self):
-        # add a friendless person
-        remi = Person.objects.create(first_name="Remi", last_name="Barberin")
-
         class Table(tables.Table):
             name = tables.Column(accessor="name", order_by=("last_name", "first_name"))
             friends = tables.ManyToManyColumn(
@@ -119,7 +153,7 @@ class ManyToManyColumnTest(TestCase):
         for row in table.rows:
             friends = row.get_cell("friends")
             if friends == "-":
-                self.assertEqual(row.get_cell("name"), remi.name)
+                self.assertEqual(row.get_cell("name"), self.remi.name)
                 continue
 
             # verify the list is sorted descending
