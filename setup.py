@@ -12,6 +12,7 @@ setup(
     version=VERSION,
     description="Table/data-grid framework for Django",
     long_description=open("README.md").read(),
+    long_description_content_type="text/markdown",
     author="Bradley Ayers",
     author_email="bradley.ayers@gmail.com",
     license="Simplified BSD",
