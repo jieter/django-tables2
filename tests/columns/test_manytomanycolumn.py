@@ -7,7 +7,7 @@ from django.test import TestCase
 from django.utils.html import format_html, mark_safe, strip_tags
 
 import django_tables2 as tables
-from tests.app.models import Group, Person
+from tests.app.models import Group, Occupation, Person
 
 
 class ManyToManyColumnTest(TestCase):
@@ -21,11 +21,11 @@ class ManyToManyColumnTest(TestCase):
     )
 
     def setUp(self):
+        self.carpenter = Occupation.objects.create(name="Carpenter")
         for first, last in self.FAKE_NAMES:
-            Person.objects.create(first_name=first, last_name=last)
+            Person.objects.create(first_name=first, last_name=last, occupation=self.carpenter)
 
         persons = list(Person.objects.all())
-
         # give everyone 1 to 3 friends
         for person in persons:
             person.friends.add(*sample(persons, randint(1, 3)))
@@ -84,9 +84,7 @@ class ManyToManyColumnTest(TestCase):
             name = tables.Column(linkify=True)
             members = tables.ManyToManyColumn(linkify_item=True)
 
-        table = GroupTable(Group.objects.all())
-
-        row = table.rows[0]
+        row = GroupTable(Group.objects.all()).rows[0]
         self.assertEqual(
             row.get_cell("name"),
             '<a href="/group/{}/">{}</a>'.format(self.developers.pk, self.developers.name),
@@ -94,6 +92,30 @@ class ManyToManyColumnTest(TestCase):
         self.assertEqual(
             row.get_cell("members"),
             '<a href="/people/3/">James</a>, <a href="/people/6/">Simone</a>',
+        )
+
+    def test_ManyToManyColumn_linkify_item_foreign_key(self):
+        class OccupationTable(tables.Table):
+            name = tables.Column(linkify=True)
+            people = tables.ManyToManyColumn(linkify_item=True)
+
+        row = OccupationTable(Occupation.objects.all()).rows[0]
+        self.assertEqual(
+            row.get_cell("name"),
+            '<a href="/occupations/{}/">{}</a>'.format(self.carpenter.pk, self.carpenter.name),
+        )
+        self.assertEqual(
+            row.get_cell("people"),
+            ", ".join(
+                (
+                    '<a href="/people/1/">Kyle</a>',
+                    '<a href="/people/2/">Francis</a>',
+                    '<a href="/people/3/">James</a>',
+                    '<a href="/people/4/">Florentina</a>',
+                    '<a href="/people/5/">Mark</a>',
+                    '<a href="/people/6/">Simone</a>',
+                )
+            ),
         )
 
     def test_custom_separator(self):
