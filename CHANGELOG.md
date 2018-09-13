@@ -1,8 +1,12 @@
 # Change log
 
+## 2.0.0 (2018-09-13)
+Not much changed in this final version, but quite a lot if you are still on 1.21.2. Some [breaking changes](#breaking-changes-200) were introduced in version 2.0.0a0, so before upgrading from 1.21.2, please have a look through them carefully.
+
+ - Consider `ExportMixin.export_trigger_param` in `export_url` template tag [#609](https://github.com/jieter/django-tables2/pull/609) by [@soerenbe](https://github.com/soerenbe)
+
 ## 2.0.0b5 (2018-08-29)
- - Change order of logic in `get_table_pagination` to make sure we are able to override the paginator using
- `View.paginator_class` attribute.
+ - Change order of logic in `get_table_pagination` to make sure we are able to override the paginator using `View.paginator_class` attribute.
 
 ## 2.0.0b4 (2018-08-29)
  - The `klass` argument to `Table.paginate()` is renamed to `paginator_class`
@@ -49,7 +53,7 @@ Hello from [DjangoCon Europe](https://2018.djangocon.eu/)!
  - Cleaned up templates to add consistency in what is presented across all templates.
  - Added bootstrap4.html template
  - Fixed translation inconsistencies.
-### breaking changes
+### breaking changes 2.0.0
  - Appearance of the paginators might be different from the current 1.x templates. Use a custom template if you need to keep the appearance the same.
  - Removed the `template` argument to the table constructor, use `template_name` instead.
  - Stopped adding column names to the class attribute of table cells (`<td>` tags) by default. Previous behavior can be restored by using this method on your custom table:
