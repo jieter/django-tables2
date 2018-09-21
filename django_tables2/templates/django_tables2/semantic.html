@@ -49,8 +49,8 @@
                 {% endfor %}
                 </tr>
                 {% endif %}
-                {% if table.page and table.paginator.num_pages > 1 %}
-                    {% block pagination %}
+                {% block pagination %}
+                    {% if table.page and table.paginator.num_pages > 1 %}
                     <tr>
                     <th colspan="{{ table.columns|length }}">
                         <div class="ui right floated pagination menu">
@@ -86,8 +86,8 @@
                         </div>
                     </th>
                     </tr>
-                    {% endblock pagination %}
-                {% endif %}
+                    {% endif %}
+                {% endblock pagination %}
             </tfoot>
             {% endblock table.tfoot %}
         </table>

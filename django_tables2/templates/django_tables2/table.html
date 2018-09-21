@@ -54,8 +54,8 @@
         </table>
     {% endblock table %}
 
-    {% if table.page and table.paginator.num_pages > 1 %}
-        {% block pagination %}
+    {% block pagination %}
+        {% if table.page and table.paginator.num_pages > 1 %}
         <ul class="pagination">
             {% if table.page.has_previous %}
                 {% block pagination.previous %}
@@ -91,7 +91,7 @@
                 {% endblock pagination.next %}
             {% endif %}
         </ul>
-        {% endblock pagination %}
-    {% endif %}
+        {% endif %}
+    {% endblock pagination %}
 </div>
 {% endblock table-wrapper %}
