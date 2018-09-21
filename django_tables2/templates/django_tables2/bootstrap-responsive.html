@@ -6,10 +6,10 @@
     {{ block.super }}
     {% endblock table %}
 
-    {% if table.page and table.paginator.num_pages > 1 %}
     {% block pagination %}
+    {% if table.page and table.paginator.num_pages > 1 %}
     {{ block.super }}
-    {% endblock pagination %}
     {% endif %}
+    {% endblock pagination %}
 </div>
 {% endblock table-wrapper %}

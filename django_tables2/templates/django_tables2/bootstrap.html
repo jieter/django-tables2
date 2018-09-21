@@ -54,8 +54,8 @@
         </table>
     {% endblock table %}
 
-    {% if table.page and table.paginator.num_pages > 1 %}
-        {% block pagination %}
+    {% block pagination %}
+        {% if table.page and table.paginator.num_pages > 1 %}
         <nav aria-label="Table navigation">
             <ul class="pagination">
             {% if table.page.has_previous %}
@@ -96,7 +96,7 @@
             {% endif %}
             </ul>
         </nav>
-        {% endblock pagination %}
-    {% endif %}
+        {% endif %}
+    {% endblock pagination %}
 </div>
 {% endblock table-wrapper %}
