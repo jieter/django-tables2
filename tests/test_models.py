@@ -3,6 +3,8 @@ from __future__ import unicode_literals
 
 from collections import defaultdict
 
+from django.contrib.contenttypes.models import ContentType
+from django.db import models
 from django.db.models.functions import Length
 from django.template import Context, Template
 from django.test import TestCase
@@ -29,6 +31,41 @@ class ModelsTest(TestCase):
         occupation = Occupation.objects.create(name="Programmer")
         Person.objects.create(first_name="Bradley", last_name="Ayers", occupation=occupation)
         Person.objects.create(first_name="Chris", last_name="Doble", occupation=occupation)
+
+    def test_check_types_model(self):
+        class Abstract(models.Model):
+            name = models.CharField(max_length=100)
+
+            class Meta:
+                abstract = True
+                app_label = "django_tables2_test"
+
+        class Concrete(Abstract):
+            pass
+
+        def test(Model):
+            class Table(tables.Table):
+                class Meta:
+                    model = Model
+
+            return Table([])
+
+        valid = [
+            Abstract,
+            Concrete,
+            Occupation,
+            Person,
+            PersonProxy,
+            ContentType.objects.get(model="person").model_class(),
+        ]
+        invalid = [object, {}, dict]
+
+        for Model in valid:
+            test(Model)
+
+        for Model in invalid:
+            with self.assertRaises(TypeError):
+                test(Model)
 
     def test_boundrows_iteration(self):
         table = PersonTable(Person.objects.all())
