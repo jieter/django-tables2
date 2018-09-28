@@ -300,8 +300,8 @@ class TableBase(object):
         self.attrs = AttributeDict(attrs if attrs is not None else self._meta.attrs)
 
         for tag in ["thead", "tbody", "tfoot"]:
-            if tag in self.attrs:
-                self.attrs[tag] = AttributeDict(self.attrs[tag])
+            # Add these attrs even if they haven't been passed so we can safely refer to them in the templates
+            self.attrs[tag] = AttributeDict(self.attrs.get(tag, {}))
 
         self.row_attrs = AttributeDict(row_attrs or self._meta.row_attrs)
         self.empty_text = empty_text if empty_text is not None else self._meta.empty_text
