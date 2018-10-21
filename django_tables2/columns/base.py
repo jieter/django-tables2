@@ -546,7 +546,7 @@ class BoundColumn(object):
                 else ordering_class.get("ascending", "asc")
             )
 
-        return None if len(classes) == 0 else " ".join(classes)
+        return None if len(classes) == 0 else " ".join(sorted(classes))
 
     @property
     def default(self):

@@ -23,7 +23,7 @@ def ucfirst(s):
 
 
 class Sequence(list):
-    """x
+    """
     Represents a column sequence, e.g. ``('first_name', '...', 'last_name')``
 
     This is used to represent `.Table.Meta.sequence` or the `.Table`
