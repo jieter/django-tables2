@@ -1,5 +1,10 @@
 # Change log
 
+## 2.0.2 (2018-10-22)
+ - Make sure the value of the class attribute in `<th>` has consistent ordering (fixes [#627](https://github.com/jieter/django-tables2/issues/627))
+ - Make sure that pagination block is available in template regardless of pagination status [#622](https://github.com/jieter/django-tables2/pull/622) by
+[@apocalyptech](https://github.com/apocalyptech)
+
 ## 2.0.1 (2018-09-13)
  - Fixed a regression which did not allow `Table.Meta.order_by` to be a list.
 
