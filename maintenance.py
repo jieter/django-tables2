@@ -12,8 +12,10 @@ with open("django_tables2/__init__.py", "rb") as f:
 if sys.argv[-1] == "publish":
     os.system("python setup.py clean --all")
     os.system("python setup.py sdist bdist_wheel --universal")
-    os.system("twine upload dist/django-tables2-{version}.tar.gz"
-              " dist/django_tables2-{version}-py2.py3-none-any.whl".format(version=VERSION))
+    os.system(
+        "twine upload dist/django-tables2-{version}.tar.gz"
+        " dist/django_tables2-{version}-py2.py3-none-any.whl".format(version=VERSION)
+    )
     print(
         "\nreleased [{version}](https://pypi.org/project/django-tables2/{version}/)".format(
             version=VERSION
