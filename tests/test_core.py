@@ -624,6 +624,20 @@ class AsValuesTest(SimpleTestCase):
         table = Table(data)
         self.assertEqual(list(table.as_values()), expected)
 
+    def test_render_FOO_exception(self):
+
+        message = "Custom render-method fails"
+
+        class Table(tables.Table):
+            country = tables.Column()
+
+            def render_country(self, value):
+                raise Exception(message)
+                return value + " test"
+
+        with self.assertRaisesMessage(Exception, message):
+            Table(self.AS_VALUES_DATA).as_html(build_request())
+
     def test_as_values_render_FOO(self):
         class Table(tables.Table):
             name = tables.Column()
