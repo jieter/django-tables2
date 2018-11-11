@@ -86,7 +86,7 @@ class LinkColumn(BaseLinkColumn):
 
         # urls.py
         urlpatterns = patterns('',
-            url('people/(\d+)/', views.people_detail, name='people_detail')
+            url('people/([0-9]+)/', views.people_detail, name='people_detail')
         )
 
         # tables.py

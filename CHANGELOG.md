@@ -1,5 +1,9 @@
 # Change log
 
+## 2.0.2 (2018-11-08)
+ - update maintenance.py to cleanup before source dist [#629](https://github.com/jieter/django-tables2/issues/629)
+ - publish as wheel to pypi by [@wtayyeb](https://github.com/wtayyeb)
+
 ## 2.0.2 (2018-10-22)
  - Make sure the value of the class attribute in `<th>` has consistent ordering (fixes [#627](https://github.com/jieter/django-tables2/issues/627))
  - Make sure that pagination block is available in template regardless of pagination status [#622](https://github.com/jieter/django-tables2/pull/622) by
