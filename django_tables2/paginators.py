@@ -40,12 +40,16 @@ class LazyPaginator(Paginator):
         >>> paginator.num_pages
         1000
 
-    Usage with SingleTableView::
+    Usage with `~.SingleTableView`::
 
         class UserListView(SingleTableView):
             table_class = UserTable
             table_data = User.objects.all()
             pagination_class = LazyPaginator
+
+    Or with `~.RequestConfig`::
+
+        RequestConfig(paginate={"paginator_class": LazyPaginator}).configure(table)
 
     .. versionadded :: 2.0.0
     """

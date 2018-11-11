@@ -23,6 +23,10 @@ class RequestConfig(object):
              - If `~django.core.paginator.PageNotAnInteger` is raised, show the first page.
              - If `~django.core.paginator.EmptyPage` is raised, show the last page.
 
+            For example, to use `~.LazyPaginator`::
+
+                RequestConfig(paginate={"paginator_class": LazyPaginator}).configure(table)
+
     """
 
     def __init__(self, request, paginate=True):
