@@ -17,7 +17,7 @@ setup(
     author_email="bradley.ayers@gmail.com",
     license="Simplified BSD",
     url="https://github.com/jieter/django-tables2/",
-    packages=find_packages(exclude=["tests.*", "tests", "example.*", "example"]),
+    packages=find_packages(exclude=["tests.*", "tests", "example.*", "example", "docs"]),
     include_package_data=True,  # declarations in MANIFEST.in
     install_requires=["Django>=1.11"],
     extras_require={"tablib": ["tablib"]},
