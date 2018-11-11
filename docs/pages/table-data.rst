@@ -39,8 +39,8 @@ option allows tables to be dynamically created based on a model::
     class Person(models.Model):
         first_name = models.CharField(max_length=200)
         last_name = models.CharField(max_length=200)
-        user = models.ForeignKey('auth.User')
-        dob = models.DateField()
+        user = models.ForeignKey('auth.User', null=True, on_delete=models.CASCADE)
+        birth_date = models.DateField()
 
     # tables.py
     import django_tables2 as tables
