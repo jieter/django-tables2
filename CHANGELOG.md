@@ -1,8 +1,8 @@
 # Change log
 
-## 2.0.2 (2018-11-08)
- - update maintenance.py to cleanup before source dist [#629](https://github.com/jieter/django-tables2/issues/629)
- - publish as wheel to pypi by [@wtayyeb](https://github.com/wtayyeb)
+## 2.0.3 (2018-11-11)
+ - Improvements in packaging and publishing helper scripts reducing the package size considerably [#630](https://github.com/jieter/django-tables2/pull/630) by [@wtayyeb](https://github.com/wtayyeb) (fixes [#629](https://github.com/jieter/django-tables2/issues/629))
+ - Documentation improvements fixing [#625](https://github.com/jieter/django-tables2/issues/625), [#631](https://github.com/jieter/django-tables2/issues/631)
 
 ## 2.0.2 (2018-10-22)
  - Make sure the value of the class attribute in `<th>` has consistent ordering (fixes [#627](https://github.com/jieter/django-tables2/issues/627))
