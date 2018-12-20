@@ -6,12 +6,13 @@ import copy
 import itertools
 
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
-from django.test import SimpleTestCase, override_settings
+from django.test import SimpleTestCase, TestCase, override_settings
 from django.utils.translation import gettext_lazy, override
 
 import django_tables2 as tables
 from django_tables2.tables import DeclarativeColumnsMetaclass
 
+from .app.models import Occupation, Person, Region
 from .utils import build_request, parse
 
 request = build_request("/")
@@ -570,7 +571,7 @@ class BoundColumnTest(SimpleTestCase):
         self.assertEqual("FalsyObject1", table.columns[0].attrs["td"]["data-column-name"])
 
 
-class AsValuesTest(SimpleTestCase):
+class AsValuesTest(TestCase):
     AS_VALUES_DATA = [
         {"name": "Adrian", "country": "Australia"},
         {"name": "Adrian", "country": "Brazil"},
@@ -668,6 +669,22 @@ class AsValuesTest(SimpleTestCase):
         ]
 
         self.assertEqual(list(Table(self.AS_VALUES_DATA).as_values()), expected)
+
+    def test_as_values_accessor_relation(self):
+        programmer = Occupation.objects.create(name="Programmer")
+        henk = Person.objects.create(
+            first_name="Henk", last_name="Voornaman", occupation=programmer
+        )
+
+        class Table(tables.Table):
+            name = tables.Column(accessor=tables.A("first_name"))
+            occupation = tables.Column(
+                accessor=tables.A("occupation__name"), verbose_name="Occupation"
+            )
+
+        expected = [["First name", "Occupation"], ["Henk", "Programmer"]]
+
+        self.assertEqual(list(Table(Person.objects.all()).as_values()), expected)
 
 
 class RowAttrsTest(SimpleTestCase):
