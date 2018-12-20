@@ -679,7 +679,7 @@ class AsValuesTest(TestCase):
         class Table(tables.Table):
             name = tables.Column(accessor=tables.A("first_name"))
             occupation = tables.Column(
-                accessor=tables.A("occupation__name"), verbose_name="Occupation"
+                accessor=tables.A("occupation.name"), verbose_name="Occupation"
             )
 
         expected = [["First name", "Occupation"], ["Henk", "Programmer"]]

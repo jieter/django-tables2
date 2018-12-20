@@ -99,7 +99,7 @@ class TableExportTest(TestCase):
 
         class AccessorRelationTable(AccessorTable):
             occupation = tables.Column(
-                accessor=tables.A("occupation__name"), verbose_name="Occupation"
+                accessor=tables.A("occupation.name"), verbose_name="Occupation"
             )
 
         table = AccessorRelationTable(Person.objects.all())
