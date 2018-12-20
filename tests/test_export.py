@@ -22,12 +22,14 @@ except ImproperlyConfigured:
 
 
 NAMES = [("Yildiz", "van der Kuil"), ("Lindi", "Hakvoort"), ("Gerardo", "Castelein")]
+NAMES_LIST_OF_DICTS = [
+    {"first_name": first_name, "last_name": last_name} for first_name, last_name in NAMES
+]
 
 CSV_SEP = "\r\n"
 
-EXPECTED_CSV = (
-    CSV_SEP.join(("First name,Surname",) + tuple(",".join(name) for name in NAMES)) + CSV_SEP
-)
+EXPECTED_CSV_DATA = tuple(",".join(name) for name in NAMES)
+EXPECTED_CSV = CSV_SEP.join(("First name,Surname",) + EXPECTED_CSV_DATA) + CSV_SEP
 
 EXPECTED_JSON = list(
     [{"First name": first_name, "Surname": last_name} for first_name, last_name in NAMES]
@@ -37,6 +39,11 @@ EXPECTED_JSON = list(
 class Table(tables.Table):
     first_name = tables.Column()
     last_name = tables.Column()
+
+
+class AccessorTable(tables.Table):
+    given_name = tables.Column(accessor=tables.A("first_name"))
+    surname = tables.Column(accessor=tables.A("last_name"))
 
 
 class View(ExportMixin, tables.SingleTableView):
@@ -75,6 +82,27 @@ class TableExportTest(TestCase):
         table = Table(Person.objects.all())
         exporter = TableExport("csv", table)
         expected = ("First name,Last name,Occupation", "Jan,Coen,")
+        self.assertEqual(exporter.export(), CSV_SEP.join(expected) + CSV_SEP)
+
+    def test_export_accessors_list_of_dicts(self):
+        table = AccessorTable(NAMES_LIST_OF_DICTS)
+
+        exporter = TableExport("csv", table)
+        expected = ("Given name,Surname",) + EXPECTED_CSV_DATA
+        self.assertEqual(exporter.export(), CSV_SEP.join(expected) + CSV_SEP)
+
+    def test_export_accessors_queryset(self):
+        for first_name, last_name in NAMES:
+            Person.objects.create(first_name=first_name, last_name=last_name)
+
+        class AccessorTable(tables.Table):
+            given_name = tables.Column(accessor=tables.A("first_name"), verbose_name="Given name")
+            surname = tables.Column(accessor=tables.A("last_name"))
+
+        table = AccessorTable(Person.objects.all())
+
+        exporter = TableExport("csv", table)
+        expected = ("Given name,Surname",) + EXPECTED_CSV_DATA
         self.assertEqual(exporter.export(), CSV_SEP.join(expected) + CSV_SEP)
 
 
