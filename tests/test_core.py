@@ -12,7 +12,7 @@ from django.utils.translation import gettext_lazy, override
 import django_tables2 as tables
 from django_tables2.tables import DeclarativeColumnsMetaclass
 
-from .app.models import Occupation, Person, Region
+from .app.models import Occupation, Person
 from .utils import build_request, parse
 
 request = build_request("/")
@@ -682,7 +682,7 @@ class AsValuesTest(TestCase):
                 accessor=tables.A("occupation.name"), verbose_name="Occupation"
             )
 
-        expected = [["First name", "Occupation"], ["Henk", "Programmer"]]
+        expected = [["First name", "Occupation"], [henk.first_name, programmer.name]]
 
         self.assertEqual(list(Table(Person.objects.all()).as_values()), expected)
 
