@@ -42,7 +42,7 @@ class Table(tables.Table):
 
 
 class AccessorTable(tables.Table):
-    given_name = tables.Column(accessor=tables.A("first_name"))
+    given_name = tables.Column(accessor=tables.A("first_name"), verbose_name="Given name")
     surname = tables.Column(accessor=tables.A("last_name"))
 
 
@@ -92,17 +92,22 @@ class TableExportTest(TestCase):
         self.assertEqual(exporter.export(), CSV_SEP.join(expected) + CSV_SEP)
 
     def test_export_accessors_queryset(self):
+        programmer = Occupation.objects.create(name="Programmer")
+
         for first_name, last_name in NAMES:
-            Person.objects.create(first_name=first_name, last_name=last_name)
+            Person.objects.create(first_name=first_name, last_name=last_name, occupation=programmer)
 
-        class AccessorTable(tables.Table):
-            given_name = tables.Column(accessor=tables.A("first_name"), verbose_name="Given name")
-            surname = tables.Column(accessor=tables.A("last_name"))
+        class AccessorRelationTable(AccessorTable):
+            occupation = tables.Column(
+                accessor=tables.A("occupation__name"), verbose_name="Occupation"
+            )
 
-        table = AccessorTable(Person.objects.all())
+        table = AccessorRelationTable(Person.objects.all())
 
         exporter = TableExport("csv", table)
-        expected = ("Given name,Surname",) + EXPECTED_CSV_DATA
+        expected = ("Given name,Surname,Occupation",) + tuple(
+            row + "," + programmer.name for row in EXPECTED_CSV_DATA
+        )
         self.assertEqual(exporter.export(), CSV_SEP.join(expected) + CSV_SEP)
 
 
