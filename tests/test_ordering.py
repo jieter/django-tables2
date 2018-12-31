@@ -21,6 +21,14 @@ MEMORY_DATA = [
     {"i": 3, "alpha": "c", "beta": "a"},
 ]
 
+PEOPLE = [
+    {"first_name": "Bradley", "last_name": "Ayers"},
+    {"first_name": "Bradley", "last_name": "Fake"},
+    {"first_name": "Chris", "last_name": "Doble"},
+    {"first_name": "Davina", "last_name": "Adisusila"},
+    {"first_name": "Ross", "last_name": "Ayers"},
+]
+
 
 class UnorderedTable(tables.Table):
     i = tables.Column()
@@ -125,27 +133,17 @@ class OrderingTest(TestCase):
         table = OrderedTable(data, order_by="beta")
         self.assertEqual(table.rows[0].get_cell("beta"), [])
 
-    def get_people(self):
-        brad = {"first_name": "Bradley", "last_name": "Ayers"}
-        brad2 = {"first_name": "Bradley", "last_name": "Fake"}
-        chris = {"first_name": "Chris", "last_name": "Doble"}
-        davina = {"first_name": "Davina", "last_name": "Adisusila"}
-        ross = {"first_name": "Ross", "last_name": "Ayers"}
-
-        return [brad, brad2, chris, davina, ross]
-
     def test_multi_column_ordering_by_table(self):
         class PersonTable(tables.Table):
             first_name = tables.Column()
             last_name = tables.Column()
 
-        people = self.get_people()
-        brad, brad2, chris, davina, ross = people
+        brad, brad2, chris, davina, ross = PEOPLE
 
-        table = PersonTable(people, order_by=("first_name", "last_name"))
+        table = PersonTable(PEOPLE, order_by=("first_name", "last_name"))
         self.assertEqual([brad, brad2, chris, davina, ross], [r.record for r in table.rows])
 
-        table = PersonTable(people, order_by=("first_name", "-last_name"))
+        table = PersonTable(PEOPLE, order_by=("first_name", "-last_name"))
         self.assertEqual([brad2, brad, chris, davina, ross], [r.record for r in table.rows])
 
     def test_multi_column_ordering_by_column(self):
@@ -153,18 +151,17 @@ class OrderingTest(TestCase):
         class PersonTable(tables.Table):
             name = tables.Column(order_by=("first_name", "last_name"))
 
-        people = self.get_people()
-        brad, brad2, chris, davina, ross = people
+        brad, brad2, chris, davina, ross = PEOPLE
 
         # add 'name' key for each person.
-        for person in people:
+        for person in PEOPLE:
             person["name"] = "{p[first_name]} {p[last_name]}".format(p=person)
         self.assertEqual(brad["name"], "Bradley Ayers")
 
-        table = PersonTable(people, order_by="name")
+        table = PersonTable(PEOPLE, order_by="name")
         self.assertEqual([brad, brad2, chris, davina, ross], [r.record for r in table.rows])
 
-        table = PersonTable(people, order_by="-name")
+        table = PersonTable(PEOPLE, order_by="-name")
         self.assertEqual([ross, davina, chris, brad2, brad], [r.record for r in table.rows])
 
     def test_ordering_by_custom_field(self):
@@ -172,7 +169,7 @@ class OrderingTest(TestCase):
         When defining a custom field in a table, as name=tables.Column() with
         methods to render and order render_name and order_name, sorting by this
         column causes an error if the custom field is not in last position.
-        (issue #413)
+        https://github.com/jieter/django-tables2/issues/413
         """
 
         Person.objects.create(first_name="Alice", last_name="Beta")
@@ -186,6 +183,10 @@ class OrderingTest(TestCase):
             last_name = tables.Column()
             full_name = tables.Column()
 
+            class Meta:
+                model = Person
+                fields = ("first_name", "last_name", "full_name")
+
             def render_full_name(self, record):
                 return record.last_name + " " + record.first_name
 
@@ -194,10 +195,6 @@ class OrderingTest(TestCase):
                     full_name=Concat(F("last_name"), Value(" "), F("first_name"))
                 ).order_by(("-" if is_descending else "") + "full_name")
                 return queryset, True
-
-            class Meta:
-                model = Person
-                fields = ("first_name", "last_name", "full_name")
 
         table = PersonTable(Person.objects.all())
         request = build_request("/?sort=full_name&sort=first_name")
@@ -229,12 +226,15 @@ class OrderingTest(TestCase):
         ]
         table = Table(data, order_by=("-name", "-country"))
 
-        self.assertEqual(table.rows[0].get_cell("name"), "Bassie")
-        self.assertEqual(table.rows[1].get_cell("name"), "Audrey")
-        self.assertEqual(table.rows[2].get_cell("name"), "Adrian")
-        self.assertEqual(table.rows[2].get_cell("country"), "Brazil")
-        self.assertEqual(table.rows[3].get_cell("name"), "Adrian")
-        self.assertEqual(table.rows[3].get_cell("country"), "Australia")
+        self.assertEqual(
+            [(row.get_cell("name"), row.get_cell("country")) for row in table.rows],
+            [
+                ("Bassie", "Belgium"),
+                ("Audrey", "Chile"),
+                ("Adrian", "Brazil"),
+                ("Adrian", "Australia"),
+            ],
+        )
 
     def test_table_ordering_attributes(self):
         class Table(tables.Table):
