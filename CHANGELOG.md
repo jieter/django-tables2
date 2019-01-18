@@ -328,7 +328,7 @@ _Full disclosure: as of april 1st, 2017, I am an employee of [Zostera](http://zo
 - Fix bug in retrieving `field.verbose_name` under Django 1.8.
 
 ## v1.0.3
-- Remove `setup.cfg` as PyPI doesn't actually support it, instead it is a distutils2 thing that is been discontinued.
+- Remove `setup.cfg` as PyPI does not actually support it, instead it is a distutils2 thing that is been discontinued.
 
 ## v1.0.2
 - Add `setup.cfg` to declare `README.md` for PyPI.
@@ -483,7 +483,7 @@ _Full disclosure: as of april 1st, 2017, I am an employee of [Zostera](http://zo
    - header background image to support more than 2 rows of text
 
 ## v0.8.3
- - Fixed stupid import mistake. Tests didn't pick it up due to them ignoring `ImportError`.
+ - Fixed stupid import mistake. Tests did not pick it up due to them ignoring `ImportError`.
 
 ## v0.8.2
  - `SingleTableView` now inherits from `ListView` which enables automatic
@@ -509,7 +509,7 @@ _Full disclosure: as of april 1st, 2017, I am an employee of [Zostera](http://zo
    exception being raised
  - `Http404` exceptions are no longer raised during a call to `Table.paginate()`,
    instead it now occurs when `Table.page` is accessed
- - Fixed bug where a table couldn't be rendered more than once if it was paginated.
+ - Fixed bug where a table could not be rendered more than once if it was paginated.
  - Accessing `Table.page` now returns a new page every time, rather than reusing
    a single object
 
