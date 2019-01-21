@@ -57,15 +57,18 @@ class SingleTableViewTest(TestCase):
         self.assertEqual(table.paginator.per_page, 1)
 
     def test_should_support_default_pagination(self):
+        for i in range(30):
+            Region.objects.create(name="region {}".format(i))
+
         class PaginateDefault(tables.SingleTableView):
             table_class = SimpleTable
             model = Region
-            table_data = MEMORY_DATA
 
         response = PaginateDefault.as_view()(build_request())
         table = response.context_data["table"]
         self.assertEqual(table.paginator.per_page, 25)
-        self.assertEqual(len(table.page), 4)
+        self.assertEqual(table.paginator.num_pages, 2)
+        self.assertEqual(len(table.page), 25)
 
     def test_should_support_default_pagination_with_table_options(self):
         class Table(tables.Table):
