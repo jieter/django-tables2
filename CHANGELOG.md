@@ -1,5 +1,9 @@
 # Change log
 
+## 2.0.4 (2019-01-21)
+ - The `ValueError` raised if the QuerySet passed to a table instance did not match the value declared in `Meta.model` is now turned into a warning (fixes [#643](https://github.com/jieter/django-tables2/issues/643))
+ - Make sure the templates do not raise errors when `thead`/`tfoot` attributes are not defined [#624](https://github.com/jieter/django-tables2/pull/624) by [@intiocean](https://github.com/intiocean)
+
 ## 2.0.3 (2018-11-11)
  - Improvements in packaging and publishing helper scripts reducing the package size considerably [#630](https://github.com/jieter/django-tables2/pull/630) by [@wtayyeb](https://github.com/wtayyeb) (fixes [#629](https://github.com/jieter/django-tables2/issues/629))
  - Documentation improvements fixing [#625](https://github.com/jieter/django-tables2/issues/625), [#631](https://github.com/jieter/django-tables2/issues/631)
