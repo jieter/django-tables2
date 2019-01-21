@@ -68,13 +68,13 @@ class SingleTableViewTest(TestCase):
             template_name = "minimal.html"
 
         response = PaginateDefault.as_view()(build_request())
-        print(response.render())
+        response.render()
         table = response.context_data["table"]
         self.assertEqual(table.paginator.per_page, 25)
         self.assertEqual(table.paginator.num_pages, 3)
         self.assertEqual(len(table.page), 25)
 
-        self.assertEqual(response.content.decode().count("<tr>"), 25 + 1)
+        self.assertEqual(response.content.decode("utf8").count("<tr>"), 25 + 1)
 
     def test_should_support_default_pagination_with_table_options(self):
         class Table(tables.Table):
