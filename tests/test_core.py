@@ -145,25 +145,25 @@ class CoreTest(SimpleTestCase):
             class Meta:
                 attrs = {}
 
-        self.assertEqual({}, TestTable([]).attrs)
+        self.assertEqual(TestTable([]).attrs.as_html(), "")
 
         class TestTable2(tables.Table):
             class Meta:
                 attrs = {"a": "b"}
 
-        self.assertEqual({"a": "b"}, TestTable2([]).attrs)
+        self.assertEqual(TestTable2([]).attrs.as_html(), 'a="b"')
 
         class TestTable3(tables.Table):
             pass
 
-        self.assertEqual({}, TestTable3([]).attrs)
-        self.assertEqual({"a": "b"}, TestTable3([], attrs={"a": "b"}).attrs)
+        self.assertEqual(TestTable3([]).attrs.as_html(), "")
+        self.assertEqual(TestTable3([], attrs={"a": "b"}).attrs.as_html(), 'a="b"')
 
         class TestTable4(tables.Table):
             class Meta:
                 attrs = {"a": "b"}
 
-        self.assertEqual({"c": "d"}, TestTable4([], attrs={"c": "d"}).attrs)
+        self.assertEqual(TestTable4([], attrs={"c": "d"}).attrs.as_html(), 'c="d"')
 
     def test_attrs_support_computed_values(self):
         counter = itertools.count()
@@ -181,7 +181,7 @@ class CoreTest(SimpleTestCase):
             pass
 
         table = Table({})
-        self.assertEqual(table.attrs, {"class": "table-compact"})
+        self.assertEqual(table.attrs.as_html(), 'class="table-compact"')
 
     def test_table_attrs_thead_tbody_tfoot(self):
         class Table(tables.Table):
