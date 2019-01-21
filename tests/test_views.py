@@ -20,6 +20,7 @@ MEMORY_DATA = [
 class SimpleTable(tables.Table):
     class Meta:
         model = Region
+        exclude = ("id",)
 
 
 class SimpleView(tables.SingleTableView):
@@ -57,18 +58,23 @@ class SingleTableViewTest(TestCase):
         self.assertEqual(table.paginator.per_page, 1)
 
     def test_should_support_default_pagination(self):
-        for i in range(30):
-            Region.objects.create(name="region {}".format(i))
+        add_records = 50
+        for i in range(1, add_records + 1):
+            Region.objects.create(name="region {:02d} / {}".format(i, add_records))
 
         class PaginateDefault(tables.SingleTableView):
             table_class = SimpleTable
             model = Region
+            template_name = "minimal.html"
 
         response = PaginateDefault.as_view()(build_request())
+        print(response.render())
         table = response.context_data["table"]
         self.assertEqual(table.paginator.per_page, 25)
-        self.assertEqual(table.paginator.num_pages, 2)
+        self.assertEqual(table.paginator.num_pages, 3)
         self.assertEqual(len(table.page), 25)
+
+        self.assertEqual(response.content.decode().count("<tr>"), 25 + 1)
 
     def test_should_support_default_pagination_with_table_options(self):
         class Table(tables.Table):
