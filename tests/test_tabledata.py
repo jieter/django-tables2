@@ -125,7 +125,7 @@ class TableQuerysetDataTest(TestCase):
             class Meta:
                 model = Person
 
-        with warnings.catch_warnings(record=True) as w:
+        with warnings.catch_warnings(record=True):
             MyTable(Region.objects.all())
 
     def test_queryset_union(self):
