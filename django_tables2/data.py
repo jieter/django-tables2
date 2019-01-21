@@ -1,3 +1,5 @@
+import warnings
+
 from django.utils.functional import cached_property
 
 from .utils import OrderBy, OrderByTuple, segment
@@ -160,8 +162,8 @@ class TableQuerysetData(TableData):
     def set_table(self, table):
         super(TableQuerysetData, self).set_table(table)
         if self.model and getattr(table._meta, "model", None) and self.model != table._meta.model:
-            raise ValueError(
-                "table data is of type {} but {} is specified in Table.Meta.model".format(
+            warnings.warn(
+                "Table data is of type {} but {} is specified in Table.Meta.model".format(
                     self.model, table._meta.model
                 )
             )

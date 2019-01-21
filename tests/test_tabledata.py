@@ -1,6 +1,8 @@
 # coding: utf-8
 from __future__ import unicode_literals
 
+import warnings
+
 from django.test import TestCase
 
 from django_tables2 import Table
@@ -123,7 +125,7 @@ class TableQuerysetDataTest(TestCase):
             class Meta:
                 model = Person
 
-        with self.assertRaises(ValueError):
+        with warnings.catch_warnings(record=True) as w:
             MyTable(Region.objects.all())
 
     def test_queryset_union(self):
