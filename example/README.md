@@ -7,7 +7,8 @@ This example project only supports the latest version of Django.
 ```
 git clone https://github.com/bradleyayers/django-tables2.git
 
-pip install -r requirements.pip
+cd django-tables2/example
+pip install -r requirements.txt
 python manage.py migrate
 python manage.py loaddata app/fixtures/initial_data.json
 python manage.py runserver
