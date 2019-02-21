@@ -1,7 +1,10 @@
 # coding: utf-8
 
+from unittest import skipUnless
+
 from django.core.exceptions import ImproperlyConfigured
 from django.test import TestCase
+from django.utils import six
 from django.views.generic.base import TemplateView
 
 import django_tables2 as tables
@@ -143,6 +146,28 @@ class SingleTableViewTest(TestCase):
         table = response.context_data["table"]
         self.assertEqual(table.paginator.per_page, 2)
 
+    def test_with_custom_paginator(self):
+        # defined in paginator_class
+        class View(tables.SingleTableView):
+            table_class = tables.Table
+            queryset = Region.objects.all()
+            paginator_class = tables.LazyPaginator
+
+        response = View.as_view()(build_request())
+        self.assertIsInstance(response.context_data["table"].paginator, tables.LazyPaginator)
+
+        # defined in table_pagination
+        class View(tables.SingleTableView):
+            table_class = tables.Table
+            queryset = Region.objects.all()
+            table_pagination = {"paginator_class": tables.LazyPaginator}
+            paginate_orphans = 10
+
+        response = View.as_view()(build_request())
+        paginator = response.context_data["table"].paginator
+        self.assertIsInstance(paginator, tables.LazyPaginator)
+        self.assertEqual(paginator.orphans, 10)
+
     def test_should_pass_kwargs_to_table_constructor(self):
         class PassKwargsView(SimpleView):
             table_data = []
@@ -249,27 +274,35 @@ class SingleTableMixinTest(TestCase):
 
         View.as_view()(build_request())
 
-    def test_with_custom_paginator(self):
-        # defined in paginator_class
-        class View(tables.SingleTableView):
-            table_class = tables.Table
-            queryset = Region.objects.all()
-            paginator_class = tables.LazyPaginator
+    @skipUnless(six.PY3, "django_filter==2.1.0 does not support PY2")
+    def test_should_paginate_by_default(self):
+        """
+        When mixing SingleTableMixin with FilterView, the table should paginate by default
+        """
+        import django_filters as filters
+        from django_filters.views import FilterView
 
-        response = View.as_view()(build_request())
-        self.assertIsInstance(response.context_data["table"].paginator, tables.LazyPaginator)
+        add_records = 60
+        for i in range(1, add_records + 1):
+            Region.objects.create(name="region {:02d} / {}".format(i, add_records))
 
-        # defined in table_pagination
-        class View(tables.SingleTableView):
-            table_class = tables.Table
-            queryset = Region.objects.all()
-            table_pagination = {"paginator_class": tables.LazyPaginator}
-            paginate_orphans = 10
+        class RegionFilter(filters.FilterSet):
+            name = filters.CharFilter(lookup_expr="icontains")
 
-        response = View.as_view()(build_request())
-        paginator = response.context_data["table"].paginator
-        self.assertIsInstance(paginator, tables.LazyPaginator)
-        self.assertEqual(paginator.orphans, 10)
+        class PaginateDefault(tables.SingleTableMixin, FilterView):
+            table_class = SimpleTable
+            model = Region
+            filterset_class = RegionFilter
+            template_name = "minimal.html"
+
+        response = PaginateDefault.as_view()(build_request())
+        response.render()
+        table = response.context_data["table"]
+        self.assertEqual(table.paginator.per_page, 25)
+        self.assertEqual(table.paginator.num_pages, 3)
+        self.assertEqual(len(table.page), 25)
+
+        self.assertEqual(response.content.decode("utf8").count("<tr>"), 25 + 1)
 
 
 class TableA(tables.Table):
