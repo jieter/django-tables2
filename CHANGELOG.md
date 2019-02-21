@@ -1,5 +1,8 @@
 # Change log
 
+## 2.0.5 (2019-02-21)
+ - Fixes issue with wrong time format for TimeColumn [#650](https://github.com/jieter/django-tables2/pull/650) by [@IgorCode](https://github.com/IgorCode)
+ 
 ## 2.0.4 (2019-01-21)
  - The `ValueError` raised if the QuerySet passed to a table instance did not match the value declared in `Meta.model` is now turned into a warning (fixes [#643](https://github.com/jieter/django-tables2/issues/643))
  - Make sure the templates do not raise errors when `thead`/`tfoot` attributes are not defined [#624](https://github.com/jieter/django-tables2/pull/624) by [@intiocean](https://github.com/intiocean)
