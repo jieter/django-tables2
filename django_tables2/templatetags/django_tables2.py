@@ -262,7 +262,7 @@ def table_page_range(page, paginator):
     if range_start < 1:
         range_start = 1
     range_end = range_start + page_range
-    if range_end >= num_pages:
+    if range_end > num_pages:
         range_start = num_pages - page_range + 1
         range_end = num_pages + 1
 
