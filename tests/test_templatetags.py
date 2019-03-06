@@ -276,6 +276,20 @@ class TablePageRangeTest(SimpleTestCase):
             table_page_range(paginator.page(100), paginator),
             [1, "...", 93, 94, 95, 96, 97, 98, 99, 100],
         )
+        
+    def test_table_page_range_7(self):
+        paginator = Paginator(range(1, 700), 7)
+        self.assertEqual(
+            table_page_range(paginator.page(1), paginator), [1, 2, 3, 4, 5, "...", 100]
+        )
+        self.assertEqual(
+            table_page_range(paginator.page(96), paginator),
+            [1, "...", 95, 96, 97, "...", 100],
+        )
+        self.assertEqual(
+            table_page_range(paginator.page(100), paginator),
+            [1, "...", 96, 97, 98, 99, 100],
+        )
 
     def test_table_page_range_lazy(self):
         paginator = LazyPaginator(range(1, 1000), 10)
