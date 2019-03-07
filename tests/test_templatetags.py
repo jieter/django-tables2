@@ -276,7 +276,7 @@ class TablePageRangeTest(SimpleTestCase):
             table_page_range(paginator.page(100), paginator),
             [1, "...", 93, 94, 95, 96, 97, 98, 99, 100],
         )
-        
+
     @override_settings(DJANGO_TABLES2_PAGE_RANGE=7)
     def test_table_page_range_7(self):
         paginator = Paginator(range(1, 700), 7)
