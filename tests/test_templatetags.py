@@ -7,6 +7,7 @@ from django.template import Context, RequestContext, Template, TemplateSyntaxErr
 from django.test import SimpleTestCase, TestCase, override_settings
 from django.utils import six
 from django.utils.six.moves.urllib.parse import parse_qs
+from django.test.utils import override_settings
 
 from django_tables2 import LazyPaginator, RequestConfig, Table, TemplateColumn
 from django_tables2.export import ExportMixin
@@ -277,6 +278,7 @@ class TablePageRangeTest(SimpleTestCase):
             [1, "...", 93, 94, 95, 96, 97, 98, 99, 100],
         )
         
+    @override_settings(DJANGO_TABLES2_PAGE_RANGE=7)
     def test_table_page_range_7(self):
         paginator = Paginator(range(1, 700), 7)
         self.assertEqual(
