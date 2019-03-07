@@ -7,7 +7,6 @@ from django.template import Context, RequestContext, Template, TemplateSyntaxErr
 from django.test import SimpleTestCase, TestCase, override_settings
 from django.utils import six
 from django.utils.six.moves.urllib.parse import parse_qs
-from django.test.utils import override_settings
 
 from django_tables2 import LazyPaginator, RequestConfig, Table, TemplateColumn
 from django_tables2.export import ExportMixin
