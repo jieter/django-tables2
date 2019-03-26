@@ -115,7 +115,9 @@ class BoundRow(object):
         """
         cssClass = self.get_even_odd_css_class()
 
-        row_attrs = computed_values(self._table.row_attrs, kwargs={"record": self._record})
+        row_attrs = computed_values(
+            self._table.row_attrs, kwargs=dict(table=self._table, record=self._record)
+        )
 
         if "class" in row_attrs and row_attrs["class"]:
             row_attrs["class"] += " " + cssClass

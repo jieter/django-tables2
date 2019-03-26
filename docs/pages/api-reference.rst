@@ -105,6 +105,7 @@ API Reference
         row_attrs (`dict`): Add custom html attributes to the table rows.
             Allows custom HTML attributes to be specified which will be added
             to the ``<tr>`` tag of the rendered table.
+            Optional keyword arguments are `table` and `record`.
 
             This can be used to add each record's primary key to each row::
 
@@ -115,8 +116,6 @@ API Reference
 
                 # will result in
                 '<tr data-id="1">...</tr>'
-
-            .. versionadded:: 1.2.0
 
             .. note::
 

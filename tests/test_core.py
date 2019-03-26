@@ -694,7 +694,7 @@ class RowAttrsTest(SimpleTestCase):
             beta = tables.Column()
 
         table = Table(
-            MEMORY_DATA, row_attrs={"class": lambda record: "row-id-{}".format(record["i"])}
+            MEMORY_DATA, row_attrs={"class": lambda table, record: "row-id-{}".format(record["i"])}
         )
 
         self.assertEqual(table.rows[0].attrs, {"class": "row-id-2 even"})
