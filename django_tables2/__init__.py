@@ -22,7 +22,7 @@ from .paginators import LazyPaginator
 from .views import SingleTableMixin, SingleTableView, MultiTableMixin
 
 
-__version__ = "2.0.5"
+__version__ = "2.0.6"
 
 __all__ = (
     "Table",
