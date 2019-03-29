@@ -25,22 +25,6 @@ a hook that allows arbitrary attributes to be added to the ``<table>`` tag.
     >>> # renders to something like this:
     '<table class="mytable">...'
 
-Also every column gets a class attribute, which by default is the same as the
-column's label. Also, by default, odd rows' class is ``odd`` and even rows'
-class is ``even``. So rows of the ``SimpleTable()`` from previous example
-in django-tables2 default configuration will look like:
-
-.. sourcecode:: html
-
-    <tr class="odd">
-      <td class="id">...</td>
-      <td class="age">...</td>
-    </tr>
-    <tr class="even">
-      <td class="id">...</td>
-      <td class="age">...</td>
-    </tr>
-
 You can also specify ``attrs`` attribute when creating a column. ``attrs``
 is a dictionary which contains attributes which by default get rendered
 on various tags involved with rendering a column. You can read more about
