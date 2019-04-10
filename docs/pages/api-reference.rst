@@ -53,7 +53,7 @@ API Reference
 
         If you define a `class Meta` on a child of a table already having a
         `class Meta` defined, you need to specify the parent's `Meta` class as
-        the parent for the `class Meta in the child`::
+        the parent for the `class Meta` in the child::
 
             class PersonTable(table.Table):
                 class Meta:
