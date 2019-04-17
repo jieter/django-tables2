@@ -163,8 +163,8 @@ class TableQuerysetData(TableData):
         super(TableQuerysetData, self).set_table(table)
         if self.model and getattr(table._meta, "model", None) and self.model != table._meta.model:
             warnings.warn(
-                "Table data is of type {} but {} is specified in Table.Meta.model".format(
-                    self.model, table._meta.model
+                "Table data is of type {} but {} is specified in {}.Meta.model".format(
+                    self.model, table._meta.model, table.__class__
                 )
             )
 
