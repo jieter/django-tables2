@@ -15,7 +15,6 @@ script:
 
 matrix:
   include:
-    - { python: 2.7, env: TOXENV=py27-1.11 }
     - { python: 3.4, env: TOXENV=py34-1.11 }
     - { python: 3.4, env: TOXENV=py34-2.0 }
     - { python: 3.5, env: TOXENV=py35-1.11 }

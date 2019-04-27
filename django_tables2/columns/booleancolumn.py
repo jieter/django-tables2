@@ -1,8 +1,4 @@
-# coding: utf-8
-from __future__ import absolute_import, unicode_literals
-
 from django.db import models
-from django.utils import six
 from django.utils.html import escape, format_html
 
 from django_tables2.utils import AttributeDict, ucfirst
@@ -30,7 +26,7 @@ class BooleanColumn(Column):
     """
 
     def __init__(self, null=False, yesno="✔,✘", **kwargs):
-        self.yesno = yesno.split(",") if isinstance(yesno, six.string_types) else tuple(yesno)
+        self.yesno = yesno.split(",") if isinstance(yesno, str) else tuple(yesno)
         if not null:
             kwargs["empty_values"] = ()
         super(BooleanColumn, self).__init__(**kwargs)
@@ -51,7 +47,7 @@ class BooleanColumn(Column):
     def render(self, value, record, bound_column):
         value = self._get_bool_value(record, value, bound_column)
         text = self.yesno[int(not value)]
-        attrs = {"class": six.text_type(value).lower()}
+        attrs = {"class": str(value).lower()}
         attrs.update(self.attrs.get("span", {}))
 
         return format_html("<span {}>{}</span>", AttributeDict(attrs).as_html(), escape(text))

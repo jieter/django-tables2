@@ -1,8 +1,9 @@
+from io import StringIO
+
 import lxml.etree
 import lxml.html
 from django.core.handlers.wsgi import WSGIRequest
 from django.test.client import FakePayload
-from django.utils import six
 
 
 def parse(html):
@@ -39,7 +40,7 @@ def build_request(uri="/", user=None):
             "wsgi.version": (1, 0),
             "wsgi.url_scheme": "http",
             "wsgi.input": FakePayload(b""),
-            "wsgi.errors": six.StringIO(),
+            "wsgi.errors": StringIO(),
             "wsgi.multiprocess": True,
             "wsgi.multithread": False,
             "wsgi.run_once": False,

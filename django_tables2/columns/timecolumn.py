@@ -1,6 +1,3 @@
-# coding: utf-8
-from __future__ import absolute_import, unicode_literals
-
 from django.db import models
 
 from django_tables2.utils import ucfirst
@@ -25,7 +22,7 @@ class TimeColumn(TemplateColumn):
         if format is None:
             format = "TIME_FORMAT"
         template = '{{ value|date:"%s"|default:default }}' % format
-        super(TimeColumn, self).__init__(template_code=template, *args, **kwargs)
+        super().__init__(template_code=template, *args, **kwargs)
 
     @classmethod
     def from_field(cls, field):

@@ -1,4 +1,3 @@
-# coding: utf-8
 from itertools import count
 
 from django.db import models

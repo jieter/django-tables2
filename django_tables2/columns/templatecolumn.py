@@ -1,9 +1,5 @@
-# coding: utf-8
-from __future__ import absolute_import, unicode_literals
-
 from django.template import Context, Template
 from django.template.loader import get_template
-from django.utils import six
 from django.utils.html import strip_tags
 
 from .base import Column, library
@@ -82,7 +78,4 @@ class TemplateColumn(Column):
         the rendered template with `django.utils.html.strip_tags` applied.
         """
         html = super(TemplateColumn, self).value(**kwargs)
-        if isinstance(html, six.string_types):
-            return strip_tags(html)
-        else:
-            return html
+        return strip_tags(html) if isinstance(html, str) else html

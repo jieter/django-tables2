@@ -1,12 +1,9 @@
-# coding: utf-8
-from __future__ import unicode_literals
+from urllib.parse import parse_qs
 
 from django.core.exceptions import ImproperlyConfigured
 from django.core.paginator import Paginator
 from django.template import Context, RequestContext, Template, TemplateSyntaxError
 from django.test import SimpleTestCase, TestCase, override_settings
-from django.utils import six
-from django.utils.six.moves.urllib.parse import parse_qs
 
 from django_tables2 import LazyPaginator, RequestConfig, Table, TemplateColumn
 from django_tables2.export import ExportMixin
@@ -145,7 +142,7 @@ class RenderTableTagTest(TestCase):
         td = [[td.text for td in tr.findall("td")] for tr in root.findall(".//tbody/tr")]
         db = []
         for region in Region.objects.all():
-            db.append([six.text_type(region.id), region.name, "—"])
+            db.append([str(region.id), region.name, "—"])
         self.assertEqual(td, db)
 
 

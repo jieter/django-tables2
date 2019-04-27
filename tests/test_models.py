@@ -1,6 +1,3 @@
-# coding: utf-8
-from __future__ import unicode_literals
-
 from collections import defaultdict
 
 from django.contrib.contenttypes.models import ContentType
@@ -8,7 +5,6 @@ from django.db import models
 from django.db.models.functions import Length
 from django.template import Context, Template
 from django.test import TestCase
-from django.utils import six
 from django.utils.translation import override as translation_override
 
 import django_tables2 as tables
@@ -96,7 +92,7 @@ class ModelsTest(TestCase):
         class Table(tables.Table):
             class Meta:
                 model = Person
-                fields = (six.text_type("first_name"),)
+                fields = (str("first_name"),)
 
         table = Table(Person.objects.all())
         self.assertEqual(table.rows[0].get_cell("first_name"), "Bradley")

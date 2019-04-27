@@ -1,7 +1,6 @@
-from __future__ import unicode_literals
 
 from django.core.paginator import EmptyPage, Page, PageNotAnInteger, Paginator
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 
 class LazyPaginator(Paginator):

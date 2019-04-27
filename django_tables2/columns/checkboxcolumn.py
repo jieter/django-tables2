@@ -1,6 +1,3 @@
-# coding: utf-8
-from __future__ import absolute_import, unicode_literals
-
 from django.utils.safestring import mark_safe
 
 from django_tables2.utils import Accessor, AttributeDict

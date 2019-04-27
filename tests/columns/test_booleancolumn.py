@@ -1,6 +1,3 @@
-# coding: utf-8
-from __future__ import unicode_literals
-
 from unittest import skipIf
 
 from django import VERSION as django_version

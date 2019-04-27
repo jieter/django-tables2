@@ -1,6 +1,4 @@
-# coding: utf-8
 """Test the core table functionality."""
-from __future__ import absolute_import, unicode_literals
 
 import copy
 import itertools

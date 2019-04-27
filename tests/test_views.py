@@ -1,13 +1,10 @@
-# coding: utf-8
-
-from unittest import skipUnless
-
 from django.core.exceptions import ImproperlyConfigured
 from django.test import TestCase
-from django.utils import six
 from django.views.generic.base import TemplateView
 
+import django_filters as filters
 import django_tables2 as tables
+from django_filters.views import FilterView
 
 from .app.models import Person, Region
 from .utils import build_request
@@ -274,13 +271,10 @@ class SingleTableMixinTest(TestCase):
 
         View.as_view()(build_request())
 
-    @skipUnless(six.PY3, "django_filter==2.1.0 does not support PY2")
     def test_should_paginate_by_default(self):
         """
         When mixing SingleTableMixin with FilterView, the table should paginate by default
         """
-        import django_filters as filters
-        from django_filters.views import FilterView
 
         add_records = 60
         for i in range(1, add_records + 1):

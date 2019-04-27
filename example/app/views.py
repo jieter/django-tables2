@@ -1,6 +1,3 @@
-# coding: utf-8
-from __future__ import unicode_literals
-
 from random import choice
 
 from django.shortcuts import get_object_or_404, render

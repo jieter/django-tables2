@@ -1,6 +1,3 @@
-# coding: utf-8
-from __future__ import absolute_import, unicode_literals
-
 import re
 from collections import OrderedDict
 
@@ -10,7 +7,6 @@ from django.core.exceptions import ImproperlyConfigured
 from django.template import Node, TemplateSyntaxError
 from django.template.loader import get_template, select_template
 from django.templatetags.l10n import register as l10n_register
-from django.utils import six
 from django.utils.html import escape
 from django.utils.http import urlencode
 
@@ -61,7 +57,7 @@ class QuerystringNode(Node):
 
         params = dict(context["request"].GET)
         for key, value in self.updates.items():
-            if isinstance(key, six.string_types):
+            if isinstance(key, str):
                 params[key] = value
                 continue
             key = key.resolve(context)
@@ -152,7 +148,7 @@ class RenderTableNode(Node):
         else:
             template_name = table.template_name
 
-        if isinstance(template_name, six.string_types):
+        if isinstance(template_name, str):
             template = get_template(template_name)
         else:
             # assume some iterable was given

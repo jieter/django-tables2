@@ -1,8 +1,6 @@
-# coding: utf-8
 from unittest import TestCase
 
 from django.db import models
-from django.utils import six
 
 from django_tables2.utils import (
     Accessor,
@@ -54,10 +52,7 @@ class OrderByTupleTest(TestCase):
     def test_sort_key_empty_comes_first(self):
         obt = OrderByTuple(("a"))
         items = [{"a": 1}, {"a": ""}, {"a": 2}]
-        if six.PY3:
-            assert sorted(items, key=obt.key) == [{"a": ""}, {"a": 1}, {"a": 2}]
-        else:
-            assert sorted(items, key=obt.key) == [{"a": 1}, {"a": 2}, {"a": ""}]
+        assert sorted(items, key=obt.key) == [{"a": ""}, {"a": 1}, {"a": 2}]
 
 
 class OrderByTest(TestCase):
