@@ -22,10 +22,10 @@ class URLColumn(BaseLinkColumn):
     Example::
 
         >>> class CompaniesTable(tables.Table):
-        ...     www = tables.URLColumn()
+        ...     link = tables.URLColumn()
         ...
-        >>> table = CompaniesTable([{'www': 'http://google.com'}])
-        >>> table.rows[0].get_cell('www')
+        >>> table = CompaniesTable([{"link": "http://google.com"}])
+        >>> table.rows[0].get_cell("link")
         '<a href="http://google.com">http://google.com</a>'
     """
 

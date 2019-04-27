@@ -8,15 +8,15 @@ page number::
 
     def people_listing(request):
         table = PeopleTable(Person.objects.all())
-        table.paginate(page=request.GET.get('page', 1), per_page=25)
-        return render(request, 'people_listing.html', {'table': table})
+        table.paginate(page=request.GET.get("page", 1), per_page=25)
+        return render(request, "people_listing.html", {"table": table})
 
 If you are using `.RequestConfig`, pass pagination options to the constructor::
 
     def people_listing(request):
         table = PeopleTable(Person.objects.all())
-        RequestConfig(request, paginate={'per_page': 25}).configure(table)
-        return render(request, 'people_listing.html', {'table': table})
+        RequestConfig(request, paginate={"per_page": 25}).configure(table)
+        return render(request, "people_listing.html", {"table": table})
 
 If you are using `SingleTableView`, the table will get paginated by default::
 

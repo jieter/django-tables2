@@ -38,13 +38,13 @@ API Reference
 
         class UsersTable(tables.Table):
             class Meta:
-                row_attrs = {'data-id': lambda record: record.pk}
+                row_attrs = {"data-id": lambda record: record.pk}
 
     Which adds the desired ``row_attrs`` to every instance of `UsersTable`, in
     contrast of defining it at construction time::
 
         table = tables.Table(User.objects.all(),
-                             row_attrs={'data-id': lambda record: record.pk})
+                             row_attrs={"data-id": lambda record: record.pk})
 
     Some settings are only available in `Table.Meta` and not as an argument to
     the `~.Table` constructor.
@@ -58,7 +58,7 @@ API Reference
             class PersonTable(table.Table):
                 class Meta:
                     model = Person
-                    exclude = ('email', )
+                    exclude = ("email", )
 
             class PersonWithEmailTable(PersonTable):
                 class Meta(PersonTable.Meta):
@@ -80,7 +80,7 @@ API Reference
                     name = tables.Column()
 
                     class Meta:
-                        attrs = {'class': 'paleblue'}
+                        attrs = {"class": "paleblue"}
 
             If you supply a a callable as a value in the dict, it will be called
             at table instantiation an the returned value will be used:
@@ -95,7 +95,7 @@ API Reference
                     name = tables.Column()
 
                     class Meta:
-                        attrs = {'id': lambda: 'table_%d' % next(counter)}
+                        attrs = {"id": lambda: "table_{}".format(next(counter))}
 
             .. note::
                 This functionality is also available via the ``attrs`` keyword
@@ -112,7 +112,7 @@ API Reference
                 class PersonTable(tables.Table):
                     class Meta:
                         model = Person
-                        row_attrs = {'data-id': lambda record: record.pk}
+                        row_attrs = {"data-id": lambda record: record.pk}
 
                 # will result in
                 '<tr data-id="1">...</tr>'
@@ -153,7 +153,7 @@ API Reference
                 'last_name': <django_tables2.columns.Column object at 0x10046d8d0>}
                 >>> class ForgetfulPerson(Person):
                 ...     class Meta:
-                ...         exclude = ('last_name', )
+                ...         exclude = ("last_name", )
                 ...
                 >>> ForgetfulPerson.base_columns
                 {'first_name': <django_tables2.columns.Column object at 0x10046df10>}
@@ -183,7 +183,7 @@ API Reference
             class PersonTable(tables.Table):
                 class Meta:
                     model = Person
-                    fields = ('first_name', )
+                    fields = ("first_name", )
 
     model (:class:`django.core.db.models.Model`): Create columns from model.
         A model to inspect and automatically create corresponding columns.
@@ -216,7 +216,7 @@ API Reference
             ...     last_name = tables.Column()
             ...
             ...     class Meta:
-            ...         sequence = ('last_name', '...')
+            ...         sequence = ("last_name", "...")
             ...
             >>> Person.base_columns.keys()
             ['last_name', 'first_name']
@@ -224,7 +224,7 @@ API Reference
         The ``'...'`` item can be used at most once in the sequence value. If
         it is not used, every column *must* be explicitly included. For example in the
         above example, ``sequence = ('last_name', )`` would be **invalid**
-        because neither ``'...'`` or ``'first_name'`` were included.
+        because neither ``"..."`` or ``"first_name"`` were included.
 
         .. note::
 

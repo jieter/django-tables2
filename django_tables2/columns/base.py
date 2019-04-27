@@ -620,13 +620,13 @@ class BoundColumn(object):
         e.g.::
 
             >>> class SimpleTable(tables.Table):
-            ...     name = tables.Column(order_by=('firstname', 'last_name'))
+            ...     name = tables.Column(order_by=("firstname", "last_name"))
             ...
             >>> table = SimpleTable([], order_by=('-name', ))
-            >>> table.columns['name'].order_by_alias
-            '-name'
-            >>> table.columns['name'].order_by
-            ('-first_name', '-last_name')
+            >>> table.columns["name"].order_by_alias
+            "-name"
+            >>> table.columns["name"].order_by
+            ("-first_name", "-last_name")
 
         The `OrderBy` returned has been patched to include an extra attribute
         ``next``, which returns a version of the alias that would be

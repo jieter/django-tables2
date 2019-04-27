@@ -22,8 +22,8 @@ Accessors are just dotted paths that describe how an object should be traversed
 to reach a specific value, for example::
 
     >>> from django_tables2 import A
-    >>> data = {'abc': {'one': {'two': 'three'}}}
-    >>> A('abc.one.two').resolve(data)
+    >>> data = {"abc": {"one": {"two": "three"}}}
+    >>> A("abc.one.two").resolve(data)
     'three'
 
 Dots represent a relationships, and are attempted in this order:
@@ -57,6 +57,7 @@ This example shows how to render the row number in the first row::
 
     >>> import django_tables2 as tables
     >>> import itertools
+    >>>
     >>> class SimpleTable(tables.Table):
     ...     row_number = tables.Column(empty_values=())
     ...     id = tables.Column()
@@ -67,13 +68,13 @@ This example shows how to render the row number in the first row::
     ...         self.counter = itertools.count()
     ...
     ...     def render_row_number(self):
-    ...         return 'Row %d' % next(self.counter)
+    ...         return "Row %d" % next(self.counter)
     ...
     ...     def render_id(self, value):
-    ...         return '<%s>' % value
+    ...         return "<%s>" % value
     ...
-    >>> table = SimpleTable([{'age': 31, 'id': 10}, {'age': 34, 'id': 11}])
-    >>> print ', '.join(map(str, table.rows[0]))
+    >>> table = SimpleTable([{"age": 31, "id": 10}, {"age": 34, "id": 11}])
+    >>> print(", ".join(map(str, table.rows[0])))
     Row 0, <10>, 31
 
 Python's `inspect.getargspec` is used to only pass the arguments declared by the
@@ -145,8 +146,8 @@ methods on tables::
     ...     normal = tables.Column()
     ...     upper = UpperColumn()
     ...
-    >>> data = [{'normal': 'Hi there!',
-    ...          'upper':  'Hi there!'}]
+    >>> data = [{"normal": "Hi there!",
+    ...          "upper":  "Hi there!"}]
     ...
     >>> table = Example(data)
     >>> # renders to something like this:

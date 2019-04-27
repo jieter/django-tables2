@@ -17,12 +17,14 @@ class BooleanColumn(Column):
 
     Arguments:
         null (bool): is `None` different from `False`?
-        yesno (str): comma separated values string or 2-tuple to display for True/False values.
+        yesno (str): comma separated values string or 2-tuple to display for
+                     True/False values.
 
-    Rendered values are wrapped in a ``<span>`` to allow customization by using CSS. By default the span is given
-    the class ``true``, ``false``.
+    Rendered values are wrapped in a ``<span>`` to allow customization by using
+    CSS. By default the span is given the class ``true``, ``false``.
 
-    In addition to *attrs* keys supported by `~.Column`, the following are available:
+    In addition to *attrs* keys supported by `~.Column`, the following are
+    available:
 
      - ``span`` -- adds attributes to the ``<span>`` tag
     """

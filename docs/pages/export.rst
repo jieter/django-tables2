@@ -22,7 +22,7 @@ Adding ability to export the table data to a class based views looks like this::
     class TableView(ExportMixin, tables.SingleTableView):
         table_class = MyTable
         model = Person
-        template_name = 'django_tables2/bootstrap.html'
+        template_name = "django_tables2/bootstrap.html"
 
 
 Now, if you append ``_export=csv`` to the query string, the browser will download
@@ -50,13 +50,13 @@ If you must use a function view, you might use something like this::
 
         RequestConfig(request).configure(table)
 
-        export_format = request.GET.get('_export', None)
+        export_format = request.GET.get("_export", None)
         if TableExport.is_valid_format(export_format):
             exporter = TableExport(export_format, table)
-            return exporter.response('table.{}'.format(export_format))
+            return exporter.response("table.{}".format(export_format))
 
-        return render(request, 'table.html', {
-            'table': table
+        return render(request, "table.html", {
+            "table": table
         })
 
 What exactly is exported?
@@ -87,11 +87,11 @@ You can define the columns you want to exclude in several ways::
     # exclude a column while defining Columns on a table:
     class Table(tables.Table):
         name = columns.Column()
-        buttons = columns.TemplateColumn(template_name='...', exclude_from_export=True)
+        buttons = columns.TemplateColumn(template_name="...", exclude_from_export=True)
 
 
     # exclude columns while creating the TableExport instance:
-    exporter = TableExport('csv', table, exclude_columns=('image', 'buttons'))
+    exporter = TableExport("csv", table, exclude_columns=("image", "buttons"))
 
 
 If you use the ``~.ExportMixin``, add an ``exclude_columns`` attribute to your class::
@@ -100,7 +100,7 @@ If you use the ``~.ExportMixin``, add an ``exclude_columns`` attribute to your c
         table_class = MyTable
         model = Person
         template_name = 'django_tables2/bootstrap.html'
-        exclude_columns = ('buttons', )
+        exclude_columns = ("buttons", )
 
 
 Generating export URLs

@@ -30,7 +30,7 @@ Glossary
         .. sourcecode:: python
 
             class ExampleTable(tables.Table):
-                name = tables.Column(order_by=('first_name', 'last_name'))
+                name = tables.Column(order_by=("first_name", "last_name"))
 
         In this example ``-name`` and ``name`` are valid order by aliases. In
         a query string you might then have ``?order=-name``.

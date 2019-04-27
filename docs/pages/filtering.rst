@@ -17,7 +17,7 @@ The basis of a filtered table is a `SingleTableMixin` combined with a
     class FilteredPersonListView(SingleTableMixin, FilterView):
         table_class = PersonTable
         model = Person
-        template_name = 'template.html'
+        template_name = "template.html"
 
         filterset_class = PersonFilter
 

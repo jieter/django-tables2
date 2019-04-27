@@ -86,14 +86,14 @@ class LinkColumn(BaseLinkColumn):
 
         # urls.py
         urlpatterns = patterns('',
-            url('people/([0-9]+)/', views.people_detail, name='people_detail')
+            url("people/([0-9]+)/", views.people_detail, name="people_detail")
         )
 
         # tables.py
         from django_tables2.utils import A  # alias for Accessor
 
         class PeopleTable(tables.Table):
-            name = tables.LinkColumn('people_detail', args=[A('pk')])
+            name = tables.LinkColumn("people_detail", args=[A("pk")])
 
     In order to override the text value (i.e. ``<a ... >text</a>``) consider
     the following example:
@@ -104,10 +104,10 @@ class LinkColumn(BaseLinkColumn):
         from django_tables2.utils import A  # alias for Accessor
 
         class PeopleTable(tables.Table):
-            name = tables.LinkColumn('people_detail', text='static text', args=[A('pk')])
-            age  = tables.LinkColumn('people_detail', text=lambda record: record.name, args=[A('pk')])
+            name = tables.LinkColumn("people_detail", text="static text", args=[A("pk")])
+            age  = tables.LinkColumn("people_detail", text=lambda record: record.name, args=[A("pk")])
 
-    In the first example, a static text would be rendered ('static text')
+    In the first example, a static text would be rendered (``"static text"``)
     In the second example, you can specify a callable which accepts a record object (and thus
     can return anything from it)
 
@@ -120,7 +120,7 @@ class LinkColumn(BaseLinkColumn):
 
         class PeopleTable(tables.Table):
             first_name = tables.LinkColumn(attrs={
-                'a': {'style': 'color: red;'}
+                "a": {"style": "color: red;"}
             })
 
     """
@@ -168,7 +168,7 @@ class RelatedLinkColumn(LinkColumn):
         class PersonTable(tables.Table):
             name = tables.Column()
             country = tables.RelatedLinkColumn()
-            continent = tables.RelatedLinkColumn(accessor='country.continent')
+            continent = tables.RelatedLinkColumn(accessor="country.continent")
 
     will render:
 

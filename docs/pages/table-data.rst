@@ -18,8 +18,8 @@ it is necessary to declare each column::
     import django_tables2 as tables
 
     data = [
-        {'name': 'Bradley'},
-        {'name': 'Stevie'},
+        {"name": "Bradley"},
+        {"name": "Stevie"},
     ]
 
     class NameTable(tables.Table):
@@ -36,10 +36,13 @@ rather than defining each column manually in the table, the `.Table.Meta.model`
 option allows tables to be dynamically created based on a model::
 
     # models.py
+    from django.contrib.auth import get_user_model
+    from django.db import models
+
     class Person(models.Model):
         first_name = models.CharField(max_length=200)
         last_name = models.CharField(max_length=200)
-        user = models.ForeignKey('auth.User', null=True, on_delete=models.CASCADE)
+        user = models.ForeignKey(get_user_model(), null=True, on_delete=models.CASCADE)
         birth_date = models.DateField()
 
     # tables.py
@@ -53,8 +56,8 @@ option allows tables to be dynamically created based on a model::
     def person_list(request):
         table = PersonTable(Person.objects.all())
 
-        return render(request, 'person_list.html', {
-            'table': table
+        return render(request, "person_list.html", {
+            "table": table
         })
 
 This has a number of benefits:

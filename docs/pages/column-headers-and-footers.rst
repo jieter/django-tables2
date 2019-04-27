@@ -22,21 +22,21 @@ Consider the following:
     ...     name = models.CharField(max_length=200)
     ...
     >>> class Person(models.Model):
-    ...     first_name = models.CharField(verbose_name='model verbose name', max_length=200)
+    ...     first_name = models.CharField(verbose_name="model verbose name", max_length=200)
     ...     last_name = models.CharField(max_length=200)
     ...     region = models.ForeignKey('Region')
     ...
     >>> class PersonTable(tables.Table):
     ...     first_name = tables.Column()
-    ...     ln = tables.Column(accessor='last_name')
-    ...     region_name = tables.Column(accessor='region.name')
+    ...     ln = tables.Column(accessor="last_name")
+    ...     region_name = tables.Column(accessor="region.name")
     ...
     >>> table = PersonTable(Person.objects.all())
-    >>> table.columns['first_name'].header
+    >>> table.columns["first_name"].header
     'Model Verbose Name'
-    >>> table.columns['ln'].header
+    >>> table.columns["ln"].header
     'Last Name'
-    >>> table.columns['region_name'].header
+    >>> table.columns["region_name"].header
     'Name'
 
 As you can see in the last example (region name), the results are not always
@@ -70,11 +70,11 @@ Example::
     class Table(tables.Table):
         Meta:
             attrs = {
-                'th' : {
-                    '_ordering': {
-                        'orderable': 'sortable', # Instead of `orderable`
-                        'ascending': 'ascend',   # Instead of `asc`
-                        'descending': 'descend'  # Instead of `desc`
+                "th" : {
+                    "_ordering": {
+                        "orderable": "sortable", # Instead of `orderable`
+                        "ascending": "ascend",   # Instead of `asc`
+                        "descending": "descend"  # Instead of `desc`
                     }
                 }
             }
@@ -84,18 +84,18 @@ It can also be specified at initialization using the `attrs` for both: table and
 column::
 
     ATTRIBUTES = {
-        'th' : {
-            '_ordering': {
-                'orderable': 'sortable', # Instead of `orderable`
-                'ascending': 'ascend',   # Instead of `asc`
-                'descending': 'descend'  # Instead of `desc`
+        "th" : {
+            "_ordering": {
+                "orderable": "sortable", # Instead of `orderable`
+                "ascending": "ascend",   # Instead of `asc`
+                "descending": "descend"  # Instead of `desc`
             }
         }
     }
 
     table = tables.Table(queryset, attrs=ATTRIBUTES)
 
-    # OR
+    # or
 
     class Table(tables.Table):
         my_column = tables.Column(attrs=ATTRIBUTES)
@@ -117,13 +117,13 @@ Pass `footer`-argument to the `~.Column` constructor.
 
 The simplest case is just passing a `str` as the footer argument to a column::
 
-    country = tables.Column(footer='Total:')
+    country = tables.Column(footer="Total:")
 
 This will just render the string in the footer. If you need to do more complex
 things, like showing a sum or an average, you can pass a callable::
 
     population = tables.Column(
-        footer=lambda table: sum(x['population'] for x in table.data)
+        footer=lambda table: sum(x["population"] for x in table.data)
     )
 
 You can expect `table`, `column` and `bound_column` as argument.
@@ -143,7 +143,7 @@ Then use this column like so::
 
     class Table(tables.Table):
         name = tables.Column()
-        country = tables.Column(footer='Total:')
+        country = tables.Column(footer="Total:")
         population = SummingColumn()
 
 

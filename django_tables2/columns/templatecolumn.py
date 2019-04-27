@@ -34,10 +34,10 @@ class TemplateColumn(Column):
     .. code-block:: python
 
         class ExampleTable(tables.Table):
-            foo = tables.TemplateColumn('{{ record.bar }}')
+            foo = tables.TemplateColumn("{{ record.bar }}")
             # contents of `myapp/bar_column.html` is `{{ label }}: {{ value }}`
-            bar = tables.TemplateColumn(template_name='myapp/name2_column.html',
-                                        extra_context={'label': 'Label'})
+            bar = tables.TemplateColumn(template_name="myapp/name2_column.html",
+                                        extra_context={"label": "Label"})
 
     Both columns will have the same output.
     """

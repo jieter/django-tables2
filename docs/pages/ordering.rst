@@ -12,7 +12,7 @@ exception::
 
         @property
         def name(self):
-            return '{} {}'.format(self.first_name, self.family_name)
+            return "{} {}".format(self.first_name, self.family_name)
 
     # tables.py
     class PersonTable(tables.Table):
@@ -21,7 +21,7 @@ exception::
 ::
 
     >>> table = PersonTable(Person.objects.all())
-    >>> table.order_by = 'name'
+    >>> table.order_by = "name"
     >>>
     >>> # will result in:
     FieldError: Cannot resolve keyword 'name' into field. Choices are: first_name, family_name
@@ -38,7 +38,7 @@ You can supply an ``order_by`` argument containing a name or a tuple of the
 names of the columns the database should use to sort it::
 
     class PersonTable(tables.Table):
-        name = tables.Column(order_by=('first_name', 'family_name'))
+        name = tables.Column(order_by=("first_name", "family_name"))
 
 `~.Accessor` syntax can be used as well, as long as they point to a model field.
 
@@ -79,11 +79,11 @@ The implementation would look like this:
     class PersonTable(tables.Table):
         name = tables.Column()
 
-        def order_name(self, QuerySet, is_descending):
-            QuerySet = QuerySet.annotate(
-                length=Length('first_name')
-            ).order_by(('-' if is_descending else '') + 'length')
-            return (QuerySet, True)
+        def order_name(self, queryset, is_descending):
+            queryset = queryset.annotate(
+                length=Length("first_name")
+            ).order_by(("-" if is_descending else ") + "length")
+            return (queryset, True)
 
 
 
@@ -114,11 +114,11 @@ This can be achieved like this::
         def render_clothing(self, record):
             return str(record.shirts + record.pants)
 
-        def order_clothing(self, QuerySet, is_descending):
-            QuerySet = QuerySet.annotate(
-                amount=F('shirts') + F('pants')
-            ).order_by(('-' if is_descending else '') + 'amount')
-            return (QuerySet, True)
+        def order_clothing(self, queryset, is_descending):
+            queryset = queryset.annotate(
+                amount=F("shirts") + F("pants")
+            ).order_by(("-" if is_descending else ") + "amount")
+            return (queryset, True)
 
 
 Using :meth:`Column.order` on custom columns
@@ -134,11 +134,11 @@ For example, the `PersonTable` from above could also be defined like this::
         def render(self, record):
             return str(record.shirts + record.pants)
 
-        def order(self, QuerySet, is_descending):
-            QuerySet = QuerySet.annotate(
-                amount=F('shirts') + F('pants')
-            ).order_by(('-' if is_descending else '') + 'amount')
-            return (QuerySet, True)
+        def order(self, queryset, is_descending):
+            queryset = queryset.annotate(
+                amount=F("shirts") + F("pants")
+            ).order_by(("-" if is_descending else ") + "amount")
+            return (queryset, True)
 
 
     class PersonTable(tables.Table):

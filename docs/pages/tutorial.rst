@@ -5,13 +5,13 @@ This is a step-by-step guide to learn how to install and use django-tables2 usin
 
 1. ``pip install django-tables2``
 2. Start a new Django app using `python manage.py startapp tutorial`
-3. Add both ``'django_tables2'`` and ``'tutorial'`` to your ``INSTALLED_APPS`` setting in ``settings.py``.
+3. Add both ``"django_tables2"`` and ``"tutorial"`` to your ``INSTALLED_APPS`` setting in ``settings.py``.
 
 Now, add a model to your ``tutorial/models.py``::
 
     # tutorial/models.py
     class Person(models.Model):
-        name = models.CharField(max_length=100, verbose_name='full name')
+        name = models.CharField(max_length=100, verbose_name="full name")
 
 Create the database tables for the newly added model::
 
@@ -22,7 +22,7 @@ Add some data so you have something to display in the table::
 
     $ python manage.py shell
     >>> from tutorial.models import Person
-    >>> Person.objects.bulk_create([Person(name='Jieter'), Person(name='Bradley')])
+    >>> Person.objects.bulk_create([Person(name="Jieter"), Person(name="Bradley")])
     [<Person: Person object>, <Person: Person object>]
 
 Now write a view to pass a ``Person`` QuerySet into a template::
@@ -32,7 +32,7 @@ Now write a view to pass a ``Person`` QuerySet into a template::
     from .models import Person
 
     def people(request):
-        return render(request, 'tutorial/people.html', {'people': Person.objects.all()})
+        return render(request, "tutorial/people.html", {"people": Person.objects.all()})
 
 Add the view to your ``urls.py``::
 
@@ -43,8 +43,8 @@ Add the view to your ``urls.py``::
     from tutorial.views import people
 
     urlpatterns = [
-        url(r'^admin/', admin.site.urls),
-        url(r'^people/', people)
+        url(r"^admin/", admin.site.urls),
+        url(r"^people/", people)
     ]
 
 Finally, create the template::
@@ -78,7 +78,7 @@ allow for any customization. For that, you must define a custom `.Table` class::
     class PersonTable(tables.Table):
         class Meta:
             model = Person
-            template_name = 'django_tables2/bootstrap.html'
+            template_name = "django_tables2/bootstrap.html"
 
 
 You will then need to instantiate and configure the table in the view, before
@@ -93,7 +93,7 @@ adding it to the context::
     def people(request):
         table = PersonTable(Person.objects.all())
         RequestConfig(request).configure(table)
-        return render(request, 'tutorial/people.html', {'table': table})
+        return render(request, "tutorial/people.html", {"table": table})
 
 Using `.RequestConfig` automatically pulls values from ``request.GET`` and
 updates the table accordingly. This enables data ordering and pagination.

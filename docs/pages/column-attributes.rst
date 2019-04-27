@@ -14,7 +14,7 @@ Depending on the column, different elements are supported, however ``th``,
     >>> import django_tables2 as tables
     >>>
     >>> class SimpleTable(tables.Table):
-    ...     name = tables.Column(attrs={'th': {'id': 'foo'}})
+    ...     name = tables.Column(attrs={"th": {"id": "foo"}})
     ...
     >>> # will render something like this:
     '{snip}<thead><tr><th id="foo">{snip}<tbody><tr><td>{snip}'
@@ -30,8 +30,8 @@ Callables passed in this dict will be called, with optional kwargs ``table``,
 
     class Table(tables.Table):
         person = tables.Column(attrs={
-            'td': {
-                'data-length': lambda value: len(value)
+            "td": {
+                "data-length": lambda value: len(value)
             }
         })
 
@@ -47,15 +47,15 @@ containing the number of characters in the value.
     callable with a catchall (``**kwargs``) argument::
 
         def data_first_name(**kwargs):
-            first_name = kwargs.get('value', None)
+            first_name = kwargs.get("value", None)
             if first_name is None:
-                return 'header'
+                return "header"
             else:
                 return first_name
 
         class Table(tables.Table):
             first_name = tables.Column(attrs={
-                'td': {
+                "td": {
                     'data-first-name': data_first_name
                 }
             })
@@ -64,13 +64,13 @@ This `attrs` can also be defined when subclassing a column, to allow better reus
 
     class PersonColumn(tables.Column):
         attrs = {
-            'td': {
-                'data-first-name': lambda record: record.first_name
-                'data-last-name': lambda record: record.last_name
+            "td": {
+                "data-first-name": lambda record: record.first_name
+                "data-last-name": lambda record: record.last_name
             }
         }
         def render(self, record):
-            return '{} {}'.format(record.first_name, record.last_name)
+            return "{} {}".format(record.first_name, record.last_name)
 
     class Table(tables.Table):
         person = PersonColumn()
@@ -83,19 +83,19 @@ Row attributes
 ~~~~~~~~~~~~~~
 
 Row attributes can be specified using a dict defining the HTML attributes for
-the ``<tr>`` element on each row. The values of the dict may be
+the ``<tr>`` element on each row.
 
 By default, class names *odd* and *even* are supplied to the rows, which can be
 customized using the ``row_attrs`` `.Table.Meta` attribute or as argument to the
 constructor of `.Table`. String-like values will just be added,
-callables will be called with optional keyword argument `record`, the return value
-will be added. For example::
+callables will be called with optional keyword arguments `record` and `table`,
+the return value will be added. For example::
 
     class Table(tables.Table):
         class Meta:
             model = User
             row_attrs = {
-                'data-id': lambda record: record.pk
+                "data-id": lambda record: record.pk
             }
 
 will render tables with the following ``<tr>`` tag

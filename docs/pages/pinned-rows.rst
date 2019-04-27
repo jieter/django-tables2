@@ -22,9 +22,9 @@ Example::
 
         def get_top_pinned_data(self):
             return [
-                {'first_name': 'Janet', 'last_name': 'Crossen'},
-                # key 'last_name' is None here, so the default value will be rendered.
-                {'first_name': 'Trine', 'last_name': None}
+                {"first_name": "Janet", "last_name": "Crossen"},
+                # key "last_name" is None here, so the default value will be rendered.
+                {"first_name": "Trine", "last_name": None}
             ]
 
 .. note:: If you need very different rendering for the bottom pinned rows, chances are

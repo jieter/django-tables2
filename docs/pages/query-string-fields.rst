@@ -9,8 +9,8 @@ preferences.
 The names of the query string variables are configurable via the options:
 
 - ``order_by_field`` -- default: ``'sort'``
-- ``page_field`` -- default: ``'page'``
-- ``per_page_field`` -- default: ``'per_page'``, **note:** this field currently
+- ``page_field`` -- default: ``"page"``
+- ``per_page_field`` -- default: ``"per_page"``, **note:** this field currently
   is not used by ``{% render_table %}``
 
 Each of these can be specified in three places:
@@ -25,8 +25,8 @@ interfere with those on another table::
 
     def people_listing(request):
         config = RequestConfig(request)
-        table1 = PeopleTable(Person.objects.all(), prefix='1-')  # prefix specified
-        table2 = PeopleTable(Person.objects.all(), prefix='2-')  # prefix specified
+        table1 = PeopleTable(Person.objects.all(), prefix="1-")  # prefix specified
+        table2 = PeopleTable(Person.objects.all(), prefix="2-")  # prefix specified
         config.configure(table1)
         config.configure(table2)
 

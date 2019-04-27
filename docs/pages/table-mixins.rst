@@ -14,7 +14,7 @@ Example::
     ...     name = tables.Column()
     ...
     >>> TestTable.base_columns.keys()
-    ['name']
+    ["name"]
 
 To have a mixin contribute a column, it needs to be a subclass of
 `~django_tables2.tables.Table`. With this in mind the previous example
@@ -27,5 +27,4 @@ To have a mixin contribute a column, it needs to be a subclass of
     ...     name = tables.Column()
     ...
     >>> TestTable.base_columns.keys()
-    ['extra', 'name']
-
+    ["extra", "name"]

@@ -24,7 +24,7 @@ class ManyToManyColumn(Column):
         filter: callable to filter, limit or order the QuerySet, it gets the
             `ManyRelatedManager` as first argument and must return a filtered QuerySet.
             By default, it returns `all()`
-        separator: separator string to join the items with. default: ', '
+        separator: separator string to join the items with. default: ``", "``
         linkify_item: callable, arguments to reverse() or `True` to wrap items in a ``<a>`` tag.
             For a detailed explanation, see ``linkify`` argument to ``Column``.
 
@@ -43,7 +43,7 @@ class ManyToManyColumn(Column):
 
         # tables.py
         class PersonTable(tables.Table):
-            name = tables.Column(order_by=('last_name', 'first_name'))
+            name = tables.Column(order_by=("last_name", "first_name"))
             friends = tables.ManyToManyColumn(transform=lambda user: u.name)
 
     If only the active friends should be displayed, you can use the `filter` argument::

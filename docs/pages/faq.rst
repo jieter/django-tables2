@@ -25,14 +25,14 @@ which should be pretty clear, but here is an example template configuration anyw
 
     TEMPLATES = [
         {
-            'BACKEND': 'django.template.backends.django.DjangoTemplates',
-            'DIRS': ['templates'],
-            'APP_DIRS': True,
-            'OPTIONS': {
-                'context_processors': [
-                    'django.contrib.auth.context_processors.auth',
-                    'django.template.context_processors.request',
-                    'django.template.context_processors.static',
+            "BACKEND": "django.template.backends.django.DjangoTemplates",
+            "DIRS": ["templates"],
+            "APP_DIRS": True,
+            "OPTIONS": {
+                "context_processors": [
+                    "django.contrib.auth.context_processors.auth",
+                    "django.template.context_processors.request",
+                    "django.template.context_processors.static",
                 ],
             }
         }
@@ -45,7 +45,7 @@ You can use ``itertools.counter`` to add row count to a table. Note that in a
 paginated table, every page's counter will start at zero::
 
     class CountryTable(tables.Table):
-        counter = tables.TemplateColumn('{{ row_counter }}')
+        counter = tables.TemplateColumn("{{ row_counter }}")
 
 
 How to add a footer containing a column total?
@@ -55,7 +55,7 @@ Using the `footer`-argument to `~.Column`::
 
     class CountryTable(tables.Table):
         population = tables.Column(
-            footer=lambda table: sum(x['population'] for x in table.data)
+            footer=lambda table: sum(x["population"] for x in table.data)
         )
 
 Or by creating a custom column::
@@ -65,7 +65,7 @@ Or by creating a custom column::
             return sum(bound_column.accessor.resolve(row) for row in table.data)
 
     class Table(tables.Table):
-        name = tables.Column(footer='Total:')
+        name = tables.Column(footer="Total:")
         population = SummingColumn()
 
 Documentation: :ref:`column-footers`

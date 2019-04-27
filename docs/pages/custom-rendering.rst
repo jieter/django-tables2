@@ -19,7 +19,7 @@ a hook that allows arbitrary attributes to be added to the ``<table>`` tag.
     ...     age = tables.Column()
     ...
     ...     class Meta:
-    ...         attrs = {'class': 'mytable'}
+    ...         attrs = {"class": "mytable"}
     ...
     >>> table = SimpleTable()
     >>> # renders to something like this:
@@ -28,7 +28,7 @@ a hook that allows arbitrary attributes to be added to the ``<table>`` tag.
 You can also specify ``attrs`` attribute when creating a column. ``attrs``
 is a dictionary which contains attributes which by default get rendered
 on various tags involved with rendering a column. You can read more about
-them in :ref:`column-attributes`. django-tables2 supports 3 different
+them in :ref:`column-attributes`. django-tables2 supports three different
 dictionaries, this way you can give different attributes
 to column tags in table header (``th``), rows (``td``) or footer (``tf``)
 
@@ -37,8 +37,8 @@ to column tags in table header (``th``), rows (``td``) or footer (``tf``)
     >>> import django_tables2 as tables
     >>>
     >>> class SimpleTable(tables.Table):
-    ...     id = tables.Column(attrs={'td': {'class': 'my-class'}})
-    ...     age = tables.Column(attrs={'tf': {'bgcolor': 'red'}})
+    ...     id = tables.Column(attrs={"td": {"class": "my-class"}})
+    ...     age = tables.Column(attrs={"tf": {"bgcolor": "red"}})
     ...
     >>> table = SimpleTable()
     >>> # renders to something like this:
@@ -70,7 +70,7 @@ which is ``django_tables2/table.html`` by default.
 If you use bootstrap 3 for your site, it makes sense to set the default to
 the bootstrap 3 template::
 
-    DJANGO_TABLES2_TEMPLATE = 'django_tables2/bootstrap.html'
+    DJANGO_TABLES2_TEMPLATE = "django_tables2/bootstrap.html"
 
 If you want to specify a custom template for selected tables in your project,
 you can set a ``template_name`` attribute to your custom ``Table.Meta`` class::
@@ -79,12 +79,12 @@ you can set a ``template_name`` attribute to your custom ``Table.Meta`` class::
 
         class Meta:
             model = Person
-            template_name = 'django_tables2/semantic.html'
+            template_name = "django_tables2/semantic.html"
 
 You can also use the ``template_name`` argument to the ``Table`` constructor to
 override the template for a certain instance::
 
-    table = PersonTable(data, template_name='django_tables2/bootstrap-responsive.html')
+    table = PersonTable(data, template_name="django_tables2/bootstrap-responsive.html")
 
 For none of the templates any CSS file is added to the HTML. You are responsible for
 including the relevant style sheets for a template.

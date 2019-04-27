@@ -22,7 +22,7 @@ First one is setting the `~.Column.localize` attribute in your column definition
 to `True` or `False`. Like so::
 
      class PersonTable(tables.Table):
-        id = tables.Column(name='id', accessor='pk', localize=False)
+        id = tables.Column(accessor="pk", localize=False)
         class Meta:
             model = Person
 
@@ -40,8 +40,8 @@ or `~.Table.Meta.exclude`). You can do this like so::
         value = tables.Column(accessor='some_numerical_field')
         class Meta:
             model = Person
-            unlocalize = ('id', )
-            localize = ('value', )
+            unlocalize = ("id", )
+            localize = ("value", )
 
 If you define the same column in both `localize` and `unlocalize` then the value
 of this column will be 'unlocalized' which means that `unlocalize` has higher precedence.

@@ -71,14 +71,14 @@ prefixes for them. Just define a list of tables in the tables attribute::
     from django.views.generic.base import TemplateView
 
     class PersonTablesView(MultiTableMixin, TemplateView):
-        template_name = 'multiTable.html'
+        template_name = "multiTable.html"
         tables = [
             PersonTable(qs),
-            PersonTable(qs, exclude=('country', ))
+            PersonTable(qs, exclude=("country", ))
         ]
 
         table_pagination = {
-            'per_page': 10
+            "per_page": 10
         }
 
 In the template, you get a variable `tables`, which you can loop over like this:
