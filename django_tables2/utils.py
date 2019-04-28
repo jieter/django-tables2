@@ -145,7 +145,7 @@ class OrderByTuple(tuple):
             if not isinstance(item, OrderBy):
                 item = OrderBy(item)
             transformed.append(item)
-        return super(OrderByTuple, cls).__new__(cls, transformed)
+        return super().__new__(cls, transformed)
 
     def __str__(self):
         return ",".join(self)
@@ -200,7 +200,7 @@ class OrderByTuple(tuple):
                 if order_by == index or order_by.bare == index:
                     return order_by
             raise KeyError
-        return super(OrderByTuple, self).__getitem__(index)
+        return super().__getitem__(index)
 
     @property
     def key(self):

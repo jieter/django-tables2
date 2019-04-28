@@ -95,7 +95,7 @@ class DeclarativeColumnsMetaclass(type):
             if localize_column is not None:
                 base_columns[col_name].localize = localize_column
         attrs["base_columns"] = base_columns
-        return super(DeclarativeColumnsMetaclass, mcs).__new__(mcs, name, bases, attrs)
+        return super().__new__(mcs, name, bases, attrs)
 
 
 class TableOptions(object):
@@ -109,7 +109,7 @@ class TableOptions(object):
     """
 
     def __init__(self, options, class_name):
-        super(TableOptions, self).__init__()
+        super().__init__()
         self._check_types(options, class_name)
 
         DJANGO_TABLES2_TEMPLATE = getattr(
@@ -263,7 +263,7 @@ class TableBase(object):
         show_footer=True,
         extra_columns=None,
     ):
-        super(TableBase, self).__init__()
+        super().__init__()
 
         # note that although data is a keyword argument, it used to be positional
         # so it is assumed to be the first argument to this method.
@@ -676,7 +676,7 @@ class TableBase(object):
                 ...
 
                 def get_column_class_names(self, classes_set, bound_column):
-                    classes_set = super(MyTable, self).get_column_class_names(classes_set, bound_column)
+                    classes_set = super().get_column_class_names(classes_set, bound_column)
                     classes_set.add(bound_column.name)
 
                     return classes_set

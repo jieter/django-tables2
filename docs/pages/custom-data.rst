@@ -64,7 +64,7 @@ This example shows how to render the row number in the first row::
     ...     age = tables.Column()
     ...
     ...     def __init__(self, *args, **kwargs):
-    ...         super(SimpleTable, self).__init__(*args, **kwargs)
+    ...         super().__init__(*args, **kwargs)
     ...         self.counter = itertools.count()
     ...
     ...     def render_row_number(self):

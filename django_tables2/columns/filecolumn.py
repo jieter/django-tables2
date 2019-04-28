@@ -37,7 +37,7 @@ class FileColumn(BaseLinkColumn):
 
     def __init__(self, verify_exists=True, **kwargs):
         self.verify_exists = verify_exists
-        super(FileColumn, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     def get_url(self, value, record):
         storage = getattr(value, "storage", None)
@@ -49,7 +49,7 @@ class FileColumn(BaseLinkColumn):
     def text_value(self, record, value):
         if self.text is None:
             return os.path.basename(value.name)
-        return super(FileColumn, self).text_value(record, value)
+        return super().text_value(record, value)
 
     def render(self, record, value):
         attrs = AttributeDict(self.attrs.get("span", {}))

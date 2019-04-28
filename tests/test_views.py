@@ -31,7 +31,7 @@ class SimpleView(tables.SingleTableView):
 class SingleTableViewTest(TestCase):
     @classmethod
     def setUpClass(cls):
-        super(SingleTableViewTest, cls).setUpClass()
+        super().setUpClass()
         for region in MEMORY_DATA:
             Region.objects.create(name=region["name"])
 
@@ -171,7 +171,7 @@ class SingleTableViewTest(TestCase):
 
             def get_table(self, **kwargs):
                 kwargs.update({"orderable": False})
-                return super(PassKwargsView, self).get_table(**kwargs)
+                return super().get_table(**kwargs)
 
         response = SimpleView.as_view()(build_request("/"))
         self.assertTrue(response.context_data["table"].orderable)
@@ -196,7 +196,7 @@ class SingleTableViewTest(TestCase):
                 per_page = self.request.GET.get("%s_override" % table.prefixed_per_page_field)
                 if per_page is not None:
                     return {"per_page": per_page}
-                return super(PaginationOverrideView, self).get_table_pagination(table)
+                return super().get_table_pagination(table)
 
         response = PaginationOverrideView.as_view()(build_request("/?p_per_page_override=2"))
         self.assertEqual(response.context_data["table"].paginator.per_page, 2)
@@ -313,7 +313,7 @@ class TableB(tables.Table):
 class MultiTableMixinTest(TestCase):
     @classmethod
     def setUpClass(cls):
-        super(MultiTableMixinTest, cls).setUpClass()
+        super().setUpClass()
         Person.objects.create(first_name="Jan Pieter", last_name="W")
 
         NL_PROVICES = (

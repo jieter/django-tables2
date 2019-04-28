@@ -48,7 +48,7 @@ class CheckBoxColumn(Column):
         self.checked = checked
         kwargs = {"orderable": False, "attrs": attrs}
         kwargs.update(extra)
-        super(CheckBoxColumn, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     @property
     def header(self):

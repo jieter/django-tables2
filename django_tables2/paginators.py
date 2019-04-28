@@ -60,7 +60,7 @@ class LazyPaginator(Paginator):
         if look_ahead is not None:
             self.look_ahead = look_ahead
 
-        super(LazyPaginator, self).__init__(object_list, per_page, **kwargs)
+        super().__init__(object_list, per_page, **kwargs)
 
     def validate_number(self, number):
         """Validate the given 1-based page number."""

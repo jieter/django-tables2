@@ -97,13 +97,11 @@ class TableListData(TableData):
 
     @property
     def verbose_name(self):
-        return getattr(self.data, "verbose_name", super(TableListData, self).verbose_name)
+        return getattr(self.data, "verbose_name", super().verbose_name)
 
     @property
     def verbose_name_plural(self):
-        return getattr(
-            self.data, "verbose_name_plural", super(TableListData, self).verbose_name_plural
-        )
+        return getattr(self.data, "verbose_name_plural", super().verbose_name_plural)
 
     def order_by(self, aliases):
         """
@@ -160,7 +158,7 @@ class TableQuerysetData(TableData):
         return self._length
 
     def set_table(self, table):
-        super(TableQuerysetData, self).set_table(table)
+        super().set_table(table)
         if self.model and getattr(table._meta, "model", None) and self.model != table._meta.model:
             warnings.warn(
                 "Table data is of type {} but {} is specified in Table.Meta.model".format(

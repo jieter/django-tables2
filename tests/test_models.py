@@ -377,7 +377,7 @@ class OrderingDataTest(TestCase):
 
     @classmethod
     def setUpClass(cls):
-        super(OrderingDataTest, cls).setUpClass()
+        super().setUpClass()
 
         for name in cls.NAMES:
             first_name, last_name = name.split()
@@ -437,7 +437,7 @@ class OrderingDataTest(TestCase):
 class ModelSanityTest(TestCase):
     @classmethod
     def setUpClass(cls):
-        super(ModelSanityTest, cls).setUpClass()
+        super().setUpClass()
         for i in range(10):
             Person.objects.create(first_name="Bob %d" % i, last_name="Builder")
 

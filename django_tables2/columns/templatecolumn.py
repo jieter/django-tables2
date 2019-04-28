@@ -41,7 +41,7 @@ class TemplateColumn(Column):
     empty_values = ()
 
     def __init__(self, template_code=None, template_name=None, extra_context=None, **extra):
-        super(TemplateColumn, self).__init__(**extra)
+        super().__init__(**extra)
         self.template_code = template_code
         self.template_name = template_name
         self.extra_context = extra_context or {}
@@ -77,5 +77,5 @@ class TemplateColumn(Column):
         The value returned from a call to `value()` on a `TemplateColumn` is
         the rendered template with `django.utils.html.strip_tags` applied.
         """
-        html = super(TemplateColumn, self).value(**kwargs)
+        html = super().value(**kwargs)
         return strip_tags(html) if isinstance(html, str) else html

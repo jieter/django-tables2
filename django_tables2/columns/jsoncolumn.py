@@ -45,7 +45,7 @@ class JSONColumn(BaseLinkColumn):
             json_dumps_kwargs if json_dumps_kwargs is not None else {"indent": 2}
         )
 
-        super(JSONColumn, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     def render(self, record, value):
         return format_html(

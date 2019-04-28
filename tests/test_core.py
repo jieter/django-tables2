@@ -87,7 +87,7 @@ class CoreTest(SimpleTestCase):
 
             def __new__(cls, name, bases, attrs):
                 attrs["tweaked"] = True
-                return super(Tweaker, cls).__new__(cls, name, bases, attrs)
+                return super().__new__(cls, name, bases, attrs)
 
         class Meta(Tweaker, DeclarativeColumnsMetaclass):
             pass

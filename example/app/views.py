@@ -168,7 +168,7 @@ class FilteredPersonListView(SingleTableMixin, FilterView):
     filterset_class = PersonFilter
 
     def get_queryset(self):
-        return super(FilteredPersonListView, self).get_queryset().select_related("country")
+        return super().get_queryset().select_related("country")
 
     def get_table_kwargs(self):
         return {"template_name": "django_tables2/bootstrap.html"}

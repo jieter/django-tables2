@@ -191,7 +191,7 @@ class DynamicColumnsTest(TestCase):
                         ("occupation", tables.RelatedLinkColumn(orderable=False))
                     )
 
-                super(MyTable, self).__init__(data, *args, **kwargs)
+                super().__init__(data, *args, **kwargs)
 
         table = MyTable(Person.objects.all())
         self.assertEqual([c.name for c in table.columns], ["first_name", "occupation", "friends"])
@@ -210,7 +210,7 @@ class DynamicColumnsTest(TestCase):
 
             def __init__(self, *args, **kwargs):
                 self.base_columns["mycolumn"].verbose_name = "Monday"
-                super(Table, self).__init__(*args, **kwargs)
+                super().__init__(*args, **kwargs)
 
         table = Table([])
         self.assertEqual(table.columns["mycolumn"].verbose_name, "Monday")

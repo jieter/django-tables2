@@ -21,7 +21,7 @@ class DateColumn(TemplateColumn):
         if format is None:
             format = "SHORT_DATE_FORMAT" if short else "DATE_FORMAT"
         template = '{{ value|date:"%s"|default:default }}' % format
-        super(DateColumn, self).__init__(template_code=template, *args, **kwargs)
+        super().__init__(template_code=template, *args, **kwargs)
 
     @classmethod
     def from_field(cls, field):

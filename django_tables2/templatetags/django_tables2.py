@@ -46,7 +46,7 @@ def token_kwargs(bits, parser):
 
 class QuerystringNode(Node):
     def __init__(self, updates, removals, asvar=None):
-        super(QuerystringNode, self).__init__()
+        super().__init__()
         self.updates = updates
         self.removals = removals
         self.asvar = asvar
@@ -124,7 +124,7 @@ class RenderTableNode(Node):
     """
 
     def __init__(self, table, template_name=None):
-        super(RenderTableNode, self).__init__()
+        super().__init__()
         self.table = table
         self.template_name = template_name
 

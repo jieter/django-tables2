@@ -29,7 +29,7 @@ class BooleanColumn(Column):
         self.yesno = yesno.split(",") if isinstance(yesno, str) else tuple(yesno)
         if not null:
             kwargs["empty_values"] = ()
-        super(BooleanColumn, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     def _get_bool_value(self, record, value, bound_column):
         # If record is a model, we need to check if it has choices defined.
