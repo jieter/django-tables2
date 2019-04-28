@@ -1,6 +1,5 @@
 from django.db import models
-
-from django_tables2.utils import ucfirst
+from django.utils.text import capfirst
 
 from .base import library
 from .templatecolumn import TemplateColumn
@@ -27,4 +26,4 @@ class TimeColumn(TemplateColumn):
     @classmethod
     def from_field(cls, field):
         if isinstance(field, models.TimeField):
-            return cls(verbose_name=ucfirst(field.verbose_name))
+            return cls(verbose_name=capfirst(field.verbose_name))

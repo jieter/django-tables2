@@ -5,15 +5,15 @@ from django.core.exceptions import ImproperlyConfigured
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.safestring import SafeData
+from django.utils.text import capfirst
 
-from django_tables2.utils import (
+from ..utils import (
     Accessor,
     AttributeDict,
     OrderBy,
     OrderByTuple,
     call_with_appropriate,
     computed_values,
-    ucfirst,
 )
 
 
@@ -420,7 +420,7 @@ class Column(object):
             else:
                 verbose_name = getattr(field, "verbose_name", field.name)
 
-            return cls(verbose_name=ucfirst(verbose_name))
+            return cls(verbose_name=capfirst(verbose_name))
 
 
 class BoundColumn(object):
@@ -702,7 +702,7 @@ class BoundColumn(object):
             if isinstance(name, SafeData):
                 return name
 
-        return ucfirst(name)
+        return capfirst(name)
 
     @property
     def visible(self):
