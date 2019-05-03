@@ -1,7 +1,7 @@
 from django.core.paginator import EmptyPage, PageNotAnInteger
 
 
-class RequestConfig(object):
+class RequestConfig:
     """
     A configurator that uses request data to setup a table.
 

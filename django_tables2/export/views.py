@@ -1,7 +1,7 @@
 from .export import TableExport
 
 
-class ExportMixin(object):
+class ExportMixin:
     """
     Support various export formats for the table data.
 

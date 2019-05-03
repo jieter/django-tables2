@@ -94,7 +94,7 @@ class AccessorTest(TestCase):
         assert 1 == x.resolve("Brad")
 
     def test_honors_alters_data(self):
-        class Foo(object):
+        class Foo:
             deleted = False
 
             def delete(self):
@@ -199,7 +199,7 @@ class SignatureTest(TestCase):
         assert keywords is None
 
     def test_signature_method(self):
-        class Foo(object):
+        class Foo:
             def foo(self):
                 pass
 

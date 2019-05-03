@@ -19,13 +19,13 @@ class TableDataFactoryTest(TestCase):
             TableData.from_data(1)
 
     def test_invalid_data_classes(self):
-        class Klass(object):
+        class Klass:
             pass
 
         with self.assertRaises(ValueError):
             TableData.from_data(Klass())
 
-        class Bad(object):
+        class Bad:
             def __len__(self):
                 pass
 
@@ -47,7 +47,7 @@ class TableDataFactoryTest(TestCase):
         self.assertEqual(len(data), 2)
 
     def test_valid_class(self):
-        class Datasource(object):
+        class Datasource:
             def __len__(self):
                 return 1
 

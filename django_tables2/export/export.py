@@ -9,7 +9,7 @@ except ImportError:  # pragma: no cover
     )
 
 
-class TableExport(object):
+class TableExport:
     """
     Export data from a table to the file type specified.
 

@@ -7,7 +7,7 @@ from . import tables
 from .config import RequestConfig
 
 
-class TableMixinBase(object):
+class TableMixinBase:
     """
     Base mixin for the Single- and MultiTable class based views
     """

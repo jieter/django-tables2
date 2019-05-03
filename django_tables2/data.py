@@ -5,7 +5,7 @@ from django.utils.functional import cached_property
 from .utils import OrderBy, OrderByTuple, segment
 
 
-class TableData(object):
+class TableData:
     """
     Base class for table data containers.
     """

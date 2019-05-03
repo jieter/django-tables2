@@ -85,7 +85,7 @@ class RowsTest(SimpleTestCase):
         class Table(tables.Table):
             name = tables.Column()
 
-            class Meta(object):
+            class Meta:
                 row_attrs = {"class": lambda: "" if next(counter) % 2 == 0 else "bla"}
 
         table = Table([{"name": "Brian"}, {"name": "Thomas"}, {"name": "John"}])

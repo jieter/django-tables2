@@ -211,7 +211,7 @@ class OrderByTuple(tuple):
             reversing.append(order_by.is_descending)
 
         @total_ordering
-        class Comparator(object):
+        class Comparator:
             def __init__(self, obj):
                 self.obj = obj
 
@@ -310,7 +310,7 @@ class Accessor(str):
             'B'
 
         Arguments:
-            context (object): The root/first object to traverse.
+            context : The root/first object to traverse.
             safe (bool): Don't call anything with `alters_data = True`
             quiet (bool): Smother all exceptions and instead return `None`
 

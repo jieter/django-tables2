@@ -17,7 +17,7 @@ from ..utils import (
 )
 
 
-class Library(object):
+class Library:
     """
     A collection of columns.
     """
@@ -60,7 +60,7 @@ class Library(object):
 library = Library()
 
 
-class LinkTransform(object):
+class LinkTransform:
     """
     Object used to generate attributes for the `<a>`-tag to wrap the cell content in.
     """
@@ -156,7 +156,7 @@ class LinkTransform(object):
 
 
 @library.register
-class Column(object):
+class Column:
     """
     Represents a single column of a table.
 
@@ -423,7 +423,7 @@ class Column(object):
             return cls(verbose_name=capfirst(verbose_name))
 
 
-class BoundColumn(object):
+class BoundColumn:
     """
     A *run-time* version of `.Column`. The difference between
     `.BoundColumn` and `.Column`, is that `.BoundColumn` objects include the
@@ -719,7 +719,7 @@ class BoundColumn(object):
         return self.column.localize
 
 
-class BoundColumns(object):
+class BoundColumns:
     """
     Container for spawning `.BoundColumn` objects.
 

@@ -98,7 +98,7 @@ class DeclarativeColumnsMetaclass(type):
         return super().__new__(mcs, name, bases, attrs)
 
 
-class TableOptions(object):
+class TableOptions:
     """
     Extracts and exposes options for a `.Table` from a `.Table.Meta`
     when the table is defined. See `.Table` for documentation on the impact of
@@ -172,7 +172,7 @@ class TableOptions(object):
                     )
 
 
-class TableBase(object):
+class TableBase:
     """
     A representation of a table.
 

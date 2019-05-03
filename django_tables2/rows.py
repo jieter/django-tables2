@@ -5,7 +5,7 @@ from .columns.linkcolumn import BaseLinkColumn
 from .utils import A, AttributeDict, call_with_appropriate, computed_values
 
 
-class CellAccessor(object):
+class CellAccessor:
     """
     Allows accessing cell contents on a row object (see `BoundRow`)
     """
@@ -20,7 +20,7 @@ class CellAccessor(object):
         return self.row.get_cell(name)
 
 
-class BoundRow(object):
+class BoundRow:
     """
     Represents a *specific* row in a table.
 
@@ -273,7 +273,7 @@ class BoundPinnedRow(BoundRow):
         return AttributeDict(row_attrs)
 
 
-class BoundRows(object):
+class BoundRows:
     """
     Container for spawning `.BoundRow` objects.
 

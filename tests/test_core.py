@@ -538,7 +538,7 @@ class BoundColumnTest(SimpleTestCase):
         class Table(tables.Table):
             c_element = tables.Column()
 
-        class ErrorObject(object):
+        class ErrorObject:
             def __bool__(self):
                 raise NotImplementedError
 
@@ -558,7 +558,7 @@ class BoundColumnTest(SimpleTestCase):
             class Meta:
                 attrs = {"td": {"data-column-name": lambda value: value.name}}
 
-        class FalsyObject(object):
+        class FalsyObject:
             name = "FalsyObject1"
 
             def __bool__(self):

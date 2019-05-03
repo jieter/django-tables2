@@ -209,7 +209,7 @@ class SingleTableViewTest(TestCase):
         Person.objects.create(first_name="Anton", last_name="Sam")
 
         class Table(tables.Table):
-            class Meta(object):
+            class Meta:
                 model = Person
                 fields = ("first_name", "last_name")
 
