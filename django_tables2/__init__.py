@@ -1,4 +1,3 @@
-# coding: utf-8
 from .tables import Table, TableBase, table_factory
 from .columns import (
     BooleanColumn,
