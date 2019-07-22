@@ -154,9 +154,7 @@ class ExportViewTest(TestCase):
         self.assertEqual(response["Content-Disposition"], 'attachment; filename="people.json"')
 
     def test_function_view(self):
-        """
-        Test the code used in the docs
-        """
+        """Test the code used in the docs."""
 
         def table_view(request):
             table = Table(Person.objects.all())
@@ -197,7 +195,7 @@ class OccupationView(ExportMixin, tables.SingleTableView):
 class AdvancedExportViewTest(TestCase):
     @classmethod
     def setUpClass(cls):
-        super(AdvancedExportViewTest, cls).setUpClass()
+        super().setUpClass()
 
         richard = Person.objects.create(first_name="Richard", last_name="Queener")
 
@@ -212,6 +210,40 @@ class AdvancedExportViewTest(TestCase):
         self.assertTrue(data.find("Vlaanderen".encode()))
         self.assertTrue(data.find("Ecoloog".encode()))
         self.assertTrue(data.find("Timmerman".encode()))
+
+    def test_datetime_xls(self):
+        """Verify datatime objects can be exported to xls."""
+        import pytz
+        from datetime import date, time, datetime
+
+        utc = pytz.timezone("UTC")
+
+        class Table(tables.Table):
+            date = tables.DateColumn()
+            time = tables.TimeColumn()
+            datetime = tables.DateTimeColumn()
+
+        class View(ExportMixin, tables.SingleTableView):
+            table_class = Table
+            table_pagination = {"per_page": 1}
+            template_name = "django_tables2/bootstrap.html"
+
+            def get_queryset(self):
+                return [
+                    {
+                        "date": date(2019, 7, 22),
+                        "time": time(11, 11, 11),
+                        "datetime": utc.localize(datetime(2019, 7, 22, 11, 11, 11)),
+                    }
+                ]
+
+        response = View.as_view()(build_request("/?_export=csv"))
+        data = response.getvalue().decode("utf8")
+
+        expected_csv = "\r\n".join(
+            ("Date,Time,Datetime", "2019-07-22,11:11:11,2019-07-22 13:11:11", "")
+        )
+        self.assertEqual(data, expected_csv)
 
     def test_should_work_with_foreign_key_fields(self):
         class OccupationWithForeignKeyFieldsTable(tables.Table):
@@ -233,7 +265,8 @@ class AdvancedExportViewTest(TestCase):
             (
                 "Name,Boolean,Region,First name",
                 "Timmerman,True,Vlaanderen,Richard",
-                "Ecoloog,False,Vlaanderen,Richard\r\n",
+                "Ecoloog,False,Vlaanderen,Richard",
+                "",
             )
         )
         self.assertEqual(data, expected_csv)

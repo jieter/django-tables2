@@ -94,7 +94,7 @@ You can define the columns you want to exclude in several ways::
     exporter = TableExport("csv", table, exclude_columns=("image", "buttons"))
 
 
-If you use the ``~.ExportMixin``, add an ``exclude_columns`` attribute to your class::
+If you use the ``django_tables2.export.ExportMixin``, add an ``exclude_columns`` attribute to your class::
 
     class TableView(ExportMixin, tables.SingleTableView):
         table_class = MyTable
@@ -106,7 +106,7 @@ If you use the ``~.ExportMixin``, add an ``exclude_columns`` attribute to your c
 Generating export URLs
 ----------------------
 
-You can use the ``querystring`` template tag included with django_tables2
+You can use the ``export_url`` template tag included with django_tables2
 to render a link to export the data as ``csv``::
 
     {% export_url "csv" %}
@@ -116,7 +116,7 @@ in combination when filtering table items.
 
 If you want to render more than one button, you could use something like this::
 
-    {% for format in table.export_formats %}
+    {% for format in view.export_formats %}
         <a href="{% export_url format %}">
             download  <code>.{{ format }}</code>
         </a>
@@ -125,4 +125,4 @@ If you want to render more than one button, you could use something like this::
 .. note::
 
     This example assumes you define a list of possible
-    export formats on your table instance in attribute ``export_formats``
+    export formats on your view instance in attribute ``export_formats``.

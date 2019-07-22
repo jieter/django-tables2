@@ -475,9 +475,7 @@ class TableBase:
             exclude_columns = ()
 
         def excluded(column):
-            if column.column.exclude_from_export:
-                return True
-            return column.name in exclude_columns
+            return column.column.exclude_from_export or column.name in exclude_columns
 
         yield [
             force_str(column.header, strings_only=True)
@@ -689,7 +687,7 @@ Table = DeclarativeColumnsMetaclass("Table", (TableBase,), {})
 
 def table_factory(model, table=Table, fields=None, exclude=None, localize=None):
     """
-    Returns Table class for given `model`, equivalent to defining a custom table class::
+    Return Table class for given `model`, equivalent to defining a custom table class::
 
         class MyTable(tables.Table):
             class Meta:

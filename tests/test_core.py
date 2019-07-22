@@ -96,8 +96,7 @@ class CoreTest(SimpleTestCase):
             __metaclass__ = Meta
             name = tables.Column()
 
-        # Python 2/3 compatible way to enable the metaclass
-        TweakedTable = Meta(str("TweakedTable"), (TweakedTableBase,), {})
+        TweakedTable = Meta("TweakedTable", (TweakedTableBase,), {})
 
         table = TweakedTable([])
         self.assertIn("name", table.columns)
@@ -110,10 +109,7 @@ class CoreTest(SimpleTestCase):
         class FlippedTweakedTableBase(tables.Table):
             name = tables.Column()
 
-        # Python 2/3 compatible way to enable the metaclass
-        FlippedTweakedTable = FlippedMeta(
-            str("FlippedTweakedTable"), (FlippedTweakedTableBase,), {}
-        )
+        FlippedTweakedTable = FlippedMeta("FlippedTweakedTable", (FlippedTweakedTableBase,), {})
 
         table = FlippedTweakedTable([])
         self.assertIn("name", table.columns)
@@ -200,10 +196,7 @@ class CoreTest(SimpleTestCase):
         self.assertIn('<tfoot class="tfoot-class">', html)
 
     def test_datasource_untouched(self):
-        """
-        Ensure that data that is provided to the table (the datasource) is not
-        modified by table operations.
-        """
+        """Ensure that data the data datasource is not modified by table operations."""
         original_data = copy.deepcopy(MEMORY_DATA)
 
         table = UnorderedTable(MEMORY_DATA)
@@ -288,10 +281,7 @@ class CoreTest(SimpleTestCase):
         self.assertEqual(table.columns.names(), ["b"])
 
     def test_exclude_should_work_on_sequence_too(self):
-        """
-        It should be possible to define a sequence on a table
-        and exclude it in a child of that table.
-        """
+        """It should be possible to define a sequence on a table and exclude it in a child of that table."""
 
         class PersonTable(tables.Table):
             first_name = tables.Column()
@@ -391,9 +381,7 @@ class CoreTest(SimpleTestCase):
             self.assertEqual(table.empty_text, "volgende")
 
     def test_prefix(self):
-        """
-        Test that table prefixes affect the names of querystring parameters
-        """
+        """Verify table prefixes affect the names of querystring parameters."""
 
         class TableA(tables.Table):
             name = tables.Column()

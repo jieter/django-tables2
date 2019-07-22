@@ -399,17 +399,17 @@ class Column:
     @classmethod
     def from_field(cls, field):
         """
-        Return a specialised column for the model field or `None`.
+        Return a specialized column for the model field or `None`.
 
         Arguments:
             field (Model Field instance): the field that needs a suitable column
         Returns:
             `.Column` object or `None`
 
-        If the column is not specialised for the given model field, it should
+        If the column is not specialized for the given model field, it should
         return `None`. This gives other columns the opportunity to do better.
 
-        If the column is specialised, it should return an instance of itself
+        If the column is specialized, it should return an instance of itself
         that is configured appropriately for the field.
         """
         # Since this method is inherited by every subclass, only provide a

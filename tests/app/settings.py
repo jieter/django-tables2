@@ -19,6 +19,10 @@ TEMPLATES = [
     }
 ]
 
-TIME_ZONE = "Australia/Brisbane"
+TIME_ZONE = "Europe/Amsterdam"
+
+SHORT_DATE_FORMAT = "Y-m-d"
+TIME_FORMAT = "H:i:s"
+SHORT_DATETIME_FORMAT = "Y-m-d H:i:s"
 
 USE_TZ = True

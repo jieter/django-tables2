@@ -42,7 +42,7 @@ class TableMixinBase:
             paginate["per_page"] = self.paginate_by
         if hasattr(self, "paginator_class"):
             paginate["paginator_class"] = self.paginator_class
-        if getattr(self, "paginate_orphans", 0) is not 0:
+        if getattr(self, "paginate_orphans", 0) != 0:
             paginate["orphans"] = self.paginate_orphans
 
         # table_pagination overrides any MultipleObjectMixin attributes
