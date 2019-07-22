@@ -20,3 +20,4 @@
 .python-version
 .idea
 *.sw[po]
+pip-wheel-metadata
