@@ -1,9 +1,11 @@
 # Change log
 
-## 2.1.0 (not yet released)
- - Dropped support for python 2.7. Django==1.11 is still supported on python 3.
+## 2.1.0 (2019-07-22)
+ - Dropped support for python 2.7 (and django 1.11).
  - Removed `django_tables2.utils.ucfirst`, use `django.utils.text.capfirst` instead.
-
+ - Removed `class="thead-default"` from bootstrap4 template ([#671](https://github.com/jieter/django-tables2/issues/671))
+ - Included columns with `visible=False` in export ([#677](https://github.com/jieter/django-tables2/pull/677))
+ - Fixed pagination when the number of pages is equal to page range plus one ([#655](https://github.com/jieter/django-tables2/pull/655))
 
 ## 2.0.6 (2019-03-26)
  -  Add optional 'table' kwarg to `row_attrs` callables
