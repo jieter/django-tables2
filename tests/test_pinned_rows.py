@@ -1,4 +1,3 @@
-# encoding: utf-8
 from django.test import SimpleTestCase
 
 import django_tables2 as tables
@@ -7,7 +6,7 @@ from django_tables2.rows import BoundRow, BoundRows
 from .utils import build_request, parse
 
 
-class PinnedObj(object):
+class PinnedObj:
     def __init__(self, name, age):
         self.name = name
         self.age = age

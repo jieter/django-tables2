@@ -1,4 +1,3 @@
-# coding: utf-8
 from django.test import SimpleTestCase
 
 import django_tables2 as tables

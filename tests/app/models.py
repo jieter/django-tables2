@@ -1,16 +1,11 @@
-# coding: utf-8
-from __future__ import unicode_literals
-
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.urls import reverse
-from django.utils import six
 from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext, ugettext_lazy
+from django.utils.translation import gettext, gettext_lazy
 
 
-@six.python_2_unicode_compatible
 class Person(models.Model):
     first_name = models.CharField(max_length=200)
 
@@ -25,11 +20,11 @@ class Person(models.Model):
     )
 
     trans_test = models.CharField(
-        max_length=200, blank=True, verbose_name=ugettext("translation test")
+        max_length=200, blank=True, verbose_name=gettext("translation test")
     )
 
     trans_test_lazy = models.CharField(
-        max_length=200, blank=True, verbose_name=ugettext_lazy("translation test lazy")
+        max_length=200, blank=True, verbose_name=gettext_lazy("translation test lazy")
     )
 
     safe = models.CharField(max_length=200, blank=True, verbose_name=mark_safe("<b>Safe</b>"))
@@ -76,7 +71,6 @@ class Group(models.Model):
         return "/group/{}/".format(self.pk)
 
 
-@six.python_2_unicode_compatible
 class Occupation(models.Model):
     name = models.CharField(max_length=200)
     region = models.ForeignKey("Region", null=True, on_delete=models.CASCADE)
@@ -92,7 +86,6 @@ class Occupation(models.Model):
         return self.name
 
 
-@six.python_2_unicode_compatible
 class Region(models.Model):
     name = models.CharField(max_length=200)
     mayor = models.OneToOneField(Person, null=True, on_delete=models.CASCADE)

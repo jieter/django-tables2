@@ -1,10 +1,6 @@
-# coding: utf-8
-from __future__ import absolute_import, unicode_literals
-
 from datetime import datetime
 
 from django.test import TestCase
-from django.utils import six
 
 import django_tables2 as tables
 from django_tables2 import RequestConfig
@@ -128,7 +124,7 @@ class OrderingTest(TestCase):
         self.assertEqual(table.rows[0].get_cell("alpha"), "—")
 
         table = OrderedTable(data, order_by="i")
-        self.assertEqual(table.rows[0].get_cell("i"), {} if six.PY3 else 1)
+        self.assertEqual(table.rows[0].get_cell("i"), {})
 
         table = OrderedTable(data, order_by="beta")
         self.assertEqual(table.rows[0].get_cell("beta"), [])

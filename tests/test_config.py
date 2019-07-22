@@ -1,4 +1,3 @@
-# coding: utf-8
 from django.core.paginator import EmptyPage, PageNotAnInteger
 from django.test import SimpleTestCase, TestCase
 from fudge import Fake

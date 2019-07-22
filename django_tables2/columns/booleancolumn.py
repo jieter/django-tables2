@@ -1,12 +1,8 @@
-# coding: utf-8
-from __future__ import absolute_import, unicode_literals
-
 from django.db import models
-from django.utils import six
 from django.utils.html import escape, format_html
+from django.utils.text import capfirst
 
-from django_tables2.utils import AttributeDict, ucfirst
-
+from ..utils import AttributeDict
 from .base import Column, library
 
 
@@ -30,10 +26,10 @@ class BooleanColumn(Column):
     """
 
     def __init__(self, null=False, yesno="✔,✘", **kwargs):
-        self.yesno = yesno.split(",") if isinstance(yesno, six.string_types) else tuple(yesno)
+        self.yesno = yesno.split(",") if isinstance(yesno, str) else tuple(yesno)
         if not null:
             kwargs["empty_values"] = ()
-        super(BooleanColumn, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     def _get_bool_value(self, record, value, bound_column):
         # If record is a model, we need to check if it has choices defined.
@@ -51,7 +47,7 @@ class BooleanColumn(Column):
     def render(self, value, record, bound_column):
         value = self._get_bool_value(record, value, bound_column)
         text = self.yesno[int(not value)]
-        attrs = {"class": six.text_type(value).lower()}
+        attrs = {"class": str(value).lower()}
         attrs.update(self.attrs.get("span", {}))
 
         return format_html("<span {}>{}</span>", AttributeDict(attrs).as_html(), escape(text))
@@ -66,8 +62,8 @@ class BooleanColumn(Column):
     @classmethod
     def from_field(cls, field):
         if isinstance(field, models.NullBooleanField):
-            return cls(verbose_name=ucfirst(field.verbose_name), null=True)
+            return cls(verbose_name=capfirst(field.verbose_name), null=True)
 
         if isinstance(field, models.BooleanField):
             null = getattr(field, "null", False)
-            return cls(verbose_name=ucfirst(field.verbose_name), null=null)
+            return cls(verbose_name=capfirst(field.verbose_name), null=null)

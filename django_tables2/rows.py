@@ -1,15 +1,11 @@
-# coding: utf-8
-from __future__ import absolute_import, unicode_literals
-
 from django.db import models
 from django.db.models.fields import FieldDoesNotExist
-from django.utils import six
 
 from .columns.linkcolumn import BaseLinkColumn
 from .utils import A, AttributeDict, call_with_appropriate, computed_values
 
 
-class CellAccessor(object):
+class CellAccessor:
     """
     Allows accessing cell contents on a row object (see `BoundRow`)
     """
@@ -24,7 +20,7 @@ class CellAccessor(object):
         return self.row.get_cell(name)
 
 
-class BoundRow(object):
+class BoundRow:
     """
     Represents a *specific* row in a table.
 
@@ -237,10 +233,7 @@ class BoundRow(object):
         """
         Check by both row object and column name.
         """
-        if isinstance(item, six.string_types):
-            return item in self.table.columns
-        else:
-            return item in self
+        return item in (self.table.columns if isinstance(item, str) else self)
 
     def items(self):
         """
@@ -280,7 +273,7 @@ class BoundPinnedRow(BoundRow):
         return AttributeDict(row_attrs)
 
 
-class BoundRows(object):
+class BoundRows:
     """
     Container for spawning `.BoundRow` objects.
 

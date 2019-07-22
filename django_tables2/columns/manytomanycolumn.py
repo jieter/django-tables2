@@ -1,11 +1,7 @@
-# coding: utf-8
-from __future__ import absolute_import, unicode_literals
-
 from django.db import models
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 from django.utils.html import conditional_escape, mark_safe
-
-from django_tables2.utils import ucfirst
+from django.utils.text import capfirst
 
 from .base import Column, LinkTransform, library
 
@@ -20,7 +16,7 @@ class ManyToManyColumn(Column):
     Arguments:
         transform: callable to transform each item to text, it gets an item as argument
             and must return a string-like representation of the item.
-            By default, it calls `~django.utils.force_text` on each item.
+            By default, it calls `~django.utils.force_str` on each item.
         filter: callable to filter, limit or order the QuerySet, it gets the
             `ManyRelatedManager` as first argument and must return a filtered QuerySet.
             By default, it returns `all()`
@@ -56,7 +52,7 @@ class ManyToManyColumn(Column):
         self, transform=None, filter=None, separator=", ", linkify_item=None, *args, **kwargs
     ):
         kwargs.setdefault("orderable", False)
-        super(ManyToManyColumn, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         if transform is not None:
             self.transform = transform
@@ -79,7 +75,7 @@ class ManyToManyColumn(Column):
         """
         Transform is applied to each item of the list of objects from the ManyToMany relation.
         """
-        return force_text(obj)
+        return force_str(obj)
 
     def filter(self, qs):
         """
@@ -106,4 +102,4 @@ class ManyToManyColumn(Column):
     @classmethod
     def from_field(cls, field):
         if isinstance(field, models.ManyToManyField):
-            return cls(verbose_name=ucfirst(field.verbose_name))
+            return cls(verbose_name=capfirst(field.verbose_name))

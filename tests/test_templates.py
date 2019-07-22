@@ -1,9 +1,7 @@
-# coding: utf-8
-from __future__ import unicode_literals
 
 from django.template import Context, Template
 from django.test import SimpleTestCase, TestCase, override_settings
-from django.utils.translation import override as translation_override, ugettext_lazy
+from django.utils.translation import gettext_lazy, override as translation_override
 from lxml import etree
 
 import django_tables2 as tables
@@ -15,7 +13,7 @@ from .utils import build_request, parse
 
 class CountryTable(tables.Table):
     name = tables.Column()
-    capital = tables.Column(orderable=False, verbose_name=ugettext_lazy("Capital"))
+    capital = tables.Column(orderable=False, verbose_name=gettext_lazy("Capital"))
     population = tables.Column(verbose_name="Population Size")
     currency = tables.Column(visible=False)
     tld = tables.Column(visible=False, verbose_name="Domain")

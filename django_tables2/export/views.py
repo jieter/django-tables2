@@ -1,9 +1,7 @@
-from __future__ import unicode_literals
-
 from .export import TableExport
 
 
-class ExportMixin(object):
+class ExportMixin:
     """
     Support various export formats for the table data.
 
@@ -45,4 +43,4 @@ class ExportMixin(object):
         if TableExport.is_valid_format(export_format):
             return self.create_export(export_format)
 
-        return super(ExportMixin, self).render_to_response(context, **kwargs)
+        return super().render_to_response(context, **kwargs)

@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 from django.core.exceptions import ImproperlyConfigured
 from django.http import HttpResponse
 
@@ -11,7 +9,7 @@ except ImportError:  # pragma: no cover
     )
 
 
-class TableExport(object):
+class TableExport:
     """
     Export data from a table to the file type specified.
 

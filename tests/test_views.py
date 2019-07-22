@@ -1,13 +1,10 @@
-# coding: utf-8
-
-from unittest import skipUnless
-
 from django.core.exceptions import ImproperlyConfigured
 from django.test import TestCase
-from django.utils import six
 from django.views.generic.base import TemplateView
 
+import django_filters as filters
 import django_tables2 as tables
+from django_filters.views import FilterView
 
 from .app.models import Person, Region
 from .utils import build_request
@@ -34,7 +31,7 @@ class SimpleView(tables.SingleTableView):
 class SingleTableViewTest(TestCase):
     @classmethod
     def setUpClass(cls):
-        super(SingleTableViewTest, cls).setUpClass()
+        super().setUpClass()
         for region in MEMORY_DATA:
             Region.objects.create(name=region["name"])
 
@@ -174,7 +171,7 @@ class SingleTableViewTest(TestCase):
 
             def get_table(self, **kwargs):
                 kwargs.update({"orderable": False})
-                return super(PassKwargsView, self).get_table(**kwargs)
+                return super().get_table(**kwargs)
 
         response = SimpleView.as_view()(build_request("/"))
         self.assertTrue(response.context_data["table"].orderable)
@@ -199,7 +196,7 @@ class SingleTableViewTest(TestCase):
                 per_page = self.request.GET.get("%s_override" % table.prefixed_per_page_field)
                 if per_page is not None:
                     return {"per_page": per_page}
-                return super(PaginationOverrideView, self).get_table_pagination(table)
+                return super().get_table_pagination(table)
 
         response = PaginationOverrideView.as_view()(build_request("/?p_per_page_override=2"))
         self.assertEqual(response.context_data["table"].paginator.per_page, 2)
@@ -212,7 +209,7 @@ class SingleTableViewTest(TestCase):
         Person.objects.create(first_name="Anton", last_name="Sam")
 
         class Table(tables.Table):
-            class Meta(object):
+            class Meta:
                 model = Person
                 fields = ("first_name", "last_name")
 
@@ -274,13 +271,10 @@ class SingleTableMixinTest(TestCase):
 
         View.as_view()(build_request())
 
-    @skipUnless(six.PY3, "django_filter==2.1.0 does not support PY2")
     def test_should_paginate_by_default(self):
         """
         When mixing SingleTableMixin with FilterView, the table should paginate by default
         """
-        import django_filters as filters
-        from django_filters.views import FilterView
 
         add_records = 60
         for i in range(1, add_records + 1):
@@ -319,7 +313,7 @@ class TableB(tables.Table):
 class MultiTableMixinTest(TestCase):
     @classmethod
     def setUpClass(cls):
-        super(MultiTableMixinTest, cls).setUpClass()
+        super().setUpClass()
         Person.objects.create(first_name="Jan Pieter", last_name="W")
 
         NL_PROVICES = (

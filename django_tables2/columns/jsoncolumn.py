@@ -1,12 +1,9 @@
-# coding: utf-8
-from __future__ import absolute_import, unicode_literals
-
 import json
 
 from django.utils.html import format_html
+from django.utils.text import capfirst
 
-from django_tables2.utils import AttributeDict, ucfirst
-
+from ..utils import AttributeDict
 from .base import library
 from .linkcolumn import BaseLinkColumn
 
@@ -48,7 +45,7 @@ class JSONColumn(BaseLinkColumn):
             json_dumps_kwargs if json_dumps_kwargs is not None else {"indent": 2}
         )
 
-        super(JSONColumn, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     def render(self, record, value):
         return format_html(
@@ -61,4 +58,4 @@ class JSONColumn(BaseLinkColumn):
     def from_field(cls, field):
         if POSTGRES_AVAILABLE:
             if isinstance(field, JSONField) or isinstance(field, HStoreField):
-                return cls(verbose_name=ucfirst(field.verbose_name))
+                return cls(verbose_name=capfirst(field.verbose_name))

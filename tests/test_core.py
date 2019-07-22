@@ -1,6 +1,4 @@
-# coding: utf-8
 """Test the core table functionality."""
-from __future__ import absolute_import, unicode_literals
 
 import copy
 import itertools
@@ -89,7 +87,7 @@ class CoreTest(SimpleTestCase):
 
             def __new__(cls, name, bases, attrs):
                 attrs["tweaked"] = True
-                return super(Tweaker, cls).__new__(cls, name, bases, attrs)
+                return super().__new__(cls, name, bases, attrs)
 
         class Meta(Tweaker, DeclarativeColumnsMetaclass):
             pass
@@ -540,7 +538,7 @@ class BoundColumnTest(SimpleTestCase):
         class Table(tables.Table):
             c_element = tables.Column()
 
-        class ErrorObject(object):
+        class ErrorObject:
             def __bool__(self):
                 raise NotImplementedError
 
@@ -560,7 +558,7 @@ class BoundColumnTest(SimpleTestCase):
             class Meta:
                 attrs = {"td": {"data-column-name": lambda value: value.name}}
 
-        class FalsyObject(object):
+        class FalsyObject:
             name = "FalsyObject1"
 
             def __bool__(self):

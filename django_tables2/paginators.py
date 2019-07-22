@@ -1,7 +1,6 @@
-from __future__ import unicode_literals
 
 from django.core.paginator import EmptyPage, Page, PageNotAnInteger, Paginator
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 
 class LazyPaginator(Paginator):
@@ -61,7 +60,7 @@ class LazyPaginator(Paginator):
         if look_ahead is not None:
             self.look_ahead = look_ahead
 
-        super(LazyPaginator, self).__init__(object_list, per_page, **kwargs)
+        super().__init__(object_list, per_page, **kwargs)
 
     def validate_number(self, number):
         """Validate the given 1-based page number."""

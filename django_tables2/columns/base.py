@@ -1,27 +1,23 @@
-# coding: utf-8
-from __future__ import absolute_import, unicode_literals
-
 from collections import OrderedDict
 from itertools import islice
 
 from django.core.exceptions import ImproperlyConfigured
 from django.urls import reverse
-from django.utils import six
 from django.utils.html import format_html
 from django.utils.safestring import SafeData
+from django.utils.text import capfirst
 
-from django_tables2.utils import (
+from ..utils import (
     Accessor,
     AttributeDict,
     OrderBy,
     OrderByTuple,
     call_with_appropriate,
     computed_values,
-    ucfirst,
 )
 
 
-class Library(object):
+class Library:
     """
     A collection of columns.
     """
@@ -64,7 +60,7 @@ class Library(object):
 library = Library()
 
 
-class LinkTransform(object):
+class LinkTransform:
     """
     Object used to generate attributes for the `<a>`-tag to wrap the cell content in.
     """
@@ -160,7 +156,7 @@ class LinkTransform(object):
 
 
 @library.register
-class Column(object):
+class Column:
     """
     Represents a single column of a table.
 
@@ -275,7 +271,7 @@ class Column(object):
         linkify=False,
         initial_sort_descending=False,
     ):
-        if not (accessor is None or isinstance(accessor, six.string_types) or callable(accessor)):
+        if not (accessor is None or isinstance(accessor, str) or callable(accessor)):
             raise TypeError(
                 "accessor must be a string or callable, not %s" % type(accessor).__name__
             )
@@ -289,7 +285,7 @@ class Column(object):
         self.attrs = attrs or getattr(self, "attrs", {})
 
         # massage order_by into an OrderByTuple or None
-        order_by = (order_by,) if isinstance(order_by, six.string_types) else order_by
+        order_by = (order_by,) if isinstance(order_by, str) else order_by
         self.order_by = OrderByTuple(order_by) if order_by is not None else None
         if empty_values is not None:
             self.empty_values = empty_values
@@ -424,11 +420,10 @@ class Column(object):
             else:
                 verbose_name = getattr(field, "verbose_name", field.name)
 
-            return cls(verbose_name=ucfirst(verbose_name))
+            return cls(verbose_name=capfirst(verbose_name))
 
 
-@six.python_2_unicode_compatible
-class BoundColumn(object):
+class BoundColumn:
     """
     A *run-time* version of `.Column`. The difference between
     `.BoundColumn` and `.Column`, is that `.BoundColumn` objects include the
@@ -456,7 +451,7 @@ class BoundColumn(object):
         self.current_value = None
 
     def __str__(self):
-        return six.text_type(self.header)
+        return str(self.header)
 
     @property
     def accessor(self):
@@ -707,7 +702,7 @@ class BoundColumn(object):
             if isinstance(name, SafeData):
                 return name
 
-        return ucfirst(name)
+        return capfirst(name)
 
     @property
     def visible(self):
@@ -724,7 +719,7 @@ class BoundColumn(object):
         return self.column.localize
 
 
-class BoundColumns(object):
+class BoundColumns:
     """
     Container for spawning `.BoundColumn` objects.
 
@@ -748,7 +743,7 @@ class BoundColumns(object):
     def __init__(self, table, base_columns):
         self._table = table
         self.columns = OrderedDict()
-        for name, column in six.iteritems(base_columns):
+        for name, column in base_columns.items():
             self.columns[name] = bc = BoundColumn(table, column, name)
             bc.render = getattr(table, "render_" + name, column.render)
             # How the value is defined: 1. value_<name> 2. render_<name> 3. column.value.
@@ -846,7 +841,7 @@ class BoundColumns(object):
 
         *item* can either be a `~.BoundColumn` object, or the name of a column.
         """
-        if isinstance(item, six.string_types):
+        if isinstance(item, str):
             return item in self.iternames()
         else:
             # let's assume we were given a column
@@ -875,7 +870,7 @@ class BoundColumns(object):
                 return next(islice(self.iterall(), index, index + 1))
             except StopIteration:
                 raise IndexError
-        elif isinstance(index, six.string_types):
+        elif isinstance(index, str):
             for column in self.iterall():
                 if column.name == index:
                     return column

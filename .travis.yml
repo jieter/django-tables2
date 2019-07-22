@@ -1,3 +1,4 @@
+dist: xenial
 language: python
 cache:
     pip: true
@@ -8,21 +9,14 @@ addons:
            - myspell-en-us
 
 install:
-  - pip install tox python-coveralls
+  - pip install tox coverage
 
 script:
   - tox
 
 matrix:
   include:
-    - { python: 2.7, env: TOXENV=py27-1.11 }
-    - { python: 3.4, env: TOXENV=py34-1.11 }
-    - { python: 3.4, env: TOXENV=py34-2.0 }
-    - { python: 3.5, env: TOXENV=py35-1.11 }
-    - { python: 3.5, env: TOXENV=py35-2.0 }
     - { python: 3.5, env: TOXENV=py35-2.1 }
-    - { python: 3.5, env: TOXENV=py35-master }
-    - { python: 3.6, env: TOXENV=py36-2.0 }
     - { python: 3.6, env: TOXENV=py36-2.1 }
     - { python: 3.6, env: TOXENV=py36-master }
     - { python: 3.7-dev, env: TOXENV=py37-2.1 }
@@ -39,4 +33,7 @@ matrix:
       - env: TOXENV=py37-master
 
 after_success:
-    coveralls
+    - pip combine --amend
+    - pip report -m
+    - pip install codecov
+    - codecov

@@ -1,6 +1,3 @@
-# coding: utf-8
-from __future__ import unicode_literals
-
 from itertools import count
 
 from django.core.exceptions import ImproperlyConfigured
@@ -10,7 +7,7 @@ from . import tables
 from .config import RequestConfig
 
 
-class TableMixinBase(object):
+class TableMixinBase:
     """
     Base mixin for the Single- and MultiTable class based views
     """
@@ -141,7 +138,7 @@ class SingleTableMixin(TableMixinBase):
         Overridden version of `.TemplateResponseMixin` to inject the table into
         the template's context.
         """
-        context = super(SingleTableMixin, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         table = self.get_table(**self.get_table_kwargs())
         context[self.get_context_table_name(table)] = table
         return context
@@ -212,7 +209,7 @@ class MultiTableMixin(TableMixinBase):
         return self.tables_data
 
     def get_context_data(self, **kwargs):
-        context = super(MultiTableMixin, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         tables = self.get_tables()
 
         # apply prefixes and execute requestConfig for each table

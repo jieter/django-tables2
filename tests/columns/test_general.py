@@ -1,11 +1,8 @@
-# coding: utf-8
-from __future__ import unicode_literals
-
 from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 from django.test import TestCase
 from django.utils.safestring import SafeData, mark_safe
-from django.utils.translation import ugettext_lazy
+from django.utils.translation import gettext_lazy
 
 import django_tables2 as tables
 
@@ -153,7 +150,7 @@ class ColumnGeneralTest(TestCase):
         """
 
         class TranslationTable(tables.Table):
-            text = tables.Column(verbose_name=ugettext_lazy("Text"))
+            text = tables.Column(verbose_name=gettext_lazy("Text"))
 
         table = TranslationTable([])
         self.assertEqual(table.columns["text"].header, "Text")

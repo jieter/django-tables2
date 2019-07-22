@@ -1,13 +1,8 @@
-# coding: utf-8
-from __future__ import unicode_literals
-
 from django.db import models
 from django.urls import reverse
-from django.utils.encoding import python_2_unicode_compatible
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 
-@python_2_unicode_compatible
 class Continent(models.Model):
     name = models.CharField(max_length=100)
 
@@ -15,7 +10,6 @@ class Continent(models.Model):
         return self.name
 
 
-@python_2_unicode_compatible
 class Country(models.Model):
     """
     Represents a geographical Country
@@ -44,7 +38,6 @@ class Country(models.Model):
         return "%s (pop. %s)" % (self.name, self.population)
 
 
-@python_2_unicode_compatible
 class Person(models.Model):
     name = models.CharField(max_length=200, verbose_name="full name")
     friendly = models.BooleanField(default=True)

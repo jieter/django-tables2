@@ -1,6 +1,3 @@
-# coding: utf-8
-from __future__ import unicode_literals
-
 import copy
 from collections import OrderedDict
 from itertools import count
@@ -9,8 +6,7 @@ from django.conf import settings
 from django.core.paginator import Paginator
 from django.db import models
 from django.template.loader import get_template
-from django.utils import six
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 
 from . import columns
 from .config import RequestConfig
@@ -99,10 +95,10 @@ class DeclarativeColumnsMetaclass(type):
             if localize_column is not None:
                 base_columns[col_name].localize = localize_column
         attrs["base_columns"] = base_columns
-        return super(DeclarativeColumnsMetaclass, mcs).__new__(mcs, name, bases, attrs)
+        return super().__new__(mcs, name, bases, attrs)
 
 
-class TableOptions(object):
+class TableOptions:
     """
     Extracts and exposes options for a `.Table` from a `.Table.Meta`
     when the table is defined. See `.Table` for documentation on the impact of
@@ -113,7 +109,7 @@ class TableOptions(object):
     """
 
     def __init__(self, options, class_name):
-        super(TableOptions, self).__init__()
+        super().__init__()
         self._check_types(options, class_name)
 
         DJANGO_TABLES2_TEMPLATE = getattr(
@@ -129,7 +125,7 @@ class TableOptions(object):
         self.fields = getattr(options, "fields", None)
         self.exclude = getattr(options, "exclude", ())
         order_by = getattr(options, "order_by", None)
-        if isinstance(order_by, six.string_types):
+        if isinstance(order_by, str):
             order_by = (order_by,)
         self.order_by = OrderByTuple(order_by) if order_by is not None else None
         self.order_by_field = getattr(options, "order_by_field", "sort")
@@ -157,15 +153,9 @@ class TableOptions(object):
             (bool,): ["show_header", "show_footer", "orderable"],
             (int,): ["per_page"],
             (tuple, list, set): ["fields", "sequence", "exclude", "localize", "unlocalize"],
-            six.string_types: [
-                "template_name",
-                "prefix",
-                "order_by_field",
-                "page_field",
-                "per_page_field",
-            ],
+            str: ["template_name", "prefix", "order_by_field", "page_field", "per_page_field"],
             (dict,): ["attrs", "row_attrs", "pinned_row_attrs"],
-            (tuple, list) + six.string_types: ["order_by"],
+            (tuple, list, str): ["order_by"],
             (type(models.Model),): ["model"],
         }
 
@@ -182,7 +172,7 @@ class TableOptions(object):
                     )
 
 
-class TableBase(object):
+class TableBase:
     """
     A representation of a table.
 
@@ -273,7 +263,7 @@ class TableBase(object):
         show_footer=True,
         extra_columns=None,
     ):
-        super(TableBase, self).__init__()
+        super().__init__()
 
         # note that although data is a keyword argument, it used to be positional
         # so it is assumed to be the first argument to this method.
@@ -490,13 +480,13 @@ class TableBase(object):
             return column.name in exclude_columns
 
         yield [
-            force_text(column.header, strings_only=True)
+            force_str(column.header, strings_only=True)
             for column in self.columns
             if not excluded(column)
         ]
         for row in self.rows:
             yield [
-                force_text(row.get_cell_value(column.name), strings_only=True)
+                force_str(row.get_cell_value(column.name), strings_only=True)
                 for column in row.table.columns
                 if not excluded(column)
             ]
@@ -531,7 +521,7 @@ class TableBase(object):
         # collapse empty values to ()
         order_by = () if not value else value
         # accept string
-        order_by = order_by.split(",") if isinstance(order_by, six.string_types) else order_by
+        order_by = order_by.split(",") if isinstance(order_by, str) else order_by
         valid = []
 
         # everything's been converted to a iterable, accept iterable!
@@ -686,7 +676,7 @@ class TableBase(object):
                 ...
 
                 def get_column_class_names(self, classes_set, bound_column):
-                    classes_set = super(MyTable, self).get_column_class_names(classes_set, bound_column)
+                    classes_set = super().get_column_class_names(classes_set, bound_column)
                     classes_set.add(bound_column.name)
 
                     return classes_set
@@ -694,14 +684,7 @@ class TableBase(object):
         return classes_set
 
 
-# Python 2/3 compatible way to enable the metaclass
-@six.add_metaclass(DeclarativeColumnsMetaclass)
-class Table(TableBase):
-    # ensure the Table class has the right class docstring
-    __doc__ = TableBase.__doc__
-
-
-# Table = DeclarativeColumnsMetaclass(str('Table'), (TableBase, ), {})
+Table = DeclarativeColumnsMetaclass("Table", (TableBase,), {})
 
 
 def table_factory(model, table=Table, fields=None, exclude=None, localize=None):
@@ -729,10 +712,10 @@ def table_factory(model, table=Table, fields=None, exclude=None, localize=None):
     # If parent form class already has an inner Meta, the Meta we're
     # creating needs to inherit from the parent's inner meta.
     parent = (table.Meta, object) if hasattr(table, "Meta") else (object,)
-    Meta = type(str("Meta"), parent, attrs)
+    Meta = type("Meta", parent, attrs)
 
     # Give this new table class a reasonable name.
-    class_name = model.__name__ + str("AutogeneratedTable")
+    class_name = model.__name__ + "AutogeneratedTable"
     # Class attributes for the new table class.
     table_class_attrs = {"Meta": Meta}
     return type(table)(class_name, (table,), table_class_attrs)

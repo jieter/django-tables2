@@ -1,10 +1,8 @@
-# coding: utf-8
 import os
 import re
 import sys
 
 import sphinx_rtd_theme
-
 from recommonmark.parser import CommonMarkParser
 
 os.environ["DJANGO_SETTINGS_MODULE"] = "example.settings"

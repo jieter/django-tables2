@@ -1,6 +1,3 @@
-# coding: utf-8
-from __future__ import unicode_literals
-
 from random import choice
 
 from django.shortcuts import get_object_or_404, render
@@ -171,7 +168,7 @@ class FilteredPersonListView(SingleTableMixin, FilterView):
     filterset_class = PersonFilter
 
     def get_queryset(self):
-        return super(FilteredPersonListView, self).get_queryset().select_related("country")
+        return super().get_queryset().select_related("country")
 
     def get_table_kwargs(self):
         return {"template_name": "django_tables2/bootstrap.html"}

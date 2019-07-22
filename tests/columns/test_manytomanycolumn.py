@@ -1,6 +1,3 @@
-# coding: utf-8
-from __future__ import unicode_literals
-
 from random import randint, sample
 
 from django.test import TestCase

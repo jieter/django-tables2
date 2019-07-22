@@ -1,5 +1,10 @@
 # Change log
 
+## 2.1.0 (not yet released)
+ - Dropped support for python 2.7. Django==1.11 is still supported on python 3.
+ - Removed `django_tables2.utils.ucfirst`, use `django.utils.text.capfirst` instead.
+
+
 ## 2.0.6 (2019-03-26)
  -  Add optional 'table' kwarg to `row_attrs` callables
 

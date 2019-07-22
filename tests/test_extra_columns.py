@@ -1,10 +1,7 @@
-# coding: utf-8
-from __future__ import absolute_import, unicode_literals
-
 from django.contrib.auth import get_user_model
 from django.template import Context, Template
 from django.test import TestCase
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 import django_tables2 as tables
 
@@ -194,7 +191,7 @@ class DynamicColumnsTest(TestCase):
                         ("occupation", tables.RelatedLinkColumn(orderable=False))
                     )
 
-                super(MyTable, self).__init__(data, *args, **kwargs)
+                super().__init__(data, *args, **kwargs)
 
         table = MyTable(Person.objects.all())
         self.assertEqual([c.name for c in table.columns], ["first_name", "occupation", "friends"])
@@ -213,7 +210,7 @@ class DynamicColumnsTest(TestCase):
 
             def __init__(self, *args, **kwargs):
                 self.base_columns["mycolumn"].verbose_name = "Monday"
-                super(Table, self).__init__(*args, **kwargs)
+                super().__init__(*args, **kwargs)
 
         table = Table([])
         self.assertEqual(table.columns["mycolumn"].verbose_name, "Monday")
