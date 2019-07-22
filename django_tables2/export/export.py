@@ -46,13 +46,17 @@ class TableExport:
             raise TypeError('Export format "{}" is not supported.'.format(export_format))
 
         self.format = export_format
+        self.dataset = self.table_to_dataset(table, exclude_columns)
 
-        self.dataset = Dataset()
+    def table_to_dataset(self, table, exclude_columns):
+        """Transform a table to a tablib dataset."""
+        dataset = Dataset()
         for i, row in enumerate(table.as_values(exclude_columns=exclude_columns)):
             if i == 0:
-                self.dataset.headers = row
+                dataset.headers = row
             else:
-                self.dataset.append(row)
+                dataset.append(row)
+        return dataset
 
     @classmethod
     def is_valid_format(self, export_format):
