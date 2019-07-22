@@ -187,9 +187,9 @@ class OccupationTable(tables.Table):
 
 
 class OccupationView(ExportMixin, tables.SingleTableView):
+    model = Occupation
     table_class = OccupationTable
     table_pagination = {"per_page": 1}
-    model = Occupation
     template_name = "django_tables2/bootstrap.html"
 
 
@@ -243,6 +243,33 @@ class AdvancedExportViewTest(TestCase):
         expected_csv = "\r\n".join(
             ("Date,Time,Datetime", "2019-07-22,11:11:11,2019-07-22 13:11:11", "")
         )
+        self.assertEqual(data, expected_csv)
+
+    def test_export_invisible_columns(self):
+        """Verify columns with visible=False *do* get exported."""
+
+        DATA = [{"name": "Bess W. Fletcher", "website": "teammonka.com"}]
+
+        class Table(tables.Table):
+            name = tables.Column()
+            website = tables.Column(visible=False)
+
+        class View(ExportMixin, tables.SingleTableView):
+            table_class = Table
+            table_pagination = {"per_page": 1}
+            template_name = "django_tables2/bootstrap.html"
+
+            def get_queryset(self):
+                return DATA
+
+        response = View.as_view()(build_request())
+        self.assertNotContains(response, "teammonka.com")
+
+        response = View.as_view()(build_request("/?_export=csv"))
+
+        data = response.getvalue().decode()
+
+        expected_csv = "\r\n".join(("Name,Website", "Bess W. Fletcher,teammonka.com", ""))
         self.assertEqual(data, expected_csv)
 
     def test_should_work_with_foreign_key_fields(self):

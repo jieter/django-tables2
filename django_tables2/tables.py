@@ -470,23 +470,23 @@ class TableBase:
 
         will have a value wrapped in `<span>` in the rendered HTML, and just returns
         the value when `as_values()` is called.
+
+        Note that any invisible columns will be part of the row iterator.
         """
         if exclude_columns is None:
             exclude_columns = ()
 
-        def excluded(column):
-            return column.column.exclude_from_export or column.name in exclude_columns
-
-        yield [
-            force_str(column.header, strings_only=True)
-            for column in self.columns
-            if not excluded(column)
+        columns = [
+            column
+            for column in self.columns.iterall()
+            if not (column.column.exclude_from_export or column.name in exclude_columns)
         ]
+
+        yield [force_str(column.header, strings_only=True) for column in columns]
+
         for row in self.rows:
             yield [
-                force_str(row.get_cell_value(column.name), strings_only=True)
-                for column in row.table.columns
-                if not excluded(column)
+                force_str(row.get_cell_value(column.name), strings_only=True) for column in columns
             ]
 
     def has_footer(self):

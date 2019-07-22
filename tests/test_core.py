@@ -34,10 +34,8 @@ class CoreTest(SimpleTestCase):
             UnorderedTable()
 
     def test_column_named_items(self):
-        """
-        A column named items must not make the table fail
-        https://github.com/bradleyayers/django-tables2/issues/316
-        """
+        """A column named items must not make the table fail."""
+        # https://github.com/bradleyayers/django-tables2/issues/316
 
         class ItemsTable(tables.Table):
             items = tables.Column()
@@ -592,10 +590,15 @@ class AsValuesTest(TestCase):
 
         self.assertEqual(list(Table([]).as_values()), [["Name"]])
 
+    def test_as_values_visible_False(self):
+        class Table(tables.Table):
+            name = tables.Column()
+            website = tables.Column(visible=False)
+
+        self.assertEqual(list(Table([]).as_values()), [["Name", "Website"]])
+
     def test_as_values_empty_values(self):
-        """
-        Table's as_values() method returns `None` for missing values
-        """
+        """Table's as_values() method returns `None` for missing values."""
 
         class Table(tables.Table):
             name = tables.Column()

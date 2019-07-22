@@ -77,8 +77,17 @@ If your custom column produces HTML, you should override this method and return
 the actual value.
 
 
-Excluding columns
------------------
+Including and excluding columns
+-------------------------------
+
+Some data might be rendered in the HTML version of the table using color coding,
+but need a different representation in an export format. Use columns with `visible=False`
+to include columns in the export, but not visible in the regular rendering::
+
+    class Table(tables.Table):
+        name = columns.Column(exclude_from_export=True)
+        first_name = columns.Column(visible=False)
+        last_name = columns.Column(visible=False)
 
 Certain columns do not make sense while exporting data: you might show images or
 have a column with buttons you want to exclude from the export.
