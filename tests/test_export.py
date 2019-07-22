@@ -1,6 +1,8 @@
 import json
+from datetime import date, datetime, time
 from unittest import skipIf
 
+import pytz
 from django.core.exceptions import ImproperlyConfigured
 from django.shortcuts import render
 from django.test import TestCase
@@ -213,8 +215,6 @@ class AdvancedExportViewTest(TestCase):
 
     def test_datetime_xls(self):
         """Verify datatime objects can be exported to xls."""
-        import pytz
-        from datetime import date, time, datetime
 
         utc = pytz.timezone("UTC")
 
