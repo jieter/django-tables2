@@ -18,9 +18,7 @@ from ..utils import (
 
 
 class Library:
-    """
-    A collection of columns.
-    """
+    """A collection of columns."""
 
     def __init__(self):
         self.columns = []
@@ -61,9 +59,7 @@ library = Library()
 
 
 class LinkTransform:
-    """
-    Object used to generate attributes for the `<a>`-tag to wrap the cell content in.
-    """
+    """Object used to generate attributes for the `<a>`-tag to wrap the cell content in."""
 
     viewname = None
     accessor = None
@@ -199,6 +195,8 @@ class Column:
             influence row ordering/sorting.
         verbose_name (str): A human readable version of the column name.
         visible (bool): If `True`, this column will be rendered.
+            Columns with `visible=False` will not be rendered, but will be included
+            in ``.Table.as_values()`` and thus also in :ref:`export`.
         localize: If the cells in this column will be localized by the
             `localize` filter:
 
@@ -399,17 +397,17 @@ class Column:
     @classmethod
     def from_field(cls, field):
         """
-        Return a specialised column for the model field or `None`.
+        Return a specialized column for the model field or `None`.
 
         Arguments:
             field (Model Field instance): the field that needs a suitable column
         Returns:
             `.Column` object or `None`
 
-        If the column is not specialised for the given model field, it should
+        If the column is not specialized for the given model field, it should
         return `None`. This gives other columns the opportunity to do better.
 
-        If the column is specialised, it should return an instance of itself
+        If the column is specialized, it should return an instance of itself
         that is configured appropriately for the field.
         """
         # Since this method is inherited by every subclass, only provide a
@@ -706,16 +704,12 @@ class BoundColumn:
 
     @property
     def visible(self):
-        """
-        Returns a `bool` depending on whether this column is visible.
-        """
+        """Returns a `bool` depending on whether this column is visible."""
         return self.column.visible
 
     @property
     def localize(self):
-        """
-        Returns `True`, `False` or `None` as described in ``Column.localize``
-        """
+        """Returns `True`, `False` or `None` as described in ``Column.localize``"""
         return self.column.localize
 
 
@@ -744,13 +738,13 @@ class BoundColumns:
         self._table = table
         self.columns = OrderedDict()
         for name, column in base_columns.items():
-            self.columns[name] = bc = BoundColumn(table, column, name)
-            bc.render = getattr(table, "render_" + name, column.render)
+            self.columns[name] = bound_column = BoundColumn(table, column, name)
+            bound_column.render = getattr(table, "render_" + name, column.render)
             # How the value is defined: 1. value_<name> 2. render_<name> 3. column.value.
-            bc.value = getattr(
+            bound_column.value = getattr(
                 table, "value_" + name, getattr(table, "render_" + name, column.value)
             )
-            bc.order = getattr(table, "order_" + name, column.order)
+            bound_column.order = getattr(table, "order_" + name, column.order)
 
     def iternames(self):
         return (name for name, column in self.iteritems())
@@ -770,8 +764,7 @@ class BoundColumns:
 
     def iteritems(self):
         """
-        Return an iterator of ``(name, column)`` pairs (where ``column`` is a
-        `BoundColumn`).
+        Return an iterator of ``(name, column)`` pairs (where ``column`` is a `BoundColumn`).
 
         This method is the mechanism for retrieving columns that takes into
         consideration all of the ordering and filtering modifiers that a table
@@ -796,20 +789,13 @@ class BoundColumns:
         """
         return (x for x in self.iterall() if x.orderable)
 
-    def orderable(self):
-        return list(self.iterorderable())
-
     def itervisible(self):
         """
-        Same as `.iterorderable` but only returns visible `.BoundColumn`
-        objects.
+        Same as `.iterorderable` but only returns visible `.BoundColumn` objects.
 
         This is geared towards table rendering.
         """
         return (x for x in self.iterall() if x.visible)
-
-    def visible(self):
-        return list(self.itervisible())
 
     def hide(self, name):
         """
@@ -830,9 +816,7 @@ class BoundColumns:
         self.columns[name].column.visible = True
 
     def __iter__(self):
-        """
-        Convenience API, alias of `.itervisible`.
-        """
+        """Convenience API, alias of `.itervisible`."""
         return self.itervisible()
 
     def __contains__(self, item):
@@ -848,11 +832,8 @@ class BoundColumns:
             return item in self.iterall()
 
     def __len__(self):
-        """
-        Return how many `~.BoundColumn` objects are contained (and
-        visible).
-        """
-        return len(self.visible())
+        """Return how many `~.BoundColumn` objects are contained (and visible)."""
+        return len(list(self.itervisible()))
 
     def __getitem__(self, index):
         """
@@ -875,7 +856,9 @@ class BoundColumns:
                 if column.name == index:
                     return column
             raise KeyError(
-                "Column with name '%s' does not exist; " "choices are: %s" % (index, self.names())
+                "Column with name '{}' does not exist; choices are: {}".format(index, self.names())
             )
         else:
-            raise TypeError("Column indices must be integers or str, not %s" % type(index).__name__)
+            raise TypeError(
+                "Column indices must be integers or str, not {}".format(type(index).__name__)
+            )

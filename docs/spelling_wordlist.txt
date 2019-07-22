@@ -55,6 +55,7 @@ rst
 Sapovits
 screenshots
 sortability
+str
 subclasses
 subclassing
 th

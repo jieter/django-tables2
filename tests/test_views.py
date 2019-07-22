@@ -1,10 +1,10 @@
+import django_filters as filters
 from django.core.exceptions import ImproperlyConfigured
 from django.test import TestCase
 from django.views.generic.base import TemplateView
-
-import django_filters as filters
-import django_tables2 as tables
 from django_filters.views import FilterView
+
+import django_tables2 as tables
 
 from .app.models import Person, Region
 from .utils import build_request

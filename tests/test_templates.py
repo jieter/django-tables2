@@ -1,4 +1,3 @@
-
 from django.template import Context, Template
 from django.test import SimpleTestCase, TestCase, override_settings
 from django.utils.translation import gettext_lazy, override as translation_override

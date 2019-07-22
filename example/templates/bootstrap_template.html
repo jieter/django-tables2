@@ -1,6 +1,7 @@
 {% load static %}
-{% load render_table from django_tables2 %}
+{% load django_tables2 %}
 {% load bootstrap3 %}
+
 <!doctype html>
 <html>
 <head>
@@ -19,14 +20,23 @@
         <h3>{% block title %}django_tables2 with <a href="https://getbootstrap.com/docs/3.3">Bootstrap 3</a> template example{% endblock %}</h3>
 
         <div class="row">
-            {% if filter %}
-                <div class="col-sm-10">
+            <div class="col-sm-10">
+                <div class="pull-right">
+                    {% if view.export_formats %}
+                        {% for format in view.export_formats %}
+                        <a href="{% export_url format %}" class="btn btn-xs btn-default">
+                            download  <code>.{{ format }}</code>
+                        </a>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+                {% if filter %}
                     <form action="" method="get" class="form form-inline">
                         {% bootstrap_form filter.form layout='inline' %}
                         {% bootstrap_button 'filter' %}
                     </form>
-                </div>
-            {% endif %}
+                {% endif %}
+            </div>
             <div class="col-sm-10">
                 {% render_table table %}
             </div>

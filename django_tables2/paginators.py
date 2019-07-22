@@ -1,4 +1,3 @@
-
 from django.core.paginator import EmptyPage, Page, PageNotAnInteger, Paginator
 from django.utils.translation import gettext as _
 

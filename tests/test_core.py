@@ -34,10 +34,8 @@ class CoreTest(SimpleTestCase):
             UnorderedTable()
 
     def test_column_named_items(self):
-        """
-        A column named items must not make the table fail
-        https://github.com/bradleyayers/django-tables2/issues/316
-        """
+        """A column named items must not make the table fail."""
+        # https://github.com/bradleyayers/django-tables2/issues/316
 
         class ItemsTable(tables.Table):
             items = tables.Column()
@@ -96,8 +94,7 @@ class CoreTest(SimpleTestCase):
             __metaclass__ = Meta
             name = tables.Column()
 
-        # Python 2/3 compatible way to enable the metaclass
-        TweakedTable = Meta(str("TweakedTable"), (TweakedTableBase,), {})
+        TweakedTable = Meta("TweakedTable", (TweakedTableBase,), {})
 
         table = TweakedTable([])
         self.assertIn("name", table.columns)
@@ -110,10 +107,7 @@ class CoreTest(SimpleTestCase):
         class FlippedTweakedTableBase(tables.Table):
             name = tables.Column()
 
-        # Python 2/3 compatible way to enable the metaclass
-        FlippedTweakedTable = FlippedMeta(
-            str("FlippedTweakedTable"), (FlippedTweakedTableBase,), {}
-        )
+        FlippedTweakedTable = FlippedMeta("FlippedTweakedTable", (FlippedTweakedTableBase,), {})
 
         table = FlippedTweakedTable([])
         self.assertIn("name", table.columns)
@@ -200,10 +194,7 @@ class CoreTest(SimpleTestCase):
         self.assertIn('<tfoot class="tfoot-class">', html)
 
     def test_datasource_untouched(self):
-        """
-        Ensure that data that is provided to the table (the datasource) is not
-        modified by table operations.
-        """
+        """Ensure that data the data datasource is not modified by table operations."""
         original_data = copy.deepcopy(MEMORY_DATA)
 
         table = UnorderedTable(MEMORY_DATA)
@@ -288,10 +279,7 @@ class CoreTest(SimpleTestCase):
         self.assertEqual(table.columns.names(), ["b"])
 
     def test_exclude_should_work_on_sequence_too(self):
-        """
-        It should be possible to define a sequence on a table
-        and exclude it in a child of that table.
-        """
+        """It should be possible to define a sequence on a table and exclude it in a child of that table."""
 
         class PersonTable(tables.Table):
             first_name = tables.Column()
@@ -391,9 +379,7 @@ class CoreTest(SimpleTestCase):
             self.assertEqual(table.empty_text, "volgende")
 
     def test_prefix(self):
-        """
-        Test that table prefixes affect the names of querystring parameters
-        """
+        """Verify table prefixes affect the names of querystring parameters."""
 
         class TableA(tables.Table):
             name = tables.Column()
@@ -604,10 +590,15 @@ class AsValuesTest(TestCase):
 
         self.assertEqual(list(Table([]).as_values()), [["Name"]])
 
+    def test_as_values_visible_False(self):
+        class Table(tables.Table):
+            name = tables.Column()
+            website = tables.Column(visible=False)
+
+        self.assertEqual(list(Table([]).as_values()), [["Name", "Website"]])
+
     def test_as_values_empty_values(self):
-        """
-        Table's as_values() method returns `None` for missing values
-        """
+        """Table's as_values() method returns `None` for missing values."""
 
         class Table(tables.Table):
             name = tables.Column()

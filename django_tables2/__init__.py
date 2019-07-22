@@ -1,8 +1,7 @@
-from .tables import Table, TableBase, table_factory
 from .columns import (
     BooleanColumn,
-    Column,
     CheckBoxColumn,
+    Column,
     DateColumn,
     DateTimeColumn,
     EmailColumn,
@@ -16,10 +15,10 @@ from .columns import (
     URLColumn,
 )
 from .config import RequestConfig
-from .utils import A
 from .paginators import LazyPaginator
-from .views import SingleTableMixin, SingleTableView, MultiTableMixin
-
+from .tables import Table, TableBase, table_factory
+from .utils import A
+from .views import MultiTableMixin, SingleTableMixin, SingleTableView
 
 __version__ = "2.0.6"
 

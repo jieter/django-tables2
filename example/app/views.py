@@ -4,9 +4,10 @@ from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.utils.lorem_ipsum import words
 from django.views.generic.base import TemplateView
-
 from django_filters.views import FilterView
+
 from django_tables2 import MultiTableMixin, RequestConfig, SingleTableMixin, SingleTableView
+from django_tables2.export.views import ExportMixin
 from django_tables2.paginators import LazyPaginator
 
 from .data import COUNTRIES
@@ -51,7 +52,7 @@ def index(request):
             "urls": (
                 (reverse("tutorial"), "Tutorial"),
                 (reverse("multiple"), "Multiple tables"),
-                (reverse("filtertableview"), "Filtered tables"),
+                (reverse("filtertableview"), "Filtered tables (with export)"),
                 (reverse("singletableview"), "Using SingleTableMixin"),
                 (reverse("multitableview"), "Using MultiTableMixin"),
                 (reverse("bootstrap"), "template: Bootstrap 3 (bootstrap.html)"),
@@ -107,7 +108,9 @@ def bootstrap(request):
 
     create_fake_data()
     table = BootstrapTable(Person.objects.all().select_related("country"), order_by="-name")
-    RequestConfig(request, paginate={"klass": LazyPaginator, "per_page": 10}).configure(table)
+    RequestConfig(request, paginate={"paginator_class": LazyPaginator, "per_page": 10}).configure(
+        table
+    )
 
     return render(request, "bootstrap_template.html", {"table": table})
 
@@ -160,12 +163,14 @@ def tutorial(request):
     return render(request, "tutorial.html", {"table": table})
 
 
-class FilteredPersonListView(SingleTableMixin, FilterView):
+class FilteredPersonListView(ExportMixin, SingleTableMixin, FilterView):
     table_class = PersonTable
     model = Person
     template_name = "bootstrap_template.html"
 
     filterset_class = PersonFilter
+
+    export_formats = ("csv", "xls")
 
     def get_queryset(self):
         return super().get_queryset().select_related("country")
