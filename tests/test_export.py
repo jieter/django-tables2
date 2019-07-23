@@ -245,6 +245,9 @@ class AdvancedExportViewTest(TestCase):
         )
         self.assertEqual(data, expected_csv)
 
+        response = View.as_view()(build_request("/?_export=xls"))
+        self.assertIn("2019-07-22 13:11:11".encode(), response.content)
+
     def test_export_invisible_columns(self):
         """Verify columns with visible=False *do* get exported."""
 
