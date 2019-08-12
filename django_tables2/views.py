@@ -49,6 +49,9 @@ class TableMixinBase:
         if self.table_pagination:
             paginate.update(self.table_pagination)
 
+        if not paginate and self.table_pagination is None:
+            return True
+
         return paginate
 
 
