@@ -52,7 +52,6 @@ class ManyToManyColumn(Column):
         self, transform=None, filter=None, separator=", ", linkify_item=None, *args, **kwargs
     ):
         kwargs.setdefault("orderable", False)
-        kwargs.setdefault("default", "-")
         super().__init__(*args, **kwargs)
 
         if transform is not None:
