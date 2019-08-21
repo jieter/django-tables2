@@ -53,7 +53,7 @@ class ManyToManyColumnTest(TestCase):
 
         for row in table.rows:
             cell = row.get_cell("friends")
-            if cell == "-":
+            if cell is None:
                 continue
 
             for friend in cell.split(", "):
@@ -124,7 +124,7 @@ class ManyToManyColumnTest(TestCase):
 
             for row in table.rows:
                 cell = row.get_cell("friends")
-                if cell == "-":
+                if cell is None:
                     continue
 
                 for friend in cell.split(sep):
@@ -146,7 +146,7 @@ class ManyToManyColumnTest(TestCase):
         table = Table(Person.objects.all().order_by("last_name"))
         for row in table.rows:
             cell = row.get_cell("friends")
-            if cell == "-":
+            if cell is None:
                 continue
 
             for friend in cell.split(", "):
@@ -171,7 +171,7 @@ class ManyToManyColumnTest(TestCase):
         table = Table(Person.objects.all().order_by("last_name"))
         for row in table.rows:
             friends = row.get_cell("friends")
-            if friends == "-":
+            if friends is None:
                 self.assertEqual(row.get_cell("name"), self.remi.name)
                 continue
 
