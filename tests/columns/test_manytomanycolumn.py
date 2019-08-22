@@ -53,7 +53,7 @@ class ManyToManyColumnTest(TestCase):
 
         for row in table.rows:
             cell = row.get_cell("friends")
-            if cell == "-":
+            if cell is None:
                 continue
 
             for friend in cell.split(", "):
@@ -124,7 +124,7 @@ class ManyToManyColumnTest(TestCase):
 
             for row in table.rows:
                 cell = row.get_cell("friends")
-                if cell == "-":
+                if cell is None:
                     continue
 
                 for friend in cell.split(sep):
@@ -146,7 +146,7 @@ class ManyToManyColumnTest(TestCase):
         table = Table(Person.objects.all().order_by("last_name"))
         for row in table.rows:
             cell = row.get_cell("friends")
-            if cell == "-":
+            if cell is None:
                 continue
 
             for friend in cell.split(", "):
@@ -171,10 +171,24 @@ class ManyToManyColumnTest(TestCase):
         table = Table(Person.objects.all().order_by("last_name"))
         for row in table.rows:
             friends = row.get_cell("friends")
-            if friends == "-":
+            if friends is None:
                 self.assertEqual(row.get_cell("name"), self.remi.name)
                 continue
 
             # verify the list is sorted descending
             friends = list(map(lambda o: o.split(" "), friends.split(", ")))
             self.assertEqual(friends, sorted(friends, key=lambda item: item[1], reverse=True))
+
+    def test_ManyToManyColumn_custom_default(self):
+        class Table(tables.Table):
+            name = tables.Column(accessor="name", order_by=("last_name", "first_name"))
+            friends = tables.ManyToManyColumn(default="--")
+
+        table = Table(Person.objects.all().order_by("last_name"))
+        cell_value_with_default = None
+        for row in table.rows:
+
+            if row.get_cell("name") == self.remi.name:
+                cell_value_with_default = row.get_cell("friends")
+                break
+        self.assertEqual(cell_value_with_default, "--")

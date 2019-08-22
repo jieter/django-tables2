@@ -87,7 +87,7 @@ class ManyToManyColumn(Column):
     def render(self, value):
         # if value is None or not value.exists():
         if not value.exists():
-            return "-"
+            return self.default
 
         items = []
         for item in self.filter(value):
