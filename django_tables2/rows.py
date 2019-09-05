@@ -1,6 +1,8 @@
 # coding: utf-8
 from __future__ import absolute_import, unicode_literals
 
+from itertools import count
+
 from django.db import models
 from django.db.models.fields import FieldDoesNotExist
 from django.utils import six
@@ -83,11 +85,12 @@ class BoundRow(object):
 
     """
 
-    def __init__(self, record, table):
+    def __init__(self, record, table, boundrows=None, index=-1):
         self._record = record
         self._table = table
+        self._boundrows = boundrows
 
-        self.row_counter = next(table._counter)
+        self.row_counter = (boundrows is not None and next(boundrows._counter)) or (index + 1)
 
         # support accessing cells from a template: {{ row.cells.column_name }}
         self.cells = CellAccessor(self)
@@ -299,10 +302,12 @@ class BoundRows(object):
     This is used for `~.Table.rows`.
     """
 
-    def __init__(self, data, table, pinned_data=None):
+    def __init__(self, data, table, pinned_data=None, index=0):
         self.data = data
         self.table = table
         self.pinned_data = pinned_data or {}
+        self._index = index
+        self._counter = count(index+1)
 
     def generator_pinned_row(self, data):
         """
@@ -327,7 +332,7 @@ class BoundRows(object):
             yield pinned_record
 
         for record in self.data:
-            yield BoundRow(record, table=self.table)
+            yield BoundRow(record, table=self.table, boundrows=self)
 
         # Bottom pinned rows
         for pinned_record in self.generator_pinned_row(self.pinned_data.get("bottom")):
@@ -347,6 +352,6 @@ class BoundRows(object):
         `~.BoundRow` instance.
         """
         if isinstance(key, slice):
-            return BoundRows(data=self.data[key], table=self.table, pinned_data=self.pinned_data)
+            return BoundRows(data=self.data[key], table=self.table, pinned_data=self.pinned_data, index=key.start)
         else:
-            return BoundRow(record=self.data[key], table=self.table)
+            return BoundRow(record=self.data[key], table=self.table, index=key+self._index)
