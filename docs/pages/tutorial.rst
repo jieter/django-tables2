@@ -42,11 +42,11 @@ Add the view to your ``urls.py``::
     from django.urls import path
     from django.contrib import admin
 
-    from tutorial.views import people
+    from tutorial.views import PersonListView
 
     urlpatterns = [
         path("admin/", admin.site.urls),
-        path("people/", people)
+        path("people/", PersonListView.as_view())
     ]
 
 Finally, create the template::
