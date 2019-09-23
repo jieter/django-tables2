@@ -9,7 +9,7 @@ from .config import RequestConfig
 
 class TableMixinBase:
     """
-    Base mixin for the Single- and MultiTable class based views
+    Base mixin for the Single- and MultiTable class based views.
     """
 
     context_table_name = "table"
@@ -23,7 +23,7 @@ class TableMixinBase:
 
     def get_table_pagination(self, table):
         """
-        Returns pagination options passed to `.RequestConfig`:
+        Return pagination options passed to `.RequestConfig`:
             - True for standard pagination (default),
             - False for no pagination,
             - a dictionary for custom pagination.
@@ -48,6 +48,10 @@ class TableMixinBase:
         # table_pagination overrides any MultipleObjectMixin attributes
         if self.table_pagination:
             paginate.update(self.table_pagination)
+
+        # we have no custom pagination settings, so just use the default.
+        if not paginate and self.table_pagination is None:
+            return True
 
         return paginate
 

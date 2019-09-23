@@ -1,7 +1,7 @@
 import django_filters as filters
 from django.core.exceptions import ImproperlyConfigured
 from django.test import TestCase
-from django.views.generic.base import TemplateView
+from django.views.generic import TemplateView
 from django_filters.views import FilterView
 
 import django_tables2 as tables
@@ -58,23 +58,33 @@ class SingleTableViewTest(TestCase):
         self.assertEqual(table.paginator.per_page, 1)
 
     def test_should_support_default_pagination(self):
-        add_records = 50
-        for i in range(1, add_records + 1):
-            Region.objects.create(name="region {:02d} / {}".format(i, add_records))
+        total_records = 50
+        for i in range(1, total_records + 1):
+            Region.objects.create(name="region {:02d} / {}".format(i, total_records))
 
-        class PaginateDefault(tables.SingleTableView):
+        expected_per_page = 25
+
+        class PaginateDefault(tables.SingleTableMixin, TemplateView):
             table_class = SimpleTable
-            model = Region
             template_name = "minimal.html"
+
+            def get_table_data(self):
+                return Region.objects.all()
 
         response = PaginateDefault.as_view()(build_request())
         response.render()
         table = response.context_data["table"]
-        self.assertEqual(table.paginator.per_page, 25)
+        self.assertEqual(table.paginator.per_page, expected_per_page)
         self.assertEqual(table.paginator.num_pages, 3)
-        self.assertEqual(len(table.page), 25)
+        self.assertEqual(len(table.page), expected_per_page)
 
-        self.assertEqual(response.content.decode("utf8").count("<tr>"), 25 + 1)
+        # add one for the header row.
+        self.assertEqual(response.content.decode().count("<tr>"), expected_per_page + 1)
+
+        # in addition to New South Wales, Queensland, Tasmania and Victoria,
+        # 21 records should be displayed.
+        self.assertContains(response, "21 / {}".format(total_records))
+        self.assertNotContains(response, "22 / {}".format(total_records))
 
     def test_should_support_default_pagination_with_table_options(self):
         class Table(tables.Table):
@@ -276,9 +286,11 @@ class SingleTableMixinTest(TestCase):
         When mixing SingleTableMixin with FilterView, the table should paginate by default
         """
 
-        add_records = 60
-        for i in range(1, add_records + 1):
-            Region.objects.create(name="region {:02d} / {}".format(i, add_records))
+        total_records = 60
+        for i in range(1, total_records + 1):
+            Region.objects.create(name="region {i:02d} / {total_records}".format(**locals()))
+
+        expected_per_page = 25
 
         class RegionFilter(filters.FilterSet):
             name = filters.CharFilter(lookup_expr="icontains")
@@ -292,11 +304,11 @@ class SingleTableMixinTest(TestCase):
         response = PaginateDefault.as_view()(build_request())
         response.render()
         table = response.context_data["table"]
-        self.assertEqual(table.paginator.per_page, 25)
+        self.assertEqual(table.paginator.per_page, expected_per_page)
         self.assertEqual(table.paginator.num_pages, 3)
-        self.assertEqual(len(table.page), 25)
+        self.assertEqual(len(table.page), expected_per_page)
 
-        self.assertEqual(response.content.decode("utf8").count("<tr>"), 25 + 1)
+        self.assertEqual(response.content.decode().count("<tr>"), expected_per_page + 1)
 
 
 class TableA(tables.Table):
@@ -383,7 +395,7 @@ class MultiTableMixinTest(TestCase):
         response.render()
 
         html = response.rendered_content
-        assert "<h1>Multiple tables using MultiTableMixin</h1>" in html
+        self.assertIn("<h1>Multiple tables using MultiTableMixin</h1>", html)
 
     def test_with_empty_class_tables_list(self):
         class View(tables.MultiTableMixin, TemplateView):
