@@ -1,6 +1,6 @@
 from collections import defaultdict
 
-from django.contrib.contenttypes.models import ContentType
+# from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db.models.functions import Length
 from django.template import Context, Template
@@ -52,7 +52,7 @@ class ModelsTest(TestCase):
             Occupation,
             Person,
             PersonProxy,
-            ContentType.objects.get(model="person").model_class(),
+            # ContentType.objects.get(model="person").model_class(),
         ]
         invalid = [object, {}, dict]
 
