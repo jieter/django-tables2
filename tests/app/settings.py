@@ -1,10 +1,10 @@
 DATABASES = {"default": {"ENGINE": "django.db.backends.sqlite3", "NAME": ":memory:"}}
 
 INSTALLED_APPS = [
-    "tests.app",
-    "django.contrib.contenttypes",
     "django.contrib.auth",
+    "django.contrib.contenttypes",
     "django_tables2",
+    "tests.app",
 ]
 
 ROOT_URLCONF = "tests.app.urls"
