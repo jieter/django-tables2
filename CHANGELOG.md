@@ -1,5 +1,10 @@
 # Change log
 
+## 2.1.1 (2019-09-23)
+ - Made `ManyToManyColumn` use `table.default` instead of a local value [#680](https://github.com/jieter/django-tables2/pull/680) by [@srtab](https://github.com/srtab)
+ - Removed invalid scope attribute in `<tr>` element of `bootstrap4.html`. [#691](https://github.com/jieter/django-tables2/pull/691) by [@vlt](https://github.com/vlt)
+ - Fixed an issue with incorrectly disabled pagination where `SingleTableMixin` was not used together with `ListView` [#678](https://github.com/jieter/django-tables2/pull/678) by [@nieuwenhuys](https://github.com/nieuwenhuys)
+
 ## 2.1.0 (2019-07-22)
  - Dropped support for python 2.7 (and django 1.11).
  - Removed `django_tables2.utils.ucfirst`, use `django.utils.text.capfirst` instead.
