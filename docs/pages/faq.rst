@@ -102,10 +102,7 @@ A `SimpleCountryTable` will only show column `name`.
 How can I use with Jinja2 template?
 -----------------------------------
 
-In Jinja2 template, the ``{% render_table %}`` tag doesnot exists, but you can still use *django-table2* like this:
-
-
-.. code-block:: jinja
+In Jinja2 templates, the ``{% render_table %}`` tag is not available, but you can still use *django-tables2* like this::
 
     {{ table.as_html(request) }}
 
