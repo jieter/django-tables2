@@ -97,3 +97,13 @@ Overwriting a `Column` attribute from the base class with anything that is not a
         language = None
 
 A `SimpleCountryTable` will only show column `name`.
+
+
+How can I use with Jinja2 template?
+-----------------------------------
+
+In Jinja2 templates, the ``{% render_table %}`` tag is not available, but you can still use *django-tables2* like this::
+
+    {{ table.as_html(request) }}
+
+where ``request`` need to be passed from view, or from *context processors* (which is supported by `django-jinja <https://niwinz.github.io/django-jinja/latest/#_context_processors_support>`_).
