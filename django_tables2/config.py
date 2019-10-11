@@ -18,7 +18,9 @@ class RequestConfig:
             pagination exceptions using the following logic:
 
              - If `~django.core.paginator.PageNotAnInteger` is raised, show the first page.
-             - If `~django.core.paginator.EmptyPage` is raised, show the last page.
+             - If `~django.core.paginator.EmptyPage` is raised, show the last page (unless
+               the paginator does not know the number of pages, e.g. `~.LazyPaginator`, then
+               also show the first page).
 
             For example, to use `~.LazyPaginator`::
 
@@ -62,6 +64,6 @@ class RequestConfig:
                 except PageNotAnInteger:
                     table.page = table.paginator.page(1)
                 except EmptyPage:
-                    table.page = table.paginator.page(table.paginator.num_pages)
+                    table.page = table.paginator.page(table.paginator.num_pages or 1)
 
         return table

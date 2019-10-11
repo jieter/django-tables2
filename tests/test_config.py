@@ -72,6 +72,19 @@ class ConfigTest(SimpleTestCase):
 
         RequestConfig(request, paginate={"page": 123, "silent": True}).configure(table)
 
+    def test_silent_num_pages_unknown(self):
+        table = self.table()
+        request = build_request("/")
+        paginator = Fake("Paginator").has_attr(num_pages=None).expects("page").with_args(1)
+        table = (
+            table.has_attr(paginator=paginator)
+            .expects("paginate")
+            .with_args(page=123)
+            .raises(EmptyPage)
+        )
+
+        RequestConfig(request, paginate={"page": 123, "silent": True}).configure(table)
+
     def test_passing_request_to_constructor(self):
         """Table constructor should call RequestConfig if a request is passed."""
 
