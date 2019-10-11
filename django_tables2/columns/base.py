@@ -739,12 +739,13 @@ class BoundColumns:
         self.columns = OrderedDict()
         for name, column in base_columns.items():
             self.columns[name] = bound_column = BoundColumn(table, column, name)
-            bound_column.render = getattr(table, "render_" + name, column.render)
+            alt_name = name.replace('.', '_')
+            bound_column.render = getattr(table, "render_" + alt_name, column.render)
             # How the value is defined: 1. value_<name> 2. render_<name> 3. column.value.
             bound_column.value = getattr(
-                table, "value_" + name, getattr(table, "render_" + name, column.value)
+                table, "value_" + name, getattr(table, "render_" + alt_name, column.value)
             )
-            bound_column.order = getattr(table, "order_" + name, column.order)
+            bound_column.order = getattr(table, "order_" + alt_name, column.order)
 
     def iternames(self):
         return (name for name, column in self.iteritems())
