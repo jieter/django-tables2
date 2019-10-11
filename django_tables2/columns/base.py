@@ -739,7 +739,7 @@ class BoundColumns:
         self.columns = OrderedDict()
         for name, column in base_columns.items():
             self.columns[name] = bound_column = BoundColumn(table, column, name)
-            alt_name = name.replace('.', '_')
+            alt_name = name.replace(".", "_")
             bound_column.render = getattr(table, "render_" + alt_name, column.render)
             # How the value is defined: 1. value_<name> 2. render_<name> 3. column.value.
             bound_column.value = getattr(
