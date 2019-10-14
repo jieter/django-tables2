@@ -322,7 +322,7 @@ class Accessor(str):
             (unless `quiet` == `True`)
         """
         # TODO: try to move to definition-time
-        assert "." not in self, f"Use '{self.SEPARATOR}' to separate path components, not '.'."
+        assert "." not in self, "Use '__' to separate path components, not '.'."
 
         try:
             current = context

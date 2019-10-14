@@ -23,7 +23,7 @@ to reach a specific value, for example::
 
     >>> from django_tables2 import A
     >>> data = {"abc": {"one": {"two": "three"}}}
-    >>> A("abc.one.two").resolve(data)
+    >>> A("abc__one__two").resolve(data)
     'three'
 
 Dots represent a relationships, and are attempted in this order:

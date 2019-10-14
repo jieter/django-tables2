@@ -34,7 +34,7 @@ class BootstrapTable(tables.Table):
     id = tables.Column(linkify=True)
     country = tables.Column(linkify=True)
     continent = tables.Column(
-        accessor="country.continent.name", verbose_name="Continent", linkify=True
+        accessor="country__continent__name", verbose_name="Continent", linkify=True
     )
 
     class Meta:
@@ -58,7 +58,7 @@ class BootstrapTablePinnedRows(BootstrapTable):
 
 class Bootstrap4Table(tables.Table):
     country = tables.Column(linkify=True)
-    continent = tables.Column(accessor="country.continent", linkify=True)
+    continent = tables.Column(accessor="country__continent", linkify=True)
 
     class Meta:
         model = Person
