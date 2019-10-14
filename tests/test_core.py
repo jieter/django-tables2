@@ -225,8 +225,8 @@ class CoreTest(SimpleTestCase):
 
     def test_column_accessor(self):
         class SimpleTable(UnorderedTable):
-            col1 = tables.Column(accessor="alpha.upper.isupper")
-            col2 = tables.Column(accessor="alpha.upper")
+            col1 = tables.Column(accessor="alpha__upper__isupper")
+            col2 = tables.Column(accessor="alpha__upper")
 
         table = SimpleTable(MEMORY_DATA)
 
@@ -668,7 +668,7 @@ class AsValuesTest(TestCase):
         class Table(tables.Table):
             name = tables.Column(accessor=tables.A("first_name"))
             occupation = tables.Column(
-                accessor=tables.A("occupation.name"), verbose_name="Occupation"
+                accessor=tables.A("occupation__name"), verbose_name="Occupation"
             )
 
         expected = [["First name", "Occupation"], [henk.first_name, programmer.name]]

@@ -114,7 +114,7 @@ class RowsTest(SimpleTestCase):
                 app_label = "tests"
 
         class Tab(tables.Table):
-            a = tables.Column(accessor="b.a.foo")
+            a = tables.Column(accessor="b__a__foo")
 
             class Meta:
                 model = C

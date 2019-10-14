@@ -86,8 +86,7 @@ class AccessorTest(TestCase):
         self.assertEqual(Accessor("-2").resolve("Brad"), "a")
 
     def test_calling_methods(self):
-        self.assertEqual(Accessor("2.upper").resolve("Brad"), "A")
-        self.assertEqual(Accessor("2.upper.__len__").resolve("Brad"), 1)
+        self.assertEqual(Accessor("2__upper").resolve("Brad"), "A")
 
     def test_honors_alters_data(self):
         class Foo:
@@ -108,8 +107,8 @@ class AccessorTest(TestCase):
 
     def test_penultimate(self):
         context = {"a": {"a": 1, "b": {"c": 2, "d": 4}}}
-        self.assertEqual(Accessor("a.b.c").penultimate(context), (context["a"]["b"], "c"))
-        self.assertEqual(Accessor("a.b.c.d.e").penultimate(context), (None, "e"))
+        self.assertEqual(Accessor("a__b__c").penultimate(context), (context["a"]["b"], "c"))
+        self.assertEqual(Accessor("a___b___c___d___e").penultimate(context), (None, "e"))
 
 
 class AccessorTestModel(models.Model):

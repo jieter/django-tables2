@@ -122,7 +122,7 @@ class BooleanColumnTest(TestCase):
         "The inverse lookup voor boolean choices should also work on related models"
 
         class Table(tables.Table):
-            boolean = tables.BooleanColumn(accessor="occupation.boolean_with_choices")
+            boolean = tables.BooleanColumn(accessor="occupation__boolean_with_choices")
 
             class Meta:
                 model = Person

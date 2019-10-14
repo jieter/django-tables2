@@ -69,7 +69,7 @@ class ColumnGeneralTest(TestCase):
 
     def test_handle_verbose_name_of_many2onerel(self):
         class Table(tables.Table):
-            count = tables.Column(accessor="info_list.count")
+            count = tables.Column(accessor="info_list__count")
 
         Person.objects.create(first_name="bradley", last_name="ayers")
         table = Table(Person.objects.all())
@@ -331,7 +331,7 @@ class ColumnGeneralTest(TestCase):
         class PersonTable(tables.Table):
             class Meta:
                 model = Person
-                fields = ["first_name", "occupation.boolean"]
+                fields = ["first_name", "occupation__boolean"]
 
         table = PersonTable([])
         self.assertEqual(

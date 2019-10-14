@@ -8,6 +8,7 @@ from django.shortcuts import render
 from django.test import TestCase
 
 import django_tables2 as tables
+from django_tables2 import A
 from django_tables2.config import RequestConfig
 
 from .app.models import Occupation, Person, Region
@@ -41,8 +42,8 @@ class Table(tables.Table):
 
 
 class AccessorTable(tables.Table):
-    given_name = tables.Column(accessor=tables.A("first_name"), verbose_name="Given name")
-    surname = tables.Column(accessor=tables.A("last_name"))
+    given_name = tables.Column(accessor=A("first_name"), verbose_name="Given name")
+    surname = tables.Column(accessor=A("last_name"))
 
 
 class View(ExportMixin, tables.SingleTableView):
@@ -97,9 +98,7 @@ class TableExportTest(TestCase):
             Person.objects.create(first_name=first_name, last_name=last_name, occupation=programmer)
 
         class AccessorRelationTable(AccessorTable):
-            occupation = tables.Column(
-                accessor=tables.A("occupation.name"), verbose_name="Occupation"
-            )
+            occupation = tables.Column(accessor=A("occupation__name"), verbose_name="Occupation")
 
         table = AccessorRelationTable(Person.objects.all())
 
@@ -280,7 +279,7 @@ class AdvancedExportViewTest(TestCase):
             name = tables.Column()
             boolean = tables.Column()
             region = tables.Column()
-            mayor = tables.Column(accessor="region.mayor.first_name")
+            mayor = tables.Column(accessor="region__mayor__first_name")
 
         class View(ExportMixin, tables.SingleTableView):
             table_class = OccupationWithForeignKeyFieldsTable
