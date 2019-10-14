@@ -1,7 +1,6 @@
 import json
 
 from django.utils.html import format_html
-from django.utils.text import capfirst
 
 from ..utils import AttributeDict
 from .base import library
@@ -55,7 +54,7 @@ class JSONColumn(BaseLinkColumn):
         )
 
     @classmethod
-    def from_field(cls, field):
+    def from_field(cls, field, **kwargs):
         if POSTGRES_AVAILABLE:
-            if isinstance(field, JSONField) or isinstance(field, HStoreField):
-                return cls(verbose_name=capfirst(field.verbose_name))
+            if isinstance(field, (JSONField, HStoreField)):
+                return cls(**kwargs)

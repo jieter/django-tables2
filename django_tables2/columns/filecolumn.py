@@ -2,7 +2,6 @@ import os
 
 from django.db import models
 from django.utils.html import format_html
-from django.utils.text import capfirst
 
 from ..utils import AttributeDict
 from .base import library
@@ -81,6 +80,6 @@ class FileColumn(BaseLinkColumn):
         )
 
     @classmethod
-    def from_field(cls, field):
+    def from_field(cls, field, **kwargs):
         if isinstance(field, models.FileField):
-            return cls(verbose_name=capfirst(field.verbose_name))
+            return cls(**kwargs)

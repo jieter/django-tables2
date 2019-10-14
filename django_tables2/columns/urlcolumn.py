@@ -1,5 +1,4 @@
 from django.db import models
-from django.utils.text import capfirst
 
 from .base import library
 from .linkcolumn import BaseLinkColumn
@@ -29,6 +28,6 @@ class URLColumn(BaseLinkColumn):
         return value
 
     @classmethod
-    def from_field(cls, field):
+    def from_field(cls, field, **kwargs):
         if isinstance(field, models.URLField):
-            return cls(verbose_name=capfirst(field.verbose_name))
+            return cls(**kwargs)

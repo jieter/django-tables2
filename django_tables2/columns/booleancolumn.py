@@ -1,6 +1,5 @@
 from django.db import models
 from django.utils.html import escape, format_html
-from django.utils.text import capfirst
 
 from ..utils import AttributeDict
 from .base import Column, library
@@ -60,10 +59,9 @@ class BooleanColumn(Column):
         return str(value)
 
     @classmethod
-    def from_field(cls, field):
+    def from_field(cls, field, **kwargs):
         if isinstance(field, models.NullBooleanField):
-            return cls(verbose_name=capfirst(field.verbose_name), null=True)
+            return cls(null=True, **kwargs)
 
         if isinstance(field, models.BooleanField):
-            null = getattr(field, "null", False)
-            return cls(verbose_name=capfirst(field.verbose_name), null=null)
+            return cls(null=getattr(field, "null", False), **kwargs)

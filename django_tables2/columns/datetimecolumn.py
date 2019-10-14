@@ -1,5 +1,4 @@
 from django.db import models
-from django.utils.text import capfirst
 
 from .base import library
 from .templatecolumn import TemplateColumn
@@ -24,6 +23,6 @@ class DateTimeColumn(TemplateColumn):
         super().__init__(template_code=template, *args, **kwargs)
 
     @classmethod
-    def from_field(cls, field):
+    def from_field(cls, field, **kwargs):
         if isinstance(field, models.DateTimeField):
-            return cls(verbose_name=capfirst(field.verbose_name))
+            return cls(**kwargs)

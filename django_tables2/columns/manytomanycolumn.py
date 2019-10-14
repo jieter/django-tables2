@@ -1,7 +1,6 @@
 from django.db import models
 from django.utils.encoding import force_str
 from django.utils.html import conditional_escape, mark_safe
-from django.utils.text import capfirst
 
 from .base import Column, LinkTransform, library
 
@@ -100,6 +99,6 @@ class ManyToManyColumn(Column):
         return mark_safe(conditional_escape(self.separator).join(items))
 
     @classmethod
-    def from_field(cls, field):
+    def from_field(cls, field, **kwargs):
         if isinstance(field, models.ManyToManyField):
-            return cls(verbose_name=capfirst(field.verbose_name))
+            return cls(**kwargs)

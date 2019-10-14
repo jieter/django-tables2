@@ -10,7 +10,7 @@ from django.utils.translation import override as translation_override
 import django_tables2 as tables
 import mock
 
-from .app.models import Occupation, Person, PersonProxy
+from .app.models import Occupation, Person, PersonProxy, Region
 from .utils import build_request, parse
 
 request = build_request()
@@ -24,7 +24,7 @@ class PersonTable(tables.Table):
 
 class ModelsTest(TestCase):
     def setUp(self):
-        occupation = Occupation.objects.create(name="Programmer")
+        occupation = Occupation.objects.create(name="Programmer", boolean=True)
         Person.objects.create(first_name="Bradley", last_name="Ayers", occupation=occupation)
         Person.objects.create(first_name="Chris", last_name="Doble", occupation=occupation)
 
@@ -211,6 +211,44 @@ class ModelsTest(TestCase):
 
         table = PersonTable(Person.objects.all())
         self.assertEqual(list(table.rows[0]), ["Bradley Ayers", "Bradley"])
+
+    def test_meta_fields_can_traverse_relations(self):
+        mayor = Person.objects.create(first_name="Buddy", last_name="Boss")
+        region = Region.objects.create(name="Zuid-Holland", mayor=mayor)
+        occupation = Occupation.objects.create(name="carpenter", region=region)
+        Person.objects.create(first_name="Bob", last_name="Builder", occupation=occupation)
+
+        class PersonTable(tables.Table):
+            class Meta:
+                model = Person
+                fields = [
+                    "name",
+                    "occupation__name",
+                    "occupation__region__name",
+                    "occupation__region__mayor__name",
+                ]
+
+        table = PersonTable(Person.objects.filter(occupation=occupation))
+        self.assertEqual(
+            list(table.rows[0]), ["Bob Builder", "carpenter", "Zuid-Holland", "Buddy Boss"]
+        )
+
+    def test_meta_linkify(self):
+        person = Person.objects.first()
+
+        class PersonTable(tables.Table):
+            class Meta:
+                model = Person
+                fields = ["name", "occupation__boolean"]
+                linkify = ["name", "occupation__boolean"]
+
+        table = PersonTable(Person.objects.all())
+
+        html = table.as_html(build_request())
+        self.assertIn('<a href="/people/{}/">{}</a>'.format(person.pk, person.name), html)
+        self.assertIn(
+            '<a href="/people/{}/"><span class="true">✔</span></a>'.format(person.pk), html
+        )
 
 
 class ColumnNameTest(TestCase):

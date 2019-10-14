@@ -31,7 +31,7 @@ class Library:
         self.columns.append(column)
         return column
 
-    def column_for_field(self, field):
+    def column_for_field(self, field, **kwargs):
         """
         Return a column object suitable for model field.
 
@@ -39,14 +39,19 @@ class Library:
             `.Column` object or `None`
         """
         if field is None:
-            return self.columns[0]()
+            return self.columns[0](**kwargs)
 
-        # iterate in reverse order as columns are registered in order
+        # Iterate in reverse order as columns are registered in order
         # of least to most specialised (i.e. Column is registered
         # first). This also allows user-registered columns to be
         # favoured.
         for candidate in reversed(self.columns):
-            column = candidate.from_field(field)
+            if hasattr(field, "get_related_field"):
+                verbose_name = field.get_related_field().verbose_name
+            else:
+                verbose_name = getattr(field, "verbose_name", field.name)
+            kwargs["verbose_name"] = capfirst(verbose_name)
+            column = candidate.from_field(field, **kwargs)
             if column is None:
                 continue
             return column
@@ -395,7 +400,7 @@ class Column:
         return (queryset, False)
 
     @classmethod
-    def from_field(cls, field):
+    def from_field(cls, field, **kwargs):
         """
         Return a specialized column for the model field or `None`.
 
@@ -413,12 +418,7 @@ class Column:
         # Since this method is inherited by every subclass, only provide a
         # column if this class was asked directly.
         if cls is Column:
-            if hasattr(field, "get_related_field"):
-                verbose_name = field.get_related_field().verbose_name
-            else:
-                verbose_name = getattr(field, "verbose_name", field.name)
-
-            return cls(verbose_name=capfirst(verbose_name))
+            return cls(**kwargs)
 
 
 class BoundColumn:
