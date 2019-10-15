@@ -240,9 +240,9 @@ class Column:
 
         # or, if no get_absolute_url is defined, or a custom link is required, we have a couple
         # of ways to define what is passed to reverse()
-        user = tables.Column(linkify={"viewname": "user_detail", "args":(tables.A("user.pk"),)})
-        user = tables.Column(linkify=("user_detail", (tables.A("user.pk"), ))) # (viewname, args)
-        user = tables.Column(linkify=("user_detail", {"pk": tables.A("user.pk")})) # (viewname, kwargs)
+        user = tables.Column(linkify={"viewname": "user_detail", "args": [tables.A("user__pk")]})
+        user = tables.Column(linkify=("user_detail", [tables.A("user__pk")])) # (viewname, args)
+        user = tables.Column(linkify=("user_detail", {"pk": tables.A("user__pk")})) # (viewname, kwargs)
 
     .. [1] The provided callable object must not expect to receive any arguments.
     """

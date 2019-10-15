@@ -233,7 +233,7 @@ class ModelsTest(TestCase):
             list(table.rows[0]), ["Bob Builder", "carpenter", "Zuid-Holland", "Buddy Boss"]
         )
 
-    def test_meta_linkify(self):
+    def test_meta_linkify_iterable(self):
         person = Person.objects.first()
 
         class PersonTable(tables.Table):
@@ -248,6 +248,33 @@ class ModelsTest(TestCase):
         self.assertIn('<a href="/people/{}/">{}</a>'.format(person.pk, person.name), html)
         self.assertIn(
             '<a href="/people/{}/"><span class="true">✔</span></a>'.format(person.pk), html
+        )
+
+    def test_meta_linkify_dict(self):
+        person = Person.objects.first()
+        occupation = person.occupation
+
+        class PersonTable(tables.Table):
+            class Meta:
+                model = Person
+                fields = ["name", "occupation", "occupation__boolean"]
+                linkify = {
+                    "name": lambda record: record.get_absolute_url(),
+                    "occupation": True,
+                    "occupation__boolean": ("occupation", {"pk": tables.A("occupation__id")}),
+                }
+
+        table = PersonTable(Person.objects.all())
+
+        html = table.as_html(build_request())
+        self.assertIn('<a href="{}">{}</a>'.format(person.get_absolute_url(), person.name), html)
+        self.assertIn(
+            '<a href="{}">{}</a>'.format(occupation.get_absolute_url(), occupation.name), html
+        )
+
+        self.assertIn(
+            '<a href="{}"><span class="true">✔</span></a>'.format(occupation.get_absolute_url()),
+            html,
         )
 
 
