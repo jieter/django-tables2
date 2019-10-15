@@ -286,6 +286,11 @@ class Accessor(str):
         "Failed lookup for key [{key}] in {context}, when resolving the accessor {accessor}"
     )
 
+    def __new__(cls, value):
+        if "." in value:
+            raise ValueError("Use '__' to separate path components, not '.'.")
+        return super().__new__(cls, value)
+
     def resolve(self, context, safe=True, quiet=False):
         """
         Return an object described by the accessor by traversing the attributes
@@ -321,8 +326,6 @@ class Accessor(str):
             TypeError`, `AttributeError`, `KeyError`, `ValueError`
             (unless `quiet` == `True`)
         """
-        # TODO: try to move to definition-time
-        assert "." not in self, "Use '__' to separate path components, not '.'."
 
         try:
             current = context

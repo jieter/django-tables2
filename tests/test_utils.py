@@ -88,6 +88,10 @@ class AccessorTest(TestCase):
     def test_calling_methods(self):
         self.assertEqual(Accessor("2__upper").resolve("Brad"), "A")
 
+    def test_error_on_dot(self):
+        with self.assertRaises(ValueError):
+            Accessor("2.upper")
+
     def test_honors_alters_data(self):
         class Foo:
             deleted = False
