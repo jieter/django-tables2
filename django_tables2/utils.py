@@ -276,15 +276,20 @@ class Accessor(str):
     A string describing a path from one object to another via attribute/index
     accesses. For convenience, the class has an alias `.A` to allow for more concise code.
 
-    Relations are separated by a ``.`` character.
+    Relations are separated by a ``__`` character.
     """
 
-    SEPARATOR = "."
+    SEPARATOR = "__"
 
     ALTERS_DATA_ERROR_FMT = "Refusing to call {method}() because `.alters_data = True`"
     LOOKUP_ERROR_FMT = (
         "Failed lookup for key [{key}] in {context}, when resolving the accessor {accessor}"
     )
+
+    def __new__(cls, value):
+        if "." in value:
+            raise ValueError("Use '__' to separate path components, not '.'.")
+        return super().__new__(cls, value)
 
     def resolve(self, context, safe=True, quiet=False):
         """
@@ -302,12 +307,12 @@ class Accessor(str):
 
         Example::
 
-            >>> x = Accessor('__len__')
-            >>> x.resolve('brad')
+            >>> x = Accessor("__len__")
+            >>> x.resolve("brad")
             4
-            >>> x = Accessor('0.upper')
-            >>> x.resolve('brad')
-            'B'
+            >>> x = Accessor("0__upper")
+            >>> x.resolve("brad")
+            "B"
 
         Arguments:
             context : The root/first object to traverse.
@@ -391,17 +396,17 @@ class Accessor(str):
 
     def penultimate(self, context, quiet=True):
         """
-        Split the accessor on the right-most dot '.', return a tuple with:
+        Split the accessor on the right-most separator ('__'), return a tuple with:
          - the resolved left part.
          - the remainder
 
         Example::
 
-            >>> Accessor("a.b.c").penultimate({"a": {"a": 1, "b": {"c": 2, "d": 4}}})
+            >>> Accessor("a__b__c").penultimate({"a": {"a": 1, "b": {"c": 2, "d": 4}}})
             ({"c": 2, "d": 4}, "c")
 
         """
-        path, _, remainder = self.rpartition(".")
+        path, _, remainder = self.rpartition(self.SEPARATOR)
         return A(path).resolve(context, quiet=quiet), remainder
 
 

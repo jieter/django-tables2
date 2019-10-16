@@ -29,7 +29,7 @@ Consider the following:
     >>> class PersonTable(tables.Table):
     ...     first_name = tables.Column()
     ...     ln = tables.Column(accessor="last_name")
-    ...     region_name = tables.Column(accessor="region.name")
+    ...     region_name = tables.Column(accessor="region__name")
     ...
     >>> table = PersonTable(Person.objects.all())
     >>> table.columns["first_name"].header

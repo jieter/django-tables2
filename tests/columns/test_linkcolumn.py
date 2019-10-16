@@ -66,8 +66,8 @@ class LinkColumnTest(TestCase):
         class PersonTable(tables.Table):
             first_name = tables.Column()
             last_name = tables.Column()
-            occupation = tables.LinkColumn("occupation", args=[A("occupation.pk")])
-            occupation_linkify = tables.Column(linkify=("occupation", A("occupation.pk")))
+            occupation = tables.LinkColumn("occupation", args=[A("occupation__pk")])
+            occupation_linkify = tables.Column(linkify=("occupation", A("occupation__pk")))
 
         Person.objects.create(first_name="bradley", last_name="ayers")
 

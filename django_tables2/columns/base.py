@@ -31,7 +31,7 @@ class Library:
         self.columns.append(column)
         return column
 
-    def column_for_field(self, field):
+    def column_for_field(self, field, **kwargs):
         """
         Return a column object suitable for model field.
 
@@ -39,14 +39,19 @@ class Library:
             `.Column` object or `None`
         """
         if field is None:
-            return self.columns[0]()
+            return self.columns[0](**kwargs)
 
-        # iterate in reverse order as columns are registered in order
+        # Iterate in reverse order as columns are registered in order
         # of least to most specialised (i.e. Column is registered
         # first). This also allows user-registered columns to be
         # favoured.
         for candidate in reversed(self.columns):
-            column = candidate.from_field(field)
+            if hasattr(field, "get_related_field"):
+                verbose_name = field.get_related_field().verbose_name
+            else:
+                verbose_name = getattr(field, "verbose_name", field.name)
+            kwargs["verbose_name"] = capfirst(verbose_name)
+            column = candidate.from_field(field, **kwargs)
             if column is None:
                 continue
             return column
@@ -235,9 +240,9 @@ class Column:
 
         # or, if no get_absolute_url is defined, or a custom link is required, we have a couple
         # of ways to define what is passed to reverse()
-        user = tables.Column(linkify={"viewname": "user_detail", "args":(tables.A("user.pk"),)})
-        user = tables.Column(linkify=("user_detail", (tables.A("user.pk"), ))) # (viewname, args)
-        user = tables.Column(linkify=("user_detail", {"pk": tables.A("user.pk")})) # (viewname, kwargs)
+        user = tables.Column(linkify={"viewname": "user_detail", "args": [tables.A("user__pk")]})
+        user = tables.Column(linkify=("user_detail", [tables.A("user__pk")])) # (viewname, args)
+        user = tables.Column(linkify=("user_detail", {"pk": tables.A("user__pk")})) # (viewname, kwargs)
 
     .. [1] The provided callable object must not expect to receive any arguments.
     """
@@ -395,7 +400,7 @@ class Column:
         return (queryset, False)
 
     @classmethod
-    def from_field(cls, field):
+    def from_field(cls, field, **kwargs):
         """
         Return a specialized column for the model field or `None`.
 
@@ -413,12 +418,7 @@ class Column:
         # Since this method is inherited by every subclass, only provide a
         # column if this class was asked directly.
         if cls is Column:
-            if hasattr(field, "get_related_field"):
-                verbose_name = field.get_related_field().verbose_name
-            else:
-                verbose_name = getattr(field, "verbose_name", field.name)
-
-            return cls(verbose_name=capfirst(verbose_name))
+            return cls(**kwargs)
 
 
 class BoundColumn:

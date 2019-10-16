@@ -51,24 +51,29 @@ class DeclarativeColumnsMetaclass(type):
         # Possibly add some generated columns based on a model
         if opts.model:
             extra = OrderedDict()
+
             # honor Table.Meta.fields, fallback to model._meta.fields
             if opts.fields is not None:
-                # Each item in opts.fields is the name of a model field or a
-                # normal attribute on the model
+                # Each item in opts.fields is the name of a model field or a normal attribute on the model
                 for field_name in opts.fields:
-                    field = Accessor(field_name).get_field(opts.model)
-                    extra[field_name] = columns.library.column_for_field(field)
+                    extra[field_name] = columns.library.column_for_field(
+                        field=Accessor(field_name).get_field(opts.model),
+                        accessor=field_name,
+                        linkify=opts.linkify.get(field_name),
+                    )
             else:
                 for field in opts.model._meta.fields:
-                    extra[field.name] = columns.library.column_for_field(field)
+                    extra[field.name] = columns.library.column_for_field(
+                        field, linkify=opts.linkify.get(field.name), accessor=field.name
+                    )
 
             # update base_columns with extra columns
-            for key, col in extra.items():
-                # skip current col because the parent was explicitly defined,
+            for key, column in extra.items():
+                # skip current column because the parent was explicitly defined,
                 # and the current column is not.
                 if key in base_columns and base_columns[key]._explicit is True:
                     continue
-                base_columns[key] = col
+                base_columns[key] = column
 
         # Explicit columns override both parent and generated columns
         base_columns.update(OrderedDict(cols))
@@ -94,6 +99,7 @@ class DeclarativeColumnsMetaclass(type):
 
             if localize_column is not None:
                 base_columns[col_name].localize = localize_column
+
         attrs["base_columns"] = base_columns
         return super().__new__(mcs, name, bases, attrs)
 
@@ -123,6 +129,11 @@ class TableOptions:
         self.default = getattr(options, "default", "—")
         self.empty_text = getattr(options, "empty_text", None)
         self.fields = getattr(options, "fields", None)
+        linkify = getattr(options, "linkify", [])
+        if not isinstance(linkify, dict):
+            linkify = dict.fromkeys(linkify, True)
+        self.linkify = linkify
+
         self.exclude = getattr(options, "exclude", ())
         order_by = getattr(options, "order_by", None)
         if isinstance(order_by, str):
@@ -153,6 +164,7 @@ class TableOptions:
             (bool,): ["show_header", "show_footer", "orderable"],
             (int,): ["per_page"],
             (tuple, list, set): ["fields", "sequence", "exclude", "localize", "unlocalize"],
+            (tuple, list, set, dict): ["linkify"],
             str: ["template_name", "prefix", "order_by_field", "page_field", "per_page_field"],
             (dict,): ["attrs", "row_attrs", "pinned_row_attrs"],
             (tuple, list, str): ["order_by"],

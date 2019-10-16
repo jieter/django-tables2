@@ -31,16 +31,11 @@ class CheckboxTable(tables.Table):
 
 
 class BootstrapTable(tables.Table):
-    id = tables.Column(linkify=True)
-    country = tables.Column(linkify=True)
-    continent = tables.Column(
-        accessor="country.continent.name", verbose_name="Continent", linkify=True
-    )
-
     class Meta:
         model = Person
         template_name = "django_tables2/bootstrap.html"
-        exclude = ("friendly",)
+        fields = ("id", "country", "country__continent__name")
+        linkify = ("country", "country__continent__name")
 
 
 class BootstrapTablePinnedRows(BootstrapTable):
@@ -58,7 +53,7 @@ class BootstrapTablePinnedRows(BootstrapTable):
 
 class Bootstrap4Table(tables.Table):
     country = tables.Column(linkify=True)
-    continent = tables.Column(accessor="country.continent", linkify=True)
+    continent = tables.Column(accessor="country__continent", linkify=True)
 
     class Meta:
         model = Person
