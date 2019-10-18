@@ -103,6 +103,15 @@ the `last_name` column::
         def render_name(self, value, record):
             return format_html("<b>{} {}</b>", value, record.last_name)
 
+If you need to access logged-in user (or request in general) in your render methods, you can reach it through
+`self.request`::
+
+    def render_count(self, value):
+        if self.request.user.is_authenticated():
+            return value
+        else:
+            return '---'
+
 .. important::
 
     `render_foo` methods are *only* called if the value for a cell is determined to

@@ -64,4 +64,6 @@ class RequestConfig:
                 except EmptyPage:
                     table.page = table.paginator.page(table.paginator.num_pages)
 
+        table.request = self.request
+
         return table
