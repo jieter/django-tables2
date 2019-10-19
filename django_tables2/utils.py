@@ -288,7 +288,9 @@ class Accessor(str):
 
     def __new__(cls, value):
         if "." in value:
-            raise ValueError("Use '__' to separate path components, not '.'.")
+            raise ValueError(
+                "Use '__' to separate path components, not '.' in accessor '{}'.".format(value)
+            )
         return super().__new__(cls, value)
 
     def resolve(self, context, safe=True, quiet=False):
