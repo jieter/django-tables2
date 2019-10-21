@@ -11,6 +11,7 @@ from django.utils.html import escape
 from django.utils.http import urlencode
 
 import django_tables2 as tables
+from django_tables2.paginators import LazyPaginator
 from django_tables2.utils import AttributeDict
 
 register = template.Library()
@@ -267,6 +268,8 @@ def table_page_range(page, paginator):
         ret = [1, "..."] + list(ret)[2:]
     if num_pages not in ret:
         ret = list(ret)[:-2] + ["...", num_pages]
+    if isinstance(paginator, LazyPaginator) and not paginator.is_last_page(page.number):
+        ret.append("...")
     return ret
 
 
