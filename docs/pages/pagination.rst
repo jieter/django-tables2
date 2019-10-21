@@ -32,14 +32,15 @@ set `SingleTableView.table_pagination = False`
 Lazy pagination
 ~~~~~~~~~~~~~~~
 
-The default `~django.core.paginators.Paginator` want to count the number of items,
+The default `~django.core.paginators.Paginator` wants to count the number of items,
 which might be an expensive operation for large QuerySets.
 In those cases, you can use `.LazyPaginator`, which does not perform a count,
-but also does not know what the total amount of pages will be.
+but also does not know what the total amount of pages will be, until you've hit
+the last page.
 
 The `.LazyPaginator` does this by fetching `n + 1` records where the number of records
 per page is `n`. If it receives `n` or less records, it knows it is on the last page,
-preventing rendering of the 'next' button.
+preventing rendering of the 'next' button and further "..." ellipsis.
 Usage with `SingleTableView`::
 
     class UserListView(SingleTableView):

@@ -56,6 +56,7 @@ class LazyPaginator(Paginator):
 
     def __init__(self, object_list, per_page, look_ahead=None, **kwargs):
         self._num_pages = None
+        self._final_num_pages = None
         if look_ahead is not None:
             self.look_ahead = look_ahead
 
@@ -91,7 +92,12 @@ class LazyPaginator(Paginator):
         else:
             # This is the last page.
             self._num_pages = number
+            # For rendering purposes in `table_page_range`, we have to remember the final count
+            self._final_num_pages = number
         return Page(objects, number, self)
+
+    def is_last_page(self, number):
+        return number == self._final_num_pages
 
     def _get_count(self):
         raise NotImplementedError
