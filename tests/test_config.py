@@ -87,7 +87,7 @@ class ConfigTest(SimpleTestCase):
         table = self.table()
         request = build_request("/")
         RequestConfig(request, paginate=False).configure(table)
-        self.assertTrue(table.request, request)
+        self.assertEqual(table.request, request)
 
 
 class NoPaginationQueriesTest(TestCase):
