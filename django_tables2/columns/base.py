@@ -218,10 +218,6 @@ class Column:
              - If a `tuple` is passed, it must be either a (viewname, args) or (viewname, kwargs)
                tuple, which is also passed to ``~django.urls.reverse``.
 
-        initial_sort_descending (bool): If `True`, a column will sort in descending order
-            on "first click" after table has been rendered. If `False`, column will follow
-            default behavior, and sort ascending on "first click". Defaults to `False`.
-
     Examples, assuming this model::
 
         class Blog(models.Model):
@@ -243,6 +239,10 @@ class Column:
         user = tables.Column(linkify={"viewname": "user_detail", "args": [tables.A("user__pk")]})
         user = tables.Column(linkify=("user_detail", [tables.A("user__pk")])) # (viewname, args)
         user = tables.Column(linkify=("user_detail", {"pk": tables.A("user__pk")})) # (viewname, kwargs)
+
+        initial_sort_descending (bool): If `True`, a column will sort in descending order
+            on "first click" after table has been rendered. If `False`, column will follow
+            default behavior, and sort ascending on "first click". Defaults to `False`.
 
     .. [1] The provided callable object must not expect to receive any arguments.
     """
