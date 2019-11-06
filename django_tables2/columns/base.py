@@ -1,5 +1,6 @@
 from collections import OrderedDict
 from itertools import islice
+from urllib.parse import urlencode
 
 from django.core.exceptions import ImproperlyConfigured
 from django.urls import reverse
@@ -65,7 +66,7 @@ class LinkTransform:
     accessor = None
     attrs = None
 
-    def __init__(self, url=None, accessor=None, attrs=None, reverse_args=None):
+    def __init__(self, url=None, accessor=None, attrs=None, reverse_args=None, query=None, fragment=None):
         """
         arguments:
             url (callable): If supplied, the result of this callable will be used as ``href`` attribute.
@@ -79,6 +80,8 @@ class LinkTransform:
         self.url = url
         self.attrs = attrs
         self.accessor = accessor
+        self.query = query
+        self.fragment = fragment
 
         if isinstance(reverse_args, (list, tuple)):
             viewname, args = reverse_args
@@ -95,23 +98,33 @@ class LinkTransform:
         record = kwargs["record"]
 
         if self.reverse_args.get("viewname", None) is not None:
-            return self.call_reverse(record=record)
-
-        if bound_column is None and self.accessor is None:
-            accessor = Accessor("")
+            url = self.call_reverse(record=record)
         else:
-            accessor = Accessor(self.accessor if self.accessor is not None else bound_column.name)
-        context = accessor.resolve(record)
-        if not hasattr(context, "get_absolute_url"):
-            if hasattr(record, "get_absolute_url"):
-                context = record
+            if bound_column is None and self.accessor is None:
+                accessor = Accessor("")
             else:
-                raise TypeError(
-                    "for linkify=True, '{}' must have a method get_absolute_url".format(
-                        str(context)
+                accessor = Accessor(self.accessor if self.accessor is not None else bound_column.name)
+            context = accessor.resolve(record)
+            if not hasattr(context, "get_absolute_url"):
+                if hasattr(record, "get_absolute_url"):
+                    context = record
+                else:
+                    raise TypeError(
+                        "for linkify=True, '{}' must have a method get_absolute_url".format(
+                            str(context)
+                        )
                     )
-                )
-        return context.get_absolute_url()
+            url = context.get_absolute_url()
+
+        if self.query:
+            url += '?' + urlencode({
+                a: v.resolve(record) if isinstance(v, Accessor) else v
+                for a, v in self.query.items()
+            })
+        if self.fragment:
+            url += '#' + self.fragment
+
+        return url
 
     def call_reverse(self, record):
         """
@@ -150,6 +163,19 @@ class LinkTransform:
 
         return format_html("<a {}>{}</a>", attrs.as_html(), content)
 
+    @classmethod
+    def get_callback(cls, *args, **kwargs):
+        """
+        This method constructs a LinkTransform and returns a callback function suitable as the linkify
+        parameter of ``Column.__init__()``  This may be used if you wish to subclass LinkTransform or to access
+        (future) features of LinkTransform which may not be exposed via ``linkify``.
+        """
+        link_transform = cls(*args, **kwargs)
+
+        def callback(record, value, **kwargs):
+            return link_transform.compose_url(record=record, value=value, **kwargs)
+
+        return callback
 
 @library.register
 class Column:
@@ -209,7 +235,9 @@ class Column:
              - If `True`, the ``record.get_absolute_url()`` or the related model's
                `get_absolute_url()` is used.
              - If a callable is passed, the returned value is used, if it's not ``None``.
-             - If a `dict` is passed, it's passed on to ``~django.urls.reverse``.
+             - If a `dict` is passed, optional items named ``query`` (dict), and ``fragment`` (str), 
+               if present, specify the query string and fragment (hash) elements of the url.  
+               The remaining items are passed on to ``~django.urls.reverse`` as kwargs.
              - If a `tuple` is passed, it must be either a (viewname, args) or (viewname, kwargs)
                tuple, which is also passed to ``~django.urls.reverse``.
 
@@ -295,8 +323,12 @@ class Column:
         link_kwargs = None
         if callable(linkify) or hasattr(self, "get_url"):
             link_kwargs = dict(url=linkify if callable(linkify) else self.get_url)
-        elif isinstance(linkify, (dict, tuple)):
+        elif isinstance(linkify, (list, tuple)):
             link_kwargs = dict(reverse_args=linkify)
+        elif isinstance(linkify, dict):
+            # specific keys in linkify are understood to be link_kwargs, and the rest must be reverse_args
+            link_kwargs = { name: linkify.pop(name) for name in ('query', 'fragment') if name in linkify }
+            link_kwargs['reverse_args'] = linkify
         elif linkify is True:
             link_kwargs = dict(accessor=self.accessor)
 
