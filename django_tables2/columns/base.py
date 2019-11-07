@@ -76,6 +76,8 @@ class LinkTransform:
             reverse_args (dict, tuple): Arguments to ``django.urls.reverse()``. If dict, the arguments
                 are assumed to be keyword arguments to ``reverse()``, if tuple, a ``(viewname, args)``
                 or ``(viewname, kwargs)``
+            query (dict): If supplied, field-value pairs to be formatted into a query string.
+            fragment (str): If supplied, value of URL fragment identifier (hash).
         """
         self.url = url
         self.attrs = attrs
@@ -177,6 +179,7 @@ class LinkTransform:
 
         return callback
 
+
 @library.register
 class Column:
     """
@@ -235,8 +238,8 @@ class Column:
              - If `True`, the ``record.get_absolute_url()`` or the related model's
                `get_absolute_url()` is used.
              - If a callable is passed, the returned value is used, if it's not ``None``.
-             - If a `dict` is passed, optional items named ``query`` (dict), and ``fragment`` (str), 
-               if present, specify the query string and fragment (hash) elements of the url.  
+             - If a `dict` is passed, optional items named ``query`` (dict), and ``fragment`` (str),
+               if present, specify the query string and fragment (hash) elements of the URL.
                The remaining items are passed on to ``~django.urls.reverse`` as kwargs.
              - If a `tuple` is passed, it must be either a (viewname, args) or (viewname, kwargs)
                tuple, which is also passed to ``~django.urls.reverse``.
@@ -327,7 +330,7 @@ class Column:
             link_kwargs = dict(reverse_args=linkify)
         elif isinstance(linkify, dict):
             # specific keys in linkify are understood to be link_kwargs, and the rest must be reverse_args
-            link_kwargs = { name: linkify.pop(name) for name in ('query', 'fragment') if name in linkify }
+            link_kwargs = {name: linkify.pop(name) for name in ('query', 'fragment') if name in linkify}
             link_kwargs['reverse_args'] = linkify
         elif linkify is True:
             link_kwargs = dict(accessor=self.accessor)
