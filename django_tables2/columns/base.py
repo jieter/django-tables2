@@ -66,7 +66,9 @@ class LinkTransform:
     accessor = None
     attrs = None
 
-    def __init__(self, url=None, accessor=None, attrs=None, reverse_args=None, query=None, fragment=None):
+    def __init__(
+        self, url=None, accessor=None, attrs=None, reverse_args=None, query=None, fragment=None
+    ):
         """
         arguments:
             url (callable): If supplied, the result of this callable will be used as ``href`` attribute.
@@ -105,7 +107,9 @@ class LinkTransform:
             if bound_column is None and self.accessor is None:
                 accessor = Accessor("")
             else:
-                accessor = Accessor(self.accessor if self.accessor is not None else bound_column.name)
+                accessor = Accessor(
+                    self.accessor if self.accessor is not None else bound_column.name
+                )
             context = accessor.resolve(record)
             if not hasattr(context, "get_absolute_url"):
                 if hasattr(record, "get_absolute_url"):
@@ -119,12 +123,14 @@ class LinkTransform:
             url = context.get_absolute_url()
 
         if self.query:
-            url += '?' + urlencode({
-                a: v.resolve(record) if isinstance(v, Accessor) else v
-                for a, v in self.query.items()
-            })
+            url += "?" + urlencode(
+                {
+                    a: v.resolve(record) if isinstance(v, Accessor) else v
+                    for a, v in self.query.items()
+                }
+            )
         if self.fragment:
-            url += '#' + self.fragment
+            url += "#" + self.fragment
 
         return url
 
@@ -236,9 +242,9 @@ class Column:
             ``a`` tag. The different ways to define the ``href`` attribute:
 
              - If `True`, the ``record.get_absolute_url()`` or the related model's
-               `get_absolute_url()` is used.
-             - If a callable is passed, the returned value is used, if it's not ``None``.
-             - If a `dict` is passed, optional items named ``query`` (dict), and ``fragment`` (str),
+               ``get_absolute_url()`` is used.
+             - If a callable is passed, the returned value is used, if it's not `None`.
+             - If a `dict` is passed, optional items named `query` (dict), and `fragment` (str),
                if present, specify the query string and fragment (hash) elements of the URL.
                The remaining items are passed on to ``~django.urls.reverse`` as kwargs.
              - If a `tuple` is passed, it must be either a (viewname, args) or (viewname, kwargs)
@@ -330,8 +336,10 @@ class Column:
             link_kwargs = dict(reverse_args=linkify)
         elif isinstance(linkify, dict):
             # specific keys in linkify are understood to be link_kwargs, and the rest must be reverse_args
-            link_kwargs = {name: linkify.pop(name) for name in ('query', 'fragment') if name in linkify}
-            link_kwargs['reverse_args'] = linkify
+            link_kwargs = {
+                name: linkify.pop(name) for name in ("query", "fragment") if name in linkify
+            }
+            link_kwargs["reverse_args"] = linkify
         elif linkify is True:
             link_kwargs = dict(accessor=self.accessor)
 

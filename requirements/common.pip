@@ -5,5 +5,6 @@ lxml
 pytz>0
 tablib==0.13.0
 mock
+Django==2.2.3
 psycopg2-binary
 django-filter==2.2.0
