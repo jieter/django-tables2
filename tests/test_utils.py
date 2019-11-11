@@ -1,8 +1,6 @@
-# coding: utf-8
 from unittest import TestCase
 
 from django.db import models
-from django.utils import six
 
 from django_tables2.utils import (
     Accessor,
@@ -54,52 +52,48 @@ class OrderByTupleTest(TestCase):
     def test_sort_key_empty_comes_first(self):
         obt = OrderByTuple(("a"))
         items = [{"a": 1}, {"a": ""}, {"a": 2}]
-        if six.PY3:
-            assert sorted(items, key=obt.key) == [{"a": ""}, {"a": 1}, {"a": 2}]
-        else:
-            assert sorted(items, key=obt.key) == [{"a": 1}, {"a": 2}, {"a": ""}]
+        assert sorted(items, key=obt.key) == [{"a": ""}, {"a": 1}, {"a": 2}]
 
 
 class OrderByTest(TestCase):
     def test_orderby_ascending(self):
         a = OrderBy("a")
-        assert "a" == a
-        assert "a" == a.bare
-        assert "-a" == a.opposite
-        assert True is a.is_ascending
-        assert False is a.is_descending
+        self.assertEqual(a, "a")
+        self.assertEqual(a.bare, "a")
+        self.assertEqual(a.opposite, "-a")
+        self.assertTrue(a.is_ascending)
+        self.assertFalse(a.is_descending)
 
     def test_orderby_descending(self):
         b = OrderBy("-b")
-        assert "-b" == b
-        assert "b" == b.bare
-        assert "b" == b.opposite
-        assert True is b.is_descending
-        assert False is b.is_ascending
+        self.assertEqual(b, "-b")
+        self.assertEqual(b.bare, "b")
+        self.assertEqual(b.opposite, "b")
+        self.assertTrue(b.is_descending)
+        self.assertFalse(b.is_ascending)
 
 
 class AccessorTest(TestCase):
     def test_bare(self):
-        assert "Brad" == Accessor("").resolve("Brad")
-        assert {"Brad"} == Accessor("").resolve({"Brad"})
-        assert {"Brad": "author"} == Accessor("").resolve({"Brad": "author"})
+        self.assertEqual(Accessor("").resolve("Brad"), "Brad")
+        self.assertEqual(Accessor("").resolve({"Brad"}), {"Brad"})
+        self.assertEqual(Accessor("").resolve({"Brad": "author"}), {"Brad": "author"})
 
     def test_index_lookup(self):
-        x = Accessor("0")
-        assert "B" == x.resolve("Brad")
-
-        x = Accessor("1")
-        assert "r" == x.resolve("Brad")
+        self.assertEqual(Accessor("0").resolve("Brad"), "B")
+        self.assertEqual(Accessor("1").resolve("Brad"), "r")
+        self.assertEqual(Accessor("-1").resolve("Brad"), "d")
+        self.assertEqual(Accessor("-2").resolve("Brad"), "a")
 
     def test_calling_methods(self):
-        x = Accessor("2.upper")
-        assert "A" == x.resolve("Brad")
+        self.assertEqual(Accessor("2__upper").resolve("Brad"), "A")
 
-        x = Accessor("2.upper.__len__")
-        assert 1 == x.resolve("Brad")
+    def test_error_on_dot(self):
+        with self.assertRaises(ValueError):
+            Accessor("2.upper")
 
     def test_honors_alters_data(self):
-        class Foo(object):
+        class Foo:
             deleted = False
 
             def delete(self):
@@ -110,16 +104,15 @@ class AccessorTest(TestCase):
         foo = Foo()
         with self.assertRaises(ValueError):
             Accessor("delete").resolve(foo)
-        assert foo.deleted is False
+        self.assertFalse(foo.deleted)
 
     def test_accessor_can_be_quiet(self):
-        foo = {}
-        assert Accessor("bar").resolve(foo, quiet=True) is None
+        self.assertIsNone(Accessor("bar").resolve({}, quiet=True))
 
     def test_penultimate(self):
         context = {"a": {"a": 1, "b": {"c": 2, "d": 4}}}
-        assert Accessor("a.b.c").penultimate(context) == (context["a"]["b"], "c")
-        assert Accessor("a.b.c.d.e").penultimate(context) == (None, "e")
+        self.assertEqual(Accessor("a__b__c").penultimate(context), (context["a"]["b"], "c"))
+        self.assertEqual(Accessor("a___b___c___d___e").penultimate(context), (None, "e"))
 
 
 class AccessorTestModel(models.Model):
@@ -132,25 +125,27 @@ class AccessorTestModel(models.Model):
 class AccessorModelTests(TestCase):
     def test_can_return_field(self):
         context = AccessorTestModel(foo="bar")
-        assert type(Accessor("foo").get_field(context)) == models.CharField
+        self.assertIsInstance(Accessor("foo").get_field(context), models.CharField)
 
     def test_returns_None_when_doesnt_exist(self):
         context = AccessorTestModel(foo="bar")
-        assert Accessor("bar").get_field(context) is None
+        self.assertIsNone(Accessor("bar").get_field(context))
 
     def test_returns_None_if_not_a_model(self):
         context = {"bar": 234}
-        assert Accessor("bar").get_field(context) is None
+        self.assertIsNone(Accessor("bar").get_field(context))
 
 
 class AttributeDictTest(TestCase):
     def test_handles_escaping(self):
-        x = AttributeDict({"x": "\"'x&"})
-        self.assertEqual(x.as_html(), 'x="&quot;&#39;x&amp;"')
+        # django==3.0 replaces &#39; with &#x27;, drop first option if django==2.2 support is removed
+        self.assertIn(
+            AttributeDict({"x": "\"'x&"}).as_html(),
+            ('x="&quot;&#39;x&amp;"', 'x="&quot;&#x27;x&amp;"'),
+        )
 
     def test_omits_None(self):
-        x = AttributeDict({"x": None})
-        self.assertEqual(x.as_html(), "")
+        self.assertEqual(AttributeDict({"x": None}).as_html(), "")
 
     def test_self_wrap(self):
         x = AttributeDict({"x": "y"})
@@ -204,7 +199,7 @@ class SignatureTest(TestCase):
         assert keywords is None
 
     def test_signature_method(self):
-        class Foo(object):
+        class Foo:
             def foo(self):
                 pass
 

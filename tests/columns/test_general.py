@@ -1,11 +1,8 @@
-# coding: utf-8
-from __future__ import unicode_literals
-
 from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 from django.test import TestCase
 from django.utils.safestring import SafeData, mark_safe
-from django.utils.translation import ugettext_lazy
+from django.utils.translation import gettext_lazy
 
 import django_tables2 as tables
 
@@ -72,7 +69,7 @@ class ColumnGeneralTest(TestCase):
 
     def test_handle_verbose_name_of_many2onerel(self):
         class Table(tables.Table):
-            count = tables.Column(accessor="info_list.count")
+            count = tables.Column(accessor="info_list__count")
 
         Person.objects.create(first_name="bradley", last_name="ayers")
         table = Table(Person.objects.all())
@@ -153,7 +150,7 @@ class ColumnGeneralTest(TestCase):
         """
 
         class TranslationTable(tables.Table):
-            text = tables.Column(verbose_name=ugettext_lazy("Text"))
+            text = tables.Column(verbose_name=gettext_lazy("Text"))
 
         table = TranslationTable([])
         self.assertEqual(table.columns["text"].header, "Text")
@@ -334,7 +331,7 @@ class ColumnGeneralTest(TestCase):
         class PersonTable(tables.Table):
             class Meta:
                 model = Person
-                fields = ["first_name", "occupation.boolean"]
+                fields = ["first_name", "occupation__boolean"]
 
         table = PersonTable([])
         self.assertEqual(

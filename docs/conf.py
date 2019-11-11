@@ -1,10 +1,8 @@
-# coding: utf-8
 import os
 import re
 import sys
 
 import sphinx_rtd_theme
-
 from recommonmark.parser import CommonMarkParser
 
 os.environ["DJANGO_SETTINGS_MODULE"] = "example.settings"
@@ -14,7 +12,7 @@ sys.path.insert(0, os.path.abspath("../"))
 
 project = "django-tables2"
 with open("../django_tables2/__init__.py", "rb") as f:
-    release = str(re.search('__version__ = "(.+?)"', f.read().decode("utf-8")).group(1))
+    release = str(re.search('__version__ = "(.+?)"', f.read().decode()).group(1))
 version = release.rpartition(".")[0]
 
 

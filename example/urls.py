@@ -1,7 +1,6 @@
-# coding: utf-8
 from django.conf import settings
-from django.conf.urls import include, url
 from django.contrib import admin
+from django.urls import include, path
 from django.views import static
 
 from app.views import (
@@ -20,25 +19,25 @@ from app.views import (
 )
 
 urlpatterns = [
-    url(r"^$", index),
-    url(r"^multiple/", multiple, name="multiple"),
-    url(r"^class-based/$", ClassBased.as_view(), name="singletableview"),
-    url(r"^class-based-multiple/$", MultipleTables.as_view(), name="multitableview"),
-    url(r"^class-based-filtered/$", FilteredPersonListView.as_view(), name="filtertableview"),
-    url(r"^checkbox/$", checkbox, name="checkbox"),
-    url(r"^tutorial/$", tutorial, name="tutorial"),
-    url(r"^bootstrap/$", bootstrap, name="bootstrap"),
-    url(r"^bootstrap4/$", bootstrap4, name="bootstrap4"),
-    url(r"^semantic/$", semantic, name="semantic"),
-    url(r"^admin/doc/", include("django.contrib.admindocs.urls")),
-    url(r"^admin/", admin.site.urls),
-    url(r"^country/(?P<pk>[0-9]+)/$", country_detail, name="country_detail"),
-    url(r"^person/(?P<pk>[0-9]+)/$", person_detail, name="person_detail"),
-    url(r"^media/(?P<path>.*)$", static.serve, {"document_root": settings.MEDIA_ROOT}),
-    url(r"^i18n/", include("django.conf.urls.i18n")),
+    path("", index),
+    path("multiple/", multiple, name="multiple"),
+    path("class-based/", ClassBased.as_view(), name="singletableview"),
+    path("class-based-multiple/", MultipleTables.as_view(), name="multitableview"),
+    path("class-based-filtered/", FilteredPersonListView.as_view(), name="filtertableview"),
+    path("checkbox/", checkbox, name="checkbox"),
+    path("tutorial/", tutorial, name="tutorial"),
+    path("bootstrap/", bootstrap, name="bootstrap"),
+    path("bootstrap4/", bootstrap4, name="bootstrap4"),
+    path("semantic/", semantic, name="semantic"),
+    path("admin/doc/", include("django.contrib.admindocs.urls")),
+    path("admin/", admin.site.urls),
+    path("country/<int:pk>/", country_detail, name="country_detail"),
+    path("person/<int:pk>/", person_detail, name="person_detail"),
+    path("media/<path>", static.serve, {"document_root": settings.MEDIA_ROOT}),
+    path("i18n/", include("django.conf.urls.i18n")),
 ]
 
 if settings.DEBUG:
     import debug_toolbar
 
-    urlpatterns = [url(r"^__debug__/", include(debug_toolbar.urls))] + urlpatterns
+    urlpatterns = [path("__debug__/", include(debug_toolbar.urls))] + urlpatterns

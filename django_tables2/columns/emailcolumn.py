@@ -1,9 +1,4 @@
-# coding: utf-8
-from __future__ import absolute_import, unicode_literals
-
 from django.db import models
-
-from django_tables2.utils import ucfirst
 
 from .base import library
 from .linkcolumn import BaseLinkColumn
@@ -40,6 +35,6 @@ class EmailColumn(BaseLinkColumn):
         return "mailto:{}".format(value)
 
     @classmethod
-    def from_field(cls, field):
+    def from_field(cls, field, **kwargs):
         if isinstance(field, models.EmailField):
-            return cls(verbose_name=ucfirst(field.verbose_name))
+            return cls(**kwargs)

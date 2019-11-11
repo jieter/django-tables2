@@ -1,12 +1,9 @@
-# coding: utf-8
-from __future__ import unicode_literals
+from urllib.parse import parse_qs
 
 from django.core.exceptions import ImproperlyConfigured
 from django.core.paginator import Paginator
 from django.template import Context, RequestContext, Template, TemplateSyntaxError
 from django.test import SimpleTestCase, TestCase, override_settings
-from django.utils import six
-from django.utils.six.moves.urllib.parse import parse_qs
 
 from django_tables2 import LazyPaginator, RequestConfig, Table, TemplateColumn
 from django_tables2.export import ExportMixin
@@ -145,7 +142,7 @@ class RenderTableTagTest(TestCase):
         td = [[td.text for td in tr.findall("td")] for tr in root.findall(".//tbody/tr")]
         db = []
         for region in Region.objects.all():
-            db.append([six.text_type(region.id), region.name, "—"])
+            db.append([str(region.id), region.name, "—"])
         self.assertEqual(td, db)
 
 
@@ -289,10 +286,23 @@ class TablePageRangeTest(SimpleTestCase):
             table_page_range(paginator.page(7), paginator), [1, "...", 4, 5, 6, 7, 8, 9, 10, 11]
         )
 
-    def test_table_page_range_lazy(self):
+    def test_table_page_range_lazy_beginning(self):
         paginator = LazyPaginator(range(1, 1000), 10)
 
         self.assertEqual(table_page_range(paginator.page(1), paginator), range(1, 3))
+
+    def test_table_page_range_lazy_middle(self):
+        paginator = LazyPaginator(range(1, 1000), 10)
+
         self.assertEqual(
-            table_page_range(paginator.page(10), paginator), [1, "...", 4, 5, 6, 7, 8, 9, 10, 11]
+            table_page_range(paginator.page(10), paginator),
+            [1, "...", 4, 5, 6, 7, 8, 9, 10, 11, "..."],
+        )
+
+    def test_table_page_range_lazy_last_page(self):
+        paginator = LazyPaginator(range(1, 1000), 10)
+
+        self.assertEqual(
+            table_page_range(paginator.page(100), paginator),
+            [1, "...", 93, 94, 95, 96, 97, 98, 99, 100],
         )

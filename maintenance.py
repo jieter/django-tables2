@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import os
 import re
 import subprocess
@@ -7,7 +7,7 @@ import time
 
 # get version without importing
 with open("django_tables2/__init__.py", "rb") as f:
-    VERSION = str(re.search('__version__ = "(.+?)"', f.read().decode("utf-8")).group(1))
+    VERSION = str(re.search('__version__ = "(.+?)"', f.read().decode()).group(1))
 
 if sys.argv[-1] == "publish":
     os.system("python setup.py clean --all")

@@ -3,7 +3,7 @@ fudge
 # xml parsing
 lxml
 pytz>0
-tablib==0.11.4
+tablib==0.13.0
 mock
 psycopg2-binary
-django-filter
+django-filter==2.2.0

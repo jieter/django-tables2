@@ -1,4 +1,3 @@
-# coding: utf-8
 from django.core.paginator import EmptyPage, PageNotAnInteger
 from django.test import SimpleTestCase, TestCase
 from fudge import Fake
@@ -83,6 +82,12 @@ class ConfigTest(SimpleTestCase):
 
         table = SimpleTable([{}], request=request)
         self.assertTrue(table.columns["abc"].is_ordered)
+
+    def test_request_is_added_to_the_table(self):
+        table = self.table()
+        request = build_request("/")
+        RequestConfig(request, paginate=False).configure(table)
+        self.assertEqual(table.request, request)
 
 
 class NoPaginationQueriesTest(TestCase):

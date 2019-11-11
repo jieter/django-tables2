@@ -1,6 +1,6 @@
 -e ..
-django-bootstrap3==10.0.1
-django-bootstrap4==0.0.6
-django-debug-toolbar==1.9.1
-django-filter==2.1.0
-tablib<0.11.99
+django-bootstrap3==11.0.0
+django-bootstrap4==0.0.8
+django-debug-toolbar==1.11
+django-filter==2.2
+tablib==0.13.0

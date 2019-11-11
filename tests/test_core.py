@@ -1,6 +1,4 @@
-# coding: utf-8
 """Test the core table functionality."""
-from __future__ import absolute_import, unicode_literals
 
 import copy
 import itertools
@@ -36,10 +34,8 @@ class CoreTest(SimpleTestCase):
             UnorderedTable()
 
     def test_column_named_items(self):
-        """
-        A column named items must not make the table fail
-        https://github.com/bradleyayers/django-tables2/issues/316
-        """
+        """A column named items must not make the table fail."""
+        # https://github.com/bradleyayers/django-tables2/issues/316
 
         class ItemsTable(tables.Table):
             items = tables.Column()
@@ -89,7 +85,7 @@ class CoreTest(SimpleTestCase):
 
             def __new__(cls, name, bases, attrs):
                 attrs["tweaked"] = True
-                return super(Tweaker, cls).__new__(cls, name, bases, attrs)
+                return super().__new__(cls, name, bases, attrs)
 
         class Meta(Tweaker, DeclarativeColumnsMetaclass):
             pass
@@ -98,8 +94,7 @@ class CoreTest(SimpleTestCase):
             __metaclass__ = Meta
             name = tables.Column()
 
-        # Python 2/3 compatible way to enable the metaclass
-        TweakedTable = Meta(str("TweakedTable"), (TweakedTableBase,), {})
+        TweakedTable = Meta("TweakedTable", (TweakedTableBase,), {})
 
         table = TweakedTable([])
         self.assertIn("name", table.columns)
@@ -112,10 +107,7 @@ class CoreTest(SimpleTestCase):
         class FlippedTweakedTableBase(tables.Table):
             name = tables.Column()
 
-        # Python 2/3 compatible way to enable the metaclass
-        FlippedTweakedTable = FlippedMeta(
-            str("FlippedTweakedTable"), (FlippedTweakedTableBase,), {}
-        )
+        FlippedTweakedTable = FlippedMeta("FlippedTweakedTable", (FlippedTweakedTableBase,), {})
 
         table = FlippedTweakedTable([])
         self.assertIn("name", table.columns)
@@ -202,10 +194,7 @@ class CoreTest(SimpleTestCase):
         self.assertIn('<tfoot class="tfoot-class">', html)
 
     def test_datasource_untouched(self):
-        """
-        Ensure that data that is provided to the table (the datasource) is not
-        modified by table operations.
-        """
+        """Ensure that data the data datasource is not modified by table operations."""
         original_data = copy.deepcopy(MEMORY_DATA)
 
         table = UnorderedTable(MEMORY_DATA)
@@ -236,8 +225,8 @@ class CoreTest(SimpleTestCase):
 
     def test_column_accessor(self):
         class SimpleTable(UnorderedTable):
-            col1 = tables.Column(accessor="alpha.upper.isupper")
-            col2 = tables.Column(accessor="alpha.upper")
+            col1 = tables.Column(accessor="alpha__upper__isupper")
+            col2 = tables.Column(accessor="alpha__upper")
 
         table = SimpleTable(MEMORY_DATA)
 
@@ -290,10 +279,7 @@ class CoreTest(SimpleTestCase):
         self.assertEqual(table.columns.names(), ["b"])
 
     def test_exclude_should_work_on_sequence_too(self):
-        """
-        It should be possible to define a sequence on a table
-        and exclude it in a child of that table.
-        """
+        """It should be possible to define a sequence on a table and exclude it in a child of that table."""
 
         class PersonTable(tables.Table):
             first_name = tables.Column()
@@ -393,9 +379,7 @@ class CoreTest(SimpleTestCase):
             self.assertEqual(table.empty_text, "volgende")
 
     def test_prefix(self):
-        """
-        Test that table prefixes affect the names of querystring parameters
-        """
+        """Verify table prefixes affect the names of querystring parameters."""
 
         class TableA(tables.Table):
             name = tables.Column()
@@ -540,7 +524,7 @@ class BoundColumnTest(SimpleTestCase):
         class Table(tables.Table):
             c_element = tables.Column()
 
-        class ErrorObject(object):
+        class ErrorObject:
             def __bool__(self):
                 raise NotImplementedError
 
@@ -560,7 +544,7 @@ class BoundColumnTest(SimpleTestCase):
             class Meta:
                 attrs = {"td": {"data-column-name": lambda value: value.name}}
 
-        class FalsyObject(object):
+        class FalsyObject:
             name = "FalsyObject1"
 
             def __bool__(self):
@@ -606,10 +590,15 @@ class AsValuesTest(TestCase):
 
         self.assertEqual(list(Table([]).as_values()), [["Name"]])
 
+    def test_as_values_visible_False(self):
+        class Table(tables.Table):
+            name = tables.Column()
+            website = tables.Column(visible=False)
+
+        self.assertEqual(list(Table([]).as_values()), [["Name", "Website"]])
+
     def test_as_values_empty_values(self):
-        """
-        Table's as_values() method returns `None` for missing values
-        """
+        """Table's as_values() method returns `None` for missing values."""
 
         class Table(tables.Table):
             name = tables.Column()
@@ -679,7 +668,7 @@ class AsValuesTest(TestCase):
         class Table(tables.Table):
             name = tables.Column(accessor=tables.A("first_name"))
             occupation = tables.Column(
-                accessor=tables.A("occupation.name"), verbose_name="Occupation"
+                accessor=tables.A("occupation__name"), verbose_name="Occupation"
             )
 
         expected = [["First name", "Occupation"], [henk.first_name, programmer.name]]

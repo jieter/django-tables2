@@ -1,9 +1,6 @@
-# coding: utf-8
-from __future__ import unicode_literals
-
 from os.path import abspath, dirname, join
 
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 ROOT = dirname(abspath(__file__))
 
@@ -117,6 +114,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.template.context_processors.request",
                 "django.template.context_processors.static",
+                "django.contrib.messages.context_processors.messages",
             ]
         },
     }

@@ -1,6 +1,3 @@
-# coding: utf-8
-from __future__ import absolute_import, unicode_literals
-
 from .base import Column, library
 
 
@@ -19,7 +16,7 @@ class BaseLinkColumn(Column):
     """
 
     def __init__(self, text=None, *args, **kwargs):
-        super(BaseLinkColumn, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.text = text
 
     def text_value(self, record, value):
@@ -135,7 +132,7 @@ class LinkColumn(BaseLinkColumn):
         attrs=None,
         **extra
     ):
-        super(LinkColumn, self).__init__(
+        super().__init__(
             attrs=attrs,
             linkify=dict(
                 viewname=viewname,

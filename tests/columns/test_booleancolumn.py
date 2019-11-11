@@ -1,6 +1,3 @@
-# coding: utf-8
-from __future__ import unicode_literals
-
 from unittest import skipIf
 
 from django import VERSION as django_version
@@ -125,7 +122,7 @@ class BooleanColumnTest(TestCase):
         "The inverse lookup voor boolean choices should also work on related models"
 
         class Table(tables.Table):
-            boolean = tables.BooleanColumn(accessor="occupation.boolean_with_choices")
+            boolean = tables.BooleanColumn(accessor="occupation__boolean_with_choices")
 
             class Meta:
                 model = Person

@@ -1,13 +1,9 @@
-# coding: utf-8
-from __future__ import absolute_import, unicode_literals
-
 import os
 
 from django.db import models
 from django.utils.html import format_html
 
-from django_tables2.utils import AttributeDict, ucfirst
-
+from ..utils import AttributeDict
 from .base import library
 from .linkcolumn import BaseLinkColumn
 
@@ -40,7 +36,7 @@ class FileColumn(BaseLinkColumn):
 
     def __init__(self, verify_exists=True, **kwargs):
         self.verify_exists = verify_exists
-        super(FileColumn, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     def get_url(self, value, record):
         storage = getattr(value, "storage", None)
@@ -52,7 +48,7 @@ class FileColumn(BaseLinkColumn):
     def text_value(self, record, value):
         if self.text is None:
             return os.path.basename(value.name)
-        return super(FileColumn, self).text_value(record, value)
+        return super().text_value(record, value)
 
     def render(self, record, value):
         attrs = AttributeDict(self.attrs.get("span", {}))
@@ -84,6 +80,6 @@ class FileColumn(BaseLinkColumn):
         )
 
     @classmethod
-    def from_field(cls, field):
+    def from_field(cls, field, **kwargs):
         if isinstance(field, models.FileField):
-            return cls(verbose_name=ucfirst(field.verbose_name))
+            return cls(**kwargs)

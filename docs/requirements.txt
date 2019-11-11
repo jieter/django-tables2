@@ -1,5 +1,5 @@
 -r ../requirements/common.pip
-Sphinx==1.6.5
+Sphinx==2.2.0
 sphinx_rtd_theme
 recommonmark
 django

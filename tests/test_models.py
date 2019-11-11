@@ -1,6 +1,3 @@
-# coding: utf-8
-from __future__ import unicode_literals
-
 from collections import defaultdict
 
 from django.contrib.contenttypes.models import ContentType
@@ -8,13 +5,12 @@ from django.db import models
 from django.db.models.functions import Length
 from django.template import Context, Template
 from django.test import TestCase
-from django.utils import six
 from django.utils.translation import override as translation_override
 
 import django_tables2 as tables
 import mock
 
-from .app.models import Occupation, Person, PersonProxy
+from .app.models import Occupation, Person, PersonProxy, Region
 from .utils import build_request, parse
 
 request = build_request()
@@ -28,7 +24,7 @@ class PersonTable(tables.Table):
 
 class ModelsTest(TestCase):
     def setUp(self):
-        occupation = Occupation.objects.create(name="Programmer")
+        occupation = Occupation.objects.create(name="Programmer", boolean=True)
         Person.objects.create(first_name="Bradley", last_name="Ayers", occupation=occupation)
         Person.objects.create(first_name="Chris", last_name="Doble", occupation=occupation)
 
@@ -96,7 +92,7 @@ class ModelsTest(TestCase):
         class Table(tables.Table):
             class Meta:
                 model = Person
-                fields = (six.text_type("first_name"),)
+                fields = (str("first_name"),)
 
         table = Table(Person.objects.all())
         self.assertEqual(table.rows[0].get_cell("first_name"), "Bradley")
@@ -216,6 +212,71 @@ class ModelsTest(TestCase):
         table = PersonTable(Person.objects.all())
         self.assertEqual(list(table.rows[0]), ["Bradley Ayers", "Bradley"])
 
+    def test_meta_fields_can_traverse_relations(self):
+        mayor = Person.objects.create(first_name="Buddy", last_name="Boss")
+        region = Region.objects.create(name="Zuid-Holland", mayor=mayor)
+        occupation = Occupation.objects.create(name="carpenter", region=region)
+        Person.objects.create(first_name="Bob", last_name="Builder", occupation=occupation)
+
+        class PersonTable(tables.Table):
+            class Meta:
+                model = Person
+                fields = [
+                    "name",
+                    "occupation__name",
+                    "occupation__region__name",
+                    "occupation__region__mayor__name",
+                ]
+
+        table = PersonTable(Person.objects.filter(occupation=occupation))
+        self.assertEqual(
+            list(table.rows[0]), ["Bob Builder", "carpenter", "Zuid-Holland", "Buddy Boss"]
+        )
+
+    def test_meta_linkify_iterable(self):
+        person = Person.objects.first()
+
+        class PersonTable(tables.Table):
+            class Meta:
+                model = Person
+                fields = ["name", "occupation__boolean"]
+                linkify = ["name", "occupation__boolean"]
+
+        table = PersonTable(Person.objects.all())
+
+        html = table.as_html(build_request())
+        self.assertIn('<a href="/people/{}/">{}</a>'.format(person.pk, person.name), html)
+        self.assertIn(
+            '<a href="/people/{}/"><span class="true">✔</span></a>'.format(person.pk), html
+        )
+
+    def test_meta_linkify_dict(self):
+        person = Person.objects.first()
+        occupation = person.occupation
+
+        class PersonTable(tables.Table):
+            class Meta:
+                model = Person
+                fields = ["name", "occupation", "occupation__boolean"]
+                linkify = {
+                    "name": lambda record: record.get_absolute_url(),
+                    "occupation": True,
+                    "occupation__boolean": ("occupation", {"pk": tables.A("occupation__id")}),
+                }
+
+        table = PersonTable(Person.objects.all())
+
+        html = table.as_html(build_request())
+        self.assertIn('<a href="{}">{}</a>'.format(person.get_absolute_url(), person.name), html)
+        self.assertIn(
+            '<a href="{}">{}</a>'.format(occupation.get_absolute_url(), occupation.name), html
+        )
+
+        self.assertIn(
+            '<a href="{}"><span class="true">✔</span></a>'.format(occupation.get_absolute_url()),
+            html,
+        )
+
 
 class ColumnNameTest(TestCase):
     def setUp(self):
@@ -239,17 +300,17 @@ class ColumnNameTest(TestCase):
 
             first_name = tables.Column()
             fn1 = tables.Column(accessor="first_name")
-            fn2 = tables.Column(accessor="first_name.upper")
+            fn2 = tables.Column(accessor="first_name__upper")
             fn3 = tables.Column(accessor="last_name", verbose_name="OVERRIDE")
             fn4 = tables.Column(accessor="last_name", verbose_name="override")
             last_name = tables.Column()
             ln1 = tables.Column(accessor="last_name")
-            ln2 = tables.Column(accessor="last_name.upper")
+            ln2 = tables.Column(accessor="last_name__upper")
             ln3 = tables.Column(accessor="last_name", verbose_name="OVERRIDE")
-            region = tables.Column(accessor="occupation.region.name")
-            r1 = tables.Column(accessor="occupation.region.name")
-            r2 = tables.Column(accessor="occupation.region.name.upper")
-            r3 = tables.Column(accessor="occupation.region.name", verbose_name="OVERRIDE")
+            region = tables.Column(accessor="occupation__region__name")
+            r1 = tables.Column(accessor="occupation__region__name")
+            r2 = tables.Column(accessor="occupation__region__name__upper")
+            r3 = tables.Column(accessor="occupation__region__name", verbose_name="OVERRIDE")
             trans_test = tables.Column()
             trans_test_lazy = tables.Column()
 
@@ -381,7 +442,7 @@ class OrderingDataTest(TestCase):
 
     @classmethod
     def setUpClass(cls):
-        super(OrderingDataTest, cls).setUpClass()
+        super().setUpClass()
 
         for name in cls.NAMES:
             first_name, last_name = name.split()
@@ -441,7 +502,7 @@ class OrderingDataTest(TestCase):
 class ModelSanityTest(TestCase):
     @classmethod
     def setUpClass(cls):
-        super(ModelSanityTest, cls).setUpClass()
+        super().setUpClass()
         for i in range(10):
             Person.objects.create(first_name="Bob %d" % i, last_name="Builder")
 

@@ -1,6 +1,7 @@
 include README.md
 include CHANGELOG.md
 include LICENSE
+exclude docs/pages/CHANGELOG.md
 recursive-exclude docs/_build *
 recursive-include django_tables2/templates *
 recursive-include django_tables2/static *

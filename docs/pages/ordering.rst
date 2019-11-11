@@ -82,7 +82,7 @@ The implementation would look like this:
         def order_name(self, queryset, is_descending):
             queryset = queryset.annotate(
                 length=Length("first_name")
-            ).order_by(("-" if is_descending else ") + "length")
+            ).order_by(("-" if is_descending else "") + "length")
             return (queryset, True)
 
 
@@ -117,7 +117,7 @@ This can be achieved like this::
         def order_clothing(self, queryset, is_descending):
             queryset = queryset.annotate(
                 amount=F("shirts") + F("pants")
-            ).order_by(("-" if is_descending else ") + "amount")
+            ).order_by(("-" if is_descending else "") + "amount")
             return (queryset, True)
 
 
@@ -137,7 +137,7 @@ For example, the `PersonTable` from above could also be defined like this::
         def order(self, queryset, is_descending):
             queryset = queryset.annotate(
                 amount=F("shirts") + F("pants")
-            ).order_by(("-" if is_descending else ") + "amount")
+            ).order_by(("-" if is_descending else "") + "amount")
             return (queryset, True)
 
 

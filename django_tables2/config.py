@@ -1,10 +1,7 @@
-# coding: utf-8
-from __future__ import unicode_literals
-
 from django.core.paginator import EmptyPage, PageNotAnInteger
 
 
-class RequestConfig(object):
+class RequestConfig:
     """
     A configurator that uses request data to setup a table.
 
@@ -66,5 +63,7 @@ class RequestConfig(object):
                     table.page = table.paginator.page(1)
                 except EmptyPage:
                     table.page = table.paginator.page(table.paginator.num_pages)
+
+        table.request = self.request
 
         return table

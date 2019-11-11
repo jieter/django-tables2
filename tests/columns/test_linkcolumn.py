@@ -1,6 +1,3 @@
-# coding: utf-8
-from __future__ import unicode_literals
-
 from django.template import Context, Template
 from django.test import TestCase
 from django.urls import reverse
@@ -69,8 +66,8 @@ class LinkColumnTest(TestCase):
         class PersonTable(tables.Table):
             first_name = tables.Column()
             last_name = tables.Column()
-            occupation = tables.LinkColumn("occupation", args=[A("occupation.pk")])
-            occupation_linkify = tables.Column(linkify=("occupation", A("occupation.pk")))
+            occupation = tables.LinkColumn("occupation", args=[A("occupation__pk")])
+            occupation_linkify = tables.Column(linkify=("occupation", A("occupation__pk")))
 
         Person.objects.create(first_name="bradley", last_name="ayers")
 
@@ -112,9 +109,16 @@ class LinkColumnTest(TestCase):
             name_linkify = tables.Column(accessor="name", linkify=("escaping", {"pk": A("pk")}))
 
         table = PersonTable([{"name": "<brad>", "pk": 1}])
-        self.assertEqual(
-            table.rows[0].get_cell("name"), '<a href="/&amp;&#39;%22/1/">&lt;brad&gt;</a>'
+        # django==3.0 replaces &#39; with &#x27;, drop first option if django==2.2 support is removed
+        self.assertIn(
+            table.rows[0].get_cell("name"),
+            (
+                '<a href="/&amp;&#39;%22/1/">&lt;brad&gt;</a>'
+                '<a href="/&amp;&#x27;%22/1/">&lt;brad&gt;</a>'
+            ),
         )
+
+        # the two columns should result in the same rendered cell contents
         self.assertEqual(table.rows[0].get_cell("name"), table.rows[0].get_cell("name_linkify"))
 
     def test_a_attrs_should_be_supported(self):
@@ -176,15 +180,13 @@ class LinkColumnTest(TestCase):
         expected = '<a href="{}">{}</a>'.format(person.get_absolute_url(), person.last_name)
         self.assertEqual(table.rows[0].cells["last_name"], expected)
 
+        # Explicit LinkColumn and regular column using linkify should have equal output
         self.assertEqual(
             table.rows[0].get_cell("other_last_name"), table.rows[0].get_cell("last_name")
         )
 
     def test_get_absolute_url_not_defined(self):
-        """
-        The dict doesn't have a get_absolute_url(), so creating the table should
-        raise a TypeError
-        """
+        """A dict doesn't have a get_absolute_url(), so creating the table should raise a TypeError."""
 
         class Table(tables.Table):
             first_name = tables.Column()

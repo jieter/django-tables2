@@ -23,7 +23,7 @@ to reach a specific value, for example::
 
     >>> from django_tables2 import A
     >>> data = {"abc": {"one": {"two": "three"}}}
-    >>> A("abc.one.two").resolve(data)
+    >>> A("abc__one__two").resolve(data)
     'three'
 
 Dots represent a relationships, and are attempted in this order:
@@ -64,7 +64,7 @@ This example shows how to render the row number in the first row::
     ...     age = tables.Column()
     ...
     ...     def __init__(self, *args, **kwargs):
-    ...         super(SimpleTable, self).__init__(*args, **kwargs)
+    ...         super().__init__(*args, **kwargs)
     ...         self.counter = itertools.count()
     ...
     ...     def render_row_number(self):
@@ -102,6 +102,15 @@ the `last_name` column::
 
         def render_name(self, value, record):
             return format_html("<b>{} {}</b>", value, record.last_name)
+
+If you need to access logged-in user (or request in general) in your render methods, you can reach it through
+`self.request`::
+
+    def render_count(self, value):
+        if self.request.user.is_authenticated():
+            return value
+        else:
+            return '---'
 
 .. important::
 

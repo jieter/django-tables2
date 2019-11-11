@@ -1,4 +1,4 @@
-from .base import library, BoundColumn, BoundColumns, Column
+from .base import BoundColumn, BoundColumns, Column, library
 from .booleancolumn import BooleanColumn
 from .checkboxcolumn import CheckBoxColumn
 from .datecolumn import DateColumn
@@ -9,8 +9,8 @@ from .jsoncolumn import JSONColumn
 from .linkcolumn import LinkColumn, RelatedLinkColumn
 from .manytomanycolumn import ManyToManyColumn
 from .templatecolumn import TemplateColumn
-from .urlcolumn import URLColumn
 from .timecolumn import TimeColumn
+from .urlcolumn import URLColumn
 
 __all__ = (
     "library",

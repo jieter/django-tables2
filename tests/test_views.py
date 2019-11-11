@@ -1,11 +1,8 @@
-# coding: utf-8
-
-from unittest import skipUnless
-
+import django_filters as filters
 from django.core.exceptions import ImproperlyConfigured
 from django.test import TestCase
-from django.utils import six
-from django.views.generic.base import TemplateView
+from django.views.generic import TemplateView
+from django_filters.views import FilterView
 
 import django_tables2 as tables
 
@@ -34,7 +31,7 @@ class SimpleView(tables.SingleTableView):
 class SingleTableViewTest(TestCase):
     @classmethod
     def setUpClass(cls):
-        super(SingleTableViewTest, cls).setUpClass()
+        super().setUpClass()
         for region in MEMORY_DATA:
             Region.objects.create(name=region["name"])
 
@@ -61,23 +58,33 @@ class SingleTableViewTest(TestCase):
         self.assertEqual(table.paginator.per_page, 1)
 
     def test_should_support_default_pagination(self):
-        add_records = 50
-        for i in range(1, add_records + 1):
-            Region.objects.create(name="region {:02d} / {}".format(i, add_records))
+        total_records = 50
+        for i in range(1, total_records + 1):
+            Region.objects.create(name="region {:02d} / {}".format(i, total_records))
 
-        class PaginateDefault(tables.SingleTableView):
+        expected_per_page = 25
+
+        class PaginateDefault(tables.SingleTableMixin, TemplateView):
             table_class = SimpleTable
-            model = Region
             template_name = "minimal.html"
+
+            def get_table_data(self):
+                return Region.objects.all()
 
         response = PaginateDefault.as_view()(build_request())
         response.render()
         table = response.context_data["table"]
-        self.assertEqual(table.paginator.per_page, 25)
+        self.assertEqual(table.paginator.per_page, expected_per_page)
         self.assertEqual(table.paginator.num_pages, 3)
-        self.assertEqual(len(table.page), 25)
+        self.assertEqual(len(table.page), expected_per_page)
 
-        self.assertEqual(response.content.decode("utf8").count("<tr>"), 25 + 1)
+        # add one for the header row.
+        self.assertEqual(response.content.decode().count("<tr>"), expected_per_page + 1)
+
+        # in addition to New South Wales, Queensland, Tasmania and Victoria,
+        # 21 records should be displayed.
+        self.assertContains(response, "21 / {}".format(total_records))
+        self.assertNotContains(response, "22 / {}".format(total_records))
 
     def test_should_support_default_pagination_with_table_options(self):
         class Table(tables.Table):
@@ -174,7 +181,7 @@ class SingleTableViewTest(TestCase):
 
             def get_table(self, **kwargs):
                 kwargs.update({"orderable": False})
-                return super(PassKwargsView, self).get_table(**kwargs)
+                return super().get_table(**kwargs)
 
         response = SimpleView.as_view()(build_request("/"))
         self.assertTrue(response.context_data["table"].orderable)
@@ -199,7 +206,7 @@ class SingleTableViewTest(TestCase):
                 per_page = self.request.GET.get("%s_override" % table.prefixed_per_page_field)
                 if per_page is not None:
                     return {"per_page": per_page}
-                return super(PaginationOverrideView, self).get_table_pagination(table)
+                return super().get_table_pagination(table)
 
         response = PaginationOverrideView.as_view()(build_request("/?p_per_page_override=2"))
         self.assertEqual(response.context_data["table"].paginator.per_page, 2)
@@ -212,7 +219,7 @@ class SingleTableViewTest(TestCase):
         Person.objects.create(first_name="Anton", last_name="Sam")
 
         class Table(tables.Table):
-            class Meta(object):
+            class Meta:
                 model = Person
                 fields = ("first_name", "last_name")
 
@@ -274,17 +281,16 @@ class SingleTableMixinTest(TestCase):
 
         View.as_view()(build_request())
 
-    @skipUnless(six.PY3, "django_filter==2.1.0 does not support PY2")
     def test_should_paginate_by_default(self):
         """
         When mixing SingleTableMixin with FilterView, the table should paginate by default
         """
-        import django_filters as filters
-        from django_filters.views import FilterView
 
-        add_records = 60
-        for i in range(1, add_records + 1):
-            Region.objects.create(name="region {:02d} / {}".format(i, add_records))
+        total_records = 60
+        for i in range(1, total_records + 1):
+            Region.objects.create(name="region {i:02d} / {total_records}".format(**locals()))
+
+        expected_per_page = 25
 
         class RegionFilter(filters.FilterSet):
             name = filters.CharFilter(lookup_expr="icontains")
@@ -298,11 +304,11 @@ class SingleTableMixinTest(TestCase):
         response = PaginateDefault.as_view()(build_request())
         response.render()
         table = response.context_data["table"]
-        self.assertEqual(table.paginator.per_page, 25)
+        self.assertEqual(table.paginator.per_page, expected_per_page)
         self.assertEqual(table.paginator.num_pages, 3)
-        self.assertEqual(len(table.page), 25)
+        self.assertEqual(len(table.page), expected_per_page)
 
-        self.assertEqual(response.content.decode("utf8").count("<tr>"), 25 + 1)
+        self.assertEqual(response.content.decode().count("<tr>"), expected_per_page + 1)
 
 
 class TableA(tables.Table):
@@ -319,7 +325,7 @@ class TableB(tables.Table):
 class MultiTableMixinTest(TestCase):
     @classmethod
     def setUpClass(cls):
-        super(MultiTableMixinTest, cls).setUpClass()
+        super().setUpClass()
         Person.objects.create(first_name="Jan Pieter", last_name="W")
 
         NL_PROVICES = (
@@ -389,7 +395,7 @@ class MultiTableMixinTest(TestCase):
         response.render()
 
         html = response.rendered_content
-        assert "<h1>Multiple tables using MultiTableMixin</h1>" in html
+        self.assertIn("<h1>Multiple tables using MultiTableMixin</h1>", html)
 
     def test_with_empty_class_tables_list(self):
         class View(tables.MultiTableMixin, TemplateView):

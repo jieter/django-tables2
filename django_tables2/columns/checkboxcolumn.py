@@ -1,6 +1,3 @@
-# coding: utf-8
-from __future__ import absolute_import, unicode_literals
-
 from django.utils.safestring import mark_safe
 
 from django_tables2.utils import Accessor, AttributeDict
@@ -51,7 +48,7 @@ class CheckBoxColumn(Column):
         self.checked = checked
         kwargs = {"orderable": False, "attrs": attrs}
         kwargs.update(extra)
-        super(CheckBoxColumn, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     @property
     def header(self):

@@ -7,7 +7,7 @@ unless it itself is a subclass of `.Table` class variable instances of
 
 Example::
 
-    >>> class UselessMixin(object):
+    >>> class UselessMixin:
     ...     extra = tables.Column()
     ...
     >>> class TestTable(UselessMixin, tables.Table):

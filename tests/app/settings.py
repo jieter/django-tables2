@@ -1,10 +1,10 @@
 DATABASES = {"default": {"ENGINE": "django.db.backends.sqlite3", "NAME": ":memory:"}}
 
 INSTALLED_APPS = [
-    "tests.app",
-    "django.contrib.contenttypes",
     "django.contrib.auth",
+    "django.contrib.contenttypes",
     "django_tables2",
+    "tests.app",
 ]
 
 ROOT_URLCONF = "tests.app.urls"
@@ -19,6 +19,10 @@ TEMPLATES = [
     }
 ]
 
-TIME_ZONE = "Australia/Brisbane"
+TIME_ZONE = "Europe/Amsterdam"
+
+SHORT_DATE_FORMAT = "Y-m-d"
+TIME_FORMAT = "H:i:s"
+SHORT_DATETIME_FORMAT = "Y-m-d H:i:s"
 
 USE_TZ = True

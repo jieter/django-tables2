@@ -1,6 +1,3 @@
-# coding: utf-8
-from __future__ import unicode_literals
-
 from itertools import count
 
 from django.core.exceptions import ImproperlyConfigured
@@ -10,9 +7,9 @@ from . import tables
 from .config import RequestConfig
 
 
-class TableMixinBase(object):
+class TableMixinBase:
     """
-    Base mixin for the Single- and MultiTable class based views
+    Base mixin for the Single- and MultiTable class based views.
     """
 
     context_table_name = "table"
@@ -26,7 +23,7 @@ class TableMixinBase(object):
 
     def get_table_pagination(self, table):
         """
-        Returns pagination options passed to `.RequestConfig`:
+        Return pagination options passed to `.RequestConfig`:
             - True for standard pagination (default),
             - False for no pagination,
             - a dictionary for custom pagination.
@@ -45,12 +42,16 @@ class TableMixinBase(object):
             paginate["per_page"] = self.paginate_by
         if hasattr(self, "paginator_class"):
             paginate["paginator_class"] = self.paginator_class
-        if getattr(self, "paginate_orphans", 0) is not 0:
+        if getattr(self, "paginate_orphans", 0) != 0:
             paginate["orphans"] = self.paginate_orphans
 
         # table_pagination overrides any MultipleObjectMixin attributes
         if self.table_pagination:
             paginate.update(self.table_pagination)
+
+        # we have no custom pagination settings, so just use the default.
+        if not paginate and self.table_pagination is None:
+            return True
 
         return paginate
 
@@ -141,7 +142,7 @@ class SingleTableMixin(TableMixinBase):
         Overridden version of `.TemplateResponseMixin` to inject the table into
         the template's context.
         """
-        context = super(SingleTableMixin, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         table = self.get_table(**self.get_table_kwargs())
         context[self.get_context_table_name(table)] = table
         return context
@@ -212,7 +213,7 @@ class MultiTableMixin(TableMixinBase):
         return self.tables_data
 
     def get_context_data(self, **kwargs):
-        context = super(MultiTableMixin, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         tables = self.get_tables()
 
         # apply prefixes and execute requestConfig for each table
