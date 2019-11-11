@@ -1,5 +1,5 @@
 import re
-from urllib.parse import urlparse, parse_qsl
+from urllib.parse import parse_qsl, urlparse
 
 from django.template import Context, Template
 from django.test import TestCase
