@@ -295,10 +295,10 @@ class Accessor(str):
 
             message = (
                 "Use '__' to separate path components, not '.' in accessor '{}'"
-                " (fallback will be removed in next version)."
+                " (fallback will be removed in django_tables2 version 3)."
             ).format(value)
 
-            warnings.warn(message, DeprecationWarning, stacklevel=2)
+            warnings.warn(message, DeprecationWarning, stacklevel=3)
 
         return instance
 

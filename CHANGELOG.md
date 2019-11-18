@@ -1,5 +1,11 @@
 # Change log
 
+## 2.2.0 (2019-11-18)
+ - Use `__` as accessor-separator, add `linkify` Meta option [#702](https://github.com/jieter/django-tables2/pull/702)).
+   This will currently emit a warning but falls back to using `.` as separator. The next major version will raise a `ValueError` if used with `.` as separator.
+ - Add request attribute to table instance ([#705](https://github.com/jieter/django-tables2/pull/705) by [@rubickcz](https://github.com/rubickcz)).
+ - Append ellipsis for `LazyPaginator` if not on last page ([#707](https://github.com/jieter/django-tables2/pull/707) by [@tuky](https://github.com/tuky))
+
 ## 2.1.1 (2019-09-23)
  - Made `ManyToManyColumn` use `table.default` instead of a local value [#680](https://github.com/jieter/django-tables2/pull/680) by [@srtab](https://github.com/srtab)
  - Removed invalid scope attribute in `<tr>` element of `bootstrap4.html`. [#691](https://github.com/jieter/django-tables2/pull/691) by [@vlt](https://github.com/vlt)

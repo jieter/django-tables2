@@ -91,7 +91,7 @@ class AccessorTest(TestCase):
     def test_error_on_legacy_separator(self):
         message = (
             "Use '__' to separate path components, not '.' in accessor '2.upper'"
-            " (fallback will be removed in next version)."
+            " (fallback will be removed in django_tables2 version 3)."
         )
         with self.assertWarns(DeprecationWarning, msg=message):
             Accessor("2.upper")
