@@ -1,4 +1,5 @@
 import inspect
+import warnings
 from collections import OrderedDict
 from functools import total_ordering
 from itertools import chain
@@ -292,12 +293,12 @@ class Accessor(str):
         if cls.LEGACY_SEPARATOR in value:
             instance.SEPARATOR = cls.LEGACY_SEPARATOR
 
-            raise DeprecationWarning(
-                (
-                    "Use '__' to separate path components, not '.' in accessor '{}'"
-                    " (fallback will be removed in next version)."
-                ).format(value)
-            )
+            message = (
+                "Use '__' to separate path components, not '.' in accessor '{}'"
+                " (fallback will be removed in next version)."
+            ).format(value)
+
+            warnings.warn(message, DeprecationWarning, stacklevel=2)
 
         return instance
 

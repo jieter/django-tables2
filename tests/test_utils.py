@@ -89,7 +89,11 @@ class AccessorTest(TestCase):
         self.assertEqual(Accessor("2__upper").resolve("Brad"), "A")
 
     def test_error_on_legacy_separator(self):
-        with self.assertRaises(DeprecationWarning):
+        message = (
+            "Use '__' to separate path components, not '.' in accessor '2.upper'"
+            " (fallback will be removed in next version)."
+        )
+        with self.assertWarns(DeprecationWarning, msg=message):
             Accessor("2.upper")
 
     def test_honors_alters_data(self):
