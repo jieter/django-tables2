@@ -279,6 +279,7 @@ class Accessor(str):
     Relations are separated by a ``__`` character.
     """
 
+    LEGACY_SEPARATOR = "."
     SEPARATOR = "__"
 
     ALTERS_DATA_ERROR_FMT = "Refusing to call {method}() because `.alters_data = True`"
@@ -287,11 +288,18 @@ class Accessor(str):
     )
 
     def __new__(cls, value):
-        if "." in value:
-            raise ValueError(
-                "Use '__' to separate path components, not '.' in accessor '{}'.".format(value)
+        instance = super().__new__(cls, value)
+        if cls.LEGACY_SEPARATOR in value:
+            instance.SEPARATOR = cls.LEGACY_SEPARATOR
+
+            raise DeprecationWarning(
+                (
+                    "Use '__' to separate path components, not '.' in accessor '{}'"
+                    " (fallback will be removed in next version)."
+                ).format(value)
             )
-        return super().__new__(cls, value)
+
+        return instance
 
     def resolve(self, context, safe=True, quiet=False):
         """

@@ -88,8 +88,8 @@ class AccessorTest(TestCase):
     def test_calling_methods(self):
         self.assertEqual(Accessor("2__upper").resolve("Brad"), "A")
 
-    def test_error_on_dot(self):
-        with self.assertRaises(ValueError):
+    def test_error_on_legacy_separator(self):
+        with self.assertRaises(DeprecationWarning):
             Accessor("2.upper")
 
     def test_honors_alters_data(self):
