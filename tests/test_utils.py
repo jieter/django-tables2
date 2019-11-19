@@ -72,6 +72,20 @@ class OrderByTest(TestCase):
         self.assertTrue(b.is_descending)
         self.assertFalse(b.is_ascending)
 
+    def test_error_on_legacy_separator(self):
+        message = (
+            "Use '__' to separate path components, not '.' in accessor '2.upper'"
+            " (fallback will be removed in django_tables2 version 3)."
+        )
+        with self.assertWarns(DeprecationWarning, msg=message):
+            OrderBy("a.b")
+
+    def test_for_queryset(self):
+        ab = OrderBy("a.b")
+        self.assertEqual(ab.for_queryset(), "a__b")
+        ab = OrderBy("a__b")
+        self.assertEqual(ab.for_queryset(), "a__b")
+
 
 class AccessorTest(TestCase):
     def test_bare(self):

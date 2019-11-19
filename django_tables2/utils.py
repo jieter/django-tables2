@@ -68,6 +68,18 @@ class OrderBy(str):
 
     QUERYSET_SEPARATOR = "__"
 
+    def __new__(cls, value):
+        instance = super().__new__(cls, value)
+        if Accessor.LEGACY_SEPARATOR in value:
+            message = (
+                "Use '__' to separate path components, not '.' in accessor '{}'"
+                " (fallback will be removed in django_tables2 version 3)."
+            ).format(value)
+
+            warnings.warn(message, DeprecationWarning, stacklevel=3)
+
+        return instance
+
     @property
     def bare(self):
         """
@@ -118,7 +130,7 @@ class OrderBy(str):
         Returns the current instance usable in Django QuerySet's order_by
         arguments.
         """
-        return self.replace(Accessor.SEPARATOR, OrderBy.QUERYSET_SEPARATOR)
+        return self.replace(Accessor.LEGACY_SEPARATOR, OrderBy.QUERYSET_SEPARATOR)
 
 
 class OrderByTuple(tuple):
