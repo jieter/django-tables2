@@ -20,7 +20,7 @@ from .tables import Table, TableBase, table_factory
 from .utils import A
 from .views import MultiTableMixin, SingleTableMixin, SingleTableView
 
-__version__ = "2.2.0"
+__version__ = "2.2.1"
 
 __all__ = (
     "Table",

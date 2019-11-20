@@ -1,5 +1,9 @@
 # Change log
 
+## 2.1.0 (2019-11-20)
+ - Fix backwards-compatibility with legacy separators in order_by clauses ([#715](https://github.com/jieter/django-tables2/pull/715) by [
+@federicobond](https://github.com/federicobond))
+
 ## 2.2.0 (2019-11-18)
  - Use `__` as accessor-separator, add `linkify` Meta option [#702](https://github.com/jieter/django-tables2/pull/702)).
    This will currently emit a warning but falls back to using `.` as separator. The next major version will raise a `ValueError` if used with `.` as separator.
