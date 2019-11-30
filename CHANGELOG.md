@@ -1,6 +1,6 @@
 # Change log
 
-## 2.1.1 (2019-11-20)
+## 2.2.1 (2019-11-20)
  - Fix backwards-compatibility with legacy separators in order_by clauses ([#715](https://github.com/jieter/django-tables2/pull/715) by [
 @federicobond](https://github.com/federicobond))
 
