@@ -108,6 +108,17 @@ class TableExportTest(TestCase):
         )
         self.assertEqual(exporter.export(), CSV_SEP.join(expected) + CSV_SEP)
 
+    def test_export_dataset_kwargs(self):
+        table = Table(
+            [
+                {"first_name": "Yildiz", "last_name": "van der Kuil"},
+                {"first_name": "Jan", "last_name": None},
+            ]
+        )
+        title = "My Custom Title"
+        exporter = TableExport("xlsx", table, dataset_kwargs={"title": title})
+        self.assertEqual(exporter.dataset.title, title)
+
 
 @skipIf(TableExport is None, "Tablib is required to run the export tests")
 class ExportViewTest(TestCase):
@@ -177,6 +188,17 @@ class ExportViewTest(TestCase):
 
         self.assertIn("Yildiz", html)
         self.assertNotIn("Lindy", html)
+
+    def test_should_support_custom_dataset_kwargs(self):
+        title = "The Tab Title"
+
+        class View(ExportMixin, tables.SingleTableView):
+            table_class = Table
+            model = Person  # required for ListView
+            dataset_kwargs = {"title": title}
+
+        response = View.as_view()(build_request("/?_export=xlsx"))
+        self.assertContains(response, title)
 
 
 class OccupationTable(tables.Table):

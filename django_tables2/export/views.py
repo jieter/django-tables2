@@ -22,23 +22,30 @@ class ExportMixin:
                     name = tables.Column()
                     buttons = tables.TemplateColumn(exclude_from_export=True, template_name=...)
         export_formats (iterable): export formats to render a set of buttons in the template.
+        dataset_kwargs (dictionary): passed as **kwargs to tablib.Dataset constructor
+            E.g., dataset_kwargs = {'tite': 'My custom tab title'}
     """
 
     export_class = TableExport
     export_name = "table"
     export_trigger_param = "_export"
     exclude_columns = ()
+    dataset_kwargs = None
 
     export_formats = (TableExport.CSV,)
 
     def get_export_filename(self, export_format):
         return "{}.{}".format(self.export_name, export_format)
 
+    def get_dataset_kwargs(self):
+        return self.dataset_kwargs
+
     def create_export(self, export_format):
         exporter = self.export_class(
             export_format=export_format,
             table=self.get_table(**self.get_table_kwargs()),
             exclude_columns=self.exclude_columns,
+            dataset_kwargs=self.get_dataset_kwargs(),
         )
 
         return exporter.response(filename=self.get_export_filename(export_format))
