@@ -22,8 +22,9 @@ class ExportMixin:
                     name = tables.Column()
                     buttons = tables.TemplateColumn(exclude_from_export=True, template_name=...)
         export_formats (iterable): export formats to render a set of buttons in the template.
-        dataset_kwargs (dictionary): passed as **kwargs to tablib.Dataset constructor
-            E.g., dataset_kwargs = {'tite': 'My custom tab title'}
+        dataset_kwargs (dictionary): passed as `**kwargs` to `tablib.Dataset` constructor::
+
+            dataset_kwargs = {'tite': 'My custom tab title'}
     """
 
     export_class = TableExport
