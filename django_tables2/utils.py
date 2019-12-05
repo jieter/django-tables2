@@ -4,8 +4,8 @@ from collections import OrderedDict
 from functools import total_ordering
 from itertools import chain
 
+from django.core.exceptions import FieldDoesNotExist
 from django.db import models
-from django.db.models.fields import FieldDoesNotExist
 from django.utils.html import format_html_join
 
 

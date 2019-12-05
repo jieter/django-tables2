@@ -1,0 +1,65 @@
+name: CI
+on: [push, pull_request]
+jobs:
+  black:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-python@v1.1.1
+      - uses: actions/checkout@v1
+      - run: python -m pip install --upgrade black
+      - run: black --check .
+
+  flake8:
+    needs: [black]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-python@v1.1.1
+      - uses: actions/checkout@v1
+      - run: python -m pip install flake8
+      - run: flake8
+
+  isort:
+    needs: [black]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-python@v1.1.1
+      - uses: actions/checkout@v1
+      - run: python -m pip install --upgrade isort
+      - run: isort --recursive --check-only --diff django_tables2 example tests *.py
+
+  tests:
+    needs: [flake8, isort, black]
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.5, 3.6, 3.7, 3.8]
+        django-version: [2.1, 2.2, 3.0, master]
+        exclude:
+            - python-version: 3.5
+              django-version: 3.0
+            - python-version: 3.5
+              django-version: master
+            - python-version: 3.8
+              django-version: 2.1
+            - python-version: 3.8
+              django-version: 2.2
+    steps:
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v1.1.1
+        with:
+          python-version: ${{ matrix.python-version }}
+      - uses: actions/checkout@v1
+      - uses: actions/cache@v1
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+      - run: python -m pip install Django==${{ matrix.django-version }}
+        if: matrix.django-version != 'master'
+      - run: python -m pip install https://github.com/django/django/archive/master.tar.gz
+        if: matrix.django-version == 'master'
+      - run: |
+          python -m pip install coverage
+          python -m pip install -r requirements/common.pip
+      - run: coverage run --source=django_tables2 manage.py test

@@ -1,5 +1,5 @@
+from django.core.exceptions import FieldDoesNotExist
 from django.db import models
-from django.db.models.fields import FieldDoesNotExist
 
 from .columns.linkcolumn import BaseLinkColumn
 from .utils import A, AttributeDict, call_with_appropriate, computed_values
