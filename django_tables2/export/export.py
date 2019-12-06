@@ -19,6 +19,9 @@ class TableExport:
         table (`~.Table`): instance of the table to export the data from
 
         exclude_columns (iterable): list of column names to exclude from the export
+
+        dataset_kwargs (dictionary): passed as `**kwargs` to `tablib.Dataset` constructor
+
     """
 
     CSV = "csv"
@@ -50,7 +53,15 @@ class TableExport:
 
     def table_to_dataset(self, table, exclude_columns, dataset_kwargs=None):
         """Transform a table to a tablib dataset."""
+
+        def default_dataset_title():
+            try:
+                return table.Meta.model._meta.verbose_name_plural.title()
+            except AttributeError:
+                return "Export Data"
+
         dataset_kwargs = dataset_kwargs or {}
+        dataset_kwargs["title"] = dataset_kwargs.get("title") or default_dataset_title()
         dataset = Dataset(**dataset_kwargs)
         for i, row in enumerate(table.as_values(exclude_columns=exclude_columns)):
             if i == 0:

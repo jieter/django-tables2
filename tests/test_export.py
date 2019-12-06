@@ -119,6 +119,15 @@ class TableExportTest(TestCase):
         exporter = TableExport("xlsx", table, dataset_kwargs={"title": title})
         self.assertEqual(exporter.dataset.title, title)
 
+    def test_export_default_dataset_title(self):
+        class PersonTable(Table):
+            class Meta:
+                model = Person  # provides default title
+
+        table = PersonTable(Person.objects.all())
+        exporter = TableExport("xlsx", table)
+        self.assertEqual(exporter.dataset.title, Person._meta.verbose_name_plural.title())
+
 
 @skipIf(TableExport is None, "Tablib is required to run the export tests")
 class ExportViewTest(TestCase):
