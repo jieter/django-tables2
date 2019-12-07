@@ -1,8 +1,7 @@
 import json
 from datetime import date, datetime, time
-from unittest import skipIf
 from tempfile import NamedTemporaryFile
-from openpyxl import load_workbook
+from unittest import skipIf
 
 import pytz
 from django.core.exceptions import ImproperlyConfigured
@@ -12,6 +11,7 @@ from django.test import TestCase
 import django_tables2 as tables
 from django_tables2 import A
 from django_tables2.config import RequestConfig
+from openpyxl import load_workbook
 
 from .app.models import Occupation, Person, Region
 from .utils import build_request
