@@ -120,7 +120,7 @@ You may pass kwargs to the ``tablib.Dataset`` via the ``TableExport`` constructo
 
     exporter = TableExport("xlsx", table, dataset_kwargs={"title": "My Custom Sheet Name"})
 
-Default ``tablib.Dataset.title`` is based on ``table.Meta.model._meta.verbose_name_plural.title()``, if avalable.
+Default for ``tablib.Dataset.title`` is based on ``table.Meta.model._meta.verbose_name_plural.title()``, if available.
 
 If you use the ``django_tables2.export.ExportMixin``, simply add a ``dataset_kwargs`` attribute to your class::
 
