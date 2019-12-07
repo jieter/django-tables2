@@ -1,7 +1,6 @@
 # django-tables2 - An app for creating HTML tables
 
 [![Latest PyPI version](https://badge.fury.io/py/django-tables2.svg)](https://pypi.python.org/pypi/django-tables2)
-[![Travis CI](https://travis-ci.org/jieter/django-tables2.svg?branch=master)](https://travis-ci.org/jieter/django-tables2)
 [![Any color you like](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
 
 django-tables2 simplifies the task of turning sets of data into HTML tables. It
@@ -10,8 +9,7 @@ has native support for pagination and sorting. It does for HTML tables what
 
 - Available on pypi as [django-tables2](https://pypi.python.org/pypi/django-tables2)
 - Tested against currently supported versions of Django
-  [and supported python 3 versions Django supports](https://docs.djangoproject.com/en/dev/faq/install/#what-python-version-can-i-use-with-django) No python 2.7 support anymore
-  (see [Travis CI](https://travis-ci.org/jieter/django-tables2)
+  [and supported python 3 versions Django supports](https://docs.djangoproject.com/en/dev/faq/install/#what-python-version-can-i-use-with-django).
 - [Documentation on readthedocs.org](https://django-tables2.readthedocs.io/en/latest/)
 - [Bug tracker](http://github.com/jieter/django-tables2/issues)
 
