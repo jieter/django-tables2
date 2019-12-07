@@ -60,9 +60,9 @@ class TableExport:
             except AttributeError:
                 return "Export Data"
 
-        dataset_kwargs = dataset_kwargs or {}
-        dataset_kwargs["title"] = dataset_kwargs.get("title") or default_dataset_title()
-        dataset = Dataset(**dataset_kwargs)
+        kwargs = {"title": default_dataset_title()}
+        kwargs.update(dataset_kwargs or {})
+        dataset = Dataset(**kwargs)
         for i, row in enumerate(table.as_values(exclude_columns=exclude_columns)):
             if i == 0:
                 dataset.headers = row
