@@ -1,6 +1,8 @@
 import json
 from datetime import date, datetime, time
 from unittest import skipIf
+from tempfile import NamedTemporaryFile
+from openpyxl import load_workbook
 
 import pytz
 from django.core.exceptions import ImproperlyConfigured
@@ -199,7 +201,7 @@ class ExportViewTest(TestCase):
         self.assertNotIn("Lindy", html)
 
     def test_should_support_custom_dataset_kwargs(self):
-        title = "The Tab Title"
+        title = "The Sheet Name"
 
         class View(ExportMixin, tables.SingleTableView):
             table_class = Table
@@ -207,7 +209,13 @@ class ExportViewTest(TestCase):
             dataset_kwargs = {"title": title}
 
         response = View.as_view()(build_request("/?_export=xlsx"))
-        self.assertContains(response, title)
+        self.assertEqual(response.status_code, 200)
+
+        with NamedTemporaryFile(suffix=".xlsx") as tmp:
+            tmp.write(response.content)
+            tmp.seek(0)
+            wb = load_workbook(tmp.name)
+            self.assertIn(title, wb.sheetnames)
 
 
 class OccupationTable(tables.Table):
