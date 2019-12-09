@@ -112,6 +112,26 @@ If you use the ``django_tables2.export.ExportMixin``, add an ``exclude_columns``
         exclude_columns = ("buttons", )
 
 
+Tablib Dataset Configuration
+----------------------------
+
+django-tables2 uses ``tablib`` to export the table data.
+You may pass kwargs to the ``tablib.Dataset`` via the ``TableExport`` constructor ``dataset_kwargs`` parameter::
+
+    exporter = TableExport("xlsx", table, dataset_kwargs={"title": "My Custom Sheet Name"})
+
+Default for ``tablib.Dataset.title`` is based on ``table.Meta.model._meta.verbose_name_plural.title()``, if available.
+
+If you use the ``django_tables2.export.ExportMixin``, simply add a ``dataset_kwargs`` attribute to your class::
+
+    class View(ExportMixin, tables.SingleTableView):
+        table_class = MyTable
+        model = Person
+        dataset_kwargs = {"title": "People"}
+
+or override the ``ExportMixin.get_dataset_kwargs`` method to return the kwargs dictionary dynamically.
+
+
 Generating export URLs
 ----------------------
 

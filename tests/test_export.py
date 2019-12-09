@@ -1,5 +1,6 @@
 import json
 from datetime import date, datetime, time
+from tempfile import NamedTemporaryFile
 from unittest import skipIf
 
 import pytz
@@ -10,6 +11,7 @@ from django.test import TestCase
 import django_tables2 as tables
 from django_tables2 import A
 from django_tables2.config import RequestConfig
+from openpyxl import load_workbook
 
 from .app.models import Occupation, Person, Region
 from .utils import build_request
@@ -108,6 +110,26 @@ class TableExportTest(TestCase):
         )
         self.assertEqual(exporter.export(), CSV_SEP.join(expected) + CSV_SEP)
 
+    def test_export_dataset_kwargs(self):
+        table = Table(
+            [
+                {"first_name": "Yildiz", "last_name": "van der Kuil"},
+                {"first_name": "Jan", "last_name": None},
+            ]
+        )
+        title = "My Custom Title"
+        exporter = TableExport("xlsx", table, dataset_kwargs={"title": title})
+        self.assertEqual(exporter.dataset.title, title)
+
+    def test_export_default_dataset_title(self):
+        class PersonTable(Table):
+            class Meta:
+                model = Person  # provides default title
+
+        table = PersonTable(Person.objects.all())
+        exporter = TableExport("xlsx", table)
+        self.assertEqual(exporter.dataset.title, Person._meta.verbose_name_plural.title())
+
 
 @skipIf(TableExport is None, "Tablib is required to run the export tests")
 class ExportViewTest(TestCase):
@@ -177,6 +199,23 @@ class ExportViewTest(TestCase):
 
         self.assertIn("Yildiz", html)
         self.assertNotIn("Lindy", html)
+
+    def test_should_support_custom_dataset_kwargs(self):
+        title = "The Sheet Name"
+
+        class View(ExportMixin, tables.SingleTableView):
+            table_class = Table
+            model = Person  # required for ListView
+            dataset_kwargs = {"title": title}
+
+        response = View.as_view()(build_request("/?_export=xlsx"))
+        self.assertEqual(response.status_code, 200)
+
+        with NamedTemporaryFile(suffix=".xlsx") as tmp:
+            tmp.write(response.content)
+            tmp.seek(0)
+            wb = load_workbook(tmp.name)
+            self.assertIn(title, wb.sheetnames)
 
 
 class OccupationTable(tables.Table):

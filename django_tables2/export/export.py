@@ -19,6 +19,9 @@ class TableExport:
         table (`~.Table`): instance of the table to export the data from
 
         exclude_columns (iterable): list of column names to exclude from the export
+
+        dataset_kwargs (dictionary): passed as `**kwargs` to `tablib.Dataset` constructor
+
     """
 
     CSV = "csv"
@@ -41,16 +44,25 @@ class TableExport:
         YAML: "text/yml; charset=utf-8",
     }
 
-    def __init__(self, export_format, table, exclude_columns=None):
+    def __init__(self, export_format, table, exclude_columns=None, dataset_kwargs=None):
         if not self.is_valid_format(export_format):
             raise TypeError('Export format "{}" is not supported.'.format(export_format))
 
         self.format = export_format
-        self.dataset = self.table_to_dataset(table, exclude_columns)
+        self.dataset = self.table_to_dataset(table, exclude_columns, dataset_kwargs)
 
-    def table_to_dataset(self, table, exclude_columns):
+    def table_to_dataset(self, table, exclude_columns, dataset_kwargs=None):
         """Transform a table to a tablib dataset."""
-        dataset = Dataset()
+
+        def default_dataset_title():
+            try:
+                return table.Meta.model._meta.verbose_name_plural.title()
+            except AttributeError:
+                return "Export Data"
+
+        kwargs = {"title": default_dataset_title()}
+        kwargs.update(dataset_kwargs or {})
+        dataset = Dataset(**kwargs)
         for i, row in enumerate(table.as_values(exclude_columns=exclude_columns)):
             if i == 0:
                 dataset.headers = row
