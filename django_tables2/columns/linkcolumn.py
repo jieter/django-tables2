@@ -67,6 +67,8 @@ class LinkColumn(BaseLinkColumn):
         text (str or callable): Either static text, or a callable. If set, this
             will be used to render the text inside link instead of value (default).
             The callable gets the record being rendered as argument.
+        query (dict): Optional name/value pair for query string. See `~urllib.urlencode`.
+        fragment (str): Optional URL Fragment Identifier (hash).
 
     .. [2] In order to create a link to a URL that relies on information in the
         current row, `.Accessor` objects can be used in the *args* or *kwargs*
@@ -130,6 +132,8 @@ class LinkColumn(BaseLinkColumn):
         kwargs=None,
         current_app=None,
         attrs=None,
+        query=None,
+        fragment=None,
         **extra
     ):
         super().__init__(
@@ -140,6 +144,8 @@ class LinkColumn(BaseLinkColumn):
                 args=args,
                 kwargs=kwargs,
                 current_app=current_app,
+                query=query,
+                fragment=fragment,
             ),
             **extra
         )

@@ -1,3 +1,6 @@
+import re
+from urllib.parse import parse_qsl, urlparse
+
 from django.template import Context, Template
 from django.test import TestCase
 from django.urls import reverse
@@ -228,3 +231,25 @@ class LinkColumnTest(TestCase):
 
         table = Table([{"col": "link-text", "id": 1}])
         self.assertEqual(table.rows[0].get_cell_value("col"), "link-text")
+
+    def test_query(self):
+        query = {"a": A("a"), "b": "baker", "c": "12"}
+
+        class PersonTable(tables.Table):
+            a = tables.LinkColumn("occupation", kwargs={"pk": A("a")}, query=query)
+
+        table = PersonTable([{"a": 0}, {"a": 1}])
+
+        for a in range(1):
+            href = re.search('href="(.*)"', table.rows[a].get_cell("a")).group(1)
+            query["a"] = str(a)
+            self.assertEqual(query, dict(parse_qsl(urlparse(href).query)))
+
+    def test_fragment(self):
+        class PersonTable(tables.Table):
+            a = tables.LinkColumn("occupation", kwargs={"pk": A("a")}, fragment="fragval")
+
+        table = PersonTable([{"a": 0}, {"a": 1}])
+
+        href = re.search('href="(.*)"', table.rows[0].get_cell("a")).group(1)
+        self.assertEqual("fragval", urlparse(href).fragment)
