@@ -316,8 +316,7 @@ class Accessor(str):
 
     def resolve(self, context, safe=True, quiet=False):
         """
-        Return an object described by the accessor by traversing the attributes
-        of *context*.
+        Return an object described by the accessor by traversing the attributes of *context*.
 
         Lookups are attempted in the following order:
 
@@ -349,6 +348,10 @@ class Accessor(str):
             TypeError`, `AttributeError`, `KeyError`, `ValueError`
             (unless `quiet` == `True`)
         """
+        # Short-circuit if the context contains a key with the exact name of the accessor,
+        # supporting list-of-dicts data returned from values_list("related_model__field")
+        if isinstance(context, dict) and self in context:
+            return context[self]
 
         try:
             current = context
@@ -381,7 +384,7 @@ class Accessor(str):
                         raise ValueError(self.ALTERS_DATA_ERROR_FMT.format(method=repr(current)))
                     if not getattr(current, "do_not_call_in_templates", False):
                         current = current()
-                # important that we break in None case, or a relationship
+                # Important that we break in None case, or a relationship
                 # spanning across a null-key will raise an exception in the
                 # next iteration, instead of defaulting.
                 if current is None:
