@@ -17,6 +17,7 @@ from .tables import (
     Bootstrap4Table,
     BootstrapTable,
     BootstrapTablePinnedRows,
+    BulmaTable,
     CheckboxTable,
     CountryTable,
     PersonTable,
@@ -58,6 +59,7 @@ def index(request):
                 (reverse("bootstrap"), "template: Bootstrap 3 (bootstrap.html)"),
                 (reverse("bootstrap4"), "template: Bootstrap 4 (bootstrap4.html)"),
                 (reverse("semantic"), "template: Semantic UI (semantic.html)"),
+                (reverse("bulma"), "template: Bulma (bulma.html)"),
             ),
         },
     )
@@ -133,6 +135,16 @@ def semantic(request):
     RequestConfig(request, paginate={"per_page": 10}).configure(table)
 
     return render(request, "semantic_template.html", {"table": table})
+
+
+def bulma(request):
+    """Demonstrate the use of Bulma UI template"""
+
+    create_fake_data()
+    table = BulmaTable(Person.objects.all(), order_by="-name")
+    RequestConfig(request, paginate={"per_page": 10}).configure(table)
+
+    return render(request, "bulma_template.html", {"table": table})
 
 
 class ClassBased(SingleTableView):

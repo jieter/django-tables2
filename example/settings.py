@@ -165,3 +165,6 @@ LOGGING = {
         "django.request": {"handlers": ["mail_admins"], "level": "ERROR", "propagate": True}
     },
 }
+
+# Limit to 5 buttons on the pagination
+DJANGO_TABLES2_PAGE_RANGE = 5

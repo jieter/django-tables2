@@ -1,0 +1,28 @@
+{% load render_table from django_tables2 %}<!doctype html>
+<html>
+<head>
+    <title>django_tables2 with bulma template example</title>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.css">
+</head>
+<body>
+    <section class="section">
+        <div class="container">
+            {% block body %}
+            <a href="https://bulma.io/documentation/elements/table/">Bulma - table docs</a> |
+            <a href="https://bulma.io/documentation/components/pagination/">Bulma - pagination docs</a> <br />
+
+            <h3>{% block title %}django_tables2 with <a href="//bulma.io/">Bulma</a> template example{% endblock %}</h3>
+
+            <br>
+
+            <div class="columns">
+                <div class="column is-two-thirds">
+                    {% render_table table %}
+                </div>
+                <div class="column"></div>
+            </div>
+            {% endblock %}
+        </div>
+    </section>
+</body>
+</html>

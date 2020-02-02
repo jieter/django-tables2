@@ -62,6 +62,7 @@ django_tables2/bootstrap.html            Template using bootstrap 3 structure/cl
 django_tables2/bootstrap4.html           Template using bootstrap 4 structure/classes
 django_tables2/bootstrap-responsive.html Same as bootstrap, but wrapped in ``.table-responsive``
 django_tables2/semantic.html             Template using semantic UI
+django_tables2/bulma.html                Template using bulma
 ======================================== ======================================================
 
 By default, django-tables2 looks for the ``DJANGO_TABLES2_TEMPLATE`` setting

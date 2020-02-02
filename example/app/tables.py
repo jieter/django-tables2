@@ -72,6 +72,16 @@ class SemanticTable(tables.Table):
         exclude = ("friendly",)
 
 
+class BulmaTable(tables.Table):
+
+    country = tables.RelatedLinkColumn()
+
+    class Meta:
+        model = Person
+        template_name = "django_tables2/bulma.html"
+        exclude = ("friendly",)
+
+
 class PersonTable(tables.Table):
     id = tables.Column(linkify=True)
     country = tables.Column(linkify=True)
