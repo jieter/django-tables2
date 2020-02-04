@@ -28,7 +28,7 @@ Adding ability to export the table data to a class based views looks like this::
 Now, if you append ``_export=csv`` to the query string, the browser will download
 a csv file containing your data. Supported export formats are:
 
-    csv, json, latex, ods, tsv, xls, xlsx, yml
+    csv, json, latex, ods, tsv, xls, xlsx, yaml
 
 To customize the name of the query parameter add an ``export_trigger_param``
 attribute to your class.

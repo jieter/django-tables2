@@ -1,5 +1,7 @@
 import json
+import yaml
 from datetime import date, datetime, time
+from os import unlink
 from tempfile import NamedTemporaryFile
 from unittest import skipIf
 
@@ -157,6 +159,12 @@ class ExportViewTest(TestCase):
     def test_should_support_json_export(self):
         response = View.as_view()(build_request("/?_export=json"))
         self.assertEqual(json.loads(response.getvalue().decode("utf8")), EXPECTED_JSON)
+
+    def test_should_support_yaml_export(self):
+        response = View.as_view()(build_request("/?_export=yaml"))
+        self.assertEqual(
+            yaml.load(response.getvalue().decode("utf8"), Loader=yaml.FullLoader), EXPECTED_JSON
+        )
 
     def test_should_support_custom_trigger_param(self):
         class View(ExportMixin, tables.SingleTableView):

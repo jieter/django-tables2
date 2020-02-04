@@ -14,7 +14,7 @@ class TableExport:
     Export data from a table to the file type specified.
 
     Arguments:
-        export_format (str): one of `csv, json, latex, ods, tsv, xls, xlsx, yml`
+        export_format (str): one of `csv, json, latex, ods, tsv, xls, xlsx, yaml`
 
         table (`~.Table`): instance of the table to export the data from
 
@@ -31,7 +31,7 @@ class TableExport:
     TSV = "tsv"
     XLS = "xls"
     XLSX = "xlsx"
-    YAML = "yml"
+    YAML = "yaml"
 
     FORMATS = {
         CSV: "text/csv; charset=utf-8",
@@ -41,7 +41,7 @@ class TableExport:
         TSV: "text/tsv; charset=utf-8",
         XLS: "application/vnd.ms-excel",
         XLSX: "application/vnd.ms-excel",
-        YAML: "text/yml; charset=utf-8",
+        YAML: "text/yaml; charset=utf-8",
     }
 
     def __init__(self, export_format, table, exclude_columns=None, dataset_kwargs=None):
