@@ -1,7 +1,6 @@
 import json
 import yaml
 from datetime import date, datetime, time
-from os import unlink
 from tempfile import NamedTemporaryFile
 from unittest import skipIf
 
