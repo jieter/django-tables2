@@ -1,5 +1,6 @@
 import json
 from datetime import date, datetime, time
+from os import unlink
 from tempfile import NamedTemporaryFile
 from unittest import skipIf
 
@@ -211,11 +212,14 @@ class ExportViewTest(TestCase):
         response = View.as_view()(build_request("/?_export=xlsx"))
         self.assertEqual(response.status_code, 200)
 
-        with NamedTemporaryFile(suffix=".xlsx") as tmp:
-            tmp.write(response.content)
-            tmp.seek(0)
-            wb = load_workbook(tmp.name)
-            self.assertIn(title, wb.sheetnames)
+        tmp = NamedTemporaryFile(suffix=".xlsx", delete=False)
+        tmp.write(response.content)
+        tmp.seek(0)
+        wb = load_workbook(tmp)
+        self.assertIn(title, wb.sheetnames)
+
+        tmp.close()
+        unlink(tmp.name)
 
 
 class OccupationTable(tables.Table):
