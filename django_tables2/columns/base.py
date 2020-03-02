@@ -214,7 +214,7 @@ class Column:
              - If `True`, the ``record.get_absolute_url()`` or the related model's
                `get_absolute_url()` is used.
              - If a callable is passed, the returned value is used, if it's not ``None``.
-               The callable can optionally accept any argument valid for :ref:`table.render_foo`-methods, 
+               The callable can optionally accept any argument valid for :ref:`table.render_foo`-methods,
                for example `record` or `value`.
              - If a `dict` is passed, it's passed on to ``~django.urls.reverse``.
              - If a `tuple` is passed, it must be either a (viewname, args) or (viewname, kwargs)
