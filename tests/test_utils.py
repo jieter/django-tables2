@@ -126,6 +126,11 @@ class AccessorTest(TestCase):
         self.assertEqual(Accessor("a__b__c").penultimate(context), (context["a"]["b"], "c"))
         self.assertEqual(Accessor("a___b___c___d___e").penultimate(context), (None, "e"))
 
+    def test_short_circuit_dict(self):
+        context = {"occupation__name": "Carpenter"}
+
+        self.assertEqual(Accessor("occupation__name").resolve(context), "Carpenter")
+
 
 class AccessorTestModel(models.Model):
     foo = models.CharField(max_length=20)
