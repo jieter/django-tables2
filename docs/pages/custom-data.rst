@@ -18,15 +18,15 @@ cases.
 
 To reduce ambiguity, rather than calling it a 'key', we use the name 'accessor'.
 
-Accessors are just dotted paths that describe how an object should be traversed
-to reach a specific value, for example::
+Accessors are just double-underscore separated paths that describe how an object
+should be traversed to reach a specific value, for example::
 
     >>> from django_tables2 import A
     >>> data = {"abc": {"one": {"two": "three"}}}
     >>> A("abc__one__two").resolve(data)
     'three'
 
-Dots represent a relationships, and are attempted in this order:
+The separators ``__`` represent relationships, and are attempted in this order:
 
 1. Dictionary lookup ``a[b]``
 2. Attribute lookup ``a.b``
