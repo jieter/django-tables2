@@ -1,5 +1,4 @@
 import json
-import yaml
 from datetime import date, datetime, time
 from tempfile import NamedTemporaryFile
 from unittest import skipIf
@@ -10,6 +9,7 @@ from django.shortcuts import render
 from django.test import TestCase
 
 import django_tables2 as tables
+import yaml
 from django_tables2 import A
 from django_tables2.config import RequestConfig
 from openpyxl import load_workbook
