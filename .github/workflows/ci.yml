@@ -10,7 +10,6 @@ jobs:
       - run: black --check .
 
   flake8:
-    needs: [black]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/setup-python@v1.1.1
@@ -19,7 +18,6 @@ jobs:
       - run: flake8
 
   isort:
-    needs: [black]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/setup-python@v1.1.1
@@ -28,17 +26,14 @@ jobs:
       - run: isort --recursive --check-only --diff django_tables2 example tests *.py
 
   tests:
-    needs: [flake8, isort, black]
     runs-on: ubuntu-latest
     strategy:
       matrix:
         python-version: [3.5, 3.6, 3.7, 3.8]
-        django-version: [2.1, 2.2, 3.0]
+        django-version: [2.2, 3.0]
         exclude:
             - python-version: 3.5
               django-version: 3.0
-            - python-version: 3.8
-              django-version: 2.1
             - python-version: 3.8
               django-version: 2.2
     steps:
