@@ -290,6 +290,9 @@ class Accessor(str):
     accesses. For convenience, the class has an alias `.A` to allow for more concise code.
 
     Relations are separated by a ``__`` character.
+
+    To support list-of-dicts from ``QuerySet.values()``, if the context is a dictionary,
+    and the accessor is a key in the dictinary, it is returned right away.
     """
 
     LEGACY_SEPARATOR = "."
@@ -335,6 +338,14 @@ class Accessor(str):
             >>> x = Accessor("0__upper")
             >>> x.resolve("brad")
             "B"
+
+        If the context is a dictionary and the accessor-value is a key in it,
+        the value for that key is immediately returned::
+
+            >>> x = Accessor("user__first_name")
+            >>> x.resolve({"user__first_name": "brad"})
+            "brad"
+
 
         Arguments:
             context : The root/first object to traverse.
