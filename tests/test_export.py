@@ -9,6 +9,7 @@ from django.shortcuts import render
 from django.test import TestCase
 
 import django_tables2 as tables
+import yaml
 from django_tables2 import A
 from django_tables2.config import RequestConfig
 from openpyxl import load_workbook
@@ -157,6 +158,12 @@ class ExportViewTest(TestCase):
     def test_should_support_json_export(self):
         response = View.as_view()(build_request("/?_export=json"))
         self.assertEqual(json.loads(response.getvalue().decode("utf8")), EXPECTED_JSON)
+
+    def test_should_support_yaml_export(self):
+        response = View.as_view()(build_request("/?_export=yaml"))
+        self.assertEqual(
+            yaml.load(response.getvalue().decode("utf8"), Loader=yaml.FullLoader), EXPECTED_JSON
+        )
 
     def test_should_support_custom_trigger_param(self):
         class View(ExportMixin, tables.SingleTableView):
