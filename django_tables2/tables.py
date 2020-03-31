@@ -184,7 +184,7 @@ class TableOptions:
                     )
 
 
-class TableBase:
+class Table(metaclass=DeclarativeColumnsMetaclass):
     """
     A representation of a table.
 
@@ -692,9 +692,6 @@ class TableBase:
                     return classes_set
         """
         return classes_set
-
-
-Table = DeclarativeColumnsMetaclass("Table", (TableBase,), {})
 
 
 def table_factory(model, table=Table, fields=None, exclude=None, localize=None):
