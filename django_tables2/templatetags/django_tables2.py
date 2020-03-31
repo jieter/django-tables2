@@ -134,7 +134,7 @@ class RenderTableNode(Node):
 
         request = context.get("request")
 
-        if isinstance(table, tables.TableBase):
+        if isinstance(table, tables.Table):
             pass
         elif hasattr(table, "model"):
             queryset = table

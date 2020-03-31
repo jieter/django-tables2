@@ -16,7 +16,7 @@ from .columns import (
 )
 from .config import RequestConfig
 from .paginators import LazyPaginator
-from .tables import Table, TableBase, table_factory
+from .tables import Table, table_factory
 from .utils import A
 from .views import MultiTableMixin, SingleTableMixin, SingleTableView
 
@@ -24,7 +24,6 @@ __version__ = "2.2.1"
 
 __all__ = (
     "Table",
-    "TableBase",
     "table_factory",
     "BooleanColumn",
     "Column",
