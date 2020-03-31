@@ -75,18 +75,26 @@ class LazyPaginator(Paginator):
         return number
 
     def page(self, number):
+        _number = number
+        # number=None occurs when a non-existant page is requested through RequestConfig.configure().
+        # Its algorithm is to select max(pages) when a non-existant page number is requested.
+        # By the nature of LazyPaginator, it is impossible to know the highest page number, so we use the
+        # number of pages we see when looking at the first page.
+        if number is None:
+            number = 1
         number = self.validate_number(number)
         bottom = (number - 1) * self.per_page
         top = bottom + self.per_page
+
         # Retrieve more objects to check if there is a next page.
         look_ahead_items = (self.look_ahead - 1) * self.per_page + 1
-        objects = list(self.object_list[bottom : top + self.orphans + look_ahead_items])
-        objects_count = len(objects)
+        object_list = list(self.object_list[bottom : top + self.orphans + look_ahead_items])
+        objects_count = len(object_list)
         if objects_count > (self.per_page + self.orphans):
             # If another page is found, increase the total number of pages.
             self._num_pages = number + (objects_count // self.per_page)
             # In any case,  return only objects for this page.
-            objects = objects[: self.per_page]
+            objects = object_list[: self.per_page]
         elif (number != 1) and (objects_count <= self.orphans):
             raise EmptyPage(_("That page contains no results"))
         else:
@@ -94,6 +102,14 @@ class LazyPaginator(Paginator):
             self._num_pages = number
             # For rendering purposes in `table_page_range`, we have to remember the final count
             self._final_num_pages = number
+            objects = object_list
+
+        if _number is None:
+            # For number=None, always show the last per_page records
+            number = self._num_pages
+            bottom = objects_count - self.per_page
+            objects = object_list[bottom:]
+
         return Page(objects, number, self)
 
     def is_last_page(self, number):
