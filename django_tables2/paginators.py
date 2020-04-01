@@ -75,7 +75,9 @@ class LazyPaginator(Paginator):
         return number
 
     def page(self, number):
-        number = self.validate_number(number)
+        # Number might be None, because the total number of pages is not known in this paginator.
+        # If an unknown page is requested, serve the first page.
+        number = self.validate_number(number or 1)
         bottom = (number - 1) * self.per_page
         top = bottom + self.per_page
         # Retrieve more objects to check if there is a next page.

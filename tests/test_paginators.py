@@ -70,3 +70,16 @@ class LazyPaginatorTest(TestCase):
 
         self.assertEqual(paginator.page(98).object_list, list(range(971, 981)))
         self.assertEqual(paginator.num_pages, 100)
+
+    def test_number_is_none(self):
+        """
+        When number=None is supplied, the paginator should serve its first page.
+        """
+        objects = list(range(1, 1000))
+        paginator = LazyPaginator(objects, 10, look_ahead=3)
+        self.assertEqual(paginator.page(None).object_list, list(range(1, 11)))
+        self.assertEqual(paginator.num_pages, 4)
+
+        objects = list(range(1, 20))
+        paginator = LazyPaginator(objects, 10, look_ahead=3)
+        self.assertEqual(paginator.page(None).object_list, list(range(1, 11)))
