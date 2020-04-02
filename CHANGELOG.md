@@ -1,5 +1,8 @@
 # Change log
 
+## 2.3.1 (2020-04-02)
+ - Fixed the `LazyPaginator` in a simpler more predictable way: an attempt to show a non-existant page, shows the first page. [#743](https://github.com/jieter/django-tables2/pull/743)
+
 ## 2.3.0 (2020-03-31)
  - Add ability to pass `tablib.Dataset` `kwargs` via `TableExport` and `ExportMixin` [#720](https://github.com/jieter/django-tables2/pull/720) by [@powderflask](https://github.com/powderflask)
  - Drop django==2.1 support, add optional tablib requirements [#738](https://github.com/jieter/django-tables2/pull/738)
