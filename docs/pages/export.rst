@@ -6,7 +6,7 @@ Exporting table data
 .. versionadded:: 1.8.0
 
 If you want to allow exporting the data present in your django-tables2 tables to various
-formats, you must install the `tablib <http://docs.python-tablib.org/en/latest/>`_ package::
+formats, you must install the `tablib <https://tablib.readthedocs.io>`_ package::
 
     pip install tablib
 
