@@ -95,6 +95,7 @@ the `last_name` column::
 
     # tables.py
     from .models import Customers
+    from django.utils.html import format_html
 
     class CustomerTable(tables.Table):
         name = tables.Column()
