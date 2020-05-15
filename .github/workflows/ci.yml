@@ -30,12 +30,15 @@ jobs:
     strategy:
       matrix:
         python-version: [3.5, 3.6, 3.7, 3.8]
-        django-version: [2.2, 3.0]
+        django-version: [2.2, 3.0, 3.1a1]
         exclude:
             - python-version: 3.5
               django-version: 3.0
+            - python-version: 3.5
+              django-version: 3.1a1
             - python-version: 3.8
               django-version: 2.2
+
     steps:
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v1.1.1
