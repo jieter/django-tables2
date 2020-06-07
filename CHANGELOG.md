@@ -6,7 +6,7 @@
 ## 2.3.0 (2020-03-31)
  - Add ability to pass `tablib.Dataset` `kwargs` via `TableExport` and `ExportMixin` [#720](https://github.com/jieter/django-tables2/pull/720) by [@powderflask](https://github.com/powderflask)
  - Drop django==2.1 support, add optional tablib requirements [#738](https://github.com/jieter/django-tables2/pull/738)
- - Short-circuit `Accessor.resolve()` if the context contains the exact accessor [#722](https://github.com/jieter/django-tables2/pull/722), fixes [#717](https://github.com/jieter/django-tables2/issue/717)
+ - Short-circuit `Accessor.resolve()` if the context contains the exact accessor [#722](https://github.com/jieter/django-tables2/pull/722), fixes [#717](https://github.com/jieter/django-tables2/issues/717)
  - Fixed yaml export [#732](https://github.com/jieter/django-tables2/pull/732) by [@sg3-141-592](https://githug.com/sg3-141-592)
  - Made Table docstring visible in docs [#742](https://github.com/jieter/django-tables2/pull/742)
  - Removed the TableBase construct in favor of using the metaclass keyword argument, as all supported python versions support it. [#742](https://github.com/jieter/django-tables2/pull/742)
