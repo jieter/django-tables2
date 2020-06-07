@@ -9,4 +9,4 @@ tablib[xls,yaml]
 openpyxl==2.6.4
 mock
 psycopg2-binary
-django-filter==2.2.0
+django-filter==2.3.0
