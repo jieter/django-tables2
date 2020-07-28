@@ -42,4 +42,4 @@ msgstr "ankstesnis"
 #: templates/django_tables2/bootstrap4.html:86
 #: templates/django_tables2/table.html:88
 msgid "next"
-msgstr "sekantis"
+msgstr "kitas"
