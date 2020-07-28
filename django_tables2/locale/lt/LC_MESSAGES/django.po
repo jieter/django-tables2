@@ -30,7 +30,7 @@ msgstr "Puslapio numeris yra mažesnis už 1"
 
 #: paginators.py:93
 msgid "That page contains no results"
-msgstr "Puslapis nerasta jokių rezultatų"
+msgstr "Puslapyje nerasta jokių rezultatų"
 
 #: templates/django_tables2/bootstrap.html:66
 #: templates/django_tables2/bootstrap4.html:66
