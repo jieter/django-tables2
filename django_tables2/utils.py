@@ -292,7 +292,7 @@ class Accessor(str):
     Relations are separated by a ``__`` character.
 
     To support list-of-dicts from ``QuerySet.values()``, if the context is a dictionary,
-    and the accessor is a key in the dictinary, it is returned right away.
+    and the accessor is a key in the dictionary, it is returned right away.
     """
 
     LEGACY_SEPARATOR = "."

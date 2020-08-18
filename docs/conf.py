@@ -1,6 +1,7 @@
 import os
 import re
 import sys
+from pathlib import Path
 
 import sphinx_rtd_theme
 from recommonmark.parser import CommonMarkParser
@@ -8,7 +9,7 @@ from recommonmark.parser import CommonMarkParser
 os.environ["DJANGO_SETTINGS_MODULE"] = "example.settings"
 
 # import project
-sys.path.insert(0, os.path.abspath("../"))
+sys.path.insert(0, Path("../").resolve())
 
 project = "django-tables2"
 with open("../django_tables2/__init__.py", "rb") as f:
@@ -23,11 +24,11 @@ source_parsers = {".md": CommonMarkParser}
 source_suffix = [".rst", ".md"]
 
 # symlink CHANGELOG.md from repo root to the pages dir.
-basedir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+basedir = Path(__file__).parent.parent
 filename = "CHANGELOG.md"
-target = os.path.join(basedir, "docs", "pages", filename)
-if not os.path.islink(target):
-    os.symlink(os.path.join(basedir, filename), target)
+target = basedir / "docs" / "pages" / filename
+if not target.is_symlink:
+    (basedir / filename).symlink_to(target)
 
 extensions = [
     "sphinx.ext.autodoc",

@@ -1,7 +1,7 @@
 # Change log
 
 ## 2.3.1 (2020-04-02)
- - Fixed the `LazyPaginator` in a simpler more predictable way: an attempt to show a non-existant page, shows the first page. [#743](https://github.com/jieter/django-tables2/pull/743)
+ - Fixed the `LazyPaginator` in a simpler more predictable way: an attempt to show a non-existent page, shows the first page. [#743](https://github.com/jieter/django-tables2/pull/743)
 
 ## 2.3.0 (2020-03-31)
  - Add ability to pass `tablib.Dataset` `kwargs` via `TableExport` and `ExportMixin` [#720](https://github.com/jieter/django-tables2/pull/720) by [@powderflask](https://github.com/powderflask)
@@ -9,12 +9,11 @@
  - Short-circuit `Accessor.resolve()` if the context contains the exact accessor [#722](https://github.com/jieter/django-tables2/pull/722), fixes [#717](https://github.com/jieter/django-tables2/issues/717)
  - Fixed yaml export [#732](https://github.com/jieter/django-tables2/pull/732) by [@sg3-141-592](https://githug.com/sg3-141-592)
  - Made Table docstring visible in docs [#742](https://github.com/jieter/django-tables2/pull/742)
- - Removed the TableBase construct in favor of using the metaclass keyword argument, as all supported python versions support it. [#742](https://github.com/jieter/django-tables2/pull/742)
+ - Removed the TableBase construct in favor of using the `metaclass` keyword argument, as all supported python versions support it. [#742](https://github.com/jieter/django-tables2/pull/742)
  - `LazyPaginator` with non-existent page number should not result in a crash [#741](https://github.com/jieter/django-tables2/pull/741)
 
 ## 2.2.1 (2019-11-20)
- - Fix backwards-compatibility with legacy separators in order_by clauses ([#715](https://github.com/jieter/django-tables2/pull/715) by [
-@federicobond](https://github.com/federicobond))
+ - Fix backwards-compatibility with legacy separators in order_by clauses ([#715](https://github.com/jieter/django-tables2/pull/715) by [@federicobond](https://github.com/federicobond))
 
 ## 2.2.0 (2019-11-18)
  - Use `__` as accessor-separator, add `linkify` Meta option [#702](https://github.com/jieter/django-tables2/pull/702)).
@@ -50,8 +49,7 @@
 
 ## 2.0.2 (2018-10-22)
  - Make sure the value of the class attribute in `<th>` has consistent ordering (fixes [#627](https://github.com/jieter/django-tables2/issues/627))
- - Make sure that pagination block is available in template regardless of pagination status [#622](https://github.com/jieter/django-tables2/pull/622) by
-[@apocalyptech](https://github.com/apocalyptech)
+ - Make sure that pagination block is available in template regardless of pagination status [#622](https://github.com/jieter/django-tables2/pull/622) by [@apocalyptech](https://github.com/apocalyptech)
 
 ## 2.0.1 (2018-09-13)
  - Fixed a regression which did not allow `Table.Meta.order_by` to be a list.
@@ -82,17 +80,19 @@ Not much changed in this final version, but quite a lot if you are still on 1.21
  - Fixed an encoding issue in `README.md` preventing installation in some environments.
 
 ## 2.0.0a4 (2018-07-17)
- - Add `linkify` keyword argument to all columns, to allow wrapping the content in a `<a>` tag. It accepts one of these ways to define the link:
-     - `True` to use the record return value of `record.get_absolute_url()`,
-     - a callable to use its return value
-     - a dict which is passed on to `django.urls.reverse()`
-     - a (viewname, args) or (viewname, kwargs)-tuple which is also passed on to `django.urls.reverse()`.
+ - Add `linkify` keyword argument to all columns, to allow wrapping the content in a `<a>` tag.
+   It accepts one of these ways to define the link:
+   - `True` to use the record return value of `record.get_absolute_url()`,
+   - a callable to use its return value
+   - a dict which is passed on to `django.urls.reverse()`
+   - a (viewname, args) or (viewname, kwargs)-tuple which is also passed on to `django.urls.reverse()`.
    Implementation should be backwards compatible, so all use of `LinkColumn` and `RelatedLinkColum` should still work. [#590](https://github.com/jieter/django-tables2/pull/590)
 
 ## 2.0.0a3 (2018-05-24)
 Hello from [DjangoCon Europe](https://2018.djangocon.eu/)!
+
 - Fix table prefix being overwritten in `MultiTableView`, [#576](https://github.com/jieter/django-tables2/pull/576) by [@ETinLV](https://github.com/ETinLV), (fixes [#572](https://github.com/jieter/django-tables2/issues/572))
- - Fix `empty_text` cannot be translated (fixes [#579](https://github.com/jieter/django-tables2/issues/579))
+- Fix `empty_text` cannot be translated (fixes [#579](https://github.com/jieter/django-tables2/issues/579))
 
 ## 2.0.0a2 (2018-04-13)
  - Another round of template cleanup.
@@ -112,7 +112,8 @@ Hello from [DjangoCon Europe](https://2018.djangocon.eu/)!
 ### breaking changes 2.0.0
  - Appearance of the paginators might be different from the current 1.x templates. Use a custom template if you need to keep the appearance the same.
  - Removed the `template` argument to the table constructor, use `template_name` instead.
- - Stopped adding column names to the class attribute of table cells (`<td>` tags) by default. Previous behavior can be restored by using this method on your custom table:
+ - Stopped adding column names to the class attribute of table cells (`<td>` tags) by default.
+   Previous behavior can be restored by using this method on your custom table:
 ```python
 class MyTable(tables.Table):
     # columns
@@ -421,8 +422,7 @@ _Full disclosure: as of april 1st, 2017, I am an employee of [Zostera](http://zo
     - Pagination exceptions are raised by `Table.paginate`
     - `RequestConfig` can handles pagination errors silently, can be disabled
       by including `silent=False` in the `paginate` argument value
- - Add `DateTimeColumn` and `DateColumn` to handle formatting `datetime`
-   and timezones.
+ - Add `DateTimeColumn` and `DateColumn` to handle formatting `datetime` and time zones.
  - Add `BooleanColumn` to handle bool values
  - `render_table` can now build and render a table for a QuerySet, rather than
    needing to be passed a table instance
