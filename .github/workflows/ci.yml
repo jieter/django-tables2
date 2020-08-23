@@ -22,8 +22,8 @@ jobs:
     steps:
       - uses: actions/setup-python@v1.1.1
       - uses: actions/checkout@v1
-      - run: python -m pip install --upgrade isort
-      - run: isort --recursive --check-only --diff django_tables2 example tests *.py
+      - run: python -m pip install tox
+      - run: tox -e isort
 
   tests:
     runs-on: ubuntu-latest

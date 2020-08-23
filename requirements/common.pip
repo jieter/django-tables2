@@ -1,12 +1,12 @@
 # mocks/stubs for tests
-fudge
+fudge==1.1.1
 # xml parsing
-lxml
+lxml==4.5.2
 pytz>0
 tablib[xls,yaml]
 # pin to 2.6.4, which is supported by python 3.5 and does not contain this bug:
 # https://bitbucket.org/openpyxl/openpyxl/issues/1373/broken-writer-with-lxml-defusedxml
 openpyxl==2.6.4
-mock
-psycopg2-binary
+mock==3.0.5
+psycopg2-binary==2.8.5
 django-filter==2.3.0

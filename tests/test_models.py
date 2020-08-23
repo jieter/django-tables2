@@ -1,5 +1,6 @@
 from collections import defaultdict
 
+import mock
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db.models.functions import Length
@@ -8,7 +9,6 @@ from django.test import TestCase
 from django.utils.translation import override as translation_override
 
 import django_tables2 as tables
-import mock
 
 from .app.models import Occupation, Person, PersonProxy, Region
 from .utils import build_request, parse
