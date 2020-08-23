@@ -4,15 +4,15 @@ from tempfile import NamedTemporaryFile
 from unittest import skipIf
 
 import pytz
+import yaml
 from django.core.exceptions import ImproperlyConfigured
 from django.shortcuts import render
 from django.test import TestCase
+from openpyxl import load_workbook
 
 import django_tables2 as tables
-import yaml
 from django_tables2 import A
 from django_tables2.config import RequestConfig
-from openpyxl import load_workbook
 
 from .app.models import Occupation, Person, Region
 from .utils import build_request
