@@ -70,7 +70,7 @@ This has a number of benefits:
 When using this approach, the following options might be useful to customize
 what fields to show or hide:
 
-- `~.Table.Meta.sequence` -- reorder columns (if used alone, columns that are not specified are still going to be shown in the table after the specified columns)
+- `~.Table.Meta.sequence` -- reorder columns (if used alone, columns that are not specified are still rendered in the table after the specified columns)
 - `~.Table.Meta.fields` -- specify model fields to *include*
 - `~.Table.Meta.exclude` -- specify model fields to *exclude*
 
