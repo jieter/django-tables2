@@ -12,7 +12,7 @@ values is fine.
 List of dicts
 -------------
 
-An an example we will demonstrate using list of dicts. When defining a table
+In an example we will demonstrate using list of dicts. When defining a table
 it is necessary to declare each column::
 
     import django_tables2 as tables
@@ -70,9 +70,20 @@ This has a number of benefits:
 When using this approach, the following options might be useful to customize
 what fields to show or hide:
 
-- `~.Table.Meta.sequence` -- reorder columns
+- `~.Table.Meta.sequence` -- reorder columns (if used alone, columns that are not specified are still rendered in the table after the specified columns)
 - `~.Table.Meta.fields` -- specify model fields to *include*
 - `~.Table.Meta.exclude` -- specify model fields to *exclude*
+
+These options can be specified as tuples. In this example we will demonstrate how this can be done::
+    
+    # tables.py
+    class PersonTable(tables.Table):
+        class Meta:
+            model = Person
+            sequence = ("last_name", "first_name", "birth_date", )
+            exclude = ("user", )
+
+With these options specified, the columns would be show according to the order defined in the `~.Table.Meta.sequence`, while the ``user`` column will be hidden.
 
 Performance
 -----------
