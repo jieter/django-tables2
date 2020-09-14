@@ -53,24 +53,19 @@ class TemplateColumn(Column):
         # If the table is being rendered using `render_table`, it hackily
         # attaches the context to the table as a gift to `TemplateColumn`.
         context = getattr(table, "context", Context())
-        context.update(self.extra_context)
-        context.update(
-            {
-                "default": bound_column.default,
-                "column": bound_column,
-                "record": record,
-                "value": value,
-                "row_counter": kwargs["bound_row"].row_counter,
-            }
-        )
-
-        try:
+        additional_context = {
+            "default": bound_column.default,
+            "column": bound_column,
+            "record": record,
+            "value": value,
+            "row_counter": kwargs["bound_row"].row_counter,
+        }
+        additional_context.update(self.extra_context)
+        with context.update(additional_context):
             if self.template_code:
                 return Template(self.template_code).render(context)
             else:
                 return get_template(self.template_name).render(context.flatten())
-        finally:
-            context.pop()
 
     def value(self, **kwargs):
         """
