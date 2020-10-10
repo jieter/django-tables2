@@ -1,5 +1,12 @@
 # Change log
 
+
+# 2.3.2 (2020-10-10)
+- Fix popping the extra_context of TemplateColumn [#767](https://github.com/jieter/django-tables2/pull/767) by [@bernhardmiller](https://github.com/bernhardmiller)
+ - Fix typo for the translation of the word 'next' in greek [#759]](https://github.com/jieter/django-tables2/pull/759) by [@orfeasa](https://github.com/orfeasa)
+ - Add `format_html` import to prevent `NameError` [#752](https://github.com/jieter/django-tables2/pull/752) by [@MBfromOK](https://github.com/MBfromOK)
+ - Fixed Russian translation [#768](https://github.com/jieter/django-tables2/pull/768) by [@Real-Gecko](https://github.com/Real-Gecko)
+
 ## 2.3.1 (2020-04-02)
  - Fixed the `LazyPaginator` in a simpler more predictable way: an attempt to show a non-existent page, shows the first page. [#743](https://github.com/jieter/django-tables2/pull/743)
 
