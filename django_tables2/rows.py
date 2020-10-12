@@ -90,9 +90,7 @@ class BoundRow:
 
     @property
     def table(self):
-        """
-        The associated `.Table` object.
-        """
+        """The `.Table` this row is part of."""
         return self._table
 
     def get_even_odd_css_class(self):
@@ -106,9 +104,7 @@ class BoundRow:
 
     @property
     def attrs(self):
-        """
-        Return the attributes for a certain row.
-        """
+        """Return the attributes for a certain row."""
         cssClass = self.get_even_odd_css_class()
 
         row_attrs = computed_values(
@@ -124,10 +120,7 @@ class BoundRow:
 
     @property
     def record(self):
-        """
-        The data record from the data source which is used to populate this row
-        with data.
-        """
+        """The data record from the data source which is used to populate this row with data."""
         return self._record
 
     def __iter__(self):

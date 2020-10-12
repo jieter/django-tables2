@@ -317,7 +317,6 @@ class Column:
 
     @property
     def default(self):
-        # handle callables
         return self._default() if callable(self._default) else self._default
 
     @property
@@ -341,9 +340,7 @@ class Column:
         return self.verbose_name
 
     def footer(self, bound_column, table):
-        """
-        Returns the content of the footer, if specified.
-        """
+        """Return the content of the footer, if specified."""
         footer_kwargs = {"column": self, "bound_column": bound_column, "table": table}
 
         if self._footer is not None:
@@ -359,7 +356,7 @@ class Column:
 
     def render(self, value):
         """
-        Returns the content for a specific cell.
+        Return the content for a specific cell.
 
         This method can be overridden by :ref:`table.render_FOO` methods on the
         table or by subclassing `.Column`.
@@ -373,10 +370,11 @@ class Column:
 
     def value(self, **kwargs):
         """
-        Returns the content for a specific cell similarly to `.render` however
-        without any html content. This can be used to get the data in the
-        formatted as it is presented but in a form that could be added to a csv
-        file.
+        Return the content for a specific cell for exports.
+
+        Similar to `.render` but without any html content.
+        This can be used to get the data in the formatted as it is presented but in a
+        form that could be added to a csv file.
 
         The default implementation just calls the `render` function but any
         subclasses where `render` returns html content should override this
@@ -390,7 +388,7 @@ class Column:
 
     def order(self, queryset, is_descending):
         """
-        Returns the QuerySet of the table.
+        Order the QuerySet of the table.
 
         This method can be overridden by :ref:`table.order_FOO` methods on the
         table or by subclassing `.Column`; but only overrides if second element
@@ -425,11 +423,12 @@ class Column:
 
 class BoundColumn:
     """
-    A *run-time* version of `.Column`. The difference between
-    `.BoundColumn` and `.Column`, is that `.BoundColumn` objects include the
-    relationship between a `.Column` and a `.Table`. In practice, this
-    means that a `.BoundColumn` knows the *"variable name"* given to the
-    `.Column` when it was declared on the `.Table`.
+    A run-time version of `.Column`.
+
+    The difference between `.BoundColumn` and `.Column`,
+    is that `.BoundColumn` objects include the relationship between a `.Column` and a `.Table`.
+    In practice, this means that a `.BoundColumn` knows the *"variable name"* given to the `.Column`
+    when it was declared on the `.Table`.
 
     arguments:
         table (`~.Table`): The table in which this column exists
@@ -455,10 +454,7 @@ class BoundColumn:
 
     @property
     def accessor(self):
-        """
-        Returns the string used to access data for this column out of the data
-        source.
-        """
+        """Returns the string used to access data for this column out of the data source."""
         return self.column.accessor or Accessor(self.name)
 
     @property
@@ -545,9 +541,7 @@ class BoundColumn:
 
     @property
     def default(self):
-        """
-        Returns the default value for this column.
-        """
+        """Returns the default value for this column."""
         value = self.column.default
         if value is None:
             value = self._table.default
@@ -555,9 +549,7 @@ class BoundColumn:
 
     @property
     def header(self):
-        """
-        The value that should be used in the header cell for this column.
-        """
+        """The contents of the header cell for this column."""
         # favour Column.header
         column_header = self.column.header
         if column_header:
@@ -567,6 +559,7 @@ class BoundColumn:
 
     @property
     def footer(self):
+        """The contents of the footer cell for this column."""
         return call_with_appropriate(
             self.column.footer, {"bound_column": self, "table": self._table}
         )
@@ -577,8 +570,7 @@ class BoundColumn:
     @property
     def order_by(self):
         """
-        Returns an `.OrderByTuple` of appropriately prefixed data source
-        keys used to sort this column.
+        Return an `.OrderByTuple` of appropriately prefixed data source keys used to sort this column.
 
         See `.order_by_alias` for details.
         """
@@ -592,8 +584,7 @@ class BoundColumn:
     @property
     def order_by_alias(self):
         """
-        Returns an `OrderBy` describing the current state of ordering for this
-        column.
+        Return an `OrderBy` describing the current state of ordering for this column.
 
         The following attempts to explain the difference between `order_by`
         and `.order_by_alias`.
@@ -634,9 +625,9 @@ class BoundColumn:
         This is useful otherwise in templates you'd need something like::
 
             {% if column.is_ordered %}
-            {% querystring table.prefixed_order_by_field=column.order_by_alias.opposite %}
+                {% querystring table.prefixed_order_by_field=column.order_by_alias.opposite %}
             {% else %}
-            {% querystring table.prefixed_order_by_field=column.order_by_alias %}
+                {% querystring table.prefixed_order_by_field=column.order_by_alias %}
             {% endif %}
 
         """
@@ -652,9 +643,7 @@ class BoundColumn:
 
     @property
     def orderable(self):
-        """
-        Return a `bool` depending on whether this column supports ordering.
-        """
+        """Return whether this column supports ordering."""
         if self.column.orderable is not None:
             return self.column.orderable
         return self._table.orderable
@@ -706,12 +695,12 @@ class BoundColumn:
 
     @property
     def visible(self):
-        """Returns a `bool` depending on whether this column is visible."""
+        """Return whether this column is visible."""
         return self.column.visible
 
     @property
     def localize(self):
-        """Returns `True`, `False` or `None` as described in ``Column.localize``"""
+        """Return `True`, `False` or `None` as described in ``Column.localize``"""
         return self.column.localize
 
 

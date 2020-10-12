@@ -36,7 +36,7 @@ class ManyToManyColumnTest(TestCase):
             Person.objects.get(first_name="James"), Person.objects.get(first_name="Simone")
         )
 
-    def test_ManyToManyColumn_from_model(self):
+    def test_from_model(self):
         """
         Automatically uses the ManyToManyColumn for a ManyToManyField, and calls the
         Models's `__str__` method to transform the model instace to string.
@@ -59,7 +59,7 @@ class ManyToManyColumnTest(TestCase):
             for friend in cell.split(", "):
                 self.assertTrue(Person.objects.filter(first_name=friend).exists())
 
-    def test_ManyToManyColumn_linkify_item(self):
+    def test_linkify_item(self):
         class Table(tables.Table):
             name = tables.Column(accessor="name", order_by=("last_name", "first_name"))
             friends = tables.ManyToManyColumn(linkify_item=True)
@@ -72,7 +72,7 @@ class ManyToManyColumnTest(TestCase):
                 self.assertIn(friend.get_absolute_url(), friends)
                 self.assertIn(str(friend), friends)
 
-    def test_ManyToManyColumn_linkify_item_different_model(self):
+    def test_linkify_item_different_model(self):
         """
         Make sure the correct get_absolute_url() is used to linkify the items.
         """
@@ -91,7 +91,7 @@ class ManyToManyColumnTest(TestCase):
             '<a href="/people/3/">James</a>, <a href="/people/6/">Simone</a>',
         )
 
-    def test_ManyToManyColumn_linkify_item_foreign_key(self):
+    def test_linkify_item_foreign_key(self):
         class OccupationTable(tables.Table):
             name = tables.Column(linkify=True)
             people = tables.ManyToManyColumn(linkify_item=True)
@@ -133,8 +133,7 @@ class ManyToManyColumnTest(TestCase):
         # normal string, will not be escaped
         assert_sep("|")
 
-        # html tag, would normally be escaped, but should not be escaped because
-        # it is mark_safe()'ed
+        # html tag, would normally be escaped, but should not be escaped because it is mark_safe()'ed
         assert_sep(mark_safe("<br />"))
 
     def test_transform_returns_html(self):
@@ -161,7 +160,7 @@ class ManyToManyColumnTest(TestCase):
 
         self.assertFalse(table.columns["friends"].orderable)
 
-    def test_ManyToManyColumn_complete_example(self):
+    def test_complete_example(self):
         class Table(tables.Table):
             name = tables.Column(accessor="name", order_by=("last_name", "first_name"))
             friends = tables.ManyToManyColumn(
