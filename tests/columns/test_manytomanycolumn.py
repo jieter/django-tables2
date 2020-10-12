@@ -17,22 +17,22 @@ class ManyToManyColumnTest(TestCase):
         ("Simone", "Fong"),
     )
 
-    def setUp(self):
-        self.carpenter = Occupation.objects.create(name="Carpenter")
-        for first, last in self.FAKE_NAMES:
-            Person.objects.create(first_name=first, last_name=last, occupation=self.carpenter)
+    @classmethod
+    def setUpTestData(cls):
+        cls.carpenter = Occupation.objects.create(name="Carpenter")
+        for first, last in cls.FAKE_NAMES:
+            Person.objects.create(first_name=first, last_name=last, occupation=cls.carpenter)
 
         persons = list(Person.objects.all())
         # give everyone 1 to 3 friends
         for person in persons:
             person.friends.add(*sample(persons, randint(1, 3)))
-            person.save()
 
-        # add a person without friends
-        self.remi = Person.objects.create(first_name="Remi", last_name="Barberin")
+        # Add a person without friends
+        cls.remi = Person.objects.create(first_name="Remi", last_name="Barberin")
 
-        self.developers = Group.objects.create(name="developers")
-        self.developers.members.add(
+        cls.developers = Group.objects.create(name="developers")
+        cls.developers.members.add(
             Person.objects.get(first_name="James"), Person.objects.get(first_name="Simone")
         )
 
@@ -53,7 +53,7 @@ class ManyToManyColumnTest(TestCase):
 
         for row in table.rows:
             cell = row.get_cell("friends")
-            if cell is None:
+            if cell is table.default:
                 continue
 
             for friend in cell.split(", "):
@@ -124,7 +124,7 @@ class ManyToManyColumnTest(TestCase):
 
             for row in table.rows:
                 cell = row.get_cell("friends")
-                if cell is None:
+                if cell is table.default:
                     continue
 
                 for friend in cell.split(sep):
@@ -145,7 +145,7 @@ class ManyToManyColumnTest(TestCase):
         table = Table(Person.objects.all().order_by("last_name"))
         for row in table.rows:
             cell = row.get_cell("friends")
-            if cell is None:
+            if cell is table.default:
                 continue
 
             for friend in cell.split(", "):
@@ -170,24 +170,30 @@ class ManyToManyColumnTest(TestCase):
         table = Table(Person.objects.all().order_by("last_name"))
         for row in table.rows:
             friends = row.get_cell("friends")
-            if friends is None:
+            if friends is table.default:
                 self.assertEqual(row.get_cell("name"), self.remi.name)
                 continue
 
-            # verify the list is sorted descending
+            # Verify the list is sorted descending
             friends = list(map(lambda o: o.split(" "), friends.split(", ")))
             self.assertEqual(friends, sorted(friends, key=lambda item: item[1], reverse=True))
 
-    def test_ManyToManyColumn_custom_default(self):
+    def test_default(self):
+        """A ManyToManyColumn without explicit default should use the table default."""
+
+        class Table(tables.Table):
+            name = tables.Column(accessor="name", order_by=("last_name", "first_name"))
+            friends = tables.ManyToManyColumn()
+
+        table = Table(Person.objects.filter(first_name="Remi"))
+        self.assertEqual(table.rows[0].get_cell("friends"), "—")
+
+    def test_custom_default(self):
+        """A ManyToManyColumn with explicit default should use it."""
+
         class Table(tables.Table):
             name = tables.Column(accessor="name", order_by=("last_name", "first_name"))
             friends = tables.ManyToManyColumn(default="--")
 
-        table = Table(Person.objects.all().order_by("last_name"))
-        cell_value_with_default = None
-        for row in table.rows:
-
-            if row.get_cell("name") == self.remi.name:
-                cell_value_with_default = row.get_cell("friends")
-                break
-        self.assertEqual(cell_value_with_default, "--")
+        table = Table(Person.objects.filter(first_name="Remi"))
+        self.assertEqual(table.rows[0].get_cell("friends"), "--")

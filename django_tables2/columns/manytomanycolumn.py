@@ -84,10 +84,6 @@ class ManyToManyColumn(Column):
         return qs.all()
 
     def render(self, value):
-        # if value is None or not value.exists():
-        if not value.exists():
-            return self.default
-
         items = []
         for item in self.filter(value):
             content = conditional_escape(self.transform(item))
