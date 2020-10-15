@@ -17,26 +17,26 @@ class ManyToManyColumnTest(TestCase):
         ("Simone", "Fong"),
     )
 
-    def setUp(self):
-        self.carpenter = Occupation.objects.create(name="Carpenter")
-        for first, last in self.FAKE_NAMES:
-            Person.objects.create(first_name=first, last_name=last, occupation=self.carpenter)
+    @classmethod
+    def setUpTestData(cls):
+        cls.carpenter = Occupation.objects.create(name="Carpenter")
+        for first, last in cls.FAKE_NAMES:
+            Person.objects.create(first_name=first, last_name=last, occupation=cls.carpenter)
 
         persons = list(Person.objects.all())
         # give everyone 1 to 3 friends
         for person in persons:
             person.friends.add(*sample(persons, randint(1, 3)))
-            person.save()
 
-        # add a person without friends
-        self.remi = Person.objects.create(first_name="Remi", last_name="Barberin")
+        # Add a person without friends
+        cls.remi = Person.objects.create(first_name="Remi", last_name="Barberin")
 
-        self.developers = Group.objects.create(name="developers")
-        self.developers.members.add(
+        cls.developers = Group.objects.create(name="developers")
+        cls.developers.members.add(
             Person.objects.get(first_name="James"), Person.objects.get(first_name="Simone")
         )
 
-    def test_ManyToManyColumn_from_model(self):
+    def test_from_model(self):
         """
         Automatically uses the ManyToManyColumn for a ManyToManyField, and calls the
         Models's `__str__` method to transform the model instace to string.
@@ -53,13 +53,13 @@ class ManyToManyColumnTest(TestCase):
 
         for row in table.rows:
             cell = row.get_cell("friends")
-            if cell is None:
+            if cell is table.default:
                 continue
 
             for friend in cell.split(", "):
                 self.assertTrue(Person.objects.filter(first_name=friend).exists())
 
-    def test_ManyToManyColumn_linkify_item(self):
+    def test_linkify_item(self):
         class Table(tables.Table):
             name = tables.Column(accessor="name", order_by=("last_name", "first_name"))
             friends = tables.ManyToManyColumn(linkify_item=True)
@@ -72,7 +72,7 @@ class ManyToManyColumnTest(TestCase):
                 self.assertIn(friend.get_absolute_url(), friends)
                 self.assertIn(str(friend), friends)
 
-    def test_ManyToManyColumn_linkify_item_different_model(self):
+    def test_linkify_item_different_model(self):
         """
         Make sure the correct get_absolute_url() is used to linkify the items.
         """
@@ -91,7 +91,7 @@ class ManyToManyColumnTest(TestCase):
             '<a href="/people/3/">James</a>, <a href="/people/6/">Simone</a>',
         )
 
-    def test_ManyToManyColumn_linkify_item_foreign_key(self):
+    def test_linkify_item_foreign_key(self):
         class OccupationTable(tables.Table):
             name = tables.Column(linkify=True)
             people = tables.ManyToManyColumn(linkify_item=True)
@@ -124,7 +124,7 @@ class ManyToManyColumnTest(TestCase):
 
             for row in table.rows:
                 cell = row.get_cell("friends")
-                if cell is None:
+                if cell is table.default:
                     continue
 
                 for friend in cell.split(sep):
@@ -133,8 +133,7 @@ class ManyToManyColumnTest(TestCase):
         # normal string, will not be escaped
         assert_sep("|")
 
-        # html tag, would normally be escaped, but should not be escaped because
-        # it is mark_safe()'ed
+        # html tag, would normally be escaped, but should not be escaped because it is mark_safe()'ed
         assert_sep(mark_safe("<br />"))
 
     def test_transform_returns_html(self):
@@ -146,7 +145,7 @@ class ManyToManyColumnTest(TestCase):
         table = Table(Person.objects.all().order_by("last_name"))
         for row in table.rows:
             cell = row.get_cell("friends")
-            if cell is None:
+            if cell is table.default:
                 continue
 
             for friend in cell.split(", "):
@@ -161,7 +160,7 @@ class ManyToManyColumnTest(TestCase):
 
         self.assertFalse(table.columns["friends"].orderable)
 
-    def test_ManyToManyColumn_complete_example(self):
+    def test_complete_example(self):
         class Table(tables.Table):
             name = tables.Column(accessor="name", order_by=("last_name", "first_name"))
             friends = tables.ManyToManyColumn(
@@ -171,24 +170,30 @@ class ManyToManyColumnTest(TestCase):
         table = Table(Person.objects.all().order_by("last_name"))
         for row in table.rows:
             friends = row.get_cell("friends")
-            if friends is None:
+            if friends is table.default:
                 self.assertEqual(row.get_cell("name"), self.remi.name)
                 continue
 
-            # verify the list is sorted descending
+            # Verify the list is sorted descending
             friends = list(map(lambda o: o.split(" "), friends.split(", ")))
             self.assertEqual(friends, sorted(friends, key=lambda item: item[1], reverse=True))
 
-    def test_ManyToManyColumn_custom_default(self):
+    def test_default(self):
+        """A ManyToManyColumn without explicit default should use the table default."""
+
+        class Table(tables.Table):
+            name = tables.Column(accessor="name", order_by=("last_name", "first_name"))
+            friends = tables.ManyToManyColumn()
+
+        table = Table(Person.objects.filter(first_name="Remi"))
+        self.assertEqual(table.rows[0].get_cell("friends"), "—")
+
+    def test_custom_default(self):
+        """A ManyToManyColumn with explicit default should use it."""
+
         class Table(tables.Table):
             name = tables.Column(accessor="name", order_by=("last_name", "first_name"))
             friends = tables.ManyToManyColumn(default="--")
 
-        table = Table(Person.objects.all().order_by("last_name"))
-        cell_value_with_default = None
-        for row in table.rows:
-
-            if row.get_cell("name") == self.remi.name:
-                cell_value_with_default = row.get_cell("friends")
-                break
-        self.assertEqual(cell_value_with_default, "--")
+        table = Table(Person.objects.filter(first_name="Remi"))
+        self.assertEqual(table.rows[0].get_cell("friends"), "--")

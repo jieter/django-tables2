@@ -2,6 +2,7 @@ from django.core.exceptions import FieldDoesNotExist
 from django.db import models
 
 from .columns.linkcolumn import BaseLinkColumn
+from .columns.manytomanycolumn import ManyToManyColumn
 from .utils import A, AttributeDict, call_with_appropriate, computed_values
 
 
@@ -90,9 +91,7 @@ class BoundRow:
 
     @property
     def table(self):
-        """
-        The associated `.Table` object.
-        """
+        """The `.Table` this row is part of."""
         return self._table
 
     def get_even_odd_css_class(self):
@@ -106,9 +105,7 @@ class BoundRow:
 
     @property
     def attrs(self):
-        """
-        Return the attributes for a certain row.
-        """
+        """Return the attributes for a certain row."""
         cssClass = self.get_even_odd_css_class()
 
         row_attrs = computed_values(
@@ -124,10 +121,7 @@ class BoundRow:
 
     @property
     def record(self):
-        """
-        The data record from the data source which is used to populate this row
-        with data.
-        """
+        """The data record from the data source which is used to populate this row with data."""
         return self._record
 
     def __iter__(self):
@@ -145,6 +139,7 @@ class BoundRow:
     def _get_and_render_with(self, bound_column, render_func, default):
         value = None
         accessor = A(bound_column.accessor)
+        column = bound_column.column
 
         # We need to take special care here to allow get_FOO_display()
         # methods on a model to be used if available. See issue #30.
@@ -168,11 +163,11 @@ class BoundRow:
                 value = accessor.resolve(self.record)
             except Exception:
                 # we need to account for non-field based columns (issue #257)
-                is_linkcolumn = isinstance(bound_column.column, BaseLinkColumn)
-                if is_linkcolumn and bound_column.column.text is not None:
+                if isinstance(column, BaseLinkColumn) and column.text is not None:
                     return render_func(bound_column)
 
-        if value in bound_column.column.empty_values:
+        is_manytomanycolumn = isinstance(column, ManyToManyColumn)
+        if value in column.empty_values or (is_manytomanycolumn and not value.exists()):
             return default
 
         return render_func(bound_column, value)
