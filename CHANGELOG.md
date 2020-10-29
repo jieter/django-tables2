@@ -1,5 +1,8 @@
 # Change log
 
+# 2.3.3 (2020-10-29)
+- Use `table.default` for empty `ManyToMany` relations ([#773](https://github.com/jieter/django-tables2/pull/773)) fixes: [#769](https://github.com/jieter/django-tables2/issues/769)
+- Pass record/value to `CheckboxColumn`'s `attrs` callables too ([#774](https://github.com/jieter/django-tables2/pull/774)), fixes: [#762](https://github.com/jieter/django-tables2/issues/762)
 
 # 2.3.2 (2020-10-10)
 - Fix popping the extra_context of TemplateColumn [#767](https://github.com/jieter/django-tables2/pull/767) by [@bernhardmiller](https://github.com/bernhardmiller)
