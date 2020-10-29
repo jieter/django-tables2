@@ -21,9 +21,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/setup-python@v1.1.1
+        with:
+            python-version: 3.8
       - uses: actions/checkout@v1
-      - run: python -m pip install tox
-      - run: tox -e isort
+      - run: python -m pip install -r requirements/common.pip isort==5.6.4
+      - run: isort --diff --check django_tables2 test
 
   tests:
     runs-on: ubuntu-latest
