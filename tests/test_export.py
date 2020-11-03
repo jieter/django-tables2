@@ -34,9 +34,11 @@ CSV_SEP = "\r\n"
 EXPECTED_CSV_DATA = tuple(",".join(name) for name in NAMES)
 EXPECTED_CSV = CSV_SEP.join(("First name,Surname",) + EXPECTED_CSV_DATA) + CSV_SEP
 
-EXPECTED_JSON = list(
-    [{"First name": first_name, "Surname": last_name} for first_name, last_name in NAMES]
-)
+EXPECTED_JSON = [
+    {"First name": first_name, "Surname": last_name}
+    for first_name, last_name in NAMES
+]
+
 
 
 class Table(tables.Table):

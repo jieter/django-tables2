@@ -8,6 +8,7 @@ import django_tables2 as tables
 
 class RowsTest(SimpleTestCase):
     def test_bound_rows(self):
+
         class SimpleTable(tables.Table):
             name = tables.Column()
 
@@ -16,9 +17,7 @@ class RowsTest(SimpleTestCase):
         table = SimpleTable(data)
 
         # iteration
-        records = []
-        for row in table.rows:
-            records.append(row.record)
+        records = [row.record for row in table.rows]
         self.assertEqual(records, data)
 
     def test_bound_row(self):

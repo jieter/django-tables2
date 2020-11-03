@@ -179,9 +179,11 @@ class TableQuerysetData(TableData):
         supported for querysets.
         """
 
-        aliases = {}
-        for bound_column in self.table.columns:
-            aliases[bound_column.order_by_alias] = bound_column.order_by
+        aliases = {
+            bound_column.order_by_alias: bound_column.order_by
+            for bound_column in self.table.columns
+        }
+
         try:
             return next(segment(self.data.query.order_by, aliases))
         except StopIteration:

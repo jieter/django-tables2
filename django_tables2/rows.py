@@ -311,15 +311,12 @@ class BoundRows:
 
     def __iter__(self):
         # Top pinned rows
-        for pinned_record in self.generator_pinned_row(self.pinned_data.get("top")):
-            yield pinned_record
-
+        yield from self.generator_pinned_row(self.pinned_data.get("top"))
         for record in self.data:
             yield BoundRow(record, table=self.table)
 
         # Bottom pinned rows
-        for pinned_record in self.generator_pinned_row(self.pinned_data.get("bottom")):
-            yield pinned_record
+        yield from self.generator_pinned_row(self.pinned_data.get("bottom"))
 
     def __len__(self):
         length = len(self.data)

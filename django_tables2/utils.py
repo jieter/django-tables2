@@ -182,10 +182,7 @@ class OrderByTuple(tuple):
             bool: `True` if the column with `name` influences the ordering.
         """
         name = OrderBy(name).bare
-        for order_by in self:
-            if order_by.bare == name:
-                return True
-        return False
+        return any(order_by.bare == name for order_by in self)
 
     def __getitem__(self, index):
         """

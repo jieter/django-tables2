@@ -204,7 +204,7 @@ class MultiTableMixin(TableMixinBase):
         if len(data) != len(self.tables):
             klass = type(self).__name__
             raise ImproperlyConfigured("len({}.tables_data) != len({}.tables)".format(klass, klass))
-        return list(Table(data[i]) for i, Table in enumerate(self.tables))
+        return [Table(data[i]) for i, Table in enumerate(self.tables)]
 
     def get_tables_data(self):
         """

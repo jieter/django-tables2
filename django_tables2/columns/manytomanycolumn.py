@@ -65,7 +65,7 @@ class ManyToManyColumn(Column):
         elif isinstance(linkify_item, (dict, tuple)):
             link_kwargs = dict(reverse_args=linkify_item)
         elif linkify_item is True:
-            link_kwargs = dict()
+            link_kwargs = {}
 
         if link_kwargs is not None:
             self.linkify_item = LinkTransform(attrs=self.attrs.get("a", {}), **link_kwargs)

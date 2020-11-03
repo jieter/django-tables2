@@ -66,7 +66,7 @@ class ModelsTest(TestCase):
     def test_boundrows_iteration(self):
         table = PersonTable(Person.objects.all())
         expected = list(Person.objects.all())
-        for i, actual in enumerate([row.record for row in table.rows]):
+        for i, actual in enumerate(row.record for row in table.rows):
             self.assertEqual(expected[i], actual)
 
     def test_should_support_rendering_multiple_times(self):

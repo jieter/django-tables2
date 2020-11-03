@@ -303,11 +303,12 @@ class CoreTest(SimpleTestCase):
         self.assertEqual(tableC.columns.names(), ["last_name", "occupation"])
 
     def test_pagination(self):
+
         class BookTable(tables.Table):
             name = tables.Column()
 
         # create some sample data
-        data = list([{"name": "Book No. %d" % i} for i in range(100)])
+        data = [{"name": "Book No. %d" % i} for i in range(100)]
         books = BookTable(data)
 
         # external paginator

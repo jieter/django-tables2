@@ -287,7 +287,7 @@ class SingleTableMixinTest(TestCase):
         """
 
         total_records = 60
-        for i in range(1, total_records + 1):
+        for _ in range(1, total_records + 1):
             Region.objects.create(name="region {i:02d} / {total_records}".format(**locals()))
 
         expected_per_page = 25

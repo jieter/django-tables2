@@ -140,9 +140,7 @@ class RenderTableTagTest(TestCase):
             [e.text for e in root.findall(".//thead/tr/th/a")], ["ID", "Name", "Mayor"]
         )
         td = [[td.text for td in tr.findall("td")] for tr in root.findall(".//tbody/tr")]
-        db = []
-        for region in Region.objects.all():
-            db.append([str(region.id), region.name, "—"])
+        db = [[str(region.id), region.name, "—"] for region in Region.objects.all()]
         self.assertEqual(td, db)
 
 

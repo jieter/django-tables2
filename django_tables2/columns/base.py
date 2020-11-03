@@ -382,9 +382,7 @@ class Column:
 
         See `LinkColumn` for an example.
         """
-        value = call_with_appropriate(self.render, kwargs)
-
-        return value
+        return call_with_appropriate(self.render, kwargs)
 
     def order(self, queryset, is_descending):
         """

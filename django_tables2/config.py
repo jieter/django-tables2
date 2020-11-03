@@ -41,10 +41,7 @@ class RequestConfig:
         if order_by:
             table.order_by = order_by
         if self.paginate:
-            if hasattr(self.paginate, "items"):
-                kwargs = dict(self.paginate)
-            else:
-                kwargs = {}
+            kwargs = dict(self.paginate) if hasattr(self.paginate, "items") else {}
             # extract some options from the request
             for arg in ("page", "per_page"):
                 name = getattr(table, "prefixed_%s_field" % arg)
