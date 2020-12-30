@@ -39,7 +39,7 @@ class ManyToManyColumnTest(TestCase):
     def test_from_model(self):
         """
         Automatically uses the ManyToManyColumn for a ManyToManyField, and calls the
-        Models's `__str__` method to transform the model instace to string.
+        Models's `__str__` method to transform the model instance to string.
         """
 
         class Table(tables.Table):
