@@ -1,8 +1,13 @@
-from django.contrib.postgres.fields import HStoreField, JSONField
+from django.contrib.postgres.fields import HStoreField
 from django.db import models
 from django.test import SimpleTestCase
 
 import django_tables2 as tables
+
+try:
+    from django.db.models import JSONField  # django==3.1 moved json field
+except ImportError:
+    from django.contrib.postgres.fields import JSONField
 
 
 class JsonColumnTestCase(SimpleTestCase):
