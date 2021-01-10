@@ -7,7 +7,11 @@ from .base import library
 from .linkcolumn import BaseLinkColumn
 
 try:
-    from django.contrib.postgres.fields import HStoreField, JSONField
+    try:
+        from django.contrib.postgres.fields import HStoreField
+        from django.db.models import JSONField  # django==3.1 moved JSONField
+    except ImportError:
+        from django.contrib.postgres.fields import HStoreField, JSONField
 
     POSTGRES_AVAILABLE = True
 except ImportError:
