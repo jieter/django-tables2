@@ -1,5 +1,8 @@
 # Change log
 
+# 2.3.4 (2021-01-10)
+- Removed deprecation warnings with django==3.1 regarding `JSONField` [#785](https://github.com/jieter/django-tables2/pull/785)
+
 # 2.3.3 (2020-10-29)
 - Use `table.default` for empty `ManyToMany` relations ([#773](https://github.com/jieter/django-tables2/pull/773)) fixes: [#769](https://github.com/jieter/django-tables2/issues/769)
 - Pass record/value to `CheckboxColumn`'s `attrs` callables too ([#774](https://github.com/jieter/django-tables2/pull/774)), fixes: [#762](https://github.com/jieter/django-tables2/issues/762)
