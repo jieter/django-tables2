@@ -23,7 +23,7 @@ The basis of a filtered table is a `SingleTableMixin` combined with a
 
 
 The ``FilterSet`` is added to the template context in a ``filter`` variable by
-default. A basic template rendering the filter (using django-bootstrap3) and
+default. A basic template rendering the filter (using django-bootstrap3)[https://pypi.org/project/django-bootstrap3/] and
 table looks like this::
 
     {% load render_table from django_tables2 %}
