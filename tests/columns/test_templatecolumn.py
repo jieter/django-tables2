@@ -107,3 +107,11 @@ class TemplateColumnTest(SimpleTestCase):
         table = Table([{"track": "Space Oddity"}])
 
         self.assertEqual(list(table.as_values()), [["Track"], ["Space Oddity"]])
+
+    def test_should_strip_whitespace_for_value(self):
+        class Table(tables.Table):
+            track = tables.TemplateColumn("  {{ value }}  ")
+
+        table = Table([{"track": "Space Oddity"}])
+
+        self.assertEqual(list(table.as_values()), [["Track"], ["Space Oddity"]])
