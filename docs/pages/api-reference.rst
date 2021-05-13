@@ -83,7 +83,7 @@ API Reference
                         attrs = {"class": "paleblue"}
 
             If you supply a a callable as a value in the dict, it will be called
-            at table instantiation an the returned value will be used:
+            at table instantiation and the returned value will be used:
 
             Consider this example where each table gets an unique ``"id"``
             attribute::
