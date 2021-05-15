@@ -1,5 +1,12 @@
 # Change log
 
+# 2.4.0 (2021-05-15)
+- Add support for django 3.2 and python 3.9, drop support for django 3.0
+- Add Django 3.0 and 3.1 trove classifiers [#803](https://github.com/jieter/django-tables2/pull/803) by [@Asday](https://github.com/Asday)
+- Strip leading and trailing whitespace from TemplateColumn.value() [#794](https://github.com/jieter/django-tables2/pull/794) by [@jeremystretch](https://github.com/jeremystretch)
+- Providing link for django-bootstrap3 [#793](https://github.com/jieter/django-tables2/pull/793) by [@TareqMonwer](https://github.com/TareqMonwer)
+- Fix for crash on windows while deleting temp file [#788](https://github.com/jieter/django-tables2/pull/788)
+
 # 2.3.4 (2021-01-10)
 - Removed deprecation warnings with django==3.1 regarding `JSONField` [#785](https://github.com/jieter/django-tables2/pull/785)
 
