@@ -536,7 +536,7 @@ class BoundColumnTest(SimpleTestCase):
             self.fail("__bool__ should not be evaluated!")
 
     def test_attrs_falsy_object(self):
-        """Computed attrs in BoundColumn should be passed the column value, even if its __bool__ returns False. """
+        """Computed attrs in BoundColumn should be passed the column value, even if its __bool__ returns False."""
 
         class Table(tables.Table):
             c_element = tables.Column()
