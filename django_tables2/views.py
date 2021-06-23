@@ -1,4 +1,5 @@
 from itertools import count
+from typing import Optional
 
 from django.core.exceptions import ImproperlyConfigured
 from django.views.generic.list import ListView
@@ -38,10 +39,15 @@ class TableMixinBase:
             return False
 
         paginate = {}
-        if getattr(self, "paginate_by", None) is not None:
-            paginate["per_page"] = self.paginate_by
+
+        # Obtains and set page size from get_paginate_by
+        paginate_by = self.get_paginate_by(table.data)
+        if paginate_by is not None:
+            paginate["per_page"] = paginate_by
+
         if hasattr(self, "paginator_class"):
             paginate["paginator_class"] = self.paginator_class
+
         if getattr(self, "paginate_orphans", 0) != 0:
             paginate["orphans"] = self.paginate_orphans
 
@@ -54,6 +60,18 @@ class TableMixinBase:
             return True
 
         return paginate
+
+    def get_paginate_by(self, table_data) -> Optional[int]:
+        """
+        Determines the number of items per page, or ``None`` for no pagination.
+
+        Args:
+            table_data: The table's data.
+
+        Returns:
+            Optional[int]: Items per page or ``None`` for no pagination.
+        """
+        return getattr(self, "paginate_by", None)
 
 
 class SingleTableMixin(TableMixinBase):

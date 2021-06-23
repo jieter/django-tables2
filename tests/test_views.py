@@ -1,4 +1,6 @@
+from typing import Optional
 import django_filters as filters
+from django.db.models import QuerySet
 from django.core.exceptions import ImproperlyConfigured
 from django.test import TestCase
 from django.views.generic import TemplateView
@@ -174,6 +176,35 @@ class SingleTableViewTest(TestCase):
         paginator = response.context_data["table"].paginator
         self.assertIsInstance(paginator, tables.LazyPaginator)
         self.assertEqual(paginator.orphans, 10)
+
+    def test_get_paginate_by_has_priority_over_paginate_by(self):
+        class View(tables.SingleTableView):
+            table_class = tables.Table
+            queryset = Region.objects.all()
+            # Should ignore this one. Because get_paginated_by is overridden
+            paginate_by = 4
+
+            def get_paginate_by(self, queryset):
+                # Should paginate by 10
+                return 10
+
+        response = View.as_view()(build_request())
+        self.assertEqual(response.context_data["table"].paginator.per_page, 10)
+
+    def test_pass_queryset_to_get_paginate_by(self):
+        import math
+
+        # defined in paginator_class
+        class View(tables.SingleTableView):
+            table_class = tables.Table
+            queryset = Region.objects.all()
+
+            def get_paginate_by(self, table_data):
+                # Should split table items into 2 pages
+                return math.ceil(len(table_data) / 2)
+
+        response = View.as_view()(build_request())
+        self.assertEqual(response.context_data["table"].paginator.num_pages, 2)
 
     def test_should_pass_kwargs_to_table_constructor(self):
         class PassKwargsView(SimpleView):
@@ -442,6 +473,23 @@ class MultiTableMixinTest(TestCase):
         tableA, tableB = response.context_data["tables"]
         self.assertEqual(tableA.page.number, 1)
         self.assertEqual(tableB.page.number, 3)
+
+    def test_pass_table_data_to_get_paginate_by(self):
+        import math
+
+        class View(tables.MultiTableMixin, TemplateView):
+            template_name = "multiple.html"
+            tables = (TableB, TableB)
+            tables_data = (Region.objects.all(), Region.objects.all())
+
+            def get_paginate_by(self, table_data) -> Optional[int]:
+                # Split data into 3 pages
+                return math.ceil(len(table_data) / 3)
+
+        response = View.as_view()(build_request())
+
+        for table in response.context_data["tables"]:
+            self.assertEqual(table.paginator.num_pages, 3)
 
     def test_get_tables_data(self):
         class View(tables.MultiTableMixin, TemplateView):
