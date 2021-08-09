@@ -87,7 +87,7 @@ class TableExport:
         """
         Returns the string/bytes for the current export format
         """
-        return getattr(self.dataset, self.format)
+        return self.dataset.export(self.format)
 
     def response(self, filename=None):
         """
