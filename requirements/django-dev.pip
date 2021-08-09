@@ -1,2 +1,2 @@
 -r common.pip
-Django==3.0.9
+Django==3.2.6
