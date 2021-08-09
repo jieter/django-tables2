@@ -10,6 +10,10 @@ formats, you must install the `tablib <https://tablib.readthedocs.io>`_ package:
 
     pip install tablib
 
+..note::
+   For all supported formats (xls, xlsx, etc.), you must install additional dependencies:
+   <https://tablib.readthedocs.io/en/stable/install/#installing-tablib>
+   
 
 Adding ability to export the table data to a class based views looks like this::
 
