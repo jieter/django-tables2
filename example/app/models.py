@@ -19,7 +19,7 @@ class Country(models.Model):
     population = models.PositiveIntegerField(verbose_name=_("population"))
     tz = models.CharField(max_length=50, blank=True)
     visits = models.PositiveIntegerField()
-    commonwealth = models.NullBooleanField()
+    commonwealth = models.BooleanField(null=True)
     flag = models.FileField(upload_to="country/flags/", blank=True)
 
     continent = models.ForeignKey(Continent, null=True, on_delete=models.CASCADE)
