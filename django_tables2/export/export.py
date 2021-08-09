@@ -40,7 +40,7 @@ class TableExport:
         ODS: "application/vnd.oasis.opendocument.spreadsheet",
         TSV: "text/tsv; charset=utf-8",
         XLS: "application/vnd.ms-excel",
-        XLSX: "application/vnd.ms-excel",
+        XLSX: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         YAML: "text/yaml; charset=utf-8",
     }
 
