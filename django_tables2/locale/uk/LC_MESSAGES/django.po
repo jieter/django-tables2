@@ -29,4 +29,4 @@ msgstr "πопередня"
 #: templates/django_tables2/bootstrap4.html:82
 #: templates/django_tables2/table.html:82
 msgid "next"
-msgstr "hаступна"
+msgstr "наступна"
