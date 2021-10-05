@@ -3,7 +3,7 @@ from datetime import datetime
 import pytz
 from django.conf import settings
 from django.db import models
-from django.test import SimpleTestCase, override_settings
+from django.test import SimpleTestCase
 
 import django_tables2 as tables
 
@@ -44,7 +44,6 @@ class DateTimeColumnTest(SimpleTestCase):
         )
         self.assertEqual(table.rows[1].get_cell("date"), "—")
 
-    @override_settings(DATETIME_FORMAT="D Y b A f")
     def test_should_handle_long_format(self):
         class TestTable(tables.Table):
             date = tables.DateTimeColumn(short=False)
@@ -53,10 +52,9 @@ class DateTimeColumnTest(SimpleTestCase):
                 default = "—"
 
         table = TestTable([{"date": self.dt()}, {"date": None}])
-        self.assertEqual(table.rows[0].get_cell("date"), "Tue 2012 sep PM 12:30")
+        self.assertEqual(table.rows[0].get_cell("date"), "Sept. 11, 2012, 12:30 p.m.")
         self.assertEqual(table.rows[1].get_cell("date"), "—")
 
-    @override_settings(SHORT_DATETIME_FORMAT="b Y D A f")
     def test_should_handle_short_format(self):
         class TestTable(tables.Table):
             date = tables.DateTimeColumn(short=True)
@@ -65,7 +63,7 @@ class DateTimeColumnTest(SimpleTestCase):
                 default = "—"
 
         table = TestTable([{"date": self.dt()}, {"date": None}])
-        self.assertEqual(table.rows[0].get_cell("date"), "sep 2012 Tue PM 12:30")
+        self.assertEqual(table.rows[0].get_cell("date"), "09/11/2012 12:30 p.m.")
         self.assertEqual(table.rows[1].get_cell("date"), "—")
 
     def test_should_be_used_for_datetimefields(self):
@@ -81,10 +79,9 @@ class DateTimeColumnTest(SimpleTestCase):
 
         self.assertIsInstance(Table.base_columns["field"], tables.DateTimeColumn)
 
-    @override_settings(SHORT_DATETIME_FORMAT="b Y D A f")
     def test_value_returns_a_raw_value_without_html(self):
         class Table(tables.Table):
             col = tables.DateTimeColumn()
 
         table = Table([{"col": self.dt()}])
-        self.assertEqual(table.rows[0].get_cell_value("col"), "sep 2012 Tue PM 12:30")
+        self.assertEqual(table.rows[0].get_cell_value("col"), "09/11/2012 12:30 p.m.")

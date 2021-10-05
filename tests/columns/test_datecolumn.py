@@ -1,7 +1,7 @@
 from datetime import date
 
 from django.db import models
-from django.test import SimpleTestCase, override_settings
+from django.test import SimpleTestCase
 
 import django_tables2 as tables
 
@@ -35,7 +35,6 @@ class DateColumnTest(SimpleTestCase):
         )
         self.assertEqual(table.rows[1].get_cell("date"), "—")
 
-    @override_settings(DATE_FORMAT="D Y b")
     def test_should_handle_long_format(self):
         class TestTable(tables.Table):
             date = tables.DateColumn(short=False)
@@ -44,10 +43,9 @@ class DateColumnTest(SimpleTestCase):
                 default = "—"
 
         table = TestTable([{"date": date(2012, 9, 11)}, {"date": None}])
-        assert table.rows[0].get_cell("date") == "Tue 2012 sep"
-        assert table.rows[1].get_cell("date") == "—"
+        self.assertEqual(table.rows[0].get_cell("date"), "Sept. 11, 2012")
+        self.assertEqual(table.rows[1].get_cell("date"), "—")
 
-    @override_settings(SHORT_DATE_FORMAT="b Y D")
     def test_should_handle_short_format(self):
         class TestTable(tables.Table):
             date = tables.DateColumn(short=True)
@@ -56,8 +54,8 @@ class DateColumnTest(SimpleTestCase):
                 default = "—"
 
         table = TestTable([{"date": date(2012, 9, 11)}, {"date": None}])
-        assert table.rows[0].get_cell("date") == "sep 2012 Tue"
-        assert table.rows[1].get_cell("date") == "—"
+        self.assertEqual(table.rows[0].get_cell("date"), "09/11/2012")
+        self.assertEqual(table.rows[1].get_cell("date"), "—")
 
     def test_should_be_used_for_datefields(self):
         class DateModel(models.Model):
@@ -72,14 +70,13 @@ class DateColumnTest(SimpleTestCase):
 
         self.assertEqual(type(Table.base_columns["field"]), tables.DateColumn)
 
-    @override_settings(SHORT_DATE_FORMAT="b Y D")
     def test_value_returns_a_raw_value_without_html(self):
         class Table(tables.Table):
             date = tables.DateColumn()
             date_linkify = tables.DateColumn(accessor="date", linkify=isoformat_link)
 
         table = Table([{"date": date(2012, 9, 12)}])
-        self.assertEqual(table.rows[0].get_cell_value("date"), "sep 2012 Wed")
+        self.assertEqual(table.rows[0].get_cell_value("date"), "09/12/2012")
         self.assertEqual(
-            table.rows[0].get_cell("date_linkify"), '<a href="/test/2012-09-12/">sep 2012 Wed</a>'
+            table.rows[0].get_cell("date_linkify"), '<a href="/test/2012-09-12/">09/12/2012</a>'
         )

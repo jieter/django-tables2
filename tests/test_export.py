@@ -290,13 +290,11 @@ class AdvancedExportViewTest(TestCase):
         response = View.as_view()(build_request("/?_export=csv"))
         data = response.getvalue().decode("utf8")
 
-        expected_csv = "\r\n".join(
-            ("Date,Time,Datetime", "2019-07-22,11:11:11,2019-07-22 13:11:11", "")
-        )
+        expected_csv = "Date,Time,Datetime\r\n07/22/2019,11:11 a.m.,07/22/2019 1:11 p.m.\r\n"
         self.assertEqual(data, expected_csv)
 
         response = View.as_view()(build_request("/?_export=xls"))
-        self.assertIn("2019-07-22 13:11:11".encode(), response.content)
+        self.assertIn("07/22/2019 1:11 p.m.".encode(), response.content)
 
     def test_export_invisible_columns(self):
         """Verify columns with visible=False *do* get exported."""

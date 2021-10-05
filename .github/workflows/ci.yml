@@ -42,6 +42,9 @@ jobs:
               django-version: 2.2
             - python-version: 3.9
               django-version: 2.2
+            - python-version: "3.10"
+              django-version: 2.2
+
 
     steps:
       - name: Set up Python ${{ matrix.python-version }}
