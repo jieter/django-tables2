@@ -8,5 +8,5 @@ tablib[xls,yaml]
 # https://bitbucket.org/openpyxl/openpyxl/issues/1373/broken-writer-with-lxml-defusedxml
 openpyxl==2.6.4
 mock==3.0.5
-psycopg2-binary==2.8.5
+psycopg2-binary==2.9.1
 django-filter==2.3.0
