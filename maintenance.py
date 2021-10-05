@@ -13,34 +13,30 @@ if sys.argv[-1] == "publish":
     os.system("python setup.py clean --all")
     os.system("python setup.py sdist bdist_wheel --universal")
     os.system(
-        "twine upload dist/django-tables2-{version}.tar.gz"
-        " dist/django_tables2-{version}-py2.py3-none-any.whl".format(version=VERSION)
+        f"twine upload dist/django-tables2-{VERSION}.tar.gz"
+        f" dist/django_tables2-{VERSION}-py2.py3-none-any.whl"
     )
-    print(
-        "\nreleased [{version}](https://pypi.org/project/django-tables2/{version}/)".format(
-            version=VERSION
-        )
-    )
+    print(f"\nreleased [{VERSION}](https://pypi.org/project/django-tables2/{VERSION}/)")
     sys.exit()
 
 if sys.argv[-1] == "tag":
-    os.system("git tag -a v{} -m 'tagging v{}'".format(VERSION, VERSION))
+    os.system(f"git tag -a v{VERSION} -m 'tagging v{VERSION}'")
     os.system("git push --tags && git push origin master")
     sys.exit()
 
 if sys.argv[-1] == "screenshots":
 
     def screenshot(url, filename="screenshot.png", delay=2):
-        print("Making screenshot of url: {}".format(url))
+        print(f"Making screenshot of url: {url}")
         chrome = subprocess.Popen(
             ["chromium-browser", "--incognito", "--headless", "--screenshot", url], close_fds=False
         )
-        print("Starting to sleep for {}s...".format(delay))
+        print(f"Starting to sleep for {delay}s...")
         time.sleep(delay)
         chrome.kill()
-        os.system("convert screenshot.png -trim -bordercolor White -border 10x10 {}".format(dest))
+        os.system(f"convert screenshot.png -trim -bordercolor White -border 10x10 {dest}")
         os.remove("screenshot.png")
-        print("Saved file to", dest)
+        print(f"Saved file to {dest}")
 
     images = {
         "{url}/tutorial/": "docs/img/example.png",
