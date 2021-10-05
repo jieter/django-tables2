@@ -1,5 +1,11 @@
 # Change log
 
+# 2.4.1 (2021-10-04)
+- Add Persian (Farsi) locale ([#806](https://github.com/jieter/django-tables2/pull/806)) by [@Alirezaja1384](https://github.com/jieter/django-tables2/commits?author=Alirezaja1384)
+- Improved error message if openpyxl is not installed ([#816](https://github.com/jieter/django-tables2/pull/816))
+- Use correct mime type for xlsx (fixes: [#810](https://github.com/jieter/django-tables2/issues/810))
+- Add support for django 4.0, drop support for python 3.5 ([#822](https://github.com/jieter/django-tables2/issues/822))
+
 # 2.4.0 (2021-05-15)
 - Add support for django 3.2 and python 3.9, drop support for django 3.0
 - Add Django 3.0 and 3.1 trove classifiers [#803](https://github.com/jieter/django-tables2/pull/803) by [@Asday](https://github.com/Asday)
