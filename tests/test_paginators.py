@@ -5,7 +5,7 @@ from django_tables2 import LazyPaginator
 
 
 class FakeQuerySet:
-    objects = range(1, 10 ** 6)
+    objects = range(1, 10**6)
 
     def count(self):
         raise AssertionError("LazyPaginator should not call QuerySet.count()")
@@ -54,7 +54,7 @@ class LazyPaginatorTest(TestCase):
             paginator.page_range()
 
         # last page
-        last_page_number = 10 ** 5
+        last_page_number = 10**5
         paginator.page(last_page_number)
 
         with self.assertRaises(EmptyPage):

@@ -3,7 +3,9 @@ fudge==1.1.1
 # xml parsing
 lxml==4.5.2
 pytz>0
-tablib[xls,yaml]
+# pinning to 3.0.0, which is supported by python 3.6 and does not contain this bug:
+# https://github.com/jazzband/tablib/pull/490
+tablib[xls,yaml]==3.0.0
 # pin to 2.6.4, which is supported by python 3.5 and does not contain this bug:
 # https://bitbucket.org/openpyxl/openpyxl/issues/1373/broken-writer-with-lxml-defusedxml
 openpyxl==2.6.4
