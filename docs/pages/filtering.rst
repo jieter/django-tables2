@@ -21,6 +21,15 @@ The basis of a filtered table is a `SingleTableMixin` combined with a
 
         filterset_class = PersonFilter
 
+The ``PersonFilter`` is defined the following way::
+
+    from django_filters import FilterSet
+    from .models import Person
+
+    class PersonFilter(FilterSet):
+        class Meta:
+            model = Person
+            fields = {"name": ["exact", "contains"], "country": ["exact"]}
 
 The ``FilterSet`` is added to the template context in a ``filter`` variable by
 default. A basic template rendering the filter (using django-bootstrap3)[https://pypi.org/project/django-bootstrap3/] and
