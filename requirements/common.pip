@@ -1,5 +1,3 @@
-# mocks/stubs for tests
-fudge==1.1.1
 # xml parsing
 lxml==4.5.2
 pytz>0
