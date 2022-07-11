@@ -143,7 +143,7 @@ class LinkTransform:
         return reverse(**params)
 
     def get_attrs(self, **kwargs):
-        attrs = AttributeDict(self.attrs or {})
+        attrs = AttributeDict(computed_values(self.attrs or {}, kwargs=kwargs))
         attrs["href"] = self.compose_url(**kwargs)
 
         return attrs
