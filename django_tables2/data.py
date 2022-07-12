@@ -212,9 +212,9 @@ class TableQuerysetData(TableData):
             if bound_column:
                 # We have to pass queryset because ordering could be on an annotation that was
                 #  added for sorting
-                self.data, ordering = bound_column.order(self.data, alias[0] == "-")
+                self.data, orderable = bound_column.order(self.data, alias[0] == "-")
 
-                orderables = orderables + (ordering,)
+                orderables = orderables + (orderable,)
 
         # custom ordering
         if orderables:
