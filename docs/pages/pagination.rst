@@ -21,7 +21,7 @@ If you are using `.RequestConfig`, pass pagination options to the constructor::
 If you are using `SingleTableView`, the table will get paginated by default::
 
     class PeopleListView(SingleTableView):
-        table = PeopleTable
+        table_class = PeopleTable
 
 Disabling pagination
 ~~~~~~~~~~~~~~~~~~~~
