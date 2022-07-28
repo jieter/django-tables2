@@ -37,7 +37,7 @@ jobs:
             - python-version: 3.6
               django-version: 4.0
             - python-version: 3.6
-              django-version: 4.1a1
+              django-version: 4.1rc1
             - python-version: 3.7
               django-version: 4.0
             - python-version: 3.7
