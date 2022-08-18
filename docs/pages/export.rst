@@ -138,7 +138,12 @@ or override the ``ExportMixin.get_dataset_kwargs`` method to return the kwargs d
 
 Generating export URLs
 ----------------------
+.. note::
 
+    To use ``export_url`` you must first load it in your template::
+        
+        {% load export_url from django_tables2 %}
+    
 You can use the ``export_url`` template tag included with django_tables2
 to render a link to export the data as ``csv``::
 
