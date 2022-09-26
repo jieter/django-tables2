@@ -58,16 +58,14 @@
         {% if table.page and table.paginator.num_pages > 1 %}
         <nav aria-label="Table navigation">
             <ul class="pagination">
-            {% if table.page.has_previous %}
                 {% block pagination.previous %}
-                    <li class="page-item previous">
-                        <a class="page-link" href="{% querystring table.prefixed_page_field=table.page.previous_page_number %}">
+                <li class="page-item previous{% if not table.page.has_previous %} disabled{% endif %}">
+                        <a class="page-link" {% if table.page.has_previous %}href="{% querystring table.prefixed_page_field=table.page.previous_page_number %}"{% endif %}>
                             <span aria-hidden="true">&laquo;</span>
                             {% trans 'previous' %}
                         </a>
                     </li>
                 {% endblock pagination.previous %}
-            {% endif %}
             {% if table.page.has_previous or table.page.has_next %}
                 {% block pagination.range %}
                     {% for p in table.page|table_page_range:table.paginator %}
@@ -84,16 +82,14 @@
                 {% endblock pagination.range %}
             {% endif %}
 
-            {% if table.page.has_next %}
-                {% block pagination.next %}
-                <li class="next page-item">
-                    <a class="page-link" href="{% querystring table.prefixed_page_field=table.page.next_page_number %}">
+            {% block pagination.next %}
+            <li class="next page-item{% if not table.page.has_next %} disabled{% endif %}">
+                    <a class="page-link" {% if table.page.has_next %}href="{% querystring table.prefixed_page_field=table.page.next_page_number %}"{% endif %}>
                         {% trans 'next' %}
                         <span aria-hidden="true">&raquo;</span>
                     </a>
                 </li>
                 {% endblock pagination.next %}
-            {% endif %}
             </ul>
         </nav>
         {% endif %}
