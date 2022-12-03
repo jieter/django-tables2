@@ -182,6 +182,7 @@ class MultiTableMixin(TableMixinBase):
     """
 
     tables = None
+    models = None
     tables_data = None
 
     table_prefix = "table_{}-"
@@ -189,22 +190,37 @@ class MultiTableMixin(TableMixinBase):
     # override context table name to make sense in a multiple table context
     context_table_name = "tables"
 
-    def get_tables(self):
+    def get_tables_classes(self):
+        """
+        Return the list of classes to use for the tables.
+        """
+        if self.tables is None and self.models is None:
+            klass = type(self).__name__
+            raise ImproperlyConfigured("No tables were specified. Define {}.tables".format(klass))
+        if self.tables:
+            return self.tables
+        if self.models:
+            return [tables.table_factory(self.model) for model in self.models]
+
+        raise ImproperlyConfigured(
+            "You must either specify {0}.tables or {0}.models".format(type(self).__name__)
+        )
+
+
+    def get_tables(self,**kwargs):
         """
         Return an array of table instances containing data.
         """
-        if self.tables is None:
-            klass = type(self).__name__
-            raise ImproperlyConfigured("No tables were specified. Define {}.tables".format(klass))
+        tables = self.get_tables_classes()
         data = self.get_tables_data()
 
         if data is None:
-            return self.tables
+            return tables
 
-        if len(data) != len(self.tables):
+        if len(data) != len(tables):
             klass = type(self).__name__
             raise ImproperlyConfigured("len({}.tables_data) != len({}.tables)".format(klass, klass))
-        return list(Table(data[i]) for i, Table in enumerate(self.tables))
+        return list(Table(data[i], **kwargs) for i, Table in enumerate(tables))
 
     def get_tables_data(self):
         """
