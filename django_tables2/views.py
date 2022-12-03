@@ -197,8 +197,10 @@ class MultiTableMixin(TableMixinBase):
         if self.tables is None and self.models is None:
             klass = type(self).__name__
             raise ImproperlyConfigured("No tables were specified. Define {}.tables".format(klass))
+
         if self.tables:
             return self.tables
+
         if self.models:
             return [tables.table_factory(self.model) for model in self.models]
 
@@ -206,8 +208,7 @@ class MultiTableMixin(TableMixinBase):
             "You must either specify {0}.tables or {0}.models".format(type(self).__name__)
         )
 
-
-    def get_tables(self,**kwargs):
+    def get_tables(self, **kwargs):
         """
         Return an array of table instances containing data.
         """
