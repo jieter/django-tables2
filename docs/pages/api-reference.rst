@@ -169,92 +169,92 @@ API Reference
             to it. i.e. you can't use the constructor's ``exclude`` argument to
             *undo* an exclusion.
 
-    fields (`tuple`): Fields to show in the table.
-        Used in conjunction with `~.Table.Meta.model`, specifies which fields
-        should have columns in the table. If `None`, all fields are used,
-        otherwise only those named::
+        fields (`tuple`): Fields to show in the table.
+            Used in conjunction with `~.Table.Meta.model`, specifies which fields
+            should have columns in the table. If `None`, all fields are used,
+            otherwise only those named::
 
-            # models.py
-            class Person(models.Model):
-                first_name = models.CharField(max_length=200)
-                last_name = models.CharField(max_length=200)
+                # models.py
+                class Person(models.Model):
+                    first_name = models.CharField(max_length=200)
+                    last_name = models.CharField(max_length=200)
 
-            # tables.py
-            class PersonTable(tables.Table):
-                class Meta:
-                    model = Person
-                    fields = ("first_name", )
+                # tables.py
+                class PersonTable(tables.Table):
+                    class Meta:
+                        model = Person
+                        fields = ("first_name", )
 
-    model (:class:`django.core.db.models.Model`): Create columns from model.
-        A model to inspect and automatically create corresponding columns.
+        model (:class:`django.core.db.models.Model`): Create columns from model.
+            A model to inspect and automatically create corresponding columns.
 
-        This option allows a Django model to be specified to cause the table to
-        automatically generate columns that correspond to the fields in a
-        model.
+            This option allows a Django model to be specified to cause the table to
+            automatically generate columns that correspond to the fields in a
+            model.
 
-    order_by (tuple or str): The default ordering tuple or comma separated str.
-        A hyphen `-` can be used to prefix a column name to indicate
-        *descending* order, for example: `('name', '-age')` or `name,-age`.
+        order_by (tuple or str): The default ordering tuple or comma separated str.
+            A hyphen `-` can be used to prefix a column name to indicate
+            *descending* order, for example: `('name', '-age')` or `name,-age`.
 
-        .. note::
+            .. note::
 
-            This functionality is also available via the ``order_by`` keyword
-            argument to a table's constructor.
+                This functionality is also available via the ``order_by`` keyword
+                argument to a table's constructor.
 
-    sequence (iterable): The sequence of the table columns.
-        This allows the default order of columns (the order they were defined
-        in the Table) to be overridden.
+        sequence (iterable): The sequence of the table columns.
+            This allows the default order of columns (the order they were defined
+            in the Table) to be overridden.
 
-        The special item `'...'` can be used as a placeholder that will be
-        replaced with all the columns that were not explicitly listed. This
-        allows you to add columns to the front or back when using inheritance.
+            The special item `'...'` can be used as a placeholder that will be
+            replaced with all the columns that were not explicitly listed. This
+            allows you to add columns to the front or back when using inheritance.
 
-        Example::
+            Example::
 
-            >>> class Person(tables.Table):
-            ...     first_name = tables.Column()
-            ...     last_name = tables.Column()
-            ...
-            ...     class Meta:
-            ...         sequence = ("last_name", "...")
-            ...
-            >>> Person.base_columns.keys()
-            ['last_name', 'first_name']
+                >>> class Person(tables.Table):
+                ...     first_name = tables.Column()
+                ...     last_name = tables.Column()
+                ...
+                ...     class Meta:
+                ...         sequence = ("last_name", "...")
+                ...
+                >>> Person.base_columns.keys()
+                ['last_name', 'first_name']
 
-        The ``'...'`` item can be used at most once in the sequence value. If
-        it is not used, every column *must* be explicitly included. For example in the
-        above example, ``sequence = ('last_name', )`` would be **invalid**
-        because neither ``"..."`` or ``"first_name"`` were included.
+            The ``'...'`` item can be used at most once in the sequence value. If
+            it is not used, every column *must* be explicitly included. For example in the
+            above example, ``sequence = ('last_name', )`` would be **invalid**
+            because neither ``"..."`` or ``"first_name"`` were included.
 
-        .. note::
+            .. note::
 
-            This functionality is also available via the ``sequence`` keyword
-            argument to a table's constructor.
+                This functionality is also available via the ``sequence`` keyword
+                argument to a table's constructor.
 
-    orderable (bool): Default value for column's *orderable* attribute.
-        If the table and column don't specify a value, a column's ``orderable``
-        value will fall back to this. This provides an easy mechanism to disable
-        ordering on an entire table, without adding ``orderable=False`` to each
-        column in a table.
+        orderable (bool): Default value for column's *orderable* attribute.
+            If the table and column don't specify a value, a column's ``orderable``
+            value will fall back to this. This provides an easy mechanism to disable
+            ordering on an entire table, without adding ``orderable=False`` to each
+            column in a table.
 
-        .. note::
+            .. note::
 
-            This functionality is also available via the ``orderable`` keyword
-            argument to a table's constructor.
+                This functionality is also available via the ``orderable`` keyword
+                argument to a table's constructor.
 
-    template_name (str): The name of template to use when rendering the table.
+        template_name (str): The name of template to use when rendering the table.
 
-        .. note::
+            .. note::
 
-            This functionality is also available via the ``template_name`` keyword
-            argument to a table's constructor.
+                This functionality is also available via the ``template_name`` keyword
+                argument to a table's constructor.
 
 
-    localize (tuple): Specifies which fields should be localized in the
-        table. Read :ref:`localization-control` for more information.
+        localize (tuple): Specifies which fields should be localized in the
+            table. Read :ref:`localization-control` for more information.
 
-    unlocalize (tuple): Specifies which fields should be unlocalized in
-        the table. Read :ref:`localization-control` for more information.
+        unlocalize (tuple): Specifies which fields should be unlocalized in
+            the table. Read :ref:`localization-control` for more information.
 
 Columns
 -------
