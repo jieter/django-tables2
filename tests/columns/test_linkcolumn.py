@@ -123,19 +123,22 @@ class LinkColumnTest(TestCase):
 
     def test_a_attrs_should_be_supported(self):
         class TestTable(tables.Table):
-            col = tables.LinkColumn(
-                "occupation", kwargs={"pk": A("col")}, attrs={"a": {"title": "Occupation Title"}}
-            )
+            attrs = {"a": {"title": "Occupation Title", "id": lambda record: str(record["id"])}}
+            col = tables.LinkColumn("occupation", kwargs={"pk": A("col")}, attrs=attrs)
             col_linkify = tables.Column(
                 accessor="col",
-                attrs={"a": {"title": "Occupation Title"}},
+                attrs=attrs,
                 linkify=("occupation", {"pk": A("col")}),
             )
 
-        table = TestTable([{"col": 0}])
+        table = TestTable([{"col": 0, "id": 1}])
         self.assertEqual(
             attrs(table.rows[0].get_cell("col")),
-            {"href": reverse("occupation", kwargs={"pk": 0}), "title": "Occupation Title"},
+            {
+                "href": reverse("occupation", kwargs={"pk": 0}),
+                "title": "Occupation Title",
+                "id": "1",
+            },
         )
         self.assertEqual(table.rows[0].get_cell("col"), table.rows[0].get_cell("col_linkify"))
 

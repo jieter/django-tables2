@@ -77,6 +77,11 @@ class LinkTransform:
             accessor (Accessor): if supplied, the accessor will be used to decide on which object
                 ``get_absolute_url()`` is called.
             attrs (dict): Customize attributes for the ``<a>`` tag.
+                Values of the dict can be either static text or a
+                callable. The callable can optionally declare any subset
+                of the following keyword arguments: value, record, column,
+                bound_column, bound_row, table. These arguments will then
+                be passed automatically.
             reverse_args (dict, tuple): Arguments to ``django.urls.reverse()``. If dict, the arguments
                 are assumed to be keyword arguments to ``reverse()``, if tuple, a ``(viewname, args)``
                 or ``(viewname, kwargs)``
@@ -143,7 +148,7 @@ class LinkTransform:
         return reverse(**params)
 
     def get_attrs(self, **kwargs):
-        attrs = AttributeDict(self.attrs or {})
+        attrs = AttributeDict(computed_values(self.attrs or {}, kwargs=kwargs))
         attrs["href"] = self.compose_url(**kwargs)
 
         return attrs
