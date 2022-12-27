@@ -62,6 +62,16 @@ class Bootstrap4Table(tables.Table):
         exclude = ("friendly",)
 
 
+class Bootstrap5Table(tables.Table):
+    country = tables.Column(linkify=True)
+    continent = tables.Column(accessor="country__continent", linkify=True)
+
+    class Meta:
+        model = Person
+        template_name = "django_tables2/bootstrap5.html"
+        exclude = ("friendly",)
+
+
 class SemanticTable(tables.Table):
 
     country = tables.RelatedLinkColumn()

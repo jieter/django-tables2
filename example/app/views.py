@@ -8,13 +8,13 @@ from django_filters.views import FilterView
 
 from django_tables2 import MultiTableMixin, RequestConfig, SingleTableMixin, SingleTableView
 from django_tables2.export.views import ExportMixin
-from django_tables2.paginators import LazyPaginator
 
 from .data import COUNTRIES
 from .filters import PersonFilter
 from .models import Country, Person
 from .tables import (
     Bootstrap4Table,
+    Bootstrap5Table,
     BootstrapTable,
     BootstrapTablePinnedRows,
     CheckboxTable,
@@ -55,9 +55,22 @@ def index(request):
                 (reverse("filtertableview"), "Filtered tables (with export)"),
                 (reverse("singletableview"), "Using SingleTableMixin"),
                 (reverse("multitableview"), "Using MultiTableMixin"),
-                (reverse("bootstrap"), "template: Bootstrap 3 (bootstrap.html)"),
-                (reverse("bootstrap4"), "template: Bootstrap 4 (bootstrap4.html)"),
-                (reverse("semantic"), "template: Semantic UI (semantic.html)"),
+                (
+                    reverse("template_example", args=["bootstrap3"]),
+                    "template: Bootstrap 3 (bootstrap.html)",
+                ),
+                (
+                    reverse("template_example", args=["bootstrap4"]),
+                    "template: Bootstrap 4 (bootstrap4.html)",
+                ),
+                (
+                    reverse("template_example", args=["bootstrap5"]),
+                    "template: Bootstrap 5 (bootstrap5.html)",
+                ),
+                (
+                    reverse("template_example", args=["semantic"]),
+                    "template: Semantic UI (semantic.html)",
+                ),
             ),
         },
     )
@@ -103,36 +116,22 @@ def checkbox(request):
     return render(request, "checkbox_example.html", {"table": table})
 
 
-def bootstrap(request):
+def template_example(request, version):
     """Demonstrate the use of the bootstrap template"""
 
-    create_fake_data()
-    table = BootstrapTable(Person.objects.all().select_related("country"), order_by="-name")
-    RequestConfig(request, paginate={"paginator_class": LazyPaginator, "per_page": 10}).configure(
-        table
-    )
-
-    return render(request, "bootstrap_template.html", {"table": table})
-
-
-def bootstrap4(request):
-    """Demonstrate the use of the bootstrap4 template"""
+    versions = {
+        "bootstrap3": (BootstrapTable, "bootstrap_template.html"),
+        "bootstrap4": (Bootstrap4Table, "bootstrap4_template.html"),
+        "bootstrap5": (Bootstrap5Table, "bootstrap5_template.html"),
+        "semantic": (SemanticTable, "semantic_template.html"),
+    }
+    table_class, template_name = versions[version]
 
     create_fake_data()
-    table = Bootstrap4Table(Person.objects.all(), order_by="-name")
+    table = table_class(Person.objects.all().select_related("country"), order_by="-name")
     RequestConfig(request, paginate={"per_page": 10}).configure(table)
 
-    return render(request, "bootstrap4_template.html", {"table": table})
-
-
-def semantic(request):
-    """Demonstrate the use of the Semantic UI template"""
-
-    create_fake_data()
-    table = SemanticTable(Person.objects.all(), order_by="-name")
-    RequestConfig(request, paginate={"per_page": 10}).configure(table)
-
-    return render(request, "semantic_template.html", {"table": table})
+    return render(request, template_name, {"table": table})
 
 
 class ClassBased(SingleTableView):
