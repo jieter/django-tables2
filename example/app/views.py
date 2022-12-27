@@ -8,7 +8,6 @@ from django_filters.views import FilterView
 
 from django_tables2 import MultiTableMixin, RequestConfig, SingleTableMixin, SingleTableView
 from django_tables2.export.views import ExportMixin
-from django_tables2.paginators import LazyPaginator
 
 from .data import COUNTRIES
 from .filters import PersonFilter
@@ -56,10 +55,22 @@ def index(request):
                 (reverse("filtertableview"), "Filtered tables (with export)"),
                 (reverse("singletableview"), "Using SingleTableMixin"),
                 (reverse("multitableview"), "Using MultiTableMixin"),
-                (reverse("template_example", args=["bootstrap3"]), "template: Bootstrap 3 (bootstrap.html)"),
-                (reverse("template_example", args=["bootstrap4"]), "template: Bootstrap 4 (bootstrap4.html)"),
-                (reverse("template_example", args=["bootstrap5"]), "template: Bootstrap 5 (bootstrap5.html)"),
-                (reverse("template_example", args=["semantic"]), "template: Semantic UI (semantic.html)"),
+                (
+                    reverse("template_example", args=["bootstrap3"]),
+                    "template: Bootstrap 3 (bootstrap.html)",
+                ),
+                (
+                    reverse("template_example", args=["bootstrap4"]),
+                    "template: Bootstrap 4 (bootstrap4.html)",
+                ),
+                (
+                    reverse("template_example", args=["bootstrap5"]),
+                    "template: Bootstrap 5 (bootstrap5.html)",
+                ),
+                (
+                    reverse("template_example", args=["semantic"]),
+                    "template: Semantic UI (semantic.html)",
+                ),
             ),
         },
     )

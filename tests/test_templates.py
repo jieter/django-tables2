@@ -158,7 +158,7 @@ class TemplateLocalizeTest(TestCase):
 
     def assert_table_localization(self, TestTable, expected):
         html = TestTable(self.simple_test_data).as_html(build_request())
-        self.assertIn("<td >{0}</td>".format(self.expected_results[expected]), html)
+        self.assertIn(f"<td >{self.expected_results[expected]}</td>", html)
 
     def test_localization_check(self):
         self.assert_cond_localized_table(None, None)
@@ -353,9 +353,9 @@ class ValidHTMLTest(SimpleTestCase):
     def test_templates(self):
         parser = etree.HTMLParser()
 
-        for name in ("table", "semantic", "bootstrap", "bootstrap4"):
+        for name in ("table", "semantic", "bootstrap", "bootstrap4", "bootstrap5"):
             table = CountryTable(
-                list([MEMORY_DATA] * 10), template_name="django_tables2/{}.html".format(name)
+                list([MEMORY_DATA] * 10), template_name=f"django_tables2/{name}.html"
             ).paginate(per_page=5)
 
             html = Template(self.template).render(
@@ -378,11 +378,6 @@ class ValidHTMLTest(SimpleTestCase):
                     min(error.line + self.context_lines, len(lines)),
                 )
                 context = "\n".join(
-                    [
-                        "{}: {}".format(i, line)
-                        for i, line in zip(range(start + 1, end + 1), lines[start:end])
-                    ]
+                    [f"{i}: {line}" for i, line in zip(range(start + 1, end + 1), lines[start:end])]
                 )
-                raise AssertionError(
-                    "template: {}; {} \n {}".format(table.template_name, str(error), context)
-                )
+                raise AssertionError(f"template: {table.template_name}; {error} \n {context}")
