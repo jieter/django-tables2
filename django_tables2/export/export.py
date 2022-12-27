@@ -46,7 +46,7 @@ class TableExport:
 
     def __init__(self, export_format, table, exclude_columns=None, dataset_kwargs=None):
         if not self.is_valid_format(export_format):
-            raise TypeError('Export format "{}" is not supported.'.format(export_format))
+            raise TypeError(f'Export format "{export_format}" is not supported.')
 
         self.format = export_format
         self.dataset = self.table_to_dataset(table, exclude_columns, dataset_kwargs)
@@ -99,7 +99,7 @@ class TableExport:
         """
         response = HttpResponse(content_type=self.content_type())
         if filename is not None:
-            response["Content-Disposition"] = 'attachment; filename="{}"'.format(filename)
+            response["Content-Disposition"] = f'attachment; filename="{filename}"'
 
         response.write(self.export())
         return response

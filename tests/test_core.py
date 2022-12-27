@@ -30,7 +30,7 @@ class UnorderedTable(tables.Table):
 
 class CoreTest(SimpleTestCase):
     def test_omitting_data(self):
-        with self.assertRaises(TypeError):
+        with self.assertRaisesMessage(TypeError, "Argument data to UnorderedTable is required"):
             UnorderedTable()
 
     def test_column_named_items(self):
@@ -114,21 +114,25 @@ class CoreTest(SimpleTestCase):
         self.assertTrue(table.tweaked)
 
     def test_Meta_attribute_incorrect_types(self):
-        with self.assertRaises(TypeError):
+        message = "Table.exclude = 'foo' (type str), but type must be one of (tuple, list, set)"
 
-            class MetaTable1(tables.Table):
+        with self.assertRaisesMessage(TypeError, message):
+
+            class Table(tables.Table):
                 class Meta:
                     exclude = "foo"
 
-        with self.assertRaises(TypeError):
+        message = "Table.sequence = '...' (type str), but type must be one of (tuple, list, set)"
+        with self.assertRaisesMessage(TypeError, message):
 
-            class MetaTable2(tables.Table):
+            class Table(tables.Table):
                 class Meta:
                     sequence = "..."
 
-        with self.assertRaises(TypeError):
+        message = "Table.model = {} (type dict), but type must be one of (ModelBase)"
+        with self.assertRaisesMessage(TypeError, message):
 
-            class MetaTable3(tables.Table):
+            class Table(tables.Table):
                 class Meta:
                     model = {}
 
@@ -162,7 +166,7 @@ class CoreTest(SimpleTestCase):
 
         class TestTable(tables.Table):
             class Meta:
-                attrs = {"id": lambda: "test_table_%d" % next(counter)}
+                attrs = {"id": lambda: f"test_table_{next(counter)}"}
 
         self.assertEqual('id="test_table_0"', TestTable([]).attrs.as_html())
         self.assertEqual('id="test_table_1"', TestTable([]).attrs.as_html())
@@ -307,7 +311,7 @@ class CoreTest(SimpleTestCase):
             name = tables.Column()
 
         # create some sample data
-        data = list([{"name": "Book No. %d" % i} for i in range(100)])
+        data = list([{"name": f"Book No. {i}"} for i in range(100)])
         books = BookTable(data)
 
         # external paginator
@@ -330,10 +334,10 @@ class CoreTest(SimpleTestCase):
         self.assertTrue(books.page.has_next())
 
         # accessing a non-existant page raises 404
-        with self.assertRaises(EmptyPage):
+        with self.assertRaisesMessage(EmptyPage, "That page contains no results"):
             books.paginate(Paginator, page=9999, per_page=10)
 
-        with self.assertRaises(PageNotAnInteger):
+        with self.assertRaisesMessage(PageNotAnInteger, "That page number is not an integer"):
             books.paginate(Paginator, page="abc", per_page=10)
 
     def test_pagination_shouldnt_prevent_multiple_rendering(self):
@@ -683,7 +687,7 @@ class RowAttrsTest(SimpleTestCase):
             beta = tables.Column()
 
         table = Table(
-            MEMORY_DATA, row_attrs={"class": lambda table, record: "row-id-{}".format(record["i"])}
+            MEMORY_DATA, row_attrs={"class": lambda table, record: f"row-id-{record['i']}"}
         )
 
         self.assertEqual(table.rows[0].attrs, {"class": "row-id-2 even"})
@@ -694,7 +698,7 @@ class RowAttrsTest(SimpleTestCase):
             beta = tables.Column()
 
             class Meta:
-                row_attrs = {"class": lambda record: "row-id-{}".format(record["i"])}
+                row_attrs = {"class": lambda record: f"row-id-{record['i']}"}
 
         table = Table(MEMORY_DATA)
         self.assertEqual(table.rows[0].attrs, {"class": "row-id-2 even"})

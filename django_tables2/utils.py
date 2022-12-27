@@ -72,9 +72,9 @@ class OrderBy(str):
         instance = super().__new__(cls, value)
         if Accessor.LEGACY_SEPARATOR in value:
             message = (
-                "Use '__' to separate path components, not '.' in accessor '{}'"
+                f"Use '__' to separate path components, not '.' in accessor '{value}'"
                 " (fallback will be removed in django_tables2 version 3)."
-            ).format(value)
+            )
 
             warnings.warn(message, DeprecationWarning, stacklevel=3)
 
@@ -309,9 +309,9 @@ class Accessor(str):
             instance.SEPARATOR = cls.LEGACY_SEPARATOR
 
             message = (
-                "Use '__' to separate path components, not '.' in accessor '{}'"
+                f"Use '__' to separate path components, not '.' in accessor '{value}'"
                 " (fallback will be removed in django_tables2 version 3)."
-            ).format(value)
+            )
 
             warnings.warn(message, DeprecationWarning, stacklevel=3)
 
@@ -392,7 +392,7 @@ class Accessor(str):
                             )
                 if callable(current):
                     if safe and getattr(current, "alters_data", False):
-                        raise ValueError(self.ALTERS_DATA_ERROR_FMT.format(method=repr(current)))
+                        raise ValueError(self.ALTERS_DATA_ERROR_FMT.format(method=current.__name__))
                     if not getattr(current, "do_not_call_in_templates", False):
                         current = current()
                 # Important that we break in None case, or a relationship

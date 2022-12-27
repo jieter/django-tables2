@@ -34,7 +34,7 @@ class ManyToManyColumn(Column):
 
             @property
             def name(self):
-                return '{} {}'.format(self.first_name, self.last_name)
+                return f"{self.first_name} {self.last_name}"
 
         # tables.py
         class PersonTable(tables.Table):

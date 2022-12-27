@@ -11,25 +11,29 @@ from .utils import build_request
 
 class TableDataFactoryTest(TestCase):
     def test_invalid_data_None(self):
-        with self.assertRaises(ValueError):
+        message = "data must be QuerySet-like (have count() and order_by()) or support list(data) -- NoneType has neither"
+        with self.assertRaisesMessage(ValueError, message):
             TableData.from_data(None)
 
     def test_invalid_data_int(self):
-        with self.assertRaises(ValueError):
+        message = "data must be QuerySet-like (have count() and order_by()) or support list(data) -- int has neither"
+        with self.assertRaisesMessage(ValueError, message):
             TableData.from_data(1)
 
     def test_invalid_data_classes(self):
         class Klass:
             pass
 
-        with self.assertRaises(ValueError):
+        message = "data must be QuerySet-like (have count() and order_by()) or support list(data) -- Klass has neither"
+        with self.assertRaisesMessage(ValueError, message):
             TableData.from_data(Klass())
 
         class Bad:
             def __len__(self):
                 pass
 
-        with self.assertRaises(ValueError):
+        message = "data must be QuerySet-like (have count() and order_by()) or support list(data) -- Bad has neither"
+        with self.assertRaisesMessage(ValueError, message):
             TableData.from_data(Bad())
 
     def test_valid_QuerySet(self):
@@ -108,8 +112,8 @@ class TableListsDataTest(TestCase):
 class TableQuerysetDataTest(TestCase):
     def test_custom_TableData(self):
         """If TableQuerysetData._length is set, no count() query will be performed"""
-        for i in range(20):
-            Person.objects.create(first_name="first {}".format(i))
+        for i in range(11):
+            Person.objects.create(first_name=f"first {i}")
 
         data = TableQuerysetData(Person.objects.all())
         data._length = 10
@@ -127,8 +131,8 @@ class TableQuerysetDataTest(TestCase):
 
     def test_queryset_union(self):
         for i in range(10):
-            Person.objects.create(first_name="first {}".format(i), last_name="foo")
-            Person.objects.create(first_name="first {}".format(i * 2), last_name="bar")
+            Person.objects.create(first_name=f"first {i}", last_name="foo")
+            Person.objects.create(first_name=f"first {i * 2}", last_name="bar")
 
         class MyTable(Table):
             class Meta:

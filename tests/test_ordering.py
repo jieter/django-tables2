@@ -151,7 +151,7 @@ class OrderingTest(TestCase):
 
         # add 'name' key for each person.
         for person in PEOPLE:
-            person["name"] = "{p[first_name]} {p[last_name]}".format(p=person)
+            person["name"] = f"{person['first_name']} {person['last_name']}"
         self.assertEqual(brad["name"], "Bradley Ayers")
 
         table = PersonTable(PEOPLE, order_by="name")

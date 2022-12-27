@@ -95,7 +95,7 @@ API Reference
                     name = tables.Column()
 
                     class Meta:
-                        attrs = {"id": lambda: "table_{}".format(next(counter))}
+                        attrs = {"id": lambda: f"table_{next(counter)}"}
 
             .. note::
                 This functionality is also available via the ``attrs`` keyword

@@ -19,7 +19,7 @@ class RenderTableTagTest(TestCase):
     def test_invalid_type(self):
         template = Template("{% load django_tables2 %}{% render_table table %}")
 
-        with self.assertRaises(ValueError):
+        with self.assertRaisesMessage(ValueError, "Expected table or queryset, not dict"):
             template.render(Context({"request": build_request(), "table": dict()}))
 
     def test_basic(self):
@@ -98,17 +98,14 @@ class RenderTableTagTest(TestCase):
 
     @override_settings(DEBUG=True)
     def test_missing_variable(self):
-        # variable that doesn't exist (issue #8)
+        """Variable that doesn't exist (issue #8)"""
         template = Template("{% load django_tables2 %}{% render_table this_doesnt_exist %}")
-        with self.assertRaises(ValueError):
+        with self.assertRaisesMessage(ValueError, "Expected table or queryset, not str"):
             template.render(Context())
 
-    @override_settings(DEBUG=False)
-    def test_missing_variable_debug_False(self):
-        template = Template("{% load django_tables2 %}{% render_table this_doesnt_exist %}")
-        # Should still be noisy with debug off
-        with self.assertRaises(ValueError):
-            template.render(Context())
+        with self.subTest("Also works with DEBUG=False"), override_settings(DEBUG=False):
+            with self.assertRaisesMessage(ValueError, "Expected table or queryset, not str"):
+                template.render(Context())
 
     def test_should_support_template_argument(self):
         table = CountryTable(MEMORY_DATA, order_by=("name", "population"))
@@ -170,7 +167,8 @@ class QuerystringTagTest(SimpleTestCase):
 
     def test_requires_request(self):
         template = Template('{% load django_tables2 %}{% querystring "name"="Brad" %}')
-        with self.assertRaises(ImproperlyConfigured):
+        message = "Tag {% querystring %} requires django.template.context_processors.request to be in the template configuration"
+        with self.assertRaisesMessage(ImproperlyConfigured, message):
             template.render(Context())
 
     def test_supports_without(self):
@@ -193,17 +191,15 @@ class QuerystringTagTest(SimpleTestCase):
         self.assertEqual(set(qs.keys()), set(["c"]))
 
     def test_querystring_syntax_error(self):
-        with self.assertRaises(TemplateSyntaxError):
+        with self.assertRaisesMessage(TemplateSyntaxError, "Malformed arguments to 'querystring'"):
             Template("{% load django_tables2 %}{% querystring foo= %}")
 
     def test_querystring_as_var(self):
         def assert_querystring_asvar(template_code, expected):
             template = Template(
                 "{% load django_tables2 %}"
-                + "<b>{% querystring "
-                + template_code
-                + " %}</b>"
-                + "<strong>{{ varname }}</strong>"
+                "<b>{% querystring " + template_code + " %}</b>"
+                "<strong>{{ varname }}</strong>"
             )
 
             # Should be something like: <root>?name=Brad&amp;a=b&amp;c=5&amp;age=21</root>

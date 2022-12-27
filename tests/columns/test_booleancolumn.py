@@ -89,7 +89,7 @@ class BooleanColumnTest(TestCase):
             col_linkify = tables.BooleanColumn(
                 accessor="col",
                 attrs={"span": {"key": "value"}},
-                linkify=lambda value: "/bool/{}".format(value),
+                linkify=lambda value: f"/bool/{value}",
             )
 
         table = Table([{"col": True}, {"col": False}])

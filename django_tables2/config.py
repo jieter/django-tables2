@@ -47,7 +47,7 @@ class RequestConfig:
                 kwargs = {}
             # extract some options from the request
             for arg in ("page", "per_page"):
-                name = getattr(table, "prefixed_%s_field" % arg)
+                name = getattr(table, f"prefixed_{arg}_field")
                 try:
                     kwargs[arg] = int(self.request.GET[name])
                 except (ValueError, KeyError):

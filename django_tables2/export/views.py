@@ -36,7 +36,7 @@ class ExportMixin:
     export_formats = (TableExport.CSV,)
 
     def get_export_filename(self, export_format):
-        return "{}.{}".format(self.export_name, export_format)
+        return f"{self.export_name}.{export_format}"
 
     def get_dataset_kwargs(self):
         return self.dataset_kwargs

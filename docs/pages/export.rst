@@ -13,7 +13,7 @@ formats, you must install the `tablib <https://tablib.readthedocs.io>`_ package:
 .. note::
    For all supported formats (xls, xlsx, etc.), you must install additional dependencies:
    `Installing tablib: <https://tablib.readthedocs.io/en/stable/install/#installing-tablib`_
-   
+
 
 Adding ability to export the table data to a class based views looks like this::
 
@@ -57,7 +57,7 @@ If you must use a function view, you might use something like this::
         export_format = request.GET.get("_export", None)
         if TableExport.is_valid_format(export_format):
             exporter = TableExport(export_format, table)
-            return exporter.response("table.{}".format(export_format))
+            return exporter.response(f"table.{export_format})
 
         return render(request, "table.html", {
             "table": table
@@ -141,9 +141,9 @@ Generating export URLs
 .. note::
 
     To use ``export_url`` you must first load it in your template::
-        
+
         {% load export_url from django_tables2 %}
-    
+
 You can use the ``export_url`` template tag included with django_tables2
 to render a link to export the data as ``csv``::
 

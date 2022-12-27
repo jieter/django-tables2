@@ -54,12 +54,10 @@ class ModelsTest(TestCase):
             PersonProxy,
             ContentType.objects.get(model="person").model_class(),
         ]
-        invalid = [object, {}, dict]
-
         for Model in valid:
             test(Model)
 
-        for Model in invalid:
+        for Model in [object, {}, dict]:
             with self.assertRaises(TypeError):
                 test(Model)
 
@@ -245,10 +243,8 @@ class ModelsTest(TestCase):
         table = PersonTable(Person.objects.all())
 
         html = table.as_html(build_request())
-        self.assertIn('<a href="/people/{}/">{}</a>'.format(person.pk, person.name), html)
-        self.assertIn(
-            '<a href="/people/{}/"><span class="true">✔</span></a>'.format(person.pk), html
-        )
+        self.assertIn(f'<a href="/people/{person.pk}/">{person.name}</a>', html)
+        self.assertIn(f'<a href="/people/{person.pk}/"><span class="true">✔</span></a>', html)
 
     def test_meta_linkify_dict(self):
         person = Person.objects.first()
@@ -267,21 +263,18 @@ class ModelsTest(TestCase):
         table = PersonTable(Person.objects.all())
 
         html = table.as_html(build_request())
-        self.assertIn('<a href="{}">{}</a>'.format(person.get_absolute_url(), person.name), html)
-        self.assertIn(
-            '<a href="{}">{}</a>'.format(occupation.get_absolute_url(), occupation.name), html
-        )
+        self.assertIn(f'<a href="{person.get_absolute_url()}">{person.name}</a>', html)
+        self.assertIn(f'<a href="{occupation.get_absolute_url()}">{occupation.name}</a>', html)
 
         self.assertIn(
-            '<a href="{}"><span class="true">✔</span></a>'.format(occupation.get_absolute_url()),
-            html,
+            f'<a href="{occupation.get_absolute_url()}"><span class="true">✔</span></a>', html
         )
 
 
 class ColumnNameTest(TestCase):
     def setUp(self):
         for i in range(10):
-            Person.objects.create(first_name="Bob %d" % i, last_name="Builder")
+            Person.objects.create(first_name=f"Bob {i}", last_name="Builder")
 
     def test_column_verbose_name(self):
         """
@@ -504,7 +497,7 @@ class ModelSanityTest(TestCase):
     def setUpClass(cls):
         super().setUpClass()
         for i in range(10):
-            Person.objects.create(first_name="Bob %d" % i, last_name="Builder")
+            Person.objects.create(first_name=f"Bob {i}", last_name="Builder")
 
     def test_column_with_delete_accessor_shouldnt_delete_records(self):
         class PersonTable(tables.Table):
@@ -527,7 +520,7 @@ class ModelSanityTest(TestCase):
 
         with mock.patch("tests.app.models.Person.__str__", counting__str__):
             for i in range(1, 4):
-                Person.objects.create(first_name="Bob %d" % i, last_name="Builder")
+                Person.objects.create(first_name=f"Bob {i}", last_name="Builder")
 
         class PersonTable(tables.Table):
             edit = tables.Column()
