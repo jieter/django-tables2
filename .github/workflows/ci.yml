@@ -55,6 +55,8 @@ jobs:
           key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-
+      - run: apt-get install libxml2 libxslt
+        if: matrix.python-versoin == '3.11'
       - run: python -m pip install Django==${{ matrix.django-version }}
         if: matrix.django-version != 'master'
       - run: python -m pip install https://github.com/django/django/archive/master.tar.gz
