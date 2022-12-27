@@ -114,25 +114,24 @@ class CoreTest(SimpleTestCase):
         self.assertTrue(table.tweaked)
 
     def test_Meta_attribute_incorrect_types(self):
-        message = "Table.exclude = 'foo' (type str), but type must be one of (tuple, list, set)"
-
+        message = "Table1.exclude = 'foo' (type str), but type must be one of (tuple, list, set)"
         with self.assertRaisesMessage(TypeError, message):
 
-            class Table(tables.Table):
+            class Table1(tables.Table):
                 class Meta:
                     exclude = "foo"
 
-        message = "Table.sequence = '...' (type str), but type must be one of (tuple, list, set)"
+        message = "Table2.sequence = '...' (type str), but type must be one of (tuple, list, set)"
         with self.assertRaisesMessage(TypeError, message):
 
-            class Table(tables.Table):
+            class Table2(tables.Table):
                 class Meta:
                     sequence = "..."
 
-        message = "Table.model = {} (type dict), but type must be one of (ModelBase)"
+        message = "Table3.model = {} (type dict), but type must be one of (ModelBase)"
         with self.assertRaisesMessage(TypeError, message):
 
-            class Table(tables.Table):
+            class Table3(tables.Table):
                 class Meta:
                     model = {}
 

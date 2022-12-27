@@ -167,7 +167,7 @@ class QuerystringTagTest(SimpleTestCase):
 
     def test_requires_request(self):
         template = Template('{% load django_tables2 %}{% querystring "name"="Brad" %}')
-        message = "Tag {% querystring %} requires django.template.context_processors.request to be in the template configuration"
+        message = "Tag {% querystring %} requires django.template.context_processors.request to "
         with self.assertRaisesMessage(ImproperlyConfigured, message):
             template.render(Context())
 

@@ -10,31 +10,21 @@ from .utils import build_request
 
 
 class TableDataFactoryTest(TestCase):
-    def test_invalid_data_None(self):
-        message = "data must be QuerySet-like (have count() and order_by()) or support list(data) -- NoneType has neither"
-        with self.assertRaisesMessage(ValueError, message):
-            TableData.from_data(None)
+    def test_invalid_data(self):
+        message = "data must be QuerySet-like (have count() and order_by()) or support list(data)"
 
-    def test_invalid_data_int(self):
-        message = "data must be QuerySet-like (have count() and order_by()) or support list(data) -- int has neither"
-        with self.assertRaisesMessage(ValueError, message):
-            TableData.from_data(1)
-
-    def test_invalid_data_classes(self):
         class Klass:
             pass
-
-        message = "data must be QuerySet-like (have count() and order_by()) or support list(data) -- Klass has neither"
-        with self.assertRaisesMessage(ValueError, message):
-            TableData.from_data(Klass())
 
         class Bad:
             def __len__(self):
                 pass
 
-        message = "data must be QuerySet-like (have count() and order_by()) or support list(data) -- Bad has neither"
-        with self.assertRaisesMessage(ValueError, message):
-            TableData.from_data(Bad())
+        invalid = [None, 1, Klass(), Bad()]
+
+        for data in invalid:
+            with self.subTest(data=data), self.assertRaisesMessage(ValueError, message):
+                TableData.from_data(data)
 
     def test_valid_QuerySet(self):
         data = TableData.from_data(Person.objects.all())
