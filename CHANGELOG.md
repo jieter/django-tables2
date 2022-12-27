@@ -1,5 +1,11 @@
 # Change log
 
+# 2.5.0 (2022-12-27)
+- Dropped support for python 3.6, added support for python 3.11
+- Add django_tables2/bootstrap4-responsive.html ([#874](https://github.com/jieter/django-tables2/pull/874)) by [@botlabsDev](https://github.com/botlabsDev)
+- Pass record/value to `LinkColumn`'s attrs callables too ([#852](https://github.com/jieter/django-tables2/pull/852)) by [@wsldankers](https://github.com/wsldankers)
+ - Add template `bootstrap5.html` to support bootstrap 5 ([#880](https://github.com/jieter/django-tables2/pull/880), fixes [#796](https://github.com/jieter/django-tables2/issues/796)
+
 # 2.4.1 (2021-10-04)
 - Add Persian (Farsi) locale ([#806](https://github.com/jieter/django-tables2/pull/806)) by [@Alirezaja1384](https://github.com/jieter/django-tables2/commits?author=Alirezaja1384)
 - Improved error message if openpyxl is not installed ([#816](https://github.com/jieter/django-tables2/pull/816))
