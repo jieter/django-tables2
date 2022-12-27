@@ -1,6 +1,5 @@
 from typing import Optional
 import django_filters as filters
-from django.db.models import QuerySet
 from django.core.exceptions import ImproperlyConfigured
 from django.test import TestCase
 from django.views.generic import TemplateView
