@@ -56,7 +56,7 @@ class CheckBoxColumn(Column):
         general = self.attrs.get("input")
         specific = self.attrs.get("th__input")
         attrs = AttributeDict(default, **(specific or general or {}))
-        return mark_safe("<input %s/>" % attrs.as_html())
+        return mark_safe(f"<input {attrs.as_html()} />")
 
     def render(self, value, bound_column, record):
         default = {"type": "checkbox", "name": bound_column.name, "value": value}
@@ -68,7 +68,7 @@ class CheckBoxColumn(Column):
 
         attrs = dict(default, **(specific or general or {}))
         attrs = computed_values(attrs, kwargs={"record": record, "value": value})
-        return mark_safe("<input %s/>" % AttributeDict(attrs).as_html())
+        return mark_safe(f"<input {AttributeDict(attrs).as_html()} />")
 
     def is_checked(self, value, record):
         """

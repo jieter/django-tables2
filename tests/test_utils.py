@@ -1,6 +1,5 @@
-from unittest import TestCase
-
 from django.db import models
+from django.test import TestCase
 
 from django_tables2.utils import (
     Accessor,
@@ -20,7 +19,7 @@ class OrderByTupleTest(TestCase):
         obt = OrderByTuple(("a", "b", "c"))
         assert obt == (OrderBy("a"), OrderBy("b"), OrderBy("c"))
 
-    def test_intexing(self):
+    def test_indexing(self):
         obt = OrderByTuple(("a", "b", "c"))
         assert obt[0] == OrderBy("a")
         assert obt["b"] == OrderBy("b")
@@ -114,7 +113,7 @@ class AccessorTest(TestCase):
             delete.alters_data = True
 
         foo = Foo()
-        with self.assertRaises(ValueError):
+        with self.assertRaisesMessage(ValueError, "Refusing to call delete() because"):
             Accessor("delete").resolve(foo)
         self.assertFalse(foo.deleted)
 
@@ -180,9 +179,7 @@ class ComputedValuesTest(TestCase):
         self.assertEqual(x, {"foo": {"bar": "baz"}})
 
     def test_with_argument(self):
-        x = computed_values(
-            {"foo": lambda y: {"bar": lambda y: "baz-{}".format(y)}}, kwargs=dict(y=2)
-        )
+        x = computed_values({"foo": lambda y: {"bar": lambda y: f"baz-{y}"}}, kwargs=dict(y=2))
         self.assertEqual(x, {"foo": {"bar": "baz-2"}})
 
     def test_returns_None_if_not_enough_kwargs(self):
@@ -202,7 +199,7 @@ class SequenceTest(TestCase):
     def test_multiple_ellipsis(self):
         sequence = Sequence(["foo", "...", "bar", "..."])
 
-        with self.assertRaises(ValueError):
+        with self.assertRaisesMessage(ValueError, "'...' must be used at most once in a sequence."):
             sequence.expand(["foo"])
 
 

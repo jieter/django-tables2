@@ -70,7 +70,7 @@ This `attrs` can also be defined when subclassing a column, to allow better reus
             }
         }
         def render(self, record):
-            return "{} {}".format(record.first_name, record.last_name)
+            return f"{record.first_name} {record.last_name}""
 
     class Table(tables.Table):
         person = PersonColumn()

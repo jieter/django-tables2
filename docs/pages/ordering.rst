@@ -12,7 +12,7 @@ exception::
 
         @property
         def name(self):
-            return "{} {}".format(self.first_name, self.family_name)
+            return f"{self.first_name} {self.family_name}"
 
     # tables.py
     class PersonTable(tables.Table):

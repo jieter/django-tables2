@@ -416,7 +416,7 @@ class ColumnInheritanceTest(TestCase):
             population = tables.Column(verbose_name="Population")
 
             def get_column_class_names(self, classes_set, bound_column):
-                classes_set.add("prefix-%s" % bound_column.name)
+                classes_set.add(f"prefix-{bound_column.name}")
                 return classes_set
 
         TEST_DATA = [
@@ -441,7 +441,7 @@ class ColumnAttrsTest(TestCase):
         class Table(tables.Table):
             person = tables.Column(attrs={"cell": {"data-length": lambda table: len(table.data)}})
             first_name = tables.Column(
-                attrs={"td": {"class": lambda table: "status-{}".format(len(table.data))}}
+                attrs={"td": {"class": lambda table: f"status-{len(table.data)}"}}
             )
 
         table = Table(Person.objects.all())
@@ -480,7 +480,7 @@ class ColumnAttrsTest(TestCase):
             }
 
             def render(self, record):
-                return "{} {}".format(record.first_name, record.last_name)
+                return f"{record.first_name} {record.last_name}"
 
         class Table(tables.Table):
             person = PersonColumn(empty_values=())
@@ -509,7 +509,7 @@ class ColumnAttrsTest(TestCase):
                 attrs={
                     "cell": {
                         "data-first-name": data_first_name,
-                        "class": lambda value: "status-{}".format(value),
+                        "class": lambda value: f"status-{value}",
                     }
                 }
             )

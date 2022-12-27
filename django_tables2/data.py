@@ -64,7 +64,7 @@ class TableData:
 
         raise ValueError(
             "data must be QuerySet-like (have count() and order_by()) or support"
-            " list(data) -- {} has neither".format(type(data).__name__)
+            f" list(data) -- {type(data).__name__} has neither"
         )
 
 
@@ -161,9 +161,7 @@ class TableQuerysetData(TableData):
         super().set_table(table)
         if self.model and getattr(table._meta, "model", None) and self.model != table._meta.model:
             warnings.warn(
-                "Table data is of type {} but {} is specified in Table.Meta.model".format(
-                    self.model, table._meta.model
-                )
+                f"Table data is of type {self.model} but {table._meta.model} is specified in Table.Meta.model"
             )
 
     @property

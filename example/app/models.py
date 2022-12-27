@@ -35,7 +35,7 @@ class Country(models.Model):
 
     @property
     def summary(self):
-        return "%s (pop. %s)" % (self.name, self.population)
+        return f"{self.name} (pop. {self.population})"
 
 
 class Person(models.Model):

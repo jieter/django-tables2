@@ -92,9 +92,8 @@ class SingleTableMixin(TableMixinBase):
         if self.model:
             return tables.table_factory(self.model)
 
-        raise ImproperlyConfigured(
-            "You must either specify {0}.table_class or {0}.model".format(type(self).__name__)
-        )
+        name = type(self).__name__
+        raise ImproperlyConfigured(f"You must either specify {name}.table_class or {name}.model")
 
     def get_table(self, **kwargs):
         """
@@ -118,10 +117,8 @@ class SingleTableMixin(TableMixinBase):
         elif hasattr(self, "get_queryset"):
             return self.get_queryset()
 
-        klass = type(self).__name__
-        raise ImproperlyConfigured(
-            "Table data was not specified. Define {}.table_data".format(klass)
-        )
+        view_name = type(self).__name__
+        raise ImproperlyConfigured(f"Table data was not specified. Define {view_name}.table_data")
 
     def get_table_kwargs(self):
         """
@@ -194,16 +191,16 @@ class MultiTableMixin(TableMixinBase):
         Return an array of table instances containing data.
         """
         if self.tables is None:
-            klass = type(self).__name__
-            raise ImproperlyConfigured("No tables were specified. Define {}.tables".format(klass))
+            view_name = type(self).__name__
+            raise ImproperlyConfigured(f"No tables were specified. Define {view_name}.tables")
         data = self.get_tables_data()
 
         if data is None:
             return self.tables
 
         if len(data) != len(self.tables):
-            klass = type(self).__name__
-            raise ImproperlyConfigured("len({}.tables_data) != len({}.tables)".format(klass, klass))
+            view_name = type(self).__name__
+            raise ImproperlyConfigured(f"len({view_name}.tables_data) != len({view_name}.tables)")
         return list(Table(data[i]) for i, Table in enumerate(self.tables))
 
     def get_tables_data(self):

@@ -40,7 +40,7 @@ class LinkColumnTest(TestCase):
             first_name = tables.LinkColumn("person", text="foo::bar", args=[A("pk")])
             last_name = tables.LinkColumn(
                 "person",
-                text=lambda row: "%s %s" % (row["last_name"], row["first_name"]),
+                text=lambda row: f'{row["last_name"]} {row["first_name"]}',
                 args=[A("pk")],
             )
 
@@ -59,8 +59,8 @@ class LinkColumnTest(TestCase):
 
         html = CustomLinkTable(dataset).as_html(build_request())
 
-        expected = '<td ><a href="{}">edit</a></td>'.format(reverse("person", args=(1,)))
-        self.assertIn(expected, html)
+        url = reverse("person", args=(1,))
+        self.assertIn(f'<td ><a href="{url}">edit</a></td>', html)
 
     def test_null_foreign_key(self):
         class PersonTable(tables.Table):
@@ -89,10 +89,8 @@ class LinkColumnTest(TestCase):
 
         table = Table(Person.objects.all())
 
-        expected = '<a href="{}">delete</a>'.format(
-            reverse("person_delete", kwargs={"pk": willem.pk})
-        )
-        self.assertEqual(table.rows[0].get_cell("delete_link"), expected)
+        url = reverse("person_delete", kwargs={"pk": willem.pk})
+        self.assertEqual(table.rows[0].get_cell("delete_link"), f'<a href="{url}">delete</a>')
 
     def test_kwargs(self):
         class PersonTable(tables.Table):
@@ -156,7 +154,8 @@ class LinkColumnTest(TestCase):
         table = Table(Person.objects.all())
 
         a_tag = table.rows[0].get_cell("first_name")
-        self.assertIn('href="{}"'.format(reverse("person", args=(person.pk,))), a_tag)
+        url = reverse("person", args=(person.pk,))
+        self.assertIn(f'href="{url}"', a_tag)
         self.assertIn('style="color: red;"', a_tag)
         self.assertIn(person.first_name, a_tag)
 
@@ -180,7 +179,7 @@ class LinkColumnTest(TestCase):
         person = Person.objects.create(first_name="Jan Pieter", last_name="Waagmeester")
         table = PersonTable(Person.objects.all())
 
-        expected = '<a href="{}">{}</a>'.format(person.get_absolute_url(), person.last_name)
+        expected = f'<a href="{person.get_absolute_url()}">{person.last_name}</a>'
         self.assertEqual(table.rows[0].cells["last_name"], expected)
 
         # Explicit LinkColumn and regular column using linkify should have equal output
@@ -195,9 +194,10 @@ class LinkColumnTest(TestCase):
             first_name = tables.Column()
             last_name = tables.LinkColumn()
 
-        table = Table([dict(first_name="Jan Pieter", last_name="Waagmeester")])
+        table = Table([{"first_name": "Jan Pieter", "last_name": "Waagmeester"}])
 
-        with self.assertRaises(TypeError):
+        message = "for linkify=True, 'Waagmeester' must have a method get_absolute_url"
+        with self.assertRaisesMessage(TypeError, message):
             table.as_html(build_request())
 
     def test_RelatedLinkColumn(self):
@@ -210,10 +210,8 @@ class LinkColumnTest(TestCase):
 
         table = Table(Person.objects.all())
 
-        self.assertEqual(
-            table.rows[0].cells["occupation"],
-            '<a href="{}">Carpenter</a>'.format(reverse("occupation", args=[carpenter.pk])),
-        )
+        url = reverse("occupation", args=[carpenter.pk])
+        self.assertEqual(table.rows[0].cells["occupation"], f'<a href="{url}">Carpenter</a>')
 
     def test_RelatedLinkColumn_without_model(self):
         class Table(tables.Table):
@@ -221,8 +219,8 @@ class LinkColumnTest(TestCase):
 
         table = Table([{"occupation": "Fabricator"}])
 
-        msg = "for linkify=True, 'Fabricator' must have a method get_absolute_url"
-        with self.assertRaisesMessage(TypeError, msg):
+        message = "for linkify=True, 'Fabricator' must have a method get_absolute_url"
+        with self.assertRaisesMessage(TypeError, message):
             table.rows[0].cells["occupation"]
 
     def test_value_returns_a_raw_value_without_html(self):

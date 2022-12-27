@@ -68,10 +68,10 @@ This example shows how to render the row number in the first row::
     ...         self.counter = itertools.count()
     ...
     ...     def render_row_number(self):
-    ...         return "Row %d" % next(self.counter)
+    ...         return f"Row {next(self.counter)}"
     ...
     ...     def render_id(self, value):
-    ...         return "<%s>" % value
+    ...         return f"<{value}>"
     ...
     >>> table = SimpleTable([{"age": 31, "id": 10}, {"age": 34, "id": 11}])
     >>> print(", ".join(map(str, table.rows[0])))

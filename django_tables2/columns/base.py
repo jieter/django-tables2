@@ -25,9 +25,7 @@ class Library:
 
     def register(self, column):
         if not hasattr(column, "from_field"):
-            raise ImproperlyConfigured(
-                "{} is not a subclass of Column".format(column.__class__.__name__)
-            )
+            raise ImproperlyConfigured(f"{column.__class__.__name__} is not a subclass of Column")
         self.columns.append(column)
         return column
 
@@ -117,9 +115,7 @@ class LinkTransform:
                 context = record
             else:
                 raise TypeError(
-                    "for linkify=True, '{}' must have a method get_absolute_url".format(
-                        str(context)
-                    )
+                    f"for linkify=True, '{context}' must have a method get_absolute_url"
                 )
         return context.get_absolute_url()
 
@@ -282,9 +278,7 @@ class Column:
         initial_sort_descending=False,
     ):
         if not (accessor is None or isinstance(accessor, str) or callable(accessor)):
-            raise TypeError(
-                "accessor must be a string or callable, not %s" % type(accessor).__name__
-            )
+            raise TypeError(f"accessor must be a string or callable, not {type(accessor).__name__}")
         if callable(accessor) and default is not None:
             raise TypeError("accessor must be string when default is used, not callable")
         self.accessor = Accessor(accessor) if accessor else None
@@ -852,9 +846,7 @@ class BoundColumns:
                 if column.name == index:
                     return column
             raise KeyError(
-                "Column with name '{}' does not exist; choices are: {}".format(index, self.names())
+                f"Column with name '{index}' does not exist; choices are: {self.names()}"
             )
         else:
-            raise TypeError(
-                "Column indices must be integers or str, not {}".format(type(index).__name__)
-            )
+            raise TypeError(f"Column indices must be integers or str, not {type(index).__name__}")
