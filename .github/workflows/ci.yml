@@ -55,7 +55,7 @@ jobs:
           key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-
-      - run: apt-get install libxml2 libxslt
+      - run: sudo apt-get -y install libxml2 libxslt
         if: matrix.python-version == '3.11'
       - run: python -m pip install Django==${{ matrix.django-version }}
         if: matrix.django-version != 'master'
