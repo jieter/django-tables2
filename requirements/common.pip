@@ -1,9 +1,7 @@
 # xml parsing
-lxml==4.8.0
-pytz>0
-# pinning to 3.0.0, which is supported by python 3.6 and does not contain this bug:
-# https://github.com/jazzband/tablib/pull/490
-tablib[xls,yaml]==3.0.0
-openpyxl==3.0.9
-psycopg2-binary==2.9.1
-django-filter==2.3.0
+lxml==4.9.2
+pytz==2022.7
+tablib[xls,yaml]==3.3.0
+openpyxl==3.0.10
+psycopg2-binary==2.9.5
+django-filter==22.1
