@@ -1,3 +1,4 @@
+from math import ceil
 from typing import Optional
 import django_filters as filters
 from django.core.exceptions import ImproperlyConfigured
@@ -180,7 +181,7 @@ class SingleTableViewTest(TestCase):
         class View(tables.SingleTableView):
             table_class = tables.Table
             queryset = Region.objects.all()
-            # Should ignore this one. Because get_paginated_by is overridden
+            # This paginate_by should be ignored because get_paginated_by is overridden
             paginate_by = 4
 
             def get_paginate_by(self, queryset):
@@ -191,8 +192,6 @@ class SingleTableViewTest(TestCase):
         self.assertEqual(response.context_data["table"].paginator.per_page, 10)
 
     def test_pass_queryset_to_get_paginate_by(self):
-        import math
-
         # defined in paginator_class
         class View(tables.SingleTableView):
             table_class = tables.Table
@@ -200,7 +199,7 @@ class SingleTableViewTest(TestCase):
 
             def get_paginate_by(self, table_data):
                 # Should split table items into 2 pages
-                return math.ceil(len(table_data) / 2)
+                return ceil(len(table_data) / 2)
 
         response = View.as_view()(build_request())
         self.assertEqual(response.context_data["table"].paginator.num_pages, 2)
@@ -474,8 +473,6 @@ class MultiTableMixinTest(TestCase):
         self.assertEqual(tableB.page.number, 3)
 
     def test_pass_table_data_to_get_paginate_by(self):
-        import math
-
         class View(tables.MultiTableMixin, TemplateView):
             template_name = "multiple.html"
             tables = (TableB, TableB)
@@ -483,7 +480,7 @@ class MultiTableMixinTest(TestCase):
 
             def get_paginate_by(self, table_data) -> Optional[int]:
                 # Split data into 3 pages
-                return math.ceil(len(table_data) / 3)
+                return ceil(len(table_data) / 3)
 
         response = View.as_view()(build_request())
 
