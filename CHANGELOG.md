@@ -1,5 +1,8 @@
 # Change log
 
+# 2.5.1 (2023-01-07)
+ - `TableMixinBase`: implement `get_paginate_by` ([#811](https://github.com/jieter/django-tables2/pull/811)) by [@Alirezaja1384](https://github.com/Alirezaja1384)
+
 # 2.5.0 (2022-12-27)
 - Dropped support for python 3.6, added support for python 3.11
 - Add django_tables2/bootstrap4-responsive.html ([#874](https://github.com/jieter/django-tables2/pull/874)) by [@botlabsDev](https://github.com/botlabsDev)
