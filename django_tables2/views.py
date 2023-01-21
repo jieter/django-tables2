@@ -204,22 +204,31 @@ class MultiTableMixin(TableMixinBase):
     # override context table name to make sense in a multiple table context
     context_table_name = "tables"
 
-    def get_tables(self):
+    def get_tables_classes(self):
+        """
+        Return the list of classes to use for the tables.
+        """
+        if self.tables is None:
+            raise ImproperlyConfigured(
+                f"You must either specify {0}.tables or override {type(self).__name__}.get_tables_classes()"
+            )
+
+        return self.tables
+        
+    def get_tables(self, **kwargs):
         """
         Return an array of table instances containing data.
         """
-        if self.tables is None:
-            view_name = type(self).__name__
-            raise ImproperlyConfigured(f"No tables were specified. Define {view_name}.tables")
+        tables = self.get_tables_classes()
         data = self.get_tables_data()
 
         if data is None:
-            return self.tables
+            return tables
 
-        if len(data) != len(self.tables):
-            view_name = type(self).__name__
-            raise ImproperlyConfigured(f"len({view_name}.tables_data) != len({view_name}.tables)")
-        return list(Table(data[i]) for i, Table in enumerate(self.tables))
+        if len(data) != len(tables):
+            klass = type(self).__name__
+            raise ImproperlyConfigured(f"len({klass}.tables_data) != len({klass}.tables)")
+        return list(Table(data[i], **kwargs) for i, Table in enumerate(tables))
 
     def get_tables_data(self):
         """
