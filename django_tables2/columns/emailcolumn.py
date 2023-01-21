@@ -32,7 +32,7 @@ class EmailColumn(BaseLinkColumn):
     """
 
     def get_url(self, value):
-        return "mailto:{}".format(value)
+        return f"mailto:{value}"
 
     @classmethod
     def from_field(cls, field, **kwargs):

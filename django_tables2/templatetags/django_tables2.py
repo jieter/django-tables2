@@ -112,7 +112,7 @@ def querystring(parser, token):
     # ``bits`` should now be empty of a=b pairs, it should either be empty, or
     # have ``without`` arguments.
     if bits and bits.pop(0) != "without":
-        raise TemplateSyntaxError("Malformed arguments to '%s'" % tag)
+        raise TemplateSyntaxError(f"Malformed arguments to '{tag}'")
     removals = [parser.compile_filter(bit) for bit in bits]
     return QuerystringNode(updates, removals, asvar=asvar)
 
@@ -141,8 +141,7 @@ class RenderTableNode(Node):
 
             table = tables.table_factory(model=queryset.model)(queryset, request=request)
         else:
-            klass = type(table).__name__
-            raise ValueError("Expected table or queryset, not {}".format(klass))
+            raise ValueError(f"Expected table or queryset, not {type(table).__name__}")
 
         if self.template_name:
             template_name = self.template_name.resolve(context)

@@ -175,12 +175,11 @@ class TableOptions:
             for key in keys:
                 value = getattr(options, key, None)
                 if value is not None and not isinstance(value, types):
-                    expression = "{}.{} = {}".format(class_name, key, value.__repr__())
+                    expression = f"{class_name}.{key} = {value.__repr__()}"
 
+                    allowed = ", ".join([t.__name__ for t in types])
                     raise TypeError(
-                        "{} (type {}), but type must be one of ({})".format(
-                            expression, type(value).__name__, ", ".join([t.__name__ for t in types])
-                        )
+                        f"{expression} (type {type(value).__name__}), but type must be one of ({allowed})"
                     )
 
 
@@ -280,7 +279,7 @@ class Table(metaclass=DeclarativeColumnsMetaclass):
         # note that although data is a keyword argument, it used to be positional
         # so it is assumed to be the first argument to this method.
         if data is None:
-            raise TypeError("Argument data to {} is required".format(type(self).__name__))
+            raise TypeError(f"Argument data to {type(self).__name__} is required")
 
         self.exclude = exclude or self._meta.exclude
         self.sequence = sequence
@@ -605,15 +604,15 @@ class Table(metaclass=DeclarativeColumnsMetaclass):
 
     @property
     def prefixed_order_by_field(self):
-        return "%s%s" % (self.prefix, self.order_by_field)
+        return f"{self.prefix}{self.order_by_field}"
 
     @property
     def prefixed_page_field(self):
-        return "%s%s" % (self.prefix, self.page_field)
+        return f"{self.prefix}{self.page_field}"
 
     @property
     def prefixed_per_page_field(self):
-        return "%s%s" % (self.prefix, self.per_page_field)
+        return f"{self.prefix}{self.per_page_field}"
 
     @property
     def sequence(self):

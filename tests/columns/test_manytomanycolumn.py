@@ -84,7 +84,7 @@ class ManyToManyColumnTest(TestCase):
         row = GroupTable(Group.objects.all()).rows[0]
         self.assertEqual(
             row.get_cell("name"),
-            '<a href="/group/{}/">{}</a>'.format(self.developers.pk, self.developers.name),
+            f'<a href="/group/{self.developers.pk}/">{self.developers.name}</a>',
         )
         self.assertEqual(
             row.get_cell("members"),
@@ -99,7 +99,7 @@ class ManyToManyColumnTest(TestCase):
         row = OccupationTable(Occupation.objects.all()).rows[0]
         self.assertEqual(
             row.get_cell("name"),
-            '<a href="/occupations/{}/">{}</a>'.format(self.carpenter.pk, self.carpenter.name),
+            f'<a href="/occupations/{self.carpenter.pk}/">{self.carpenter.name}</a>',
         )
         self.assertEqual(
             row.get_cell("people"),

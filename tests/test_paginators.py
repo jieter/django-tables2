@@ -41,10 +41,10 @@ class LazyPaginatorTest(TestCase):
         # and again decreases when a lower page nu
         self.assertEqual(paginator.num_pages, 2)
 
-        with self.assertRaises(PageNotAnInteger):
+        with self.assertRaisesMessage(PageNotAnInteger, "That page number is not an integer"):
             paginator.page(1.5)
 
-        with self.assertRaises(EmptyPage):
+        with self.assertRaisesMessage(EmptyPage, "That page number is less than 1"):
             paginator.page(-1)
 
         with self.assertRaises(NotImplementedError):
@@ -57,7 +57,7 @@ class LazyPaginatorTest(TestCase):
         last_page_number = 10**5
         paginator.page(last_page_number)
 
-        with self.assertRaises(EmptyPage):
+        with self.assertRaisesMessage(EmptyPage, "That page contains no results"):
             paginator.page(last_page_number + 1)
 
     def test_lookahead(self):

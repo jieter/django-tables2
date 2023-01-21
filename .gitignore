@@ -21,3 +21,4 @@
 .idea
 *.sw[po]
 pip-wheel-metadata
+.vscode

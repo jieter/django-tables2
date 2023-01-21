@@ -48,7 +48,7 @@ class Person(models.Model):
 
     @property
     def name(self):
-        return "%s %s" % (self.first_name, self.last_name)
+        return f"{self.first_name} {self.last_name}"
 
     def get_absolute_url(self):
         return reverse("person", args=(self.pk,))
@@ -68,7 +68,7 @@ class Group(models.Model):
         return self.name
 
     def get_absolute_url(self):
-        return "/group/{}/".format(self.pk)
+        return f"/group/{self.pk}/"
 
 
 class Occupation(models.Model):

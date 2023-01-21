@@ -153,7 +153,7 @@ class ExportViewTest(TestCase):
     def test_should_raise_error_for_unsupported_file_type(self):
         table = Table([])
 
-        with self.assertRaises(TypeError):
+        with self.assertRaisesMessage(TypeError, 'Export format "exe" is not supported.'):
             TableExport(table=table, export_format="exe")
 
     def test_should_support_json_export(self):
@@ -194,7 +194,7 @@ class ExportViewTest(TestCase):
             export_format = request.GET.get("_export", None)
             if TableExport.is_valid_format(export_format):
                 exporter = TableExport(export_format, table)
-                return exporter.response("table.{}".format(export_format))
+                return exporter.response(f"table.{export_format}")
 
             return render(request, "django_tables2/table.html", {"table": table})
 
@@ -369,7 +369,7 @@ class UnicodeExportViewTest(TestCase):
         unicode_name = "木匠"
         Occupation.objects.create(name=unicode_name)
 
-        expected_csv = "Name,Boolean,Region\r\n{},,\r\n".format(unicode_name)
+        expected_csv = f"Name,Boolean,Region\r\n{unicode_name},,\r\n"
 
         response = OccupationView.as_view()(build_request("/?_export=csv"))
         self.assertEqual(response.getvalue().decode("utf8"), expected_csv)
