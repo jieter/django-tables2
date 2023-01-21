@@ -9,7 +9,7 @@ import django_tables2 as tables
 
 
 def isoformat_link(value):
-    return "/test/{}/".format(value.isoformat())
+    return f"/test/{value.isoformat()}/"
 
 
 class DateTimeColumnTest(SimpleTestCase):

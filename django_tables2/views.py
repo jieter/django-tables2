@@ -1,4 +1,5 @@
 from itertools import count
+from typing import Optional
 
 from django.core.exceptions import ImproperlyConfigured
 from django.views.generic.list import ListView
@@ -38,10 +39,15 @@ class TableMixinBase:
             return False
 
         paginate = {}
-        if getattr(self, "paginate_by", None) is not None:
-            paginate["per_page"] = self.paginate_by
+
+        # Obtains and set page size from get_paginate_by
+        paginate_by = self.get_paginate_by(table.data)
+        if paginate_by is not None:
+            paginate["per_page"] = paginate_by
+
         if hasattr(self, "paginator_class"):
             paginate["paginator_class"] = self.paginator_class
+
         if getattr(self, "paginate_orphans", 0) != 0:
             paginate["orphans"] = self.paginate_orphans
 
@@ -54,6 +60,18 @@ class TableMixinBase:
             return True
 
         return paginate
+
+    def get_paginate_by(self, table_data) -> Optional[int]:
+        """
+        Determines the number of items per page, or ``None`` for no pagination.
+
+        Args:
+            table_data: The table's data.
+
+        Returns:
+            Optional[int]: Items per page or ``None`` for no pagination.
+        """
+        return getattr(self, "paginate_by", None)
 
 
 class SingleTableMixin(TableMixinBase):
@@ -92,9 +110,8 @@ class SingleTableMixin(TableMixinBase):
         if self.model:
             return tables.table_factory(self.model)
 
-        raise ImproperlyConfigured(
-            "You must either specify {0}.table_class or {0}.model".format(type(self).__name__)
-        )
+        name = type(self).__name__
+        raise ImproperlyConfigured(f"You must either specify {name}.table_class or {name}.model")
 
     def get_table(self, **kwargs):
         """
@@ -118,10 +135,8 @@ class SingleTableMixin(TableMixinBase):
         elif hasattr(self, "get_queryset"):
             return self.get_queryset()
 
-        klass = type(self).__name__
-        raise ImproperlyConfigured(
-            "Table data was not specified. Define {}.table_data".format(klass)
-        )
+        view_name = type(self).__name__
+        raise ImproperlyConfigured(f"Table data was not specified. Define {view_name}.table_data")
 
     def get_table_kwargs(self):
         """
@@ -195,9 +210,7 @@ class MultiTableMixin(TableMixinBase):
         """
         if self.tables is None:
             raise ImproperlyConfigured(
-                "You must either specify {0}.tables or override {0}.get_tables_classes()".format(
-                    type(self).__name__
-                )
+                f"You must either specify {type(self).__name__}.tables or override {type(self).__name__}.get_tables_classes()"
             )
 
         return self.tables
@@ -214,7 +227,7 @@ class MultiTableMixin(TableMixinBase):
 
         if len(data) != len(tables):
             klass = type(self).__name__
-            raise ImproperlyConfigured("len({}.tables_data) != len({}.tables)".format(klass, klass))
+            raise ImproperlyConfigured(f"len({klass}.tables_data) != len({klass}.tables)")
         return list(Table(data[i], **kwargs) for i, Table in enumerate(tables))
 
     def get_tables_data(self):

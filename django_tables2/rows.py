@@ -150,7 +150,7 @@ class BoundRow:
         if isinstance(penultimate, models.Model):
             try:
                 field = accessor.get_field(self.record)
-                display_fn = getattr(penultimate, "get_%s_display" % remainder, None)
+                display_fn = getattr(penultimate, f"get_{remainder}_display", None)
                 if getattr(field, "choices", ()) and display_fn:
                     value = display_fn()
                     remainder = None
