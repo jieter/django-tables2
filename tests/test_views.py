@@ -417,6 +417,7 @@ class MultiTableMixinTest(TestCase):
 
     def test_get_tables_clases_list(self):
         class View(tables.MultiTableMixin, TemplateView):
+            tables_data = (Person.objects.all(), Region.objects.all())
             template_name = "multiple.html"
 
             def get_tables_classes(self):
