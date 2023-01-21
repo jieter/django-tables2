@@ -421,13 +421,13 @@ class MultiTableMixinTest(TestCase):
             template_name = "multiple.html"
 
             def get_tables_classes(self):
-                return [TableA,TableB]
+                return [TableA, TableB]
 
         response = View.as_view()(build_request("/"))
         response.render()
 
         html = response.rendered_content
-        self.assertEqual(html.count("<table >"),2)
+        self.assertEqual(html.count("<table >"), 2)
 
     def test_with_empty_get_tables_list(self):
         class View(tables.MultiTableMixin, TemplateView):
