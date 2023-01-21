@@ -411,7 +411,7 @@ class MultiTableMixinTest(TestCase):
         class View(tables.MultiTableMixin, TemplateView):
             template_name = "multiple.html"
 
-        message = "No tables were specified. Define View.tables"
+        message = "You must either specify View.tables or override View.get_tables_classes()"
         with self.assertRaisesMessage(ImproperlyConfigured, message):
             View.as_view()(build_request("/"))
 
