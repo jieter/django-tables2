@@ -210,7 +210,7 @@ class MultiTableMixin(TableMixinBase):
         """
         if self.tables is None:
             raise ImproperlyConfigured(
-                f"You must either specify {0}.tables or override {type(self).__name__}.get_tables_classes()"
+                f"You must either specify {type(self).__name__}.tables or override {type(self).__name__}.get_tables_classes()"
             )
 
         return self.tables
