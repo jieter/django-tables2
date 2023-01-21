@@ -209,8 +209,9 @@ class MultiTableMixin(TableMixinBase):
         Return the list of classes to use for the tables.
         """
         if self.tables is None:
+            klass = type(self).__name__
             raise ImproperlyConfigured(
-                f"You must either specify {type(self).__name__}.tables or override {type(self).__name__}.get_tables_classes()"
+                f"You must either specify {klass}.tables or override {klass}.get_tables_classes()"
             )
 
         return self.tables
