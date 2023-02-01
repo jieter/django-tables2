@@ -73,7 +73,6 @@ class Bootstrap5Table(tables.Table):
 
 
 class SemanticTable(tables.Table):
-
     country = tables.RelatedLinkColumn()
 
     class Meta:

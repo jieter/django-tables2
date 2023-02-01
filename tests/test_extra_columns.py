@@ -19,13 +19,6 @@ data = [
 
 
 class DynamicColumnsTest(TestCase):
-
-    # shim can be dropped when we drop support for python 2.7 and 3.4
-    if not hasattr(TestCase, "assertRegex"):
-        assertRegex = TestCase.assertRegexpMatches
-    if not hasattr(TestCase, "assertNotRegex"):
-        assertNotRegex = TestCase.assertNotRegexpMatches
-
     def test_dynamically_adding_columns(self):
         """
         When adding columns to self.base_columns, they were actually added to

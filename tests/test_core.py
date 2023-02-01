@@ -618,7 +618,6 @@ class AsValuesTest(TestCase):
         self.assertEqual(list(table.as_values()), expected)
 
     def test_render_FOO_exception(self):
-
         message = "Custom render-method fails"
 
         class Table(tables.Table):
