@@ -308,7 +308,7 @@ class ColumnGeneralTest(TestCase):
         with self.assertRaises(ImproperlyConfigured):
 
             @library.register
-            class Klass(object):
+            class Klass:
                 pass
 
         self.assertEqual(len(library.columns), currently_registered)

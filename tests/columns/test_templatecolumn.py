@@ -15,7 +15,7 @@ class TemplateColumnTest(SimpleTestCase):
                 self.pinned = data
                 revised_data = []
 
-                super(TestOnlyPinnedTable, self).__init__(revised_data)
+                super().__init__(revised_data)
 
             def get_top_pinned_data(self):
                 return self.pinned

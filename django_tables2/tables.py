@@ -345,7 +345,7 @@ class Table(metaclass=DeclarativeColumnsMetaclass):
         self._sequence = sequence.expand(base_columns.keys())
 
         # reorder columns based on sequence.
-        base_columns = OrderedDict(((x, base_columns[x]) for x in sequence if x in base_columns))
+        base_columns = OrderedDict((x, base_columns[x]) for x in sequence if x in base_columns)
         self.columns = columns.BoundColumns(self, base_columns)
         # `None` value for order_by means no order is specified. This means we
         # `shouldn't touch our data's ordering in any way. *However*

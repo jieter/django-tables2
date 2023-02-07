@@ -259,9 +259,9 @@ class AdvancedExportViewTest(TestCase):
         response = OccupationView.as_view()(build_request("/?_export=xls"))
         data = response.content
         # binary data, so not possible to compare to an exact expectation
-        self.assertTrue(data.find("Vlaanderen".encode()))
-        self.assertTrue(data.find("Ecoloog".encode()))
-        self.assertTrue(data.find("Timmerman".encode()))
+        self.assertTrue(data.find(b"Vlaanderen"))
+        self.assertTrue(data.find(b"Ecoloog"))
+        self.assertTrue(data.find(b"Timmerman"))
 
     def test_datetime_xls(self):
         """Verify datatime objects can be exported to xls."""
@@ -294,7 +294,7 @@ class AdvancedExportViewTest(TestCase):
         self.assertEqual(data, expected_csv)
 
         response = View.as_view()(build_request("/?_export=xls"))
-        self.assertIn("07/22/2019 1:11 p.m.".encode(), response.content)
+        self.assertIn(b"07/22/2019 1:11 p.m.", response.content)
 
     def test_export_invisible_columns(self):
         """Verify columns with visible=False *do* get exported."""

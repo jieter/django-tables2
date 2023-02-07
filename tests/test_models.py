@@ -90,7 +90,7 @@ class ModelsTest(TestCase):
         class Table(tables.Table):
             class Meta:
                 model = Person
-                fields = (str("first_name"),)
+                fields = ("first_name",)
 
         table = Table(Person.objects.all())
         self.assertEqual(table.rows[0].get_cell("first_name"), "Bradley")

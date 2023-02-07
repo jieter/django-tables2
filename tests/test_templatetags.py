@@ -179,7 +179,7 @@ class QuerystringTagTest(SimpleTestCase):
         )
         url = parse(template.render(context)).text
         qs = parse_qs(url[1:])  # trim the ?
-        self.assertEqual(set(qs.keys()), set(["name", "c"]))
+        self.assertEqual(set(qs.keys()), {"name", "c"})
 
     def test_only_without(self):
         context = Context({"request": build_request("/?a=b&name=dog&c=5"), "a_var": "a"})
@@ -188,7 +188,7 @@ class QuerystringTagTest(SimpleTestCase):
         )
         url = parse(template.render(context)).text
         qs = parse_qs(url[1:])  # trim the ?
-        self.assertEqual(set(qs.keys()), set(["c"]))
+        self.assertEqual(set(qs.keys()), {"c"})
 
     def test_querystring_syntax_error(self):
         with self.assertRaisesMessage(TemplateSyntaxError, "Malformed arguments to 'querystring'"):

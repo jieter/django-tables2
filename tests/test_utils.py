@@ -49,7 +49,7 @@ class OrderByTupleTest(TestCase):
         assert sorted(items, key=obt.key) == [{"a": 1, "b": 3}, {"a": 1, "b": 2}]
 
     def test_sort_key_empty_comes_first(self):
-        obt = OrderByTuple(("a"))
+        obt = OrderByTuple("a")
         items = [{"a": 1}, {"a": ""}, {"a": 2}]
         assert sorted(items, key=obt.key) == [{"a": ""}, {"a": 1}, {"a": 2}]
 

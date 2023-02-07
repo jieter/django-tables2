@@ -281,7 +281,7 @@ class OrderByTuple(tuple):
             >>> order_by.opposite
             ('-name', 'age')
         """
-        return type(self)((o.opposite for o in self))
+        return type(self)(o.opposite for o in self)
 
 
 class Accessor(str):
