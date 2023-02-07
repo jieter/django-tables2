@@ -37,6 +37,8 @@ class RequestConfig:
         Arguments:
             table (`~.Table`): table to be configured
         """
+        table.request = self.request
+
         order_by = self.request.GET.getlist(table.prefixed_order_by_field)
         if order_by:
             table.order_by = order_by
@@ -63,7 +65,5 @@ class RequestConfig:
                     table.page = table.paginator.page(1)
                 except EmptyPage:
                     table.page = table.paginator.page(table.paginator.num_pages)
-
-        table.request = self.request
 
         return table
