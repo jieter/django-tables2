@@ -1,5 +1,8 @@
 # Change log
 
+# 2.5.2 (2023-02-07)
+- Assign `request` to table before anything else in `RequestConfig.configure()` ([#888](https://github.com/jieter/django-tables2/pull/888)) fixes: [#865](https://github.com/jieter/django-tables2/issues/865)
+
 # 2.5.1 (2023-01-07)
  - `TableMixinBase`: implement `get_paginate_by` ([#811](https://github.com/jieter/django-tables2/pull/811)) by [@Alirezaja1384](https://github.com/Alirezaja1384)
 
