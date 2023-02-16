@@ -238,6 +238,6 @@ class MultiTableMixin(TableMixinBase):
 
             RequestConfig(self.request, paginate=self.get_table_pagination(table)).configure(table)
 
-            context[self.get_context_table_name(table)] = list(tables)
+        context[self.get_context_table_name(table)] = list(tables)
 
         return context
