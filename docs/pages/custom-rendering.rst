@@ -25,12 +25,26 @@ a hook that allows arbitrary attributes to be added to the ``<table>`` tag.
     >>> # renders to something like this:
     '<table class="mytable">...'
 
+By default, django-tables2 looks for the ``DJANGO_TABLES2_TABLE_ATTRS``
+setting which allows you to define attributes globally for all tables.
+For example, to have a Bootstrap5 table with hoverable rows 
+and a light table header define it as follows:
+
+.. sourcecode:: python
+
+    DJANGO_TABLES2_TABLE_ATTRS = {
+        'class': 'table table-hover',
+        'thead': {
+            'class': 'table-light',
+        },
+    }
+
 You can also specify ``attrs`` attribute when creating a column. ``attrs``
 is a dictionary which contains attributes which by default get rendered
 on various tags involved with rendering a column. You can read more about
 them in :ref:`column-attributes`. django-tables2 supports three different
 dictionaries, this way you can give different attributes
-to column tags in table header (``th``), rows (``td``) or footer (``tf``)
+to column tags in table header (``th``), rows (``td``) or footer (``tf``).
 
 .. sourcecode:: python
 
