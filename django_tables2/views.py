@@ -1,5 +1,5 @@
 from itertools import count
-from typing import Optional
+from typing import Any, Dict, Optional
 
 from django.core.exceptions import ImproperlyConfigured
 from django.views.generic.list import ListView
@@ -152,7 +152,7 @@ class SingleTableMixin(TableMixinBase):
         """
         return {}
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         """
         Overridden version of `.TemplateResponseMixin` to inject the table into
         the template's context.
@@ -227,7 +227,7 @@ class MultiTableMixin(TableMixinBase):
         """
         return self.tables_data
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
         tables = self.get_tables()
 
