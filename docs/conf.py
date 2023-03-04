@@ -4,7 +4,6 @@ import sys
 from pathlib import Path
 
 import sphinx_rtd_theme
-from recommonmark.parser import CommonMarkParser
 
 os.environ["DJANGO_SETTINGS_MODULE"] = "example.settings"
 
@@ -18,10 +17,6 @@ version = release.rpartition(".")[0]
 
 
 default_role = "py:obj"
-
-# allow markdown to be able to include the CHANGELOG.md
-source_parsers = {".md": CommonMarkParser}
-source_suffix = [".rst", ".md"]
 
 # symlink CHANGELOG.md from repo root to the pages dir.
 basedir = Path(__file__).parent.parent
@@ -37,6 +32,7 @@ extensions = [
     "sphinx.ext.viewcode",
     "sphinx.ext.doctest",
     "sphinxcontrib.spelling",
+    "myst_parser",
 ]
 
 intersphinx_mapping = {
@@ -68,3 +64,5 @@ spelling_word_list_filename = "spelling_wordlist.txt"
 # Boolean controlling whether suggestions for misspelled words are printed.
 # Defaults to False.
 spelling_show_suggestions = True
+
+myst_heading_anchors = 3
