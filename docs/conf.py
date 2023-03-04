@@ -9,7 +9,7 @@ from recommonmark.parser import CommonMarkParser
 os.environ["DJANGO_SETTINGS_MODULE"] = "example.settings"
 
 # import project
-sys.path.insert(0, Path("../").resolve())
+sys.path.insert(0, str(Path("../").resolve()))
 
 project = "django-tables2"
 with open("../django_tables2/__init__.py", "rb") as f:
@@ -27,8 +27,8 @@ source_suffix = [".rst", ".md"]
 basedir = Path(__file__).parent.parent
 filename = "CHANGELOG.md"
 target = basedir / "docs" / "pages" / filename
-if not target.is_symlink:
-    (basedir / filename).symlink_to(target)
+if not target.is_symlink():
+    target.symlink_to(basedir / filename)
 
 extensions = [
     "sphinx.ext.autodoc",
