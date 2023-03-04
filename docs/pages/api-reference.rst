@@ -20,9 +20,7 @@ API Reference
 
 .. autoclass:: django_tables2.tables.Table
     :members: paginate, as_html, as_values, get_column_class_names,
-              before_render,
-              get_top_pinned_data, get_bottom_pinned_data,
-              get_column_class_names
+              before_render, get_top_pinned_data, get_bottom_pinned_data
 
 
 `.Table.Meta`
@@ -378,7 +376,6 @@ Views, view mixins and paginators
 ~~~~~~~~~~~~~~~~~~~~~
 
 .. autoclass:: django_tables2.export.ExportMixin
-    :members:
 
 `.LazyPaginator`
 ~~~~~~~~~~~~~~~~
