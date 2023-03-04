@@ -1,39 +1,39 @@
 # Change log
 
-# 2.5.2 (2023-02-07)
-- Assign `request` to table before anything else in `RequestConfig.configure()` ([#888](https://github.com/jieter/django-tables2/pull/888)) fixes: [#865](https://github.com/jieter/django-tables2/issues/865)
+## 2.5.2 (2023-02-07)
+ - Assign `request` to table before anything else in `RequestConfig.configure()` ([#888](https://github.com/jieter/django-tables2/pull/888)) fixes: [#865](https://github.com/jieter/django-tables2/issues/865)
 
-# 2.5.1 (2023-01-07)
+## 2.5.1 (2023-01-07)
  - `TableMixinBase`: implement `get_paginate_by` ([#811](https://github.com/jieter/django-tables2/pull/811)) by [@Alirezaja1384](https://github.com/Alirezaja1384)
 
-# 2.5.0 (2022-12-27)
-- Dropped support for python 3.6, added support for python 3.11
-- Add django_tables2/bootstrap4-responsive.html ([#874](https://github.com/jieter/django-tables2/pull/874)) by [@botlabsDev](https://github.com/botlabsDev)
-- Pass record/value to `LinkColumn`'s attrs callables too ([#852](https://github.com/jieter/django-tables2/pull/852)) by [@wsldankers](https://github.com/wsldankers)
+## 2.5.0 (2022-12-27)
+ - Dropped support for python 3.6, added support for python 3.11
+ - Add django_tables2/bootstrap4-responsive.html ([#874](https://github.com/jieter/django-tables2/pull/874)) by [@botlabsDev](https://github.com/botlabsDev)
+ - Pass record/value to `LinkColumn`'s attrs callables too ([#852](https://github.com/jieter/django-tables2/pull/852)) by [@wsldankers](https://github.com/wsldankers)
  - Add template `bootstrap5.html` to support bootstrap 5 ([#880](https://github.com/jieter/django-tables2/pull/880), fixes [#796](https://github.com/jieter/django-tables2/issues/796)
 
-# 2.4.1 (2021-10-04)
-- Add Persian (Farsi) locale ([#806](https://github.com/jieter/django-tables2/pull/806)) by [@Alirezaja1384](https://github.com/jieter/django-tables2/commits?author=Alirezaja1384)
-- Improved error message if openpyxl is not installed ([#816](https://github.com/jieter/django-tables2/pull/816))
-- Use correct mime type for xlsx (fixes: [#810](https://github.com/jieter/django-tables2/issues/810))
-- Add support for django 4.0, drop support for python 3.5 ([#822](https://github.com/jieter/django-tables2/issues/822))
+## 2.4.1 (2021-10-04)
+ - Add Persian (Farsi) locale ([#806](https://github.com/jieter/django-tables2/pull/806)) by [@Alirezaja1384](https://github.com/jieter/django-tables2/commits?author=Alirezaja1384)
+ - Improved error message if openpyxl is not installed ([#816](https://github.com/jieter/django-tables2/pull/816))
+ - Use correct mime type for xlsx (fixes: [#810](https://github.com/jieter/django-tables2/issues/810))
+ - Add support for django 4.0, drop support for python 3.5 ([#822](https://github.com/jieter/django-tables2/issues/822))
 
-# 2.4.0 (2021-05-15)
+## 2.4.0 (2021-05-15)
 - Add support for django 3.2 and python 3.9, drop support for django 3.0
 - Add Django 3.0 and 3.1 trove classifiers [#803](https://github.com/jieter/django-tables2/pull/803) by [@Asday](https://github.com/Asday)
 - Strip leading and trailing whitespace from TemplateColumn.value() [#794](https://github.com/jieter/django-tables2/pull/794) by [@jeremystretch](https://github.com/jeremystretch)
 - Providing link for django-bootstrap3 [#793](https://github.com/jieter/django-tables2/pull/793) by [@TareqMonwer](https://github.com/TareqMonwer)
 - Fix for crash on windows while deleting temp file [#788](https://github.com/jieter/django-tables2/pull/788)
 
-# 2.3.4 (2021-01-10)
+## 2.3.4 (2021-01-10)
 - Removed deprecation warnings with django==3.1 regarding `JSONField` [#785](https://github.com/jieter/django-tables2/pull/785)
 
-# 2.3.3 (2020-10-29)
+## 2.3.3 (2020-10-29)
 - Use `table.default` for empty `ManyToMany` relations ([#773](https://github.com/jieter/django-tables2/pull/773)) fixes: [#769](https://github.com/jieter/django-tables2/issues/769)
 - Pass record/value to `CheckboxColumn`'s `attrs` callables too ([#774](https://github.com/jieter/django-tables2/pull/774)), fixes: [#762](https://github.com/jieter/django-tables2/issues/762)
 
-# 2.3.2 (2020-10-10)
-- Fix popping the extra_context of TemplateColumn [#767](https://github.com/jieter/django-tables2/pull/767) by [@bernhardmiller](https://github.com/bernhardmiller)
+## 2.3.2 (2020-10-10)
+ - Fix popping the extra_context of TemplateColumn [#767](https://github.com/jieter/django-tables2/pull/767) by [@bernhardmiller](https://github.com/bernhardmiller)
  - Fix typo for the translation of the word 'next' in greek [#759]](https://github.com/jieter/django-tables2/pull/759) by [@orfeasa](https://github.com/orfeasa)
  - Add `format_html` import to prevent `NameError` [#752](https://github.com/jieter/django-tables2/pull/752) by [@MBfromOK](https://github.com/MBfromOK)
  - Fixed Russian translation [#768](https://github.com/jieter/django-tables2/pull/768) by [@Real-Gecko](https://github.com/Real-Gecko)
@@ -129,8 +129,8 @@ Not much changed in this final version, but quite a lot if you are still on 1.21
 ## 2.0.0a3 (2018-05-24)
 Hello from [DjangoCon Europe](https://2018.djangocon.eu/)!
 
-- Fix table prefix being overwritten in `MultiTableView`, [#576](https://github.com/jieter/django-tables2/pull/576) by [@ETinLV](https://github.com/ETinLV), (fixes [#572](https://github.com/jieter/django-tables2/issues/572))
-- Fix `empty_text` cannot be translated (fixes [#579](https://github.com/jieter/django-tables2/issues/579))
+ - Fix table prefix being overwritten in `MultiTableView`, [#576](https://github.com/jieter/django-tables2/pull/576) by [@ETinLV](https://github.com/ETinLV), (fixes [#572](https://github.com/jieter/django-tables2/issues/572))
+ - Fix `empty_text` cannot be translated (fixes [#579](https://github.com/jieter/django-tables2/issues/579))
 
 ## 2.0.0a2 (2018-04-13)
  - Another round of template cleanup.
@@ -147,6 +147,7 @@ Hello from [DjangoCon Europe](https://2018.djangocon.eu/)!
  - Cleaned up templates to add consistency in what is presented across all templates.
  - Added bootstrap4.html template
  - Fixed translation inconsistencies.
+
 ### breaking changes 2.0.0
  - Appearance of the paginators might be different from the current 1.x templates. Use a custom template if you need to keep the appearance the same.
  - Removed the `template` argument to the table constructor, use `template_name` instead.
@@ -164,8 +165,7 @@ class MyTable(tables.Table):
 
 ## 1.21.2 (2018-03-26)
  - Moved table instantiation from `get_context_data` to `get_tables` [#554](https://github.com/jieter/django-tables2/pull/554) by [@sdolemelipone](https://github.com/sdolemelipone)
- - Pass request as kwarg to `template.render()`, rather than as part of context.
- (fixes [#552](https://github.com/jieter/django-tables2/issues/552))
+ - Pass request as kwarg to `template.render()`, rather than as part of context. (fixes [#552](https://github.com/jieter/django-tables2/issues/552))
 
 ## 1.21.1 (2018-03-12)
  - Do not perform extra `COUNT()` queries for non-paginated tables. Fixes [#551](https://github.com/jieter/django-tables2/issues/551)
@@ -202,6 +202,7 @@ class MyTable(tables.Table):
 
 ## 1.16.0 (2017-11-27)
 This is the last version supporting Django 1.8, 1.9 and 1.10. Django 1.8 is only supported until April 2018, so consider upgrading to Django 1.11!
+
  - Added `tf` dictionary to `Column.attrs` with default values for the footer, so footers now have `class` attribute by default [#501](https://github.com/jieter/django-tables2/pull/501) by [@mpasternak](https://github.com/mpasternak)
 
 ## 1.15.0 (2017-11-23)
@@ -236,7 +237,7 @@ This is the last version supporting Django 1.8, 1.9 and 1.10. Django 1.8 is only
  - Fixed display of pinned rows if table has no data. [#477](https://github.com/bradleyayers/django-tables2/pull/477) by [@khirstinova](https://github.com/khirstinova)
 
 ## 1.10.0 (2017-06-30)
- - Added `ManyToManyColumn` automatically added for `ManyToManyField`s.
+- Added `ManyToManyColumn` automatically added for `ManyToManyField`s.
 
 ## 1.9.1 (2017-06-29)
  - Allow customizing the value used in `Table.as_values()` (when using a `render_<name>` method) using a `value_<name>` method. (fixes [#458](https://github.com/bradleyayers/django-tables2/issues/458))
@@ -270,6 +271,7 @@ This is the last version supporting Django 1.8, 1.9 and 1.10. Django 1.8 is only
 
 ## 1.5.0 (2017-04-18)
 _Full disclosure: as of april 1st, 2017, I am an employee of [Zostera](http://zostera.nl/), as such I will continue to maintain and improve django-tables2._
+
  - Made `TableBase.as_values()` an iterator ([#432](https://github.com/bradleyayers/django-tables2/pull/432) by [@pziarsolo](https://github.com/pziarsolo))
  - Added `JSONColumn` for data in JSON format.
  - Added `__all__` in `django_tables2/__init__.py` and `django_tables2/columns/__init__.py`
@@ -297,8 +299,7 @@ _Full disclosure: as of april 1st, 2017, I am an employee of [Zostera](http://zo
  - Documentation for `None`-column attributes [#401](https://github.com/bradleyayers/django-tables2/pull/401) by [@dyve](https://github.com/dyve)
 
 ## 1.2.8 (2016-12-21)
- - `None`-column attributes on child class overwrite column attributes of parent class
- [#400](https://github.com/bradleyayers/django-tables2/pull/400) by [@dyve](https://github.com/dyve)
+ - `None`-column attributes on child class overwrite column attributes of parent class [#400](https://github.com/bradleyayers/django-tables2/pull/400) by [@dyve](https://github.com/dyve)
 
 ## 1.2.7 (2016-12-12)
 - Apply `title` to a column's `verbose_name` when it is derived from a model, fixes [#249](https://github.com/bradleyayers/django-tables2/issues/249). ([#382](https://github.com/bradleyayers/django-tables2/pull/382) by [@shawnnapora](https://github.com/shawnnapora))
