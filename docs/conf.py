@@ -4,12 +4,11 @@ import sys
 from pathlib import Path
 
 import sphinx_rtd_theme
-from recommonmark.parser import CommonMarkParser
 
 os.environ["DJANGO_SETTINGS_MODULE"] = "example.settings"
 
 # import project
-sys.path.insert(0, Path("../").resolve())
+sys.path.insert(0, str(Path("../").resolve()))
 
 project = "django-tables2"
 with open("../django_tables2/__init__.py", "rb") as f:
@@ -19,16 +18,12 @@ version = release.rpartition(".")[0]
 
 default_role = "py:obj"
 
-# allow markdown to be able to include the CHANGELOG.md
-source_parsers = {".md": CommonMarkParser}
-source_suffix = [".rst", ".md"]
-
 # symlink CHANGELOG.md from repo root to the pages dir.
 basedir = Path(__file__).parent.parent
 filename = "CHANGELOG.md"
 target = basedir / "docs" / "pages" / filename
-if not target.is_symlink:
-    (basedir / filename).symlink_to(target)
+if not target.is_symlink():
+    target.symlink_to(basedir / filename)
 
 extensions = [
     "sphinx.ext.autodoc",
@@ -37,6 +32,7 @@ extensions = [
     "sphinx.ext.viewcode",
     "sphinx.ext.doctest",
     "sphinxcontrib.spelling",
+    "myst_parser",
 ]
 
 intersphinx_mapping = {
@@ -68,3 +64,5 @@ spelling_word_list_filename = "spelling_wordlist.txt"
 # Boolean controlling whether suggestions for misspelled words are printed.
 # Defaults to False.
 spelling_show_suggestions = True
+
+myst_heading_anchors = 3
