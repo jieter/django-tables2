@@ -1,5 +1,12 @@
 # Change log
 
+## 2.5.3 (2023-03-05)
+ - Assign request to table before anything else in `RequestConfig.configure()` ([#888](https://github.com/jieter/django-tables2/pull/888)) fixes: [#865](https://github.com/jieter/django-tables2/issues/865)
+ - Add type hints to get_context_data ([#895](https://github.com/jieter/django-tables2/pull/895)) by [@mschoettle](https://github.com/mschoettle)
+ - Document hidden table attributes setting ([#897](https://github.com/jieter/django-tables2/pull/897)) by [@mschoettle](https://github.com/mschoettle)
+ - Fix building of the docs ([#900](https://github.com/jieter/django-tables2/pull/900)) by [@danielroseman](https://github.com/danielroseman)
+ - Add template bootstrap5-responsive.html ([#896](https://github.com/jieter/django-tables2/pull/896)) by [@mschoettle](https://github.com/mschoettle)
+
 ## 2.5.2 (2023-02-07)
  - Assign `request` to table before anything else in `RequestConfig.configure()` ([#888](https://github.com/jieter/django-tables2/pull/888)) fixes: [#865](https://github.com/jieter/django-tables2/issues/865)
 
