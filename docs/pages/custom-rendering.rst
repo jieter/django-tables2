@@ -68,18 +68,18 @@ Available templates
 
 We ship a couple of different templates:
 
-========================================  ======================================================
-Template name                             Description
-========================================  ======================================================
-django_tables2/table.html                 Basic table template (default).
-django_tables2/bootstrap.html             Template using bootstrap 3 structure/classes
-django_tables2/bootstrap-responsive.html  Same as bootstrap, but wrapped in ``.table-responsive``
-django_tables2/bootstrap4.html            Template using bootstrap 4 structure/classes
-django_tables2/bootstrap4-responsive.html Same as bootstrap4, but wrapped in ``.table-responsive``
-django_tables2/bootstrap5.html            Template using bootstrap 5 structure/classes
-django_tables2/bootstrap5-responsive.html Same as bootstrap5, but wrapped in ``.table-responsive``
-django_tables2/semantic.html              Template using semantic UI
-========================================  ======================================================
+=========================================  ======================================================
+Template name                              Description
+=========================================  ======================================================
+django_tables2/table.html                  Basic table template (default).
+django_tables2/bootstrap.html              Template using bootstrap 3 structure/classes
+django_tables2/bootstrap-responsive.html   Same as bootstrap, but wrapped in ``.table-responsive``
+django_tables2/bootstrap4.html             Template using bootstrap 4 structure/classes
+django_tables2/bootstrap4-responsive.html  Same as bootstrap4, but wrapped in ``.table-responsive``
+django_tables2/bootstrap5.html             Template using bootstrap 5 structure/classes
+django_tables2/bootstrap5-responsive.html  Same as bootstrap5, but wrapped in ``.table-responsive``
+django_tables2/semantic.html               Template using semantic UI
+=========================================  ======================================================
 
 By default, django-tables2 looks for the ``DJANGO_TABLES2_TEMPLATE`` setting
 which is ``django_tables2/table.html`` by default.
