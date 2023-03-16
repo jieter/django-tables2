@@ -72,7 +72,7 @@
             {% block pagination.range %}
             {% for p in table.page|table_page_range:table.paginator %}
                 <li class="page-item{% if table.page.number == p %} active{% endif %}">
-                    <a class="page-link" {% if p != '...' %}href="{% querystring table.prefixed_page_field=p %}"{% endif %}>
+                    <a {% if p != '...' %} class="page-link" href="{% querystring table.prefixed_page_field=p %}"{% endif %}>
                         {{ p }}
                     </a>
                 </li>
