@@ -34,7 +34,7 @@ The separators ``__`` represent relationships, and are attempted in this order:
 
 If the resulting value is callable, it is called and the return value is used.
 
-Moreover, you can use `accessor` with the table columns to access nested values. For example:
+Moreover, you can use `accessor` with the table columns to access nested values. For example::
 
     >>> data = [{"abc": {"one": {"two": "three"}}}, {"abc": {"one": {"two": "four"}}}]
     >>> class MyTable(tables.Table):
@@ -42,9 +42,6 @@ Moreover, you can use `accessor` with the table columns to access nested values.
     >>> table = MyTable(data)
     >>> list(map(str, t.rows[1]))
     ['four']
-
-    
-    
 
 .. _table.render_foo:
 
