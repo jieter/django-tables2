@@ -40,7 +40,7 @@ Moreover, you can use `accessor` with the table columns to access nested values.
     >>> class MyTable(tables.Table):
     ...    abc = tables.Column(accessor="abc__one__two")  # or abc.one.two
     >>> table = MyTable(data)
-    >>> list(map(str, t.rows[1]))
+    >>> list(map(str, table.rows[1]))
     ['four']
 
 .. _table.render_foo:
