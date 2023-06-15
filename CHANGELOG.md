@@ -1,5 +1,8 @@
 # Change log
 
+## Unreleased
+ - Remove page-link class from the ellipses paginator element
+
 ## 2.5.3 (2023-03-05)
  - Assign request to table before anything else in `RequestConfig.configure()` ([#888](https://github.com/jieter/django-tables2/pull/888)) fixes: [#865](https://github.com/jieter/django-tables2/issues/865)
  - Add type hints to get_context_data ([#895](https://github.com/jieter/django-tables2/pull/895)) by [@mschoettle](https://github.com/mschoettle)
