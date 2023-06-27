@@ -1,5 +1,10 @@
 # Change log
 
+## 2.6.0 (2023-06-27)
+- Fix bootstrap5-responsive template to extend bootstrap5 ([#909](https://github.com/jieter/django-tables2/pull/909)) by [@mschoettle](https://github.com/mschoettle)
+- Add support for django 4.2
+- Drop python 3.7 and django 4.0 support ([#920](https://github.com/jieter/django-tables2/pull/920))
+
 ## 2.5.3 (2023-03-05)
  - Assign request to table before anything else in `RequestConfig.configure()` ([#888](https://github.com/jieter/django-tables2/pull/888)) fixes: [#865](https://github.com/jieter/django-tables2/issues/865)
  - Add type hints to get_context_data ([#895](https://github.com/jieter/django-tables2/pull/895)) by [@mschoettle](https://github.com/mschoettle)
