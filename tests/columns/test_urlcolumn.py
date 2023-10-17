@@ -35,7 +35,7 @@ class UrlColumnTest(SimpleTestCase):
             class Meta:
                 model = URLModel
 
-        assert type(Table.base_columns["field"]) == tables.URLColumn
+        assert type(Table.base_columns["field"]) is tables.URLColumn
 
     def test_text_can_be_overridden(self):
         class Table(tables.Table):
