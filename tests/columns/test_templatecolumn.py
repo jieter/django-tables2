@@ -115,3 +115,19 @@ class TemplateColumnTest(SimpleTestCase):
         table = Table([{"track": "Space Oddity"}])
 
         self.assertEqual(list(table.as_values()), [["Track"], ["Space Oddity"]])
+
+    def test_context_object_name(self):
+        class Table(tables.Table):
+            name = tables.TemplateColumn("{{ user.name }}", context_object_name="user")
+
+        table = Table([{"name": "Bob"}])
+        self.assertEqual(list(table.as_values()), [["Name"], ["Bob"]])
+
+    def test_extra_context_callable(self):
+        class Table(tables.Table):
+            size = tables.TemplateColumn(
+                "{{ size }}", extra_context=lambda record: {"size": record["clothes"]["size"]}
+            )
+
+        table = Table([{"clothes": {"size": "XL"}}])
+        self.assertEqual(list(table.as_values()), [["Size"], ["XL"]])

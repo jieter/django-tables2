@@ -2,6 +2,8 @@ from django.template import Context, Template
 from django.template.loader import get_template
 from django.utils.html import strip_tags
 
+from django_tables2.utils import call_with_appropriate
+
 from .base import Column, library
 
 
@@ -40,11 +42,19 @@ class TemplateColumn(Column):
 
     empty_values = ()
 
-    def __init__(self, template_code=None, template_name=None, extra_context=None, **extra):
+    def __init__(
+        self,
+        template_code=None,
+        template_name=None,
+        context_object_name="record",
+        extra_context=None,
+        **extra
+    ):
         super().__init__(**extra)
         self.template_code = template_code
         self.template_name = template_name
         self.extra_context = extra_context or {}
+        self.context_object_name = context_object_name
 
         if not self.template_code and not self.template_name:
             raise ValueError("A template must be provided")
@@ -56,11 +66,18 @@ class TemplateColumn(Column):
         additional_context = {
             "default": bound_column.default,
             "column": bound_column,
-            "record": record,
+            self.context_object_name: record,
             "value": value,
             "row_counter": kwargs["bound_row"].row_counter,
         }
-        additional_context.update(self.extra_context)
+
+        extra_context = self.extra_context
+        if callable(extra_context):
+            extra_context = call_with_appropriate(
+                extra_context,
+                {"record": record, "table": table, "value": value, "bound_column": bound_column},
+            )
+        additional_context.update(extra_context)
         with context.update(additional_context):
             if self.template_code:
                 return Template(self.template_code).render(context)
@@ -75,3 +92,6 @@ class TemplateColumn(Column):
         """
         html = super().value(**kwargs)
         return strip_tags(html).strip() if isinstance(html, str) else html
+
+    def get_context_data(self, **kwargs):
+        return
