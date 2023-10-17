@@ -6,13 +6,11 @@ class BaseLinkColumn(Column):
     The base for other columns that render links.
 
     Arguments:
-        text (str or callable): If set, this value will be used to render the
-            text inside link instead of value. The callable gets the record
-            being rendered as argument.
-        attrs (dict): In addition to ``attrs`` keys supported by `~.Column`, the
-            following are available:
-
-             - `a` -- ``<a>`` in ``<td>`` elements.
+    ---------
+    text (str or callable): If set, this value will be used to render the text inside link instead of value.
+        The callable gets the record being rendered as argument.
+    attrs (dict): In addition to ``attrs`` keys supported by `~.Column`, the following are available:
+            - `a` -- ``<a>`` in ``<td>`` elements.
     """
 
     def __init__(self, text=None, *args, **kwargs):
@@ -25,10 +23,7 @@ class BaseLinkColumn(Column):
         return self.text(record) if callable(self.text) else self.text
 
     def value(self, record, value):
-        """
-        Returns the content for a specific cell similarly to `.render` however
-        without any html content.
-        """
+        """Return the content for a specific cell similarly to `.render` however without any html content."""
         return self.text_value(record, value)
 
     def render(self, record, value):
@@ -56,6 +51,7 @@ class LinkColumn(BaseLinkColumn):
     rendered ``<a href="...">`` tag.
 
     Arguments:
+    ---------
         viewname (str or None): See `~django.urls.reverse`, or use `None`
             to use the model's `get_absolute_url`
         urlconf (str): See `~django.urls.reverse`.
@@ -74,7 +70,7 @@ class LinkColumn(BaseLinkColumn):
         `~django.urls.reverse` is called.
 
     Example:
-
+    -------
     .. code-block:: python
 
         # models.py

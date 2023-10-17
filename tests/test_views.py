@@ -1,5 +1,4 @@
 from math import ceil
-from typing import Optional
 
 import django_filters as filters
 from django.core.exceptions import ImproperlyConfigured
@@ -244,7 +243,7 @@ class SingleTableViewTest(TestCase):
     def test_using_get_queryset(self):
         """
         Should not raise a value-error for a View using View.get_queryset()
-        (test for reverting regressing in #423)
+        (test for reverting regressing in #423).
         """
         Person.objects.create(first_name="Anton", last_name="Sam")
 
@@ -295,7 +294,7 @@ class SingleTableViewTest(TestCase):
 class SingleTableMixinTest(TestCase):
     def test_with_non_paginated_view(self):
         """
-        SingleTableMixin should not assume it is mixed with a ListView
+        SingleTableMixin should not assume it is mixed with a ListView.
 
         Github issue #326
         """
@@ -313,10 +312,7 @@ class SingleTableMixinTest(TestCase):
         View.as_view()(build_request())
 
     def test_should_paginate_by_default(self):
-        """
-        When mixing SingleTableMixin with FilterView, the table should paginate by default
-        """
-
+        """When mixing SingleTableMixin with FilterView, the table should paginate by default."""
         total_records = 60
         for i in range(1, total_records + 1):
             Region.objects.create(name=f"region {i:02d} / {total_records}")
@@ -482,7 +478,7 @@ class MultiTableMixinTest(TestCase):
             tables = (TableB, TableB)
             tables_data = (Region.objects.all(), Region.objects.all())
 
-            def get_paginate_by(self, table_data) -> Optional[int]:
+            def get_paginate_by(self, table_data) -> int | None:
                 # Split data into 3 pages
                 return ceil(len(table_data) / 3)
 

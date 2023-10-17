@@ -1,5 +1,9 @@
 from itertools import count
+<<<<<<< HEAD
 from typing import Any, Optional
+=======
+from typing import Any
+>>>>>>> 7b39760 (Adopt ruff to replace isort, flake8)
 
 from django.core.exceptions import ImproperlyConfigured
 from django.views.generic.list import ListView
@@ -9,25 +13,22 @@ from .config import RequestConfig
 
 
 class TableMixinBase:
-    """
-    Base mixin for the Single- and MultiTable class based views.
-    """
+    """Base mixin for the Single- and MultiTable class based views."""
 
     context_table_name = "table"
     table_pagination = None
 
     def get_context_table_name(self, table):
-        """
-        Get the name to use for the table's template variable.
-        """
+        """Get the name to use for the table's template variable."""
         return self.context_table_name
 
     def get_table_pagination(self, table):
         """
-        Return pagination options passed to `.RequestConfig`:
-            - True for standard pagination (default),
-            - False for no pagination,
-            - a dictionary for custom pagination.
+        Return pagination options passed to `.RequestConfig`.
+
+          - True for standard pagination (default),
+          - False for no pagination,
+          - a dictionary for custom pagination.
 
         `ListView`s pagination attributes are taken into account, if `table_pagination` does not
         define the corresponding value.
@@ -61,15 +62,17 @@ class TableMixinBase:
 
         return paginate
 
-    def get_paginate_by(self, table_data) -> Optional[int]:
+    def get_paginate_by(self, table_data) -> int | None:
         """
-        Determines the number of items per page, or ``None`` for no pagination.
+        Determine the number of items per page, or ``None`` for no pagination.
 
         Args:
-            table_data: The table's data.
+        ----
+        table_data: The table's data.
 
         Returns:
-            Optional[int]: Items per page or ``None`` for no pagination.
+        -------
+        Optional[int]: Items per page or ``None`` for no pagination.
         """
         return getattr(self, "paginate_by", None)
 
@@ -79,20 +82,18 @@ class SingleTableMixin(TableMixinBase):
     Adds a Table object to the context. Typically used with
     `.TemplateResponseMixin`.
 
-    Attributes:
-        table_class: subclass of `.Table`
-        table_data: data used to populate the table, any compatible data source.
-        context_table_name(str): name of the table's template variable (default:
-            'table')
-        table_pagination (dict): controls table pagination. If a `dict`, passed as
-            the *paginate* keyword argument to `.RequestConfig`. As such, any
-            Truthy value enables pagination. (default: enable pagination).
+    Attributes
+    ----------
+    table_class: subclass of `.Table`
+    table_data: data used to populate the table, any compatible data source.
+    context_table_name(str): name of the table's template variable (default: 'table')
+    table_pagination (dict): controls table pagination. If a `dict`, passed as the *paginate* keyword argument to
+        `.RequestConfig`. As such, any truthy value enables pagination. (default: enable pagination).
 
-            The `dict` can be used to specify values for arguments for the call to
-            `~.tables.Table.paginate`.
+        The `dict` can be used to specify values for arguments for the call to `~.tables.Table.paginate`.
 
-            If you want to use a non-standard paginator for example, you can add a key
-            `paginator_class` to the dict, containing a custom `Paginator` class.
+        If you want to use a non-standard paginator for example, you can add a key `paginator_class` to the dict,
+        containing a custom `Paginator` class.
 
     This mixin plays nice with the Django's ``.MultipleObjectMixin`` by using
     ``.get_queryset`` as a fall back for the table data source.
@@ -102,9 +103,7 @@ class SingleTableMixin(TableMixinBase):
     table_data = None
 
     def get_table_class(self):
-        """
-        Return the class to use for the table.
-        """
+        """Return the class to use for the table."""
         if self.table_class:
             return self.table_class
         if self.model:
@@ -125,9 +124,7 @@ class SingleTableMixin(TableMixinBase):
         )
 
     def get_table_data(self):
-        """
-        Return the table data that should be used to populate the rows.
-        """
+        """Return the table data that should be used to populate the rows."""
         if self.table_data is not None:
             return self.table_data
         elif hasattr(self, "object_list"):
@@ -182,7 +179,8 @@ class MultiTableMixin(TableMixinBase):
     having an entry containing the data for each table in `tables`, or by
     overriding this method in order to return this data.
 
-    Attributes:
+    Attributes
+    ----------
         tables: list of `.Table` instances or list of `.Table` child objects.
         tables_data: if defined, `tables` is assumed to be a list of table
             classes which will be instantiated with the corresponding item from
@@ -205,9 +203,7 @@ class MultiTableMixin(TableMixinBase):
     context_table_name = "tables"
 
     def get_tables(self):
-        """
-        Return an array of table instances containing data.
-        """
+        """Return an array of table instances containing data."""
         if self.tables is None:
             view_name = type(self).__name__
             raise ImproperlyConfigured(f"No tables were specified. Define {view_name}.tables")
@@ -222,9 +218,7 @@ class MultiTableMixin(TableMixinBase):
         return list(Table(data[i]) for i, Table in enumerate(self.tables))
 
     def get_tables_data(self):
-        """
-        Return an array of table_data that should be used to populate each table
-        """
+        """Return an array of table_data that should be used to populate each table."""
         return self.tables_data
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:

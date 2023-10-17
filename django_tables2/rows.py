@@ -7,9 +7,7 @@ from .utils import A, AttributeDict, call_with_appropriate, computed_values
 
 
 class CellAccessor:
-    """
-    Allows accessing cell contents on a row object (see `BoundRow`)
-    """
+    """Allows accessing cell contents on a row object (see `BoundRow`)."""
 
     def __init__(self, row):
         self.row = row
@@ -73,6 +71,7 @@ class BoundRow:
         1
 
     Arguments:
+    ---------
         table: The `.Table` in which this row exists.
         record: a single record from the :term:`table data` that is used to
             populate the row. A record could be a `~django.db.Model` object, a
@@ -99,6 +98,7 @@ class BoundRow:
         Return css class, alternating for odd and even records.
 
         Return:
+        ------
             string: `even` for even records, `odd` otherwise.
         """
         return "odd" if self.row_counter % 2 else "even"
@@ -174,9 +174,10 @@ class BoundRow:
 
     def _optional_cell_arguments(self, bound_column, value):
         """
-        Defines the arguments that will optionally be passed while calling the
-        cell's rendering or value getter if that function has one of these as a
-        keyword argument.
+        Return optional arguments for render functions.
+
+        Defines the arguments that will optionally be passed while calling the cell's rendering or value getter if that
+        function has one of these as keyword arguments.
         """
         return {
             "value": value,
@@ -188,10 +189,7 @@ class BoundRow:
         }
 
     def get_cell(self, name):
-        """
-        Returns the final rendered html for a cell in the row, given the name
-        of a column.
-        """
+        """Return the final rendered html for a cell in the row, given the name of a column."""
         bound_column = self.table.columns[name]
 
         return self._get_and_render_with(
@@ -199,40 +197,31 @@ class BoundRow:
         )
 
     def _call_render(self, bound_column, value=None):
-        """
-        Call the column's render method with appropriate kwargs
-        """
+        """Call the column's render method with appropriate kwargs."""
         render_kwargs = self._optional_cell_arguments(bound_column, value)
         content = call_with_appropriate(bound_column.render, render_kwargs)
 
         return bound_column.link(content, **render_kwargs) if bound_column.link else content
 
     def get_cell_value(self, name):
-        """
-        Returns the final rendered value (excluding any html) for a cell in the
-        row, given the name of a column.
-        """
+        """Return the final rendered value (excluding any html) for a cell in the row, given the name of a column."""
         return self._get_and_render_with(
             self.table.columns[name], render_func=self._call_value, default=None
         )
 
     def _call_value(self, bound_column, value=None):
-        """
-        Call the column's value method with appropriate kwargs
-        """
+        """Call the column's value method with appropriate kwargs."""
         return call_with_appropriate(
             bound_column.value, self._optional_cell_arguments(bound_column, value)
         )
 
     def __contains__(self, item):
-        """
-        Check by both row object and column name.
-        """
+        """Check by both row object and column name."""
         return item in (self.table.columns if isinstance(item, str) else self)
 
     def items(self):
         """
-        Returns iterator yielding ``(bound_column, cell)`` pairs.
+        Return an iterator yielding ``(bound_column, cell)`` pairs.
 
         *cell* is ``row[name]`` -- the rendered unicode value that should be
         ``rendered within ``<td>``.
@@ -247,9 +236,7 @@ class BoundRow:
 
 
 class BoundPinnedRow(BoundRow):
-    """
-    Represents a *pinned* row in a table.
-    """
+    """Represents a *pinned* row in a table."""
 
     @property
     def attrs(self):
@@ -258,7 +245,8 @@ class BoundPinnedRow(BoundRow):
         Add CSS classes `pinned-row` and `odd` or `even` to `class` attribute.
 
         Return:
-            AttributeDict: Attributes for pinned rows.
+        ------
+        AttributeDict: Attributes for pinned rows.
         """
         row_attrs = computed_values(self._table.pinned_row_attrs, kwargs={"record": self._record})
         css_class = " ".join(
@@ -273,12 +261,14 @@ class BoundRows:
     Container for spawning `.BoundRow` objects.
 
     Arguments:
+    ---------
         data: iterable of records
         table: the `~.Table` in which the rows exist
         pinned_data: dictionary with iterable of records for top and/or
          bottom pinned rows.
 
     Example:
+    -------
         >>> pinned_data = {
         ...    'top': iterable,      # or None value
         ...    'bottom': iterable,   # or None value
@@ -297,10 +287,12 @@ class BoundRows:
         Top and bottom pinned rows generator.
 
         Arguments:
-            data: Iterable data for all records for top or bottom pinned rows.
+        ---------
+        data: Iterable data for all records for top or bottom pinned rows.
 
         Yields:
-            BoundPinnedRow: Top or bottom `BoundPinnedRow` object for single pinned record.
+        ------
+        BoundPinnedRow: Top or bottom `BoundPinnedRow` object for single pinned record.
         """
         if data is not None:
             if hasattr(data, "__iter__") is False:

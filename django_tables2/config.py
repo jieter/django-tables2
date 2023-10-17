@@ -8,6 +8,7 @@ class RequestConfig:
     A single RequestConfig can be used for multiple tables in one view.
 
     Arguments:
+    ---------
         paginate (dict or bool): Indicates whether to paginate, and if so, what
             default values to use. If the value evaluates to `False`, pagination
             will be disabled. A `dict` can be used to specify default values for
@@ -35,7 +36,8 @@ class RequestConfig:
         Configure a table using information from the request.
 
         Arguments:
-            table (`~.Table`): table to be configured
+        ---------
+        table (`~.Table`): table to be configured
         """
         table.request = self.request
 

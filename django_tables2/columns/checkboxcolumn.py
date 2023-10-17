@@ -25,6 +25,7 @@ class CheckBoxColumn(Column):
     - ``orderable`` defaults to `False`.
 
     Arguments:
+    ---------
         attrs (dict): In addition to *attrs* keys supported by `~.Column`, the
             following are available:
 
@@ -71,9 +72,7 @@ class CheckBoxColumn(Column):
         return mark_safe(f"<input {AttributeDict(attrs).as_html()} />")
 
     def is_checked(self, value, record):
-        """
-        Determine if the checkbox should be checked
-        """
+        """Determine if the checkbox should be checked."""
         if self.checked is None:
             return False
         if self.checked is True:

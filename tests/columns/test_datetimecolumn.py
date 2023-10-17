@@ -19,7 +19,7 @@ class DateTimeColumnTest(SimpleTestCase):
     b -- Month, textual, 3 letters, lowercase -- 'jan'
     Y -- Year, 4 digits.                      -- '1999'
     A -- 'AM' or 'PM'.                        -- 'AM'
-    f -- Time, in 12-hour hours[:minutes]     -- '1', '1:30'
+    f -- Time, in 12-hour hours[:minutes]     -- '1', '1:30'.
     """
 
     def dt(self):

@@ -10,6 +10,7 @@ class DateColumn(TemplateColumn):
     A column that renders dates in the local timezone.
 
     Arguments:
+    ---------
         format (str): format string in same format as Django's ``date`` template
                       filter (optional)
         short (bool): if `format` is not specified, use Django's

@@ -28,9 +28,7 @@ class BooleanColumnTest(TestCase):
 
     @skipIf(django_version < (2, 1, 0), "Feature added in django 2.1")
     def test_should_use_nullability_for_booloanfield(self):
-        """
-        Django 2.1 supports null=(True|False) for BooleanField.
-        """
+        """Django 2.1 supports null=(True|False) for BooleanField."""
 
         class BoolModel2(models.Model):
             field = models.BooleanField(null=True)
@@ -98,10 +96,7 @@ class BooleanColumnTest(TestCase):
         self.assertIn(table.rows[0].get_cell("col"), table.rows[0].get_cell("col_linkify"))
 
     def test_boolean_field_choices_with_real_model_instances(self):
-        """
-        If a booleanField has choices defined, the value argument passed to
-        BooleanColumn.render() is the rendered value, not a bool.
-        """
+        """With choices defined, BooleanColumn.render() should get the rendered value, not a bool."""
 
         class BoolModelChoices(models.Model):
             field = models.BooleanField(choices=((True, "Yes"), (False, "No")))
@@ -119,7 +114,7 @@ class BooleanColumnTest(TestCase):
         self.assertEqual(table.rows[1].get_cell("field"), '<span class="false">✘</span>')
 
     def test_boolean_field_choices_spanning_relations(self):
-        "The inverse lookup voor boolean choices should also work on related models"
+        """The inverse lookup for boolean choices should also work on related models."""
 
         class Table(tables.Table):
             boolean = tables.BooleanColumn(accessor="occupation__boolean_with_choices")
@@ -141,7 +136,7 @@ class BooleanColumnTest(TestCase):
         self.assertEqual(table.rows[1].get_cell("boolean"), '<span class="false">✘</span>')
 
     def test_boolean_should_not_prevent_rendering_of_other_columns(self):
-        """Test for issue 360"""
+        """Test for issue 360."""
 
         class Table(tables.Table):
             boolean = tables.BooleanColumn(yesno="waar,onwaar")

@@ -5,6 +5,7 @@ repos:
      - id: black
        language_version: python3.11
 
+<<<<<<< HEAD
   - repo: https://github.com/asottile/pyupgrade
     rev: v3.19.0
     hooks:
@@ -37,3 +38,10 @@ repos:
      - id: pyupgrade
        args: [--py39-plus]
 
+=======
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.0.272
+    hooks:
+      - id: ruff
+        args: [--fix, --exit-non-zero-on-fix]
+>>>>>>> 7b39760 (Adopt ruff to replace isort, flake8)

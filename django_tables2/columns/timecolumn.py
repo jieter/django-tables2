@@ -10,6 +10,7 @@ class TimeColumn(TemplateColumn):
     A column that renders times in the local timezone.
 
     Arguments:
+    ---------
         format (str): format string in same format as Django's ``time`` template filter (optional).
         short (bool): if *format* is not specified, use Django's ``TIME_FORMAT`` setting.
     """

@@ -33,8 +33,9 @@ class Library:
         """
         Return a column object suitable for model field.
 
-        Returns:
-            `.Column` object or `None`
+        Returns
+        -------
+        `..Column` object or `None`
         """
         if field is None:
             return self.columns[0](**kwargs)
@@ -70,25 +71,23 @@ class LinkTransform:
 
     def __init__(self, url=None, accessor=None, attrs=None, reverse_args=None):
         """
-        arguments:
-            url (callable): If supplied, the result of this callable will be used as ``href`` attribute.
-            accessor (Accessor): if supplied, the accessor will be used to decide on which object
-                ``get_absolute_url()`` is called.
-            attrs (dict): Customize attributes for the ``<a>`` tag.
-                Values of the dict can be either static text or a
-                callable. The callable can optionally declare any subset
-                of the following keyword arguments: value, record, column,
-                bound_column, bound_row, table. These arguments will then
-                be passed automatically.
-            reverse_args (dict, tuple): Arguments to ``django.urls.reverse()``. If dict, the arguments
-                are assumed to be keyword arguments to ``reverse()``, if tuple, a ``(viewname, args)``
-                or ``(viewname, kwargs)``
+        Arguments:
+        ---------
+        url (callable): If supplied, the result of this callable will be used as ``href`` attribute.
+        accessor (Accessor): if supplied, the accessor will be used to decide on which object
+            ``get_absolute_url()`` is called.
+        attrs (dict): Customize attributes for the ``<a>`` tag.
+            Values of the dict can be either static text or a callable. The callable can optionally declare any subset
+            of the following keyword arguments: value, record, column, bound_column, bound_row, table.
+            These arguments will then be passed automatically.
+        reverse_args (dict, tuple): Arguments to ``django.urls.reverse()``. If dict, the arguments are assumed to be
+        keyword arguments to ``reverse()``, if tuple, a ``(viewname, args)`` or ``(viewname, kwargs)``.
         """
         self.url = url
         self.attrs = attrs
         self.accessor = accessor
 
-        if isinstance(reverse_args, (list, tuple)):
+        if isinstance(reverse_args, list | tuple):
             viewname, args = reverse_args
             reverse_args = {"viewname": viewname}
             reverse_args["kwargs" if isinstance(args, dict) else "args"] = args
@@ -120,9 +119,7 @@ class LinkTransform:
         return context.get_absolute_url()
 
     def call_reverse(self, record):
-        """
-        Prepares the arguments to reverse() for this record and calls reverse()
-        """
+        """Prepare the arguments to reverse() for this record and calls reverse()."""
 
         def resolve_if_accessor(val):
             return val.resolve(record) if isinstance(val, Accessor) else val
@@ -166,60 +163,49 @@ class Column:
     within it) are rendered.
 
     Arguments:
-        attrs (dict): HTML attributes for elements that make up the column.
-            This API is extended by subclasses to allow arbitrary HTML
-            attributes to be added to the output.
+    ---------
+    attrs (dict): HTML attributes for elements that make up the column.
+        This API is extended by subclasses to allow arbitrary HTML attributes to be added to the output.
 
-            By default `.Column` supports:
+        By default `.Column` supports:
 
-             - ``th`` -- ``table/thead/tr/th`` elements
-             - ``td`` -- ``table/tbody/tr/td`` elements
-             - ``cell`` -- fallback if ``th`` or ``td`` is not defined
-             - ``a`` -- To control the attributes for the ``a`` tag if the cell
-               is wrapped in a link.
-        accessor (str or `~.Accessor`): An accessor that describes how to
-            extract values for this column from the :term:`table data`.
-        default (str or callable): The default value for the column. This can be
-            a value or a callable object [1]_. If an object in the data provides
-            `None` for a column, the default will be used instead.
+            - ``th`` -- ``table/thead/tr/th`` elements
+            - ``td`` -- ``table/tbody/tr/td`` elements
+            - ``cell`` -- fallback if ``th`` or ``td`` is not defined
+            - ``a`` -- To control the attributes for the ``a`` tag if the cell
+            is wrapped in a link.
+    accessor (str or `~.Accessor`): An accessor that describes how to extract values for this column from the
+       :term:`table data`.
+    default (str or callable): The default value for the column.
+        This can be a value or a callable object [1]_. If an object in the data provides `None` for a column, the
+        default will be used instead. The default value may affect ordering, depending on the type of data the table is
+        using. The only case where ordering is not affected is when a `.QuerySet` is used as the table data (since
+        sorting is performed by the database).
+    empty_values (iterable): list of values considered as a missing value, for which the column will render the default
+        value. Defaults to `(None, '')`
+    exclude_from_export (bool): If `True`, the column will not be added to the data iterator returned from as_values().
+    footer (str, callable): Defines the footer of this column. If a callable is passed, it can take optional keyword
+        arguments `column`, `bound_column` and `table`.
+    order_by (str, tuple or `.Accessor`): Allows one or more accessors to be used for ordering rather than *accessor*.
+    orderable (bool): If `False`, this column will not be allowed to influence row ordering/sorting.
+    verbose_name (str): A human readable version of the column name.
+    visible (bool): If `True`, this column will be rendered. Columns with `visible=False` will not be rendered, but
+        will be included   in ``.Table.as_values()`` and thus also in :ref:`export`.
+    localize: If the cells in this column will be localized by the `localize` filter:
+            - If `True`, force localization
+            - If `False`, values are not localized
+            - If `None` (default), localization depends on the ``USE_L10N`` setting.
+    linkify (bool, str, callable, dict, tuple): Controls if cell content will be wrapped in an ``a`` tag. The different
+        ways to define the ``href`` attribute:
 
-            The default value may affect ordering, depending on the type of data
-            the table is using. The only case where ordering is not affected is
-            when a `.QuerySet` is used as the table data (since sorting is
-            performed by the database).
-        empty_values (iterable): list of values considered as a missing value,
-            for which the column will render the default value. Defaults to
-            `(None, '')`
-        exclude_from_export (bool): If `True`, this column will not be added to
-            the data iterator returned from as_values().
-        footer (str, callable): Defines the footer of this column. If a callable
-            is passed, it can take optional keyword arguments `column`,
-            `bound_column` and `table`.
-        order_by (str, tuple or `.Accessor`): Allows one or more accessors to be
-            used for ordering rather than *accessor*.
-        orderable (bool): If `False`, this column will not be allowed to
-            influence row ordering/sorting.
-        verbose_name (str): A human readable version of the column name.
-        visible (bool): If `True`, this column will be rendered.
-            Columns with `visible=False` will not be rendered, but will be included
-            in ``.Table.as_values()`` and thus also in :ref:`export`.
-        localize: If the cells in this column will be localized by the
-            `localize` filter:
-
-              - If `True`, force localization
-              - If `False`, values are not localized
-              - If `None` (default), localization depends on the ``USE_L10N`` setting.
-        linkify (bool, str, callable, dict, tuple): Controls if cell content will be wrapped in an
-            ``a`` tag. The different ways to define the ``href`` attribute:
-
-             - If `True`, the ``record.get_absolute_url()`` or the related model's
-               `get_absolute_url()` is used.
-             - If a callable is passed, the returned value is used, if it's not ``None``.
-               The callable can optionally accept any argument valid for :ref:`table.render_foo`-methods,
-               for example `record` or `value`.
-             - If a `dict` is passed, it's passed on to ``~django.urls.reverse``.
-             - If a `tuple` is passed, it must be either a (viewname, args) or (viewname, kwargs)
-               tuple, which is also passed to ``~django.urls.reverse``.
+            - If `True`, the ``record.get_absolute_url()`` or the related model's
+            `get_absolute_url()` is used.
+            - If a callable is passed, the returned value is used, if it's not ``None``.
+            The callable can optionally accept any argument valid for :ref:`table.render_foo`-methods,
+            for example `record` or `value`.
+            - If a `dict` is passed, it's passed on to ``~django.urls.reverse``.
+            - If a `tuple` is passed, it must be either a (viewname, args) or (viewname, kwargs)
+            tuple, which is also passed to ``~django.urls.reverse``.
 
     Examples, assuming this model::
 
@@ -301,7 +287,7 @@ class Column:
         link_kwargs = None
         if callable(linkify) or hasattr(self, "get_url"):
             link_kwargs = dict(url=linkify if callable(linkify) else self.get_url)
-        elif isinstance(linkify, (dict, tuple)):
+        elif isinstance(linkify, dict | tuple):
             link_kwargs = dict(reverse_args=linkify)
         elif linkify is True:
             link_kwargs = dict(accessor=self.accessor)
@@ -357,13 +343,11 @@ class Column:
         """
         Return the content for a specific cell.
 
-        This method can be overridden by :ref:`table.render_FOO` methods on the
-        table or by subclassing `.Column`.
+        This method can be overridden by :ref:`table.render_FOO` methods on the table or by subclassing `.Column`.
 
-        If the value for this cell is in `.empty_values`, this method is
-        skipped and an appropriate default value is rendered instead.
-        Subclasses should set `.empty_values` to ``()`` if they want to handle
-        all values in `.render`.
+        If the value for this cell is in `.empty_values`, this method is skipped and an appropriate default value is
+        rendered instead.
+        Subclasses should set `.empty_values` to ``()`` if they want to handle all values in `.render`.
         """
         return value
 
@@ -372,12 +356,11 @@ class Column:
         Return the content for a specific cell for exports.
 
         Similar to `.render` but without any html content.
-        This can be used to get the data in the formatted as it is presented but in a
-        form that could be added to a csv file.
+        This can be used to get the data in the formatted as it is presented but in a form that could be added to a csv
+        file.
 
-        The default implementation just calls the `render` function but any
-        subclasses where `render` returns html content should override this
-        method.
+        The default implementation just calls the `render` function but any subclasses where `render` returns html
+        content should override this method.
 
         See `LinkColumn` for an example.
         """
@@ -389,12 +372,12 @@ class Column:
         """
         Order the QuerySet of the table.
 
-        This method can be overridden by :ref:`table.order_FOO` methods on the
-        table or by subclassing `.Column`; but only overrides if second element
-        in return tuple is True.
+        This method can be overridden by :ref:`table.order_FOO` methods on the table or by subclassing `.Column`; but
+        only overrides if second element in return tuple is True.
 
-        returns:
-            Tuple (QuerySet, boolean)
+        Returns
+        -------
+        Tuple (QuerySet, boolean)
         """
         return (queryset, False)
 
@@ -404,15 +387,17 @@ class Column:
         Return a specialized column for the model field or `None`.
 
         Arguments:
-            field (Model Field instance): the field that needs a suitable column
+        ---------
+        field (Model Field instance): the field that needs a suitable column.
+        **kwargs: any
+
         Returns:
-            `.Column` object or `None`
+        -------
+        `.Column` object or `None`
 
-        If the column is not specialized for the given model field, it should
-        return `None`. This gives other columns the opportunity to do better.
-
-        If the column is specialized, it should return an instance of itself
-        that is configured appropriately for the field.
+        If the column is not specialized for the given model field, it should return `None`. This gives other columns
+        the opportunity to do better.
+        If the column is specialized, it should return an properly configured instance of itself for the field.
         """
         # Since this method is inherited by every subclass, only provide a
         # column if this class was asked directly.
@@ -429,7 +414,8 @@ class BoundColumn:
     In practice, this means that a `.BoundColumn` knows the *"variable name"* given to the `.Column`
     when it was declared on the `.Table`.
 
-    arguments:
+    Arguments:
+    ---------
         table (`~.Table`): The table in which this column exists
         column (`~.Column`): The type of column
         name (str): The variable name of the column used when defining the
@@ -456,6 +442,14 @@ class BoundColumn:
         return str(self.header)
 
     @property
+<<<<<<< HEAD
+=======
+    def accessor(self):
+        """Return the string used to access data for this column out of the data source."""
+        return self.column.accessor or Accessor(self.name)
+
+    @property
+>>>>>>> 7b39760 (Adopt ruff to replace isort, flake8)
     def attrs(self):
         """
         Proxy to `.Column.attrs` but injects some values of our own.
@@ -465,7 +459,6 @@ class BoundColumn:
         templates easier. ``tf`` is not actually a HTML tag, but this key name
         will be used for attributes for column's footer, if the column has one.
         """
-
         # prepare kwargs for computed_values()
         kwargs = {"table": self._table, "bound_column": self}
         # BoundRow.items() sets current_record and current_value when iterating over
@@ -503,25 +496,19 @@ class BoundColumn:
         return attrs
 
     def _get_cell_class(self, attrs):
-        """
-        Return a set of the classes from the class key in ``attrs``.
-        """
+        """Return a set of the classes from the class key in ``attrs``."""
         classes = attrs.get("class", None)
         classes = set() if classes is None else set(classes.split(" "))
 
         return self._table.get_column_class_names(classes, self)
 
     def get_td_class(self, td_attrs):
-        """
-        Returns the HTML class attribute for a data cell in this column
-        """
+        """Return the HTML class attribute for a data cell in this column."""
         classes = sorted(self._get_cell_class(td_attrs))
         return None if len(classes) == 0 else " ".join(classes)
 
     def get_th_class(self, th_attrs):
-        """
-        Returns the HTML class attribute for a header cell in this column
-        """
+        """Return the HTML class attribute for a header cell in this column."""
         classes = self._get_cell_class(th_attrs)
 
         # add classes for ordering
@@ -539,7 +526,7 @@ class BoundColumn:
 
     @property
     def default(self):
-        """Returns the default value for this column."""
+        """Return the default value for this column."""
         value = self.column.default
         if value is None:
             value = self._table.default
@@ -698,7 +685,7 @@ class BoundColumn:
 
     @property
     def localize(self):
-        """Return `True`, `False` or `None` as described in ``Column.localize``"""
+        """Return `True`, `False` or `None` as described in ``Column.localize``."""
         return self.column.localize
 
 
@@ -720,6 +707,7 @@ class BoundColumns:
     `.Table.columns` property.
 
     Arguments:
+    ---------
         table (`.Table`): the table containing the columns
     """
 
@@ -742,10 +730,7 @@ class BoundColumns:
         return list(self.iternames())
 
     def iterall(self):
-        """
-        Return an iterator that exposes all `.BoundColumn` objects,
-        regardless of visibility or sortability.
-        """
+        """Return an iterator that exposes all `.BoundColumn` objects, regardless of visibility or sortability."""
         return (column for name, column in self.iteritems())
 
     def all(self):
@@ -755,11 +740,9 @@ class BoundColumns:
         """
         Return an iterator of ``(name, column)`` pairs (where ``column`` is a `BoundColumn`).
 
-        This method is the mechanism for retrieving columns that takes into
-        consideration all of the ordering and filtering modifiers that a table
-        supports (e.g. `~Table.Meta.exclude` and `~Table.Meta.sequence`).
+        This method is the mechanism for retrieving columns that takes into consideration all of the ordering and
+        filtering modifiers that a table supports (e.g. `~Table.Meta.exclude` and `~Table.Meta.sequence`).
         """
-
         for name in self._table.sequence:
             if name not in self._table.exclude:
                 yield (name, self.columns[name])
@@ -769,43 +752,28 @@ class BoundColumns:
 
     def iterorderable(self):
         """
-        Same as `BoundColumns.all` but only returns orderable columns.
+        Return an ordered variant of `BoundColumns.all`.
 
-        This is useful in templates, where iterating over the full
-        set and checking ``{% if column.ordarable %}`` can be problematic in
-        conjunction with e.g. ``{{ forloop.last }}`` (the last column might not
-        be the actual last that is rendered).
+        This is useful in templates, where iterating over the full set and checking ``{% if column.ordarable %}`` can
+        be problematic in conjunction with e.g. ``{{ forloop.last }}`` (the last column might not be the actual last
+        that is rendered).
         """
         return (x for x in self.iterall() if x.orderable)
 
     def itervisible(self):
-        """
-        Same as `.iterorderable` but only returns visible `.BoundColumn` objects.
-
-        This is geared towards table rendering.
-        """
+        """Ruturn all visible  `.BoundColumn` objects for table rendering."""
         return (x for x in self.iterall() if x.visible)
 
     def hide(self, name):
-        """
-        Hide a column.
-
-        Arguments:
-            name(str): name of the column
-        """
+        """Hide column with ``name``."""
         self.columns[name].column.visible = False
 
     def show(self, name):
-        """
-        Show a column otherwise hidden.
-
-        Arguments:
-            name(str): name of the column
-        """
+        """Show column with ``name`` if it was otherwise hidden."""
         self.columns[name].column.visible = True
 
     def __iter__(self):
-        """Convenience API, alias of `.itervisible`."""
+        """Iterate over visible columns, same as `.itervisible()`."""
         return self.itervisible()
 
     def __contains__(self, item):

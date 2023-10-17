@@ -7,7 +7,8 @@ class ExportMixin:
 
     `ExportMixin` looks for some attributes on the class to change it's behavior:
 
-    Attributes:
+    Attributes
+    ----------
         export_class (TableExport): Allows using a custom implementation of `TableExport`.
         export_name (str): is the name of file that will be exported, without extension.
         export_trigger_param (str): is the name of the GET attribute used to trigger

@@ -10,6 +10,7 @@ class EmailColumn(BaseLinkColumn):
     Render email addresses to `mailto:`-links.
 
     Arguments:
+    ---------
         attrs (dict): HTML attributes that are added to the rendered
                       ``<a href="...">...</a>`` tag.
         text: Either static text, or a callable. If set, this will be used to

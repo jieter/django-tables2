@@ -41,7 +41,7 @@ class FooterTest(SimpleTestCase):
     def test_footer_disable_on_table(self):
         """
         Showing the footer can be disabled using show_footer argument to the Table
-        constructor
+        constructor.
         """
 
         class Table(tables.Table):
