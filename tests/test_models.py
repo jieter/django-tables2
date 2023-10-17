@@ -1,4 +1,5 @@
 from collections import defaultdict
+from unittest import mock
 
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
@@ -6,7 +7,6 @@ from django.db.models.functions import Length
 from django.template import Context, Template
 from django.test import TestCase
 from django.utils.translation import override as translation_override
-from unittest import mock
 
 import django_tables2 as tables
 

@@ -1,5 +1,6 @@
 from math import ceil
 from typing import Optional
+
 import django_filters as filters
 from django.core.exceptions import ImproperlyConfigured
 from django.test import TestCase

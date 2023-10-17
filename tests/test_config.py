@@ -1,4 +1,5 @@
 from unittest.mock import MagicMock, Mock
+
 from django.core.paginator import EmptyPage, PageNotAnInteger
 from django.test import SimpleTestCase, TestCase
 
