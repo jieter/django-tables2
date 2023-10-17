@@ -2,8 +2,7 @@ from django.template import Context, Template
 from django.template.loader import get_template
 from django.utils.html import strip_tags
 
-from django_tables2.utils import call_with_appropriate
-
+from ..utils import call_with_appropriate
 from .base import Column, library
 
 
