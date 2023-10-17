@@ -1,20 +1,19 @@
-from django.conf import settings
-from django.contrib import admin
-from django.urls import include, path
-from django.views import static
-
 from app.views import (
     ClassBased,
     FilteredPersonListView,
     MultipleTables,
-    template_example,
     checkbox,
     country_detail,
     index,
     multiple,
     person_detail,
+    template_example,
     tutorial,
 )
+from django.conf import settings
+from django.contrib import admin
+from django.urls import include, path
+from django.views import static
 
 urlpatterns = [
     path("", index),
