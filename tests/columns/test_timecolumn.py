@@ -34,7 +34,7 @@ class TimeColumnTest(SimpleTestCase):
             class Meta:
                 model = TimeModel
 
-        assert type(Table.base_columns["field"]) == tables.TimeColumn
+        assert type(Table.base_columns["field"]) is tables.TimeColumn
 
     def test_value_returns_a_raw_value_without_html(self):
         class Table(tables.Table):
