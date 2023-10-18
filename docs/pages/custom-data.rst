@@ -38,7 +38,7 @@ Moreover, you can use `accessor` with the table columns to access nested values.
 
     >>> data = [{"abc": {"one": {"two": "three"}}}, {"abc": {"one": {"two": "four"}}}]
     >>> class MyTable(tables.Table):
-    ...    abc = tables.Column(accessor="abc__one__two")  # or abc.one.two
+    ...    abc = tables.Column(accessor="abc__one__two")
     >>> table = MyTable(data)
     >>> list(map(str, table.rows[1]))
     ['four']
