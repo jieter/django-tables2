@@ -12,7 +12,7 @@ formats, you must install the `tablib <https://tablib.readthedocs.io>`_ package:
 
 .. note::
    For all supported formats (xls, xlsx, etc.), you must install additional dependencies:
-   `Installing tablib <https://tablib.readthedocs.io/en/stable/install/#installing-tablib>`_
+   `Installing tablib <https://tablib.readthedocs.io/en/stable/install.html>`_
 
 
 Adding ability to export the table data to a class based views looks like this::
