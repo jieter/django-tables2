@@ -6,8 +6,8 @@ Built-in columns
 For common use-cases the following columns are included:
 
 - `.BooleanColumn` -- renders boolean values
-- `.Column` -- generic column
 - `.CheckBoxColumn` -- renders ``checkbox`` form inputs
+- `.Column` -- generic column
 - `.DateColumn` -- date formatting
 - `.DateTimeColumn` -- ``datetime`` formatting in the local timezone
 - `.EmailColumn` -- renders ``<a href="mailto:...">`` tags
@@ -17,4 +17,5 @@ For common use-cases the following columns are included:
 - `.ManyToManyColumn` -- renders a list objects from a `ManyToManyField`
 - `.RelatedLinkColumn` -- renders ``<a href="...">`` tags linking related objects
 - `.TemplateColumn` -- renders template code
+- `.TimeColumn` -- time formatting
 - `.URLColumn` -- renders ``<a href="...">`` tags (absolute URL)
