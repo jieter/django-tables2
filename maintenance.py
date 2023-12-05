@@ -10,6 +10,11 @@ with open("django_tables2/__init__.py", "rb") as f:
     VERSION = str(re.search('__version__ = "(.+?)"', f.read().decode()).group(1))
 
 if sys.argv[-1] == "publish":
+    try:
+        import twine  # noqa
+        import wheel  # noqa
+    except ImportError:
+        print("Required to publish: pip install wheel twine")
     os.system("python setup.py clean --all")
     os.system("python setup.py sdist bdist_wheel --universal")
     os.system(
