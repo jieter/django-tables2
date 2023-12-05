@@ -28,6 +28,7 @@ setup(
         "Framework :: Django :: 3.2",  # Until April 2024
         "Framework :: Django :: 4.1",
         "Framework :: Django :: 4.2",
+        "Framework :: Django :: 5.0",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: BSD License",
         "Operating System :: OS Independent",
