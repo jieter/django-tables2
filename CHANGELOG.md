@@ -1,5 +1,12 @@
 # Change log
 
+## 2.7.0 (2023-12-05)
+- Update docs dependencies; fix docs search; add readthedocs.yaml ([#935](https://github.com/jieter/django-tables2/pull/935))
+- Add example on how to use `Accessor` to documentation in `custom-data.rst` ([#917](https://github.com/jieter/django-tables2/pull/917)) by [@ruddra](https://github.com/ruddra)
+- Use pre-commit in ci, add isort, flake8, pyupgrade ([#932](https://github.com/jieter/django-tables2/pull/932))
+- Add support for Django 5.0 and Python 3.12 ([#930](https://github.com/jieter/django-tables2/pull/930))
+- Add missing `{% load l10n %}` in templates ([#919](https://github.com/jieter/django-tables2/pull/919)) by [@tvanekeris](https://github.com/tvanekeris)
+
 ## 2.6.0 (2023-06-27)
 - Fix bootstrap5-responsive template to extend bootstrap5 ([#909](https://github.com/jieter/django-tables2/pull/909)) by [@mschoettle](https://github.com/mschoettle)
 - Add support for django 4.2
