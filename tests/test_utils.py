@@ -135,10 +135,10 @@ class AccessorTest(TestCase):
             def method(self, *args, **kwargs):
                 return args, kwargs
 
-        callable_args = ('arg1', 'arg2') 
-        callable_kwargs = {'kwarg1': 'val1', 'kwarg2':'val2'}
+        callable_args = ("arg1", "arg2")
+        callable_kwargs = {"kwarg1": "val1", "kwarg2": "val2"}
         obj = MyClass()
-        result = Accessor('method', *callable_args, **callable_kwargs).resolve(obj)
+        result = Accessor("method", *callable_args, **callable_kwargs).resolve(obj)
         self.assertEqual(result, (callable_args, callable_kwargs))
 
 
