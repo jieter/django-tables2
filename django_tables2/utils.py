@@ -303,7 +303,12 @@ class Accessor(str):
         "Failed lookup for key [{key}] in {context}, when resolving the accessor {accessor}"
     )
 
-    def __new__(cls, value):
+    def __init__(self, object, *callable_args, **callable_kwargs):
+        self.callable_args = callable_args
+        self.callable_kwargs = callable_kwargs
+        super().__init__()
+
+    def __new__(cls, value, *args, **kwargs):
         instance = super().__new__(cls, value)
         if cls.LEGACY_SEPARATOR in value:
             instance.SEPARATOR = cls.LEGACY_SEPARATOR
@@ -394,7 +399,7 @@ class Accessor(str):
                     if safe and getattr(current, "alters_data", False):
                         raise ValueError(self.ALTERS_DATA_ERROR_FMT.format(method=current.__name__))
                     if not getattr(current, "do_not_call_in_templates", False):
-                        current = current()
+                        current = current(*self.callable_args, **self.callable_kwargs)
                 # Important that we break in None case, or a relationship
                 # spanning across a null-key will raise an exception in the
                 # next iteration, instead of defaulting.

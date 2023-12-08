@@ -130,6 +130,17 @@ class AccessorTest(TestCase):
 
         self.assertEqual(Accessor("occupation__name").resolve(context), "Carpenter")
 
+    def test_callable_args_kwargs(self):
+        class MyClass:
+            def method(self, *args, **kwargs):
+                return args, kwargs
+
+        callable_args = ('arg1', 'arg2') 
+        callable_kwargs = {'kwarg1': 'val1', 'kwarg2':'val2'}
+        obj = MyClass()
+        result = Accessor('method', *callable_args, **callable_kwargs).resolve(obj)
+        self.assertEqual(result, (callable_args, callable_kwargs))
+
 
 class AccessorTestModel(models.Model):
     foo = models.CharField(max_length=20)
