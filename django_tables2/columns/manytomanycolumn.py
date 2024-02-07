@@ -39,7 +39,7 @@ class ManyToManyColumn(Column):
         # tables.py
         class PersonTable(tables.Table):
             name = tables.Column(order_by=("last_name", "first_name"))
-            friends = tables.ManyToManyColumn(transform=lambda user: u.name)
+            friends = tables.ManyToManyColumn(transform=lambda user: user.name)
 
     If only the active friends should be displayed, you can use the `filter` argument::
 
