@@ -304,8 +304,8 @@ class Accessor(str):
     )
 
     def __init__(self, value, callable_args=None, callable_kwargs=None):
-        self.callable_args = callable_args or getattr(value, 'callable_args', None) or []
-        self.callable_kwargs = callable_kwargs or getattr(value, 'callable_kwargs', None) or {}
+        self.callable_args = callable_args or getattr(value, "callable_args", None) or []
+        self.callable_kwargs = callable_kwargs or getattr(value, "callable_kwargs", None) or {}
         super().__init__()
 
     def __new__(cls, value, callable_args=None, callable_kwargs=None):
