@@ -303,12 +303,12 @@ class Accessor(str):
         "Failed lookup for key [{key}] in {context}, when resolving the accessor {accessor}"
     )
 
-    def __init__(self, object, *callable_args, **callable_kwargs):
-        self.callable_args = callable_args
-        self.callable_kwargs = callable_kwargs
+    def __init__(self, value, callable_args=None, callable_kwargs=None):
+        self.callable_args = callable_args or []
+        self.callable_kwargs = callable_kwargs or {}
         super().__init__()
 
-    def __new__(cls, value, *args, **kwargs):
+    def __new__(cls, value, callable_args=None, callable_kwargs=None):
         instance = super().__new__(cls, value)
         if cls.LEGACY_SEPARATOR in value:
             instance.SEPARATOR = cls.LEGACY_SEPARATOR
