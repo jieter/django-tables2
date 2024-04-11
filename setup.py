@@ -19,14 +19,12 @@ setup(
     url="https://github.com/jieter/django-tables2/",
     packages=find_packages(exclude=["tests.*", "tests", "example.*", "example", "docs"]),
     include_package_data=True,  # declarations in MANIFEST.in
-    install_requires=["Django>=3.2"],
+    install_requires=["Django>=4.1"],
     extras_require={"tablib": ["tablib"]},
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Environment :: Web Environment",
         "Framework :: Django",
-        "Framework :: Django :: 3.2",  # Until April 2024
-        "Framework :: Django :: 4.1",
         "Framework :: Django :: 4.2",
         "Framework :: Django :: 5.0",
         "Intended Audience :: Developers",
