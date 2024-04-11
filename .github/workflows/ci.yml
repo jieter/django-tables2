@@ -16,7 +16,7 @@ jobs:
     strategy:
       matrix:
         python-version: [3.8, 3.9, "3.10", 3.11, 3.12]
-        django-version: [4.2, 5.0, 5.1b1, master]
+        django-version: [4.2, 5.0, 5.1, master]
         exclude:
             # Django 4.2
             - python-version: 3.12
@@ -33,7 +33,7 @@ jobs:
               django-version: 5.1b1
             - python-version: 3.9
               django-version: 5.1b1
-              
+
             # master
             - python-version: 3.8
               django-version: master
