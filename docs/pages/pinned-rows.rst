@@ -27,6 +27,22 @@ Example::
                 {"first_name": "Trine", "last_name": None}
             ]
 
+To generate dynamic rows based on calculations of all rows that may be similar to a footer we can access to data from the table. As shown in the example below we collect all the data and create a polars dataframe where we can aggregate the data as needed.
+
+Example::
+
+    class Table(tables.Table):
+        item = tables.Column()
+        quantity = tables.Column()
+        price = tables.Column()
+    
+        def get_bottom_pinned_data(self):
+            df = polars.DataFrame(list(self.data))
+            # get totals for each column
+            result = df.sum()
+            # return the dataframe as a list of dicts
+            return result.to_dicts()
+
 .. note:: If you need very different rendering for the bottom pinned rows, chances are
           you actually want to use column footers: :ref:`column-footers`
 
