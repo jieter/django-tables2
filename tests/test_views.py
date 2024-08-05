@@ -412,15 +412,42 @@ class MultiTableMixinTest(TestCase):
         class View(tables.MultiTableMixin, TemplateView):
             template_name = "multiple.html"
 
-        message = "No tables were specified. Define View.tables"
+        message = "You must either specify View.tables or override View.get_tables_classes()"
         with self.assertRaisesMessage(ImproperlyConfigured, message):
             View.as_view()(build_request("/"))
+
+    def test_get_tables_classes_list(self):
+        class View(tables.MultiTableMixin, TemplateView):
+            tables_data = (Person.objects.all(), Region.objects.all())
+            template_name = "multiple.html"
+
+            def get_tables_classes(self):
+                return [TableA, TableB]
+
+        response = View.as_view()(build_request("/"))
+        response.render()
+
+        html = response.rendered_content
+        self.assertEqual(html.count("<table >"), 2)
 
     def test_with_empty_get_tables_list(self):
         class View(tables.MultiTableMixin, TemplateView):
             template_name = "multiple.html"
 
-            def get_tables(self):
+            def get_tables(self, **kwargs):
+                return []
+
+        response = View.as_view()(build_request("/"))
+        response.render()
+
+        html = response.rendered_content
+        self.assertIn("<h1>Multiple tables using MultiTableMixin</h1>", html)
+
+    def test_with_empty_get_tables_clases_list(self):
+        class View(tables.MultiTableMixin, TemplateView):
+            template_name = "multiple.html"
+
+            def get_tables_classes(self):
                 return []
 
         response = View.as_view()(build_request("/"))
