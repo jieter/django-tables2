@@ -57,7 +57,7 @@ If you must use a function view, you might use something like this::
         export_format = request.GET.get("_export", None)
         if TableExport.is_valid_format(export_format):
             exporter = TableExport(export_format, table)
-            return exporter.response(f"table.{export_format})
+            return exporter.response(f"table.{export_format}")
 
         return render(request, "table.html", {
             "table": table
