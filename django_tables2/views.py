@@ -41,7 +41,7 @@ class TableMixinBase:
         paginate = {}
 
         # Obtains and set page size from get_paginate_by
-        paginate_by = self.get_paginate_by(table.data)
+        paginate_by = self.get_paginate_by(table.data) or self.get_paginate_table_by(table.data)
         if paginate_by is not None:
             paginate["per_page"] = paginate_by
 
@@ -72,6 +72,18 @@ class TableMixinBase:
             Optional[int]: Items per page or ``None`` for no pagination.
         """
         return getattr(self, "paginate_by", None)
+
+    def get_paginate_table_by(self, table_data) -> Optional[int]:
+        """
+        Determines the number of items per page, or ``None`` for no pagination.
+
+        Args:
+            table_data: The table's data.
+
+        Returns:
+            Optional[int]: Items per page or ``None`` for no pagination.
+        """
+        return getattr(self, "paginate_table_by", None)
 
 
 class SingleTableMixin(TableMixinBase):
