@@ -75,7 +75,7 @@ class TableMixinBase:
 
     def get_paginate_table_by(self, table_data) -> Optional[int]:
         """
-        Determines the number of items per page, or ``None`` for no pagination.
+        Alternate method for setting paginate_by that does not conflict with ListView
 
         Args:
             table_data: The table's data.
