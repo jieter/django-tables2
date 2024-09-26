@@ -15,7 +15,7 @@ setup(
     long_description_content_type="text/markdown",
     author="Bradley Ayers",
     author_email="bradley.ayers@gmail.com",
-    license="Simplified BSD",
+    license="BSD-2-Clause",
     url="https://github.com/jieter/django-tables2/",
     packages=find_packages(exclude=["tests.*", "tests", "example.*", "example", "docs"]),
     include_package_data=True,  # declarations in MANIFEST.in
