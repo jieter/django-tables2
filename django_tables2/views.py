@@ -150,7 +150,7 @@ class SingleTableMixin(TableMixinBase):
                     'exclude': ('buttons', )
                 }
         """
-        return {}
+        return {"request": self.request}
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         """
