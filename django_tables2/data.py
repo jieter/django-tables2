@@ -167,8 +167,7 @@ class TableQuerysetData(TableData):
     @property
     def ordering(self):
         """
-        Returns the list of order by aliases that are enforcing ordering on the
-        data.
+        Returns the list of order by aliases that are enforcing ordering on the data.
 
         If the data is unordered, an empty sequence is returned. If the
         ordering can not be determined, `None` is returned.
@@ -185,7 +184,7 @@ class TableQuerysetData(TableData):
         except StopIteration:
             pass
 
-    def order_by(self, aliases):
+    def order_by(self, aliases: OrderByTuple):
         """
         Order the data based on order by aliases (prefixed column names) in the
         table.
