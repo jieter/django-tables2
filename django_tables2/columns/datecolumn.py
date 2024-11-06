@@ -1,3 +1,5 @@
+from typing import Self
+
 from django.db import models
 
 from .base import library
@@ -23,6 +25,6 @@ class DateColumn(TemplateColumn):
         super().__init__(template_code=template, *args, **kwargs)
 
     @classmethod
-    def from_field(cls, field, **kwargs):
+    def from_field(cls, field, **kwargs) -> Self | None:
         if isinstance(field, models.DateField):
             return cls(**kwargs)
