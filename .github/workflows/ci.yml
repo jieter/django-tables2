@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.8, 3.9, "3.10", 3.11, 3.12] # 3.13 can be supported if lxml supports 3.13
+        python-version: [3.9, "3.10", 3.11, 3.12] # 3.13 can be supported if lxml supports 3.13
         django-version: [4.2, 5.0, 5.1, master]
         exclude:
             # Django 4.2
@@ -25,22 +25,16 @@ jobs:
               django-version: 4.2
 
             # Django 5.0
-            - python-version: 3.8
-              django-version: 5.0
             - python-version: 3.9
               django-version: 5.0
             - python-version: 3.13
               django-version: 5.0
 
             # Django 5.1
-            - python-version: 3.8
-              django-version: 5.1
             - python-version: 3.9
               django-version: 5.1
 
             # master
-            - python-version: 3.8
-              django-version: master
             - python-version: 3.9
               django-version: master
 
