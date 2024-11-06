@@ -1,5 +1,3 @@
-from typing import Self
-
 from django.db import models
 from django.utils.html import escape, format_html
 from django.utils.safestring import SafeString
@@ -60,7 +58,7 @@ class BooleanColumn(Column):
         return str(self._get_bool_value(record, value, bound_column))
 
     @classmethod
-    def from_field(cls, field, **kwargs) -> Self | None:
+    def from_field(cls, field, **kwargs) -> "BooleanColumn | None":
         if isinstance(field, models.NullBooleanField):
             return cls(null=True, **kwargs)
 

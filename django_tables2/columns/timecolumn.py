@@ -21,6 +21,6 @@ class TimeColumn(TemplateColumn):
         super().__init__(template_code=template, *args, **kwargs)
 
     @classmethod
-    def from_field(cls, field, **kwargs):
+    def from_field(cls, field, **kwargs) -> "TimeColumn | None":
         if isinstance(field, models.TimeField):
             return cls(**kwargs)

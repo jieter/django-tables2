@@ -1,5 +1,4 @@
 import json
-from typing import Self
 
 from django.db.models import JSONField
 from django.utils.html import format_html
@@ -48,6 +47,6 @@ class JSONColumn(BaseLinkColumn):
         )
 
     @classmethod
-    def from_field(cls, field, **kwargs) -> Self | None:
+    def from_field(cls, field, **kwargs) -> "JSONColumn | None":
         if isinstance(field, (JSONField, HStoreField)):
             return cls(**kwargs)
