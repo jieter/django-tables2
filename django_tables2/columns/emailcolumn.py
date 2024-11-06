@@ -31,10 +31,10 @@ class EmailColumn(BaseLinkColumn):
         # [...]<a href="mailto:email@example.com">email@example.com</a>
     """
 
-    def get_url(self, value):
+    def get_url(self, value) -> str:
         return f"mailto:{value}"
 
     @classmethod
-    def from_field(cls, field, **kwargs):
+    def from_field(cls, field, **kwargs) -> "EmailColumn | None":
         if isinstance(field, models.EmailField):
             return cls(**kwargs)

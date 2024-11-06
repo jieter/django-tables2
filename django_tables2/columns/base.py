@@ -399,7 +399,7 @@ class Column:
         return (queryset, False)
 
     @classmethod
-    def from_field(cls, field, **kwargs):
+    def from_field(cls, field, **kwargs) -> "Column | None":
         """
         Return a specialized column for the model field or `None`.
 

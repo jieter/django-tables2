@@ -23,6 +23,6 @@ class DateTimeColumn(TemplateColumn):
         super().__init__(template_code=template, *args, **kwargs)
 
     @classmethod
-    def from_field(cls, field, **kwargs):
+    def from_field(cls, field, **kwargs) -> "DateTimeColumn | None":
         if isinstance(field, models.DateTimeField):
             return cls(**kwargs)
