@@ -1,5 +1,4 @@
 import os
-from typing import Self
 
 from django.db import models
 from django.utils.html import format_html
@@ -82,6 +81,6 @@ class FileColumn(BaseLinkColumn):
         )
 
     @classmethod
-    def from_field(cls, field, **kwargs) -> Self | None:
+    def from_field(cls, field, **kwargs) -> "FileColumn | None":
         if isinstance(field, models.FileField):
             return cls(**kwargs)

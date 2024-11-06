@@ -24,10 +24,10 @@ class URLColumn(BaseLinkColumn):
         '<a href="http://google.com">http://google.com</a>'
     """
 
-    def get_url(self, value):
+    def get_url(self, value: str) -> str:
         return value
 
     @classmethod
-    def from_field(cls, field, **kwargs):
+    def from_field(cls, field, **kwargs) -> "URLColumn | None":
         if isinstance(field, models.URLField):
             return cls(**kwargs)
