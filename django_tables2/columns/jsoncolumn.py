@@ -1,7 +1,9 @@
 import json
+from typing import Self
 
 from django.db.models import JSONField
 from django.utils.html import format_html
+from django.utils.safestring import SafeString
 
 from ..utils import AttributeDict
 from .base import library
@@ -9,12 +11,9 @@ from .linkcolumn import BaseLinkColumn
 
 try:
     from django.contrib.postgres.fields import HStoreField
-
-    POSTGRES_AVAILABLE = True
 except ImportError:
-    # psycopg2 is not available, cannot import from django.contrib.postgres.
-    # JSONColumn might still be useful to add manually.
-    POSTGRES_AVAILABLE = False
+    # psycopg is not available, cannot import from django.contrib.postgres.
+    HStoreField = object()
 
 
 @library.register
@@ -24,12 +23,6 @@ class JSONColumn(BaseLinkColumn):
     `~django.contrib.postgres.fields.HStoreField` as an indented string.
 
     .. versionadded :: 1.5.0
-
-    .. note::
-
-        Automatic rendering of data to this column requires PostgreSQL support
-        (psycopg2 installed) to import the fields, but this column can also be
-        used manually without it.
 
     Arguments:
         json_dumps_kwargs: kwargs passed to `json.dumps`, defaults to `{'indent': 2}`
@@ -47,7 +40,7 @@ class JSONColumn(BaseLinkColumn):
 
         super().__init__(**kwargs)
 
-    def render(self, record, value):
+    def render(self, record, value) -> SafeString:
         return format_html(
             "<pre {}>{}</pre>",
             AttributeDict(self.attrs.get("pre", {})).as_html(),
@@ -55,7 +48,6 @@ class JSONColumn(BaseLinkColumn):
         )
 
     @classmethod
-    def from_field(cls, field, **kwargs):
-        if POSTGRES_AVAILABLE:
-            if isinstance(field, (JSONField, HStoreField)):
-                return cls(**kwargs)
+    def from_field(cls, field, **kwargs) -> Self | None:
+        if isinstance(field, (JSONField, HStoreField)):
+            return cls(**kwargs)

@@ -143,37 +143,3 @@ class LinkColumn(BaseLinkColumn):
             ),
             **extra
         )
-
-
-@library.register
-class RelatedLinkColumn(LinkColumn):
-    """
-    Render a link to a related object using related object's ``get_absolute_url``,
-    same parameters as ``~.LinkColumn``.
-
-    .. note ::
-
-        This column should not be used anymore, the `linkify` keyword argument to
-        regular columns can be used achieve the same results.
-
-    If the related object does not have a method called ``get_absolute_url``,
-    or if it is not callable, the link will be rendered as '#'.
-
-    Traversing relations is also supported, suppose a Person has a foreign key to
-    Country which in turn has a foreign key to Continent::
-
-        class PersonTable(tables.Table):
-            name = tables.Column()
-            country = tables.RelatedLinkColumn()
-            continent = tables.RelatedLinkColumn(accessor="country.continent")
-
-    will render:
-
-     - in column 'country', link to ``person.country.get_absolute_url()`` with the output of
-       ``str(person.country)`` as ``<a>`` contents.
-     - in column 'continent', a link to ``person.country.continent.get_absolute_url()`` with
-       the output of ``str(person.country.continent)`` as ``<a>`` contents.
-
-    Alternative contents of ``<a>`` can be supplied using the ``text`` keyword argument as
-    documented for `~.columns.LinkColumn`.
-    """

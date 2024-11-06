@@ -15,7 +15,6 @@ For common use-cases the following columns are included:
 - `.JSONColumn` -- renders JSON as an indented string in ``<pre></pre>``
 - `.LinkColumn` -- renders ``<a href="...">`` tags (compose a Django URL)
 - `.ManyToManyColumn` -- renders a list objects from a `ManyToManyField`
-- `.RelatedLinkColumn` -- renders ``<a href="...">`` tags linking related objects
 - `.TemplateColumn` -- renders template code
 - `.TimeColumn` -- time formatting
 - `.URLColumn` -- renders ``<a href="...">`` tags (absolute URL)

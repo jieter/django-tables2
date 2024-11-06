@@ -1,7 +1,9 @@
 import os
+from typing import Self
 
 from django.db import models
 from django.utils.html import format_html
+from django.utils.safestring import SafeString
 
 from ..utils import AttributeDict
 from .base import library
@@ -50,7 +52,7 @@ class FileColumn(BaseLinkColumn):
             return os.path.basename(value.name)
         return super().text_value(record, value)
 
-    def render(self, record, value):
+    def render(self, record, value) -> SafeString:
         attrs = AttributeDict(self.attrs.get("span", {}))
         classes = [c for c in attrs.get("class", "").split(" ") if c]
 
@@ -80,6 +82,6 @@ class FileColumn(BaseLinkColumn):
         )
 
     @classmethod
-    def from_field(cls, field, **kwargs):
+    def from_field(cls, field, **kwargs) -> Self | None:
         if isinstance(field, models.FileField):
             return cls(**kwargs)
