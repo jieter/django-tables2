@@ -1,5 +1,6 @@
 import json
 
+from django.db.models import JSONField
 from django.utils.html import format_html
 
 from ..utils import AttributeDict
@@ -7,11 +8,7 @@ from .base import library
 from .linkcolumn import BaseLinkColumn
 
 try:
-    try:
-        from django.contrib.postgres.fields import HStoreField
-        from django.db.models import JSONField  # django==3.1 moved JSONField
-    except ImportError:
-        from django.contrib.postgres.fields import HStoreField, JSONField
+    from django.contrib.postgres.fields import HStoreField
 
     POSTGRES_AVAILABLE = True
 except ImportError:

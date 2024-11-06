@@ -1,23 +1,34 @@
 repos:
   - repo: https://github.com/psf/black
-    rev: 23.1.0
+    rev: 24.10.0
     hooks:
      - id: black
        language_version: python3.11
 
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.3.1
+    rev: v3.19.0
     hooks:
      - id: pyupgrade
        args: [--py38-plus]
 
   - repo: https://github.com/pycqa/isort
-    rev: 5.12.0
+    rev: 5.13.2
     hooks:
       - id: isort
 
   - repo: https://github.com/PyCQA/flake8
-    rev: 6.0.0
+    rev: 7.1.1
     hooks:
       - id: flake8
+
+  - repo: https://github.com/adamchainz/django-upgrade
+    rev: "1.22.1"
+    hooks:
+     - id: django-upgrade
+       args: [--target-version, "4.2"]
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v3.19.0
+    hooks:
+     - id: pyupgrade
+       args: [--py38-plus]
 
