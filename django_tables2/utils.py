@@ -1,8 +1,10 @@
 import inspect
 import warnings
 from collections import OrderedDict
+from collections.abc import Callable
 from functools import total_ordering
 from itertools import chain
+from typing import Any
 
 from django.core.exceptions import FieldDoesNotExist
 from django.db import models
@@ -530,8 +532,10 @@ def segment(sequence, aliases):
                     yield tuple([valias])
 
 
-def signature(fn):
+def signature(fn: Callable) -> tuple[tuple, str]:
     """
+    Return argument names and the name of the kwargs catch all.
+
     Returns:
         tuple: Returns a (arguments, kwarg_name)-tuple:
              - the arguments (positional or keyword)
@@ -555,9 +559,9 @@ def signature(fn):
     return tuple(args), keywords
 
 
-def call_with_appropriate(fn, kwargs):
+def call_with_appropriate(fn: Callable, kwargs: dict[str, Any]):
     """
-    Calls the function ``fn`` with the keyword arguments from ``kwargs`` it expects
+    Calls the function ``fn`` with the keyword arguments from ``kwargs`` it expects.
 
     If the kwargs argument is defined, pass all arguments, else provide exactly
     the arguments wanted.
@@ -577,9 +581,9 @@ def call_with_appropriate(fn, kwargs):
     return fn(**kwargs)
 
 
-def computed_values(d, kwargs=None):
+def computed_values(d: dict[str, Any], kwargs=None) -> dict[str, Any]:
     """
-    Returns a new `dict` that has callable values replaced with the return values.
+    Returns a new `dict` that has callable values replaced with their return values.
 
     Example::
 
