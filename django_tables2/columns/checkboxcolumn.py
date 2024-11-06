@@ -1,4 +1,4 @@
-from django.utils.safestring import mark_safe
+from django.utils.safestring import SafeString, mark_safe
 
 from django_tables2.utils import Accessor, AttributeDict, computed_values
 
@@ -58,7 +58,7 @@ class CheckBoxColumn(Column):
         attrs = AttributeDict(default, **(specific or general or {}))
         return mark_safe(f"<input {attrs.as_html()} />")
 
-    def render(self, value, bound_column, record):
+    def render(self, value, bound_column, record) -> SafeString:
         default = {"type": "checkbox", "name": bound_column.name, "value": value}
         if self.is_checked(value, record):
             default.update({"checked": "checked"})

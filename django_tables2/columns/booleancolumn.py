@@ -1,5 +1,8 @@
+from typing import Self
+
 from django.db import models
 from django.utils.html import escape, format_html
+from django.utils.safestring import SafeString
 
 from ..utils import AttributeDict
 from .base import Column, library
@@ -30,7 +33,7 @@ class BooleanColumn(Column):
             kwargs["empty_values"] = ()
         super().__init__(**kwargs)
 
-    def _get_bool_value(self, record, value, bound_column):
+    def _get_bool_value(self, record, value, bound_column) -> bool:
         # If record is a model, we need to check if it has choices defined.
         if hasattr(record, "_meta"):
             field = bound_column.accessor.get_field(record)
@@ -40,10 +43,9 @@ class BooleanColumn(Column):
             if hasattr(field, "choices") and field.choices is not None and len(field.choices) > 0:
                 value = next(val for val, name in field.choices if name == value)
 
-        value = bool(value)
-        return value
+        return bool(value)
 
-    def render(self, value, record, bound_column):
+    def render(self, value, record, bound_column) -> SafeString:
         value = self._get_bool_value(record, value, bound_column)
         text = self.yesno[int(not value)]
         attrs = {"class": str(value).lower()}
@@ -51,15 +53,14 @@ class BooleanColumn(Column):
 
         return format_html("<span {}>{}</span>", AttributeDict(attrs).as_html(), escape(text))
 
-    def value(self, record, value, bound_column):
+    def value(self, record, value, bound_column) -> str:
         """
         Returns the content for a specific cell similarly to `.render` however without any html content.
         """
-        value = self._get_bool_value(record, value, bound_column)
-        return str(value)
+        return str(self._get_bool_value(record, value, bound_column))
 
     @classmethod
-    def from_field(cls, field, **kwargs):
+    def from_field(cls, field, **kwargs) -> Self | None:
         if isinstance(field, models.NullBooleanField):
             return cls(null=True, **kwargs)
 

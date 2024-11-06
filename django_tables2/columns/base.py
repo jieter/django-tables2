@@ -1,5 +1,6 @@
 from collections import OrderedDict
 from itertools import islice
+from typing import Self
 
 from django.core.exceptions import ImproperlyConfigured
 from django.urls import reverse
@@ -399,7 +400,7 @@ class Column:
         return (queryset, False)
 
     @classmethod
-    def from_field(cls, field, **kwargs):
+    def from_field(cls, field, **kwargs) -> Self | None:
         """
         Return a specialized column for the model field or `None`.
 
