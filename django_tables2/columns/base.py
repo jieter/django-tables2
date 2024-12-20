@@ -446,15 +446,14 @@ class BoundColumn:
         self.name = name
         self.link = column.link
 
+        if not column.accessor:
+            column.accessor = Accessor(self.name)
+        self.accessor = column.accessor
+
         self.current_value = None
 
     def __str__(self):
         return str(self.header)
-
-    @property
-    def accessor(self):
-        """Returns the string used to access data for this column out of the data source."""
-        return self.column.accessor or Accessor(self.name)
 
     @property
     def attrs(self):
