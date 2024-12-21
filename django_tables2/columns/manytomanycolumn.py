@@ -1,3 +1,5 @@
+from typing import Union
+
 from django.db import models
 from django.utils.encoding import force_str
 from django.utils.html import conditional_escape
@@ -96,6 +98,6 @@ class ManyToManyColumn(Column):
         return mark_safe(conditional_escape(self.separator).join(items))
 
     @classmethod
-    def from_field(cls, field, **kwargs) -> "ManyToManyColumn | None":
+    def from_field(cls, field, **kwargs) -> "Union[ManyToManyColumn, None]":
         if isinstance(field, models.ManyToManyField):
             return cls(**kwargs)

@@ -1,3 +1,5 @@
+from typing import Union
+
 from django.db import models
 
 from .base import library
@@ -35,6 +37,6 @@ class EmailColumn(BaseLinkColumn):
         return f"mailto:{value}"
 
     @classmethod
-    def from_field(cls, field, **kwargs) -> "EmailColumn | None":
+    def from_field(cls, field, **kwargs) -> "Union[EmailColumn, None]":
         if isinstance(field, models.EmailField):
             return cls(**kwargs)

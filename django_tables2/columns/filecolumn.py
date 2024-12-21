@@ -1,4 +1,5 @@
 import os
+from typing import Union
 
 from django.db import models
 from django.utils.html import format_html
@@ -35,7 +36,7 @@ class FileColumn(BaseLinkColumn):
             the file's ``basename`` (default)
     """
 
-    def __init__(self, verify_exists=True, **kwargs):
+    def __init__(self, verify_exists: bool = True, **kwargs):
         self.verify_exists = verify_exists
         super().__init__(**kwargs)
 
@@ -81,6 +82,6 @@ class FileColumn(BaseLinkColumn):
         )
 
     @classmethod
-    def from_field(cls, field, **kwargs) -> "FileColumn | None":
+    def from_field(cls, field, **kwargs) -> "Union[FileColumn, None]":
         if isinstance(field, models.FileField):
             return cls(**kwargs)

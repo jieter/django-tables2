@@ -1,5 +1,6 @@
 from collections import OrderedDict
 from itertools import islice
+from typing import Union
 
 from django.core.exceptions import ImproperlyConfigured
 from django.urls import reverse
@@ -23,7 +24,7 @@ class Library:
     def __init__(self):
         self.columns = []
 
-    def register(self, column):
+    def register(self, column: "Column"):
         if not hasattr(column, "from_field"):
             raise ImproperlyConfigured(f"{column.__class__.__name__} is not a subclass of Column")
         self.columns.append(column)
@@ -68,7 +69,13 @@ class LinkTransform:
     accessor = None
     attrs = None
 
-    def __init__(self, url=None, accessor=None, attrs=None, reverse_args=None):
+    def __init__(
+        self,
+        url: Union[callable, None] = None,
+        accessor: Union[str, Accessor, None] = None,
+        attrs: Union[dict, None] = None,
+        reverse_args: Union[list, tuple, None] = None,
+    ):
         """
         arguments:
             url (callable): If supplied, the result of this callable will be used as ``href`` attribute.
@@ -95,7 +102,7 @@ class LinkTransform:
 
         self.reverse_args = reverse_args or {}
 
-    def compose_url(self, **kwargs):
+    def compose_url(self, **kwargs) -> str:
         if self.url and callable(self.url):
             return call_with_appropriate(self.url, kwargs)
 
@@ -119,10 +126,8 @@ class LinkTransform:
                 )
         return context.get_absolute_url()
 
-    def call_reverse(self, record):
-        """
-        Prepares the arguments to reverse() for this record and calls reverse()
-        """
+    def call_reverse(self, record) -> str:
+        """Prepares the arguments to reverse() for this record and calls reverse()."""
 
         def resolve_if_accessor(val):
             return val.resolve(record) if isinstance(val, Accessor) else val
@@ -399,7 +404,7 @@ class Column:
         return (queryset, False)
 
     @classmethod
-    def from_field(cls, field, **kwargs) -> "Column | None":
+    def from_field(cls, field, **kwargs) -> "Union[Column, None]":
         """
         Return a specialized column for the model field or `None`.
 

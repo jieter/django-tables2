@@ -1,3 +1,5 @@
+from typing import Union
+
 from django.db import models
 
 from .base import library
@@ -28,6 +30,6 @@ class URLColumn(BaseLinkColumn):
         return value
 
     @classmethod
-    def from_field(cls, field, **kwargs) -> "URLColumn | None":
+    def from_field(cls, field, **kwargs) -> "Union[URLColumn, None]":
         if isinstance(field, models.URLField):
             return cls(**kwargs)

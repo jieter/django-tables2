@@ -1,3 +1,5 @@
+from typing import Union
+
 from django.db import models
 
 from .base import library
@@ -14,13 +16,13 @@ class TimeColumn(TemplateColumn):
         short (bool): if *format* is not specified, use Django's ``TIME_FORMAT`` setting.
     """
 
-    def __init__(self, format=None, *args, **kwargs):
+    def __init__(self, format: Union[str, None] = None, *args, **kwargs):
         if format is None:
             format = "TIME_FORMAT"
         template = '{{ value|date:"%s"|default:default }}' % format
         super().__init__(template_code=template, *args, **kwargs)
 
     @classmethod
-    def from_field(cls, field, **kwargs) -> "TimeColumn | None":
+    def from_field(cls, field, **kwargs) -> "Union[TimeColumn, None]":
         if isinstance(field, models.TimeField):
             return cls(**kwargs)

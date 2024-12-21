@@ -1,3 +1,5 @@
+from typing import Union
+
 from django.db import models
 
 from .base import library
@@ -16,13 +18,13 @@ class DateColumn(TemplateColumn):
                       ``SHORT_DATE_FORMAT`` setting, otherwise use ``DATE_FORMAT``
     """
 
-    def __init__(self, format=None, short=True, *args, **kwargs):
+    def __init__(self, format: Union[str, None] = None, short: bool = True, *args, **kwargs):
         if format is None:
             format = "SHORT_DATE_FORMAT" if short else "DATE_FORMAT"
         template = '{{ value|date:"%s"|default:default }}' % format
         super().__init__(template_code=template, *args, **kwargs)
 
     @classmethod
-    def from_field(cls, field, **kwargs) -> "DateColumn | None":
+    def from_field(cls, field, **kwargs) -> "Union[DateColumn, None]":
         if isinstance(field, models.DateField):
             return cls(**kwargs)
