@@ -1,7 +1,7 @@
 from collections import OrderedDict
 from collections.abc import Callable
 from itertools import islice
-from typing import Union
+from typing import TYPE_CHECKING, Any, Union
 
 from django.core.exceptions import ImproperlyConfigured
 from django.urls import reverse
@@ -17,6 +17,12 @@ from ..utils import (
     call_with_appropriate,
     computed_values,
 )
+
+if TYPE_CHECKING:
+    from django.db.models import QuerySet
+    from django.utils.safestring import SafeString
+
+    from ..tables import Table
 
 
 class Library:
@@ -325,13 +331,11 @@ class Column:
         return self._default() if callable(self._default) else self._default
 
     @property
-    def header(self):
+    def header(self) -> Union[str, None]:
         """
         The value used for the column heading (e.g. inside the ``<th>`` tag).
 
         By default this returns `~.Column.verbose_name`.
-
-        :returns: `unicode` or `None`
 
         .. note::
 
@@ -344,7 +348,7 @@ class Column:
         """
         return self.verbose_name
 
-    def footer(self, bound_column, table):
+    def footer(self, bound_column: "BoundColumn", table: "Table") -> Union[str, None]:
         """Return the content of the footer, if specified."""
         footer_kwargs = {"column": self, "bound_column": bound_column, "table": table}
 
@@ -359,7 +363,7 @@ class Column:
 
         return ""
 
-    def render(self, value):
+    def render(self, value: Any) -> Any:
         """
         Return the content for a specific cell.
 
@@ -373,34 +377,29 @@ class Column:
         """
         return value
 
-    def value(self, **kwargs):
+    def value(self, **kwargs) -> Any:
         """
         Return the content for a specific cell for exports.
 
-        Similar to `.render` but without any html content.
+        Similar to `.render` but without any HTML content.
         This can be used to get the data in the formatted as it is presented but in a
-        form that could be added to a csv file.
+        form that could be added to a CSV file.
 
         The default implementation just calls the `render` function but any
-        subclasses where `render` returns html content should override this
+        subclasses where `render` returns HTML content should override this
         method.
 
         See `LinkColumn` for an example.
         """
-        value = call_with_appropriate(self.render, kwargs)
+        return call_with_appropriate(self.render, kwargs)
 
-        return value
-
-    def order(self, queryset, is_descending):
+    def order(self, queryset: "QuerySet", is_descending: bool) -> "tuple[QuerySet, bool]":
         """
         Order the QuerySet of the table.
 
         This method can be overridden by :ref:`table.order_FOO` methods on the
         table or by subclassing `.Column`; but only overrides if second element
         in return tuple is True.
-
-        returns:
-            Tuple (QuerySet, boolean)
         """
         return (queryset, False)
 
@@ -446,7 +445,7 @@ class BoundColumn:
 
     """
 
-    def __init__(self, table, column, name):
+    def __init__(self, table: "Table", column: Column, name: str):
         self._table = table
         self.column = column
         self.name = name
@@ -458,11 +457,11 @@ class BoundColumn:
 
         self.current_value = None
 
-    def __str__(self):
+    def __str__(self) -> str:
         return str(self.header)
 
     @property
-    def attrs(self):
+    def attrs(self) -> dict:
         """
         Proxy to `.Column.attrs` but injects some values of our own.
 
@@ -642,18 +641,18 @@ class BoundColumn:
         return order_by
 
     @property
-    def is_ordered(self):
+    def is_ordered(self) -> bool:
         return self.name in (self._table.order_by or ())
 
     @property
-    def orderable(self):
+    def orderable(self) -> bool:
         """Return whether this column supports ordering."""
         if self.column.orderable is not None:
             return self.column.orderable
         return self._table.orderable
 
     @property
-    def verbose_name(self):
+    def verbose_name(self) -> Union[str, SafeString]:
         """
         Return the verbose name for this column.
 
