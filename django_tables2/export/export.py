@@ -1,5 +1,10 @@
+from typing import TYPE_CHECKING, Union
+
 from django.core.exceptions import ImproperlyConfigured
 from django.http import HttpResponse
+
+if TYPE_CHECKING:
+    from ..tables import Table
 
 try:
     from tablib import Dataset
@@ -51,7 +56,9 @@ class TableExport:
         self.format = export_format
         self.dataset = self.table_to_dataset(table, exclude_columns, dataset_kwargs)
 
-    def table_to_dataset(self, table, exclude_columns, dataset_kwargs=None):
+    def table_to_dataset(
+        self, table: "Table", exclude_columns: list[str], dataset_kwargs: "Union[dict, None]" = None
+    ) -> Dataset:
         """Transform a table to a tablib dataset."""
 
         def default_dataset_title():
@@ -71,25 +78,21 @@ class TableExport:
         return dataset
 
     @classmethod
-    def is_valid_format(self, export_format):
+    def is_valid_format(self, export_format: str) -> bool:
         """
         Returns true if `export_format` is one of the supported export formats
         """
         return export_format is not None and export_format in TableExport.FORMATS.keys()
 
-    def content_type(self):
-        """
-        Returns the content type for the current export format
-        """
+    def content_type(self) -> str:
+        """Return the content type for the current export format."""
         return self.FORMATS[self.format]
 
     def export(self):
-        """
-        Returns the string/bytes for the current export format
-        """
+        """Return the string/bytes for the current export format."""
         return self.dataset.export(self.format)
 
-    def response(self, filename=None):
+    def response(self, filename: Union[str, None] = None) -> HttpResponse:
         """
         Builds and returns a `HttpResponse` containing the exported data
 

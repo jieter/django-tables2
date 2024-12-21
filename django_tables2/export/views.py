@@ -1,3 +1,5 @@
+from django.http import HttpResponse
+
 from .export import TableExport
 
 
@@ -24,7 +26,7 @@ class ExportMixin:
         export_formats (iterable): export formats to render a set of buttons in the template.
         dataset_kwargs (dictionary): passed as `**kwargs` to `tablib.Dataset` constructor::
 
-            dataset_kwargs = {"tite": "My custom tab title"}
+            dataset_kwargs = {"title": "My custom tab title"}
     """
 
     export_class = TableExport
@@ -35,13 +37,13 @@ class ExportMixin:
 
     export_formats = (TableExport.CSV,)
 
-    def get_export_filename(self, export_format):
+    def get_export_filename(self, export_format: str) -> str:
         return f"{self.export_name}.{export_format}"
 
-    def get_dataset_kwargs(self):
+    def get_dataset_kwargs(self) -> dict:
         return self.dataset_kwargs
 
-    def create_export(self, export_format):
+    def create_export(self, export_format: str) -> HttpResponse:
         exporter = self.export_class(
             export_format=export_format,
             table=self.get_table(**self.get_table_kwargs()),
@@ -51,7 +53,7 @@ class ExportMixin:
 
         return exporter.response(filename=self.get_export_filename(export_format))
 
-    def render_to_response(self, context, **kwargs):
+    def render_to_response(self, context, **kwargs) -> HttpResponse:
         export_format = self.request.GET.get(self.export_trigger_param, None)
         if self.export_class.is_valid_format(export_format):
             return self.create_export(export_format)

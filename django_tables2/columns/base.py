@@ -19,6 +19,7 @@ from ..utils import (
 
 if TYPE_CHECKING:
     from django.db.models import QuerySet
+    from django.db.models.fields import Field
     from django.utils.safestring import SafeString
 
     from ..tables import Table
@@ -36,13 +37,8 @@ class Library:
         self.columns.append(column)
         return column
 
-    def column_for_field(self, field, **kwargs):
-        """
-        Return a column object suitable for model field.
-
-        Returns:
-            `.Column` object or `None`
-        """
+    def column_for_field(self, field: "Field", **kwargs) -> "Union[Column, None]":
+        """Return a column object suitable for the supplied model field."""
         if field is None:
             return self.columns[0](**kwargs)
 
