@@ -230,8 +230,12 @@ class CoreTest(SimpleTestCase):
         class SimpleTable(UnorderedTable):
             col1 = tables.Column(accessor="alpha__upper__isupper")
             col2 = tables.Column(accessor="alpha__upper")
+            beta = tables.Column()
 
         table = SimpleTable(MEMORY_DATA)
+        self.assertEqual(table.columns["col1"].accessor, "alpha__upper__isupper")
+        self.assertEqual(table.columns["col2"].accessor, "alpha__upper")
+        self.assertEqual(table.columns["beta"].accessor, "beta")
 
         self.assertTrue(table.rows[0].get_cell("col1"))
         self.assertEqual(table.rows[0].get_cell("col2"), "B")

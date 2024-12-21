@@ -8,7 +8,7 @@ from django.db import models
 from django.template.loader import get_template
 from django.utils.encoding import force_str
 
-from . import columns
+from .columns import BoundColumns, Column, library
 from .config import RequestConfig
 from .data import TableData
 from .rows import BoundRows
@@ -26,16 +26,16 @@ class DeclarativeColumnsMetaclass(type):
         attrs["_meta"] = opts = TableOptions(attrs.get("Meta", None), name)
 
         # extract declared columns
-        cols, remainder = [], {}
+        columns, remainder = [], {}
         for attr_name, attr in attrs.items():
-            if isinstance(attr, columns.Column):
+            if isinstance(attr, Column):
                 attr._explicit = True
-                cols.append((attr_name, attr))
+                columns.append((attr_name, attr))
             else:
                 remainder[attr_name] = attr
         attrs = remainder
 
-        cols.sort(key=lambda x: x[1].creation_counter)
+        columns.sort(key=lambda x: x[1].creation_counter)
 
         # If this class is subclassing other tables, add their fields as
         # well. Note that we loop over the bases in *reverse* - this is
@@ -56,14 +56,14 @@ class DeclarativeColumnsMetaclass(type):
             if opts.fields is not None:
                 # Each item in opts.fields is the name of a model field or a normal attribute on the model
                 for field_name in opts.fields:
-                    extra[field_name] = columns.library.column_for_field(
+                    extra[field_name] = library.column_for_field(
                         field=Accessor(field_name).get_field(opts.model),
                         accessor=field_name,
                         linkify=opts.linkify.get(field_name),
                     )
             else:
                 for field in opts.model._meta.fields:
-                    extra[field.name] = columns.library.column_for_field(
+                    extra[field.name] = library.column_for_field(
                         field, linkify=opts.linkify.get(field.name), accessor=field.name
                     )
 
@@ -76,7 +76,7 @@ class DeclarativeColumnsMetaclass(type):
                 base_columns[key] = column
 
         # Explicit columns override both parent and generated columns
-        base_columns.update(OrderedDict(cols))
+        base_columns.update(OrderedDict(columns))
 
         # Apply any explicit exclude setting
         for exclusion in opts.exclude:
@@ -89,16 +89,16 @@ class DeclarativeColumnsMetaclass(type):
                 base_columns.pop(attr_name)
 
         # Set localize on columns
-        for col_name in base_columns.keys():
+        for column_name in base_columns.keys():
             localize_column = None
-            if col_name in opts.localize:
+            if column_name in opts.localize:
                 localize_column = True
             # unlocalize gets higher precedence
-            if col_name in opts.unlocalize:
+            if column_name in opts.unlocalize:
                 localize_column = False
 
             if localize_column is not None:
-                base_columns[col_name].localize = localize_column
+                base_columns[column_name].localize = localize_column
 
         attrs["base_columns"] = base_columns
         return super().__new__(mcs, name, bases, attrs)
@@ -346,7 +346,7 @@ class Table(metaclass=DeclarativeColumnsMetaclass):
 
         # reorder columns based on sequence.
         base_columns = OrderedDict((x, base_columns[x]) for x in sequence if x in base_columns)
-        self.columns = columns.BoundColumns(self, base_columns)
+        self.columns = BoundColumns(self, base_columns)
         # `None` value for order_by means no order is specified. This means we
         # `shouldn't touch our data's ordering in any way. *However*
         # `table.order_by = None` means "remove any ordering from the data"
