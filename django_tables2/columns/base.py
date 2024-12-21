@@ -1,4 +1,5 @@
 from collections import OrderedDict
+from collections.abc import Callable
 from itertools import islice
 from typing import Union
 
@@ -255,7 +256,7 @@ class Column:
     .. [1] The provided callable object must not expect to receive any arguments.
     """
 
-    # Tracks each time a Column instance is created. Used to retain order.
+    # Tracks each time a Column instance is created. Used to retain column order.
     creation_counter = 0
     empty_values = (None, "")
 
@@ -268,19 +269,19 @@ class Column:
 
     def __init__(
         self,
-        verbose_name=None,
-        accessor=None,
-        default=None,
+        verbose_name: Union[str, None] = None,
+        accessor: Union[str, Accessor, Callable[..., str], None] = None,
+        default: Union[str, None] = None,
         visible=True,
         orderable=None,
         attrs=None,
         order_by=None,
         empty_values=None,
         localize=None,
-        footer=None,
-        exclude_from_export=False,
-        linkify=False,
-        initial_sort_descending=False,
+        footer: Union[str, Callable[..., str], None] = None,
+        exclude_from_export: bool = False,
+        linkify: Union[bool, list, tuple, Callable[..., str]] = False,
+        initial_sort_descending: bool = False,
     ):
         if not (accessor is None or isinstance(accessor, str) or callable(accessor)):
             raise TypeError(f"accessor must be a string or callable, not {type(accessor).__name__}")
