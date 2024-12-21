@@ -33,3 +33,4 @@ class URLColumn(BaseLinkColumn):
     def from_field(cls, field, **kwargs) -> "Union[URLColumn, None]":
         if isinstance(field, models.URLField):
             return cls(**kwargs)
+        return None

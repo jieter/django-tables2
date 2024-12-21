@@ -31,7 +31,7 @@ class Library:
     def __init__(self):
         self.columns = []
 
-    def register(self, column: "Column"):
+    def register(self, column: "type[Column]"):
         if not hasattr(column, "from_field"):
             raise ImproperlyConfigured(f"{column.__class__.__name__} is not a subclass of Column")
         self.columns.append(column)
@@ -73,7 +73,7 @@ class LinkTransform:
 
     def __init__(
         self,
-        url: Union[callable, None] = None,
+        url: Union[Callable, None] = None,
         accessor: Union[str, Accessor, None] = None,
         attrs: Union[dict, None] = None,
         reverse_args: Union[list, tuple, None] = None,
@@ -259,7 +259,7 @@ class Column:
 
     # Tracks each time a Column instance is created. Used to retain column order.
     creation_counter = 0
-    empty_values = (None, "")
+    empty_values: tuple[Any, ...] = (None, "")
 
     # by default, contents are not wrapped in an <a>-tag.
     link = None
@@ -358,7 +358,7 @@ class Column:
 
         return ""
 
-    def render(self, value: Any) -> Any:
+    def render(self, value: Any, **kwargs) -> "Union[SafeString, str]":
         """
         Return the content for a specific cell.
 
@@ -418,6 +418,7 @@ class Column:
         # column if this class was asked directly.
         if cls is Column:
             return cls(**kwargs)
+        return None
 
 
 class BoundColumn:
@@ -439,6 +440,10 @@ class BoundColumn:
                               age = tables.Column()
 
     """
+
+    render: Callable
+    order: Callable
+    value: Callable
 
     def __init__(self, table: "Table", column: Column, name: str):
         self._table = table

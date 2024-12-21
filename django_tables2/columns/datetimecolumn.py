@@ -1,9 +1,12 @@
-from typing import Union
+from typing import TYPE_CHECKING, Union
 
 from django.db import models
 
 from .base import library
 from .templatecolumn import TemplateColumn
+
+if TYPE_CHECKING:
+    from django.db.models.fields import Field
 
 
 @library.register
@@ -25,6 +28,7 @@ class DateTimeColumn(TemplateColumn):
         super().__init__(template_code=template, *args, **kwargs)
 
     @classmethod
-    def from_field(cls, field, **kwargs) -> "Union[DateTimeColumn, None]":
+    def from_field(cls, field: "Field", **kwargs) -> "Union[DateTimeColumn, None]":
         if isinstance(field, models.DateTimeField):
             return cls(**kwargs)
+        return None

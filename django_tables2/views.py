@@ -1,11 +1,15 @@
 from itertools import count
-from typing import Any, Optional
+from typing import TYPE_CHECKING, Any, Optional, Union
 
 from django.core.exceptions import ImproperlyConfigured
 from django.views.generic.list import ListView
 
 from . import tables
 from .config import RequestConfig
+
+if TYPE_CHECKING:
+    from .data import TableData
+    from .tables import Table
 
 
 class TableMixinBase:
@@ -16,13 +20,13 @@ class TableMixinBase:
     context_table_name = "table"
     table_pagination = None
 
-    def get_context_table_name(self, table):
+    def get_context_table_name(self, table: "Table") -> str:
         """
         Get the name to use for the table's template variable.
         """
         return self.context_table_name
 
-    def get_table_pagination(self, table):
+    def get_table_pagination(self, table: "Table") -> Union[dict[str, Any], bool]:
         """
         Return pagination options passed to `.RequestConfig`:
             - True for standard pagination (default),
@@ -45,11 +49,12 @@ class TableMixinBase:
         if paginate_by is not None:
             paginate["per_page"] = paginate_by
 
-        if hasattr(self, "paginator_class"):
-            paginate["paginator_class"] = self.paginator_class
+        if paginator_class := getattr(self, "paginator_class", None):
+            paginate["paginator_class"] = paginator_class
 
-        if getattr(self, "paginate_orphans", 0) != 0:
-            paginate["orphans"] = self.paginate_orphans
+        paginate_orphans = getattr(self, "paginate_orphans", 0)
+        if paginate_orphans != 0:
+            paginate["orphans"] = paginate_orphans
 
         # table_pagination overrides any MultipleObjectMixin attributes
         if self.table_pagination:
@@ -61,7 +66,7 @@ class TableMixinBase:
 
         return paginate
 
-    def get_paginate_by(self, table_data) -> Optional[int]:
+    def get_paginate_by(self, table_data: "TableData") -> Optional[int]:
         """
         Determines the number of items per page, or ``None`` for no pagination.
 
@@ -130,8 +135,8 @@ class SingleTableMixin(TableMixinBase):
         """
         if self.table_data is not None:
             return self.table_data
-        elif hasattr(self, "object_list"):
-            return self.object_list
+        elif object_list := getattr(self, "object_list", None):
+            return object_list
         elif hasattr(self, "get_queryset"):
             return self.get_queryset()
 

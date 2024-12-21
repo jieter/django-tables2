@@ -4,7 +4,7 @@ from collections import OrderedDict
 from collections.abc import Callable
 from functools import total_ordering
 from itertools import chain
-from typing import Any
+from typing import Any, Union
 
 from django.core.exceptions import FieldDoesNotExist
 from django.db import models
@@ -305,12 +305,22 @@ class Accessor(str):
         "Failed lookup for key [{key}] in {context}, when resolving the accessor {accessor}"
     )
 
-    def __init__(self, value, callable_args=None, callable_kwargs=None):
+    def __init__(
+        self,
+        value: str,
+        callable_args: Union[list[Callable], None] = None,
+        callable_kwargs: Union[dict[str, Callable], None] = None,
+    ):
         self.callable_args = callable_args or getattr(value, "callable_args", None) or []
         self.callable_kwargs = callable_kwargs or getattr(value, "callable_kwargs", None) or {}
         super().__init__()
 
-    def __new__(cls, value, callable_args=None, callable_kwargs=None):
+    def __new__(
+        cls,
+        value,
+        callable_args: Union[list[Callable], None] = None,
+        callable_kwargs: Union[dict[str, Callable], None] = None,
+    ):
         instance = super().__new__(cls, value)
         if cls.LEGACY_SEPARATOR in value:
             instance.SEPARATOR = cls.LEGACY_SEPARATOR
@@ -324,7 +334,7 @@ class Accessor(str):
 
         return instance
 
-    def resolve(self, context, safe=True, quiet=False):
+    def resolve(self, context: Any, safe: bool = True, quiet: bool = False):
         """
         Return an object described by the accessor by traversing the attributes of *context*.
 
@@ -532,7 +542,7 @@ def segment(sequence, aliases):
                     yield tuple([valias])
 
 
-def signature(fn: Callable) -> tuple[tuple, str]:
+def signature(fn: Callable) -> tuple[tuple[Any, ...], Union[str, None]]:
     """
     Return argument names and the name of the kwargs catch all.
 

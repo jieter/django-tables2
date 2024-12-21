@@ -1,9 +1,12 @@
-from typing import Union
+from typing import TYPE_CHECKING, Union
 
 from django.db import models
 
 from .base import library
 from .templatecolumn import TemplateColumn
+
+if TYPE_CHECKING:
+    from django.db.models import Field
 
 
 @library.register
@@ -19,10 +22,11 @@ class TimeColumn(TemplateColumn):
     def __init__(self, format: Union[str, None] = None, *args, **kwargs):
         if format is None:
             format = "TIME_FORMAT"
-        template = '{{ value|date:"%s"|default:default }}' % format
-        super().__init__(template_code=template, *args, **kwargs)
+        kwargs["template_code"] = '{{ value|date:"%s"|default:default }}' % format
+        super().__init__(*args, **kwargs)
 
     @classmethod
-    def from_field(cls, field, **kwargs) -> "Union[TimeColumn, None]":
+    def from_field(cls, field: "Field", **kwargs) -> "Union[TimeColumn, None]":
         if isinstance(field, models.TimeField):
             return cls(**kwargs)
+        return None

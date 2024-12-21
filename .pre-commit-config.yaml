@@ -32,3 +32,8 @@ repos:
      - id: pyupgrade
        args: [--py39-plus]
 
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.14.0
+    hooks:
+      - id: mypy
+        args: ["django_tables2"]

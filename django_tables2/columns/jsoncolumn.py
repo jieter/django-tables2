@@ -1,5 +1,5 @@
 import json
-from typing import Union
+from typing import TYPE_CHECKING, Union
 
 from django.db.models import JSONField
 from django.utils.html import format_html
@@ -9,11 +9,14 @@ from ..utils import AttributeDict
 from .base import library
 from .linkcolumn import BaseLinkColumn
 
+if TYPE_CHECKING:
+    from django.db.models import Field
+
 try:
     from django.contrib.postgres.fields import HStoreField
 except ImportError:
     # psycopg is not available, cannot import from django.contrib.postgres.
-    HStoreField = object()
+    HStoreField = None  # type: ignore
 
 
 @library.register
@@ -48,6 +51,11 @@ class JSONColumn(BaseLinkColumn):
         )
 
     @classmethod
-    def from_field(cls, field, **kwargs) -> "Union[JSONColumn, None]":
-        if isinstance(field, (JSONField, HStoreField)):
+    def from_field(cls, field: "Field", **kwargs) -> "Union[JSONColumn, None]":
+        if (
+            isinstance(field, JSONField)
+            or HStoreField is not None
+            and isinstance(field, HStoreField)
+        ):
             return cls(**kwargs)
+        return None

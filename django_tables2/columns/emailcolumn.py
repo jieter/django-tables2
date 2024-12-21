@@ -1,9 +1,12 @@
-from typing import Union
+from typing import TYPE_CHECKING, Union
 
 from django.db import models
 
 from .base import library
 from .linkcolumn import BaseLinkColumn
+
+if TYPE_CHECKING:
+    from django.db.models import Field
 
 
 @library.register
@@ -37,6 +40,7 @@ class EmailColumn(BaseLinkColumn):
         return f"mailto:{value}"
 
     @classmethod
-    def from_field(cls, field, **kwargs) -> "Union[EmailColumn, None]":
+    def from_field(cls, field: "Field", **kwargs) -> "Union[EmailColumn, None]":
         if isinstance(field, models.EmailField):
             return cls(**kwargs)
+        return None

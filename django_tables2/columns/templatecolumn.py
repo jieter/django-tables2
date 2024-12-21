@@ -1,9 +1,15 @@
+from typing import TYPE_CHECKING, Any, Union
+
 from django.template import Context, Template
 from django.template.loader import get_template
 from django.utils.html import strip_tags
-from django.utils.safestring import SafeString
 
-from .base import Column, library
+from .base import BoundColumn, Column, library
+
+if TYPE_CHECKING:
+    from django.utils.safestring import SafeString
+
+    from ..tables import Table
 
 
 @library.register
@@ -41,7 +47,13 @@ class TemplateColumn(Column):
 
     empty_values = ()
 
-    def __init__(self, template_code=None, template_name=None, extra_context=None, **extra):
+    def __init__(
+        self,
+        template_code: Union[str, None] = None,
+        template_name: Union[str, None] = None,
+        extra_context: Union[dict, None] = None,
+        **extra
+    ):
         super().__init__(**extra)
         self.template_code = template_code
         self.template_name = template_name
@@ -50,7 +62,9 @@ class TemplateColumn(Column):
         if not self.template_code and not self.template_name:
             raise ValueError("A template must be provided")
 
-    def render(self, record, table, value, bound_column, **kwargs) -> SafeString:
+    def render(
+        self, record, table: "Table", value: Any, bound_column: BoundColumn, **kwargs
+    ) -> "Union[SafeString, str]":
         # If the table is being rendered using `render_table`, it hackily
         # attaches the context to the table as a gift to `TemplateColumn`.
         context = getattr(table, "context", Context())
@@ -65,8 +79,9 @@ class TemplateColumn(Column):
         with context.update(additional_context):
             if self.template_code:
                 return Template(self.template_code).render(context)
-            else:
+            elif self.template_name:
                 return get_template(self.template_name).render(context.flatten())
+        return ""
 
     def value(self, **kwargs) -> str:
         """

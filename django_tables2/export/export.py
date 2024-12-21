@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Union
+from typing import IO, TYPE_CHECKING, Union
 
 from django.core.exceptions import ImproperlyConfigured
 from django.http import HttpResponse
@@ -61,7 +61,7 @@ class TableExport:
     ) -> Dataset:
         """Transform a table to a tablib dataset."""
 
-        def default_dataset_title():
+        def default_dataset_title() -> str:
             try:
                 return table.Meta.model._meta.verbose_name_plural.title()
             except AttributeError:
@@ -88,7 +88,7 @@ class TableExport:
         """Return the content type for the current export format."""
         return self.FORMATS[self.format]
 
-    def export(self):
+    def export(self) -> Union[str, bytes]:
         """Return the string/bytes for the current export format."""
         return self.dataset.export(self.format)
 

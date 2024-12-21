@@ -1,11 +1,14 @@
-from typing import Union
+from typing import TYPE_CHECKING, Any, Union
 
 from django.db import models
 from django.utils.html import escape, format_html
-from django.utils.safestring import SafeString
 
 from ..utils import AttributeDict
-from .base import Column, library
+from .base import BoundColumn, Column, library
+
+if TYPE_CHECKING:
+    from django.db.models import Field
+    from django.utils.safestring import SafeString
 
 
 @library.register
@@ -33,7 +36,7 @@ class BooleanColumn(Column):
             kwargs["empty_values"] = ()
         super().__init__(**kwargs)
 
-    def _get_bool_value(self, record, value, bound_column) -> bool:
+    def _get_bool_value(self, record: Any, value: Any, bound_column: BoundColumn) -> bool:
         # If record is a model, we need to check if it has choices defined.
         if hasattr(record, "_meta"):
             field = bound_column.accessor.get_field(record)
@@ -45,7 +48,7 @@ class BooleanColumn(Column):
 
         return bool(value)
 
-    def render(self, value, record, bound_column) -> SafeString:
+    def render(self, value: Any, record: Any, bound_column: BoundColumn) -> "SafeString":
         value = self._get_bool_value(record, value, bound_column)
         text = self.yesno[int(not value)]
         attrs = {"class": str(value).lower()}
@@ -60,9 +63,12 @@ class BooleanColumn(Column):
         return str(self._get_bool_value(record, value, bound_column))
 
     @classmethod
-    def from_field(cls, field, **kwargs) -> "Union[BooleanColumn, None]":
-        if isinstance(field, models.NullBooleanField):
-            return cls(null=True, **kwargs)
+    def from_field(cls, field: "Field", **kwargs) -> "Union[BooleanColumn, None]":
+        if NullBooleanField := getattr(models, "NullBooleanField", None):
+            if isinstance(field, NullBooleanField):
+                return cls(null=True, **kwargs)
 
         if isinstance(field, models.BooleanField):
             return cls(null=getattr(field, "null", False), **kwargs)
+
+        return None

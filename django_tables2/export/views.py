@@ -1,3 +1,5 @@
+from typing import Any
+
 from django.http import HttpResponse
 
 from .export import TableExport
@@ -40,7 +42,7 @@ class ExportMixin:
     def get_export_filename(self, export_format: str) -> str:
         return f"{self.export_name}.{export_format}"
 
-    def get_dataset_kwargs(self) -> dict:
+    def get_dataset_kwargs(self) -> dict[str, Any]:
         return self.dataset_kwargs
 
     def create_export(self, export_format: str) -> HttpResponse:
@@ -53,7 +55,7 @@ class ExportMixin:
 
         return exporter.response(filename=self.get_export_filename(export_format))
 
-    def render_to_response(self, context, **kwargs) -> HttpResponse:
+    def render_to_response(self, context: dict, **kwargs) -> HttpResponse:
         export_format = self.request.GET.get(self.export_trigger_param, None)
         if self.export_class.is_valid_format(export_format):
             return self.create_export(export_format)
