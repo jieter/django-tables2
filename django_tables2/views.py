@@ -2,6 +2,7 @@ from itertools import count
 from typing import TYPE_CHECKING, Any, Optional, Union
 
 from django.core.exceptions import ImproperlyConfigured
+from django.views.generic.base import ContextMixin
 from django.views.generic.list import ListView
 
 from . import tables
@@ -12,7 +13,7 @@ if TYPE_CHECKING:
     from .tables import Table
 
 
-class TableMixinBase:
+class TableMixinBase(ContextMixin):
     """
     Base mixin for the Single- and MultiTable class based views.
     """

@@ -1,11 +1,12 @@
-from typing import Any
+from typing import Any, Optional
 
 from django.http import HttpResponse
+from django.views.generic.base import TemplateResponseMixin
 
 from .export import TableExport
 
 
-class ExportMixin:
+class ExportMixin(TemplateResponseMixin):
     """
     Support various export formats for the table data.
 
@@ -42,7 +43,7 @@ class ExportMixin:
     def get_export_filename(self, export_format: str) -> str:
         return f"{self.export_name}.{export_format}"
 
-    def get_dataset_kwargs(self) -> dict[str, Any]:
+    def get_dataset_kwargs(self) -> Optional[dict[str, Any]]:
         return self.dataset_kwargs
 
     def create_export(self, export_format: str) -> HttpResponse:
@@ -57,7 +58,7 @@ class ExportMixin:
 
     def render_to_response(self, context: dict, **kwargs) -> HttpResponse:
         export_format = self.request.GET.get(self.export_trigger_param, None)
-        if self.export_class.is_valid_format(export_format):
+        if export_format and self.export_class.is_valid_format(export_format):
             return self.create_export(export_format)
 
         return super().render_to_response(context, **kwargs)

@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Union
+from typing import TYPE_CHECKING, Optional
 
 from django.db import models
 
@@ -19,14 +19,14 @@ class TimeColumn(TemplateColumn):
         short (bool): if *format* is not specified, use Django's ``TIME_FORMAT`` setting.
     """
 
-    def __init__(self, format: Union[str, None] = None, *args, **kwargs):
+    def __init__(self, format: Optional[str] = None, *args, **kwargs):
         if format is None:
             format = "TIME_FORMAT"
         kwargs["template_code"] = '{{ value|date:"%s"|default:default }}' % format
         super().__init__(*args, **kwargs)
 
     @classmethod
-    def from_field(cls, field: "Field", **kwargs) -> "Union[TimeColumn, None]":
+    def from_field(cls, field: "Field", **kwargs) -> "Optional[TimeColumn]":
         if isinstance(field, models.TimeField):
             return cls(**kwargs)
         return None

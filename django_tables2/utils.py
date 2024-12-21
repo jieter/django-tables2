@@ -4,7 +4,7 @@ from collections import OrderedDict
 from collections.abc import Callable
 from functools import total_ordering
 from itertools import chain
-from typing import Any, Union
+from typing import Any, Optional
 
 from django.core.exceptions import FieldDoesNotExist
 from django.db import models
@@ -288,8 +288,9 @@ class OrderByTuple(tuple):
 
 class Accessor(str):
     """
-    A string describing a path from one object to another via attribute/index
-    accesses. For convenience, the class has an alias `.A` to allow for more concise code.
+    A string describing a path from one object to another via attribute/key/index accesses.
+
+    For convenience, the class is aliased as `.A` to allow for more concise code.
 
     Relations are separated by a ``__`` character.
 
@@ -308,8 +309,8 @@ class Accessor(str):
     def __init__(
         self,
         value: str,
-        callable_args: Union[list[Callable], None] = None,
-        callable_kwargs: Union[dict[str, Callable], None] = None,
+        callable_args: Optional[list[Callable]] = None,
+        callable_kwargs: Optional[dict[str, Callable]] = None,
     ):
         self.callable_args = callable_args or getattr(value, "callable_args", None) or []
         self.callable_kwargs = callable_kwargs or getattr(value, "callable_kwargs", None) or {}
@@ -318,8 +319,8 @@ class Accessor(str):
     def __new__(
         cls,
         value,
-        callable_args: Union[list[Callable], None] = None,
-        callable_kwargs: Union[dict[str, Callable], None] = None,
+        callable_args: Optional[list[Callable]] = None,
+        callable_kwargs: Optional[dict[str, Callable]] = None,
     ):
         instance = super().__new__(cls, value)
         if cls.LEGACY_SEPARATOR in value:
@@ -428,12 +429,12 @@ class Accessor(str):
             return ()
         return self.split(self.SEPARATOR)
 
-    def get_field(self, model):
+    def get_field(self, model: models.Model) -> Optional[models.Field]:
         """
         Return the django model field for model in context, following relations.
         """
         if not hasattr(model, "_meta"):
-            return
+            return None
 
         field = None
         for bit in self.bits:
@@ -448,7 +449,7 @@ class Accessor(str):
 
         return field
 
-    def penultimate(self, context, quiet=True):
+    def penultimate(self, context, quiet: bool = True) -> tuple[Any, str]:
         """
         Split the accessor on the right-most separator ('__'), return a tuple with:
          - the resolved left part.
@@ -542,7 +543,7 @@ def segment(sequence, aliases):
                     yield tuple([valias])
 
 
-def signature(fn: Callable) -> tuple[tuple[Any, ...], Union[str, None]]:
+def signature(fn: Callable) -> tuple[tuple[Any, ...], Optional[str]]:
     """
     Return argument names and the name of the kwargs catch all.
 

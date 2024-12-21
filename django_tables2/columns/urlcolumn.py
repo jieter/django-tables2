@@ -1,9 +1,12 @@
-from typing import Union
+from typing import TYPE_CHECKING, Optional
 
 from django.db import models
 
 from .base import library
 from .linkcolumn import BaseLinkColumn
+
+if TYPE_CHECKING:
+    from django.db.models.fields import Field
 
 
 @library.register
@@ -30,7 +33,7 @@ class URLColumn(BaseLinkColumn):
         return value
 
     @classmethod
-    def from_field(cls, field, **kwargs) -> "Union[URLColumn, None]":
+    def from_field(cls, field: "Field", **kwargs) -> "Optional[URLColumn]":
         if isinstance(field, models.URLField):
             return cls(**kwargs)
         return None

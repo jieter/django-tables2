@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Union
+from typing import TYPE_CHECKING, Optional
 
 from django.db import models
 
@@ -21,14 +21,14 @@ class DateColumn(TemplateColumn):
                       ``SHORT_DATE_FORMAT`` setting, otherwise use ``DATE_FORMAT``
     """
 
-    def __init__(self, format: Union[str, None] = None, short: bool = True, *args, **kwargs):
+    def __init__(self, format: Optional[str] = None, short: bool = True, *args, **kwargs):
         if format is None:
             format = "SHORT_DATE_FORMAT" if short else "DATE_FORMAT"
         kwargs["template_code"] = '{{ value|date:"%s"|default:default }}' % format
         super().__init__(*args, **kwargs)
 
     @classmethod
-    def from_field(cls, field: "Field", **kwargs) -> "Union[DateColumn, None]":
+    def from_field(cls, field: "Field", **kwargs) -> "Optional[DateColumn]":
         if isinstance(field, models.DateField):
             return cls(**kwargs)
         return None

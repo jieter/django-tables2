@@ -103,17 +103,14 @@ class LazyPaginator(Paginator):
     def is_last_page(self, number: Union[float, int]) -> bool:
         return number == self._final_num_pages
 
-    def _get_count(self):
+    @property
+    def count(self) -> int:
         raise NotImplementedError
 
-    count = property(_get_count)
-
-    def _get_num_pages(self) -> int:
+    @property
+    def num_pages(self) -> int:
         return self._num_pages
 
-    num_pages = property(_get_num_pages)
-
-    def _get_page_range(self) -> range:
+    @property
+    def page_range(self) -> range:
         raise NotImplementedError
-
-    page_range = property(_get_page_range)

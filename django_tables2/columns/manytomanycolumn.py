@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Optional
 
 from django.db import models
 from django.utils.encoding import force_str
@@ -73,20 +73,20 @@ class ManyToManyColumn(Column):
         if link_kwargs is not None:
             self.linkify_item = LinkTransform(attrs=self.attrs.get("a", {}), **link_kwargs)
 
-    def transform(self, obj):
+    def transform(self, obj: models.Model):
         """
         Transform is applied to each item of the list of objects from the ManyToMany relation.
         """
         return force_str(obj)
 
-    def filter(self, qs):
+    def filter(self, qs: models.QuerySet):
         """
         Filter is called on the ManyRelatedManager to allow ordering, filtering or limiting
         on the set of related objects.
         """
         return qs.all()
 
-    def render(self, value) -> SafeString:
+    def render(self, value: models.QuerySet) -> SafeString:
         items = []
         for item in self.filter(value):
             content = conditional_escape(self.transform(item))
@@ -98,6 +98,7 @@ class ManyToManyColumn(Column):
         return mark_safe(conditional_escape(self.separator).join(items))
 
     @classmethod
-    def from_field(cls, field, **kwargs) -> "Union[ManyToManyColumn, None]":
+    def from_field(cls, field, **kwargs) -> "Optional[ManyToManyColumn]":
         if isinstance(field, models.ManyToManyField):
             return cls(**kwargs)
+        return None

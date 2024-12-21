@@ -1,6 +1,6 @@
 from collections import OrderedDict
 from collections.abc import Callable, Iterator
-from typing import TYPE_CHECKING, Any, Union
+from typing import TYPE_CHECKING, Any, Optional, Union
 
 from django.core.exceptions import ImproperlyConfigured
 from django.urls import reverse
@@ -37,7 +37,7 @@ class Library:
         self.columns.append(column)
         return column
 
-    def column_for_field(self, field: "Field", **kwargs) -> "Union[Column, None]":
+    def column_for_field(self, field: "Field", **kwargs) -> "Optional[Column]":
         """Return a column object suitable for the supplied model field."""
         if field is None:
             return self.columns[0](**kwargs)
@@ -56,6 +56,7 @@ class Library:
             if column is None:
                 continue
             return column
+        return None
 
 
 # The library is a mechanism for announcing what columns are available. Its
@@ -73,9 +74,9 @@ class LinkTransform:
 
     def __init__(
         self,
-        url: Union[Callable, None] = None,
+        url: Optional[Callable] = None,
         accessor: Union[str, Accessor, None] = None,
-        attrs: Union[dict, None] = None,
+        attrs: Optional[dict] = None,
         reverse_args: Union[list, tuple, None] = None,
     ):
         """
@@ -99,10 +100,13 @@ class LinkTransform:
 
         if isinstance(reverse_args, (list, tuple)):
             viewname, args = reverse_args
-            reverse_args = {"viewname": viewname}
-            reverse_args["kwargs" if isinstance(args, dict) else "args"] = args
+            self.reverse_args = {
+                "viewname": viewname,
+                "kwargs" if isinstance(args, dict) else "args": args,
+            }
+        else:
 
-        self.reverse_args = reverse_args or {}
+            self.reverse_args = reverse_args or {}
 
     def compose_url(self, **kwargs) -> str:
         if self.url and callable(self.url):
@@ -270,9 +274,9 @@ class Column:
 
     def __init__(
         self,
-        verbose_name: Union[str, None] = None,
+        verbose_name: Optional[str] = None,
         accessor: Union[str, Accessor, Callable[..., str], None] = None,
-        default: Union[str, None] = None,
+        default: Optional[str] = None,
         visible=True,
         orderable=None,
         attrs=None,
@@ -326,7 +330,7 @@ class Column:
         return self._default() if callable(self._default) else self._default
 
     @property
-    def header(self) -> Union[str, None]:
+    def header(self) -> Optional[str]:
         """
         The value used for the column heading (e.g. inside the ``<th>`` tag).
 
@@ -343,7 +347,7 @@ class Column:
         """
         return self.verbose_name
 
-    def footer(self, bound_column: "BoundColumn", table: "Table") -> Union[str, None]:
+    def footer(self, bound_column: "BoundColumn", table: "Table") -> Optional[str]:
         """Return the content of the footer, if specified."""
         footer_kwargs = {"column": self, "bound_column": bound_column, "table": table}
 
@@ -399,7 +403,7 @@ class Column:
         return (queryset, False)
 
     @classmethod
-    def from_field(cls, field, **kwargs) -> "Union[Column, None]":
+    def from_field(cls, field: "Field", **kwargs) -> "Optional[Column]":
         """
         Return a specialized column for the model field or `None`.
 
@@ -444,6 +448,7 @@ class BoundColumn:
     render: Callable
     order: Callable
     value: Callable
+    current_record: Any
 
     def __init__(self, table: "Table", column: Column, name: str):
         self._table = table
@@ -475,10 +480,9 @@ class BoundColumn:
         kwargs = {"table": self._table, "bound_column": self}
         # BoundRow.items() sets current_record and current_value when iterating over
         # the records in a table.
-        if (
-            getattr(self, "current_record", None) is not None
-            and getattr(self, "current_value", None) is not None
-        ):
+        current_record = getattr(self, "current_record", None)
+        current_value = getattr(self, "current_value", None)
+        if current_record is not None and current_value is not None:
             kwargs.update({"record": self.current_record, "value": self.current_value})
 
         # Start with table's attrs; Only 'th' and 'td' attributes will be used
@@ -702,7 +706,7 @@ class BoundColumn:
         return self.column.visible
 
     @property
-    def localize(self) -> Union[bool, None]:
+    def localize(self) -> Optional[bool]:
         """Return `True`, `False` or `None` as described in ``Column.localize``"""
         return self.column.localize
 

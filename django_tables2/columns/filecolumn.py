@@ -1,5 +1,5 @@
 import os
-from typing import TYPE_CHECKING, Union
+from typing import TYPE_CHECKING, Optional
 
 from django.db import models
 from django.utils.html import format_html
@@ -84,7 +84,7 @@ class FileColumn(BaseLinkColumn):
         )
 
     @classmethod
-    def from_field(cls, field: "Field", **kwargs) -> "Union[FileColumn, None]":
+    def from_field(cls, field: "Field", **kwargs) -> "Optional[FileColumn]":
         if isinstance(field, models.FileField):
             return cls(**kwargs)
         return None

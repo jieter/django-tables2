@@ -1,5 +1,5 @@
 import json
-from typing import TYPE_CHECKING, Union
+from typing import TYPE_CHECKING, Any, Optional
 
 from django.db.models import JSONField
 from django.utils.html import format_html
@@ -43,7 +43,7 @@ class JSONColumn(BaseLinkColumn):
 
         super().__init__(**kwargs)
 
-    def render(self, record, value) -> SafeString:
+    def render(self, value: Any) -> SafeString:
         return format_html(
             "<pre {}>{}</pre>",
             AttributeDict(self.attrs.get("pre", {})).as_html(),
@@ -51,11 +51,9 @@ class JSONColumn(BaseLinkColumn):
         )
 
     @classmethod
-    def from_field(cls, field: "Field", **kwargs) -> "Union[JSONColumn, None]":
-        if (
-            isinstance(field, JSONField)
-            or HStoreField is not None
-            and isinstance(field, HStoreField)
+    def from_field(cls, field: "Field", **kwargs) -> "Optional[JSONColumn]":
+        if isinstance(field, JSONField) or (
+            HStoreField is not None and isinstance(field, HStoreField)
         ):
             return cls(**kwargs)
         return None

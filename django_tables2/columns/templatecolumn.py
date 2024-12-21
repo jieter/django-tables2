@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Union
+from typing import TYPE_CHECKING, Any, Optional, Union
 
 from django.template import Context, Template
 from django.template.loader import get_template
@@ -49,9 +49,9 @@ class TemplateColumn(Column):
 
     def __init__(
         self,
-        template_code: Union[str, None] = None,
-        template_name: Union[str, None] = None,
-        extra_context: Union[dict, None] = None,
+        template_code: Optional[str] = None,
+        template_name: Optional[str] = None,
+        extra_context: Optional[dict] = None,
         **extra
     ):
         super().__init__(**extra)
