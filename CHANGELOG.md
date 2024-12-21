@@ -1,5 +1,13 @@
 # Change log
 
+## 2.7.1 (2024-12-21)
+- Add TimeColumn to built-in columns ([#937](https://github.com/jieter/django-tables2/pull/937)) by [@philipphanemann](https://github.com/philipphanemann)
+Add support to pass args/kwargs to callables from Accessor ([#940](https://github.com/jieter/django-tables2/pull/940)), fixes: [#939](https://github.com/jieter/django-tables2/issues/939)
+by [@JordanHyatt](https://github.com/JordanHyatt)
+- Drop support for Django 3.2, 4.1 and python 3.8
+- Add support for Django 5.1 and python 3.12
+- Explicitly set `Column.accessor` when binding a column to allow column methods like `order_by` to use its value ([#979](https://github.com/jieter/django-tables2/pull/979))
+
 ## 2.7.0 (2023-12-05)
 - Update docs dependencies; fix docs search; add readthedocs.yaml ([#935](https://github.com/jieter/django-tables2/pull/935))
 - Add example on how to use `Accessor` to documentation in `custom-data.rst` ([#917](https://github.com/jieter/django-tables2/pull/917)) by [@ruddra](https://github.com/ruddra)
