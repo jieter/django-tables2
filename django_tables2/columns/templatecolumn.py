@@ -1,6 +1,7 @@
 from django.template import Context, Template
 from django.template.loader import get_template
 from django.utils.html import strip_tags
+from django.utils.safestring import SafeString
 
 from .base import Column, library
 
@@ -49,7 +50,7 @@ class TemplateColumn(Column):
         if not self.template_code and not self.template_name:
             raise ValueError("A template must be provided")
 
-    def render(self, record, table, value, bound_column, **kwargs):
+    def render(self, record, table, value, bound_column, **kwargs) -> SafeString:
         # If the table is being rendered using `render_table`, it hackily
         # attaches the context to the table as a gift to `TemplateColumn`.
         context = getattr(table, "context", Context())
@@ -67,7 +68,7 @@ class TemplateColumn(Column):
             else:
                 return get_template(self.template_name).render(context.flatten())
 
-    def value(self, **kwargs):
+    def value(self, **kwargs) -> str:
         """
         The value returned from a call to `value()` on a `TemplateColumn` is
         the rendered template with `django.utils.html.strip_tags` applied.
