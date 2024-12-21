@@ -489,7 +489,7 @@ class Table(metaclass=DeclarativeColumnsMetaclass):
 
         columns = [
             column
-            for column in self.columns.iterall()
+            for column in self.columns.all()
             if not (column.column.exclude_from_export or column.name in exclude_columns)
         ]
 

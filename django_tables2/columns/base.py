@@ -1,6 +1,5 @@
 from collections import OrderedDict
-from collections.abc import Callable
-from itertools import islice
+from collections.abc import Callable, Iterator
 from typing import TYPE_CHECKING, Any, Union
 
 from django.core.exceptions import ImproperlyConfigured
@@ -652,7 +651,7 @@ class BoundColumn:
         return self._table.orderable
 
     @property
-    def verbose_name(self) -> Union[str, SafeString]:
+    def verbose_name(self) -> "Union[str, SafeString]":
         """
         Return the verbose name for this column.
 
@@ -697,12 +696,12 @@ class BoundColumn:
         return capfirst(name)
 
     @property
-    def visible(self):
+    def visible(self) -> bool:
         """Return whether this column is visible."""
         return self.column.visible
 
     @property
-    def localize(self):
+    def localize(self) -> Union[bool, None]:
         """Return `True`, `False` or `None` as described in ``Column.localize``"""
         return self.column.localize
 
@@ -728,7 +727,7 @@ class BoundColumns:
         table (`.Table`): the table containing the columns
     """
 
-    def __init__(self, table, base_columns):
+    def __init__(self, table: "Table", base_columns):
         self._table = table
         self.columns = OrderedDict()
         for name, column in base_columns.items():
@@ -740,23 +739,7 @@ class BoundColumns:
             )
             bound_column.order = getattr(table, "order_" + name, column.order)
 
-    def iternames(self):
-        return (name for name, column in self.iteritems())
-
-    def names(self):
-        return list(self.iternames())
-
-    def iterall(self):
-        """
-        Return an iterator that exposes all `.BoundColumn` objects,
-        regardless of visibility or sortability.
-        """
-        return (column for name, column in self.iteritems())
-
-    def all(self):
-        return list(self.iterall())
-
-    def iteritems(self):
+    def items(self) -> Iterator[tuple[str, BoundColumn]]:
         """
         Return an iterator of ``(name, column)`` pairs (where ``column`` is a `BoundColumn`).
 
@@ -769,71 +752,52 @@ class BoundColumns:
             if name not in self._table.exclude:
                 yield (name, self.columns[name])
 
-    def items(self):
-        return list(self.iteritems())
+    def names(self) -> list[str]:
+        return [name for name, column in self.items()]
 
-    def iterorderable(self):
-        """
-        Same as `BoundColumns.all` but only returns orderable columns.
+    def all(self) -> list[BoundColumn]:
+        return [column for name, column in self.items()]
 
-        This is useful in templates, where iterating over the full
-        set and checking ``{% if column.ordarable %}`` can be problematic in
-        conjunction with e.g. ``{{ forloop.last }}`` (the last column might not
-        be the actual last that is rendered).
+    def orderable(self) -> list[BoundColumn]:
         """
-        return (x for x in self.iterall() if x.orderable)
+        Return a list of orderable `.BoundColumn` objects.
 
-    def itervisible(self):
+        This is useful in templates, where iterating over the full set and checking ``{% if column.orderable %}`` can
+        be problematic in conjunction with e.g. ``{{ forloop.last }}`` (the last column might not be the actual last
+        that is rendered).
         """
-        Same as `.iterorderable` but only returns visible `.BoundColumn` objects.
+        return [column for column in self.all() if column.orderable]
 
-        This is geared towards table rendering.
-        """
-        return (x for x in self.iterall() if x.visible)
+    def visible(self) -> list[BoundColumn]:
+        """Return a list of  visible `.BoundColumn` objects."""
+        return [column for column in self.all() if column.visible]
 
-    def hide(self, name):
-        """
-        Hide a column.
+    def __iter__(self) -> Iterator[BoundColumn]:
+        return iter(self.visible())
 
-        Arguments:
-            name(str): name of the column
-        """
+    def hide(self, name: str) -> None:
+        """Hide a column by name."""
         self.columns[name].column.visible = False
 
-    def show(self, name):
-        """
-        Show a column otherwise hidden.
-
-        Arguments:
-            name(str): name of the column
-        """
+    def show(self, name: str) -> None:
+        """Show a column otherwise hidden by name."""
         self.columns[name].column.visible = True
 
-    def __iter__(self):
-        """Convenience API, alias of `.itervisible`."""
-        return self.itervisible()
-
-    def __contains__(self, item):
-        """
-        Check if a column is contained within a `BoundColumns` object.
-
-        *item* can either be a `~.BoundColumn` object, or the name of a column.
-        """
+    def __contains__(self, item: Union[str, BoundColumn]) -> bool:
+        """Check if a column is contained within a `BoundColumns` object."""
         if isinstance(item, str):
-            return item in self.iternames()
-        else:
-            # let's assume we were given a column
-            return item in self.iterall()
+            return item in self.names()
+        if isinstance(item, BoundColumn):
+            return item in self.all()
+        return TypeError("Argument type must be a string or a BoundColumn.")
 
-    def __len__(self):
+    def __len__(self) -> int:
         """Return how many `~.BoundColumn` objects are contained (and visible)."""
-        return len(list(self.itervisible()))
+        return len(self.visible())
 
-    def __getitem__(self, index):
+    def __getitem__(self, index: Union[int, str]) -> BoundColumn:
         """
-        Retrieve a specific `~.BoundColumn` object.
-
-        *index* can either be 0-indexed or the name of a column
+        Retrieve a specific `~.BoundColumn` object by index or name.
 
         .. code-block:: python
 
@@ -841,13 +805,10 @@ class BoundColumns:
             columns[0]        # returns the first column
         """
         if isinstance(index, int):
-            try:
-                return next(islice(self.iterall(), index, index + 1))
-            except StopIteration:
-                raise IndexError
+            return self.all()[index]
         elif isinstance(index, str):
-            for column in self.iterall():
-                if column.name == index:
+            for name, column in self.items():
+                if name == index:
                     return column
             raise KeyError(
                 f"Column with name '{index}' does not exist; choices are: {self.names()}"
