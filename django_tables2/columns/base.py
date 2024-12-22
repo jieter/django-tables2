@@ -68,14 +68,14 @@ library = Library()
 class LinkTransform:
     """Object used to generate attributes for the `<a>`-tag to wrap the cell content in."""
 
-    viewname = None
-    accessor = None
-    attrs = None
+    viewname: Optional[str] = None
+    accessor: Optional[Accessor] = None
+    attrs: Optional[dict] = None
 
     def __init__(
         self,
         url: Optional[Callable] = None,
-        accessor: Union[str, Accessor, None] = None,
+        accessor: Optional[Accessor] = None,
         attrs: Optional[dict] = None,
         reverse_args: Union[list, tuple, None] = None,
     ):
@@ -139,7 +139,6 @@ class LinkTransform:
             return val.resolve(record) if isinstance(val, Accessor) else val
 
         params = self.reverse_args.copy()
-
         params["viewname"] = resolve_if_accessor(params["viewname"])
         if params.get("urlconf", None):
             params["urlconf"] = resolve_if_accessor(params["urlconf"])
@@ -266,7 +265,7 @@ class Column:
     empty_values: tuple[Any, ...] = (None, "")
 
     # by default, contents are not wrapped in an <a>-tag.
-    link = None
+    link: Optional[LinkTransform] = None
 
     # Explicit is set to True if the column is defined as an attribute of a
     # class, used to give explicit columns precedence.
@@ -285,7 +284,7 @@ class Column:
         localize=None,
         footer: Union[str, Callable[..., str], None] = None,
         exclude_from_export: bool = False,
-        linkify: Union[bool, list, tuple, Callable[..., str]] = False,
+        linkify: Union[bool, tuple[str, Union[list, tuple]], Callable[..., str]] = False,
         initial_sort_descending: bool = False,
     ):
         if not (accessor is None or isinstance(accessor, str) or callable(accessor)):
@@ -310,8 +309,10 @@ class Column:
         self.exclude_from_export = exclude_from_export
 
         link_kwargs = None
-        if callable(linkify) or hasattr(self, "get_url"):
-            link_kwargs = dict(url=linkify if callable(linkify) else self.get_url)
+        if callable(linkify):
+            link_kwargs = dict(url=linkify)
+        elif get_url := getattr(self, "get_url", None):
+            link_kwargs = dict(url=get_url)
         elif isinstance(linkify, (dict, tuple)):
             link_kwargs = dict(reverse_args=linkify)
         elif linkify is True:
@@ -362,7 +363,7 @@ class Column:
 
         return ""
 
-    def render(self, value: Any, **kwargs) -> "Union[SafeString, str]":
+    def render(self, value: Any, **kwargs) -> "SafeString":
         """
         Return the content for a specific cell.
 

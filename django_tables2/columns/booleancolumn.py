@@ -43,24 +43,25 @@ class BooleanColumn(Column):
 
             # If that's the case, we need to inverse lookup the value to convert
             # to a boolean we can use.
-            if hasattr(field, "choices") and field.choices is not None and len(field.choices) > 0:
-                value = next(val for val, name in field.choices if name == value)
+            choices = getattr(field, "choices", None)
+            if choices is not None and len(choices) > 0:
+                value = next(val for val, name in choices if name == value)
 
         return bool(value)
 
-    def render(self, value: Any, record: Any, bound_column: BoundColumn) -> "SafeString":
-        value = self._get_bool_value(record, value, bound_column)
+    def render(self, value: Any, **kwargs) -> "SafeString":
+        value = self._get_bool_value(kwargs["record"], kwargs["value"], kwargs["bound_column"])
         text = self.yesno[int(not value)]
         attrs = {"class": str(value).lower()}
         attrs.update(self.attrs.get("span", {}))
 
         return format_html("<span {}>{}</span>", AttributeDict(attrs).as_html(), escape(text))
 
-    def value(self, record, value, bound_column) -> str:
+    def value(self, **kwargs) -> str:
         """
         Returns the content for a specific cell similarly to `.render` however without any html content.
         """
-        return str(self._get_bool_value(record, value, bound_column))
+        return str(self._get_bool_value(kwargs["record"], kwargs["value"], kwargs["bound_column"]))
 
     @classmethod
     def from_field(cls, field: "Field", **kwargs) -> "Optional[BooleanColumn]":

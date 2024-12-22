@@ -4,11 +4,14 @@ from collections import OrderedDict
 from collections.abc import Callable
 from functools import total_ordering
 from itertools import chain
-from typing import Any, Optional
+from typing import TYPE_CHECKING, Any, Optional, Union
 
 from django.core.exceptions import FieldDoesNotExist
 from django.db import models
 from django.utils.html import format_html_join
+
+if TYPE_CHECKING:
+    from django.contrib.contenttypes.fields import GenericForeignKey
 
 
 class Sequence(list):
@@ -308,7 +311,7 @@ class Accessor(str):
 
     def __init__(
         self,
-        value: str,
+        value: "Union[str, Callable, Accessor]",
         callable_args: Optional[list[Callable]] = None,
         callable_kwargs: Optional[dict[str, Callable]] = None,
     ):
@@ -429,7 +432,9 @@ class Accessor(str):
             return ()
         return self.split(self.SEPARATOR)
 
-    def get_field(self, model: models.Model) -> Optional[models.Field]:
+    def get_field(
+        self, model: models.Model
+    ) -> Union[models.Field[Any, Any], models.ForeignObjectRel, "GenericForeignKey", None]:
         """
         Return the django model field for model in context, following relations.
         """
@@ -446,7 +451,6 @@ class Accessor(str):
             if hasattr(field, "remote_field"):
                 rel = getattr(field, "remote_field", None)
                 model = getattr(rel, "model", model)
-
         return field
 
     def penultimate(self, context, quiet: bool = True) -> tuple[Any, str]:

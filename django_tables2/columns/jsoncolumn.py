@@ -6,8 +6,7 @@ from django.utils.html import format_html
 from django.utils.safestring import SafeString
 
 from ..utils import AttributeDict
-from .base import library
-from .linkcolumn import BaseLinkColumn
+from .base import Column, library
 
 if TYPE_CHECKING:
     from django.db.models import Field
@@ -20,7 +19,7 @@ except ImportError:
 
 
 @library.register
-class JSONColumn(BaseLinkColumn):
+class JSONColumn(Column):
     """
     Render the contents of `~django.contrib.postgres.fields.JSONField` or
     `~django.contrib.postgres.fields.HStoreField` as an indented string.
@@ -43,11 +42,10 @@ class JSONColumn(BaseLinkColumn):
 
         super().__init__(**kwargs)
 
-    def render(self, value: Any) -> SafeString:
+    def render(self, value: Any, **kwargs) -> SafeString:
+        attributes = AttributeDict(self.attrs.get("pre", {})).as_html()
         return format_html(
-            "<pre {}>{}</pre>",
-            AttributeDict(self.attrs.get("pre", {})).as_html(),
-            json.dumps(value, **self.json_dumps_kwargs),
+            "<pre {}>{}</pre>", attributes, json.dumps(value, **self.json_dumps_kwargs)
         )
 
     @classmethod

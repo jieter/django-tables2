@@ -1,15 +1,11 @@
-from typing import TYPE_CHECKING, Any, Optional, Union
+from typing import Any, Optional
 
 from django.template import Context, Template
 from django.template.loader import get_template
 from django.utils.html import strip_tags
+from django.utils.safestring import SafeString
 
 from .base import BoundColumn, Column, library
-
-if TYPE_CHECKING:
-    from django.utils.safestring import SafeString
-
-    from ..tables import Table
 
 
 @library.register
@@ -62,16 +58,17 @@ class TemplateColumn(Column):
         if not self.template_code and not self.template_name:
             raise ValueError("A template must be provided")
 
-    def render(
-        self, record, table: "Table", value: Any, bound_column: BoundColumn, **kwargs
-    ) -> "Union[SafeString, str]":
+    def render(self, value: Any, **kwargs) -> "SafeString":
         # If the table is being rendered using `render_table`, it hackily
         # attaches the context to the table as a gift to `TemplateColumn`.
+        table = kwargs["table"]
         context = getattr(table, "context", Context())
+        bound_column: BoundColumn = kwargs["bound_column"]
+
         additional_context = {
             "default": bound_column.default,
             "column": bound_column,
-            "record": record,
+            "record": kwargs["record"],
             "value": value,
             "row_counter": kwargs["bound_row"].row_counter,
         }
@@ -80,10 +77,11 @@ class TemplateColumn(Column):
             if self.template_code:
                 return Template(self.template_code).render(context)
             elif self.template_name:
-                return get_template(self.template_name).render(context.flatten())
-        return ""
+                dict_context: dict[Any, Any] = context.flatten()
+                return SafeString(get_template(self.template_name).render(dict_context))
+        return SafeString("")
 
-    def value(self, **kwargs) -> str:
+    def value(self, **kwargs) -> Any:
         """
         The value returned from a call to `value()` on a `TemplateColumn` is
         the rendered template with `django.utils.html.strip_tags` applied.

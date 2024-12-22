@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Any, Optional
 
 from django.db import models
 from django.utils.encoding import force_str
@@ -86,7 +86,7 @@ class ManyToManyColumn(Column):
         """
         return qs.all()
 
-    def render(self, value: models.QuerySet) -> SafeString:
+    def render(self, value: Any, **kwargs) -> "SafeString":
         items = []
         for item in self.filter(value):
             content = conditional_escape(self.transform(item))
