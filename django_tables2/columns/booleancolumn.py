@@ -23,6 +23,7 @@ class BooleanColumn(Column):
     available:
 
      - ``span`` -- adds attributes to the ``<span>`` tag
+
     """
 
     def __init__(self, null=False, yesno="✔,✘", **kwargs):

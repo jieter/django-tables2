@@ -37,6 +37,7 @@ class Sequence(list):
         Raises:
         ------
         `ValueError` if the sequence is invalid for the columns.
+
         """
         ellipses = self.count("...")
         if ellipses > 1:
@@ -93,6 +94,7 @@ class OrderBy(str):
         The *bare form* is the non-prefixed form. Typically the bare form is just the ascending form.
 
         Example: ``age`` is the bare form of ``-age``.
+
         """
         return OrderBy(self[1:]) if self[:1] == "-" else self
 
@@ -178,6 +180,7 @@ class OrderByTuple(tuple):
         Returns:
         -------
         bool: `True` if the column with `name` influences the ordering.
+
         """
         name = OrderBy(name).bare
         for order_by in self:
@@ -206,6 +209,7 @@ class OrderByTuple(tuple):
         Returns:
         -------
         `.OrderBy`: for the ordering at the index.
+
         """
         if isinstance(index, str):
             for order_by in self:
@@ -364,6 +368,7 @@ class Accessor(str):
         Raises:
         ------
         TypeError`, `AttributeError`, `KeyError`, `ValueError` (unless `quiet` == `True`)
+
         """
         # Short-circuit if the context contains a key with the exact name of the accessor,
         # supporting list-of-dicts data returned from values_list("related_model__field")
@@ -537,6 +542,7 @@ def signature(fn):
             - the name of the ** kwarg catch all.
 
     The self-argument for methods is always removed.
+
     """
     signature = inspect.signature(fn)
 
@@ -610,6 +616,7 @@ def computed_values(d, kwargs=None):
     Returns:
     -------
         dict: with callable values replaced.
+
     """
     kwargs = kwargs or {}
     result = {}

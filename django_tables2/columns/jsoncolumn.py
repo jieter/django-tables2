@@ -58,5 +58,5 @@ class JSONColumn(BaseLinkColumn):
     @classmethod
     def from_field(cls, field, **kwargs):
         if POSTGRES_AVAILABLE:
-            if isinstance(field, JSONField | HStoreField):
+            if isinstance(field, (JSONField, HStoreField)):
                 return cls(**kwargs)

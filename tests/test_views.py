@@ -1,4 +1,5 @@
 from math import ceil
+from typing import Optional
 
 import django_filters as filters
 from django.core.exceptions import ImproperlyConfigured
@@ -478,7 +479,7 @@ class MultiTableMixinTest(TestCase):
             tables = (TableB, TableB)
             tables_data = (Region.objects.all(), Region.objects.all())
 
-            def get_paginate_by(self, table_data) -> int | None:
+            def get_paginate_by(self, table_data) -> Optional[int]:
                 # Split data into 3 pages
                 return ceil(len(table_data) / 3)
 

@@ -126,6 +126,7 @@ class RenderTableNode(Node):
     ----------
         table (~.Table): the table to render
         template (str or list): Name[s] of template to render.
+
     """
 
     def __init__(self, table, template_name=None):
@@ -249,6 +250,7 @@ def table_page_range(page, paginator):
         {% for p in table.page|table_page_range:table.paginator %}
             {{ p }}
         {% endfor %}
+
     """
     page_range = getattr(settings, "DJANGO_TABLES2_PAGE_RANGE", 10)
 

@@ -1,9 +1,5 @@
 from itertools import count
-<<<<<<< HEAD
 from typing import Any, Optional
-=======
-from typing import Any
->>>>>>> 7b39760 (Adopt ruff to replace isort, flake8)
 
 from django.core.exceptions import ImproperlyConfigured
 from django.views.generic.list import ListView
@@ -62,7 +58,7 @@ class TableMixinBase:
 
         return paginate
 
-    def get_paginate_by(self, table_data) -> int | None:
+    def get_paginate_by(self, table_data) -> Optional[int]:
         """
         Determine the number of items per page, or ``None`` for no pagination.
 
@@ -73,6 +69,7 @@ class TableMixinBase:
         Returns:
         -------
         Optional[int]: Items per page or ``None`` for no pagination.
+
         """
         return getattr(self, "paginate_by", None)
 
@@ -97,6 +94,7 @@ class SingleTableMixin(TableMixinBase):
 
     This mixin plays nice with the Django's ``.MultipleObjectMixin`` by using
     ``.get_queryset`` as a fall back for the table data source.
+
     """
 
     table_class = None
@@ -192,6 +190,7 @@ class MultiTableMixin(TableMixinBase):
             'tables')
 
     .. versionadded:: 1.2.3
+
     """
 
     tables = None

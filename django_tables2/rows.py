@@ -100,6 +100,7 @@ class BoundRow:
         Return:
         ------
             string: `even` for even records, `odd` otherwise.
+
         """
         return "odd" if self.row_counter % 2 else "even"
 
@@ -247,6 +248,7 @@ class BoundPinnedRow(BoundRow):
         Return:
         ------
         AttributeDict: Attributes for pinned rows.
+
         """
         row_attrs = computed_values(self._table.pinned_row_attrs, kwargs={"record": self._record})
         css_class = " ".join(
@@ -275,6 +277,7 @@ class BoundRows:
         ... }
 
     This is used for `~.Table.rows`.
+
     """
 
     def __init__(self, data, table, pinned_data=None):
@@ -293,6 +296,7 @@ class BoundRows:
         Yields:
         ------
         BoundPinnedRow: Top or bottom `BoundPinnedRow` object for single pinned record.
+
         """
         if data is not None:
             if hasattr(data, "__iter__") is False:

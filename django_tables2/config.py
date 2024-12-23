@@ -38,6 +38,7 @@ class RequestConfig:
         Arguments:
         ---------
         table (`~.Table`): table to be configured
+
         """
         table.request = self.request
 

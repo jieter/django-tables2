@@ -113,6 +113,7 @@ class TableOptions:
     Arguments:
     ---------
         options (`.Table.Meta`): options for a table from `.Table.Meta`
+
     """
 
     def __init__(self, options, class_name):
@@ -250,6 +251,7 @@ class Table(metaclass=DeclarativeColumnsMetaclass):
         extra_columns (str, `.Column`): list of `(name, column)`-tuples containing
             extra columns to add to the instance. If `column` is `None`, the column
             with `name` will be removed from the table.
+
     """
 
     def __init__(
@@ -393,6 +395,7 @@ class Table(metaclass=DeclarativeColumnsMetaclass):
             ...             "column_a" : "some value",
             ...             "column_c" : "other value",
             ...         }]
+
         """
         return None
 
@@ -419,6 +422,7 @@ class Table(metaclass=DeclarativeColumnsMetaclass):
             ...             "column_a" : "some value",
             ...             "column_c" : "other value",
             ...         }]
+
         """
         return None
 
@@ -444,6 +448,7 @@ class Table(metaclass=DeclarativeColumnsMetaclass):
                         self.columns.hide('country')
                     else:
                         self.columns.show('country')
+
         """
         pass
 
@@ -486,6 +491,7 @@ class Table(metaclass=DeclarativeColumnsMetaclass):
         the value when `as_values()` is called.
 
         Note that any invisible columns will be part of the row iterator.
+
         """
         if exclude_columns is None:
             exclude_columns = ()
@@ -527,6 +533,7 @@ class Table(metaclass=DeclarativeColumnsMetaclass):
         Arguments:
         ---------
         value: iterable or comma separated string of order by aliases.
+
         """
         # collapse empty values to ()
         order_by = () if not value else value
@@ -577,6 +584,7 @@ class Table(metaclass=DeclarativeColumnsMetaclass):
 
         Pagination exceptions (`~django.core.paginator.EmptyPage` and `~django.core.paginator.PageNotAnInteger`) may be
         raised from this method and should be handled by the caller.
+
         """
         per_page = per_page or self._meta.per_page
         self.paginator = paginator_class(self.rows, per_page, *args, **kwargs)
@@ -685,6 +693,7 @@ class Table(metaclass=DeclarativeColumnsMetaclass):
                     classes_set.add(bound_column.name)
 
                     return classes_set
+
         """
         return classes_set
 
@@ -706,6 +715,7 @@ def table_factory(model, table=Table, fields=None, exclude=None, localize=None):
     fields (list of str): Fields displayed in tables
     exclude (list of str): Fields exclude in tables
     localize (list of str): Fields to localize
+
     """
     attrs = {"model": model}
     if fields is not None:

@@ -26,6 +26,7 @@ class ExportMixin:
         dataset_kwargs (dictionary): passed as `**kwargs` to `tablib.Dataset` constructor::
 
             dataset_kwargs = {"tite": "My custom tab title"}
+
     """
 
     export_class = TableExport

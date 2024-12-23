@@ -37,6 +37,7 @@ class TemplateColumn(Column):
                                         extra_context={"label": "Label"})
 
     Both columns will have the same output.
+
     """
 
     empty_values = ()

@@ -145,8 +145,8 @@ class BooleanColumnTest(TestCase):
                 model = Occupation
                 fields = ("boolean", "name")
 
-        Occupation.objects.create(name="Waar", boolean=True),
-        Occupation.objects.create(name="Onwaar", boolean=False),
+        (Occupation.objects.create(name="Waar", boolean=True),)
+        (Occupation.objects.create(name="Onwaar", boolean=False),)
         Occupation.objects.create(name="Onduidelijk")
 
         html = Table(Occupation.objects.all()).as_html(build_request())

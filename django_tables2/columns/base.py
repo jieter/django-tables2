@@ -36,6 +36,7 @@ class Library:
         Returns
         -------
         `..Column` object or `None`
+
         """
         if field is None:
             return self.columns[0](**kwargs)
@@ -71,6 +72,8 @@ class LinkTransform:
 
     def __init__(self, url=None, accessor=None, attrs=None, reverse_args=None):
         """
+        Attributes for the link tag in a cell.
+
         Arguments:
         ---------
         url (callable): If supplied, the result of this callable will be used as ``href`` attribute.
@@ -82,12 +85,13 @@ class LinkTransform:
             These arguments will then be passed automatically.
         reverse_args (dict, tuple): Arguments to ``django.urls.reverse()``. If dict, the arguments are assumed to be
         keyword arguments to ``reverse()``, if tuple, a ``(viewname, args)`` or ``(viewname, kwargs)``.
+
         """
         self.url = url
         self.attrs = attrs
         self.accessor = accessor
 
-        if isinstance(reverse_args, list | tuple):
+        if isinstance(reverse_args, (list, tuple)):
             viewname, args = reverse_args
             reverse_args = {"viewname": viewname}
             reverse_args["kwargs" if isinstance(args, dict) else "args"] = args
@@ -234,6 +238,7 @@ class Column:
             default behavior, and sort ascending on "first click". Defaults to `False`.
 
     .. [1] The provided callable object must not expect to receive any arguments.
+
     """
 
     # Tracks each time a Column instance is created. Used to retain order.
@@ -287,7 +292,7 @@ class Column:
         link_kwargs = None
         if callable(linkify) or hasattr(self, "get_url"):
             link_kwargs = dict(url=linkify if callable(linkify) else self.get_url)
-        elif isinstance(linkify, dict | tuple):
+        elif isinstance(linkify, (dict, tuple)):
             link_kwargs = dict(reverse_args=linkify)
         elif linkify is True:
             link_kwargs = dict(accessor=self.accessor)
@@ -378,6 +383,7 @@ class Column:
         Returns
         -------
         Tuple (QuerySet, boolean)
+
         """
         return (queryset, False)
 
@@ -398,6 +404,7 @@ class Column:
         If the column is not specialized for the given model field, it should return `None`. This gives other columns
         the opportunity to do better.
         If the column is specialized, it should return an properly configured instance of itself for the field.
+
         """
         # Since this method is inherited by every subclass, only provide a
         # column if this class was asked directly.
@@ -442,14 +449,6 @@ class BoundColumn:
         return str(self.header)
 
     @property
-<<<<<<< HEAD
-=======
-    def accessor(self):
-        """Return the string used to access data for this column out of the data source."""
-        return self.column.accessor or Accessor(self.name)
-
-    @property
->>>>>>> 7b39760 (Adopt ruff to replace isort, flake8)
     def attrs(self):
         """
         Proxy to `.Column.attrs` but injects some values of our own.
@@ -709,6 +708,7 @@ class BoundColumns:
     Arguments:
     ---------
         table (`.Table`): the table containing the columns
+
     """
 
     def __init__(self, table, base_columns):

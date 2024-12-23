@@ -11,6 +11,7 @@ class BaseLinkColumn(Column):
         The callable gets the record being rendered as argument.
     attrs (dict): In addition to ``attrs`` keys supported by `~.Column`, the following are available:
             - `a` -- ``<a>`` in ``<td>`` elements.
+
     """
 
     def __init__(self, text=None, *args, **kwargs):

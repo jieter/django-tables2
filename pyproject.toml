@@ -53,45 +53,38 @@ packages = ["django_tables2"]
 [tool.hatch.version]
 path = "django_tables2/__init__.py"
 
-[tool.setuptools.dynamic]
-version = {attr = "django_tables2.__version__"}
-
-[tool.black]
-line-length = 100
-
 [tool.ruff]
-fix = false
+line-length = 100
+target-version = "py39"
+
+[tool.ruff.lint]
 fixable = [
-  "I001", # isort (sorting)
-  "F", # flake8
-  "D", # docformatter
-  "UP", # pyupgrade
+  "D",
+  "E",
+  "F",
+  "I",
+  "UP"
 ]
 ignore = [
-  "D1", # D1: Missing docstring error codes (because not every function and class has a docstring)
-  "D203", # D203: 1 blank line required before class docstring (conflicts with D211 and should be disabled, see https://github.com/PyCQA/pydocstyle/pull/91)
+  "D1",  # Missing docstring error codes (because not every function and class has a docstring)
+  "D203",  # 1 blank line required before class docstring (conflicts with D211 and should be disabled, see https://github.com/PyCQA/pydocstyle/pull/91)
   "D205",
-  "D212", # D212: Multi-line docstring summary should start at the first line
+  "D212",  # Multi-line docstring summary should start at the first line
+  "E501"  # Line too long
 ]
-line-length = 120
 select = [
-  "D", # pydocstyle
-  "E", # pycodestyle
-  "F", # flake8
-  "I", # isort
-  "UP", # pyupgrade
+  "D",  # pydocstyle
+  "E",  # pycodestyle
+  "F",  # flake8
+  "I",  # isort
+  "UP"  # pyupgrade
 ]
-target-version = "py311"
 unfixable = [
-  "F8", # names in flake8, such as defined but unused variables
+  "F8"  # names in flake8, such as defined but unused variables
 ]
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 "*/migrations/*" = ["D417", "E501"]
 
-[tool.djlint]
-# Reference: https://djlint.com/djlint/rules.html
-blank_line_after_tag = "load,extends,endblock,has_perm"
-ignore = "H006,H008,H013,H014,H017,H019,H021,H023,T001,T002,T003"
-max_line_length = 120
-profile = "django"
+[tool.setuptools.dynamic]
+version = {attr = "django_tables2.__version__"}

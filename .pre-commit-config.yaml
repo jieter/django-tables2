@@ -1,47 +1,21 @@
 repos:
-  - repo: https://github.com/psf/black
-    rev: 24.10.0
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.8.0
     hooks:
-     - id: black
-       language_version: python3.11
-
-<<<<<<< HEAD
-  - repo: https://github.com/asottile/pyupgrade
-    rev: v3.19.0
-    hooks:
-     - id: pyupgrade
-       args: [--py39-plus]
+      - id: ruff
+        args: [--fix, --exit-non-zero-on-fix]
+      - id: ruff-format
+        types_or: [ python, pyi ]
 
   - repo: https://github.com/macisamuele/language-formatters-pre-commit-hooks
     rev: v2.14.0
     hooks:
     - id: pretty-format-toml
       args: [--autofix]
-  - repo: https://github.com/pycqa/isort
-    rev: 5.13.2
-    hooks:
-      - id: isort
-
-  - repo: https://github.com/PyCQA/flake8
-    rev: 7.1.1
-    hooks:
-      - id: flake8
 
   - repo: https://github.com/adamchainz/django-upgrade
     rev: "1.22.1"
     hooks:
      - id: django-upgrade
        args: [--target-version, "4.2"]
-  - repo: https://github.com/asottile/pyupgrade
-    rev: v3.19.0
-    hooks:
-     - id: pyupgrade
-       args: [--py39-plus]
 
-=======
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.0.272
-    hooks:
-      - id: ruff
-        args: [--fix, --exit-non-zero-on-fix]
->>>>>>> 7b39760 (Adopt ruff to replace isort, flake8)

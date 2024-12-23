@@ -43,6 +43,7 @@ class CheckBoxColumn(Column):
         rendered table and then *do something* with that. This functionality
         is not implemented. If you want something to actually happen, you will
         need to implement that yourself.
+
     """
 
     def __init__(self, attrs=None, checked=None, **extra):

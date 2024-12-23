@@ -103,6 +103,7 @@ class TableListData(TableData):
         ---------
         aliases (`~.utils.OrderByTuple`): optionally prefixed names of columns ('-' indicates descending order) in
             order of significance with regard to data ordering.
+
         """
         accessors = []
         for alias in aliases:
@@ -180,6 +181,7 @@ class TableQuerysetData(TableData):
         ---------
         aliases (`~.utils.OrderByTuple`): optionally prefixed names of columns ('-' indicates descending order) in
             order of significance with regard to data ordering.
+
         """
         modified_any = False
         accessors = []

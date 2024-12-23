@@ -30,6 +30,7 @@ class EmailColumn(BaseLinkColumn):
 
         # result
         # [...]<a href="mailto:email@example.com">email@example.com</a>
+
     """
 
     def get_url(self, value):
