@@ -1,8 +1,15 @@
+from typing import TYPE_CHECKING, Any, Optional
+
 from django.db import models
 from django.utils.html import escape, format_html
 
 from ..utils import AttributeDict
-from .base import Column, library
+from .base import BoundColumn, CellArguments, Column, library
+
+if TYPE_CHECKING:
+    from django.db.models import Field
+    from django.utils.safestring import SafeString
+    from typing_extensions import Unpack
 
 
 @library.register
@@ -30,38 +37,40 @@ class BooleanColumn(Column):
             kwargs["empty_values"] = ()
         super().__init__(**kwargs)
 
-    def _get_bool_value(self, record, value, bound_column):
+    def _get_bool_value(self, record: Any, value: Any, bound_column: BoundColumn) -> bool:
         # If record is a model, we need to check if it has choices defined.
         if hasattr(record, "_meta"):
             field = bound_column.accessor.get_field(record)
 
             # If that's the case, we need to inverse lookup the value to convert
             # to a boolean we can use.
-            if hasattr(field, "choices") and field.choices is not None and len(field.choices) > 0:
-                value = next(val for val, name in field.choices if name == value)
+            choices = getattr(field, "choices", None)
+            if choices is not None and len(choices) > 0:
+                value = next(val for val, name in choices if name == value)
 
-        value = bool(value)
-        return value
+        return bool(value)
 
-    def render(self, value, record, bound_column):
-        value = self._get_bool_value(record, value, bound_column)
+    def render(self, **kwargs: "Unpack[CellArguments]") -> "SafeString":
+        value = self._get_bool_value(kwargs["record"], kwargs["value"], kwargs["bound_column"])
         text = self.yesno[int(not value)]
         attrs = {"class": str(value).lower()}
         attrs.update(self.attrs.get("span", {}))
 
         return format_html("<span {}>{}</span>", AttributeDict(attrs).as_html(), escape(text))
 
-    def value(self, record, value, bound_column):
+    def value(self, **kwargs: "Unpack[CellArguments]") -> Any:
         """
         Returns the content for a specific cell similarly to `.render` however without any html content.
         """
-        value = self._get_bool_value(record, value, bound_column)
-        return str(value)
+        return str(self._get_bool_value(kwargs["record"], kwargs["value"], kwargs["bound_column"]))
 
     @classmethod
-    def from_field(cls, field, **kwargs):
-        if isinstance(field, models.NullBooleanField):
-            return cls(null=True, **kwargs)
+    def from_field(cls, field: "Field", **kwargs) -> "Optional[BooleanColumn]":
+        if NullBooleanField := getattr(models, "NullBooleanField", None):
+            if isinstance(field, NullBooleanField):
+                return cls(null=True, **kwargs)
 
         if isinstance(field, models.BooleanField):
             return cls(null=getattr(field, "null", False), **kwargs)
+
+        return None

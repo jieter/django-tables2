@@ -1,15 +1,19 @@
+from typing import TYPE_CHECKING, Any
+
 from django.core.exceptions import FieldDoesNotExist
 from django.db import models
 
+from .columns.base import BoundColumn, CellArguments
 from .columns.linkcolumn import BaseLinkColumn
 from .columns.manytomanycolumn import ManyToManyColumn
 from .utils import A, AttributeDict, call_with_appropriate, computed_values
 
+if TYPE_CHECKING:
+    from .tables import Table
+
 
 class CellAccessor:
-    """
-    Allows accessing cell contents on a row object (see `BoundRow`)
-    """
+    """Allows accessing cell contents on a row object (see `BoundRow`)."""
 
     def __init__(self, row):
         self.row = row
@@ -80,31 +84,26 @@ class BoundRow:
 
     """
 
-    def __init__(self, record, table):
+    def __init__(self, record: Any, table: "Table"):
         self._record = record
         self._table = table
 
         self.row_counter = next(table._counter)
 
-        # support accessing cells from a template: {{ row.cells.column_name }}
+        # Support accessing cells from a template: {{ row.cells.column_name }}
         self.cells = CellAccessor(self)
 
     @property
-    def table(self):
+    def table(self) -> "Table":
         """The `.Table` this row is part of."""
         return self._table
 
-    def get_even_odd_css_class(self):
-        """
-        Return css class, alternating for odd and even records.
-
-        Return:
-            string: `even` for even records, `odd` otherwise.
-        """
+    def get_even_odd_css_class(self) -> str:
+        """Return "odd" and "even" depending on the row counter."""
         return "odd" if self.row_counter % 2 else "even"
 
     @property
-    def attrs(self):
+    def attrs(self) -> AttributeDict:
         """Return the attributes for a certain row."""
         cssClass = self.get_even_odd_css_class()
 
@@ -120,7 +119,7 @@ class BoundRow:
         return AttributeDict(row_attrs)
 
     @property
-    def record(self):
+    def record(self) -> Any:
         """The data record from the data source which is used to populate this row with data."""
         return self._record
 
@@ -136,7 +135,7 @@ class BoundRow:
             # is correct – it's what __getitem__ expects.
             yield value
 
-    def _get_and_render_with(self, bound_column, render_func, default):
+    def _get_and_render_with(self, bound_column: BoundColumn, render_func, default):
         value = None
         accessor = A(bound_column.accessor)
         column = bound_column.column
@@ -172,20 +171,20 @@ class BoundRow:
 
         return render_func(bound_column, value)
 
-    def _optional_cell_arguments(self, bound_column, value):
+    def _optional_cell_arguments(self, bound_column: "BoundRow", value: Any) -> CellArguments:
         """
         Defines the arguments that will optionally be passed while calling the
         cell's rendering or value getter if that function has one of these as a
         keyword argument.
         """
-        return {
-            "value": value,
-            "record": self.record,
-            "column": bound_column.column,
-            "bound_column": bound_column,
-            "bound_row": self,
-            "table": self._table,
-        }
+        return CellArguments(
+            value=value,
+            record=self.record,
+            column=bound_column.column,
+            bound_column=bound_column,
+            bound_row=self,
+            table=self._table,
+        )
 
     def get_cell(self, name):
         """

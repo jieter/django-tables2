@@ -51,3 +51,9 @@ version = {attr = "django_tables2.__version__"}
 
 [tool.black]
 line-length = 100
+
+[tool.mypy]
+python_version = "3.9"
+strict = false
+ignore_missing_imports = true
+

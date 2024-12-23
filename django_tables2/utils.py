@@ -1,12 +1,17 @@
 import inspect
 import warnings
 from collections import OrderedDict
+from collections.abc import Callable
 from functools import total_ordering
 from itertools import chain
+from typing import TYPE_CHECKING, Any, Optional, Union
 
 from django.core.exceptions import FieldDoesNotExist
 from django.db import models
 from django.utils.html import format_html_join
+
+if TYPE_CHECKING:
+    from django.contrib.contenttypes.fields import GenericForeignKey
 
 
 class Sequence(list):
@@ -286,8 +291,9 @@ class OrderByTuple(tuple):
 
 class Accessor(str):
     """
-    A string describing a path from one object to another via attribute/index
-    accesses. For convenience, the class has an alias `.A` to allow for more concise code.
+    A string describing a path from one object to another via attribute/key/index accesses.
+
+    For convenience, the class is aliased as `.A` to allow for more concise code.
 
     Relations are separated by a ``__`` character.
 
@@ -303,12 +309,22 @@ class Accessor(str):
         "Failed lookup for key [{key}] in {context}, when resolving the accessor {accessor}"
     )
 
-    def __init__(self, value, callable_args=None, callable_kwargs=None):
+    def __init__(
+        self,
+        value: "Union[str, Callable, Accessor]",
+        callable_args: Optional[list[Callable]] = None,
+        callable_kwargs: Optional[dict[str, Callable]] = None,
+    ):
         self.callable_args = callable_args or getattr(value, "callable_args", None) or []
         self.callable_kwargs = callable_kwargs or getattr(value, "callable_kwargs", None) or {}
         super().__init__()
 
-    def __new__(cls, value, callable_args=None, callable_kwargs=None):
+    def __new__(
+        cls,
+        value,
+        callable_args: Optional[list[Callable]] = None,
+        callable_kwargs: Optional[dict[str, Callable]] = None,
+    ):
         instance = super().__new__(cls, value)
         if cls.LEGACY_SEPARATOR in value:
             instance.SEPARATOR = cls.LEGACY_SEPARATOR
@@ -322,7 +338,7 @@ class Accessor(str):
 
         return instance
 
-    def resolve(self, context, safe=True, quiet=False):
+    def resolve(self, context: Any, safe: bool = True, quiet: bool = False):
         """
         Return an object described by the accessor by traversing the attributes of *context*.
 
@@ -416,12 +432,14 @@ class Accessor(str):
             return ()
         return self.split(self.SEPARATOR)
 
-    def get_field(self, model):
+    def get_field(
+        self, model: models.Model
+    ) -> "Union[models.Field[Any, Any], models.ForeignObjectRel, GenericForeignKey, None]":
         """
         Return the django model field for model in context, following relations.
         """
         if not hasattr(model, "_meta"):
-            return
+            return None
 
         field = None
         for bit in self.bits:
@@ -433,10 +451,9 @@ class Accessor(str):
             if hasattr(field, "remote_field"):
                 rel = getattr(field, "remote_field", None)
                 model = getattr(rel, "model", model)
-
         return field
 
-    def penultimate(self, context, quiet=True):
+    def penultimate(self, context, quiet: bool = True) -> tuple[Any, str]:
         """
         Split the accessor on the right-most separator ('__'), return a tuple with:
          - the resolved left part.
@@ -530,8 +547,10 @@ def segment(sequence, aliases):
                     yield tuple([valias])
 
 
-def signature(fn):
+def signature(fn: Callable) -> tuple[tuple[Any, ...], Optional[str]]:
     """
+    Return argument names and the name of the kwargs catch all.
+
     Returns:
         tuple: Returns a (arguments, kwarg_name)-tuple:
              - the arguments (positional or keyword)
@@ -555,9 +574,9 @@ def signature(fn):
     return tuple(args), keywords
 
 
-def call_with_appropriate(fn, kwargs):
+def call_with_appropriate(fn: Callable, kwargs: dict[str, Any]):
     """
-    Calls the function ``fn`` with the keyword arguments from ``kwargs`` it expects
+    Calls the function ``fn`` with the keyword arguments from ``kwargs`` it expects.
 
     If the kwargs argument is defined, pass all arguments, else provide exactly
     the arguments wanted.
@@ -577,9 +596,9 @@ def call_with_appropriate(fn, kwargs):
     return fn(**kwargs)
 
 
-def computed_values(d, kwargs=None):
+def computed_values(d: dict[str, Any], kwargs=None) -> dict[str, Any]:
     """
-    Returns a new `dict` that has callable values replaced with the return values.
+    Returns a new `dict` that has callable values replaced with their return values.
 
     Example::
 

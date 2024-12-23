@@ -1,4 +1,11 @@
+from typing import TYPE_CHECKING, Union
+
 from django.core.paginator import EmptyPage, PageNotAnInteger
+
+if TYPE_CHECKING:
+    from django.http import HttpRequest
+
+    from .tables import Table
 
 
 class RequestConfig:
@@ -26,11 +33,11 @@ class RequestConfig:
 
     """
 
-    def __init__(self, request, paginate=True):
+    def __init__(self, request: "HttpRequest", paginate: Union[bool, dict, tuple, list] = True):
         self.request = request
         self.paginate = paginate
 
-    def configure(self, table):
+    def configure(self, table: "Table"):
         """
         Configure a table using information from the request.
 
@@ -43,7 +50,7 @@ class RequestConfig:
         if order_by:
             table.order_by = order_by
         if self.paginate:
-            if hasattr(self.paginate, "items"):
+            if isinstance(self.paginate, (dict, tuple, list)):
                 kwargs = dict(self.paginate)
             else:
                 kwargs = {}

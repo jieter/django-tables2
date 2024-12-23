@@ -1,8 +1,16 @@
+from typing import TYPE_CHECKING, Any, Optional
+
 from django.template import Context, Template
 from django.template.loader import get_template
 from django.utils.html import strip_tags
+from django.utils.safestring import SafeString
 
-from .base import Column, library
+from django_tables2.rows import BoundRow
+
+from .base import BoundColumn, CellArguments, Column, library
+
+if TYPE_CHECKING:
+    from typing_extensions import Unpack
 
 
 @library.register
@@ -40,7 +48,13 @@ class TemplateColumn(Column):
 
     empty_values = ()
 
-    def __init__(self, template_code=None, template_name=None, extra_context=None, **extra):
+    def __init__(
+        self,
+        template_code: Optional[str] = None,
+        template_name: Optional[str] = None,
+        extra_context: Optional[dict] = None,
+        **extra
+    ):
         super().__init__(**extra)
         self.template_code = template_code
         self.template_name = template_name
@@ -49,25 +63,30 @@ class TemplateColumn(Column):
         if not self.template_code and not self.template_name:
             raise ValueError("A template must be provided")
 
-    def render(self, record, table, value, bound_column, **kwargs):
+    def render(self, **kwargs: "Unpack[CellArguments]") -> "SafeString":
         # If the table is being rendered using `render_table`, it hackily
         # attaches the context to the table as a gift to `TemplateColumn`.
+        table = kwargs["table"]
         context = getattr(table, "context", Context())
+        bound_column: BoundColumn = kwargs["bound_column"]
+        bound_row: BoundRow = kwargs["bound_row"]
         additional_context = {
             "default": bound_column.default,
             "column": bound_column,
-            "record": record,
-            "value": value,
-            "row_counter": kwargs["bound_row"].row_counter,
+            "record": kwargs["record"],
+            "value": kwargs["value"],
+            "row_counter": bound_row.row_counter,
         }
         additional_context.update(self.extra_context)
         with context.update(additional_context):
             if self.template_code:
                 return Template(self.template_code).render(context)
-            else:
-                return get_template(self.template_name).render(context.flatten())
+            elif self.template_name:
+                dict_context: dict[Any, Any] = context.flatten()
+                return SafeString(get_template(self.template_name).render(dict_context))
+        return SafeString("")
 
-    def value(self, **kwargs):
+    def value(self, **kwargs) -> Any:
         """
         The value returned from a call to `value()` on a `TemplateColumn` is
         the rendered template with `django.utils.html.strip_tags` applied.

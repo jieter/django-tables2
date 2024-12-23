@@ -1,4 +1,11 @@
-from .base import Column, library
+from typing import TYPE_CHECKING, Any
+
+from django.utils.safestring import SafeString
+
+from .base import CellArguments, Column, library
+
+if TYPE_CHECKING:
+    from typing_extensions import Unpack
 
 
 class BaseLinkColumn(Column):
@@ -19,20 +26,20 @@ class BaseLinkColumn(Column):
         super().__init__(*args, **kwargs)
         self.text = text
 
-    def text_value(self, record, value):
+    def text_value(self, record, value) -> SafeString:
         if self.text is None:
             return value
         return self.text(record) if callable(self.text) else self.text
 
-    def value(self, record, value):
+    def render(self, **kwargs: "Unpack[CellArguments]") -> SafeString:
+        return self.text_value(kwargs["record"], kwargs["value"])
+
+    def value(self, **kwargs: "Unpack[CellArguments]") -> Any:
         """
         Returns the content for a specific cell similarly to `.render` however
         without any html content.
         """
-        return self.text_value(record, value)
-
-    def render(self, record, value):
-        return self.text_value(record, value)
+        return self.text_value(kwargs["record"], kwargs["value"])
 
 
 @library.register
@@ -143,37 +150,3 @@ class LinkColumn(BaseLinkColumn):
             ),
             **extra
         )
-
-
-@library.register
-class RelatedLinkColumn(LinkColumn):
-    """
-    Render a link to a related object using related object's ``get_absolute_url``,
-    same parameters as ``~.LinkColumn``.
-
-    .. note ::
-
-        This column should not be used anymore, the `linkify` keyword argument to
-        regular columns can be used achieve the same results.
-
-    If the related object does not have a method called ``get_absolute_url``,
-    or if it is not callable, the link will be rendered as '#'.
-
-    Traversing relations is also supported, suppose a Person has a foreign key to
-    Country which in turn has a foreign key to Continent::
-
-        class PersonTable(tables.Table):
-            name = tables.Column()
-            country = tables.RelatedLinkColumn()
-            continent = tables.RelatedLinkColumn(accessor="country.continent")
-
-    will render:
-
-     - in column 'country', link to ``person.country.get_absolute_url()`` with the output of
-       ``str(person.country)`` as ``<a>`` contents.
-     - in column 'continent', a link to ``person.country.continent.get_absolute_url()`` with
-       the output of ``str(person.country.continent)`` as ``<a>`` contents.
-
-    Alternative contents of ``<a>`` can be supplied using the ``text`` keyword argument as
-    documented for `~.columns.LinkColumn`.
-    """

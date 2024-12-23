@@ -1,9 +1,14 @@
+from typing import TYPE_CHECKING, Optional
+
 from django.db import models
 from django.utils.encoding import force_str
 from django.utils.html import conditional_escape
-from django.utils.safestring import mark_safe
+from django.utils.safestring import SafeString, mark_safe
 
-from .base import Column, LinkTransform, library
+from .base import CellArguments, Column, LinkTransform, library
+
+if TYPE_CHECKING:
+    from typing_extensions import Unpack
 
 
 @library.register
@@ -71,22 +76,22 @@ class ManyToManyColumn(Column):
         if link_kwargs is not None:
             self.linkify_item = LinkTransform(attrs=self.attrs.get("a", {}), **link_kwargs)
 
-    def transform(self, obj):
+    def transform(self, obj: models.Model):
         """
         Transform is applied to each item of the list of objects from the ManyToMany relation.
         """
         return force_str(obj)
 
-    def filter(self, qs):
+    def filter(self, qs: models.QuerySet):
         """
         Filter is called on the ManyRelatedManager to allow ordering, filtering or limiting
         on the set of related objects.
         """
         return qs.all()
 
-    def render(self, value):
+    def render(self, **kwargs: "Unpack[CellArguments]") -> "SafeString":
         items = []
-        for item in self.filter(value):
+        for item in self.filter(kwargs["value"]):
             content = conditional_escape(self.transform(item))
             if hasattr(self, "linkify_item"):
                 content = self.linkify_item(content=content, record=item)
@@ -96,6 +101,7 @@ class ManyToManyColumn(Column):
         return mark_safe(conditional_escape(self.separator).join(items))
 
     @classmethod
-    def from_field(cls, field, **kwargs):
+    def from_field(cls, field, **kwargs) -> "Optional[ManyToManyColumn]":
         if isinstance(field, models.ManyToManyField):
             return cls(**kwargs)
+        return None
