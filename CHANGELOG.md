@@ -1,5 +1,8 @@
 # Change log
 
+## 2.7.3 (2024-12-23)
+- Remove upper bound for `python_requires`
+
 ## 2.7.2 (2024-12-23)
 - Add python_requires to setup.py ([#982](https://github.com/jieter/django-tables2/pull/982)) Fixes: [#980](https://github.com/jieter/django-tables2/issues/980)
 
