@@ -10,19 +10,22 @@ except ImportError:
     print("Package `hatch` is required: pip install hatch")
     sys.exit()
 
-VERSION = subprocess.check_output(["hatch version"], shell=True).decode()
+VERSION = subprocess.check_output(["hatch version"], shell=True).decode().strip()
 
 if sys.argv[-1] == "bump":
     os.system("hatch version patch")
 
 elif sys.argv[-1] == "publish":
-
     os.system("hatch publish")
+    os.system("rm -f dist/django_tables2-2.7.4*")
 
 elif sys.argv[-1] == "tag":
     os.system("hatch build")
-    os.system(f"git tag -a v{VERSION} -m 'tagging v{VERSION}'")
-    os.system("git push --tags && git push origin master")
+    tag_cmd = f"git tag -a v{VERSION} -m 'tagging v{VERSION}'"
+    if exitcode := os.system(tag_cmd):
+        print(f"Failed tagging with command: {tag_cmd}")
+    else:
+        os.system("git push --tags && git push origin master")
 
 elif sys.argv[-1] == "screenshots":
 
