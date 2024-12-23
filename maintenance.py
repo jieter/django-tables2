@@ -1,35 +1,30 @@
 #!/usr/bin/env python3
 import os
-import re
 import subprocess
 import sys
 import time
 
-# get version without importing
-with open("django_tables2/__init__.py", "rb") as f:
-    VERSION = str(re.search('__version__ = "(.+?)"', f.read().decode()).group(1))
-
-if sys.argv[-1] == "publish":
-    try:
-        import twine  # noqa
-        import wheel  # noqa
-    except ImportError:
-        print("Required to publish: pip install wheel twine")
-    os.system("python setup.py clean --all")
-    os.system("python setup.py sdist bdist_wheel --universal")
-    os.system(
-        f"twine upload dist/django-tables2-{VERSION}.tar.gz"
-        f" dist/django_tables2-{VERSION}-py2.py3-none-any.whl"
-    )
-    print(f"\nreleased [{VERSION}](https://pypi.org/project/django-tables2/{VERSION}/)")
+try:
+    import hatch  # noqa
+except ImportError:
+    print("Package `hatch` is required: pip install hatch")
     sys.exit()
 
-if sys.argv[-1] == "tag":
+VERSION = subprocess.check_output(["hatch version"], shell=True).decode()
+
+if sys.argv[-1] == "bump":
+    os.system("hatch version patch")
+
+elif sys.argv[-1] == "publish":
+
+    os.system("hatch publish")
+
+elif sys.argv[-1] == "tag":
+    os.system("hatch build")
     os.system(f"git tag -a v{VERSION} -m 'tagging v{VERSION}'")
     os.system("git push --tags && git push origin master")
-    sys.exit()
 
-if sys.argv[-1] == "screenshots":
+elif sys.argv[-1] == "screenshots":
 
     def screenshot(url, filename="screenshot.png", delay=2):
         print(f"Making screenshot of url: {url}")
@@ -56,5 +51,5 @@ if sys.argv[-1] == "screenshots":
 
     for url, dest in images.items():
         screenshot(url.format(url="http://localhost:8000"), dest)
-
-    sys.exit()
+else:
+    print(f"Current version: {VERSION}")
