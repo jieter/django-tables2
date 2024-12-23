@@ -21,6 +21,7 @@ setup(
     include_package_data=True,  # declarations in MANIFEST.in
     install_requires=["Django>=4.2"],
     extras_require={"tablib": ["tablib"]},
+    python_requires=">=3.9,=<3.12",
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Environment :: Web Environment",
