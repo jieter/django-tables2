@@ -16,7 +16,7 @@ def MockTable(**kwargs):
         prefixed_page_field="page",
         prefixed_per_page_field="per_page",
         prefixed_order_by_field="sort",
-        **kwargs
+        **kwargs,
     )
 
 

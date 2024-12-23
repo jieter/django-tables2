@@ -130,7 +130,7 @@ class LinkColumn(BaseLinkColumn):
         kwargs=None,
         current_app=None,
         attrs=None,
-        **extra
+        **extra,
     ):
         super().__init__(
             attrs=attrs,
@@ -141,7 +141,7 @@ class LinkColumn(BaseLinkColumn):
                 kwargs=kwargs,
                 current_app=current_app,
             ),
-            **extra
+            **extra,
         )
 
 
