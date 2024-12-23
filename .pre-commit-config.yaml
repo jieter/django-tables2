@@ -9,8 +9,13 @@ repos:
     rev: v3.19.0
     hooks:
      - id: pyupgrade
-       args: [--py38-plus]
+       args: [--py39-plus]
 
+  - repo: https://github.com/macisamuele/language-formatters-pre-commit-hooks
+    rev: v2.14.0
+    hooks:
+    - id: pretty-format-toml
+      args: [--autofix]
   - repo: https://github.com/pycqa/isort
     rev: 5.13.2
     hooks:

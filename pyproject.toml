@@ -3,42 +3,47 @@ build-backend = "hatchling.build"
 requires = ["hatchling"]
 
 [project]
-name="django-tables2"
-description="Table/data-grid framework for Django"
-readme = "README.md"
 authors = [
-    {name="Bradley Ayers",email="bradley.ayers@gmail.com"},
-    {name="Jan Pieter Waagmeester", email="jieter@jieter.nl"},
+  {name = "Bradley Ayers", email = "bradley.ayers@gmail.com"},
+  {name = "Jan Pieter Waagmeester", email = "jieter@jieter.nl"}
 ]
-license = {file = "LICENSE"}
-dynamic = ["version"]
-url="https://github.com/jieter/django-tables2/"
-install_requires=["Django>=4.2"]
-extras_require={tablib = ["tablib"]}
-python_requires = ">=3.9,<=3.12"
 classifiers = [
-    "Development Status :: 5 - Production/Stable",
-    "Environment :: Web Environment",
-    "Framework :: Django",
-    "Framework :: Django :: 4.2",
-    "Framework :: Django :: 5.0",
-    "Framework :: Django :: 5.1",
-    "Intended Audience :: Developers",
-    "License :: OSI Approved :: BSD License",
-    "Operating System :: OS Independent",
-    "Programming Language :: Python",
-    "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12",
-    "Topic :: Internet :: WWW/HTTP",
-    "Topic :: Software Development :: Libraries",
+  "Development Status :: 5 - Production/Stable",
+  "Environment :: Web Environment",
+  "Framework :: Django",
+  "Framework :: Django :: 4.2",
+  "Framework :: Django :: 5.0",
+  "Framework :: Django :: 5.1",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: BSD License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Internet :: WWW/HTTP",
+  "Topic :: Software Development :: Libraries"
 ]
+description = "Table/data-grid framework for Django"
+dynamic = ["version"]
+extras_require = {tablib = ["tablib"]}
+install_requires = ["Django>=4.2"]
+license = {file = "LICENSE"}
+name = "django-tables2"
+python_requires = ">=3.9"
+readme = "README.md"
 
-[tool.hatch.version]
-path = "django_tables2/__init__.py"
+[project.urls]
+Changelog = "https://github.com/jieter/django-tables2/blob/master/CHANGELOG.md"
+Documentation = "https://django-tables2.readthedocs.io/en/latest/"
+Homepage = "https://github.com/jieter/django-tables2/"
+Readme = "https://github.com/jieter/django-tables2/blob/master/README.md"
+
+[tool.black]
+line-length = 100
 
 [tool.hatch.build.targets.sdist]
 exclude = ["docs"]
@@ -46,8 +51,8 @@ exclude = ["docs"]
 [tool.hatch.build.targets.wheel]
 packages = ["django_tables2"]
 
+[tool.hatch.version]
+path = "django_tables2/__init__.py"
+
 [tool.setuptools.dynamic]
 version = {attr = "django_tables2.__version__"}
-
-[tool.black]
-line-length = 100
