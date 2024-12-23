@@ -27,14 +27,16 @@ classifiers = [
   "Topic :: Internet :: WWW/HTTP",
   "Topic :: Software Development :: Libraries"
 ]
+dependencies = ["Django>=4.2"]
 description = "Table/data-grid framework for Django"
 dynamic = ["version"]
-extras_require = {tablib = ["tablib"]}
-install_requires = ["Django>=4.2"]
 license = {file = "LICENSE"}
 name = "django-tables2"
-python_requires = ">=3.9"
 readme = "README.md"
+requires-python = ">=3.9"
+
+[project.optional-dependencies]
+tablib = ["tablib"]
 
 [project.urls]
 Changelog = "https://github.com/jieter/django-tables2/blob/master/CHANGELOG.md"
