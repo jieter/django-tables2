@@ -1,6 +1,6 @@
 from collections import OrderedDict
 from collections.abc import Callable, Iterator
-from typing import TYPE_CHECKING, Any, Optional, Union
+from typing import TYPE_CHECKING, Any, Optional, TypedDict, Union
 
 from django.core.exceptions import ImproperlyConfigured
 from django.urls import reverse
@@ -18,11 +18,21 @@ from ..utils import (
 )
 
 if TYPE_CHECKING:
-    from django.db.models import QuerySet
-    from django.db.models.fields import Field
+    from django.db.models import Field, QuerySet
     from django.utils.safestring import SafeString
+    from typing_extensions import Unpack
 
+    from ..rows import BoundRow
     from ..tables import Table
+
+
+class CellArguments(TypedDict):
+    value: "Union[SafeString | QuerySet]"
+    record: Any
+    column: "Column"
+    bound_column: "BoundColumn"
+    bound_row: "BoundRow"
+    table: "Table"
 
 
 class Library:
@@ -363,7 +373,7 @@ class Column:
 
         return ""
 
-    def render(self, value: Any, **kwargs) -> "SafeString":
+    def render(self, **kwargs: "Unpack[CellArguments]") -> "SafeString":
         """
         Return the content for a specific cell.
 
@@ -375,9 +385,9 @@ class Column:
         Subclasses should set `.empty_values` to ``()`` if they want to handle
         all values in `.render`.
         """
-        return value
+        return kwargs["value"]
 
-    def value(self, **kwargs) -> Any:
+    def value(self, **kwargs: "Unpack[CellArguments]") -> Any:
         """
         Return the content for a specific cell for exports.
 
@@ -446,6 +456,8 @@ class BoundColumn:
 
     """
 
+    _table: "Table"
+    column: Column
     render: Callable
     order: Callable
     value: Callable

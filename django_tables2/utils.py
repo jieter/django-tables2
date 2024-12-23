@@ -434,7 +434,7 @@ class Accessor(str):
 
     def get_field(
         self, model: models.Model
-    ) -> Union[models.Field[Any, Any], models.ForeignObjectRel, "GenericForeignKey", None]:
+    ) -> "Union[models.Field[Any, Any], models.ForeignObjectRel, GenericForeignKey, None]":
         """
         Return the django model field for model in context, following relations.
         """

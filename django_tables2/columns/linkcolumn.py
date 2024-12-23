@@ -1,8 +1,11 @@
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from django.utils.safestring import SafeString
 
-from .base import Column, library
+from .base import CellArguments, Column, library
+
+if TYPE_CHECKING:
+    from typing_extensions import Unpack
 
 
 class BaseLinkColumn(Column):
@@ -28,15 +31,15 @@ class BaseLinkColumn(Column):
             return value
         return self.text(record) if callable(self.text) else self.text
 
-    def value(self, record, value):
+    def render(self, **kwargs: "Unpack[CellArguments]") -> SafeString:
+        return self.text_value(kwargs["record"], kwargs["value"])
+
+    def value(self, **kwargs: "Unpack[CellArguments]") -> Any:
         """
         Returns the content for a specific cell similarly to `.render` however
         without any html content.
         """
-        return self.text_value(record, value)
-
-    def render(self, value: Any, **kwargs) -> SafeString:
-        return self.text_value(kwargs["record"], value)
+        return self.text_value(kwargs["record"], kwargs["value"])
 
 
 @library.register

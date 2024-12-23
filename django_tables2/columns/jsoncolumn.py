@@ -1,15 +1,16 @@
 import json
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Optional
 
 from django.db.models import JSONField
 from django.utils.html import format_html
 from django.utils.safestring import SafeString
 
 from ..utils import AttributeDict
-from .base import Column, library
+from .base import CellArguments, Column, library
 
 if TYPE_CHECKING:
     from django.db.models import Field
+    from typing_extensions import Unpack
 
 try:
     from django.contrib.postgres.fields import HStoreField
@@ -42,11 +43,10 @@ class JSONColumn(Column):
 
         super().__init__(**kwargs)
 
-    def render(self, value: Any, **kwargs) -> SafeString:
+    def render(self, **kwargs: "Unpack[CellArguments]") -> "SafeString":
         attributes = AttributeDict(self.attrs.get("pre", {})).as_html()
-        return format_html(
-            "<pre {}>{}</pre>", attributes, json.dumps(value, **self.json_dumps_kwargs)
-        )
+        content = json.dumps(kwargs["value"], **self.json_dumps_kwargs)
+        return format_html("<pre {}>{}</pre>", attributes, content)
 
     @classmethod
     def from_field(cls, field: "Field", **kwargs) -> "Optional[JSONColumn]":

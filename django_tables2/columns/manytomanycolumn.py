@@ -1,11 +1,14 @@
-from typing import Any, Optional
+from typing import TYPE_CHECKING, Optional
 
 from django.db import models
 from django.utils.encoding import force_str
 from django.utils.html import conditional_escape
 from django.utils.safestring import SafeString, mark_safe
 
-from .base import Column, LinkTransform, library
+from .base import CellArguments, Column, LinkTransform, library
+
+if TYPE_CHECKING:
+    from typing_extensions import Unpack
 
 
 @library.register
@@ -86,9 +89,9 @@ class ManyToManyColumn(Column):
         """
         return qs.all()
 
-    def render(self, value: Any, **kwargs) -> "SafeString":
+    def render(self, **kwargs: "Unpack[CellArguments]") -> "SafeString":
         items = []
-        for item in self.filter(value):
+        for item in self.filter(kwargs["value"]):
             content = conditional_escape(self.transform(item))
             if hasattr(self, "linkify_item"):
                 content = self.linkify_item(content=content, record=item)

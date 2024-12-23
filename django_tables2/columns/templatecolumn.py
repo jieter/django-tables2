@@ -1,11 +1,16 @@
-from typing import Any, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
 from django.template import Context, Template
 from django.template.loader import get_template
 from django.utils.html import strip_tags
 from django.utils.safestring import SafeString
 
-from .base import BoundColumn, Column, library
+from django_tables2.rows import BoundRow
+
+from .base import BoundColumn, CellArguments, Column, library
+
+if TYPE_CHECKING:
+    from typing_extensions import Unpack
 
 
 @library.register
@@ -58,19 +63,19 @@ class TemplateColumn(Column):
         if not self.template_code and not self.template_name:
             raise ValueError("A template must be provided")
 
-    def render(self, value: Any, **kwargs) -> "SafeString":
+    def render(self, **kwargs: "Unpack[CellArguments]") -> "SafeString":
         # If the table is being rendered using `render_table`, it hackily
         # attaches the context to the table as a gift to `TemplateColumn`.
         table = kwargs["table"]
         context = getattr(table, "context", Context())
         bound_column: BoundColumn = kwargs["bound_column"]
-
+        bound_row: BoundRow = kwargs["bound_row"]
         additional_context = {
             "default": bound_column.default,
             "column": bound_column,
             "record": kwargs["record"],
-            "value": value,
-            "row_counter": kwargs["bound_row"].row_counter,
+            "value": kwargs["value"],
+            "row_counter": bound_row.row_counter,
         }
         additional_context.update(self.extra_context)
         with context.update(additional_context):

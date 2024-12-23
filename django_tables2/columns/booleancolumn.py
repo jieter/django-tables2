@@ -4,11 +4,12 @@ from django.db import models
 from django.utils.html import escape, format_html
 
 from ..utils import AttributeDict
-from .base import BoundColumn, Column, library
+from .base import BoundColumn, CellArguments, Column, library
 
 if TYPE_CHECKING:
     from django.db.models import Field
     from django.utils.safestring import SafeString
+    from typing_extensions import Unpack
 
 
 @library.register
@@ -49,7 +50,7 @@ class BooleanColumn(Column):
 
         return bool(value)
 
-    def render(self, value: Any, **kwargs) -> "SafeString":
+    def render(self, **kwargs: "Unpack[CellArguments]") -> "SafeString":
         value = self._get_bool_value(kwargs["record"], kwargs["value"], kwargs["bound_column"])
         text = self.yesno[int(not value)]
         attrs = {"class": str(value).lower()}
@@ -57,7 +58,7 @@ class BooleanColumn(Column):
 
         return format_html("<span {}>{}</span>", AttributeDict(attrs).as_html(), escape(text))
 
-    def value(self, **kwargs) -> str:
+    def value(self, **kwargs: "Unpack[CellArguments]") -> Any:
         """
         Returns the content for a specific cell similarly to `.render` however without any html content.
         """
