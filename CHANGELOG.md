@@ -1,5 +1,8 @@
 # Change log
 
+## 2.7.2 (2024-12-23)
+- Add python_requires to setup.py ([#982](https://github.com/jieter/django-tables2/pull/982)) Fixes: [#980](https://github.com/jieter/django-tables2/issues/980)
+
 ## 2.7.1 (2024-12-21)
 - Add TimeColumn to built-in columns ([#937](https://github.com/jieter/django-tables2/pull/937)) by [@philipphanemann](https://github.com/philipphanemann)
 Add support to pass args/kwargs to callables from Accessor ([#940](https://github.com/jieter/django-tables2/pull/940)), fixes: [#939](https://github.com/jieter/django-tables2/issues/939)
