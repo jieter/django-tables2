@@ -1,6 +1,7 @@
 # Change log
 
-## 2.7.3 (2024-12-23)
+## 2.7.4 & 2.7.3 (2024-12-23)
+Correct packaging mistakes:
 - Remove upper bound for `python_requires`
 
 ## 2.7.2 (2024-12-23)
