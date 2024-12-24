@@ -81,7 +81,7 @@ class CoreTest(SimpleTestCase):
 
     def test_metaclass_inheritance(self):
         class Tweaker(type):
-            """Adds an attribute "tweaked" to all classes."""
+            """Adds an attribute "tweaked" to all classes"""
 
             def __new__(cls, name, bases, attrs):
                 attrs["tweaked"] = True

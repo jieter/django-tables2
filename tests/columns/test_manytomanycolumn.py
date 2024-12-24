@@ -73,7 +73,9 @@ class ManyToManyColumnTest(TestCase):
                 self.assertIn(str(friend), friends)
 
     def test_linkify_item_different_model(self):
-        """Make sure the correct get_absolute_url() is used to linkify the items."""
+        """
+        Make sure the correct get_absolute_url() is used to linkify the items.
+        """
 
         class GroupTable(tables.Table):
             name = tables.Column(linkify=True)

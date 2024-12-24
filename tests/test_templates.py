@@ -119,7 +119,7 @@ class TestQueries(TestCase):
         """
         Paginated tables should result in two queries:
          - one query for pagination: .count()
-         - one query for records on the current page: .all()[start:end].
+         - one query for records on the current page: .all()[start:end]
         """
         Person.objects.create(first_name="brad", last_name="ayers")
         Person.objects.create(first_name="davina", last_name="adisusila")
@@ -148,7 +148,9 @@ class TemplateLocalizeTest(TestCase):
     expected_results = {None: "1234.5", False: "1234.5", True: "1 234,5"}  # non-breaking space
 
     def assert_cond_localized_table(self, localizeit=None, expected=None):
-        """Assertin helper function to define a Table class based on ``localizeit``."""
+        """
+        helper function for defining Table class conditionally
+        """
 
         class TestTable(tables.Table):
             name = tables.Column(verbose_name="my column", localize=localizeit)

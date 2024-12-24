@@ -59,7 +59,12 @@ target-version = "py39"
 
 [tool.ruff.lint]
 fixable = [
-  "D",
+  # "D",
+  "D200",
+  "D202",
+  "D401",
+  "D400",
+  "D415",
   "E",
   "F",
   "I",

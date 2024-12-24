@@ -9,12 +9,11 @@ from .base import Column, LinkTransform, library
 @library.register
 class ManyToManyColumn(Column):
     """
-    Display the list of objects from a `ManyRelatedManager`.
+    Display the list of objects from a `ManyRelatedManager`
 
     Ordering is disabled for this column.
 
     Arguments:
-    ---------
         transform: callable to transform each item to text, it gets an item as argument
             and must return a string-like representation of the item.
             By default, it calls `~django.utils.force_str` on each item.
@@ -73,7 +72,9 @@ class ManyToManyColumn(Column):
             self.linkify_item = LinkTransform(attrs=self.attrs.get("a", {}), **link_kwargs)
 
     def transform(self, obj):
-        """Transform is applied to each item of the list of objects from the ManyToMany relation."""
+        """
+        Transform is applied to each item of the list of objects from the ManyToMany relation.
+        """
         return force_str(obj)
 
     def filter(self, qs):

@@ -11,7 +11,6 @@ class BooleanColumn(Column):
     A column suitable for rendering boolean data.
 
     Arguments:
-    ---------
         null (bool): is `None` different from `False`?
         yesno (str): comma separated values string or 2-tuple to display for
                      True/False values.
@@ -23,7 +22,6 @@ class BooleanColumn(Column):
     available:
 
      - ``span`` -- adds attributes to the ``<span>`` tag
-
     """
 
     def __init__(self, null=False, yesno="✔,✘", **kwargs):
@@ -54,7 +52,9 @@ class BooleanColumn(Column):
         return format_html("<span {}>{}</span>", AttributeDict(attrs).as_html(), escape(text))
 
     def value(self, record, value, bound_column):
-        """Return the content for a specific cell similarly to `.render` however without any html content."""
+        """
+        Returns the content for a specific cell similarly to `.render` however without any html content.
+        """
         value = self._get_bool_value(record, value, bound_column)
         return str(value)
 

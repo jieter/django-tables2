@@ -26,9 +26,9 @@ context_processor_error_msg = (
 
 def token_kwargs(bits, parser):
     """
-    Based on Django's `~django.template.defaulttags.token_kwargs`, but with a few changes.
+    Based on Django's `~django.template.defaulttags.token_kwargs`, but with a
+    few changes:
 
-    Changes:
     - No legacy mode.
     - Both keys and values are compiled as a filter
     """
@@ -81,12 +81,11 @@ class QuerystringNode(Node):
 @register.tag
 def querystring(parser, token):
     """
-    Compile a query string based on current query string overridden with supplied values.
+    Creates a URL (containing only the query string [including "?"]) derived
+    from the current URL's query string, by updating it with the provided
+    keyword arguments.
 
-    Creates a URL (containing only the query string [including "?"]) derived from the current URL's query string,
-    by updating it with the provided keyword arguments.
-
-    Example (with URL: ``/abc/?gender=male&name=Brad``)::
+    Example (imagine URL is ``/abc/?gender=male&name=Brad``)::
 
         # {% querystring "name"="abc" "age"=15 %}
         ?name=abc&gender=male&age=15
@@ -120,13 +119,9 @@ def querystring(parser, token):
 
 class RenderTableNode(Node):
     """
-    Node to render a table.
-
-    Parameters
-    ----------
+    parameters:
         table (~.Table): the table to render
-        template (str or list): Name[s] of template to render.
-
+        template (str or list): Name[s] of template to render
     """
 
     def __init__(self, table, template_name=None):
@@ -218,7 +213,8 @@ register.filter("unlocalize", l10n_register.filters["unlocalize"])
 @register.simple_tag(takes_context=True)
 def export_url(context, export_format, export_trigger_param=None):
     """
-    Return an export URL for the given file `export_format`, preserving current query string parameters.
+    Returns an export URL for the given file `export_format`, preserving current
+    query string parameters.
 
     Example for a page requested with querystring ``?q=blue``::
 
@@ -246,11 +242,9 @@ def table_page_range(page, paginator):
      - containing one or two '...' to skip ranges between first/last and current.
 
     Example:
-    -------
         {% for p in table.page|table_page_range:table.paginator %}
             {{ p }}
         {% endfor %}
-
     """
     page_range = getattr(settings, "DJANGO_TABLES2_PAGE_RANGE", 10)
 

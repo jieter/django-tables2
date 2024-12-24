@@ -12,10 +12,9 @@ class TemplateColumn(Column):
     the cell value.
 
     Arguments:
-    ---------
-    template_code (str): template code to render
-    template_name (str): name of the template to render
-    extra_context (dict): optional extra template context
+        template_code (str): template code to render
+        template_name (str): name of the template to render
+        extra_context (dict): optional extra template context
 
     A `~django.template.Template` object is created from the
     *template_code* or *template_name* and rendered with a context containing:
@@ -27,7 +26,7 @@ class TemplateColumn(Column):
     - any context variables passed using the `extra_context` argument to `TemplateColumn`.
 
     Example:
-    -------
+
     .. code-block:: python
 
         class ExampleTable(tables.Table):
@@ -37,7 +36,6 @@ class TemplateColumn(Column):
                                         extra_context={"label": "Label"})
 
     Both columns will have the same output.
-
     """
 
     empty_values = ()
@@ -71,10 +69,9 @@ class TemplateColumn(Column):
 
     def value(self, **kwargs):
         """
-        Value of this column or exports.
-
-        The value returned from a call to `value()` on a `TemplateColumn` is the rendered template with
-        `django.utils.html.strip_tags` applied. Leading and trailing whitespace is stripped.
+        The value returned from a call to `value()` on a `TemplateColumn` is
+        the rendered template with `django.utils.html.strip_tags` applied.
+        Leading and trailing whitespace is stripped.
         """
         html = super().value(**kwargs)
         return strip_tags(html).strip() if isinstance(html, str) else html

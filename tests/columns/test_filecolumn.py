@@ -12,7 +12,7 @@ from ..utils import parse
 
 
 def storage():
-    """Provide a storage that exposes the test templates."""
+    """Provide a storage that exposes the test templates"""
     root = os.path.join(os.path.dirname(__file__), "..", "app", "templates")
     return FileSystemStorage(location=root, base_url="/baseurl/")
 

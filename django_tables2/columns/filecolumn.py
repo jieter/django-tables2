@@ -26,14 +26,12 @@ class FileColumn(BaseLinkColumn):
     `.Column.attrs` keys ``a`` and ``span`` can be used to add additional attributes.
 
     Arguments:
-    ---------
         verify_exists (bool): attempt to determine if the file exists
             If *verify_exists*, the HTML class ``exists`` or ``missing`` is
             added to the element to indicate the integrity of the storage.
         text (str or callable): Either static text, or a callable. If set, this
             will be used to render the text inside the link instead of
             the file's ``basename`` (default)
-
     """
 
     def __init__(self, verify_exists=True, **kwargs):

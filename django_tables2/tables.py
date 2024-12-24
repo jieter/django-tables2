@@ -111,9 +111,7 @@ class TableOptions:
     variables in this class.
 
     Arguments:
-    ---------
         options (`.Table.Meta`): options for a table from `.Table.Meta`
-
     """
 
     def __init__(self, options, class_name):
@@ -156,7 +154,9 @@ class TableOptions:
         self.unlocalize = getattr(options, "unlocalize", ())
 
     def _check_types(self, options, class_name):
-        """Check class Meta attributes to prevent common mistakes."""
+        """
+        Check class Meta attributes to prevent common mistakes.
+        """
         if options is None:
             return
 
@@ -188,7 +188,6 @@ class Table(metaclass=DeclarativeColumnsMetaclass):
     A representation of a table.
 
     Arguments:
-    ---------
         data (QuerySet, list of dicts): The data to display.
             This is a required variable, a `TypeError` will be raised if it's not passed.
 
@@ -251,7 +250,6 @@ class Table(metaclass=DeclarativeColumnsMetaclass):
         extra_columns (str, `.Column`): list of `(name, column)`-tuples containing
             extra columns to add to the instance. If `column` is `None`, the column
             with `name` will be removed from the table.
-
     """
 
     def __init__(
@@ -377,65 +375,58 @@ class Table(metaclass=DeclarativeColumnsMetaclass):
         Iterable type like: QuerySet, list of dicts, list of objects.
         Having a non-zero number of pinned rows
         will not result in an empty result set message being rendered,
-        even if there are no regular data rows.
+        even if there are no regular data rows
 
         Returns:
-        -------
             `None` (default) no pinned rows at the top, iterable, data for pinned rows at the top.
 
         Note:
-        ----
             To show pinned row this method should be overridden.
 
         Example:
-        -------
             >>> class TableWithTopPinnedRows(Table):
             ...     def get_top_pinned_data(self):
             ...         return [{
             ...             "column_a" : "some value",
             ...             "column_c" : "other value",
             ...         }]
-
         """
         return None
 
     def get_bottom_pinned_data(self):
         """
         Return data for bottom pinned rows containing data for each row.
-
-        Iterable type like: QuerySet, list of dicts, list of objects. Having a non-zero number of pinned rows will not
-        result in an empty result set message being rendered, even if there are no regular data rows.
+        Iterable type like: QuerySet, list of dicts, list of objects.
+        Having a non-zero number of pinned rows
+        will not result in an empty result set message being rendered,
+        even if there are no regular data rows
 
         Returns:
-        -------
-        `None` (default) no pinned rows at the bottom, iterable, data for pinned rows at the bottom.
+            `None` (default) no pinned rows at the bottom, iterable, data for pinned rows at the bottom.
 
         Note:
-        ----
-        To show pinned row this method should be overridden.
+            To show pinned row this method should be overridden.
 
         Example:
-        -------
             >>> class TableWithBottomPinnedRows(Table):
             ...     def get_bottom_pinned_data(self):
             ...         return [{
             ...             "column_a" : "some value",
             ...             "column_c" : "other value",
             ...         }]
-
         """
         return None
 
     def before_render(self, request):
         """
-        Call before rendering the table.
+        A way to hook into the moment just before rendering the template.
 
         Can be used to hide a column.
 
         Arguments:
-        ---------
-        request: contains the `WGSIRequest` instance, containing a `user` attribute if
-            `.django.contrib.auth.middleware.AuthenticationMiddleware` is added to your `MIDDLEWARE_CLASSES`.
+            request: contains the `WGSIRequest` instance, containing a `user` attribute if
+                `.django.contrib.auth.middleware.AuthenticationMiddleware` is added to
+                your `MIDDLEWARE_CLASSES`.
 
         Example::
 
@@ -448,12 +439,13 @@ class Table(metaclass=DeclarativeColumnsMetaclass):
                         self.columns.hide('country')
                     else:
                         self.columns.show('country')
-
         """
-        pass
+        return
 
     def as_html(self, request):
-        """Render the table to an HTML table, adding `request` to the context."""
+        """
+        Render the table to an HTML table, adding `request` to the context.
+        """
         # reset counter for new rendering
         self._counter = count()
         template = get_template(self.template_name)
@@ -465,11 +457,11 @@ class Table(metaclass=DeclarativeColumnsMetaclass):
 
     def as_values(self, exclude_columns=None):
         """
-        Return a row iterator of the data which would be shown in the table where the first row is the table headers.
+        Return a row iterator of the data which would be shown in the table where
+        the first row is the table headers.
 
-        Arguments:
-        ---------
-        exclude_columns (iterable): columns to exclude in the data iterator.
+        arguments:
+            exclude_columns (iterable): columns to exclude in the data iterator.
 
         This can be used to output the table data as CSV, excel, for example using the
         `~.export.ExportMixin`.
@@ -491,7 +483,6 @@ class Table(metaclass=DeclarativeColumnsMetaclass):
         the value when `as_values()` is called.
 
         Note that any invisible columns will be part of the row iterator.
-
         """
         if exclude_columns is None:
             exclude_columns = ()
@@ -510,7 +501,10 @@ class Table(metaclass=DeclarativeColumnsMetaclass):
             ]
 
     def has_footer(self):
-        """Return True if any of the columns define a ``_footer`` attribute or a ``render_footer()`` method."""
+        """
+        Returns True if any of the columns define a ``_footer`` attribute or a
+        ``render_footer()`` method
+        """
         return self.show_footer and any(column.has_footer() for column in self.columns)
 
     @property
@@ -531,9 +525,7 @@ class Table(metaclass=DeclarativeColumnsMetaclass):
         Order the rows of the table based on columns.
 
         Arguments:
-        ---------
-        value: iterable or comma separated string of order by aliases.
-
+            value: iterable or comma separated string of order by aliases.
         """
         # collapse empty values to ()
         order_by = () if not value else value
@@ -569,22 +561,21 @@ class Table(metaclass=DeclarativeColumnsMetaclass):
 
     def paginate(self, paginator_class=Paginator, per_page=None, page=1, *args, **kwargs):
         """
-        Paginate the table with paginator_class and add property ``page`` containing information for the current page.
+        Paginates the table using a paginator and creates a ``page`` property
+        containing information for the current page.
 
         Arguments:
-        ---------
-        paginator_class (`~django.core.paginator.Paginator`): A paginator class to paginate the results.
-        per_page (int): Number of records to display on each page.
-        page (int): Page to display.
-        *args: Positional argument passed to the paginator
-        **kwargs: Keyword argument passed to the paginator
+            paginator_class (`~django.core.paginator.Paginator`): A paginator class to
+                paginate the results.
 
+            per_page (int): Number of records to display on each page.
+            page (int): Page to display.
 
         Extra arguments are passed to the paginator.
 
-        Pagination exceptions (`~django.core.paginator.EmptyPage` and `~django.core.paginator.PageNotAnInteger`) may be
-        raised from this method and should be handled by the caller.
-
+        Pagination exceptions (`~django.core.paginator.EmptyPage` and
+        `~django.core.paginator.PageNotAnInteger`) may be raised from this
+        method and should be handled by the caller.
         """
         per_page = per_page or self._meta.per_page
         self.paginator = paginator_class(self.rows, per_page, *args, **kwargs)
@@ -657,30 +648,34 @@ class Table(metaclass=DeclarativeColumnsMetaclass):
 
     @property
     def paginated_rows(self):
-        """Return the rows for the current page if the table is paginated, else all rows."""
+        """
+        Return the rows for the current page if the table is paginated, else all rows.
+        """
         if hasattr(self, "page"):
             return self.page.object_list
         return self.rows
 
     def get_column_class_names(self, classes_set, bound_column):
         """
-        Return a set of HTML class names for cells (both ``td`` and ``th``) of a **bound column** in this table.
-
-        By default this returns the column class names defined in the table's attributes.
-        This method can be overridden to change the default behavior, for example to simply `return classes_set`.
+        Returns a set of HTML class names for cells (both ``td`` and ``th``) of a
+        **bound column** in this table.
+        By default this returns the column class names defined in the table's
+        attributes.
+        This method can be overridden to change the default behavior, for
+        example to simply `return classes_set`.
 
         Arguments:
-        ---------
-        classes_set(set of string): a set of class names to be added to the cell, retrieved from the column's
-            attributes. In the case of a header cell (th), this also includes ordering classes. To set the classes
-            for a column, see `.Column`. To configure ordering classes, see :ref:`ordering-class-name`
+            classes_set(set of string): a set of class names to be added
+              to the cell, retrieved from the column's attributes. In the case
+              of a header cell (th), this also includes ordering classes.
+              To set the classes for a column, see `.Column`.
+              To configure ordering classes, see :ref:`ordering-class-name`
 
-        bound_column(`.BoundColumn`): the bound column the class names are determined for. Useful for accessing
-            `bound_column.name`.
+            bound_column(`.BoundColumn`): the bound column the class names are
+              determined for. Useful for accessing `bound_column.name`.
 
         Returns:
-        -------
-        A set of class names to be added to cells of this column
+            A set of class names to be added to cells of this column
 
         If you want to add the column names to the list of classes for a column,
         override this method in your custom table::
@@ -693,29 +688,24 @@ class Table(metaclass=DeclarativeColumnsMetaclass):
                     classes_set.add(bound_column.name)
 
                     return classes_set
-
         """
         return classes_set
 
 
 def table_factory(model, table=Table, fields=None, exclude=None, localize=None):
     """
-    Return Table class for given `model`, equivalent to defining a custom table class.
+    Return Table class for given `model`, equivalent to defining a custom table class::
 
-    Example:
-    -------
         class MyTable(tables.Table):
             class Meta:
                 model = model
 
     Arguments:
-    ---------
-    model (`~django.db.models.Model`): Model associated with the new table
-    table (`.Table`): Base Table class used to create the new one
-    fields (list of str): Fields displayed in tables
-    exclude (list of str): Fields exclude in tables
-    localize (list of str): Fields to localize
-
+        model (`~django.db.models.Model`): Model associated with the new table
+        table (`.Table`): Base Table class used to create the new one
+        fields (list of str): Fields displayed in tables
+        exclude (list of str): Fields exclude in tables
+        localize (list of str): Fields to localize
     """
     attrs = {"model": model}
     if fields is not None:

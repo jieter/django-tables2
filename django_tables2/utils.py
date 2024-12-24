@@ -11,7 +11,7 @@ from django.utils.html import format_html_join
 
 class Sequence(list):
     """
-    Object to represent a column sequence, e.g. ``('first_name', '...', 'last_name')``.
+    Represents a column sequence, e.g. ``('first_name', '...', 'last_name')``
 
     This is used to represent `.Table.Meta.sequence` or the `.Table`
     constructors's *sequence* keyword argument.
@@ -24,20 +24,16 @@ class Sequence(list):
 
     def expand(self, columns):
         """
-        Expand the ``'...'`` item in the sequence into the appropriate column names that should be placed there.
+        Expands the ``'...'`` item in the sequence into the appropriate column
+        names that should be placed there.
 
-        Arguments:
-        ---------
-        columns (list): list of column names.
+        arguments:
+            columns (list): list of column names.
+        returns:
+            The current instance.
 
-        Returns:
-        -------
-        The current instance.
-
-        Raises:
-        ------
-        `ValueError` if the sequence is invalid for the columns.
-
+        raises:
+            `ValueError` if the sequence is invalid for the columns.
         """
         ellipses = self.count("...")
         if ellipses > 1:
@@ -87,13 +83,13 @@ class OrderBy(str):
     @property
     def bare(self):
         """
-        Returns
-        -------
-        `.OrderBy`: the bare form.
+        Returns:
+            `.OrderBy`: the bare form.
 
-        The *bare form* is the non-prefixed form. Typically the bare form is just the ascending form.
+        The *bare form* is the non-prefixed form. Typically the bare form is
+        just the ascending form.
 
-        Example: ``age`` is the bare form of ``-age``.
+        Example: ``age`` is the bare form of ``-age``
 
         """
         return OrderBy(self[1:]) if self[:1] == "-" else self
@@ -103,9 +99,8 @@ class OrderBy(str):
         """
         Provides the opposite of the current sorting direction.
 
-        Returns
-        -------
-        `.OrderBy`: object with an opposite sort influence.
+        Returns:
+            `.OrderBy`: object with an opposite sort influence.
 
         Example::
 
@@ -118,22 +113,29 @@ class OrderBy(str):
 
     @property
     def is_descending(self):
-        """Return `True` if this object induces *descending* ordering."""
+        """
+        Returns `True` if this object induces *descending* ordering.
+        """
         return self.startswith("-")
 
     @property
     def is_ascending(self):
-        """Return `True` if this object induces *ascending* ordering."""
+        """
+        Returns `True` if this object induces *ascending* ordering.
+        """
         return not self.is_descending
 
     def for_queryset(self):
-        """Return the current instance usable in Django QuerySet's order_by arguments."""
+        """
+        Returns the current instance usable in Django QuerySet's order_by
+        arguments.
+        """
         return self.replace(Accessor.LEGACY_SEPARATOR, OrderBy.QUERYSET_SEPARATOR)
 
 
 class OrderByTuple(tuple):
     """
-    Store ordering as (as `.OrderBy` objects).
+    Stores ordering as (as `.OrderBy` objects).
 
     The `~.Table.order_by` property is always converted to an `.OrderByTuple` object.
     This class is essentially just a `tuple` with some useful extras.
@@ -174,13 +176,10 @@ class OrderByTuple(tuple):
             True
 
         Arguments:
-        ---------
-        name (str): The name of a column. (optionally prefixed)
+            name (str): The name of a column. (optionally prefixed)
 
         Returns:
-        -------
-        bool: `True` if the column with `name` influences the ordering.
-
+            bool: `True` if the column with `name` influences the ordering.
         """
         name = OrderBy(name).bare
         for order_by in self:
@@ -190,9 +189,10 @@ class OrderByTuple(tuple):
 
     def __getitem__(self, index):
         """
-        Allow an `.OrderBy` object to be extracted via named or integer based indexing.
+        Allows an `.OrderBy` object to be extracted via named or integer
+        based indexing.
 
-        When using name based indexing, it's fine to used a prefixed names::
+        When using named based indexing, it's fine to used a prefixed named::
 
             >>> x = OrderByTuple(('name', '-age'))
             >>> x[0]
@@ -203,13 +203,10 @@ class OrderByTuple(tuple):
             '-age'
 
         Arguments:
-        ---------
-        index (int): Index to query the ordering for.
+            index (int): Index to query the ordering for.
 
         Returns:
-        -------
-        `.OrderBy`: for the ordering at the index.
-
+            `.OrderBy`: for the ordering at the index.
         """
         if isinstance(index, str):
             for order_by in self:
@@ -267,7 +264,9 @@ class OrderByTuple(tuple):
         return Comparator
 
     def get(self, key, fallback):
-        """Identical to `__getitem__`, but supports fallback value."""
+        """
+        Identical to `__getitem__`, but supports fallback value.
+        """
         try:
             return self[key]
         except (KeyError, IndexError):
@@ -276,9 +275,7 @@ class OrderByTuple(tuple):
     @property
     def opposite(self):
         """
-        Return version with each `.OrderBy` prefix toggled.
-
-        Example::
+        Return version with each `.OrderBy` prefix toggled::
 
             >>> order_by = OrderByTuple(('name', '-age'))
             >>> order_by.opposite
@@ -356,19 +353,16 @@ class Accessor(str):
 
 
         Arguments:
-        ---------
-        context : The root/first object to traverse.
-        safe (bool): Don't call anything with `alters_data = True`
-        quiet (bool): Smother all exceptions and instead return `None`
+            context : The root/first object to traverse.
+            safe (bool): Don't call anything with `alters_data = True`
+            quiet (bool): Smother all exceptions and instead return `None`
 
         Returns:
-        -------
-        target object
+            target object
 
         Raises:
-        ------
-        TypeError`, `AttributeError`, `KeyError`, `ValueError` (unless `quiet` == `True`)
-
+            TypeError`, `AttributeError`, `KeyError`, `ValueError`
+            (unless `quiet` == `True`)
         """
         # Short-circuit if the context contains a key with the exact name of the accessor,
         # supporting list-of-dicts data returned from values_list("related_model__field")
@@ -423,7 +417,9 @@ class Accessor(str):
         return self.split(self.SEPARATOR)
 
     def get_field(self, model):
-        """Return the django model field for model in context, following relations."""
+        """
+        Return the django model field for model in context, following relations.
+        """
         if not hasattr(model, "_meta"):
             return
 
@@ -444,7 +440,7 @@ class Accessor(str):
         """
         Split the accessor on the right-most separator ('__'), return a tuple with:
          - the resolved left part.
-         - the remainder.
+         - the remainder
 
         Example::
 
@@ -482,7 +478,9 @@ class AttributeDict(OrderedDict):
         """
         Render to HTML tag attributes.
 
-        Example::
+        Example:
+
+        .. code-block:: python
 
             >>> from django_tables2.utils import AttributeDict
             >>> attrs = AttributeDict({'class': 'mytable', 'id': 'someid'})
@@ -497,10 +495,11 @@ class AttributeDict(OrderedDict):
 
 def segment(sequence, aliases):
     """
-    Translate a flat sequence of items into a set of prefixed aliases.
+    Translates a flat sequence of items into a set of prefixed aliases.
 
-    This allows the value set by `.QuerySet.order_by` to be translated into a list of columns that would have the same
-    result. These are called "order by aliases" which are optionally prefixed column names::
+    This allows the value set by `.QuerySet.order_by` to be translated into
+    a list of columns that would have the same result. These are called
+    "order by aliases" which are optionally prefixed column names::
 
         >>> list(segment(('a', '-b', 'c'),
         ...              {'x': ('a'),
@@ -533,16 +532,12 @@ def segment(sequence, aliases):
 
 def signature(fn):
     """
-    Return the signature of the provided function.
-
-    Returns
-    -------
-    tuple: Returns a (arguments, kwarg_name)-tuple:
-            - the arguments (positional or keyword)
-            - the name of the ** kwarg catch all.
+    Returns:
+        tuple: Returns a (arguments, kwarg_name)-tuple:
+             - the arguments (positional or keyword)
+             - the name of the ** kwarg catch all.
 
     The self-argument for methods is always removed.
-
     """
     signature = inspect.signature(fn)
 
@@ -561,10 +556,13 @@ def signature(fn):
 
 def call_with_appropriate(fn, kwargs):
     """
-    Call the function ``fn`` with the keyword arguments from ``kwargs`` it expects.
+    Calls the function ``fn`` with the keyword arguments from ``kwargs`` it expects
 
-    If the kwargs argument is defined, pass all arguments, else provide exactly the arguments wanted.
-    If one of the arguments of ``fn`` is missing from kwargs, ``fn`` will not be called and ``None`` will be returned.
+    If the kwargs argument is defined, pass all arguments, else provide exactly
+    the arguments wanted.
+
+    If one of the arguments of ``fn`` are not contained in kwargs, ``fn`` will not
+    be called and ``None`` will be returned.
     """
     args, kwargs_name = signature(fn)
     # no catch-all defined, we need to exactly pass the arguments specified.
@@ -580,7 +578,7 @@ def call_with_appropriate(fn, kwargs):
 
 def computed_values(d, kwargs=None):
     """
-    Return a new `dict` that has callable values replaced with the return values.
+    Returns a new `dict` that has callable values replaced with the return values.
 
     Example::
 
@@ -609,14 +607,12 @@ def computed_values(d, kwargs=None):
         {'name': 'Brad', 'parents': {'father': 'Foo', 'mother': 'Bar'}}
 
     Arguments:
-    ---------
-    d (dict): The original dictionary.
-    kwargs: extra keyword arguments will be passed callables, if the callable expects an argument with such a name.
+        d (dict): The original dictionary.
+        kwargs: any extra keyword arguments will be passed to the callables, if the callable
+            takes an argument with such a name.
 
     Returns:
-    -------
         dict: with callable values replaced.
-
     """
     kwargs = kwargs or {}
     result = {}
