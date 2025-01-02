@@ -66,7 +66,6 @@ class ConfigTest(SimpleTestCase):
 
     def test_passing_request_to_constructor(self):
         """Table constructor should call RequestConfig if a request is passed."""
-
         request = build_request("/?page=1&sort=abc")
 
         class SimpleTable(Table):

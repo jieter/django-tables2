@@ -170,7 +170,7 @@ class ModelsTest(TestCase):
     def test_default_order(self):
         """
         If orderable=False, do not sort queryset.
-        https://github.com/bradleyayers/django-tables2/issues/204
+        https://github.com/bradleyayers/django-tables2/issues/204.
         """
 
         class PersonTable(tables.Table):
@@ -509,9 +509,7 @@ class ModelSanityTest(TestCase):
         self.assertEqual(Person.objects.all().count(), 10)
 
     def test_model__str__calls(self):
-        """
-        Model.__str__ should not be called when not necessary.
-        """
+        """Model.__str__ should not be called when not necessary."""
         calls = defaultdict(int)
 
         def counting__str__(self):

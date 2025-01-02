@@ -101,7 +101,7 @@ class TableListsDataTest(TestCase):
 
 class TableQuerysetDataTest(TestCase):
     def test_custom_TableData(self):
-        """If TableQuerysetData._length is set, no count() query will be performed"""
+        """If TableQuerysetData._length is set, no count() query will be performed."""
         for i in range(11):
             Person.objects.create(first_name=f"first {i}")
 

@@ -117,8 +117,7 @@ def checkbox(request):
 
 
 def template_example(request, version):
-    """Demonstrate the use of the bootstrap template"""
-
+    """Demonstrate the use of the bootstrap template."""
     versions = {
         "bootstrap3": (BootstrapTable, "bootstrap_template.html"),
         "bootstrap4": (Bootstrap4Table, "bootstrap4_template.html"),

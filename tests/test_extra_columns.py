@@ -23,7 +23,7 @@ class DynamicColumnsTest(TestCase):
         """
         When adding columns to self.base_columns, they were actually added to
         the class attribute `Table.base_columns`, and not to the instance
-        attribute, `table.base_columns`
+        attribute, `table.base_columns`.
 
         issue #403
         """
@@ -163,11 +163,10 @@ class DynamicColumnsTest(TestCase):
 
     def test_sequence_and_extra_columns(self):
         """
-        https://github.com/jieter/django-tables2/issues/486
+        https://github.com/jieter/django-tables2/issues/486.
 
         The exact moment the '...' is expanded is crucial here.
         """
-
         add_occupation_column = True
 
         class MyTable(tables.Table):
@@ -194,9 +193,7 @@ class DynamicColumnsTest(TestCase):
         self.assertEqual([c.name for c in table.columns], ["first_name", "friends"])
 
     def test_change_attributes(self):
-        """
-        https://github.com/jieter/django-tables2/issues/574
-        """
+        """https://github.com/jieter/django-tables2/issues/574."""
 
         class Table(tables.Table):
             mycolumn = tables.Column(orderable=False)

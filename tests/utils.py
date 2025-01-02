@@ -12,9 +12,7 @@ def parse(html):
 
 
 def attrs(xml):
-    """
-    Helper function that returns a dict of XML attributes, given an element.
-    """
+    """Return a dict of XML attributes for a given XML element."""
     return lxml.html.fromstring(xml).attrib
 
 
