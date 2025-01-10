@@ -2,7 +2,10 @@ from itertools import count
 from typing import Any, Optional
 
 from django.core.exceptions import ImproperlyConfigured
-from django.views.generic.list import ListView, MultipleObjectMixin as ConfoundingMultipleObjectMixin
+from django.views.generic.list import (
+    ListView,
+    MultipleObjectMixin as ConfoundingMultipleObjectMixin,
+)
 
 from . import tables
 from .config import RequestConfig
@@ -164,8 +167,8 @@ class SingleTableMixin(TableMixinBase):
         """
         context = (
             super(ConfoundingMultipleObjectMixin, self).get_context_data(**kwargs)
-            if isinstance(self, ConfoundingMultipleObjectMixin) else
-            super().get_context_data(**kwargs)
+            if isinstance(self, ConfoundingMultipleObjectMixin)
+            else super().get_context_data(**kwargs)
         )
         table = self.get_table(**self.get_table_kwargs())
         context[self.get_context_table_name(table)] = table
