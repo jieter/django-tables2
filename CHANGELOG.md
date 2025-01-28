@@ -1,5 +1,9 @@
 # Change log
 
+## 2.7.6 (2025-01-28)
+
+- Fix type annotations for get_context_data ([#987](https://github.com/jieter/django-tables2/pull/987)) by [@d33tah](https://github.com/d33tah)
+
 ## 2.7.5 (2025-01-02)
 - Update django.po for Ukrainian 🇺🇦 ([#934](https://github.com/jieter/django-tables2/pull/934)) by [@DmytroLitvinov](https://github.com/DmytroLitvinov)
 
