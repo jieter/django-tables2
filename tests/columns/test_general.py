@@ -144,10 +144,7 @@ class ColumnGeneralTest(TestCase):
         self.assertFalse(table.columns["name"].is_ordered)
 
     def test_translation(self):
-        """
-        Tests different types of values for the ``verbose_name`` property of a
-        column.
-        """
+        """Tests different types of values for the ``verbose_name`` property of a column."""
 
         class TranslationTable(tables.Table):
             text = tables.Column(verbose_name=gettext_lazy("Text"))
@@ -156,9 +153,7 @@ class ColumnGeneralTest(TestCase):
         self.assertEqual(table.columns["text"].header, "Text")
 
     def test_sequence(self):
-        """
-        Ensures that the sequence of columns is configurable.
-        """
+        """Ensure that the sequence of columns is configurable."""
 
         class TestTable(tables.Table):
             a = tables.Column()
@@ -281,17 +276,17 @@ class ColumnGeneralTest(TestCase):
         table = SimpleTable([{"a": "value"}])
         root = parse(table.as_html(request))
         # return classes of an element as a set
-        classes = lambda x: set(x.attrib.get("class", "").split())
-        self.assertIn("orderable", classes(root.findall(".//thead/tr/th")[0]))
-        self.assertNotIn("orderable", classes(root.findall(".//thead/tr/th")[1]))
+        def get_classes(element) -> set[str]:
+            return set(element.attrib.get("class", "").split())
+        self.assertIn("orderable", get_classes(root.findall(".//thead/tr/th")[0]))
+        self.assertNotIn("orderable", get_classes(root.findall(".//thead/tr/th")[1]))
 
         # Now try with an ordered table
         table = SimpleTable([], order_by="a")
         root = parse(table.as_html(request))
-        # return classes of an element as a set
-        self.assertIn("orderable", classes(root.findall(".//thead/tr/th")[0]))
-        self.assertIn("asc", classes(root.findall(".//thead/tr/th")[0]))
-        self.assertNotIn("orderable", classes(root.findall(".//thead/tr/th")[1]))
+        self.assertIn("orderable", get_classes(root.findall(".//thead/tr/th")[0]))
+        self.assertIn("asc", get_classes(root.findall(".//thead/tr/th")[0]))
+        self.assertNotIn("orderable", get_classes(root.findall(".//thead/tr/th")[1]))
 
     def test_empty_values_triggers_default(self):
         class Table(tables.Table):
@@ -324,9 +319,7 @@ class ColumnGeneralTest(TestCase):
             row[table]
 
     def test_related_fields_get_correct_type(self):
-        """
-        Types of related fields should also lead to the correct type of column.
-        """
+        """Types of related fields should also lead to the correct type of column."""
 
         class PersonTable(tables.Table):
             class Meta:
@@ -358,10 +351,9 @@ class MyTable(tables.Table):
 class ColumnInheritanceTest(TestCase):
     def test_column_params_should_be_preserved_under_inheritance(self):
         """
-        Github issue #337
+        Column parameters should be preserved under inheritance (#337).
 
-        Columns explicitly defined on MyTable get overridden by columns implicitly
-        defined on it's child.
+        Columns explicitly defined on MyTable get overridden by columns implicitly defined on it's child.
         If the column is not redefined, the explicit definition of MyTable is used,
         preserving the specialized verbose_name defined on it.
         """
@@ -394,9 +386,7 @@ class ColumnInheritanceTest(TestCase):
 
     def test_explicit_column_can_be_overridden_by_other_explicit_column(self):
         class MyTableC(MyTable):
-            """
-            If we define a new explict item1 column, that one should be used.
-            """
+            """If we define a new explicit item1 column, that one should be used."""
 
             item1 = tables.Column(verbose_name="New nice column name")
 
@@ -407,10 +397,7 @@ class ColumnInheritanceTest(TestCase):
         self.assertEqual(tableC.columns["item1"].verbose_name, "New nice column name")
 
     def test_override_column_class_names(self):
-        """
-        We control the output of CSS class names for a column by overriding
-        get_column_class_names
-        """
+        """We control the output of CSS class names for a column by overriding get_column_class_names()."""
 
         class MyTable(tables.Table):
             population = tables.Column(verbose_name="Population")
@@ -436,7 +423,7 @@ class ColumnAttrsTest(TestCase):
         Person.objects.create(first_name="Sjon", last_name="Jansen")
 
     def test_computable_td_attrs(self):
-        """Computable attrs for columns, using table argument"""
+        """Computable attrs for columns, using table argument."""
 
         class Table(tables.Table):
             person = tables.Column(attrs={"cell": {"data-length": lambda table: len(table.data)}})
@@ -453,7 +440,7 @@ class ColumnAttrsTest(TestCase):
         self.assertIn('<td class="status-2">', html)
 
     def test_computable_td_attrs_defined_in_column_class_attribute(self):
-        """Computable attrs for columns, using custom Column"""
+        """Computable attrs for columns, using custom Column."""
 
         class MyColumn(tables.Column):
             attrs = {"td": {"data-test": lambda table: len(table.data)}}
@@ -469,7 +456,7 @@ class ColumnAttrsTest(TestCase):
         self.assertEqual(root.findall(".//tbody/tr/td")[1].attrib, {"data-test": "2"})
 
     def test_computable_td_attrs_defined_in_column_class_attribute_record(self):
-        """Computable attrs for columns, using custom column"""
+        """Computable attrs for columns, using custom column."""
 
         class PersonColumn(tables.Column):
             attrs = {
@@ -495,10 +482,7 @@ class ColumnAttrsTest(TestCase):
         )
 
     def test_computable_column_td_attrs_record_header(self):
-        """
-        Computable attrs for columns, using custom column with a callable containing
-        a catch-all argument.
-        """
+        """Computable attrs for columns, using custom column with a callable containing a catch-all argument."""
 
         def data_first_name(**kwargs):
             record = kwargs.get("record", None)

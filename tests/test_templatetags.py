@@ -38,7 +38,8 @@ class RenderTableTagTest(TestCase):
 
     def test_does_not_mutate_context(self):
         """
-        Make sure the tag does not change the context of the template the tag is called from
+        Make sure the tag does not change the context of the template the tag is called from.
+
         https://github.com/jieter/django-tables2/issues/547
         """
 
@@ -98,7 +99,7 @@ class RenderTableTagTest(TestCase):
 
     @override_settings(DEBUG=True)
     def test_missing_variable(self):
-        """Variable that doesn't exist (issue #8)"""
+        """Variable that doesn't exist (issue #8)."""
         template = Template("{% load django_tables2 %}{% render_table this_doesnt_exist %}")
         with self.assertRaisesMessage(ValueError, "Expected table or queryset, not str"):
             template.render(Context())

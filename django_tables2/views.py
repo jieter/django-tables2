@@ -17,17 +17,16 @@ class TableMixinBase:
     table_pagination = None
 
     def get_context_table_name(self, table):
-        """
-        Get the name to use for the table's template variable.
-        """
+        """Return the name to use for the table's template variable."""
         return self.context_table_name
 
     def get_table_pagination(self, table):
         """
-        Return pagination options passed to `.RequestConfig`:
-            - True for standard pagination (default),
-            - False for no pagination,
-            - a dictionary for custom pagination.
+        Return pagination options passed to `.RequestConfig`.
+
+         - True for standard pagination (default),
+         - False for no pagination,
+         - a dictionary for custom pagination.
 
         `ListView`s pagination attributes are taken into account, if `table_pagination` does not
         define the corresponding value.
@@ -63,7 +62,7 @@ class TableMixinBase:
 
     def get_paginate_by(self, table_data) -> Optional[int]:
         """
-        Determines the number of items per page, or ``None`` for no pagination.
+        Determine the number of items per page, or ``None`` for no pagination.
 
         Args:
             table_data: The table's data.
@@ -102,9 +101,7 @@ class SingleTableMixin(TableMixinBase):
     table_data = None
 
     def get_table_class(self):
-        """
-        Return the class to use for the table.
-        """
+        """Return the class to use for the table."""
         if self.table_class:
             return self.table_class
         if self.model:
@@ -125,9 +122,7 @@ class SingleTableMixin(TableMixinBase):
         )
 
     def get_table_data(self):
-        """
-        Return the table data that should be used to populate the rows.
-        """
+        """Return the table data that should be used to populate the rows."""
         if self.table_data is not None:
             return self.table_data
         elif hasattr(self, "object_list"):
@@ -153,10 +148,7 @@ class SingleTableMixin(TableMixinBase):
         return {}
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
-        """
-        Overridden version of `.TemplateResponseMixin` to inject the table into
-        the template's context.
-        """
+        """Overridden version of `.TemplateResponseMixin` to inject the table into the template's context."""
         context = super().get_context_data(**kwargs)
         table = self.get_table(**self.get_table_kwargs())
         context[self.get_context_table_name(table)] = table
@@ -205,9 +197,7 @@ class MultiTableMixin(TableMixinBase):
     context_table_name = "tables"
 
     def get_tables(self):
-        """
-        Return an array of table instances containing data.
-        """
+        """Return an array of table instances containing data."""
         if self.tables is None:
             view_name = type(self).__name__
             raise ImproperlyConfigured(f"No tables were specified. Define {view_name}.tables")
@@ -222,9 +212,7 @@ class MultiTableMixin(TableMixinBase):
         return list(Table(data[i]) for i, Table in enumerate(self.tables))
 
     def get_tables_data(self):
-        """
-        Return an array of table_data that should be used to populate each table
-        """
+        """Return an array of table_data that should be used to populate each table."""
         return self.tables_data
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:

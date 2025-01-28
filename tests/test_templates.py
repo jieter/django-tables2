@@ -117,7 +117,8 @@ class TestQueries(TestCase):
 
     def test_render_table_db_queries(self):
         """
-        Paginated tables should result in two queries:
+        Paginated tables should result in two queries.
+
          - one query for pagination: .count()
          - one query for records on the current page: .all()[start:end]
         """
@@ -148,9 +149,7 @@ class TemplateLocalizeTest(TestCase):
     expected_results = {None: "1234.5", False: "1234.5", True: "1 234,5"}  # non-breaking space
 
     def assert_cond_localized_table(self, localizeit=None, expected=None):
-        """
-        helper function for defining Table class conditionally
-        """
+        """Conditionally define a table class."""
 
         class TestTable(tables.Table):
             name = tables.Column(verbose_name="my column", localize=localizeit)

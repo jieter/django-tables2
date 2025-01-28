@@ -59,9 +59,7 @@ class View(ExportMixin, tables.SingleTableView):
 
 @skipIf(TableExport is None, "Tablib is required to run the export tests")
 class TableExportTest(TestCase):
-    """
-    github issue #474: null/None values in exports
-    """
+    """Test for null/None values in exports (#474)."""
 
     def test_None_values(self):
         table = Table(
