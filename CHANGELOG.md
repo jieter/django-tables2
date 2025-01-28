@@ -1,5 +1,8 @@
 # Change log
 
+## 2.7.5 (2025-01-02)
+- Update django.po for Ukrainian 🇺🇦 ([#934](https://github.com/jieter/django-tables2/pull/934)) by [@DmytroLitvinov](https://github.com/DmytroLitvinov)
+
 ## 2.7.4 & 2.7.3 (2024-12-23)
 Correct packaging mistakes:
 - Remove upper bound for `python_requires`

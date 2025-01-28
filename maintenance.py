@@ -15,6 +15,9 @@ VERSION = subprocess.check_output(["hatch version"], shell=True).decode().strip(
 if sys.argv[-1] == "bump":
     os.system("hatch version patch")
 
+    print("\n- Commit CHANGELOG and django_tables2/__init__.py")
+    print("- Run `./maintenance.py tag` to tag the new version")
+
 elif sys.argv[-1] == "publish":
     os.system("hatch publish")
     os.system("rm -f dist/django_tables2-2.7.4*")
@@ -26,6 +29,7 @@ elif sys.argv[-1] == "tag":
         print(f"Failed tagging with command: {tag_cmd}")
     else:
         os.system("git push --tags && git push origin master")
+        print("\nTag created, run `./maintenance.py publish` to publish it")
 
 elif sys.argv[-1] == "screenshots":
 
