@@ -522,7 +522,7 @@ def signature(fn):
     Return an (arguments, kwargs)-tuple.
 
      - the arguments (positional or keyword)
-     - the name of the **kwarg catch all.
+     - the name of the ** kwarg catch all.
 
     The self-argument for methods is always removed.
     """
