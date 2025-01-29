@@ -74,6 +74,9 @@ ignore = [
   "D1",  # Missing docstring error codes (because not every function and class has a docstring)
   "D203",  # 1 blank line required before class docstring (conflicts with D211 and should be disabled, see https://github.com/PyCQA/pydocstyle/pull/91)
   "D205",
+  "D406",  # Section name should end with a newline
+  "D407",  # Missing dashed underline after section
+  "D413",  # Missing blank line after last section ...
   "D212",  # Multi-line docstring summary should start at the first line
   "E501"  # Line too long
 ]

@@ -9,9 +9,7 @@ from .config import RequestConfig
 
 
 class TableMixinBase:
-    """
-    Base mixin for the Single- and MultiTable class based views.
-    """
+    """Base mixin for the Single- and MultiTable class based views."""
 
     context_table_name = "table"
     table_pagination = None

@@ -26,8 +26,7 @@ context_processor_error_msg = (
 
 def token_kwargs(bits, parser):
     """
-    Based on Django's `~django.template.defaulttags.token_kwargs`, but with a
-    few changes:
+    Based on Django's `~django.template.defaulttags.token_kwargs`, but with a few changes.
 
     - No legacy mode.
     - Both keys and values are compiled as a filter
@@ -81,9 +80,9 @@ class QuerystringNode(Node):
 @register.tag
 def querystring(parser, token):
     """
-    Creates a URL (containing only the query string [including "?"]) derived
-    from the current URL's query string, by updating it with the provided
-    keyword arguments.
+    Create an URL (containing only the query string [including "?"]) derivedfrom the current URL's query string.
+
+    By updating it with the provided keyword arguments.
 
     Example (imagine URL is ``/abc/?gender=male&name=Brad``)::
 
@@ -119,9 +118,12 @@ def querystring(parser, token):
 
 class RenderTableNode(Node):
     """
-    parameters:
+    Node to render a table.
+
+    Parameters:
         table (~.Table): the table to render
         template (str or list): Name[s] of template to render
+
     """
 
     def __init__(self, table, template_name=None):
@@ -213,8 +215,7 @@ register.filter("unlocalize", l10n_register.filters["unlocalize"])
 @register.simple_tag(takes_context=True)
 def export_url(context, export_format, export_trigger_param=None):
     """
-    Returns an export URL for the given file `export_format`, preserving current
-    query string parameters.
+    Return an export URL for the given file `export_format`, preserving current query string parameters.
 
     Example for a page requested with querystring ``?q=blue``::
 
@@ -237,7 +238,8 @@ def export_url(context, export_format, export_trigger_param=None):
 @register.filter
 def table_page_range(page, paginator):
     """
-    Given an page and paginator, return a list of max 10 (by default) page numbers:
+    Given an page and paginator, return a list of max 10 (by default) page numbers.
+
      - always containing the first, last and current page.
      - containing one or two '...' to skip ranges between first/last and current.
 

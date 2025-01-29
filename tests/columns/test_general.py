@@ -275,9 +275,11 @@ class ColumnGeneralTest(TestCase):
 
         table = SimpleTable([{"a": "value"}])
         root = parse(table.as_html(request))
+
         # return classes of an element as a set
         def get_classes(element) -> set[str]:
             return set(element.attrib.get("class", "").split())
+
         self.assertIn("orderable", get_classes(root.findall(".//thead/tr/th")[0]))
         self.assertNotIn("orderable", get_classes(root.findall(".//thead/tr/th")[1]))
 
