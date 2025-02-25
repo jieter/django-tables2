@@ -82,10 +82,7 @@ class TableListsDataTest(TestCase):
         self.assertEqual(data.verbose_name_plural, "items")
 
     def test_TableListData_with_verbose_name(self):
-        """
-        TableListData uses the attributes on the listlike object to generate
-        it's verbose_name.
-        """
+        """TableListData uses the attributes on the list-like object to generate it's verbose_name."""
 
         class listlike(list):
             verbose_name = "unit"
@@ -101,7 +98,7 @@ class TableListsDataTest(TestCase):
 
 class TableQuerysetDataTest(TestCase):
     def test_custom_TableData(self):
-        """If TableQuerysetData._length is set, no count() query will be performed"""
+        """If TableQuerysetData._length is set, no count() query will be performed."""
         for i in range(11):
             Person.objects.create(first_name=f"first {i}")
 

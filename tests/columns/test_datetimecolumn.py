@@ -14,6 +14,8 @@ def isoformat_link(value):
 
 class DateTimeColumnTest(SimpleTestCase):
     """
+    Date time formatting test case.
+
     Format string: https://docs.djangoproject.com/en/stable/ref/templates/builtins/#date
     D -- Day of the week, textual, 3 letters  -- 'Fri'
     b -- Month, textual, 3 letters, lowercase -- 'jan'

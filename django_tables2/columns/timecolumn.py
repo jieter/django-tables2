@@ -17,7 +17,7 @@ class TimeColumn(TemplateColumn):
     def __init__(self, format=None, *args, **kwargs):
         if format is None:
             format = "TIME_FORMAT"
-        template = '{{ value|date:"%s"|default:default }}' % format
+        template = '{{ value|date:"%s"|default:default }}' % format  # noqa: UP031
         super().__init__(template_code=template, *args, **kwargs)
 
     @classmethod

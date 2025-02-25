@@ -8,8 +8,7 @@ from .base import Column, library
 @library.register
 class TemplateColumn(Column):
     """
-    A subclass of `.Column` that renders some template code to use as
-    the cell value.
+    A subclass of `.Column` that renders some template code to use as the cell value.
 
     Arguments:
         template_code (str): template code to render
@@ -69,8 +68,9 @@ class TemplateColumn(Column):
 
     def value(self, **kwargs):
         """
-        The value returned from a call to `value()` on a `TemplateColumn` is
-        the rendered template with `django.utils.html.strip_tags` applied.
+        Non-HTML value returned from a call to `value()` on a `TemplateColumn`.
+
+        By default this is the rendered template with `django.utils.html.strip_tags` applied.
         Leading and trailing whitespace is stripped.
         """
         html = super().value(**kwargs)
