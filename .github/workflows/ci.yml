@@ -52,7 +52,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - uses: actions/checkout@v4
-      - uses: actions/cache@v4.2.2
+      - uses: actions/cache@v4.2.3
         with:
           path: ~/.cache/pip
           key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
