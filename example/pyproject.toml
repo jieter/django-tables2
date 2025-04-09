@@ -1,0 +1,16 @@
+[project]
+    dependencies = [
+        "django>=5.2",
+        "django-bootstrap3>=25.1",
+        "django-bootstrap4>=25.1",
+        "django-bootstrap5>=25.1",
+        "django-debug-toolbar>=5.1.0",
+        "django-filter>=25.1",
+        "django-tables2>=2.7.5",
+        "tablib>=3.8.0",
+    ]
+    description = "A project with a few examples of django-tables2 usage"
+    name = "django-tables-2-example"
+    readme = "README.md"
+    requires-python = ">=3.12"
+    version = "0.1.0"

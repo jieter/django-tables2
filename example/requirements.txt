@@ -1,7 +1,0 @@
--e ..
-django-bootstrap3==22.2
-django-bootstrap4==22.3
-django-bootstrap5==22.2
-django-debug-toolbar==3.8.1
-django-filter==22.1
-tablib==3.3.0
