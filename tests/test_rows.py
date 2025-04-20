@@ -76,10 +76,7 @@ class RowsTest(SimpleTestCase):
             row.cells["gamma"]
 
     def test_row_attrs(self):
-        """
-        If a callable returns an empty string, do not add a space to the CSS class
-        attribute. (#416)
-        """
+        """If a callable returns an empty string, do not add a space to the CSS class attribute (#416)."""
         counter = count()
 
         class Table(tables.Table):
@@ -128,9 +125,7 @@ class RowsTest(SimpleTestCase):
         self.assertEqual(row.get_cell("a"), "valA")
 
     def test_even_odd_css_class(self):
-        """
-        Test for BoundRow.get_even_odd_css_class() method
-        """
+        """Test for BoundRow.get_even_odd_css_class() method."""
 
         class SimpleTable(tables.Table):
             foo = tables.Column()

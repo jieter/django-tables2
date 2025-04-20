@@ -72,26 +72,20 @@ class TableExport:
 
     @classmethod
     def is_valid_format(self, export_format):
-        """
-        Returns true if `export_format` is one of the supported export formats
-        """
+        """Return True if `export_format` is one of the supported export formats."""
         return export_format is not None and export_format in TableExport.FORMATS.keys()
 
     def content_type(self):
-        """
-        Returns the content type for the current export format
-        """
+        """Return the content type for the current export format."""
         return self.FORMATS[self.format]
 
     def export(self):
-        """
-        Returns the string/bytes for the current export format
-        """
+        """Return the string/bytes for the current export format."""
         return self.dataset.export(self.format)
 
     def response(self, filename=None):
         """
-        Builds and returns a `HttpResponse` containing the exported data
+        Build and return a `HttpResponse` containing the exported data.
 
         Arguments:
             filename (str): if not `None`, the filename is attached to the

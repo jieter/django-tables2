@@ -15,29 +15,35 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.8, 3.9, "3.10", 3.11, 3.12]
-        django-version: [4.2, 5.0, 5.1b1, master]
+        python-version: [3.9, "3.10", 3.11, 3.12] # 3.13 can be supported if lxml supports 3.13
+        django-version: [4.2, 5.0, 5.1, "5.2a1", "master"]
         exclude:
             # Django 4.2
             - python-version: 3.12
               django-version: 4.2
+            - python-version: 3.13
+              django-version: 4.2
 
             # Django 5.0
-            - python-version: 3.8
-              django-version: 5.0
             - python-version: 3.9
+              django-version: 5.0
+            - python-version: 3.13
               django-version: 5.0
 
             # Django 5.1
-            - python-version: 3.8
-              django-version: 5.1b1
             - python-version: 3.9
-              django-version: 5.1b1
-              
-            # master
-            - python-version: 3.8
+              django-version: 5.1
+
+            # Django 5.2
+            - python-version: 3.9
+              django-version: 5.2a1
+
+            # Django master
+            - python-version: 3.9
               django-version: master
-            - python-version: 3.9
+            - python-version: 3.10
+              django-version: master
+            - python-version: 3.11
               django-version: master
 
     steps:
@@ -46,7 +52,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - uses: actions/checkout@v4
-      - uses: actions/cache@v4.0.2
+      - uses: actions/cache@v4.2.3
         with:
           path: ~/.cache/pip
           key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}

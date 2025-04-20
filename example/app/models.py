@@ -11,9 +11,7 @@ class Continent(models.Model):
 
 
 class Country(models.Model):
-    """
-    Represents a geographical Country
-    """
+    """Represents a geographical Country."""
 
     name = models.CharField(max_length=100)
     population = models.PositiveIntegerField(verbose_name=_("population"))
