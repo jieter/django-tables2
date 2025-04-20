@@ -568,7 +568,7 @@ def call_with_appropriate(fn, kwargs):
     args, kwargs_name = signature(fn)
     # no catch-all defined, we need to exactly pass the arguments specified.
     if not kwargs_name:
-        kwargs = {key: kwargs[key] for key in kwargs if key in args}
+        kwargs = {key: val for key, val in kwargs.items() if key in args}
 
         # if any argument of fn is not in kwargs, just return None
         if any(arg not in kwargs for arg in args):

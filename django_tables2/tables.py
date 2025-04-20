@@ -71,7 +71,8 @@ class DeclarativeColumnsMetaclass(type):
             for key, column in extra.items():
                 # skip current column because the parent was explicitly defined,
                 # and the current column is not.
-                if key in base_columns and base_columns[key]._explicit is True:
+                base_column = base_columns.get(key)
+                if base_column is not None and base_column._explicit is True:
                     continue
                 base_columns[key] = column
 
@@ -80,13 +81,11 @@ class DeclarativeColumnsMetaclass(type):
 
         # Apply any explicit exclude setting
         for exclusion in opts.exclude:
-            if exclusion in base_columns:
-                base_columns.pop(exclusion)
+            base_columns.pop(exclusion, None)
 
         # Remove any columns from our remainder, else columns from our parent class will remain
         for attr_name in remainder:
-            if attr_name in base_columns:
-                base_columns.pop(attr_name)
+            base_columns.pop(attr_name, None)
 
         # Set localize on columns
         for col_name in base_columns.keys():
@@ -486,7 +485,9 @@ class Table(metaclass=DeclarativeColumnsMetaclass):
         """
         if exclude_columns is None:
             exclude_columns = ()
-
+        else:
+            # boost efficiency by using a set over list/tuple
+            exclude_columns = set(exclude_columns)
         columns = [
             column
             for column in self.columns.iterall()
@@ -536,7 +537,8 @@ class Table(metaclass=DeclarativeColumnsMetaclass):
         # everything's been converted to a iterable, accept iterable!
         for alias in order_by:
             name = OrderBy(alias).bare
-            if name in self.columns and self.columns[name].orderable:
+            column = self.columns.get(name)
+            if column is not None and self.column.orderable:
                 valid.append(alias)
         self._order_by = OrderByTuple(valid)
         self.data.order_by(self._order_by)

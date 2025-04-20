@@ -761,8 +761,9 @@ class BoundColumns:
         supports (e.g. `~Table.Meta.exclude` and `~Table.Meta.sequence`).
         """
 
+        to_exclude = set(self._table.exclude)
         for name in self._table.sequence:
-            if name not in self._table.exclude:
+            if name not in to_exclude:
                 yield (name, self.columns[name])
 
     def items(self):
