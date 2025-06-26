@@ -90,9 +90,7 @@ class TemplateColumnTest(SimpleTestCase):
                 col = tables.TemplateColumn()
 
     def test_should_support_value_with_curly_braces(self):
-        """
-        https://github.com/bradleyayers/django-tables2/issues/441
-        """
+        """Test that TemplateColumn can handle values with curly braces (#441)."""
 
         class Table(tables.Table):
             track = tables.TemplateColumn("track: {{ value }}")

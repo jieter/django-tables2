@@ -51,9 +51,7 @@ class PinnedRowsTest(SimpleTestCase):
         self.assertNotIn("gamma", row)
 
     def test_as_html(self):
-        """
-        Ensure that html render correctly.
-        """
+        """Ensure that as_html() renders correctly."""
         request = build_request("/")
         table = SimpleTable([{"name": "Grzegorz", "age": 30, "occupation": "programmer"}])
         root = parse(table.as_html(request))
@@ -94,9 +92,7 @@ class PinnedRowsTest(SimpleTestCase):
         self.assertEqual(td[2].text, "130")
 
     def test_pinned_row_attrs(self):
-        """
-        Testing attrs for pinned rows.
-        """
+        """Testing attrs for pinned rows."""
         pinned_row_attrs = {"class": "super-mega-row", "data-foo": "bar"}
 
         request = build_request("/")
@@ -109,9 +105,7 @@ class PinnedRowsTest(SimpleTestCase):
         self.assertIn("data-foo", html)
 
     def test_ordering(self):
-        """
-        Change sorting should not change ordering pinned rows.
-        """
+        """Change sorting should not change ordering pinned rows."""
         request = build_request("/")
         records = [
             {"name": "Alex", "age": 42, "occupation": "programmer"},
@@ -139,6 +133,7 @@ class PinnedRowsTest(SimpleTestCase):
     def test_bound_rows_getitem(self):
         """
         Testing BoundRows.__getitem__() method.
+
         Checking the return class for simple value and for slice.
         Ensure that inside of BoundRows pinned rows are included in length.
         """
@@ -155,10 +150,7 @@ class PinnedRowsTest(SimpleTestCase):
         self.assertEqual(len(table.rows[:]), 6)
 
     def test_uniterable_pinned_data(self):
-        """
-        Ensure that, when data for pinned rows are not iterable,
-        the ValueError exception will be raised.
-        """
+        """Ensure that, when data for pinned rows are not iterable, the ValueError exception will be raised."""
 
         class FooTable(tables.Table):
             col = tables.Column()

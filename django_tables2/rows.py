@@ -7,9 +7,7 @@ from .utils import A, AttributeDict, call_with_appropriate, computed_values
 
 
 class CellAccessor:
-    """
-    Allows accessing cell contents on a row object (see `BoundRow`)
-    """
+    """Access cell contents on a row object (see `BoundRow`)."""
 
     def __init__(self, row):
         self.row = row
@@ -173,11 +171,7 @@ class BoundRow:
         return render_func(bound_column, value)
 
     def _optional_cell_arguments(self, bound_column, value):
-        """
-        Defines the arguments that will optionally be passed while calling the
-        cell's rendering or value getter if that function has one of these as a
-        keyword argument.
-        """
+        """Arguments that will optionally be passed while rendering cells."""
         return {
             "value": value,
             "record": self.record,
@@ -188,10 +182,7 @@ class BoundRow:
         }
 
     def get_cell(self, name):
-        """
-        Returns the final rendered html for a cell in the row, given the name
-        of a column.
-        """
+        """Return the final rendered html for a cell in the row, given the name of a column."""
         bound_column = self.table.columns[name]
 
         return self._get_and_render_with(
@@ -199,40 +190,31 @@ class BoundRow:
         )
 
     def _call_render(self, bound_column, value=None):
-        """
-        Call the column's render method with appropriate kwargs
-        """
+        """Call the column's render method with appropriate kwargs."""
         render_kwargs = self._optional_cell_arguments(bound_column, value)
         content = call_with_appropriate(bound_column.render, render_kwargs)
 
         return bound_column.link(content, **render_kwargs) if bound_column.link else content
 
     def get_cell_value(self, name):
-        """
-        Returns the final rendered value (excluding any html) for a cell in the
-        row, given the name of a column.
-        """
+        """Return the final rendered value (excluding any html) for a cell in the row, given the name of a column."""
         return self._get_and_render_with(
             self.table.columns[name], render_func=self._call_value, default=None
         )
 
     def _call_value(self, bound_column, value=None):
-        """
-        Call the column's value method with appropriate kwargs
-        """
+        """Call the column's value method with appropriate kwargs."""
         return call_with_appropriate(
             bound_column.value, self._optional_cell_arguments(bound_column, value)
         )
 
     def __contains__(self, item):
-        """
-        Check by both row object and column name.
-        """
+        """Check by both row object and column name."""
         return item in (self.table.columns if isinstance(item, str) else self)
 
     def items(self):
         """
-        Returns iterator yielding ``(bound_column, cell)`` pairs.
+        Return an iterator yielding ``(bound_column, cell)`` pairs.
 
         *cell* is ``row[name]`` -- the rendered unicode value that should be
         ``rendered within ``<td>``.
@@ -247,14 +229,13 @@ class BoundRow:
 
 
 class BoundPinnedRow(BoundRow):
-    """
-    Represents a *pinned* row in a table.
-    """
+    """A *pinned* row in a table."""
 
     @property
     def attrs(self):
         """
         Return the attributes for a certain pinned row.
+
         Add CSS classes `pinned-row` and `odd` or `even` to `class` attribute.
 
         Return:
@@ -328,10 +309,7 @@ class BoundRows:
         return length
 
     def __getitem__(self, key):
-        """
-        Slicing returns a new `~.BoundRows` instance, indexing returns a single
-        `~.BoundRow` instance.
-        """
+        """Return a new `~.BoundRows` instance for a slice, a single `~.BoundRow` instance for an index."""
         if isinstance(key, slice):
             return BoundRows(data=self.data[key], table=self.table, pinned_data=self.pinned_data)
         else:

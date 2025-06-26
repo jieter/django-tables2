@@ -96,10 +96,7 @@ class ModelsTest(TestCase):
         self.assertEqual(table.rows[0].get_cell("first_name"), "Bradley")
 
     def test_Meta_option_model_table(self):
-        """
-        The ``model`` option on a table causes the table to dynamically add columns
-        based on the fields.
-        """
+        """The `model` option on a table causes the table to dynamically add columns based on the fields."""
 
         class OccupationTable(tables.Table):
             class Meta:
@@ -168,10 +165,7 @@ class ModelsTest(TestCase):
         self.assertEqual(parse(html).findall(".//thead/tr/th/a")[0].attrib, {"href": "?sort=-name"})
 
     def test_default_order(self):
-        """
-        If orderable=False, do not sort queryset.
-        https://github.com/bradleyayers/django-tables2/issues/204
-        """
+        """If orderable=False, do not sort queryset (#204)."""
 
         class PersonTable(tables.Table):
             first_name = tables.Column()
@@ -509,9 +503,7 @@ class ModelSanityTest(TestCase):
         self.assertEqual(Person.objects.all().count(), 10)
 
     def test_model__str__calls(self):
-        """
-        Model.__str__ should not be called when not necessary.
-        """
+        """Model.__str__ should not be called when not necessary."""
         calls = defaultdict(int)
 
         def counting__str__(self):
