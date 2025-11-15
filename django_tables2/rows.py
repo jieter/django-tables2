@@ -168,7 +168,7 @@ class BoundRow:
 
         if value in column.empty_values:
             return default
-        if value and isinstance(column, ManyToManyColumn) and not value.exists():
+        if isinstance(column, ManyToManyColumn) and value and not value.exists():
             return default
 
         return render_func(bound_column, value)
