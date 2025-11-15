@@ -117,12 +117,14 @@ class TemplateColumnTest(SimpleTestCase):
 
     def test_request_passthrough(self):
         class Table(tables.Table):
-            track = tables.TemplateColumn("{{ request.path }}")
+            track = tables.TemplateColumn(template_code="{{ request.path }}")
+            artist = tables.TemplateColumn(template_name="column.html")
 
         template = Template("{% load django_tables2 %}{% render_table table %}")
         request = build_request("/table/")
-        table = Table([{"track": "Veerpont"}])
+        table = Table([{"track": "Veerpont", "artist": "Drs. P"}])
         RequestConfig(request).configure(table)
 
         html = template.render(Context({"request": request, "table": table}))
         self.assertIn("<td >/table/</td>", html)
+        self.assertIn("<td >GET</td>", html)
