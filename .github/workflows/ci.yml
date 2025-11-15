@@ -18,33 +18,26 @@ jobs:
         python-version: [3.9, "3.10", 3.11, 3.12] # 3.13 can be supported if lxml supports 3.13
         django-version: [4.2, 5.0, 5.1, "5.2a1", "master"]
         exclude:
+          
             # Django 4.2
-            - python-version: 3.12
+            - python-version: 3.14
               django-version: 4.2
-            - python-version: 3.13
-              django-version: 4.2
-
-            # Django 5.0
-            - python-version: 3.9
-              django-version: 5.0
-            - python-version: 3.13
-              django-version: 5.0
 
             # Django 5.1
-            - python-version: 3.9
+            - python-version: 3.14
               django-version: 5.1
 
-            # Django 5.2
-            - python-version: 3.9
-              django-version: 5.2a1
+            # Django 6.0
+            - python-version: 3.10
+              django-version: 6.0
+            - python-version: 3.11
+              django-version: 6.0
 
             # Django master
-            - python-version: 3.9
-              django-version: master
             - python-version: 3.10
-              django-version: master
+              django-version: "master"
             - python-version: 3.11
-              django-version: master
+              django-version: "master"
 
     steps:
       - name: Set up Python ${{ matrix.python-version }}
