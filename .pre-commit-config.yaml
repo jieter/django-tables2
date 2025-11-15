@@ -23,4 +23,4 @@ repos:
     rev: v1.14.0
     hooks:
       - id: mypy
-        args: ["django_tables2/__init__.py"]
+        args: ["django_tables2"]
