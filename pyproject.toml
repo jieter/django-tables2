@@ -55,7 +55,6 @@ path = "django_tables2/__init__.py"
 
 [tool.ruff]
 line-length = 100
-target-version = "py39"
 
 [tool.ruff.lint]
 fixable = [
