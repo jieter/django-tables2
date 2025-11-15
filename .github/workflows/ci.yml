@@ -52,13 +52,13 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pip-
       - name: Install Django ${{ matrix.django-version }}
-        run: uv pip install Django==${{ matrix.django-version }}
+        run: python -m pip install install Django==${{ matrix.django-version }}
         if: ${{ matrix.django-version != 'main' && matrix.django-version != '6.0' }}
       - name: Install Django ${{ matrix.django-version }}
-        run: uv pip install "Django>=6.0a1,<6.1"
+        run: python -m pip install install "Django>=6.0a1,<6.1"
         if: matrix.django-version == '6.0'
       - name: Install Django main branch
-        run: uv pip install -U https://github.com/django/django/archive/master.tar.gz
+        run: python -m pip install install -U https://github.com/django/django/archive/master.tar.gz
         if: matrix.django-version == 'main'
       - run: |
           python -m pip install coverage
