@@ -23,4 +23,5 @@ repos:
     rev: v1.18.2
     hooks:
       - id: mypy
-        args: ["django_tables2", "--explicit-package-bases django_tables2", "--exclude venv|site-packages|dist"]
+        args: ["--explicit-package-bases", "django_tables2"]
+        pass_filenames: false

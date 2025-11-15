@@ -139,8 +139,11 @@ class LinkTransform:
 
         if bound_column is None and self.accessor is None:
             accessor = Accessor("")
-        else:
-            accessor = Accessor(self.accessor if self.accessor is not None else bound_column.name)
+        elif self.accessor is not None:
+            accessor = Accessor(self.accessor)
+        elif bound_column is not None:
+            accessor = Accessor(bound_column.name)
+
         context = accessor.resolve(record)
         if not hasattr(context, "get_absolute_url"):
             if hasattr(record, "get_absolute_url"):
@@ -517,9 +520,9 @@ class BoundColumn:
         cell_attrs = attrs.get("cell", {})
 
         # override with attrs defined specifically for th and td respectively.
-        attrs["th"] = computed_values(attrs.get("th", cell_attrs), kwargs=kwargs)
-        attrs["td"] = computed_values(attrs.get("td", cell_attrs), kwargs=kwargs)
-        attrs["tf"] = computed_values(attrs.get("tf", cell_attrs), kwargs=kwargs)
+        attrs["th"] = computed_values(attrs.get("th", cell_attrs) or {}, kwargs=kwargs)
+        attrs["td"] = computed_values(attrs.get("td", cell_attrs) or {}, kwargs=kwargs)
+        attrs["tf"] = computed_values(attrs.get("tf", cell_attrs) or {}, kwargs=kwargs)
 
         # wrap in AttributeDict
         attrs["th"] = AttributeDict(attrs["th"])
