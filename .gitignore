@@ -1,5 +1,5 @@
 *.pyc
-/.env
+/.env*
 /reports
 /*.sublime-*
 /*.komodoproject
@@ -22,3 +22,4 @@
 *.sw[po]
 pip-wheel-metadata
 .vscode
+uv.lock

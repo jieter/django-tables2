@@ -38,7 +38,10 @@ class ManyToManyColumnTest(TestCase):
 
     def test_from_model(self):
         """
-        Automatically uses the ManyToManyColumn for a ManyToManyField, and calls the
+        Test if ManyToManyColumn is used for ManyToManyFields.
+
+
+        Should automatically use  ManyToManyColumn for a ManyToManyField, and calls the
         Models's `__str__` method to transform the model instance to string.
         """
 
@@ -73,9 +76,7 @@ class ManyToManyColumnTest(TestCase):
                 self.assertIn(str(friend), friends)
 
     def test_linkify_item_different_model(self):
-        """
-        Make sure the correct get_absolute_url() is used to linkify the items.
-        """
+        """Make sure the correct get_absolute_url() is used to linkify the items."""
 
         class GroupTable(tables.Table):
             name = tables.Column(linkify=True)

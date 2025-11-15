@@ -1,8 +1,105 @@
-[tool.black]
-line-length = 100
+[build-system]
+build-backend = "hatchling.build"
+requires = ["hatchling"]
+
+[project]
+authors = [
+  {name = "Bradley Ayers", email = "bradley.ayers@gmail.com"},
+  {name = "Jan Pieter Waagmeester", email = "jieter@jieter.nl"}
+]
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Environment :: Web Environment",
+  "Framework :: Django",
+  "Framework :: Django :: 4.2",
+  "Framework :: Django :: 5.1",
+  "Framework :: Django :: 5.2",
+  "Framework :: Django :: 6.0",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: BSD License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Topic :: Internet :: WWW/HTTP",
+  "Topic :: Software Development :: Libraries"
+]
+dependencies = ["Django>=4.2"]
+description = "Table/data-grid framework for Django"
+dynamic = ["version"]
+license = {file = "LICENSE"}
+name = "django-tables2"
+readme = "README.md"
+requires-python = ">=3.9"
+
+[project.optional-dependencies]
+tablib = ["tablib"]
+
+[project.urls]
+Changelog = "https://github.com/jieter/django-tables2/blob/master/CHANGELOG.md"
+Documentation = "https://django-tables2.readthedocs.io/en/latest/"
+Homepage = "https://github.com/jieter/django-tables2/"
+Readme = "https://github.com/jieter/django-tables2/blob/master/README.md"
+
+[tool.hatch.build.targets.sdist]
+exclude = ["docs"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["django_tables2"]
+
+[tool.hatch.version]
+path = "django_tables2/__init__.py"
 
 [tool.mypy]
+ignore_missing_imports = true
 python_version = "3.9"
 strict = false
-ignore_missing_imports = true
 
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+fixable = [
+  # "D",
+  "D200",
+  "D202",
+  "D401",
+  "D400",
+  "D415",
+  "E",
+  "F",
+  "I",
+  "UP"
+]
+ignore = [
+  "D1",  # Missing docstring error codes (because not every function and class has a docstring)
+  "D203",  # 1 blank line required before class docstring (conflicts with D211 and should be disabled, see https://github.com/PyCQA/pydocstyle/pull/91)
+  "D205",
+  "D406",  # Section name should end with a newline
+  "D407",  # Missing dashed underline after section
+  "D413",  # Missing blank line after last section ...
+  "D212",  # Multi-line docstring summary should start at the first line
+  "E501"  # Line too long
+]
+select = [
+  "D",  # pydocstyle
+  "E",  # pycodestyle
+  "F",  # flake8
+  "I",  # isort
+  "UP"  # pyupgrade
+]
+unfixable = [
+  "F8"  # names in flake8, such as defined but unused variables
+]
+
+[tool.ruff.lint.per-file-ignores]
+"*/migrations/*" = ["D417", "E501"]
+
+[tool.setuptools.dynamic]
+version = {attr = "django_tables2.__version__"}

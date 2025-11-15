@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 @library.register
 class ManyToManyColumn(Column):
     """
-    Display the list of objects from a `ManyRelatedManager`
+    Display the list of objects from a `ManyRelatedManager`.
 
     Ordering is disabled for this column.
 
@@ -77,16 +77,11 @@ class ManyToManyColumn(Column):
             self.linkify_item = LinkTransform(attrs=self.attrs.get("a", {}), **link_kwargs)
 
     def transform(self, obj: models.Model):
-        """
-        Transform is applied to each item of the list of objects from the ManyToMany relation.
-        """
+        """Apply to each item of the list of objects from the ManyToMany relation."""
         return force_str(obj)
 
-    def filter(self, qs: models.QuerySet):
-        """
-        Filter is called on the ManyRelatedManager to allow ordering, filtering or limiting
-        on the set of related objects.
-        """
+    def filter(self, qs: models.QuerySet) -> models.QuerySet:
+        """Call on the ManyRelatedManager to allow ordering, filtering or limiting on the set of related objects."""
         return qs.all()
 
     def render(self, **kwargs: "Unpack[CellArguments]") -> "SafeString":

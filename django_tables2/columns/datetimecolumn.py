@@ -24,8 +24,8 @@ class DateTimeColumn(TemplateColumn):
     def __init__(self, format: Optional[str] = None, short: bool = True, *args, **kwargs):
         if format is None:
             format = "SHORT_DATETIME_FORMAT" if short else "DATETIME_FORMAT"
-        kwargs["template_code"] = '{{ value|date:"%s"|default:default }}' % format
-        super().__init__(*args, **kwargs)
+        template = '{{ value|date:"%s"|default:default }}' % format  # noqa: UP031
+        super().__init__(template_code=template, *args, **kwargs)
 
     @classmethod
     def from_field(cls, field: "Field", **kwargs) -> "Optional[DateTimeColumn]":

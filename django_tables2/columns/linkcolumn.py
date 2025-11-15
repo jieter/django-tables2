@@ -35,17 +35,14 @@ class BaseLinkColumn(Column):
         return self.text_value(kwargs["record"], kwargs["value"])
 
     def value(self, **kwargs: "Unpack[CellArguments]") -> Any:
-        """
-        Returns the content for a specific cell similarly to `.render` however
-        without any html content.
-        """
+        """Return the content for a specific cell similarly to `.render` without any HTML content."""
         return self.text_value(kwargs["record"], kwargs["value"])
 
 
 @library.register
 class LinkColumn(BaseLinkColumn):
     """
-    Renders a normal value as an internal hyperlink to another page.
+    Render a normal value as an internal hyperlink to another page.
 
     .. note ::
 
@@ -137,7 +134,7 @@ class LinkColumn(BaseLinkColumn):
         kwargs=None,
         current_app=None,
         attrs=None,
-        **extra
+        **extra,
     ):
         super().__init__(
             attrs=attrs,
@@ -148,5 +145,5 @@ class LinkColumn(BaseLinkColumn):
                 kwargs=kwargs,
                 current_app=current_app,
             ),
-            **extra
+            **extra,
         )

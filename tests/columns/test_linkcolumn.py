@@ -12,7 +12,7 @@ from ..utils import attrs, build_request
 
 class LinkColumnTest(TestCase):
     def test_unicode(self):
-        """Test LinkColumn for unicode values + headings"""
+        """Test LinkColumn for unicode values + headings."""
 
         class UnicodeTable(tables.Table):
             first_name = tables.LinkColumn("person", args=[A("pk")])
@@ -77,7 +77,7 @@ class LinkColumnTest(TestCase):
         self.assertIn("<td >—</td>", html)
 
     def test_linkcolumn_non_field_based(self):
-        """Test for issue 257, non-field based columns"""
+        """Test for issue 257, non-field based columns."""
 
         class Table(tables.Table):
             first_name = tables.Column()
@@ -141,8 +141,7 @@ class LinkColumnTest(TestCase):
         self.assertEqual(table.rows[0].get_cell("col"), table.rows[0].get_cell("col_linkify"))
 
     def test_td_attrs_should_be_supported(self):
-        """LinkColumn should support both <td> and <a> attrs"""
-
+        """LinkColumn should support both <td> and <a> attrs."""
         person = Person.objects.create(first_name="Bob", last_name="Builder")
 
         class Table(tables.Table):

@@ -90,7 +90,9 @@ class LinkTransform:
         reverse_args: Union[list, tuple, None] = None,
     ):
         """
-        arguments:
+        Object used to generate attributes for the `<a>`-tag to wrap the cell content in.
+
+        Arguments:
             url (callable): If supplied, the result of this callable will be used as ``href`` attribute.
             accessor (Accessor): if supplied, the accessor will be used to decide on which object
                 ``get_absolute_url()`` is called.
@@ -115,7 +117,6 @@ class LinkTransform:
                 "kwargs" if isinstance(args, dict) else "args": args,
             }
         else:
-
             self.reverse_args = reverse_args or {}
 
     def compose_url(self, **kwargs) -> str:
@@ -143,7 +144,7 @@ class LinkTransform:
         return context.get_absolute_url()
 
     def call_reverse(self, record) -> str:
-        """Prepares the arguments to reverse() for this record and calls reverse()."""
+        """Prepare the arguments to reverse() for this record and calls reverse()."""
 
         def resolve_if_accessor(val):
             return val.resolve(record) if isinstance(val, Accessor) else val
@@ -407,9 +408,8 @@ class Column:
         """
         Order the QuerySet of the table.
 
-        This method can be overridden by :ref:`table.order_FOO` methods on the
-        table or by subclassing `.Column`; but only overrides if second element
-        in return tuple is True.
+        This method can be overridden by :ref:`table.order_FOO` methods on the table or by subclassing `.Column`;
+        but only overrides if second element in return tuple is True.
         """
         return (queryset, False)
 
@@ -419,7 +419,9 @@ class Column:
         Return a specialized column for the model field or `None`.
 
         Arguments:
-            field (Model Field instance): the field that needs a suitable column
+            field (Model Field instance): the field that needs a suitable column.
+            **kwargs: passed on to the column.
+
         Returns:
             `.Column` object or `None`
 
@@ -445,7 +447,7 @@ class BoundColumn:
     In practice, this means that a `.BoundColumn` knows the *"variable name"* given to the `.Column`
     when it was declared on the `.Table`.
 
-    arguments:
+    Arguments:
         table (`~.Table`): The table in which this column exists
         column (`~.Column`): The type of column
         name (str): The variable name of the column used when defining the
@@ -488,7 +490,6 @@ class BoundColumn:
         templates easier. ``tf`` is not actually a HTML tag, but this key name
         will be used for attributes for column's footer, if the column has one.
         """
-
         # prepare kwargs for computed_values()
         kwargs = {"table": self._table, "bound_column": self}
         # BoundRow.items() sets current_record and current_value when iterating over
@@ -525,25 +526,19 @@ class BoundColumn:
         return attrs
 
     def _get_cell_class(self, attrs):
-        """
-        Return a set of the classes from the class key in ``attrs``.
-        """
+        """Return a set of the classes from the class key in ``attrs``."""
         classes = attrs.get("class", None)
         classes = set() if classes is None else set(classes.split(" "))
 
         return self._table.get_column_class_names(classes, self)
 
     def get_td_class(self, td_attrs):
-        """
-        Returns the HTML class attribute for a data cell in this column
-        """
+        """Return the HTML class attribute for a data cell in this column."""
         classes = sorted(self._get_cell_class(td_attrs))
         return None if len(classes) == 0 else " ".join(classes)
 
     def get_th_class(self, th_attrs):
-        """
-        Returns the HTML class attribute for a header cell in this column
-        """
+        """Return the HTML class attribute for a header cell in this column."""
         classes = self._get_cell_class(th_attrs)
 
         # add classes for ordering
@@ -561,7 +556,7 @@ class BoundColumn:
 
     @property
     def default(self):
-        """Returns the default value for this column."""
+        """Return the default value for this column."""
         value = self.column.default
         if value is None:
             value = self._table.default
@@ -719,8 +714,8 @@ class BoundColumn:
         return self.column.visible
 
     @property
-    def localize(self) -> Optional[bool]:
-        """Return `True`, `False` or `None` as described in ``Column.localize``"""
+    def localize(self) -> bool | None:
+        """Return `True`, `False` or `None` as described in ``Column.localize``."""
         return self.column.localize
 
 
@@ -765,7 +760,6 @@ class BoundColumns:
         consideration all of the ordering and filtering modifiers that a table
         supports (e.g. `~Table.Meta.exclude` and `~Table.Meta.sequence`).
         """
-
         for name in self._table.sequence:
             if name not in self._table.exclude:
                 yield (name, self.columns[name])

@@ -22,16 +22,15 @@ class BooleanColumn(Column):
         yesno (str): comma separated values string or 2-tuple to display for
                      True/False values.
 
-    Rendered values are wrapped in a ``<span>`` to allow customization by using
-    CSS. By default the span is given the class ``true``, ``false``.
+    Rendered values are wrapped in a ``<span>`` to allow customization by using CSS.
+    By default the span is given the class ``true``, ``false``.
 
-    In addition to *attrs* keys supported by `~.Column`, the following are
-    available:
+    In addition to *attrs* keys supported by `~.Column`, the following are available:
 
      - ``span`` -- adds attributes to the ``<span>`` tag
     """
 
-    def __init__(self, null=False, yesno="✔,✘", **kwargs):
+    def __init__(self, null: bool = False, yesno: str = "✔,✘", **kwargs):
         self.yesno = yesno.split(",") if isinstance(yesno, str) else tuple(yesno)
         if not null:
             kwargs["empty_values"] = ()
@@ -59,9 +58,7 @@ class BooleanColumn(Column):
         return format_html("<span {}>{}</span>", AttributeDict(attrs).as_html(), escape(text))
 
     def value(self, **kwargs: "Unpack[CellArguments]") -> Any:
-        """
-        Returns the content for a specific cell similarly to `.render` however without any html content.
-        """
+        """Return the content for a specific cell similarly to `.render` however without any html content."""
         return str(self._get_bool_value(kwargs["record"], kwargs["value"], kwargs["bound_column"]))
 
     @classmethod
