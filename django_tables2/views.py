@@ -98,8 +98,8 @@ class SingleTableMixin(TableMixinBase):
     ``.get_queryset`` as a fall back for the table data source.
     """
 
-    table_class: type[Table] | None = None
-    table_data: TableData | None = None
+    table_class: "type[Table] | None" = None
+    table_data: "TableData | None" = None
 
     def get_table_class(self):
         """Return the class to use for the table."""
@@ -189,8 +189,8 @@ class MultiTableMixin(TableMixinBase):
     .. versionadded:: 1.2.3
     """
 
-    tables: list[type[Table]] | None = None
-    tables_data: list[TableData] | None = None
+    tables: "list[type[Table]] | None" = None
+    tables_data: "list[TableData] | None" = None
     request: HttpRequest
 
     table_prefix = "table_{}-"
