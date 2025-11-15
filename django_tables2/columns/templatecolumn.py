@@ -66,7 +66,7 @@ class TemplateColumn(Column):
                 context["request"] = request
                 return Template(self.template_code).render(context)
             else:
-                return get_template(self.template_name).render(context.flatten())
+                return get_template(self.template_name).render(context.flatten(), request=request)
 
     def value(self, **kwargs):
         """
