@@ -5,7 +5,7 @@ requires = ["hatchling"]
 [project]
 authors = [
   {name = "Bradley Ayers", email = "bradley.ayers@gmail.com"},
-  {name = "Jan Pieter Waagmeester", email = "jieter@jieter.nl"},
+  {name = "Jan Pieter Waagmeester", email = "jieter@jieter.nl"}
 ]
 classifiers = [
   "Development Status :: 5 - Production/Stable",
@@ -28,7 +28,7 @@ classifiers = [
   "Programming Language :: Python :: 3.13",
   "Programming Language :: Python :: 3.14",
   "Topic :: Internet :: WWW/HTTP",
-  "Topic :: Software Development :: Libraries",
+  "Topic :: Software Development :: Libraries"
 ]
 dependencies = ["Django>=4.2"]
 description = "Table/data-grid framework for Django"
@@ -70,27 +70,27 @@ fixable = [
   "E",
   "F",
   "I",
-  "UP",
+  "UP"
 ]
 ignore = [
-  "D1", # Missing docstring error codes (because not every function and class has a docstring)
-  "D203", # 1 blank line required before class docstring (conflicts with D211 and should be disabled, see https://github.com/PyCQA/pydocstyle/pull/91)
+  "D1",  # Missing docstring error codes (because not every function and class has a docstring)
+  "D203",  # 1 blank line required before class docstring (conflicts with D211 and should be disabled, see https://github.com/PyCQA/pydocstyle/pull/91)
   "D205",
-  "D406", # Section name should end with a newline
-  "D407", # Missing dashed underline after section
-  "D413", # Missing blank line after last section ...
-  "D212", # Multi-line docstring summary should start at the first line
-  "E501", # Line too long
+  "D406",  # Section name should end with a newline
+  "D407",  # Missing dashed underline after section
+  "D413",  # Missing blank line after last section ...
+  "D212",  # Multi-line docstring summary should start at the first line
+  "E501"  # Line too long
 ]
 select = [
-  "D", # pydocstyle
-  "E", # pycodestyle
-  "F", # flake8
-  "I", # isort
-  "UP", # pyupgrade
+  "D",  # pydocstyle
+  "E",  # pycodestyle
+  "F",  # flake8
+  "I",  # isort
+  "UP"  # pyupgrade
 ]
 unfixable = [
-  "F8", # names in flake8, such as defined but unused variables
+  "F8"  # names in flake8, such as defined but unused variables
 ]
 
 [tool.ruff.lint.per-file-ignores]
