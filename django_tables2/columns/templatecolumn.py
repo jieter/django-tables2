@@ -61,7 +61,9 @@ class TemplateColumn(Column):
         }
         additional_context.update(self.extra_context)
         with context.update(additional_context):
+            request = getattr(table, "request", None)
             if self.template_code:
+                context["request"] = request
                 return Template(self.template_code).render(context)
             else:
                 return get_template(self.template_name).render(context.flatten())

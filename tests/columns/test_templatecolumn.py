@@ -2,6 +2,7 @@ from django.template import Context, Template
 from django.test import SimpleTestCase
 
 import django_tables2 as tables
+from django_tables2.config import RequestConfig
 
 from ..utils import build_request
 
@@ -113,3 +114,15 @@ class TemplateColumnTest(SimpleTestCase):
         table = Table([{"track": "Space Oddity"}])
 
         self.assertEqual(list(table.as_values()), [["Track"], ["Space Oddity"]])
+
+    def test_request_passthrough(self):
+        class Table(tables.Table):
+            track = tables.TemplateColumn("{{ request.path }}")
+
+        template = Template("{% load django_tables2 %}{% render_table table %}")
+        request = build_request("/table/")
+        table = Table([{"track": "Veerpont"}])
+        RequestConfig(request).configure(table)
+
+        html = template.render(Context({"request": request, "table": table}))
+        self.assertIn("<td >/table/</td>", html)
