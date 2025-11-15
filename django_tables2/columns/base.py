@@ -1,6 +1,6 @@
 from collections import OrderedDict
 from collections.abc import Callable, Iterator
-from typing import TYPE_CHECKING, Any, Optional, TypedDict, Union
+from typing import TYPE_CHECKING, Any, TypedDict, Union
 
 from django.core.exceptions import ImproperlyConfigured
 from django.urls import reverse
@@ -27,12 +27,20 @@ if TYPE_CHECKING:
 
 
 class CellArguments(TypedDict):
-    value: "Union[SafeString | QuerySet]"
+    value: "SafeString | QuerySet"
     record: Any
     column: "Column"
     bound_column: "BoundColumn"
     bound_row: "BoundRow"
     table: "Table"
+
+
+LinkKwargs = Union[
+    dict[str, Callable[..., str]],  # url=
+    dict[str, tuple[str, list | tuple]],  # reverse_args=
+    dict[str, Any],  # accessor=
+    None,
+]
 
 
 class Library:
@@ -47,7 +55,7 @@ class Library:
         self.columns.append(column)
         return column
 
-    def column_for_field(self, field: "Field", **kwargs) -> "Optional[Column]":
+    def column_for_field(self, field: "Field", **kwargs) -> "Column | None":
         """Return a column object suitable for the supplied model field."""
         if field is None:
             return self.columns[0](**kwargs)
@@ -78,16 +86,16 @@ library = Library()
 class LinkTransform:
     """Object used to generate attributes for the `<a>`-tag to wrap the cell content in."""
 
-    viewname: Optional[str] = None
-    accessor: Optional[Accessor] = None
-    attrs: Optional[dict] = None
+    viewname: str | None = None
+    accessor: Accessor | None = None
+    attrs: dict | None = None
 
     def __init__(
         self,
-        url: Optional[Callable] = None,
-        accessor: Optional[Accessor] = None,
-        attrs: Optional[dict] = None,
-        reverse_args: Union[list, tuple, None] = None,
+        url: Callable | None = None,
+        accessor: Accessor | None = None,
+        attrs: dict | None = None,
+        reverse_args: list | tuple | None = None,
     ):
         """
         Object used to generate attributes for the `<a>`-tag to wrap the cell content in.
@@ -276,7 +284,7 @@ class Column:
     empty_values: tuple[Any, ...] = (None, "")
 
     # by default, contents are not wrapped in an <a>-tag.
-    link: Optional[LinkTransform] = None
+    link: LinkTransform | None = None
 
     # Explicit is set to True if the column is defined as an attribute of a
     # class, used to give explicit columns precedence.
@@ -284,18 +292,18 @@ class Column:
 
     def __init__(
         self,
-        verbose_name: Optional[str] = None,
-        accessor: Union[str, Accessor, Callable[..., str], None] = None,
-        default: Optional[str] = None,
+        verbose_name: str | None = None,
+        accessor: str | Accessor | Callable[..., str] | None = None,
+        default: str | None = None,
         visible=True,
         orderable=None,
         attrs=None,
         order_by=None,
         empty_values=None,
         localize=None,
-        footer: Union[str, Callable[..., str], None] = None,
+        footer: str | Callable[..., str] | None = None,
         exclude_from_export: bool = False,
-        linkify: Union[bool, tuple[str, Union[list, tuple]], Callable[..., str]] = False,
+        linkify: bool | tuple[str, list | tuple] | Callable[..., str] = False,
         initial_sort_descending: bool = False,
     ):
         if not (accessor is None or isinstance(accessor, str) or callable(accessor)):
@@ -319,7 +327,7 @@ class Column:
         self._footer = footer
         self.exclude_from_export = exclude_from_export
 
-        link_kwargs = None
+        link_kwargs: LinkKwargs = None
         if callable(linkify):
             link_kwargs = dict(url=linkify)
         elif get_url := getattr(self, "get_url", None):
@@ -342,7 +350,7 @@ class Column:
         return self._default() if callable(self._default) else self._default
 
     @property
-    def header(self) -> Optional[str]:
+    def header(self) -> str | None:
         """
         The value used for the column heading (e.g. inside the ``<th>`` tag).
 
@@ -359,7 +367,7 @@ class Column:
         """
         return self.verbose_name
 
-    def footer(self, bound_column: "BoundColumn", table: "Table") -> Optional[str]:
+    def footer(self, bound_column: "BoundColumn", table: "Table") -> str | None:
         """Return the content of the footer, if specified."""
         footer_kwargs = {"column": self, "bound_column": bound_column, "table": table}
 
@@ -414,7 +422,7 @@ class Column:
         return (queryset, False)
 
     @classmethod
-    def from_field(cls, field: "Field", **kwargs) -> "Optional[Column]":
+    def from_field(cls, field: "Field", **kwargs) -> "Column | None":
         """
         Return a specialized column for the model field or `None`.
 
@@ -664,7 +672,7 @@ class BoundColumn:
         return self._table.orderable
 
     @property
-    def verbose_name(self) -> "Union[str, SafeString]":
+    def verbose_name(self) -> "str | SafeString":
         """
         Return the verbose name for this column.
 
@@ -795,7 +803,7 @@ class BoundColumns:
         """Show a column otherwise hidden by name."""
         self.columns[name].column.visible = True
 
-    def __contains__(self, item: Union[str, BoundColumn]) -> bool:
+    def __contains__(self, item: str | BoundColumn) -> bool:
         """Check if a column is contained within a `BoundColumns` object."""
         if isinstance(item, str):
             return item in self.names()
@@ -807,7 +815,7 @@ class BoundColumns:
         """Return how many `~.BoundColumn` objects are contained (and visible)."""
         return len(self.visible())
 
-    def __getitem__(self, index: Union[int, str]) -> BoundColumn:
+    def __getitem__(self, index: int | str) -> BoundColumn:
         """
         Retrieve a specific `~.BoundColumn` object by index or name.
 

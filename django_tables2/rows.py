@@ -142,6 +142,7 @@ class BoundRow:
 
         # We need to take special care here to allow get_FOO_display()
         # methods on a model to be used if available. See issue #30.
+        remainder: str | None
         penultimate, remainder = accessor.penultimate(self.record)
 
         # If the penultimate is a model and the remainder is a field
@@ -152,7 +153,7 @@ class BoundRow:
                 display_fn = getattr(penultimate, f"get_{remainder}_display", None)
                 if getattr(field, "choices", ()) and display_fn:
                     value = display_fn()
-                    remainder = None
+                    remainder = None  # 155
             except FieldDoesNotExist:
                 pass
 
@@ -165,13 +166,14 @@ class BoundRow:
                 if isinstance(column, BaseLinkColumn) and column.text is not None:
                     return render_func(bound_column)
 
-        is_manytomanycolumn = isinstance(column, ManyToManyColumn)
-        if value in column.empty_values or (is_manytomanycolumn and not value.exists()):
+        if value in column.empty_values:
+            return default
+        if value and isinstance(column, ManyToManyColumn) and not value.exists():
             return default
 
         return render_func(bound_column, value)
 
-    def _optional_cell_arguments(self, bound_column: "BoundRow", value: Any) -> CellArguments:
+    def _optional_cell_arguments(self, bound_column: "BoundColumn", value: Any) -> CellArguments:
         """Arguments that will optionally be passed while rendering cells."""
         return CellArguments(
             value=value,

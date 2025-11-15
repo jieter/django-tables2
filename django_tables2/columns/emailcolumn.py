@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from django.db import models
 
@@ -40,7 +40,7 @@ class EmailColumn(BaseLinkColumn):
         return f"mailto:{value}"
 
     @classmethod
-    def from_field(cls, field: "Field", **kwargs) -> "Optional[EmailColumn]":
+    def from_field(cls, field: "Field", **kwargs) -> "EmailColumn | None":
         if isinstance(field, models.EmailField):
             return cls(**kwargs)
         return None

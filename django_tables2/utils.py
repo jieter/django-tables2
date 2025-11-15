@@ -1,10 +1,10 @@
 import inspect
 import warnings
 from collections import OrderedDict
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from functools import total_ordering
 from itertools import chain
-from typing import TYPE_CHECKING, Any, Optional, Union
+from typing import TYPE_CHECKING, Any
 
 from django.core.exceptions import FieldDoesNotExist
 from django.db import models
@@ -299,9 +299,9 @@ class Accessor(str):
 
     def __init__(
         self,
-        value: "Union[str, Callable, Accessor]",
-        callable_args: Optional[list[Callable]] = None,
-        callable_kwargs: Optional[dict[str, Callable]] = None,
+        value: "str | Callable | Accessor",
+        callable_args: list[Callable] | None = None,
+        callable_kwargs: dict[str, Callable] | None = None,
     ):
         self.callable_args = callable_args or getattr(value, "callable_args", None) or []
         self.callable_kwargs = callable_kwargs or getattr(value, "callable_kwargs", None) or {}
@@ -310,8 +310,8 @@ class Accessor(str):
     def __new__(
         cls,
         value,
-        callable_args: Optional[list[Callable]] = None,
-        callable_kwargs: Optional[dict[str, Callable]] = None,
+        callable_args: list[Callable] | None = None,
+        callable_kwargs: dict[str, Callable] | None = None,
     ):
         instance = super().__new__(cls, value)
         if cls.LEGACY_SEPARATOR in value:
@@ -534,7 +534,7 @@ def segment(sequence, aliases):
                     yield tuple([valias])
 
 
-def signature(fn: Callable) -> tuple[tuple[Any, ...], Optional[str]]:
+def signature(fn: Callable) -> tuple[tuple[Any, ...], str | None]:
     """
     Return an (arguments, kwargs)-tuple.
 
@@ -558,7 +558,7 @@ def signature(fn: Callable) -> tuple[tuple[Any, ...], Optional[str]]:
     return tuple(args), keywords
 
 
-def call_with_appropriate(fn: Callable, kwargs: dict[str, Any]):
+def call_with_appropriate(fn: Callable, kwargs: Mapping[str, Any]):
     """
     Call the function ``fn`` with the keyword arguments from ``kwargs`` it expects.
 
@@ -579,7 +579,7 @@ def call_with_appropriate(fn: Callable, kwargs: dict[str, Any]):
     return fn(**kwargs)
 
 
-def computed_values(d: dict[str, Any], kwargs=None) -> dict[str, Any]:
+def computed_values(d: dict[str, Any], kwargs: Mapping[str, Any] | None = None) -> dict[str, Any]:
     """
     Return a new `dict` that has callable values replaced with the return values.
 

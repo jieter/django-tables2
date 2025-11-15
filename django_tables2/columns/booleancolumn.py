@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any
 
 from django.db import models
 from django.utils.html import escape, format_html
@@ -62,7 +62,7 @@ class BooleanColumn(Column):
         return str(self._get_bool_value(kwargs["record"], kwargs["value"], kwargs["bound_column"]))
 
     @classmethod
-    def from_field(cls, field: "Field", **kwargs) -> "Optional[BooleanColumn]":
+    def from_field(cls, field: "Field", **kwargs) -> "BooleanColumn | None":
         if NullBooleanField := getattr(models, "NullBooleanField", None):
             if isinstance(field, NullBooleanField):
                 return cls(null=True, **kwargs)

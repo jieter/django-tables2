@@ -1,5 +1,5 @@
 import json
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from django.db.models import JSONField
 from django.utils.html import format_html
@@ -49,7 +49,7 @@ class JSONColumn(Column):
         return format_html("<pre {}>{}</pre>", attributes, content)
 
     @classmethod
-    def from_field(cls, field: "Field", **kwargs) -> "Optional[JSONColumn]":
+    def from_field(cls, field: "Field", **kwargs) -> "JSONColumn | None":
         if isinstance(field, JSONField) or (
             HStoreField is not None and isinstance(field, HStoreField)
         ):

@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Union
+from typing import TYPE_CHECKING
 
 from django.core.paginator import EmptyPage, PageNotAnInteger
 
@@ -33,7 +33,7 @@ class RequestConfig:
 
     """
 
-    def __init__(self, request: "HttpRequest", paginate: Union[bool, dict, tuple, list] = True):
+    def __init__(self, request: "HttpRequest", paginate: bool | dict | tuple | list = True):
         self.request = request
         self.paginate = paginate
 

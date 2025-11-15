@@ -1,5 +1,3 @@
-from typing import Union
-
 from django.core.paginator import EmptyPage, Page, PageNotAnInteger, Paginator
 from django.utils.translation import gettext as _
 
@@ -64,7 +62,7 @@ class LazyPaginator(Paginator):
 
         super().__init__(object_list, per_page, **kwargs)
 
-    def validate_number(self, number: Union[int, float, str]) -> int:
+    def validate_number(self, number: int | float | str) -> int:
         """Validate the given 1-based page number."""
         try:
             if isinstance(number, float) and not number.is_integer():
@@ -76,7 +74,7 @@ class LazyPaginator(Paginator):
             raise EmptyPage(_("That page number is less than 1"))
         return number
 
-    def page(self, number: Union[int, str]) -> Page:
+    def page(self, number: int | str) -> Page:
         # Number might be None, because the total number of pages is not known in this paginator.
         # If an unknown page is requested, serve the first page.
         number = self.validate_number(number or 1)
@@ -100,7 +98,7 @@ class LazyPaginator(Paginator):
             self._final_num_pages = number
         return Page(objects, number, self)
 
-    def is_last_page(self, number: Union[float, int]) -> bool:
+    def is_last_page(self, number: float | int) -> bool:
         return number == self._final_num_pages
 
     @property

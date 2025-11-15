@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from django.db import models
 
@@ -33,7 +33,7 @@ class URLColumn(BaseLinkColumn):
         return value
 
     @classmethod
-    def from_field(cls, field: "Field", **kwargs) -> "Optional[URLColumn]":
+    def from_field(cls, field: "Field", **kwargs) -> "URLColumn | None":
         if isinstance(field, models.URLField):
             return cls(**kwargs)
         return None

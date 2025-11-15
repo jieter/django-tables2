@@ -1,7 +1,7 @@
 import copy
 from collections import OrderedDict
 from itertools import count
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from django.conf import settings
 from django.core.paginator import Paginator
@@ -256,7 +256,7 @@ class Table(metaclass=DeclarativeColumnsMetaclass):
             with `name` will be removed from the table.
     """
 
-    request: "Optional[HttpRequest]"
+    request: "HttpRequest | None"
     Meta: TableOptions
     _meta: TableOptions
 
@@ -562,7 +562,7 @@ class Table(metaclass=DeclarativeColumnsMetaclass):
     def paginate(
         self,
         paginator_class: type[Paginator] = Paginator,
-        per_page: Optional[int] = None,
+        per_page: int | None = None,
         page: int = 1,
         *args,
         **kwargs,
@@ -637,7 +637,7 @@ class Table(metaclass=DeclarativeColumnsMetaclass):
             return self._meta.orderable
 
     @orderable.setter
-    def orderable(self, value: Optional[bool]):
+    def orderable(self, value: bool | None):
         self._orderable = value
 
     @property

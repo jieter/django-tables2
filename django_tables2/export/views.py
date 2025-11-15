@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Any
 
 from django.http import HttpResponse
 from django.views.generic.base import TemplateResponseMixin
@@ -43,7 +43,7 @@ class ExportMixin(TemplateResponseMixin):
     def get_export_filename(self, export_format: str) -> str:
         return f"{self.export_name}.{export_format}"
 
-    def get_dataset_kwargs(self) -> Optional[dict[str, Any]]:
+    def get_dataset_kwargs(self) -> dict[str, Any] | None:
         return self.dataset_kwargs
 
     def create_export(self, export_format: str) -> HttpResponse:

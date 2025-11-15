@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from django.db import models
 from django.utils.encoding import force_str
@@ -96,7 +96,7 @@ class ManyToManyColumn(Column):
         return mark_safe(conditional_escape(self.separator).join(items))
 
     @classmethod
-    def from_field(cls, field, **kwargs) -> "Optional[ManyToManyColumn]":
+    def from_field(cls, field, **kwargs) -> "ManyToManyColumn | None":
         if isinstance(field, models.ManyToManyField):
             return cls(**kwargs)
         return None
