@@ -18,11 +18,12 @@ class TemplateColumn(Column):
     A `~django.template.Template` object is created from the
     *template_code* or *template_name* and rendered with a context containing:
 
-    - *record*      -- data record for the current row
-    - *value*       -- value from `record` that corresponds to the current column
-    - *default*     -- appropriate default value to use as fallback.
+    - *record*      -- Data record for the current row.
+    - *value*       -- Value from `record` that corresponds to the current column.
+    - *default*     -- Appropriate default value to use as fallback.
     - *row_counter* -- The number of the row this cell is being rendered in.
-    - any context variables passed using the `extra_context` argument to `TemplateColumn`.
+    - *request*.    -- If the table configured using ``RequestConfig(request).configure(table)``.
+    - any context variables passed using the ``extra_context`` argument to `TemplateColumn`.
 
     Example:
 
@@ -61,10 +62,12 @@ class TemplateColumn(Column):
         }
         additional_context.update(self.extra_context)
         with context.update(additional_context):
+            request = getattr(table, "request", None)
             if self.template_code:
+                context["request"] = request
                 return Template(self.template_code).render(context)
             else:
-                return get_template(self.template_name).render(context.flatten())
+                return get_template(self.template_name).render(context.flatten(), request=request)
 
     def value(self, **kwargs):
         """
