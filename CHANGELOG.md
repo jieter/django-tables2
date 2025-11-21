@@ -1,5 +1,12 @@
 # Change log
 
+## 2.8.0 (2025-11-21)
+- Pass `request` to the template rendered in TemplateColumn (#1014) Fixes: #1008
+- Do not generate error when table data model is subclass of table model ([#1015](https://github.com/jieter/django-tables2/pull/1015)) Fixes [#1010](https://github.com/jieter/django-tables2/issues/1010) by [@sjoerdjob](https://github.com/sjoerdjob)
+- Update supported Python and Django versions ([#1011](https://github.com/jieter/django-tables2/issues/1011)) by [@dyve](https://github.com/dyve)
+  Supported Django versions: 4.1, 5.1, 5.2, 6.0
+  Supported Python versions: 3.10, 3.11, 3.12, 3.13, 3.14
+
 ## 2.7.5 (2025-01-02)
 - Update django.po for Ukrainian 🇺🇦 ([#934](https://github.com/jieter/django-tables2/pull/934)) by [@DmytroLitvinov](https://github.com/DmytroLitvinov)
 
