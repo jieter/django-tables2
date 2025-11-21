@@ -1,6 +1,6 @@
 from collections import OrderedDict
 from collections.abc import Callable, Iterator
-from typing import TYPE_CHECKING, Any, TypedDict, Union
+from typing import TYPE_CHECKING, Any, Optional, Protocol, TypedDict, Union
 
 from django.core.exceptions import ImproperlyConfigured
 from django.urls import reverse
@@ -20,19 +20,44 @@ from ..utils import (
 if TYPE_CHECKING:
     from django.db.models import Field, QuerySet
     from django.utils.safestring import SafeString
-    from typing_extensions import Unpack
 
     from ..rows import BoundRow
     from ..tables import Table
 
 
 class CellArguments(TypedDict):
-    value: "SafeString | QuerySet"
+    value: Any
     record: Any
     column: "Column"
     bound_column: "BoundColumn"
     bound_row: "BoundRow"
     table: "Table"
+
+
+class RenderFunction(Protocol):
+    def __call__(
+        self,
+        *,
+        value: "Optional[Any]" = ...,
+        record: "Optional[Any]" = ...,
+        column: "Optional[Column]" = ...,
+        bound_column: "Optional[BoundColumn]" = ...,
+        bound_row: "Optional[BoundRow]" = ...,
+        table: "Optional[Table]" = ...,
+    ) -> SafeString | str: ...
+
+
+class ValueFunction(Protocol):
+    def __call__(
+        self,
+        *,
+        value: "Optional[Any]" = ...,
+        record: "Optional[Any]" = ...,
+        column: "Optional[Column]" = ...,
+        bound_column: "Optional[BoundColumn]" = ...,
+        bound_row: "Optional[BoundRow]" = ...,
+        table: "Optional[Table]" = ...,
+    ) -> Any: ...
 
 
 LinkKwargs = Union[
@@ -288,6 +313,8 @@ class Column:
 
     # by default, contents are not wrapped in an <a>-tag.
     link: LinkTransform | None = None
+    render: RenderFunction
+    value: ValueFunction
 
     # Explicit is set to True if the column is defined as an attribute of a
     # class, used to give explicit columns precedence.
@@ -385,7 +412,7 @@ class Column:
 
         return ""
 
-    def render(self, **kwargs: "Unpack[CellArguments]") -> "SafeString":
+    def render(self, value: Any) -> "SafeString | str":
         """
         Return the content for a specific cell.
 
@@ -397,9 +424,9 @@ class Column:
         Subclasses should set `.empty_values` to ``()`` if they want to handle
         all values in `.render`.
         """
-        return kwargs["value"]
+        return value
 
-    def value(self, **kwargs: "Unpack[CellArguments]") -> Any:
+    def value(self, **kwargs) -> Any:
         """
         Return the content for a specific cell for exports.
 

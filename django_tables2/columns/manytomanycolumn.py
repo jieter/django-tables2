@@ -5,10 +5,10 @@ from django.utils.encoding import force_str
 from django.utils.html import conditional_escape
 from django.utils.safestring import SafeString, mark_safe
 
-from .base import CellArguments, Column, LinkTransform, library
+from .base import Column, LinkTransform, library
 
 if TYPE_CHECKING:
-    from typing_extensions import Unpack
+    pass
 
 
 @library.register
@@ -84,9 +84,9 @@ class ManyToManyColumn(Column):
         """Call on the ManyRelatedManager to allow ordering, filtering or limiting on the set of related objects."""
         return qs.all()
 
-    def render(self, **kwargs: "Unpack[CellArguments]") -> "SafeString":
+    def render(self, value: models.QuerySet) -> "SafeString":
         items = []
-        for item in self.filter(kwargs["value"]):
+        for item in self.filter(value):
             content = conditional_escape(self.transform(item))
             if hasattr(self, "linkify_item"):
                 content = self.linkify_item(content=content, record=item)
