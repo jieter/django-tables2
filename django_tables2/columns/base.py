@@ -38,8 +38,8 @@ LinkKwargs = (
 class Library:
     """A collection of columns."""
 
-    def __init__(self):
-        self.columns = []
+    def __init__(self) -> None:
+        self.columns: list[type[Column]] = []
 
     def register(self, column: "type[Column]") -> "type[Column]":
         if not hasattr(column, "from_field"):
@@ -685,7 +685,7 @@ class BoundColumn:
         Any `verbose_name` that was not passed explicitly in the column
         definition is returned with the first character capitalized in keeping
         with the Django convention of `verbose_name` being defined in lowercase and
-        uppercased as needed by the application.
+        capitalized as needed by the application.
 
         If the table is using `QuerySet` data, then use the corresponding model
         field's `~.db.Field.verbose_name`. If it is traversing a relationship,
@@ -702,12 +702,10 @@ class BoundColumn:
         name = self.name.replace("_", " ")
 
         # Try to use a model field's verbose_name
-        model = self._table.data.model
-        if model:
-            field = Accessor(self.accessor).get_field(model)
-            if field:
+        if model := self._table.data.model:
+            if field := Accessor(self.accessor).get_field(model):
                 if hasattr(field, "field"):
-                    name = field.field.verbose_name
+                    name = str(field.field.verbose_name)
                 else:
                     name = getattr(field, "verbose_name", field.name)
 

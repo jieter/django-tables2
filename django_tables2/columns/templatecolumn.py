@@ -63,7 +63,7 @@ class TemplateColumn(Column):
         if not self.template_code and not self.template_name:
             raise ValueError("A template must be provided")
 
-    def render(self, **kwargs: "Unpack[CellArguments]") -> "SafeString":
+    def render(self, **kwargs: "Unpack[CellArguments]") -> "SafeString | str":
         # If the table is being rendered using `render_table`, it hackily
         # attaches the context to the table as a gift to `TemplateColumn`.
         table = kwargs["table"]
@@ -83,11 +83,9 @@ class TemplateColumn(Column):
             if self.template_code:
                 context["request"] = request
                 return Template(self.template_code).render(context)
-            else:
-                dict_context: dict[Any, Any] = context.flatten()
-                return SafeString(
-                    get_template(self.template_name).render(dict_context, request=request)
-                )
+            assert self.template_name is not None
+            dict_context: dict[Any, Any] = context.flatten()
+            return get_template(self.template_name).render(dict_context, request=request)
 
     def value(self, **kwargs) -> Any:
         """

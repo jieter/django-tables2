@@ -1,3 +1,4 @@
+from collections.abc import Callable
 from typing import Any
 
 from django.http import HttpResponse
@@ -39,6 +40,9 @@ class ExportMixin(TemplateResponseMixin):
     dataset_kwargs = None
 
     export_formats = (TableExport.CSV,)
+
+    get_table: Callable[..., Any]
+    get_table_kwargs: Callable[[], dict[str, Any]]
 
     def get_export_filename(self, export_format: str) -> str:
         return f"{self.export_name}.{export_format}"
