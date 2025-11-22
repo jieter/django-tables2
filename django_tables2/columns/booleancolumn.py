@@ -63,10 +63,6 @@ class BooleanColumn(Column):
 
     @classmethod
     def from_field(cls, field: "Field", **kwargs) -> "BooleanColumn | None":
-        if NullBooleanField := getattr(models, "NullBooleanField", None):
-            if isinstance(field, NullBooleanField):
-                return cls(null=True, **kwargs)
-
         if isinstance(field, models.BooleanField):
             return cls(null=getattr(field, "null", False), **kwargs)
 

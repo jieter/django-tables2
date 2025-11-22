@@ -323,7 +323,6 @@ Columns
 .. autoclass:: django_tables2.columns.ManyToManyColumn
     :members:
 
-
 `.TemplateColumn`
 ~~~~~~~~~~~~~~~~~
 
