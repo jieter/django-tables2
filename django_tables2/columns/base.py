@@ -386,7 +386,7 @@ class Column:
 
         return ""
 
-    def render(self, **kwargs: Unpack[CellArguments]) -> Any:
+    def render(self, **kwargs: "Unpack[CellArguments]") -> Any:
         """
         Return the content for a specific cell.
 
@@ -400,7 +400,7 @@ class Column:
         """
         return kwargs["value"]
 
-    def value(self, **kwargs: Unpack[CellArguments]) -> Any:
+    def value(self, **kwargs: "Unpack[CellArguments]") -> Any:
         """
         Return the content for a specific cell for exports.
 

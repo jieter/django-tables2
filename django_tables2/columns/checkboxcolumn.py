@@ -1,9 +1,13 @@
+from typing import TYPE_CHECKING
+
 from django.utils.safestring import SafeString, mark_safe
-from typing_extensions import Unpack
 
 from django_tables2.utils import Accessor, AttributeDict, computed_values
 
 from .base import CellArguments, Column, library
+
+if TYPE_CHECKING:
+    from typing_extensions import Unpack
 
 
 @library.register

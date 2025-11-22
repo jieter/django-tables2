@@ -84,7 +84,7 @@ class ManyToManyColumn(Column):
         """Call on the ManyRelatedManager to allow ordering, filtering or limiting on the set of related objects."""
         return qs.all()
 
-    def render(self, **kwargs: Unpack[CellArguments]) -> SafeString:
+    def render(self, **kwargs: "Unpack[CellArguments]") -> SafeString:
         value: models.QuerySet = kwargs["value"]
         items = []
         for item in self.filter(value):
