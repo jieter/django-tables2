@@ -90,9 +90,9 @@ class TemplateTest(TestCase):
 
         # automatic and manual column verbose names
         template = Template(
-            "{% for column in countries.columns %}{{ column }}/" "{{ column.name }} {% endfor %}"
+            "{% for column in countries.columns %}{{ column }}/{{ column.name }} {% endfor %}"
         )
-        result = "Name/name Capital/capital Population Size/population " "Phone Ext./calling_code "
+        result = "Name/name Capital/capital Population Size/population Phone Ext./calling_code "
         assert result == template.render(context)
 
         # row values
@@ -100,7 +100,7 @@ class TemplateTest(TestCase):
             "{% for row in countries.rows %}{% for value in row %}"
             "{{ value }} {% endfor %}{% endfor %}"
         )
-        result = "Germany Berlin 83 49 France — 64 33 Netherlands Amsterdam " "— 31 Austria — 8 43 "
+        result = "Germany Berlin 83 49 France — 64 33 Netherlands Amsterdam — 31 Austria — 8 43 "
         assert result == template.render(context)
 
 

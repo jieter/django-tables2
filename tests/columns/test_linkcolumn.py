@@ -40,7 +40,7 @@ class LinkColumnTest(TestCase):
             first_name = tables.LinkColumn("person", text="foo::bar", args=[A("pk")])
             last_name = tables.LinkColumn(
                 "person",
-                text=lambda row: f'{row["last_name"]} {row["first_name"]}',
+                text=lambda row: f"{row['last_name']} {row['first_name']}",
                 args=[A("pk")],
             )
 
