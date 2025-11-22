@@ -32,7 +32,7 @@ class FaqTest(SimpleTestCase):
         class CountryTable(tables.Table):
             name = tables.Column()
             population = tables.Column(
-                footer=lambda table: f'Total: {sum(x["population"] for x in table.data)}'
+                footer=lambda table: f"Total: {sum(x['population'] for x in table.data)}"
             )
 
         table = CountryTable(TEST_DATA)

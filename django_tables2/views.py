@@ -1,5 +1,5 @@
 from itertools import count
-from typing import Any, Optional
+from typing import Any
 
 from django.core.exceptions import ImproperlyConfigured
 from django.views.generic.list import ListView
@@ -58,7 +58,7 @@ class TableMixinBase:
 
         return paginate
 
-    def get_paginate_by(self, table_data) -> Optional[int]:
+    def get_paginate_by(self, table_data) -> int | None:
         """
         Determine the number of items per page, or ``None`` for no pagination.
 
