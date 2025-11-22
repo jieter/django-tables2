@@ -63,7 +63,7 @@ class CheckBoxColumn(Column):
         attrs = AttributeDict(default, **(specific or general or {}))
         return mark_safe(f"<input {attrs.as_html()} />")
 
-    def render(self, **kwargs: Unpack[CellArguments]) -> SafeString:
+    def render(self, **kwargs: "Unpack[CellArguments]") -> SafeString:
         value = kwargs["value"]
         record = kwargs["record"]
         default = {"type": "checkbox", "name": kwargs["bound_column"].name, "value": value}
