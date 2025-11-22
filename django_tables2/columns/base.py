@@ -1,6 +1,6 @@
 from collections import OrderedDict
 from collections.abc import Callable, Iterator
-from typing import TYPE_CHECKING, Any, Optional, Protocol, TypedDict, Union
+from typing import TYPE_CHECKING, Any, TypedDict
 
 from django.core.exceptions import ImproperlyConfigured
 from django.urls import reverse
@@ -20,52 +20,19 @@ from ..utils import (
 if TYPE_CHECKING:
     from django.db.models import Field, QuerySet
     from django.utils.safestring import SafeString
+    from typing_extensions import Unpack
 
     from ..rows import BoundRow
     from ..tables import Table
 
+# Type for the 'link' argument to Column
 
-class CellArguments(TypedDict):
-    value: Any
-    record: Any
-    column: "Column"
-    bound_column: "BoundColumn"
-    bound_row: "BoundRow"
-    table: "Table"
-
-
-class RenderFunction(Protocol):
-    def __call__(
-        self,
-        *,
-        value: "Optional[Any]" = ...,
-        record: "Optional[Any]" = ...,
-        column: "Optional[Column]" = ...,
-        bound_column: "Optional[BoundColumn]" = ...,
-        bound_row: "Optional[BoundRow]" = ...,
-        table: "Optional[Table]" = ...,
-    ) -> SafeString | str: ...
-
-
-class ValueFunction(Protocol):
-    def __call__(
-        self,
-        *,
-        value: "Optional[Any]" = ...,
-        record: "Optional[Any]" = ...,
-        column: "Optional[Column]" = ...,
-        bound_column: "Optional[BoundColumn]" = ...,
-        bound_row: "Optional[BoundRow]" = ...,
-        table: "Optional[Table]" = ...,
-    ) -> Any: ...
-
-
-LinkKwargs = Union[
-    dict[str, Callable[..., str]],  # url=
-    dict[str, tuple[str, list | tuple]],  # reverse_args=
-    dict[str, Any],  # accessor=
-    None,
-]
+LinkKwargs = (
+    dict[str, Callable[..., str]]  # url=
+    | dict[str, tuple[str, list | tuple]]  # reverse_args=
+    | dict[str, Any]  # accessor=
+    | None
+)
 
 
 class Library:
@@ -143,7 +110,7 @@ class LinkTransform:
         self.attrs = attrs
         self.accessor = accessor
 
-        if isinstance(reverse_args, (list, tuple)):
+        if isinstance(reverse_args, list | tuple):
             viewname, args = reverse_args
             self.reverse_args = {
                 "viewname": viewname,
@@ -212,6 +179,15 @@ class LinkTransform:
             return content
 
         return format_html("<a {}>{}</a>", attrs.as_html(), content)
+
+
+class CellArguments(TypedDict, total=False):
+    value: Any
+    record: Any
+    column: "Column"
+    bound_column: "BoundColumn"
+    bound_row: "BoundRow"
+    table: "Table"
 
 
 @library.register
@@ -311,10 +287,8 @@ class Column:
     creation_counter = 0
     empty_values: tuple[Any, ...] = (None, "")
 
-    # by default, contents are not wrapped in an <a>-tag.
+    # By default, contents are not wrapped in an <a>-tag.
     link: LinkTransform | None = None
-    render: RenderFunction
-    value: ValueFunction
 
     # Explicit is set to True if the column is defined as an attribute of a
     # class, used to give explicit columns precedence.
@@ -362,7 +336,7 @@ class Column:
             link_kwargs = dict(url=linkify)
         elif get_url := getattr(self, "get_url", None):
             link_kwargs = dict(url=get_url)
-        elif isinstance(linkify, (dict, tuple)):
+        elif isinstance(linkify, dict | tuple):
             link_kwargs = dict(reverse_args=linkify)
         elif linkify is True:
             link_kwargs = dict(accessor=self.accessor)
@@ -412,7 +386,7 @@ class Column:
 
         return ""
 
-    def render(self, value: Any) -> "SafeString | str":
+    def render(self, **kwargs: Unpack[CellArguments]) -> Any:
         """
         Return the content for a specific cell.
 
@@ -424,9 +398,9 @@ class Column:
         Subclasses should set `.empty_values` to ``()`` if they want to handle
         all values in `.render`.
         """
-        return value
+        return kwargs["value"]
 
-    def value(self, **kwargs) -> Any:
+    def value(self, **kwargs: Unpack[CellArguments]) -> Any:
         """
         Return the content for a specific cell for exports.
 

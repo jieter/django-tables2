@@ -1,12 +1,13 @@
 import os
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from django.db import models
 from django.utils.html import format_html
 from django.utils.safestring import SafeString
+from typing_extensions import Unpack
 
 from ..utils import AttributeDict
-from .base import library
+from .base import CellArguments, library
 from .linkcolumn import BaseLinkColumn
 
 if TYPE_CHECKING:
@@ -55,7 +56,8 @@ class FileColumn(BaseLinkColumn):
             return os.path.basename(value.name)
         return super().text_value(record, value)
 
-    def render(self, value: Any, **kwargs) -> "SafeString":
+    def render(self, **kwargs: Unpack[CellArguments]) -> SafeString:
+        value = kwargs["value"]
         record = kwargs["record"]
         attrs = AttributeDict(self.attrs.get("span", {}))
         classes = [c for c in attrs.get("class", "").split(" ") if c]
