@@ -323,13 +323,6 @@ Columns
 .. autoclass:: django_tables2.columns.ManyToManyColumn
     :members:
 
-`.RelatedLinkColumn`
-~~~~~~~~~~~~~~~~~~~~
-
-.. autoclass:: django_tables2.columns.RelatedLinkColumn
-    :members:
-
-
 `.TemplateColumn`
 ~~~~~~~~~~~~~~~~~
 

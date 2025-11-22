@@ -58,8 +58,5 @@ class BooleanColumn(Column):
 
     @classmethod
     def from_field(cls, field, **kwargs):
-        if isinstance(field, models.NullBooleanField):
-            return cls(null=True, **kwargs)
-
         if isinstance(field, models.BooleanField):
             return cls(null=getattr(field, "null", False), **kwargs)
