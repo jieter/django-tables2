@@ -68,7 +68,7 @@ class ManyToManyColumn(Column):
         link_kwargs = None
         if callable(linkify_item):
             link_kwargs = dict(url=linkify_item)
-        elif isinstance(linkify_item, dict | tuple):
+        elif isinstance(linkify_item, (dict, tuple)):
             link_kwargs = dict(reverse_args=linkify_item)
         elif linkify_item is True:
             link_kwargs = dict()

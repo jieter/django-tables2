@@ -50,7 +50,7 @@ class RequestConfig:
         if order_by:
             table.order_by = order_by
         if self.paginate:
-            if isinstance(self.paginate, dict | tuple | list):
+            if isinstance(self.paginate, (dict, tuple, list)):
                 kwargs = dict(self.paginate)
             else:
                 kwargs = {}

@@ -110,7 +110,7 @@ class LinkTransform:
         self.attrs = attrs
         self.accessor = accessor
 
-        if isinstance(reverse_args, list | tuple):
+        if isinstance(reverse_args, (list, tuple)):
             viewname, args = reverse_args
             self.reverse_args = {
                 "viewname": viewname,
@@ -336,7 +336,7 @@ class Column:
             link_kwargs = dict(url=linkify)
         elif get_url := getattr(self, "get_url", None):
             link_kwargs = dict(url=get_url)
-        elif isinstance(linkify, dict | tuple):
+        elif isinstance(linkify, (dict, tuple)):
             link_kwargs = dict(reverse_args=linkify)
         elif linkify is True:
             link_kwargs = dict(accessor=self.accessor)
