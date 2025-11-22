@@ -1,7 +1,12 @@
+from typing import TYPE_CHECKING
+
 from django.db import models
 
 from .base import library
 from .linkcolumn import BaseLinkColumn
+
+if TYPE_CHECKING:
+    from django.db.models.fields import Field
 
 
 @library.register
@@ -24,10 +29,11 @@ class URLColumn(BaseLinkColumn):
         '<a href="http://google.com">http://google.com</a>'
     """
 
-    def get_url(self, value):
+    def get_url(self, value: str) -> str:
         return value
 
     @classmethod
-    def from_field(cls, field, **kwargs):
+    def from_field(cls, field: "Field", **kwargs) -> "URLColumn | None":
         if isinstance(field, models.URLField):
             return cls(**kwargs)
+        return None

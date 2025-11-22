@@ -26,26 +26,26 @@ class JsonColumnTestCase(SimpleTestCase):
         column = tables.JSONColumn(attrs={"pre": {"class": "json"}})
 
         record = {"json": "foo"}
-        html = column.render(value=record["json"], record=record)
+        html = column.render(value=record["json"])
         self.assertEqual(html, '<pre class="json">&quot;foo&quot;</pre>')
 
     def test_jsoncolumn_dict(self):
         column = tables.JSONColumn()
 
         record = {"json": {"species": "Falcon"}}
-        html = column.render(value=record["json"], record=record)
+        html = column.render(value=record["json"])
         self.assertEqual(html, "<pre >{\n  &quot;species&quot;: &quot;Falcon&quot;\n}</pre>")
 
     def test_jsoncolumn_string(self):
         column = tables.JSONColumn()
 
         record = {"json": "really?"}
-        html = column.render(value=record["json"], record=record)
+        html = column.render(value=record["json"])
         self.assertEqual(html, "<pre >&quot;really?&quot;</pre>")
 
     def test_jsoncolumn_number(self):
         column = tables.JSONColumn()
 
         record = {"json": 3.14}
-        html = column.render(value=record["json"], record=record)
+        html = column.render(value=record["json"])
         self.assertEqual(html, "<pre >3.14</pre>")

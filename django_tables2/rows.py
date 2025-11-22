@@ -1,9 +1,15 @@
+from typing import TYPE_CHECKING, Any
+
 from django.core.exceptions import FieldDoesNotExist
 from django.db import models
 
+from .columns.base import BoundColumn, CellArguments
 from .columns.linkcolumn import BaseLinkColumn
 from .columns.manytomanycolumn import ManyToManyColumn
 from .utils import A, AttributeDict, call_with_appropriate, computed_values
+
+if TYPE_CHECKING:
+    from .tables import Table
 
 
 class CellAccessor:
@@ -78,31 +84,26 @@ class BoundRow:
 
     """
 
-    def __init__(self, record, table):
+    def __init__(self, record: Any, table: "Table"):
         self._record = record
         self._table = table
 
         self.row_counter = next(table._counter)
 
-        # support accessing cells from a template: {{ row.cells.column_name }}
+        # Support accessing cells from a template: {{ row.cells.column_name }}
         self.cells = CellAccessor(self)
 
     @property
-    def table(self):
+    def table(self) -> "Table":
         """The `.Table` this row is part of."""
         return self._table
 
-    def get_even_odd_css_class(self):
-        """
-        Return css class, alternating for odd and even records.
-
-        Return:
-            string: `even` for even records, `odd` otherwise.
-        """
+    def get_even_odd_css_class(self) -> str:
+        """Return "odd" and "even" depending on the row counter."""
         return "odd" if self.row_counter % 2 else "even"
 
     @property
-    def attrs(self):
+    def attrs(self) -> AttributeDict:
         """Return the attributes for a certain row."""
         cssClass = self.get_even_odd_css_class()
 
@@ -118,7 +119,7 @@ class BoundRow:
         return AttributeDict(row_attrs)
 
     @property
-    def record(self):
+    def record(self) -> Any:
         """The data record from the data source which is used to populate this row with data."""
         return self._record
 
@@ -134,13 +135,14 @@ class BoundRow:
             # is correct – it's what __getitem__ expects.
             yield value
 
-    def _get_and_render_with(self, bound_column, render_func, default):
+    def _get_and_render_with(self, bound_column: BoundColumn, render_func, default):
         value = None
         accessor = A(bound_column.accessor)
         column = bound_column.column
 
         # We need to take special care here to allow get_FOO_display()
         # methods on a model to be used if available. See issue #30.
+        remainder: str | None
         penultimate, remainder = accessor.penultimate(self.record)
 
         # If the penultimate is a model and the remainder is a field
@@ -151,7 +153,7 @@ class BoundRow:
                 display_fn = getattr(penultimate, f"get_{remainder}_display", None)
                 if getattr(field, "choices", ()) and display_fn:
                     value = display_fn()
-                    remainder = None
+                    remainder = None  # 155
             except FieldDoesNotExist:
                 pass
 
@@ -164,22 +166,23 @@ class BoundRow:
                 if isinstance(column, BaseLinkColumn) and column.text is not None:
                     return render_func(bound_column)
 
-        is_manytomanycolumn = isinstance(column, ManyToManyColumn)
-        if value in column.empty_values or (is_manytomanycolumn and not value.exists()):
+        if value in column.empty_values:
+            return default
+        if isinstance(column, ManyToManyColumn) and value and not value.exists():
             return default
 
         return render_func(bound_column, value)
 
-    def _optional_cell_arguments(self, bound_column, value):
+    def _optional_cell_arguments(self, bound_column: "BoundColumn", value: Any) -> CellArguments:
         """Arguments that will optionally be passed while rendering cells."""
-        return {
-            "value": value,
-            "record": self.record,
-            "column": bound_column.column,
-            "bound_column": bound_column,
-            "bound_row": self,
-            "table": self._table,
-        }
+        return CellArguments(
+            value=value,
+            record=self.record,
+            column=bound_column.column,
+            bound_column=bound_column,
+            bound_row=self,
+            table=self._table,
+        )
 
     def get_cell(self, name):
         """Return the final rendered html for a cell in the row, given the name of a column."""

@@ -1,8 +1,13 @@
-from django.utils.safestring import mark_safe
+from typing import TYPE_CHECKING
+
+from django.utils.safestring import SafeString, mark_safe
 
 from django_tables2.utils import Accessor, AttributeDict, computed_values
 
-from .base import Column, library
+from .base import CellArguments, Column, library
+
+if TYPE_CHECKING:
+    from typing_extensions import Unpack
 
 
 @library.register
@@ -58,8 +63,10 @@ class CheckBoxColumn(Column):
         attrs = AttributeDict(default, **(specific or general or {}))
         return mark_safe(f"<input {attrs.as_html()} />")
 
-    def render(self, value, bound_column, record):
-        default = {"type": "checkbox", "name": bound_column.name, "value": value}
+    def render(self, **kwargs: "Unpack[CellArguments]") -> SafeString:
+        value = kwargs["value"]
+        record = kwargs["record"]
+        default = {"type": "checkbox", "name": kwargs["bound_column"].name, "value": value}
         if self.is_checked(value, record):
             default.update({"checked": "checked"})
 

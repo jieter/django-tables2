@@ -1,11 +1,16 @@
 from itertools import count
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from django.core.exceptions import ImproperlyConfigured
+from django.http import HttpRequest
 from django.views.generic.list import ListView
 
 from . import tables
 from .config import RequestConfig
+
+if TYPE_CHECKING:
+    from .data import TableData
+    from .tables import Table
 
 
 class TableMixinBase:
@@ -14,11 +19,11 @@ class TableMixinBase:
     context_table_name = "table"
     table_pagination = None
 
-    def get_context_table_name(self, table):
+    def get_context_table_name(self, table: "Table") -> str:
         """Return the name to use for the table's template variable."""
         return self.context_table_name
 
-    def get_table_pagination(self, table):
+    def get_table_pagination(self, table: "Table") -> dict[str, Any] | bool:
         """
         Return pagination options passed to `.RequestConfig`.
 
@@ -42,11 +47,12 @@ class TableMixinBase:
         if paginate_by is not None:
             paginate["per_page"] = paginate_by
 
-        if hasattr(self, "paginator_class"):
-            paginate["paginator_class"] = self.paginator_class
+        if paginator_class := getattr(self, "paginator_class", None):
+            paginate["paginator_class"] = paginator_class
 
-        if getattr(self, "paginate_orphans", 0) != 0:
-            paginate["orphans"] = self.paginate_orphans
+        paginate_orphans = getattr(self, "paginate_orphans", 0)
+        if paginate_orphans != 0:
+            paginate["orphans"] = paginate_orphans
 
         # table_pagination overrides any MultipleObjectMixin attributes
         if self.table_pagination:
@@ -58,15 +64,12 @@ class TableMixinBase:
 
         return paginate
 
-    def get_paginate_by(self, table_data) -> int | None:
+    def get_paginate_by(self, table_data: "TableData") -> int | None:
         """
         Determine the number of items per page, or ``None`` for no pagination.
 
         Args:
             table_data: The table's data.
-
-        Returns:
-            Optional[int]: Items per page or ``None`` for no pagination.
         """
         return getattr(self, "paginate_by", None)
 
@@ -95,8 +98,8 @@ class SingleTableMixin(TableMixinBase):
     ``.get_queryset`` as a fall back for the table data source.
     """
 
-    table_class = None
-    table_data = None
+    table_class: "type[Table] | None" = None
+    table_data: "TableData | None" = None
 
     def get_table_class(self):
         """Return the class to use for the table."""
@@ -123,8 +126,8 @@ class SingleTableMixin(TableMixinBase):
         """Return the table data that should be used to populate the rows."""
         if self.table_data is not None:
             return self.table_data
-        elif hasattr(self, "object_list"):
-            return self.object_list
+        elif object_list := getattr(self, "object_list", None):
+            return object_list
         elif hasattr(self, "get_queryset"):
             return self.get_queryset()
 
@@ -147,7 +150,7 @@ class SingleTableMixin(TableMixinBase):
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         """Overridden version of `.TemplateResponseMixin` to inject the table into the template's context."""
-        context = super().get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)  # type: ignore[misc]
         table = self.get_table(**self.get_table_kwargs())
         context[self.get_context_table_name(table)] = table
         return context
@@ -186,8 +189,9 @@ class MultiTableMixin(TableMixinBase):
     .. versionadded:: 1.2.3
     """
 
-    tables = None
-    tables_data = None
+    tables: "list[type[Table]] | None" = None
+    tables_data: "list[TableData] | None" = None
+    request: HttpRequest
 
     table_prefix = "table_{}-"
 
@@ -214,10 +218,10 @@ class MultiTableMixin(TableMixinBase):
         return self.tables_data
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
-        context = super().get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)  # type: ignore[misc]
         tables = self.get_tables()
 
-        # apply prefixes and execute requestConfig for each table
+        # Apply prefixes and execute requestConfig for each table
         table_counter = count()
         for table in tables:
             table.prefix = table.prefix or self.table_prefix.format(next(table_counter))
