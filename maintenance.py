@@ -20,7 +20,6 @@ if sys.argv[-1] == "bump":
 
 elif sys.argv[-1] == "publish":
     os.system("hatch publish")
-    os.system("rm -f dist/django_tables2-2.7.4*")
 
 elif sys.argv[-1] == "tag":
     os.system("hatch build")

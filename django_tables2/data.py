@@ -148,7 +148,11 @@ class TableQuerysetData(TableData):
 
     def set_table(self, table):
         super().set_table(table)
-        if self.model and getattr(table._meta, "model", None) and self.model != table._meta.model:
+        if (
+            self.model
+            and getattr(table._meta, "model", None)
+            and not issubclass(self.model, table._meta.model)
+        ):
             warnings.warn(
                 f"Table data is of type {self.model} but {table._meta.model} is specified in Table.Meta.model"
             )
