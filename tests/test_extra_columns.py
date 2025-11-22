@@ -176,7 +176,7 @@ class DynamicColumnsTest(TestCase):
 
                 if add_occupation_column:
                     kwargs["extra_columns"].append(
-                        ("occupation", tables.RelatedLinkColumn(orderable=False))
+                        ("occupation", tables.Column(linkify=True, orderable=False))
                     )
 
                 super().__init__(data, *args, **kwargs)
