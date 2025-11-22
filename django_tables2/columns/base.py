@@ -41,7 +41,7 @@ class Library:
     def __init__(self):
         self.columns = []
 
-    def register(self, column: "type[Column]"):
+    def register(self, column: "type[Column]") -> "type[Column]":
         if not hasattr(column, "from_field"):
             raise ImproperlyConfigured(f"{column.__class__.__name__} is not a subclass of Column")
         self.columns.append(column)
@@ -52,10 +52,8 @@ class Library:
         if field is None:
             return self.columns[0](**kwargs)
 
-        # Iterate in reverse order as columns are registered in order
-        # of least to most specialised (i.e. Column is registered
-        # first). This also allows user-registered columns to be
-        # favoured.
+        # Iterate in reverse order as columns are registered in order of least to most specialised
+        # (i.e. Column is registered first). This also allows user-registered columns to be favoured.
         for candidate in reversed(self.columns):
             if hasattr(field, "get_related_field"):
                 verbose_name = field.get_related_field().verbose_name
@@ -69,9 +67,8 @@ class Library:
         return None
 
 
-# The library is a mechanism for announcing what columns are available. Its
-# current use is to allow the table metaclass to ask columns if they're a
-# suitable match for a model field, and if so to return an approach instance.
+# The library is a mechanism for announcing what columns are available. Its current use is to allow the table
+# metaclass to ask columns if they're a suitable match for a model field, and if so to return an approach instance.
 library = Library()
 
 
