@@ -165,10 +165,9 @@ class AccessorModelTests(TestCase):
 
 class AttributeDictTest(TestCase):
     def test_handles_escaping(self):
-        # django==3.0 replaces &#39; with &#x27;, drop first option if django==2.2 support is removed
-        self.assertIn(
+        self.assertEqual(
             AttributeDict({"x": "\"'x&"}).as_html(),
-            ('x="&quot;&#39;x&amp;"', 'x="&quot;&#x27;x&amp;"'),
+            'x="&quot;&#x27;x&amp;"',
         )
 
     def test_omits_None(self):
