@@ -107,13 +107,9 @@ class LinkColumnTest(TestCase):
             name_linkify = tables.Column(accessor="name", linkify=("escaping", {"pk": A("pk")}))
 
         table = PersonTable([{"name": "<brad>", "pk": 1}])
-        # django==3.0 replaces &#39; with &#x27;, drop first option if django==2.2 support is removed
-        self.assertIn(
-            table.rows[0].get_cell("name"),
-            (
-                '<a href="/&amp;&#39;%22/1/">&lt;brad&gt;</a>'
-                '<a href="/&amp;&#x27;%22/1/">&lt;brad&gt;</a>'
-            ),
+
+        self.assertEqual(
+            table.rows[0].get_cell("name"), '<a href="/&amp;&#x27;%22/1/">&lt;brad&gt;</a>'
         )
 
         # the two columns should result in the same rendered cell contents
