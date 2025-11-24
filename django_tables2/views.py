@@ -2,13 +2,14 @@ from itertools import count
 from typing import TYPE_CHECKING, Any
 
 from django.core.exceptions import ImproperlyConfigured
-from django.http import HttpRequest
 from django.views.generic.list import ListView
 
 from . import tables
 from .config import RequestConfig
 
 if TYPE_CHECKING:
+    from django.http import HttpRequest
+
     from .data import TableData
     from .tables import Table
 
@@ -98,6 +99,7 @@ class SingleTableMixin(TableMixinBase):
     ``.get_queryset`` as a fall back for the table data source.
     """
 
+    request: "HttpRequest"
     table_class: "type[Table] | None" = None
     table_data: "TableData | None" = None
 
@@ -111,16 +113,15 @@ class SingleTableMixin(TableMixinBase):
         name = type(self).__name__
         raise ImproperlyConfigured(f"You must either specify {name}.table_class or {name}.model")
 
-    def get_table(self, **kwargs):
+    def get_table(self, **kwargs) -> "Table":
         """
         Return a table object to use. The table has automatic support for
         sorting and pagination.
         """
         table_class = self.get_table_class()
         table = table_class(data=self.get_table_data(), **kwargs)
-        return RequestConfig(self.request, paginate=self.get_table_pagination(table)).configure(
-            table
-        )
+        RequestConfig(self.request, paginate=self.get_table_pagination(table)).configure(table)
+        return table
 
     def get_table_data(self):
         """Return the table data that should be used to populate the rows."""

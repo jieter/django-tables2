@@ -1,7 +1,8 @@
 import copy
 from collections import OrderedDict
+from collections.abc import Iterable, Iterator
 from itertools import count
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from django.conf import settings
 from django.core.paginator import Paginator
@@ -450,7 +451,7 @@ class Table(metaclass=DeclarativeColumnsMetaclass):
         """
         return
 
-    def as_html(self, request):
+    def as_html(self, request: "HttpRequest") -> str:
         """Render the table to an HTML table, adding `request` to the context."""
         # reset counter for new rendering
         self._counter = count()
@@ -461,7 +462,7 @@ class Table(metaclass=DeclarativeColumnsMetaclass):
         self.before_render(request)
         return template.render(context)
 
-    def as_values(self, exclude_columns=None):
+    def as_values(self, exclude_columns: Iterable[str] | None = None) -> Iterator[list[Any]]:
         """
         Return a row iterator of the data which would be shown in the table where the first row is the table headers.
 
@@ -516,11 +517,11 @@ class Table(metaclass=DeclarativeColumnsMetaclass):
         self._show_header = value
 
     @property
-    def order_by(self):
+    def order_by(self) -> OrderByTuple:
         return self._order_by
 
     @order_by.setter
-    def order_by(self, value):
+    def order_by(self, value: str | OrderByTuple | list[str] | None) -> None:
         """
         Order the rows of the table based on columns.
 

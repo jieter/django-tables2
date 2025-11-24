@@ -2,6 +2,8 @@ from typing import TYPE_CHECKING
 
 from django.core.paginator import EmptyPage, PageNotAnInteger
 
+from django_tables2.utils import OrderByTuple
+
 if TYPE_CHECKING:
     from django.http import HttpRequest
 
@@ -37,7 +39,7 @@ class RequestConfig:
         self.request = request
         self.paginate = paginate
 
-    def configure(self, table: "Table"):
+    def configure(self, table: "Table") -> "Table":
         """
         Configure a table using information from the request.
 
@@ -46,9 +48,8 @@ class RequestConfig:
         """
         table.request = self.request
 
-        order_by = self.request.GET.getlist(table.prefixed_order_by_field)
-        if order_by:
-            table.order_by = order_by
+        if order_by := self.request.GET.getlist(table.prefixed_order_by_field):
+            table.order_by = OrderByTuple(order_by)
         if self.paginate:
             if isinstance(self.paginate, (dict, tuple, list)):
                 kwargs = dict(self.paginate)
