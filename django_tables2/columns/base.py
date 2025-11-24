@@ -164,13 +164,13 @@ class LinkTransform:
 
         return reverse(**params)
 
-    def get_attrs(self, **kwargs):
+    def get_attrs(self, **kwargs) -> AttributeDict:
         attrs = AttributeDict(computed_values(self.attrs or {}, kwargs=kwargs))
         attrs["href"] = self.compose_url(**kwargs)
 
         return attrs
 
-    def __call__(self, content, **kwargs):
+    def __call__(self, content: "SafeString | str", **kwargs) -> "SafeString | str":
         attrs = self.get_attrs(**kwargs)
         if attrs["href"] is None:
             return content
