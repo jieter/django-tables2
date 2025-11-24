@@ -1,7 +1,16 @@
+from collections.abc import Callable
+from typing import TYPE_CHECKING, Any
+
+from django.http import HttpResponse
+from django.views.generic.base import TemplateResponseMixin
+
 from .export import TableExport
 
+if TYPE_CHECKING:
+    from django_tables2.tables import Table
 
-class ExportMixin:
+
+class ExportMixin(TemplateResponseMixin):
     """
     Support various export formats for the table data.
 
@@ -35,13 +44,16 @@ class ExportMixin:
 
     export_formats = (TableExport.CSV,)
 
-    def get_export_filename(self, export_format):
+    get_table: Callable[..., Table]
+    get_table_kwargs: Callable[[], dict[str, Any]]
+
+    def get_export_filename(self, export_format: str) -> str:
         return f"{self.export_name}.{export_format}"
 
-    def get_dataset_kwargs(self):
+    def get_dataset_kwargs(self) -> dict[str, Any] | None:
         return self.dataset_kwargs
 
-    def create_export(self, export_format):
+    def create_export(self, export_format: str) -> HttpResponse:
         exporter = self.export_class(
             export_format=export_format,
             table=self.get_table(**self.get_table_kwargs()),
@@ -51,9 +63,9 @@ class ExportMixin:
 
         return exporter.response(filename=self.get_export_filename(export_format))
 
-    def render_to_response(self, context, **kwargs):
+    def render_to_response(self, context: dict, **kwargs) -> HttpResponse:
         export_format = self.request.GET.get(self.export_trigger_param, None)
-        if self.export_class.is_valid_format(export_format):
+        if export_format and self.export_class.is_valid_format(export_format):
             return self.create_export(export_format)
 
         return super().render_to_response(context, **kwargs)
