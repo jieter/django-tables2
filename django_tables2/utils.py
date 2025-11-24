@@ -4,7 +4,7 @@ from collections import OrderedDict
 from collections.abc import Callable, Mapping
 from functools import total_ordering
 from itertools import chain
-from typing import TYPE_CHECKING, Any, ParamSpec, TypeVar
+from typing import TYPE_CHECKING, Any, SupportsIndex, TypeVar, overload
 
 from django.core.exceptions import FieldDoesNotExist
 from django.db import models
@@ -182,7 +182,14 @@ class OrderByTuple(tuple):
                 return True
         return False
 
-    def __getitem__(self, index: int | str) -> OrderBy:
+    @overload
+    def __getitem__(self, index: SupportsIndex) -> "OrderBy": ...
+    @overload
+    def __getitem__(self, index: slice) -> "OrderByTuple": ...
+    @overload
+    def __getitem__(self, index: str) -> "OrderBy": ...
+
+    def __getitem__(self, index):
         """
         Extract an `.OrderBy` item by index.
 
@@ -557,11 +564,10 @@ def signature(fn: Callable) -> tuple[tuple[Any, ...], str | None]:
     return tuple(args), keywords
 
 
-P = ParamSpec("P")
 R = TypeVar("R")
 
 
-def call_with_appropriate(fn: Callable[P, R], kwargs: Mapping[str, Any]) -> R | None:
+def call_with_appropriate(fn: Callable[..., R], kwargs: Mapping[str, Any]) -> R | None:
     """
     Call the function ``fn`` with the keyword arguments from ``kwargs`` it expects.
 

@@ -156,7 +156,8 @@ class SingleTableMixin(TableMixinBase):
         return context
 
 
-class SingleTableView(SingleTableMixin, ListView):
+# type ignore because the signature of ListView.get_paginate_by is not compatible with TableMixinBase.get_paginate_by
+class SingleTableView(SingleTableMixin, ListView):  # type: ignore[misc]
     """
     Generic view that renders a template and passes in a `.Table` instances.
 

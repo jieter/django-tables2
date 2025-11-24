@@ -116,7 +116,7 @@ class LinkTransform:
         else:
             self.reverse_args = reverse_args or {}
 
-    def compose_url(self, **kwargs) -> str:
+    def compose_url(self, **kwargs) -> str | None:
         if self.url and callable(self.url):
             return call_with_appropriate(self.url, kwargs)
 
