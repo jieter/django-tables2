@@ -70,15 +70,14 @@ class TableExport:
         dataset_kwargs: dict[str, Any] | None = None,
     ) -> Dataset:
         """Transform a table to a tablib dataset."""
-        if not table.Meta.model:
-            raise ImproperlyConfigured("table_to_dataset() requires a table based on a model.")
-
         try:
             title = table.Meta.model._meta.verbose_name_plural.title()
         except AttributeError:
             title = "Export Data"
 
-        dataset = Dataset(title=title, **dataset_kwargs)
+        dataset_kwargs = dataset_kwargs or {}
+        dataset_kwargs.setdefault("title", title)
+        dataset = Dataset(**dataset_kwargs)
         for i, row in enumerate(table.as_values(exclude_columns=exclude_columns)):
             if i == 0:
                 dataset.headers = row
