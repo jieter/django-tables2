@@ -616,9 +616,9 @@ class BoundColumn:
         This is useful otherwise in templates you'd need something like::
 
             {% if column.is_ordered %}
-                {% querystring table.prefixed_order_by_field=column.order_by_alias.opposite %}
+                {% qs_replace table.prefixed_order_by_field=column.order_by_alias.opposite %}
             {% else %}
-                {% querystring table.prefixed_order_by_field=column.order_by_alias %}
+                {% qs_replace table.prefixed_order_by_field=column.order_by_alias %}
             {% endif %}
 
         """

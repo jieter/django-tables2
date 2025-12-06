@@ -36,9 +36,9 @@ Please refer to the Django documentation for the TEMPLATES-setting_.
 
 .. _TEMPLATES-setting: https://docs.djangoproject.com/en/stable/ref/settings/#std:setting-TEMPLATES
 
-.. _template-tags.querystring:
+.. _template-tags.qs_replace:
 
-``querystring``
+``qs_replace``
 ---------------
 
 A utility that allows you to update a portion of the query-string without
@@ -49,12 +49,12 @@ we want to update the ``sort`` parameter:
 
 .. sourcecode:: django
 
-    {% querystring "sort"="dob" %}           # ?search=pirates&sort=dob&page=5
-    {% querystring "sort"="" %}              # ?search=pirates&page=5
-    {% querystring "sort"="" "search"="" %}  # ?page=5
+    {% qs_replace "sort"="dob" %}           # ?search=pirates&sort=dob&page=5
+    {% qs_replace "sort"="" %}              # ?search=pirates&page=5
+    {% qs_replace "sort"="" "search"="" %}  # ?page=5
 
     {% with "search" as key %}               # supports variables as keys
-    {% querystring key="robots" %}           # ?search=robots&page=5
+    {% qs_replace key="robots" %}           # ?search=robots&page=5
     {% endwith %}
 
 This tag requires the ``django.template.context_processors.request`` context

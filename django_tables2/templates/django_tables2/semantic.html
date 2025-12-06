@@ -11,7 +11,7 @@
                     {% for column in table.columns %}
                         <th {{ column.attrs.th.as_html }}>
                             {% if column.orderable %}
-                                <a href="{% querystring table.prefixed_order_by_field=column.order_by_alias.next %}">{{ column.header }}</a>
+                                <a href="{% qs_replace table.prefixed_order_by_field=column.order_by_alias.next %}">{{ column.header }}</a>
                             {% else %}
                                 {{ column.header }}
                             {% endif %}
@@ -56,7 +56,7 @@
                         <div class="ui right floated pagination menu">
                             {% if table.page.has_previous %}
                                 {% block pagination.previous %}
-                                <a href="{% querystring table.prefixed_page_field=table.page.previous_page_number %}" class="icon item">
+                                <a href="{% qs_replace table.prefixed_page_field=table.page.previous_page_number %}" class="icon item">
                                     <i class="left chevron icon"></i>
                                 </a>
                                 {% endblock pagination.previous %}
@@ -68,7 +68,7 @@
                                         {% if p == '...' %}
                                             <a href="#" class="item">{{ p }}</a>
                                         {% else %}
-                                            <a href="{% querystring table.prefixed_page_field=p %}" class="item {% if p == table.page.number %}active{% endif %}">
+                                            <a href="{% qs_replace table.prefixed_page_field=p %}" class="item {% if p == table.page.number %}active{% endif %}">
                                                 {{ p }}
                                             </a>
                                         {% endif %}
@@ -78,7 +78,7 @@
 
                             {% if table.page.has_next %}
                                 {% block pagination.next %}
-                                <a href="{% querystring table.prefixed_page_field=table.page.next_page_number %}" class="icon item">
+                                <a href="{% qs_replace table.prefixed_page_field=table.page.next_page_number %}" class="icon item">
                                     <i class="right chevron icon"></i>
                                 </a>
                                 {% endblock pagination.next %}
