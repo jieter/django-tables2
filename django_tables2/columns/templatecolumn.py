@@ -63,8 +63,8 @@ class TemplateColumn(Column):
     def render(self, record, table, value, bound_column, **kwargs):
         # If the table is being rendered using `render_table`, it hackily
         # attaches the context to the table as a gift to `TemplateColumn`.
-        context = getattr(table, "context", Context())
-        additional_context = {
+        parent_context = getattr(table, "context", Context())
+        context = {
             "default": bound_column.default,
             "column": bound_column,
             self.context_object_name: record,
@@ -74,18 +74,23 @@ class TemplateColumn(Column):
 
         extra_context = self.extra_context
         if callable(extra_context):
-            extra_context = call_with_appropriate(
-                extra_context,
-                {"record": record, "table": table, "value": value, "bound_column": bound_column},
-            )
-        additional_context.update(extra_context)
-        with context.update(additional_context):
+            optional_kwargs = {
+                "record": record,
+                "table": table,
+                "value": value,
+                "bound_column": bound_column,
+            }
+            extra_context = call_with_appropriate(extra_context, optional_kwargs)
+        context.update(extra_context)
+        with parent_context.update(context):
             request = getattr(table, "request", None)
             if self.template_code:
-                context["request"] = request
-                return Template(self.template_code).render(context)
+                parent_context["request"] = request
+                return Template(self.template_code).render(parent_context)
             else:
-                return get_template(self.template_name).render(context.flatten(), request=request)
+                return get_template(self.template_name).render(
+                    parent_context.flatten(), request=request
+                )
 
     def value(self, **kwargs):
         """
