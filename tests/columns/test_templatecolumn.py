@@ -122,6 +122,15 @@ class TemplateColumnTest(SimpleTestCase):
         table = Table([{"name": "Bob"}])
         self.assertEqual(list(table.as_values()), [["Name"], ["Bob"]])
 
+    def test_extra_context_dict(self):
+        class Table(tables.Table):
+            size = tables.TemplateColumn(
+                "{{ filter }}: {{ size }}", extra_context={"filter": "size"}
+            )
+
+        table = Table([{"clothes": {"size": "XL"}}])
+        self.assertEqual(list(table.as_values()), [["Size"], ["XL", "size: XL"]])
+
     def test_extra_context_callable(self):
         class Table(tables.Table):
             size = tables.TemplateColumn(
