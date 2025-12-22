@@ -52,16 +52,11 @@ class BooleanColumn(Column):
         return format_html("<span {}>{}</span>", AttributeDict(attrs).as_html(), escape(text))
 
     def value(self, record, value, bound_column):
-        """
-        Returns the content for a specific cell similarly to `.render` however without any html content.
-        """
+        """Return the content for a specific cell similarly to `.render` however without any html content."""
         value = self._get_bool_value(record, value, bound_column)
         return str(value)
 
     @classmethod
     def from_field(cls, field, **kwargs):
-        if isinstance(field, models.NullBooleanField):
-            return cls(null=True, **kwargs)
-
         if isinstance(field, models.BooleanField):
             return cls(null=getattr(field, "null", False), **kwargs)

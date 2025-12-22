@@ -1,7 +1,7 @@
 # xml parsing
-lxml==4.9.3
-pytz==2023.3.post1
-tablib[xls,yaml]==3.5.0
-openpyxl==3.1.2
-psycopg2-binary==2.9.5
-django-filter==23.3
+lxml==6.0.2
+pytz==2025.2
+tablib[xls,yaml]==3.9.0
+openpyxl==3.1.5
+psycopg2-binary==2.9.11
+django-filter==25.1,<25.2

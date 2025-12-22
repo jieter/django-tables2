@@ -23,6 +23,14 @@ If you are using `SingleTableView`, the table will get paginated by default::
     class PeopleListView(SingleTableView):
         table_class = PeopleTable
 
+You can control the max number of page buttons rendered with `DJANGO_TABLES2_PAGE_RANGE` 
+in your settings.py::
+
+    DJANGO_TABLES2_PAGE_RANGE = 10
+
+The default value of 10, in a table with 101 pages, would render 
+`1, 2, 3, 4, 5, 6, 7, 8, ..., 101` on page 1 of the table for example.
+
 Disabling pagination
 ~~~~~~~~~~~~~~~~~~~~
 

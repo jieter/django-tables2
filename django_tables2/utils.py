@@ -11,7 +11,7 @@ from django.utils.html import format_html_join
 
 class Sequence(list):
     """
-    Represents a column sequence, e.g. ``('first_name', '...', 'last_name')``
+    A column sequence, e.g. ``('first_name', '...', 'last_name')``.
 
     This is used to represent `.Table.Meta.sequence` or the `.Table`
     constructors's *sequence* keyword argument.
@@ -24,15 +24,15 @@ class Sequence(list):
 
     def expand(self, columns):
         """
-        Expands the ``'...'`` item in the sequence into the appropriate column
-        names that should be placed there.
+        Expand the ``'...'`` item in the sequence into the appropriate column names that should be placed there.
 
-        arguments:
+        Arguments:
             columns (list): list of column names.
-        returns:
+
+        Returns:
             The current instance.
 
-        raises:
+        Raises:
             `ValueError` if the sequence is invalid for the columns.
         """
         ellipses = self.count("...")
@@ -83,11 +83,9 @@ class OrderBy(str):
     @property
     def bare(self):
         """
-        Returns:
-            `.OrderBy`: the bare form.
+        Return the bare form, without the direction prefix.
 
-        The *bare form* is the non-prefixed form. Typically the bare form is
-        just the ascending form.
+        The *bare form* is the non-prefixed form. Typically the bare form is just the ascending form.
 
         Example: ``age`` is the bare form of ``-age``
 
@@ -97,7 +95,7 @@ class OrderBy(str):
     @property
     def opposite(self):
         """
-        Provides the opposite of the current sorting direction.
+        Provide the opposite of the current sorting direction.
 
         Returns:
             `.OrderBy`: object with an opposite sort influence.
@@ -113,29 +111,22 @@ class OrderBy(str):
 
     @property
     def is_descending(self):
-        """
-        Returns `True` if this object induces *descending* ordering.
-        """
+        """Return `True` if this object induces *descending* ordering."""
         return self.startswith("-")
 
     @property
     def is_ascending(self):
-        """
-        Returns `True` if this object induces *ascending* ordering.
-        """
+        """Return `True` if this object induces *ascending* ordering."""
         return not self.is_descending
 
     def for_queryset(self):
-        """
-        Returns the current instance usable in Django QuerySet's order_by
-        arguments.
-        """
+        """Return the current instance usable in Django QuerySet's order_by arguments."""
         return self.replace(Accessor.LEGACY_SEPARATOR, OrderBy.QUERYSET_SEPARATOR)
 
 
 class OrderByTuple(tuple):
     """
-    Stores ordering as (as `.OrderBy` objects).
+    Store ordering as (as `.OrderBy` objects).
 
     The `~.Table.order_by` property is always converted to an `.OrderByTuple` object.
     This class is essentially just a `tuple` with some useful extras.
@@ -189,8 +180,7 @@ class OrderByTuple(tuple):
 
     def __getitem__(self, index):
         """
-        Allows an `.OrderBy` object to be extracted via named or integer
-        based indexing.
+        Extract an `.OrderBy` item by index.
 
         When using named based indexing, it's fine to used a prefixed named::
 
@@ -264,9 +254,7 @@ class OrderByTuple(tuple):
         return Comparator
 
     def get(self, key, fallback):
-        """
-        Identical to `__getitem__`, but supports fallback value.
-        """
+        """Identical to `__getitem__`, but supports fallback value."""
         try:
             return self[key]
         except (KeyError, IndexError):
@@ -275,7 +263,7 @@ class OrderByTuple(tuple):
     @property
     def opposite(self):
         """
-        Return version with each `.OrderBy` prefix toggled::
+        Return version with each `.OrderBy` prefix toggled.
 
             >>> order_by = OrderByTuple(('name', '-age'))
             >>> order_by.opposite
@@ -303,7 +291,12 @@ class Accessor(str):
         "Failed lookup for key [{key}] in {context}, when resolving the accessor {accessor}"
     )
 
-    def __new__(cls, value):
+    def __init__(self, value, callable_args=None, callable_kwargs=None):
+        self.callable_args = callable_args or getattr(value, "callable_args", None) or []
+        self.callable_kwargs = callable_kwargs or getattr(value, "callable_kwargs", None) or {}
+        super().__init__()
+
+    def __new__(cls, value, callable_args=None, callable_kwargs=None):
         instance = super().__new__(cls, value)
         if cls.LEGACY_SEPARATOR in value:
             instance.SEPARATOR = cls.LEGACY_SEPARATOR
@@ -394,7 +387,7 @@ class Accessor(str):
                     if safe and getattr(current, "alters_data", False):
                         raise ValueError(self.ALTERS_DATA_ERROR_FMT.format(method=current.__name__))
                     if not getattr(current, "do_not_call_in_templates", False):
-                        current = current()
+                        current = current(*self.callable_args, **self.callable_kwargs)
                 # Important that we break in None case, or a relationship
                 # spanning across a null-key will raise an exception in the
                 # next iteration, instead of defaulting.
@@ -412,9 +405,7 @@ class Accessor(str):
         return self.split(self.SEPARATOR)
 
     def get_field(self, model):
-        """
-        Return the django model field for model in context, following relations.
-        """
+        """Return the django model field for model in context, following relations."""
         if not hasattr(model, "_meta"):
             return
 
@@ -433,7 +424,8 @@ class Accessor(str):
 
     def penultimate(self, context, quiet=True):
         """
-        Split the accessor on the right-most separator ('__'), return a tuple with:
+        Split the accessor on the right-most separator ('__'), return a tuple with.
+
          - the resolved left part.
          - the remainder
 
@@ -490,7 +482,7 @@ class AttributeDict(OrderedDict):
 
 def segment(sequence, aliases):
     """
-    Translates a flat sequence of items into a set of prefixed aliases.
+    Translate a flat sequence of items into a set of prefixed aliases.
 
     This allows the value set by `.QuerySet.order_by` to be translated into
     a list of columns that would have the same result. These are called
@@ -527,14 +519,13 @@ def segment(sequence, aliases):
 
 def signature(fn):
     """
-    Returns:
-        tuple: Returns a (arguments, kwarg_name)-tuple:
-             - the arguments (positional or keyword)
-             - the name of the ** kwarg catch all.
+    Return an (arguments, kwargs)-tuple.
+
+     - the arguments (positional or keyword)
+     - the name of the ** kwarg catch all.
 
     The self-argument for methods is always removed.
     """
-
     signature = inspect.signature(fn)
 
     args = []
@@ -552,10 +543,9 @@ def signature(fn):
 
 def call_with_appropriate(fn, kwargs):
     """
-    Calls the function ``fn`` with the keyword arguments from ``kwargs`` it expects
+    Call the function ``fn`` with the keyword arguments from ``kwargs`` it expects.
 
-    If the kwargs argument is defined, pass all arguments, else provide exactly
-    the arguments wanted.
+    If the kwargs argument is defined, pass all arguments, else provide exactly the arguments wanted.
 
     If one of the arguments of ``fn`` are not contained in kwargs, ``fn`` will not
     be called and ``None`` will be returned.
@@ -574,7 +564,7 @@ def call_with_appropriate(fn, kwargs):
 
 def computed_values(d, kwargs=None):
     """
-    Returns a new `dict` that has callable values replaced with the return values.
+    Return a new `dict` that has callable values replaced with the return values.
 
     Example::
 

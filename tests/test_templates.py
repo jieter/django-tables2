@@ -1,6 +1,7 @@
 from django.template import Context, Template
 from django.test import SimpleTestCase, TestCase, override_settings
-from django.utils.translation import gettext_lazy, override as translation_override
+from django.utils.translation import gettext_lazy
+from django.utils.translation import override as translation_override
 from lxml import etree
 
 import django_tables2 as tables
@@ -89,9 +90,9 @@ class TemplateTest(TestCase):
 
         # automatic and manual column verbose names
         template = Template(
-            "{% for column in countries.columns %}{{ column }}/" "{{ column.name }} {% endfor %}"
+            "{% for column in countries.columns %}{{ column }}/{{ column.name }} {% endfor %}"
         )
-        result = "Name/name Capital/capital Population Size/population " "Phone Ext./calling_code "
+        result = "Name/name Capital/capital Population Size/population Phone Ext./calling_code "
         assert result == template.render(context)
 
         # row values
@@ -99,7 +100,7 @@ class TemplateTest(TestCase):
             "{% for row in countries.rows %}{% for value in row %}"
             "{{ value }} {% endfor %}{% endfor %}"
         )
-        result = "Germany Berlin 83 49 France — 64 33 Netherlands Amsterdam " "— 31 Austria — 8 43 "
+        result = "Germany Berlin 83 49 France — 64 33 Netherlands Amsterdam — 31 Austria — 8 43 "
         assert result == template.render(context)
 
 
@@ -116,7 +117,8 @@ class TestQueries(TestCase):
 
     def test_render_table_db_queries(self):
         """
-        Paginated tables should result in two queries:
+        Paginated tables should result in two queries.
+
          - one query for pagination: .count()
          - one query for records on the current page: .all()[start:end]
         """
@@ -147,9 +149,7 @@ class TemplateLocalizeTest(TestCase):
     expected_results = {None: "1234.5", False: "1234.5", True: "1 234,5"}  # non-breaking space
 
     def assert_cond_localized_table(self, localizeit=None, expected=None):
-        """
-        helper function for defining Table class conditionally
-        """
+        """Conditionally define a table class."""
 
         class TestTable(tables.Table):
             name = tables.Column(verbose_name="my column", localize=localizeit)

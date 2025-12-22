@@ -9,7 +9,6 @@ from .columns import (
     JSONColumn,
     LinkColumn,
     ManyToManyColumn,
-    RelatedLinkColumn,
     TemplateColumn,
     TimeColumn,
     URLColumn,
@@ -20,7 +19,7 @@ from .tables import Table, table_factory
 from .utils import A
 from .views import MultiTableMixin, SingleTableMixin, SingleTableView
 
-__version__ = "2.6.0"
+__version__ = "2.8.0"
 
 __all__ = (
     "Table",
@@ -35,7 +34,6 @@ __all__ = (
     "JSONColumn",
     "LinkColumn",
     "ManyToManyColumn",
-    "RelatedLinkColumn",
     "TemplateColumn",
     "TimeColumn",
     "URLColumn",

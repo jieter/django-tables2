@@ -6,7 +6,7 @@ from .datetimecolumn import DateTimeColumn
 from .emailcolumn import EmailColumn
 from .filecolumn import FileColumn
 from .jsoncolumn import JSONColumn
-from .linkcolumn import LinkColumn, RelatedLinkColumn
+from .linkcolumn import LinkColumn
 from .manytomanycolumn import ManyToManyColumn
 from .templatecolumn import TemplateColumn
 from .timecolumn import TimeColumn
@@ -26,7 +26,6 @@ __all__ = (
     "JSONColumn",
     "LinkColumn",
     "ManyToManyColumn",
-    "RelatedLinkColumn",
     "TemplateColumn",
     "URLColumn",
     "TimeColumn",

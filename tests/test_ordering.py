@@ -162,12 +162,13 @@ class OrderingTest(TestCase):
 
     def test_ordering_by_custom_field(self):
         """
+        Test ordering by a custom field.
+
         When defining a custom field in a table, as name=tables.Column() with
         methods to render and order render_name and order_name, sorting by this
         column causes an error if the custom field is not in last position.
         https://github.com/jieter/django-tables2/issues/413
         """
-
         Person.objects.create(first_name="Alice", last_name="Beta")
         Person.objects.create(first_name="Bob", last_name="Alpha")
 

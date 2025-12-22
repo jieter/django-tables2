@@ -1,5 +1,37 @@
 # Change log
 
+## 2.8.0 (2025-11-21)
+- Pass `request` to the template rendered in TemplateColumn (#1014) Fixes: #1008
+- Do not generate error when table data model is subclass of table model ([#1015](https://github.com/jieter/django-tables2/pull/1015)) Fixes [#1010](https://github.com/jieter/django-tables2/issues/1010) by [@sjoerdjob](https://github.com/sjoerdjob)
+- Update supported Python and Django versions ([#1011](https://github.com/jieter/django-tables2/issues/1011)) by [@dyve](https://github.com/dyve)
+  Supported Django versions: 4.2, 5.1, 5.2, 6.0
+  Supported Python versions: 3.10, 3.11, 3.12, 3.13, 3.14
+
+## 2.7.5 (2025-01-02)
+- Update django.po for Ukrainian 🇺🇦 ([#934](https://github.com/jieter/django-tables2/pull/934)) by [@DmytroLitvinov](https://github.com/DmytroLitvinov)
+
+## 2.7.4 & 2.7.3 (2024-12-23)
+Correct packaging mistakes:
+- Remove upper bound for `python_requires`
+
+## 2.7.2 (2024-12-23)
+- Add python_requires to setup.py ([#982](https://github.com/jieter/django-tables2/pull/982)) Fixes: [#980](https://github.com/jieter/django-tables2/issues/980)
+
+## 2.7.1 (2024-12-21)
+- Add TimeColumn to built-in columns ([#937](https://github.com/jieter/django-tables2/pull/937)) by [@philipphanemann](https://github.com/philipphanemann)
+Add support to pass args/kwargs to callables from Accessor ([#940](https://github.com/jieter/django-tables2/pull/940)), fixes: [#939](https://github.com/jieter/django-tables2/issues/939)
+by [@JordanHyatt](https://github.com/JordanHyatt)
+- Drop support for Django 3.2, 4.1 and python 3.8
+- Add support for Django 5.1 and python 3.12
+- Explicitly set `Column.accessor` when binding a column to allow column methods like `order_by` to use its value ([#979](https://github.com/jieter/django-tables2/pull/979))
+
+## 2.7.0 (2023-12-05)
+- Update docs dependencies; fix docs search; add readthedocs.yaml ([#935](https://github.com/jieter/django-tables2/pull/935))
+- Add example on how to use `Accessor` to documentation in `custom-data.rst` ([#917](https://github.com/jieter/django-tables2/pull/917)) by [@ruddra](https://github.com/ruddra)
+- Use pre-commit in ci, add isort, flake8, pyupgrade ([#932](https://github.com/jieter/django-tables2/pull/932))
+- Add support for Django 5.0 and Python 3.12 ([#930](https://github.com/jieter/django-tables2/pull/930))
+- Add missing `{% load l10n %}` in templates ([#919](https://github.com/jieter/django-tables2/pull/919)) by [@tvanekeris](https://github.com/tvanekeris)
+
 ## 2.6.0 (2023-06-27)
 - Fix bootstrap5-responsive template to extend bootstrap5 ([#909](https://github.com/jieter/django-tables2/pull/909)) by [@mschoettle](https://github.com/mschoettle)
 - Add support for django 4.2

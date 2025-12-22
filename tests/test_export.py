@@ -59,9 +59,7 @@ class View(ExportMixin, tables.SingleTableView):
 
 @skipIf(TableExport is None, "Tablib is required to run the export tests")
 class TableExportTest(TestCase):
-    """
-    github issue #474: null/None values in exports
-    """
+    """Test for null/None values in exports (#474)."""
 
     def test_None_values(self):
         table = Table(
@@ -265,7 +263,6 @@ class AdvancedExportViewTest(TestCase):
 
     def test_datetime_xls(self):
         """Verify datatime objects can be exported to xls."""
-
         utc = pytz.timezone("UTC")
 
         class Table(tables.Table):
@@ -298,7 +295,6 @@ class AdvancedExportViewTest(TestCase):
 
     def test_export_invisible_columns(self):
         """Verify columns with visible=False *do* get exported."""
-
         DATA = [{"name": "Bess W. Fletcher", "website": "teammonka.com"}]
 
         class Table(tables.Table):

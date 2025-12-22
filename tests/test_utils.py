@@ -130,6 +130,17 @@ class AccessorTest(TestCase):
 
         self.assertEqual(Accessor("occupation__name").resolve(context), "Carpenter")
 
+    def test_callable_args_kwargs(self):
+        class MyClass:
+            def method(self, *args, **kwargs):
+                return args, kwargs
+
+        callable_args = ("arg1", "arg2")
+        callable_kwargs = {"kwarg1": "val1", "kwarg2": "val2"}
+        obj = MyClass()
+        result = Accessor("method", callable_args, callable_kwargs).resolve(obj)
+        self.assertEqual(result, (callable_args, callable_kwargs))
+
 
 class AccessorTestModel(models.Model):
     foo = models.CharField(max_length=20)
@@ -154,10 +165,9 @@ class AccessorModelTests(TestCase):
 
 class AttributeDictTest(TestCase):
     def test_handles_escaping(self):
-        # django==3.0 replaces &#39; with &#x27;, drop first option if django==2.2 support is removed
-        self.assertIn(
+        self.assertEqual(
             AttributeDict({"x": "\"'x&"}).as_html(),
-            ('x="&quot;&#39;x&amp;"', 'x="&quot;&#x27;x&amp;"'),
+            'x="&quot;&#x27;x&amp;"',
         )
 
     def test_omits_None(self):

@@ -7,11 +7,6 @@ import django_tables2 as tables
 
 
 class TimeColumnTest(SimpleTestCase):
-    """
-    Format string for TimeColumn:
-    https://docs.djangoproject.com/en/stable/ref/templates/builtins/#date
-    """
-
     def test_should_handle_explicit_format(self):
         class TestTable(tables.Table):
             time = tables.TimeColumn(format="H:i:s")

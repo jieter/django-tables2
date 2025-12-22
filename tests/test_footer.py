@@ -39,10 +39,7 @@ class FooterTest(SimpleTestCase):
         self.assertEqual(columns[2].text, "18833000")
 
     def test_footer_disable_on_table(self):
-        """
-        Showing the footer can be disabled using show_footer argument to the Table
-        constructor
-        """
+        """Showing the footer can be disabled using show_footer argument to the Table constructor."""
 
         class Table(tables.Table):
             name = tables.Column()

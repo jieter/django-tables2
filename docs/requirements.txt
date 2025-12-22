@@ -1,7 +1,7 @@
 -r ../requirements/common.pip
-Sphinx==6.1.3
-sphinx_rtd_theme==1.2.0
+Sphinx==7.2.6
+sphinx_rtd_theme==1.3.0
 django
 sphinxcontrib-spelling==8.0.0
 pyenchant==3.2.2
-myst-parser==0.19.1
+myst-parser==2.0.0

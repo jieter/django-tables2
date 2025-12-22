@@ -6,33 +6,29 @@ from .utils import OrderBy, OrderByTuple, segment
 
 
 class TableData:
-    """
-    Base class for table data containers.
-    """
+    """Base class for table data containers."""
 
     def __init__(self, data):
         self.data = data
 
     def __getitem__(self, key):
-        """
-        Slicing returns a new `.TableData` instance, indexing returns a single record.
-        """
+        """Slicing returns a new `.TableData` instance, indexing returns a single record."""
         return self.data[key]
 
     def __iter__(self):
         """
-        for ... in ... default to using this. There's a bug in Django 1.3
-        with indexing into QuerySets, so this side-steps that problem (as well
+        Iterate over the table data (for ... in ... defaults to using this).
+
+        There's a bug in Django 1.3 with indexing into QuerySets, so this side-steps that problem (as well
         as just being a better way to iterate).
         """
         return iter(self.data)
 
     def set_table(self, table):
         """
-        `Table.__init__` calls this method to inject an instance of itself into the
-        `TableData` instance.
-        Good place to do additional checks if Table and TableData instance will work
-        together properly.
+        `Table.__init__` calls this method to inject an instance of itself into the `TableData` instance.
+
+        Good place to do additional checks if Table and TableData instance will work together properly.
         """
         self.table = table
 
@@ -70,24 +66,22 @@ class TableData:
 
 class TableListData(TableData):
     """
-    Table data container for a list of dicts, for example::
+    Table data container for a list of dicts.
 
-    [
-        {'name': 'John', 'age': 20},
-        {'name': 'Brian', 'age': 25}
-    ]
+    For example::
+        [
+            {'name': 'John', 'age': 20},
+            {'name': 'Brian', 'age': 25}
+        ]
 
     .. note::
 
-        Other structures might have worked in the past, but are not explicitly
-        supported or tested.
+        Other structures might have worked in the past, but are not explicitly supported or tested.
     """
 
     @staticmethod
     def validate(data):
-        """
-        Validates `data` for use in this container
-        """
+        """Validate `data` for use in this container."""
         return hasattr(data, "__iter__") or (
             hasattr(data, "__len__") and hasattr(data, "__getitem__")
         )
@@ -105,8 +99,7 @@ class TableListData(TableData):
 
     def order_by(self, aliases):
         """
-        Order the data based on order by aliases (prefixed column names) in the
-        table.
+        Order the data based on order by aliases (prefixed column names) in the table.
 
         Arguments:
             aliases (`~.utils.OrderByTuple`): optionally prefixed names of
@@ -129,15 +122,11 @@ class TableListData(TableData):
 
 
 class TableQuerysetData(TableData):
-    """
-    Table data container for a queryset.
-    """
+    """Table data container for a QuerySet."""
 
     @staticmethod
     def validate(data):
-        """
-        Validates `data` for use in this container
-        """
+        """Validate `data` for use in this container."""
         return (
             hasattr(data, "count")
             and callable(data.count)
@@ -146,7 +135,7 @@ class TableQuerysetData(TableData):
         )
 
     def __len__(self):
-        """Cached data length"""
+        """Length of the data (cached)."""
         if not hasattr(self, "_length") or self._length is None:
             if hasattr(self.table, "paginator"):
                 # for paginated tables, use QuerySet.count() as we are interested in total number of records.
@@ -159,7 +148,11 @@ class TableQuerysetData(TableData):
 
     def set_table(self, table):
         super().set_table(table)
-        if self.model and getattr(table._meta, "model", None) and self.model != table._meta.model:
+        if (
+            self.model
+            and getattr(table._meta, "model", None)
+            and not issubclass(self.model, table._meta.model)
+        ):
             warnings.warn(
                 f"Table data is of type {self.model} but {table._meta.model} is specified in Table.Meta.model"
             )
@@ -167,8 +160,7 @@ class TableQuerysetData(TableData):
     @property
     def ordering(self):
         """
-        Returns the list of order by aliases that are enforcing ordering on the
-        data.
+        Return the list of order by aliases that are enforcing ordering on the data.
 
         If the data is unordered, an empty sequence is returned. If the
         ordering can not be determined, `None` is returned.
@@ -176,7 +168,6 @@ class TableQuerysetData(TableData):
         This works by inspecting the actual underlying data. As such it's only
         supported for querysets.
         """
-
         aliases = {}
         for bound_column in self.table.columns:
             aliases[bound_column.order_by_alias] = bound_column.order_by
@@ -187,8 +178,7 @@ class TableQuerysetData(TableData):
 
     def order_by(self, aliases):
         """
-        Order the data based on order by aliases (prefixed column names) in the
-        table.
+        Order the data based on order by aliases (prefixed column names) in the table.
 
         Arguments:
             aliases (`~.utils.OrderByTuple`): optionally prefixed names of
@@ -226,7 +216,7 @@ class TableQuerysetData(TableData):
     @cached_property
     def verbose_name(self):
         """
-        The full (singular) name for the data.
+        Full (singular) name for the data.
 
         Model's `~django.db.Model.Meta.verbose_name` is honored.
         """
@@ -235,7 +225,7 @@ class TableQuerysetData(TableData):
     @cached_property
     def verbose_name_plural(self):
         """
-        The full (plural) name for the data.
+        Full (plural) name for the data.
 
         Model's `~django.db.Model.Meta.verbose_name` is honored.
         """

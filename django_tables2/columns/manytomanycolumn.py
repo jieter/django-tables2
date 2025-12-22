@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils.encoding import force_str
-from django.utils.html import conditional_escape, mark_safe
+from django.utils.html import conditional_escape
+from django.utils.safestring import mark_safe
 
 from .base import Column, LinkTransform, library
 
@@ -8,7 +9,7 @@ from .base import Column, LinkTransform, library
 @library.register
 class ManyToManyColumn(Column):
     """
-    Display the list of objects from a `ManyRelatedManager`
+    Display the list of objects from a `ManyRelatedManager`.
 
     Ordering is disabled for this column.
 
@@ -39,7 +40,7 @@ class ManyToManyColumn(Column):
         # tables.py
         class PersonTable(tables.Table):
             name = tables.Column(order_by=("last_name", "first_name"))
-            friends = tables.ManyToManyColumn(transform=lambda user: u.name)
+            friends = tables.ManyToManyColumn(transform=lambda user: user.name)
 
     If only the active friends should be displayed, you can use the `filter` argument::
 
@@ -71,16 +72,11 @@ class ManyToManyColumn(Column):
             self.linkify_item = LinkTransform(attrs=self.attrs.get("a", {}), **link_kwargs)
 
     def transform(self, obj):
-        """
-        Transform is applied to each item of the list of objects from the ManyToMany relation.
-        """
+        """Apply to each item of the list of objects from the ManyToMany relation."""
         return force_str(obj)
 
     def filter(self, qs):
-        """
-        Filter is called on the ManyRelatedManager to allow ordering, filtering or limiting
-        on the set of related objects.
-        """
+        """Call on the ManyRelatedManager to allow ordering, filtering or limiting on the set of related objects."""
         return qs.all()
 
     def render(self, value):

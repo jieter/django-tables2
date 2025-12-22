@@ -25,10 +25,7 @@ class BaseLinkColumn(Column):
         return self.text(record) if callable(self.text) else self.text
 
     def value(self, record, value):
-        """
-        Returns the content for a specific cell similarly to `.render` however
-        without any html content.
-        """
+        """Return the content for a specific cell similarly to `.render` without any HTML content."""
         return self.text_value(record, value)
 
     def render(self, record, value):
@@ -38,7 +35,7 @@ class BaseLinkColumn(Column):
 @library.register
 class LinkColumn(BaseLinkColumn):
     """
-    Renders a normal value as an internal hyperlink to another page.
+    Render a normal value as an internal hyperlink to another page.
 
     .. note ::
 
@@ -130,7 +127,7 @@ class LinkColumn(BaseLinkColumn):
         kwargs=None,
         current_app=None,
         attrs=None,
-        **extra
+        **extra,
     ):
         super().__init__(
             attrs=attrs,
@@ -141,39 +138,5 @@ class LinkColumn(BaseLinkColumn):
                 kwargs=kwargs,
                 current_app=current_app,
             ),
-            **extra
+            **extra,
         )
-
-
-@library.register
-class RelatedLinkColumn(LinkColumn):
-    """
-    Render a link to a related object using related object's ``get_absolute_url``,
-    same parameters as ``~.LinkColumn``.
-
-    .. note ::
-
-        This column should not be used anymore, the `linkify` keyword argument to
-        regular columns can be used achieve the same results.
-
-    If the related object does not have a method called ``get_absolute_url``,
-    or if it is not callable, the link will be rendered as '#'.
-
-    Traversing relations is also supported, suppose a Person has a foreign key to
-    Country which in turn has a foreign key to Continent::
-
-        class PersonTable(tables.Table):
-            name = tables.Column()
-            country = tables.RelatedLinkColumn()
-            continent = tables.RelatedLinkColumn(accessor="country.continent")
-
-    will render:
-
-     - in column 'country', link to ``person.country.get_absolute_url()`` with the output of
-       ``str(person.country)`` as ``<a>`` contents.
-     - in column 'continent', a link to ``person.country.continent.get_absolute_url()`` with
-       the output of ``str(person.country.continent)`` as ``<a>`` contents.
-
-    Alternative contents of ``<a>`` can be supplied using the ``text`` keyword argument as
-    documented for `~.columns.LinkColumn`.
-    """

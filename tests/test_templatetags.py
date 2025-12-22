@@ -38,7 +38,8 @@ class RenderTableTagTest(TestCase):
 
     def test_does_not_mutate_context(self):
         """
-        Make sure the tag does not change the context of the template the tag is called from
+        Make sure the tag does not change the context of the template the tag is called from.
+
         https://github.com/jieter/django-tables2/issues/547
         """
 
@@ -98,7 +99,7 @@ class RenderTableTagTest(TestCase):
 
     @override_settings(DEBUG=True)
     def test_missing_variable(self):
-        """Variable that doesn't exist (issue #8)"""
+        """Variable that doesn't exist (issue #8)."""
         template = Template("{% load django_tables2 %}{% render_table this_doesnt_exist %}")
         with self.assertRaisesMessage(ValueError, "Expected table or queryset, not str"):
             template.render(Context())
@@ -109,13 +110,13 @@ class RenderTableTagTest(TestCase):
 
     def test_should_support_template_argument(self):
         table = CountryTable(MEMORY_DATA, order_by=("name", "population"))
-        template = Template("{% load django_tables2 %}" '{% render_table table "dummy.html" %}')
+        template = Template('{% load django_tables2 %}{% render_table table "dummy.html" %}')
 
         context = RequestContext(build_request(), {"table": table})
         self.assertEqual(template.render(context), "dummy template contents\n")
 
     def test_template_argument_list(self):
-        template = Template("{% load django_tables2 %}" "{% render_table table template_list %}")
+        template = Template("{% load django_tables2 %}{% render_table table template_list %}")
 
         context = RequestContext(
             build_request(),
@@ -146,7 +147,7 @@ class RenderTableTagTest(TestCase):
 class QuerystringTagTest(SimpleTestCase):
     def test_basic(self):
         template = Template(
-            "{% load django_tables2 %}" '<b>{% querystring "name"="Brad" foo.bar=value %}</b>'
+            '{% load django_tables2 %}<b>{% querystring "name"="Brad" foo.bar=value %}</b>'
         )
 
         # Should be something like: <root>?name=Brad&amp;a=b&amp;c=5&amp;age=21</root>
@@ -175,7 +176,7 @@ class QuerystringTagTest(SimpleTestCase):
         context = Context({"request": build_request("/?a=b&name=dog&c=5"), "a_var": "a"})
 
         template = Template(
-            "{% load django_tables2 %}" '<b>{% querystring "name"="Brad" without a_var %}</b>'
+            '{% load django_tables2 %}<b>{% querystring "name"="Brad" without a_var %}</b>'
         )
         url = parse(template.render(context)).text
         qs = parse_qs(url[1:])  # trim the ?
@@ -183,9 +184,7 @@ class QuerystringTagTest(SimpleTestCase):
 
     def test_only_without(self):
         context = Context({"request": build_request("/?a=b&name=dog&c=5"), "a_var": "a"})
-        template = Template(
-            "{% load django_tables2 %}" '<b>{% querystring without "a" "name" %}</b>'
-        )
+        template = Template('{% load django_tables2 %}<b>{% querystring without "a" "name" %}</b>')
         url = parse(template.render(context)).text
         qs = parse_qs(url[1:])  # trim the ?
         self.assertEqual(set(qs.keys()), {"c"})

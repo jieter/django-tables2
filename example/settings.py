@@ -58,10 +58,6 @@ LANGUAGES = [
     ("zh-hans", _("Chinese (Simplified)")),
 ]
 
-# If you set this to False, Django will not format dates, numbers and
-# calendars according to the current locale
-USE_L10N = True
-
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/media/"
 MEDIA_ROOT = join(ROOT, "media")

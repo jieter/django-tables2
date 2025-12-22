@@ -2,6 +2,7 @@ from django.template import Context, Template
 from django.test import SimpleTestCase
 
 import django_tables2 as tables
+from django_tables2.config import RequestConfig
 
 from ..utils import build_request
 
@@ -90,9 +91,7 @@ class TemplateColumnTest(SimpleTestCase):
                 col = tables.TemplateColumn()
 
     def test_should_support_value_with_curly_braces(self):
-        """
-        https://github.com/bradleyayers/django-tables2/issues/441
-        """
+        """Test that TemplateColumn can handle values with curly braces (#441)."""
 
         class Table(tables.Table):
             track = tables.TemplateColumn("track: {{ value }}")
@@ -131,3 +130,17 @@ class TemplateColumnTest(SimpleTestCase):
 
         table = Table([{"clothes": {"size": "XL"}}])
         self.assertEqual(list(table.as_values()), [["Size"], ["XL"]])
+
+    def test_request_passthrough(self):
+        class Table(tables.Table):
+            track = tables.TemplateColumn(template_code="{{ request.path }}")
+            artist = tables.TemplateColumn(template_name="column.html")
+
+        template = Template("{% load django_tables2 %}{% render_table table %}")
+        request = build_request("/table/")
+        table = Table([{"track": "Veerpont", "artist": "Drs. P"}])
+        RequestConfig(request).configure(table)
+
+        html = template.render(Context({"request": request, "table": table}))
+        self.assertIn("<td >/table/</td>", html)
+        self.assertIn("<td >GET</td>", html)
