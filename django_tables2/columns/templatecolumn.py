@@ -15,7 +15,7 @@ class TemplateColumn(Column):
         template_code (str): template code to render
         template_name (str): name of the template to render
         context_object_name (str): name of the context variable that represents the record, defaults to "record".
-        extra_context (dict): optional extra template context. Any callables passed will be called with the following
+        extra_context (dict | callable): optional extra template context. Any callables passed will be called with the following
             optional arguments: record, table, value, and bound_column.
 
     A `~django.template.Template` object is created from the

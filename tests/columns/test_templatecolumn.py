@@ -127,9 +127,14 @@ class TemplateColumnTest(SimpleTestCase):
             size = tables.TemplateColumn(
                 "{{ size }}", extra_context=lambda record: {"size": record["clothes"]["size"]}
             )
+            clothes__size = tables.TemplateColumn(
+                "{{ size }}",
+                verbose_name="Clothes Size",
+                extra_context=lambda value: {"size": f"size: {value}"},
+            )
 
         table = Table([{"clothes": {"size": "XL"}}])
-        self.assertEqual(list(table.as_values()), [["Size"], ["XL"]])
+        self.assertEqual(list(table.as_values()), [["Size", "Clothes Size"], ["XL", "size: XL"]])
 
     def test_request_passthrough(self):
         class Table(tables.Table):
