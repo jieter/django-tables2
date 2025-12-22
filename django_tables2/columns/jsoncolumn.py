@@ -1,35 +1,31 @@
 import json
+from typing import TYPE_CHECKING
 
 from django.db.models import JSONField
 from django.utils.html import format_html
+from django.utils.safestring import SafeString
 
 from ..utils import AttributeDict
-from .base import library
-from .linkcolumn import BaseLinkColumn
+from .base import CellArguments, Column, library
+
+if TYPE_CHECKING:
+    from django.db.models import Field
+    from typing_extensions import Unpack
 
 try:
     from django.contrib.postgres.fields import HStoreField
-
-    POSTGRES_AVAILABLE = True
 except ImportError:
-    # psycopg2 is not available, cannot import from django.contrib.postgres.
-    # JSONColumn might still be useful to add manually.
-    POSTGRES_AVAILABLE = False
+    # psycopg is not available, cannot import from django.contrib.postgres.
+    HStoreField = None  # type: ignore
 
 
 @library.register
-class JSONColumn(BaseLinkColumn):
+class JSONColumn(Column):
     """
     Render the contents of `~django.contrib.postgres.fields.JSONField` or
     `~django.contrib.postgres.fields.HStoreField` as an indented string.
 
     .. versionadded :: 1.5.0
-
-    .. note::
-
-        Automatic rendering of data to this column requires PostgreSQL support
-        (psycopg2 installed) to import the fields, but this column can also be
-        used manually without it.
 
     Arguments:
         json_dumps_kwargs: kwargs passed to `json.dumps`, defaults to `{'indent': 2}`
@@ -47,15 +43,15 @@ class JSONColumn(BaseLinkColumn):
 
         super().__init__(**kwargs)
 
-    def render(self, record, value):
-        return format_html(
-            "<pre {}>{}</pre>",
-            AttributeDict(self.attrs.get("pre", {})).as_html(),
-            json.dumps(value, **self.json_dumps_kwargs),
-        )
+    def render(self, **kwargs: "Unpack[CellArguments]") -> "SafeString":
+        attributes = AttributeDict(self.attrs.get("pre", {})).as_html()
+        content = json.dumps(kwargs["value"], **self.json_dumps_kwargs)
+        return format_html("<pre {}>{}</pre>", attributes, content)
 
     @classmethod
-    def from_field(cls, field, **kwargs):
-        if POSTGRES_AVAILABLE:
-            if isinstance(field, (JSONField, HStoreField)):
-                return cls(**kwargs)
+    def from_field(cls, field: "Field", **kwargs) -> "JSONColumn | None":
+        if isinstance(field, JSONField) or (
+            HStoreField is not None and isinstance(field, HStoreField)
+        ):
+            return cls(**kwargs)
+        return None

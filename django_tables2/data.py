@@ -176,7 +176,7 @@ class TableQuerysetData(TableData):
         except StopIteration:
             pass
 
-    def order_by(self, aliases):
+    def order_by(self, aliases: OrderByTuple):
         """
         Order the data based on order by aliases (prefixed column names) in the table.
 

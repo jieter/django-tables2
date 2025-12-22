@@ -2,6 +2,7 @@ from math import ceil
 
 import django_filters as filters
 from django.core.exceptions import ImproperlyConfigured
+from django.db.models import QuerySet
 from django.test import TestCase
 from django.views.generic import TemplateView
 from django_filters.views import FilterView
@@ -184,7 +185,7 @@ class SingleTableViewTest(TestCase):
             # This paginate_by should be ignored because get_paginated_by is overridden
             paginate_by = 4
 
-            def get_paginate_by(self, queryset):
+            def get_paginate_by(self, queryset: QuerySet) -> int:
                 # Should paginate by 10
                 return 10
 

@@ -1,5 +1,11 @@
+from collections.abc import Iterable
+from typing import TYPE_CHECKING, Any
+
 from django.core.exceptions import ImproperlyConfigured
 from django.http import HttpResponse
+
+if TYPE_CHECKING:
+    from ..tables import Table
 
 try:
     from tablib import Dataset
@@ -44,25 +50,34 @@ class TableExport:
         YAML: "text/yaml; charset=utf-8",
     }
 
-    def __init__(self, export_format, table, exclude_columns=None, dataset_kwargs=None):
+    def __init__(
+        self,
+        export_format: str,
+        table: "Table",
+        exclude_columns: Iterable[str] | None = None,
+        dataset_kwargs: dict[str, Any] | None = None,
+    ):
         if not self.is_valid_format(export_format):
             raise TypeError(f'Export format "{export_format}" is not supported.')
 
         self.format = export_format
         self.dataset = self.table_to_dataset(table, exclude_columns, dataset_kwargs)
 
-    def table_to_dataset(self, table, exclude_columns, dataset_kwargs=None):
+    def table_to_dataset(
+        self,
+        table: "Table",
+        exclude_columns: Iterable[str] | None,
+        dataset_kwargs: dict[str, Any] | None = None,
+    ) -> Dataset:
         """Transform a table to a tablib dataset."""
+        try:
+            title = table.Meta.model._meta.verbose_name_plural.title()
+        except AttributeError:
+            title = "Export Data"
 
-        def default_dataset_title():
-            try:
-                return table.Meta.model._meta.verbose_name_plural.title()
-            except AttributeError:
-                return "Export Data"
-
-        kwargs = {"title": default_dataset_title()}
-        kwargs.update(dataset_kwargs or {})
-        dataset = Dataset(**kwargs)
+        dataset_kwargs = dataset_kwargs or {}
+        dataset_kwargs.setdefault("title", title)
+        dataset = Dataset(**dataset_kwargs)
         for i, row in enumerate(table.as_values(exclude_columns=exclude_columns)):
             if i == 0:
                 dataset.headers = row
@@ -71,19 +86,19 @@ class TableExport:
         return dataset
 
     @classmethod
-    def is_valid_format(self, export_format):
+    def is_valid_format(self, export_format: str) -> bool:
         """Return True if `export_format` is one of the supported export formats."""
-        return export_format is not None and export_format in TableExport.FORMATS.keys()
+        return export_format is not None and export_format in TableExport.FORMATS
 
-    def content_type(self):
+    def content_type(self) -> str:
         """Return the content type for the current export format."""
         return self.FORMATS[self.format]
 
-    def export(self):
+    def export(self) -> str | bytes:
         """Return the string/bytes for the current export format."""
         return self.dataset.export(self.format)
 
-    def response(self, filename=None):
+    def response(self, filename: str | None = None) -> HttpResponse:
         """
         Build and return a `HttpResponse` containing the exported data.
 

@@ -1,12 +1,18 @@
 import inspect
 import warnings
 from collections import OrderedDict
+from collections.abc import Callable, Mapping
 from functools import total_ordering
 from itertools import chain
+from typing import TYPE_CHECKING, Any, SupportsIndex, TypeVar, overload
 
 from django.core.exceptions import FieldDoesNotExist
 from django.db import models
 from django.utils.html import format_html_join
+
+if TYPE_CHECKING:
+    from django.contrib.contenttypes.fields import GenericForeignKey
+    from django.utils.safestring import SafeString
 
 
 class Sequence(list):
@@ -22,7 +28,7 @@ class Sequence(list):
     specified.
     """
 
-    def expand(self, columns):
+    def expand(self, columns: list[str]) -> "Sequence":
         """
         Expand the ``'...'`` item in the sequence into the appropriate column names that should be placed there.
 
@@ -43,8 +49,8 @@ class Sequence(list):
 
         # everything looks good, let's expand the "..." item
         columns = list(columns)  # take a copy and exhaust the generator
-        head = []
-        tail = []
+        head: list[str] = []
+        tail: list[str] = []
         target = head  # start by adding things to the head
         for name in self:
             if name == "...":
@@ -68,7 +74,7 @@ class OrderBy(str):
 
     QUERYSET_SEPARATOR = "__"
 
-    def __new__(cls, value):
+    def __new__(cls, value) -> "OrderBy":
         instance = super().__new__(cls, value)
         if Accessor.LEGACY_SEPARATOR in value:
             message = (
@@ -81,19 +87,18 @@ class OrderBy(str):
         return instance
 
     @property
-    def bare(self):
+    def bare(self) -> "OrderBy":
         """
         Return the bare form, without the direction prefix.
 
         The *bare form* is the non-prefixed form. Typically the bare form is just the ascending form.
 
         Example: ``age`` is the bare form of ``-age``
-
         """
         return OrderBy(self[1:]) if self[:1] == "-" else self
 
     @property
-    def opposite(self):
+    def opposite(self) -> "OrderBy":
         """
         Provide the opposite of the current sorting direction.
 
@@ -105,21 +110,20 @@ class OrderBy(str):
             >>> order_by = OrderBy('name')
             >>> order_by.opposite
             '-name'
-
         """
         return OrderBy(self[1:]) if self.is_descending else OrderBy("-" + self)
 
     @property
-    def is_descending(self):
+    def is_descending(self) -> bool:
         """Return `True` if this object induces *descending* ordering."""
         return self.startswith("-")
 
     @property
-    def is_ascending(self):
+    def is_ascending(self) -> bool:
         """Return `True` if this object induces *ascending* ordering."""
         return not self.is_descending
 
-    def for_queryset(self):
+    def for_queryset(self) -> str:
         """Return the current instance usable in Django QuerySet's order_by arguments."""
         return self.replace(Accessor.LEGACY_SEPARATOR, OrderBy.QUERYSET_SEPARATOR)
 
@@ -143,7 +147,7 @@ class OrderByTuple(tuple):
 
     """
 
-    def __new__(cls, iterable):
+    def __new__(cls, iterable) -> "OrderByTuple":
         transformed = []
         for item in iterable:
             if not isinstance(item, OrderBy):
@@ -151,10 +155,10 @@ class OrderByTuple(tuple):
             transformed.append(item)
         return super().__new__(cls, transformed)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return ",".join(self)
 
-    def __contains__(self, name):
+    def __contains__(self, name) -> bool:
         """
         Determine if a column has an influence on ordering.
 
@@ -177,6 +181,13 @@ class OrderByTuple(tuple):
             if order_by.bare == name:
                 return True
         return False
+
+    @overload
+    def __getitem__(self, index: SupportsIndex) -> "OrderBy": ...
+    @overload
+    def __getitem__(self, index: slice) -> "OrderByTuple": ...
+    @overload
+    def __getitem__(self, index: str) -> "OrderBy": ...
 
     def __getitem__(self, index):
         """
@@ -253,7 +264,7 @@ class OrderByTuple(tuple):
 
         return Comparator
 
-    def get(self, key, fallback):
+    def get(self, key: int | str, fallback: OrderBy) -> OrderBy:
         """Identical to `__getitem__`, but supports fallback value."""
         try:
             return self[key]
@@ -261,7 +272,7 @@ class OrderByTuple(tuple):
             return fallback
 
     @property
-    def opposite(self):
+    def opposite(self) -> "OrderByTuple":
         """
         Return version with each `.OrderBy` prefix toggled.
 
@@ -274,8 +285,9 @@ class OrderByTuple(tuple):
 
 class Accessor(str):
     """
-    A string describing a path from one object to another via attribute/index
-    accesses. For convenience, the class has an alias `.A` to allow for more concise code.
+    A string describing a path from one object to another via attribute/key/index accesses.
+
+    For convenience, the class is aliased as `.A` to allow for more concise code.
 
     Relations are separated by a ``__`` character.
 
@@ -291,12 +303,22 @@ class Accessor(str):
         "Failed lookup for key [{key}] in {context}, when resolving the accessor {accessor}"
     )
 
-    def __init__(self, value, callable_args=None, callable_kwargs=None):
+    def __init__(
+        self,
+        value: "str | Callable | Accessor",
+        callable_args: list[Callable] | None = None,
+        callable_kwargs: dict[str, Callable] | None = None,
+    ):
         self.callable_args = callable_args or getattr(value, "callable_args", None) or []
         self.callable_kwargs = callable_kwargs or getattr(value, "callable_kwargs", None) or {}
         super().__init__()
 
-    def __new__(cls, value, callable_args=None, callable_kwargs=None):
+    def __new__(
+        cls,
+        value,
+        callable_args: list[Callable] | None = None,
+        callable_kwargs: dict[str, Callable] | None = None,
+    ):
         instance = super().__new__(cls, value)
         if cls.LEGACY_SEPARATOR in value:
             instance.SEPARATOR = cls.LEGACY_SEPARATOR
@@ -310,7 +332,7 @@ class Accessor(str):
 
         return instance
 
-    def resolve(self, context, safe=True, quiet=False):
+    def resolve(self, context: Any, safe: bool = True, quiet: bool = False):
         """
         Return an object described by the accessor by traversing the attributes of *context*.
 
@@ -404,10 +426,12 @@ class Accessor(str):
             return ()
         return self.split(self.SEPARATOR)
 
-    def get_field(self, model):
+    def get_field(
+        self, model: models.Model
+    ) -> "models.Field[Any, Any] | models.ForeignObjectRel | GenericForeignKey | None":
         """Return the django model field for model in context, following relations."""
         if not hasattr(model, "_meta"):
-            return
+            return None
 
         field = None
         for bit in self.bits:
@@ -419,10 +443,9 @@ class Accessor(str):
             if hasattr(field, "remote_field"):
                 rel = getattr(field, "remote_field", None)
                 model = getattr(rel, "model", model)
-
         return field
 
-    def penultimate(self, context, quiet=True):
+    def penultimate(self, context, quiet: bool = True) -> tuple[Any, str]:
         """
         Split the accessor on the right-most separator ('__'), return a tuple with.
 
@@ -461,7 +484,7 @@ class AttributeDict(OrderedDict):
             if key not in self.blacklist and value is not None:
                 yield (key, value)
 
-    def as_html(self):
+    def as_html(self) -> "SafeString":
         """
         Render to HTML tag attributes.
 
@@ -517,7 +540,7 @@ def segment(sequence, aliases):
                     yield tuple([valias])
 
 
-def signature(fn):
+def signature(fn: Callable) -> tuple[tuple[Any, ...], str | None]:
     """
     Return an (arguments, kwargs)-tuple.
 
@@ -541,7 +564,10 @@ def signature(fn):
     return tuple(args), keywords
 
 
-def call_with_appropriate(fn, kwargs):
+R = TypeVar("R")
+
+
+def call_with_appropriate(fn: Callable[..., R], kwargs: Mapping[str, Any]) -> R | None:
     """
     Call the function ``fn`` with the keyword arguments from ``kwargs`` it expects.
 
@@ -562,7 +588,7 @@ def call_with_appropriate(fn, kwargs):
     return fn(**kwargs)
 
 
-def computed_values(d, kwargs=None):
+def computed_values(d: dict[str, Any], kwargs: Mapping[str, Any] | None = None) -> dict[str, Any]:
     """
     Return a new `dict` that has callable values replaced with the return values.
 

@@ -1,6 +1,8 @@
 import copy
 from collections import OrderedDict
+from collections.abc import Iterable, Iterator
 from itertools import count
+from typing import TYPE_CHECKING, Any
 
 from django.conf import settings
 from django.core.paginator import Paginator
@@ -13,6 +15,11 @@ from .config import RequestConfig
 from .data import TableData
 from .rows import BoundRows
 from .utils import Accessor, AttributeDict, OrderBy, OrderByTuple, Sequence
+
+if TYPE_CHECKING:
+    from django.http import HttpRequest
+
+    from .columns.base import BoundColumn
 
 
 class DeclarativeColumnsMetaclass(type):
@@ -250,6 +257,10 @@ class Table(metaclass=DeclarativeColumnsMetaclass):
             with `name` will be removed from the table.
     """
 
+    request: "HttpRequest | None"
+    Meta: TableOptions
+    _meta: TableOptions
+
     def __init__(
         self,
         data=None,
@@ -440,7 +451,7 @@ class Table(metaclass=DeclarativeColumnsMetaclass):
         """
         return
 
-    def as_html(self, request):
+    def as_html(self, request: "HttpRequest") -> str:
         """Render the table to an HTML table, adding `request` to the context."""
         # reset counter for new rendering
         self._counter = count()
@@ -451,7 +462,7 @@ class Table(metaclass=DeclarativeColumnsMetaclass):
         self.before_render(request)
         return template.render(context)
 
-    def as_values(self, exclude_columns=None):
+    def as_values(self, exclude_columns: Iterable[str] | None = None) -> Iterator[list[Any]]:
         """
         Return a row iterator of the data which would be shown in the table where the first row is the table headers.
 
@@ -482,7 +493,7 @@ class Table(metaclass=DeclarativeColumnsMetaclass):
 
         columns = [
             column
-            for column in self.columns.iterall()
+            for column in self.columns.all()
             if not (column.column.exclude_from_export or column.name in exclude_columns)
         ]
 
@@ -493,24 +504,24 @@ class Table(metaclass=DeclarativeColumnsMetaclass):
                 force_str(row.get_cell_value(column.name), strings_only=True) for column in columns
             ]
 
-    def has_footer(self):
+    def has_footer(self) -> bool:
         """Return True if any of the columns define a ``_footer`` attribute or a ``render_footer()`` method."""
         return self.show_footer and any(column.has_footer() for column in self.columns)
 
     @property
-    def show_header(self):
+    def show_header(self) -> bool:
         return self._show_header if self._show_header is not None else self._meta.show_header
 
     @show_header.setter
-    def show_header(self, value):
+    def show_header(self, value: bool) -> None:
         self._show_header = value
 
     @property
-    def order_by(self):
+    def order_by(self) -> OrderByTuple:
         return self._order_by
 
     @order_by.setter
-    def order_by(self, value):
+    def order_by(self, value: str | OrderByTuple | list[str] | None) -> None:
         """
         Order the rows of the table based on columns.
 
@@ -538,18 +549,25 @@ class Table(metaclass=DeclarativeColumnsMetaclass):
         )
 
     @order_by_field.setter
-    def order_by_field(self, value):
+    def order_by_field(self, value: str) -> None:
         self._order_by_field = value
 
     @property
-    def page_field(self):
+    def page_field(self) -> str:
         return self._page_field if self._page_field is not None else self._meta.page_field
 
     @page_field.setter
-    def page_field(self, value):
+    def page_field(self, value: str) -> None:
         self._page_field = value
 
-    def paginate(self, paginator_class=Paginator, per_page=None, page=1, *args, **kwargs):
+    def paginate(
+        self,
+        paginator_class: type[Paginator] = Paginator,
+        per_page: int | None = None,
+        page: int = 1,
+        *args,
+        **kwargs,
+    ):
         """
         Paginate the table using a paginator and creates a `page` property containing information for the current page.
 
@@ -582,23 +600,23 @@ class Table(metaclass=DeclarativeColumnsMetaclass):
         self._per_page_field = value
 
     @property
-    def prefix(self):
+    def prefix(self) -> str:
         return self._prefix if self._prefix is not None else self._meta.prefix
 
     @prefix.setter
-    def prefix(self, value):
+    def prefix(self, value: str) -> None:
         self._prefix = value
 
     @property
-    def prefixed_order_by_field(self):
+    def prefixed_order_by_field(self) -> str:
         return f"{self.prefix}{self.order_by_field}"
 
     @property
-    def prefixed_page_field(self):
+    def prefixed_page_field(self) -> str:
         return f"{self.prefix}{self.page_field}"
 
     @property
-    def prefixed_per_page_field(self):
+    def prefixed_per_page_field(self) -> str:
         return f"{self.prefix}{self.per_page_field}"
 
     @property
@@ -613,25 +631,25 @@ class Table(metaclass=DeclarativeColumnsMetaclass):
         self._sequence = value
 
     @property
-    def orderable(self):
+    def orderable(self) -> bool:
         if self._orderable is not None:
             return self._orderable
         else:
             return self._meta.orderable
 
     @orderable.setter
-    def orderable(self, value):
+    def orderable(self, value: bool | None):
         self._orderable = value
 
     @property
-    def template_name(self):
+    def template_name(self) -> str:
         if self._template is not None:
             return self._template
         else:
             return self._meta.template_name
 
     @template_name.setter
-    def template_name(self, value):
+    def template_name(self, value: str):
         self._template = value
 
     @property
@@ -641,7 +659,7 @@ class Table(metaclass=DeclarativeColumnsMetaclass):
             return self.page.object_list
         return self.rows
 
-    def get_column_class_names(self, classes_set, bound_column):
+    def get_column_class_names(self, classes_set, bound_column: "BoundColumn"):
         """
         Return a set of HTML class names for cells (both ``td`` and ``th``) of a **bound column** in this table.
 

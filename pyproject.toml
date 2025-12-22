@@ -55,6 +55,11 @@ packages = ["django_tables2"]
 [tool.hatch.version]
 path = "django_tables2/__init__.py"
 
+[tool.mypy]
+ignore_missing_imports = true
+python_version = "3.10"
+strict = false
+
 [tool.ruff]
 line-length = 100
 target-version = "py311"
