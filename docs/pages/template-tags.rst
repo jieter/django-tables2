@@ -38,8 +38,14 @@ Please refer to the Django documentation for the TEMPLATES-setting_.
 
 .. _template-tags.qs_replace:
 
-``qs_replace``
----------------
+qs_replace
+----------
+
+.. note::
+
+    This tag has been renamed from `querystring` to avoid shadowing the `Django
+    template tag <https://docs.djangoproject.com/en/dev/ref/templates/builtins/#querystring>`
+    with the same name.
 
 A utility that allows you to update a portion of the query-string without
 overwriting the entire thing.

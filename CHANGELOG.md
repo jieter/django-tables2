@@ -1,5 +1,10 @@
 # Change log
 
+## Unreleased
+
+**Breaking changes**:
+- Rename the `querystring` templatetag to `qs_replace` to avoid shadowing built-in one. If you use custom templates to render tables with django-tables2, you should replace {% querystring with {% qs_replace
+
 ## 2.8.0 (2025-11-21)
 - Pass `request` to the template rendered in TemplateColumn (#1014) Fixes: #1008
 - Do not generate error when table data model is subclass of table model ([#1015](https://github.com/jieter/django-tables2/pull/1015)) Fixes [#1010](https://github.com/jieter/django-tables2/issues/1010) by [@sjoerdjob](https://github.com/sjoerdjob)
