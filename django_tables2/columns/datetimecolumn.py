@@ -7,7 +7,8 @@ from .templatecolumn import TemplateColumn
 @library.register
 class DateTimeColumn(TemplateColumn):
     """
-    A column that renders `datetime` instances in the local timezone.
+    A column that renders `datetime` instances in the local timezone and uses
+    isoformat() (with a space separator) when exporting.
 
     Arguments:
         format (str): format string for datetime (optional).
@@ -26,3 +27,8 @@ class DateTimeColumn(TemplateColumn):
     def from_field(cls, field, **kwargs):
         if isinstance(field, models.DateTimeField):
             return cls(**kwargs)
+
+    def value(self, **kwargs):
+        if kwargs.get("value") and hasattr(kwargs["value"], "isoformat"):
+            return kwargs["value"].isoformat(sep=' ')
+        return super().value(**kwargs)

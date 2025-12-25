@@ -7,7 +7,8 @@ from .templatecolumn import TemplateColumn
 @library.register
 class DateColumn(TemplateColumn):
     """
-    A column that renders dates in the local timezone.
+    A column that renders dates in the local timezone and uses isoformat() when
+    exporting.
 
     Arguments:
         format (str): format string in same format as Django's ``date`` template
@@ -26,3 +27,8 @@ class DateColumn(TemplateColumn):
     def from_field(cls, field, **kwargs):
         if isinstance(field, models.DateField):
             return cls(**kwargs)
+
+    def value(self, **kwargs):
+        if kwargs.get("value") and hasattr(kwargs["value"], "isoformat"):
+            return kwargs["value"].isoformat()
+        return super().value(**kwargs)
