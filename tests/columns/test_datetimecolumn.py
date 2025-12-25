@@ -86,6 +86,5 @@ class DateTimeColumnTest(SimpleTestCase):
             col = tables.DateTimeColumn()
 
         table = Table([{"col": self.dt()}])
-        self.assertEqual(
-            table.rows[0].get_cell_value("col"), self.dt().isoformat(sep=" ")
-        )
+        self.assertEqual(table.rows[0].get_cell_value("col"), self.dt().isoformat(sep=" "))
+

@@ -30,5 +30,5 @@ class DateTimeColumn(TemplateColumn):
 
     def value(self, **kwargs):
         if kwargs.get("value") and hasattr(kwargs["value"], "isoformat"):
-            return kwargs["value"].isoformat(sep=' ')
+            return kwargs["value"].isoformat(sep=" ")
         return super().value(**kwargs)
