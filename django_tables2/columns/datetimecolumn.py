@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.db import models
 
 from .base import library
@@ -28,7 +30,7 @@ class DateTimeColumn(TemplateColumn):
         if isinstance(field, models.DateTimeField):
             return cls(**kwargs)
 
-    def value(self, **kwargs):
-        if kwargs.get("value") and hasattr(kwargs["value"], "isoformat"):
-            return kwargs["value"].isoformat(sep=" ")
-        return super().value(**kwargs)
+    def value(self, value, **kwargs):
+        if isinstance(value, datetime):
+            return value.isoformat(sep=" ")
+        return super().value(value=value, **kwargs)

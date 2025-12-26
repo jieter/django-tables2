@@ -264,11 +264,6 @@ class AdvancedExportViewTest(TestCase):
     def test_datetime_xls(self):
         """Verify datatime objects can be exported to xls."""
         utc = pytz.timezone("UTC")
-        test_data = {
-            "date": date(2019, 7, 22),
-            "time": time(11, 11, 11),
-            "datetime": utc.localize(datetime(2019, 7, 22, 11, 11, 11)),
-        }
 
         class Table(tables.Table):
             date = tables.DateColumn()
@@ -281,22 +276,28 @@ class AdvancedExportViewTest(TestCase):
             template_name = "django_tables2/bootstrap.html"
 
             def get_queryset(self):
-                return [test_data]
+                return [
+                    {
+                        "date": date(2019, 5, 21),
+                        "time": time(11, 11, 11),
+                        "datetime": utc.localize(datetime(2019, 7, 22, 11, 12, 13)),
+                    }
+                ]
 
         response = View.as_view()(build_request("/?_export=csv"))
         data = response.getvalue().decode("utf8")
 
         expected_csv = "Date,Time,Datetime\r\n{},{},{}\r\n".format(
-            test_data["date"].isoformat(),
-            test_data["time"].isoformat(),
-            test_data["datetime"].isoformat(sep=" "),
+            "2019-05-21",
+            "11:11:11",
+            "2019-07-22 11:12:13+00:00",
         )
         self.assertEqual(data, expected_csv)
 
         response = View.as_view()(build_request("/?_export=xls"))
-        self.assertIn(test_data["time"].isoformat().encode("utf8"), response.content)
-        self.assertIn(test_data["date"].isoformat().encode("utf8"), response.content)
-        self.assertIn(test_data["datetime"].isoformat(sep=" ").encode("utf8"), response.content)
+        self.assertIn(b"2019-05-21", response.content)
+        self.assertIn(b"11:11:11", response.content)
+        self.assertIn(b"2019-07-22 11:12:13+00:00", response.content)
 
     def test_export_invisible_columns(self):
         """Verify columns with visible=False *do* get exported."""

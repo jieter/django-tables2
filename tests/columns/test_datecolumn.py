@@ -77,9 +77,8 @@ class DateColumnTest(SimpleTestCase):
             date = tables.DateColumn()
             date_linkify = tables.DateColumn(accessor="date", linkify=isoformat_link)
 
-        dt = date(2012, 9, 12)
-        table = Table([{"date": dt}])
-        self.assertEqual(table.rows[0].get_cell_value("date"), dt.isoformat())
+        table = Table([{"date": date(2012, 9, 12)}])
+        self.assertEqual(table.rows[0].get_cell_value("date"), "2012-09-12")
         self.assertEqual(
             table.rows[0].get_cell("date_linkify"), '<a href="/test/2012-09-12/">09/12/2012</a>'
         )

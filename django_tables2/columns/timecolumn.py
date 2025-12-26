@@ -1,3 +1,5 @@
+from datetime import time
+
 from django.db import models
 
 from .base import library
@@ -25,7 +27,7 @@ class TimeColumn(TemplateColumn):
         if isinstance(field, models.TimeField):
             return cls(**kwargs)
 
-    def value(self, **kwargs):
-        if kwargs.get("value") and hasattr(kwargs["value"], "isoformat"):
-            return kwargs["value"].isoformat()
-        return super().value(**kwargs)
+    def value(self, value, **kwargs):
+        if isinstance(value, time):
+            return value.isoformat()
+        return super().value(value=value, **kwargs)
