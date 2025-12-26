@@ -185,8 +185,8 @@ class TableQuerysetData(TableData):
                 columns ('-' indicates descending order) in order of
                 significance with regard to data ordering.
         """
-        modified_any = False
         accessors = []
+        orderables = tuple()
         for alias in aliases:
             bound_column = self.table.columns[OrderBy(alias).bare]
             # bound_column.order_by reflects the current ordering applied to
@@ -198,14 +198,15 @@ class TableQuerysetData(TableData):
                 accessors += bound_column.order_by
 
             if bound_column:
-                queryset, modified = bound_column.order(self.data, alias[0] == "-")
+                # We have to pass queryset because ordering could be on an annotation that was
+                #  added for sorting
+                self.data, orderable = bound_column.order(self.data, alias[0] == "-")
 
-                if modified:
-                    self.data = queryset
-                    modified_any = True
+                orderables = orderables + (orderable,)
 
         # custom ordering
-        if modified_any:
+        if orderables:
+            self.data = self.data.order_by(*orderables)
             return
 
         # Traditional ordering
