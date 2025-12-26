@@ -13,7 +13,7 @@
         </tr>
     {% endfor %}
     {% if table.page.has_next %}
-        <a href="{% qs_replace table.prefixed_page_field=table.page.next_page_number %}">
+        <a href="{% querystring_replace table.prefixed_page_field=table.page.next_page_number %}">
             next
         </a>
     {% endif %}

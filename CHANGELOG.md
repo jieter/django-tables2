@@ -2,8 +2,10 @@
 
 ## Unreleased
 
-**Breaking changes**:
-- Rename the `querystring` templatetag to `qs_replace` to avoid shadowing built-in one. If you use custom templates to render tables with django-tables2, you should replace {% querystring with {% qs_replace
+**Breaking changes:**
+- Rename the `querystring` templatetag to `querystring_replace` to avoid shadowing built-in one.
+  If you use custom templates to render tables with django-tables2, you should replace
+  `{% querystring %}` with `{% querystring_replace %}`
 
 ## 2.8.0 (2025-11-21)
 - Pass `request` to the template rendered in TemplateColumn (#1014) Fixes: #1008

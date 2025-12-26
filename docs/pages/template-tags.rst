@@ -36,10 +36,10 @@ Please refer to the Django documentation for the TEMPLATES-setting_.
 
 .. _TEMPLATES-setting: https://docs.djangoproject.com/en/stable/ref/settings/#std:setting-TEMPLATES
 
-.. _template-tags.qs_replace:
+.. _template-tags.querystring_replace:
 
-qs_replace
-----------
+querystring_replace
+-------------------
 
 .. note::
 
@@ -55,12 +55,12 @@ we want to update the ``sort`` parameter:
 
 .. sourcecode:: django
 
-    {% qs_replace "sort"="dob" %}           # ?search=pirates&sort=dob&page=5
-    {% qs_replace "sort"="" %}              # ?search=pirates&page=5
-    {% qs_replace "sort"="" "search"="" %}  # ?page=5
+    {% querystring_replace "sort"="dob" %}           # ?search=pirates&sort=dob&page=5
+    {% querystring_replace "sort"="" %}              # ?search=pirates&page=5
+    {% querystring_replace "sort"="" "search"="" %}  # ?page=5
 
-    {% with "search" as key %}               # supports variables as keys
-    {% qs_replace key="robots" %}           # ?search=robots&page=5
+    {% with "search" as key %}                       # supports variables as keys
+    {% querystring_replace key="robots" %}           # ?search=robots&page=5
     {% endwith %}
 
 This tag requires the ``django.template.context_processors.request`` context
