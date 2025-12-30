@@ -6,6 +6,14 @@
 - Rename the `querystring` templatetag to `querystring_replace` to avoid shadowing built-in one.
   If you use custom templates to render tables with django-tables2, you should replace
   `{% querystring %}` with `{% querystring_replace %}`
+- `RelatedLinkColumn` is removed. Replace `RelatedLinkColumn` with `Column(linkify=True)`.
+
+Changes:
+- Remove deprecated `RelatedLinkColumn` and `NullBooleanField` support ([#1016](https://github.com/jieter/django-tables2/pull/1016))
+  `NullBooleanField` was removed in django 4.0
+- Export `DateColumn`/`DateTimeColumn`/`TimeColumn` in ISO format ([#1022](https://github.com/jieter/django-tables2/pull/1022) by [@spapas](https://github.com/spapas))
+- Rename `querystring` template tag to `querystring_replace` ([#1021](https://github.com/jieter/django-tables2/pull/1021) by [@federicobond](https://github.com/federicobond))
+
 
 ## 2.8.0 (2025-11-21)
 - Pass `request` to the template rendered in TemplateColumn (#1014) Fixes: #1008
