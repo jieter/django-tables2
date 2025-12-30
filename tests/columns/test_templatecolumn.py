@@ -115,6 +115,36 @@ class TemplateColumnTest(SimpleTestCase):
 
         self.assertEqual(list(table.as_values()), [["Track"], ["Space Oddity"]])
 
+    def test_context_object_name(self):
+        class Table(tables.Table):
+            name = tables.TemplateColumn("{{ user.name }}", context_object_name="user")
+
+        table = Table([{"name": "Bob"}])
+        self.assertEqual(list(table.as_values()), [["Name"], ["Bob"]])
+
+    def test_extra_context_dict(self):
+        class Table(tables.Table):
+            clothes__size = tables.TemplateColumn(
+                "{{ filter }}: {{ value }}", verbose_name="Size", extra_context={"filter": "size"}
+            )
+
+        table = Table([{"clothes": {"size": "XL"}}])
+        self.assertEqual(list(table.as_values()), [["Size"], ["size: XL"]])
+
+    def test_extra_context_callable(self):
+        class Table(tables.Table):
+            size = tables.TemplateColumn(
+                "{{ size }}", extra_context=lambda record: {"size": record["clothes"]["size"]}
+            )
+            clothes__size = tables.TemplateColumn(
+                "{{ size }}",
+                verbose_name="Clothes Size",
+                extra_context=lambda value: {"size": f"size: {value}"},
+            )
+
+        table = Table([{"clothes": {"size": "XL"}}])
+        self.assertEqual(list(table.as_values()), [["Size", "Clothes Size"], ["XL", "size: XL"]])
+
     def test_request_passthrough(self):
         class Table(tables.Table):
             track = tables.TemplateColumn(template_code="{{ request.path }}")
