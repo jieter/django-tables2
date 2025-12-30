@@ -11,7 +11,7 @@
                     {% for column in table.columns %}
                         <th {{ column.attrs.th.as_html }}>
                             {% if column.orderable %}
-                                <a href="{% querystring table.prefixed_order_by_field=column.order_by_alias.next %}">{{ column.header }}</a>
+                                <a href="{% querystring_replace table.prefixed_order_by_field=column.order_by_alias.next %}">{{ column.header }}</a>
                             {% else %}
                                 {{ column.header }}
                             {% endif %}
@@ -60,7 +60,7 @@
             {% if table.page.has_previous %}
                 {% block pagination.previous %}
                     <li class="previous">
-                        <a href="{% querystring table.prefixed_page_field=table.page.previous_page_number %}">
+                        <a href="{% querystring_replace table.prefixed_page_field=table.page.previous_page_number %}">
                             {% trans 'previous' %}
                         </a>
                     </li>
@@ -73,7 +73,7 @@
                         {% if p == '...' %}
                             <a href="#">{{ p }}</a>
                         {% else %}
-                            <a href="{% querystring table.prefixed_page_field=p %}">
+                            <a href="{% querystring_replace table.prefixed_page_field=p %}">
                                 {{ p }}
                             </a>
                         {% endif %}
@@ -84,7 +84,7 @@
             {% if table.page.has_next %}
                 {% block pagination.next %}
                     <li class="next">
-                        <a href="{% querystring table.prefixed_page_field=table.page.next_page_number %}">
+                        <a href="{% querystring_replace table.prefixed_page_field=table.page.next_page_number %}">
                             {% trans 'next' %}
                         </a>
                     </li>

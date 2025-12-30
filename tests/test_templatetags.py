@@ -144,10 +144,10 @@ class RenderTableTagTest(TestCase):
         self.assertEqual(td, db)
 
 
-class QuerystringTagTest(SimpleTestCase):
+class QuerystringReplaceTagTest(SimpleTestCase):
     def test_basic(self):
         template = Template(
-            '{% load django_tables2 %}<b>{% querystring "name"="Brad" foo.bar=value %}</b>'
+            '{% load django_tables2 %}<b>{% querystring_replace "name"="Brad" foo.bar=value %}</b>'
         )
 
         # Should be something like: <root>?name=Brad&amp;a=b&amp;c=5&amp;age=21</root>
@@ -167,8 +167,10 @@ class QuerystringTagTest(SimpleTestCase):
         self.assertEqual(qs["c"], ["5"])
 
     def test_requires_request(self):
-        template = Template('{% load django_tables2 %}{% querystring "name"="Brad" %}')
-        message = "Tag {% querystring %} requires django.template.context_processors.request to "
+        template = Template('{% load django_tables2 %}{% querystring_replace "name"="Brad" %}')
+        message = (
+            "Tag {% querystring_replace %} requires django.template.context_processors.request to "
+        )
         with self.assertRaisesMessage(ImproperlyConfigured, message):
             template.render(Context())
 
@@ -176,7 +178,7 @@ class QuerystringTagTest(SimpleTestCase):
         context = Context({"request": build_request("/?a=b&name=dog&c=5"), "a_var": "a"})
 
         template = Template(
-            '{% load django_tables2 %}<b>{% querystring "name"="Brad" without a_var %}</b>'
+            '{% load django_tables2 %}<b>{% querystring_replace "name"="Brad" without a_var %}</b>'
         )
         url = parse(template.render(context)).text
         qs = parse_qs(url[1:])  # trim the ?
@@ -184,20 +186,24 @@ class QuerystringTagTest(SimpleTestCase):
 
     def test_only_without(self):
         context = Context({"request": build_request("/?a=b&name=dog&c=5"), "a_var": "a"})
-        template = Template('{% load django_tables2 %}<b>{% querystring without "a" "name" %}</b>')
+        template = Template(
+            '{% load django_tables2 %}<b>{% querystring_replace without "a" "name" %}</b>'
+        )
         url = parse(template.render(context)).text
         qs = parse_qs(url[1:])  # trim the ?
         self.assertEqual(set(qs.keys()), {"c"})
 
-    def test_querystring_syntax_error(self):
-        with self.assertRaisesMessage(TemplateSyntaxError, "Malformed arguments to 'querystring'"):
-            Template("{% load django_tables2 %}{% querystring foo= %}")
+    def test_querystring_replace_syntax_error(self):
+        with self.assertRaisesMessage(
+            TemplateSyntaxError, "Malformed arguments to 'querystring_replace'"
+        ):
+            Template("{% load django_tables2 %}{% querystring_replace foo= %}")
 
-    def test_querystring_as_var(self):
-        def assert_querystring_asvar(template_code, expected):
+    def test_querystring_replace_as_var(self):
+        def assert_querystring_replace_asvar(template_code, expected):
             template = Template(
                 "{% load django_tables2 %}"
-                "<b>{% querystring " + template_code + " %}</b>"
+                "<b>{% querystring_replace " + template_code + " %}</b>"
                 "<strong>{{ varname }}</strong>"
             )
 
@@ -216,7 +222,7 @@ class QuerystringTagTest(SimpleTestCase):
         )
 
         for argstr, expected in tests:
-            assert_querystring_asvar(argstr, expected)
+            assert_querystring_replace_asvar(argstr, expected)
 
     def test_export_url_tag(self):
         class View(ExportMixin):

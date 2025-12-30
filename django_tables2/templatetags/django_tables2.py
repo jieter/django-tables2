@@ -44,7 +44,7 @@ def token_kwargs(bits, parser):
     return kwargs
 
 
-class QuerystringNode(Node):
+class QuerystringReplaceNode(Node):
     def __init__(self, updates, removals, asvar=None):
         super().__init__()
         self.updates = updates
@@ -53,7 +53,7 @@ class QuerystringNode(Node):
 
     def render(self, context):
         if "request" not in context:
-            raise ImproperlyConfigured(context_processor_error_msg % "querystring")
+            raise ImproperlyConfigured(context_processor_error_msg % "querystring_replace")
 
         params = dict(context["request"].GET)
         for key, value in self.updates.items():
@@ -76,9 +76,9 @@ class QuerystringNode(Node):
             return value
 
 
-# {% querystring "name"="abc" "age"=15 as=qs %}
+# {% querystring_replace "name"="abc" "age"=15 as=qs %}
 @register.tag
-def querystring(parser, token):
+def querystring_replace(parser, token):
     """
     Create an URL (containing only the query string [including "?"]) derivedfrom the current URL's query string.
 
@@ -86,11 +86,11 @@ def querystring(parser, token):
 
     Example (imagine URL is ``/abc/?gender=male&name=Brad``)::
 
-        # {% querystring "name"="abc" "age"=15 %}
+        # {% querystring_replace "name"="abc" "age"=15 %}
         ?name=abc&gender=male&age=15
-        {% querystring "name"="Ayers" "age"=20 %}
+        {% querystring_replace "name"="Ayers" "age"=20 %}
         ?name=Ayers&gender=male&age=20
-        {% querystring "name"="Ayers" without "gender" %}
+        {% querystring_replace "name"="Ayers" without "gender" %}
         ?name=Ayers
     """
     bits = token.split_contents()
@@ -113,7 +113,7 @@ def querystring(parser, token):
     if bits and bits.pop(0) != "without":
         raise TemplateSyntaxError(f"Malformed arguments to '{tag}'")
     removals = [parser.compile_filter(bit) for bit in bits]
-    return QuerystringNode(updates, removals, asvar=asvar)
+    return QuerystringReplaceNode(updates, removals, asvar=asvar)
 
 
 class RenderTableNode(Node):
@@ -230,9 +230,9 @@ def export_url(context, export_format, export_trigger_param=None):
 
     export_trigger_param = export_trigger_param or "_export"
 
-    return QuerystringNode(updates={export_trigger_param: export_format}, removals=[]).render(
-        context
-    )
+    return QuerystringReplaceNode(
+        updates={export_trigger_param: export_format}, removals=[]
+    ).render(context)
 
 
 @register.filter

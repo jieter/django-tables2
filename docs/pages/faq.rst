@@ -17,7 +17,7 @@ How should I fix error messages about the request context processor?
 
 The error message looks something like this::
 
-    Tag {% querystring %} requires django.template.context_processors.request to be
+    Tag {% querystring_replace %} requires django.template.context_processors.request to be
     in the template configuration in settings.TEMPLATES[]OPTIONS.context_processors)
     in order for the included template tags to function correctly.
 
