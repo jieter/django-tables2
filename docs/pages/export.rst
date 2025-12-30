@@ -80,6 +80,10 @@ By default, it just calls the `render()` method on that column.
 If your custom column produces HTML, you should override this method and return
 the actual value.
 
+For column headers, similarly sometimes :ref:Column.header`-may include html which
+would be inappropriate to include in an export. For this case, the `:ref:Column.header_value`
+can be used to override the column header only in exports.
+
 
 Including and excluding columns
 -------------------------------
