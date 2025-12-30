@@ -86,4 +86,4 @@ class DateTimeColumnTest(SimpleTestCase):
             col = tables.DateTimeColumn()
 
         table = Table([{"col": self.dt()}])
-        self.assertEqual(table.rows[0].get_cell_value("col"), "09/11/2012 12:30 p.m.")
+        self.assertEqual(table.rows[0].get_cell_value("col"), "2012-09-11 12:30:00+02:00")

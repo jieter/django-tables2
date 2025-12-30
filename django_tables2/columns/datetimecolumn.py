@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.db import models
 
 from .base import library
@@ -7,7 +9,8 @@ from .templatecolumn import TemplateColumn
 @library.register
 class DateTimeColumn(TemplateColumn):
     """
-    A column that renders `datetime` instances in the local timezone.
+    A column that renders `datetime` instances in the local timezone and uses
+    isoformat() (with a space separator) when exporting.
 
     Arguments:
         format (str): format string for datetime (optional).
@@ -26,3 +29,8 @@ class DateTimeColumn(TemplateColumn):
     def from_field(cls, field, **kwargs):
         if isinstance(field, models.DateTimeField):
             return cls(**kwargs)
+
+    def value(self, value, **kwargs):
+        if isinstance(value, datetime):
+            return value.isoformat(sep=" ")
+        return super().value(value=value, **kwargs)
