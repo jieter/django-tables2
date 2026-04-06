@@ -1,3 +1,6 @@
+import sys
+from typing import TYPE_CHECKING
+
 from django.db import models
 from django.test import TestCase
 
@@ -253,6 +256,24 @@ class SignatureTest(TestCase):
         args, keywords = signature(foo)
         assert args == ("bar", "baz")
         assert keywords == "kwargs"
+
+    def test_signature_with_type_hints(self):
+        # Python 3.14+
+        if sys.version_info >= (3, 14):
+            if TYPE_CHECKING:
+                from typing import Tuple  # noqa: UP035
+
+            def foo(x: Tuple[int, ...]) -> None:  # noqa: UP006
+                pass
+        else:
+            from typing import Tuple  # noqa: UP035
+
+            def foo(x: Tuple[int, ...]) -> None:  # noqa: UP006
+                pass
+
+        args, keywords = signature(foo)
+        assert args == ("x",)
+        assert keywords is None
 
 
 class CallWithAppropriateTest(TestCase):

@@ -1,4 +1,5 @@
 import inspect
+import sys
 import warnings
 from collections import OrderedDict
 from functools import total_ordering
@@ -7,6 +8,13 @@ from itertools import chain
 from django.core.exceptions import FieldDoesNotExist
 from django.db import models
 from django.utils.html import format_html_join
+
+if sys.version_info >= (3, 14):
+    from annotationlib import Format
+
+    SIGNATURE_KWARGS = {"annotation_format": Format.STRING}
+else:
+    SIGNATURE_KWARGS = {}
 
 
 class Sequence(list):
@@ -526,7 +534,7 @@ def signature(fn):
 
     The self-argument for methods is always removed.
     """
-    signature = inspect.signature(fn)
+    signature = inspect.signature(fn, **SIGNATURE_KWARGS)
 
     args = []
     keywords = None
