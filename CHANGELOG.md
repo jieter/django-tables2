@@ -13,6 +13,8 @@ Changes:
   `NullBooleanField` was removed in django 4.0
 - Export `DateColumn`/`DateTimeColumn`/`TimeColumn` in ISO format ([#1022](https://github.com/jieter/django-tables2/pull/1022) by [@spapas](https://github.com/spapas))
 - Rename `querystring` template tag to `querystring_replace` ([#1021](https://github.com/jieter/django-tables2/pull/1021) by [@federicobond](https://github.com/federicobond))
+- Use string annotation_format in `inspect.signature` to prevent runtime errors with type annotations ([#1027](https://github.com/jieter/django-tables2/pull/1027)) by [@mschoettle](https://github.com/mschoettle)
+- Add optional `context_object_name` to `TemplateColumn` and make `extra_context` optionally callable ([#931](https://github.com/jieter/django-tables2/pull/931)) fixes: [#928](https://github.com/jieter/django-tables2/issues/928)
 
 
 ## 2.8.0 (2025-11-21)
