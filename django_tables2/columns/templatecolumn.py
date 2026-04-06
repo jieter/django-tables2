@@ -46,9 +46,8 @@ class TemplateColumn(Column):
     .. code-block:: python
 
         class PriorityColumn(TemplateColumn):
-            def get_context_data(self, **kwargs):
-                context = super().get_context_data(**kwargs)
-                record = context["record"]
+            def get_context_data(self, record, **kwargs):
+                context = super().get_context_data(record=record, **kwargs)
                 context["overdue"] = record.due_date < date.today()
                 return context
     """
