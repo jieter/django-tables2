@@ -46,6 +46,7 @@ class TemplateColumn(Column):
     .. code-block:: python
 
         class PriorityColumn(TemplateColumn):
+            template_name = "priority_column.html"
             def get_context_data(self, record, **kwargs):
                 context = super().get_context_data(record=record, **kwargs)
                 context["overdue"] = record.due_date < date.today()
@@ -58,17 +59,19 @@ class TemplateColumn(Column):
         self,
         template_code=None,
         template_name=None,
-        context_object_name="record",
+        context_object_name=None,
         extra_context=None,
         **extra,
     ):
         super().__init__(**extra)
-        self.template_code = template_code
-        self.template_name = template_name
+        self.template_code = template_code or getattr(self, "template_code", None)
+        self.template_name = template_name or getattr(self, "template_name", None)
         self.extra_context = extra_context or {}
-        self.context_object_name = context_object_name
+        self.context_object_name = context_object_name or getattr(
+            self, "context_object_name", "record"
+        )
 
-        if not self.template_code and not self.template_name:
+        if not getattr(self, "template_code", None) and not getattr(self, "template_name", None):
             raise ValueError("A template must be provided")
 
     def get_context_data(self, *, record, table, value, bound_column, **kwargs):

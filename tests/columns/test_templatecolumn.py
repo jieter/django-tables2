@@ -145,6 +145,42 @@ class TemplateColumnTest(SimpleTestCase):
         table = Table([{"clothes": {"size": "XL"}}])
         self.assertEqual(list(table.as_values()), [["Size", "Clothes Size"], ["XL", "size: XL"]])
 
+    def test_class_attribute_template_code(self):
+        class MyColumn(tables.TemplateColumn):
+            template_code = "value={{ value }}"
+
+        class Table(tables.Table):
+            foo = MyColumn()
+            bar = MyColumn(template_code="explicit={{ value }}")
+
+        table = Table([{"foo": "bar", "bar": "baz"}])
+        self.assertEqual(table.rows[0].get_cell("foo"), "value=bar")
+        self.assertEqual(table.rows[0].get_cell("bar"), "explicit=baz")
+
+    def test_class_attribute_template_name(self):
+        class MyColumn(tables.TemplateColumn):
+            template_name = "test_template_column.html"
+
+        class Table(tables.Table):
+            col = MyColumn()
+            col2 = MyColumn(template_name="column.html")
+
+        table = Table([{"col": "brad", "col2": "brad"}])
+        self.assertEqual(table.rows[0].get_cell("col"), "name:brad-empty\n")
+        self.assertNotEqual(table.rows[0].get_cell("col2"), "name:brad-empty\n")
+
+    def test_class_attribute_context_object_name(self):
+        class MyColumn(tables.TemplateColumn):
+            template_code = "{{ user.name }}"
+            context_object_name = "user"
+
+        class Table(tables.Table):
+            name = MyColumn()
+            name2 = MyColumn(context_object_name="record")
+
+        table = Table([{"name": "Bob", "name2": "Bob"}])
+        self.assertEqual(list(table.as_values()), [["Name", "Name2"], ["Bob", ""]])
+
     def test_request_passthrough(self):
         class Table(tables.Table):
             track = tables.TemplateColumn(template_code="{{ request.path }}")
