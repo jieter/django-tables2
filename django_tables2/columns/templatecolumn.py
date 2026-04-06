@@ -1,3 +1,5 @@
+from collections.abc import Callable
+
 from django.template import Context, Template
 from django.template.loader import get_template
 from django.utils.html import strip_tags
@@ -60,7 +62,7 @@ class TemplateColumn(Column):
         template_code=None,
         template_name=None,
         context_object_name=None,
-        extra_context=None,
+        extra_context: dict | Callable[..., dict] | None = None,
         **extra,
     ):
         super().__init__(**extra)
