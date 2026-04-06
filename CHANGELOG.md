@@ -1,6 +1,6 @@
 # Change log
 
-## Unreleased
+## 2.9.0 (2026-04-06)
 
 **Breaking changes:**
 - Rename the `querystring` templatetag to `querystring_replace` to avoid shadowing built-in one.
