@@ -39,6 +39,18 @@ class TemplateColumn(Column):
                                         extra_context={"label": "Label"})
 
     Both columns will have the same output.
+
+    If you need more complex extra context, you can override the `get_context_data` method instead of passing
+    `extra_context`.
+
+    .. code-block:: python
+
+        class PriorityColumn(TemplateColumn):
+            def get_context_data(self, **kwargs):
+                context = super().get_context_data(**kwargs)
+                record = context["record"]
+                context["overdue"] = record.due_date < date.today()
+                return context
     """
 
     empty_values = ()
