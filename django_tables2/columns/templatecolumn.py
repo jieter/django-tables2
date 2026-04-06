@@ -60,7 +60,7 @@ class TemplateColumn(Column):
         if not self.template_code and not self.template_name:
             raise ValueError("A template must be provided")
 
-    def get_context_data(self, record, table, value, bound_column, **kwargs):
+    def get_context_data(self, *, record, table, value, bound_column, **kwargs):
         """
         Generate the context data for rendering the template column template.
 
@@ -90,7 +90,8 @@ class TemplateColumn(Column):
         # attaches the context to the table as a gift to `TemplateColumn`.
         parent_context = getattr(table, "context", Context())
 
-        with parent_context.update(self.get_context_data(table=table, **kwargs)):
+        context = self.get_context_data(table=table, **kwargs)
+        with parent_context.update(context):
             request = getattr(table, "request", None)
             if self.template_code:
                 parent_context["request"] = request
