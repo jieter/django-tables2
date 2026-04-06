@@ -59,13 +59,13 @@ class TemplateColumn(Column):
 
     def __init__(
         self,
-        template_code=None,
-        template_name=None,
-        context_object_name=None,
+        template_code: str | None = None,
+        template_name: str | None = None,
+        context_object_name: str | None = None,
         extra_context: dict | Callable[..., dict] | None = None,
-        **extra,
+        **kwargs,
     ):
-        super().__init__(**extra)
+        super().__init__(**kwargs)
         self.template_code = template_code or getattr(self, "template_code", None)
         self.template_name = template_name or getattr(self, "template_name", None)
         self.extra_context = extra_context or {}
