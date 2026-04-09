@@ -194,3 +194,20 @@ class TemplateColumnTest(SimpleTestCase):
         html = template.render(Context({"request": request, "table": table}))
         self.assertIn("<td >/table/</td>", html)
         self.assertIn("<td >GET</td>", html)
+
+    def test_render_signature(self):
+        class MyColumn(tables.TemplateColumn):
+            def render(self, record, table, *args, **kwargs):
+                return super().render(record, table, *args, **kwargs)
+
+        class Table(tables.Table):
+            col = MyColumn("{{ record.col }}")
+
+        table = Table([{"col": "value"}])
+        template = Template("{% load django_tables2 %}{% render_table table %}")
+        request = build_request("/table/")
+
+        try:
+            template.render(Context({"request": request, "table": table}))
+        except TypeError as e:
+            self.fail(f"Render method has wrong signature: {e}")
