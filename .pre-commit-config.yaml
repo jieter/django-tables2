@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.14.6
+    rev: v0.15.9
     hooks:
       - id: ruff-check
         args: [--fix, --exit-non-zero-on-fix]
@@ -8,13 +8,13 @@ repos:
         types_or: [ python, pyi ]
 
   - repo: https://github.com/macisamuele/language-formatters-pre-commit-hooks
-    rev: v2.15.0
+    rev: v2.16.0
     hooks:
     - id: pretty-format-toml
       args: [--autofix]
 
   - repo: https://github.com/adamchainz/django-upgrade
-    rev: "1.29.1"
+    rev: "1.30.0"
     hooks:
      - id: django-upgrade
        args: [--target-version, "4.2"]
