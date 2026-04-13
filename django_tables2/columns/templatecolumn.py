@@ -101,12 +101,14 @@ class TemplateColumn(Column):
             extra_context = call_with_appropriate(extra_context, optional_kwargs)
         return context | extra_context
 
-    def render(self, table, **kwargs):
+    def render(self, record, table, value, bound_column, **kwargs):
         # If the table is being rendered using `render_table`, it hackily
         # attaches the context to the table as a gift to `TemplateColumn`.
         parent_context = getattr(table, "context", Context())
 
-        context = self.get_context_data(table=table, **kwargs)
+        context = self.get_context_data(
+            record=record, table=table, value=value, bound_column=bound_column, **kwargs
+        )
         with parent_context.update(context):
             request = getattr(table, "request", None)
             if self.template_code:
