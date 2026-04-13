@@ -1,12 +1,19 @@
 # Change log
 
-## 2.9.0 (2026-04-06)
-
+## 3.0.0 (2026-04-13)
 **Breaking changes:**
 - Rename the `querystring` templatetag to `querystring_replace` to avoid shadowing built-in one.
   If you use custom templates to render tables with django-tables2, you should replace
   `{% querystring %}` with `{% querystring_replace %}`
 - `RelatedLinkColumn` is removed. Replace `RelatedLinkColumn` with `Column(linkify=True)`.
+
+Changes:
+- Restore signature of `TemplateColumn.render()` ([#1033](https://github.com/jieter/django-tables2/pull/1033)) by [@gythaogg](https://github.com/gythaogg) fixes [#1032](https://github.com/jieter/django-tables2/issues/1032)
+- Remove declared support for Django 4.2 and 5.1, upgrade pre-commit dependencies ([#1030](https://github.com/jieter/django-tables2/pull/1030))
+
+
+## 2.9.0 (2026-04-06)
+This release is yanked because it should have been released as 3.0 because of the breaking changes.
 
 Changes:
 - Remove deprecated `RelatedLinkColumn` and `NullBooleanField` support ([#1016](https://github.com/jieter/django-tables2/pull/1016))
