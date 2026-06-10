@@ -169,9 +169,6 @@ class RenderTableNode(Node):
 
             return template.render(context={"table": table}, request=request)
         finally:
-            # Restore the previous context instead of deleting it, so a nested
-            # {% render_table %} on the same table does not leave the outer
-            # call without a context to clean up.
             if previous_context is sentinel:
                 del table.context
             else:
