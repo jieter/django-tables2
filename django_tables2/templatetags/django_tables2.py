@@ -156,6 +156,8 @@ class RenderTableNode(Node):
             # assume some iterable was given
             template = select_template(template_name)
 
+        sentinel = object()
+        previous_context = getattr(table, "context", sentinel)
         try:
             # HACK:
             # TemplateColumn benefits from being able to use the context
@@ -167,7 +169,13 @@ class RenderTableNode(Node):
 
             return template.render(context={"table": table}, request=request)
         finally:
-            del table.context
+            # Restore the previous context instead of deleting it, so a nested
+            # {% render_table %} on the same table does not leave the outer
+            # call without a context to clean up.
+            if previous_context is sentinel:
+                del table.context
+            else:
+                table.context = previous_context
 
 
 @register.tag

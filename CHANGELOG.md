@@ -1,5 +1,9 @@
 # Change log
 
+## unreleased
+- Restore the previous `table.context` after `{% render_table %}` instead of deleting it,
+  fixing an `AttributeError` when the tag is used on the same table instance twice in the same rendering pass
+
 ## 3.0.0 (2026-04-13)
 **Breaking changes:**
 - Rename the `querystring` templatetag to `querystring_replace` to avoid shadowing built-in one.
