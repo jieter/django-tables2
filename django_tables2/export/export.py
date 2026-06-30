@@ -95,5 +95,9 @@ class TableExport:
         if filename is not None:
             response["Content-Disposition"] = f'attachment; filename="{filename}"'
 
-        response.write(self.export())
+        if self.format in {self.CSV, self.TSV}:
+            response.write(self.export().encode("utf-8-sig"))
+        else:
+            response.write(self.export())
+
         return response
