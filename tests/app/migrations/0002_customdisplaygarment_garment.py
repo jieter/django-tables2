@@ -6,26 +6,35 @@ import tests.app.models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('app', '0001_initial'),
+        ("app", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='CustomDisplayGarment',
+            name="CustomDisplayGarment",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=200)),
-                ('size', models.CharField(choices=tests.app.models.size_choices, max_length=1)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("name", models.CharField(max_length=200)),
+                ("size", models.CharField(choices=tests.app.models.size_choices, max_length=1)),
             ],
         ),
         migrations.CreateModel(
-            name='Garment',
+            name="Garment",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=200)),
-                ('size', models.CharField(choices=tests.app.models.size_choices, max_length=1)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("name", models.CharField(max_length=200)),
+                ("size", models.CharField(choices=tests.app.models.size_choices, max_length=1)),
             ],
         ),
     ]
