@@ -1,10 +1,19 @@
 from django.template import Context, Template
-from django.test import SimpleTestCase
+from django.test import SimpleTestCase, override_settings
 
 import django_tables2 as tables
 from django_tables2.config import RequestConfig
 
 from ..utils import build_request
+
+# Tracks context processor invocations for
+# test_template_name_should_not_rerun_context_processors_per_cell.
+PROCESSOR_CALLS = []
+
+
+def counting_context_processor(request):
+    PROCESSOR_CALLS.append(request)
+    return {}
 
 
 class TemplateColumnTest(SimpleTestCase):
@@ -194,6 +203,39 @@ class TemplateColumnTest(SimpleTestCase):
         html = template.render(Context({"request": request, "table": table}))
         self.assertIn("<td >/table/</td>", html)
         self.assertIn("<td >GET</td>", html)
+
+    def test_template_name_should_not_rerun_context_processors_per_cell(self):
+        """
+        Rendering a template_name column must not build a fresh RequestContext —
+        and re-run every context processor — once per cell (#1029).
+        """
+
+        class Table(tables.Table):
+            artist = tables.TemplateColumn(template_name="column.html")
+
+        request = build_request("/table/")
+        table = Table([{"artist": f"Artist {i}"} for i in range(10)])
+        RequestConfig(request).configure(table)
+
+        template_settings = [
+            {
+                "BACKEND": "django.template.backends.django.DjangoTemplates",
+                "APP_DIRS": True,
+                "OPTIONS": {
+                    "context_processors": [
+                        "django.template.context_processors.request",
+                        "tests.columns.test_templatecolumn.counting_context_processor",
+                    ]
+                },
+            }
+        ]
+        with override_settings(TEMPLATES=template_settings):
+            PROCESSOR_CALLS.clear()
+            template = Template("{% load django_tables2 %}{% render_table table %}")
+            html = template.render(Context({"request": request, "table": table}))
+
+        self.assertEqual(html.count("<td >GET</td>"), 10)
+        self.assertLessEqual(len(PROCESSOR_CALLS), 1)
 
     def test_render_signature(self):
         class MyColumn(tables.TemplateColumn):
