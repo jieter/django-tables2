@@ -1,5 +1,19 @@
 # Change log
 
+## unreleased
+
+- `TemplateColumn(template_name=...)` now renders the template with the live context, like the
+  `template_code` path, instead of building a fresh `RequestContext` per cell — which re-ran
+  every context processor once per cell
+  ([#1029](https://github.com/jieter/django-tables2/issues/1029)). Column templates rendered
+  outside `{% render_table %}` no longer receive context processor variables (`request` is
+  still provided).
+- Choices display (`get_FOO_display()`) is now resolved through a per-column cache, evaluating
+  (possibly callable) choices at most once per column instead of once per cell — with callable
+  choices backed by a queryset, rendering cost one query per cell
+  ([#1044](https://github.com/jieter/django-tables2/issues/1044)). Models defining a custom
+  `get_FOO_display()` keep the per-cell call.
+
 ## 3.0.0 (2026-04-13)
 **Breaking changes:**
 - Rename the `querystring` templatetag to `querystring_replace` to avoid shadowing built-in one.

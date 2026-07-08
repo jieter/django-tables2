@@ -95,6 +95,29 @@ class Region(models.Model):
         return self.name
 
 
+# Tracks evaluations of the callable choices below, so tests can assert the
+# choices are not re-evaluated for every rendered cell (#1044).
+SIZE_CHOICES_CALLS = []
+
+
+def size_choices():
+    SIZE_CHOICES_CALLS.append(1)
+    return [("S", "Small"), ("L", "Large")]
+
+
+class Garment(models.Model):
+    name = models.CharField(max_length=200)
+    size = models.CharField(max_length=1, choices=size_choices)
+
+
+class CustomDisplayGarment(models.Model):
+    name = models.CharField(max_length=200)
+    size = models.CharField(max_length=1, choices=size_choices)
+
+    def get_size_display(self):
+        return f"size {self.size}!"
+
+
 class PersonInformation(models.Model):
     person = models.ForeignKey(
         Person, related_name="info_list", verbose_name="Information", on_delete=models.CASCADE
