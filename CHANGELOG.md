@@ -1,6 +1,6 @@
 # Change log
 
-## Unreleased
+## 3.0.1 (2026-08-29)
 - Add support for Django 6.1
 - Remove support for Python 3.10
 
