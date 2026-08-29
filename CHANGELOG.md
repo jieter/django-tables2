@@ -1,5 +1,10 @@
 # Change log
 
+## Unreleased
+- Add support for Django 6.1
+- Remove support for Python 3.10
+
+
 ## 3.0.0 (2026-04-13)
 **Breaking changes:**
 - Rename the `querystring` templatetag to `querystring_replace` to avoid shadowing built-in one.
