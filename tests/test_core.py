@@ -665,6 +665,21 @@ class AsValuesTest(TestCase):
 
         self.assertEqual(list(Table(self.AS_VALUES_DATA).as_values()), expected)
 
+    def test_as_value_header_value(self):
+        class CustomColumn(tables.Column):
+            @property
+            def header_value(self):
+                return "CUSTOM"
+
+        class Table(tables.Table):
+            name = tables.Column()
+            country = CustomColumn()
+
+        expected = [["Name", "CUSTOM"]] + [[r["name"], r["country"]] for r in self.AS_VALUES_DATA]
+        table = Table(self.AS_VALUES_DATA)
+
+        self.assertEqual(list(table.as_values()), expected)
+
     def test_as_values_accessor_relation(self):
         programmer = Occupation.objects.create(name="Programmer")
         henk = Person.objects.create(

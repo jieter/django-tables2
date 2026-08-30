@@ -486,7 +486,7 @@ class Table(metaclass=DeclarativeColumnsMetaclass):
             if not (column.column.exclude_from_export or column.name in exclude_columns)
         ]
 
-        yield [force_str(column.header, strings_only=True) for column in columns]
+        yield [force_str(column.header_value, strings_only=True) for column in columns]
 
         for row in self.rows:
             yield [
