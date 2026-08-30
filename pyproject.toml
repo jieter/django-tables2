@@ -13,7 +13,6 @@ classifiers = [
   "Framework :: Django",
   "Framework :: Django :: 5.2",
   "Framework :: Django :: 6.0",
-  "Framework :: Django :: 6.1",
   "Intended Audience :: Developers",
   "License :: OSI Approved :: BSD License",
   "Operating System :: OS Independent",
@@ -27,7 +26,7 @@ classifiers = [
   "Topic :: Internet :: WWW/HTTP",
   "Topic :: Software Development :: Libraries"
 ]
-dependencies = ["Django>=4.2"]
+dependencies = ["Django>=5.2"]
 description = "Table/data-grid framework for Django"
 dynamic = ["version"]
 license = {file = "LICENSE"}
