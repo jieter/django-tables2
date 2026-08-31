@@ -19,7 +19,6 @@ classifiers = [
   "Programming Language :: Python",
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3 :: Only",
-  "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
@@ -27,13 +26,13 @@ classifiers = [
   "Topic :: Internet :: WWW/HTTP",
   "Topic :: Software Development :: Libraries"
 ]
-dependencies = ["Django>=4.2"]
+dependencies = ["Django>=5.2"]
 description = "Table/data-grid framework for Django"
 dynamic = ["version"]
 license = {file = "LICENSE"}
 name = "django-tables2"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 
 [project.optional-dependencies]
 tablib = ["tablib"]
