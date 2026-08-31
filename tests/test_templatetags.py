@@ -5,7 +5,7 @@ from django.core.paginator import Paginator
 from django.template import Context, RequestContext, Template, TemplateSyntaxError
 from django.test import SimpleTestCase, TestCase, override_settings
 
-from django_tables2 import LazyPaginator, RequestConfig, Table, TemplateColumn
+from django_tables2 import Column, LazyPaginator, RequestConfig, Table, TemplateColumn
 from django_tables2.export import ExportMixin
 from django_tables2.templatetags.django_tables2 import table_page_range
 from django_tables2.utils import AttributeDict
@@ -56,6 +56,44 @@ class RenderTableTagTest(TestCase):
         lines = html.splitlines()
         self.assertEqual(lines[0], "foo")
         self.assertEqual(lines[-1], "foo")
+
+    def test_nested_render_of_same_table(self):
+        """A nested {% render_table %} on the same table instance should not break the outer render."""
+
+        class MyTable(Table):
+            name = Column()
+            rendering = False
+
+            def before_render(self, request):
+                if not self.rendering:
+                    self.rendering = True
+                    try:
+                        template = Template("{% load django_tables2 %}{% render_table table %}")
+                        template.render(Context({"request": request, "table": self}))
+                    finally:
+                        self.rendering = False
+
+        table = MyTable([{"name": "Brad"}])
+        template = Template("{% load django_tables2 %}{% render_table table %}")
+        html = template.render(Context({"request": build_request(), "table": table}))
+        self.assertIn("Brad", html)
+
+    def test_nested_render_with_template_argument(self):
+        """A custom table template containing another {% render_table %} should render both."""
+        table = CountryTable(MEMORY_DATA)
+        template = Template('{% load django_tables2 %}{% render_table table "nested_table.html" %}')
+        html = template.render(Context({"request": build_request(), "table": table}))
+        self.assertIn("Germany", html)
+
+    def test_restores_existing_context_attribute(self):
+        """A context attribute present before rendering should be restored, not deleted."""
+        table = CountryTable(MEMORY_DATA)
+        context = Context()
+        table.context = context
+
+        template = Template("{% load django_tables2 %}{% render_table table %}")
+        template.render(Context({"request": build_request(), "table": table}))
+        self.assertIs(table.context, context)
 
     def test_table_context_is_RequestContext(self):
         class MyTable(Table):

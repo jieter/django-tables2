@@ -4,10 +4,10 @@ jobs:
   pre-commit:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.11"
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - run: pip install pre-commit
       - run: pre-commit run --show-diff-on-failure --all-files
 
@@ -15,28 +15,28 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.10", 3.11, 3.12, 3.13, 3.14]
-        django-version: [5.2, 6.0, "main"]
+        python-version: [3.11, 3.12, 3.13, 3.14]
+        django-version: [5.2, 6.0, 6.1, "main"]
         exclude:
             # Django 6.0
-            - python-version: 3.10
-              django-version: 6.0
             - python-version: 3.11
               django-version: 6.0
 
+            # Django 6.1
+            - python-version: 3.11
+              django-version: 6.1
+
             # Django main
-            - python-version: 3.10
-              django-version: "main"
             - python-version: 3.11
               django-version: "main"
 
     steps:
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python-version }}
-      - uses: actions/checkout@v6
-      - uses: actions/cache@v5.0.5
+      - uses: actions/checkout@v7
+      - uses: actions/cache@v6.1.0
         with:
           path: ~/.cache/pip
           key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
@@ -56,8 +56,8 @@ jobs:
   docs:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-python@v6
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
             python-version: "3.11"
             cache: 'pip'
