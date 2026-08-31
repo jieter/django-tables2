@@ -3,6 +3,17 @@
 ## unreleased
 - Restore the previous `table.context` after `{% render_table %}` instead of deleting it,
   fixing an `AttributeError` when the tag is used on the same table instance twice in the same rendering pass.
+- `TemplateColumn(template_name=...)` now renders the template with the live context, like the
+  `template_code` path, instead of building a fresh `RequestContext` per cell — which re-ran
+  every context processor once per cell
+  ([#1029](https://github.com/jieter/django-tables2/issues/1029)). Column templates rendered
+  outside `{% render_table %}` no longer receive context processor variables (`request` is
+  still provided).
+- Choices display (`get_FOO_display()`) is now resolved through a per-column cache, evaluating
+  (possibly callable) choices at most once per column instead of once per cell — with callable
+  choices backed by a queryset, rendering cost one query per cell
+  ([#1044](https://github.com/jieter/django-tables2/issues/1044)). Models defining a custom
+  `get_FOO_display()` keep the per-cell call.
 
 ## 3.0.1 (2026-08-29)
 - Add support for Django 6.1

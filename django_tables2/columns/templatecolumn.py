@@ -1,6 +1,7 @@
 from collections.abc import Callable
 
 from django.template import Context, Template
+from django.template.backends.django import Template as DjangoBackendTemplate
 from django.template.loader import get_template
 from django.utils.html import strip_tags
 
@@ -114,10 +115,18 @@ class TemplateColumn(Column):
             if self.template_code:
                 parent_context["request"] = request
                 return Template(self.template_code).render(parent_context)
-            else:
-                return get_template(self.template_name).render(
-                    parent_context.flatten(), request=request
-                )
+
+            template = get_template(self.template_name)
+            if isinstance(template, DjangoBackendTemplate):
+                # Render the underlying template with the live context, like the
+                # template_code path above. Rendering through the backend with a
+                # flattened dict would create a fresh RequestContext and re-run
+                # every context processor once per cell (#1029).
+                parent_context["request"] = request
+                return template.template.render(parent_context)
+
+            # Template backends other than Django's cannot render a Context object.
+            return template.render(parent_context.flatten(), request=request)
 
     def value(self, **kwargs):
         """

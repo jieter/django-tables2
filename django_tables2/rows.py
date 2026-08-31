@@ -1,5 +1,10 @@
+from functools import partialmethod
+from inspect import getattr_static
+
 from django.core.exceptions import FieldDoesNotExist
 from django.db import models
+from django.utils.encoding import force_str
+from django.utils.hashable import make_hashable
 
 from .columns.linkcolumn import BaseLinkColumn
 from .columns.manytomanycolumn import ManyToManyColumn
@@ -150,7 +155,9 @@ class BoundRow:
                 field = accessor.get_field(self.record)
                 display_fn = getattr(penultimate, f"get_{remainder}_display", None)
                 if getattr(field, "choices", ()) and display_fn:
-                    value = display_fn()
+                    value = self._choices_display(
+                        bound_column, field, penultimate, remainder, display_fn
+                    )
                     remainder = None
             except FieldDoesNotExist:
                 pass
@@ -169,6 +176,35 @@ class BoundRow:
             return default
 
         return render_func(bound_column, value)
+
+    def _choices_display(self, bound_column, field, instance, name, display_fn):
+        """
+        Return the choices label for a model field, evaluating the choices at most
+        once per column.
+
+        Calling ``get_FOO_display()`` re-evaluates ``field.flatchoices`` on every
+        call. Since Django 5.0 choices can be callables, which may execute a
+        database query — once per cell rendered (#1044). When the model uses
+        Django's generated display method, resolve the label through a per-column
+        cache of the choices instead. A custom ``get_FOO_display()`` defined on the
+        model is still called for every cell, as it may depend on instance state.
+        """
+        class_attr = getattr_static(type(instance), f"get_{name}_display", None)
+        is_generated = (
+            isinstance(class_attr, partialmethod)
+            and class_attr.func is models.Model._get_FIELD_display
+        )
+        if not is_generated:
+            return display_fn()
+
+        cache = getattr(bound_column, "_choices_display_cache", None)
+        if cache is None:
+            cache = bound_column._choices_display_cache = {}
+        if field not in cache:
+            cache[field] = dict(make_hashable(field.flatchoices))
+
+        value = getattr(instance, field.attname)
+        return force_str(cache[field].get(make_hashable(value), value), strings_only=True)
 
     def _optional_cell_arguments(self, bound_column, value):
         """Arguments that will optionally be passed while rendering cells."""

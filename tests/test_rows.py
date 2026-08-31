@@ -5,6 +5,42 @@ from django.test import SimpleTestCase
 
 import django_tables2 as tables
 
+from .app.models import SIZE_CHOICES_CALLS, CustomDisplayGarment, Garment
+
+
+class ChoicesDisplayTest(SimpleTestCase):
+    def test_callable_choices_evaluated_once_per_column(self):
+        """
+        Callable choices (Django 5.0+) must not be re-evaluated for every cell.
+
+        get_FOO_display() re-evaluates field.flatchoices on each call; when the
+        choices are a callable that queries the database, rendering N rows costs
+        N queries (#1044).
+        """
+
+        class Table(tables.Table):
+            size = tables.Column()
+
+        table = Table([Garment(name=str(i), size="S" if i % 2 else "L") for i in range(10)])
+
+        SIZE_CHOICES_CALLS.clear()
+        cells = [row.get_cell("size") for row in table.rows]
+
+        self.assertEqual(cells[:2], ["Large", "Small"])
+        self.assertLessEqual(len(SIZE_CHOICES_CALLS), 1)
+
+    def test_custom_get_foo_display_is_called_per_cell(self):
+        """A get_FOO_display() defined on the model may depend on instance state."""
+
+        class Table(tables.Table):
+            size = tables.Column()
+
+        table = Table(
+            [CustomDisplayGarment(name="a", size="S"), CustomDisplayGarment(name="b", size="L")]
+        )
+
+        self.assertEqual([row.get_cell("size") for row in table.rows], ["size S!", "size L!"])
+
 
 class RowsTest(SimpleTestCase):
     def test_bound_rows(self):
