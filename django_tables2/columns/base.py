@@ -394,7 +394,12 @@ class Column:
         Returns:
             Tuple (QuerySet, boolean)
         """
-        return (queryset, False)
+        from django.db.models import F, OrderBy
+
+        if self.order_by or self.accessor:  # TODO: self.orderable
+            return queryset, OrderBy(F(self.order_by or self.accessor), descending=is_descending)
+
+        return queryset, None
 
     @classmethod
     def from_field(cls, field, **kwargs):
