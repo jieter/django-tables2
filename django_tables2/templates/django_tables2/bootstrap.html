@@ -11,7 +11,7 @@
                     {% for column in table.columns %}
                         <th {{ column.attrs.th.as_html }}>
                             {% if column.orderable %}
-                                <a href="{% querystring_replace table.prefixed_order_by_field=column.order_by_alias.next %}">{{ column.header }}</a>
+                                <a href="{% querystring column.order_by_query %}">{{ column.header }}</a>
                             {% else %}
                                 {{ column.header }}
                             {% endif %}
@@ -61,7 +61,7 @@
             {% if table.page.has_previous %}
                 {% block pagination.previous %}
                     <li class="previous">
-                        <a href="{% querystring_replace table.prefixed_page_field=table.page.previous_page_number %}">
+                        <a href="{% querystring table.paginator.previous_page_query %}">
                             <span aria-hidden="true">&laquo;</span>
                             {% trans 'previous' %}
                         </a>
@@ -70,12 +70,12 @@
             {% endif %}
             {% if table.page.has_previous or table.page.has_next %}
                 {% block pagination.range %}
-                    {% for p in table.page|table_page_range:table.paginator %}
+                    {% for p in table.paginator.table_page_range %}
                         <li {% if p == table.page.number %}class="active"{% endif %}>
                             {% if p == '...' %}
                                 <a href="#">{{ p }}</a>
                             {% else %}
-                                <a href="{% querystring_replace table.prefixed_page_field=p %}">
+                                <a href="{% querystring p.query %}">
                                     {{ p }}
                                 </a>
                             {% endif %}
@@ -87,7 +87,7 @@
             {% if table.page.has_next %}
                 {% block pagination.next %}
                 <li class="next">
-                    <a href="{% querystring_replace table.prefixed_page_field=table.page.next_page_number %}">
+                    <a href="{% querystring table.paginator.next_page_query %}">
                         {% trans 'next' %}
                         <span aria-hidden="true">&raquo;</span>
                     </a>

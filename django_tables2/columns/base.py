@@ -629,6 +629,10 @@ class BoundColumn:
         return order_by
 
     @property
+    def order_by_query(self):
+        return {self._table.prefixed_order_by_field: self.order_by_alias.next}
+
+    @property
     def is_ordered(self):
         return self.name in (self._table.order_by or ())
 

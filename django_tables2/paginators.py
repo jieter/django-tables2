@@ -1,5 +1,77 @@
+from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
 from django.core.paginator import EmptyPage, Page, PageNotAnInteger, Paginator
 from django.utils.translation import gettext as _
+
+
+class PageNumber(int):
+    def __new__(cls, number, prefixed_page_field):
+        self = super().__new__(cls, number)
+        self._prefixed_page_field = prefixed_page_field
+        return self
+
+    @property
+    def query(self):
+        return {self._prefixed_page_field: str(self)}
+
+
+class TablePaginatorMixin:
+    def __init__(self, *args, **kwargs):
+        table = kwargs.pop("table", None)
+        super().__init__(*args, **kwargs)
+        self.table = table
+        self._prefixed_page_field = self.table.prefixed_page_field if self.table else "page"
+
+    def previous_page_query(self):
+        return {self._prefixed_page_field: self.table.page.previous_page_number()}
+
+    def next_page_query(self):
+        return {self._prefixed_page_field: self.table.page.next_page_number()}
+
+    def page_query(self, page_number):
+        return {self._prefixed_page_field: page_number}
+
+    def table_page_range(self):
+        """
+        Return a list of max 10 (by default) page numbers.
+
+        - always containing the first, last and current page.
+        - containing one or two '...' to skip ranges between first/last and current.
+
+        Example:
+            {% for p in table.paginator.table_page_range %}
+                {{ p }}
+            {% endfor %}
+        """
+        if self.table is None:
+            raise ImproperlyConfigured("table_page_range requires table to be set")
+
+        page_range = getattr(settings, "DJANGO_TABLES2_PAGE_RANGE", 10)
+
+        num_pages = self.num_pages
+        if num_pages <= page_range:
+            return [PageNumber(i, self._prefixed_page_field) for i in range(1, num_pages + 1)]
+
+        range_start = self.table.page.number - int(page_range / 2)
+        if range_start < 1:
+            range_start = 1
+        range_end = range_start + page_range
+        if range_end > num_pages:
+            range_start = num_pages - page_range + 1
+            range_end = num_pages + 1
+
+        ret = range(range_start, range_end)
+        if 1 not in ret:
+            ret = [1, Paginator.ELLIPSIS, *ret[2:]]
+        if num_pages not in ret:
+            ret = [*ret[:-2], Paginator.ELLIPSIS, num_pages]
+        if isinstance(self, LazyPaginator) and not self.is_last_page(self.table.page.number):
+            ret.append(Paginator.ELLIPSIS)
+        return [PageNumber(i, self._prefixed_page_field) if isinstance(i, int) else i for i in ret]
+
+
+class TablePaginator(TablePaginatorMixin, Paginator):
+    pass
 
 
 class LazyPaginator(Paginator):
@@ -115,3 +187,7 @@ class LazyPaginator(Paginator):
         raise NotImplementedError
 
     page_range = property(_get_page_range)
+
+
+class LazyTablePaginator(TablePaginatorMixin, LazyPaginator):
+    pass

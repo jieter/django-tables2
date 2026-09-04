@@ -3,7 +3,6 @@ from collections import OrderedDict
 from itertools import count
 
 from django.conf import settings
-from django.core.paginator import Paginator
 from django.db import models
 from django.template.loader import get_template
 from django.utils.encoding import force_str
@@ -11,6 +10,7 @@ from django.utils.encoding import force_str
 from .columns import BoundColumns, Column, library
 from .config import RequestConfig
 from .data import TableData
+from .paginators import TablePaginator, TablePaginatorMixin
 from .rows import BoundRows
 from .utils import Accessor, AttributeDict, OrderBy, OrderByTuple, Sequence
 
@@ -549,7 +549,7 @@ class Table(metaclass=DeclarativeColumnsMetaclass):
     def page_field(self, value):
         self._page_field = value
 
-    def paginate(self, paginator_class=Paginator, per_page=None, page=1, *args, **kwargs):
+    def paginate(self, paginator_class=TablePaginator, per_page=None, page=1, *args, **kwargs):
         """
         Paginate the table using a paginator and creates a `page` property containing information for the current page.
 
@@ -566,6 +566,8 @@ class Table(metaclass=DeclarativeColumnsMetaclass):
         may be raised from this method and should be handled by the caller.
         """
         per_page = per_page or self._meta.per_page
+        if issubclass(paginator_class, TablePaginatorMixin):
+            kwargs["table"] = self
         self.paginator = paginator_class(self.rows, per_page, *args, **kwargs)
         self.page = self.paginator.page(page)
 
