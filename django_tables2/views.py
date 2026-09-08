@@ -224,6 +224,12 @@ class MultiTableMixin(TableMixinBase):
 
             RequestConfig(self.request, paginate=self.get_table_pagination(table)).configure(table)
 
-            context[self.get_context_table_name(table)] = list(tables)
+        if type(self).get_context_table_name is MultiTableMixin.get_context_table_name:
+            # Not overridden: keep the documented behavior of one shared key holding all tables.
+            context[self.context_table_name] = list(tables)
+        else:
+            # Overridden to vary per table: each key gets just its own table.
+            for table in tables:
+                context[self.get_context_table_name(table)] = table
 
         return context
