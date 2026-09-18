@@ -3,6 +3,9 @@ from typing import Any
 
 from django.core.exceptions import ImproperlyConfigured
 from django.views.generic.list import ListView
+from django.views.generic.list import (
+    MultipleObjectMixin as ConfoundingMultipleObjectMixin,
+)
 
 from . import tables
 from .config import RequestConfig
@@ -146,8 +149,19 @@ class SingleTableMixin(TableMixinBase):
         return {}
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
-        """Overridden version of `.TemplateResponseMixin` to inject the table into the template's context."""
-        context = super().get_context_data(**kwargs)
+        """
+        Overridden version of `.TemplateResponseMixin` to inject the table into the template's context.
+
+        Will avoid calling ``django.views.generic.list.ListView.get_context_data``
+        if this mixin is combined with ``django.views.generic.list.ListView`` or
+        similar, as presumably ListView.get_context_data is meant to fetch the
+        same data as this function will fetch directly.
+        """
+        context = (
+            super(ConfoundingMultipleObjectMixin, self).get_context_data(**kwargs)
+            if isinstance(self, ConfoundingMultipleObjectMixin)
+            else super().get_context_data(**kwargs)
+        )
         table = self.get_table(**self.get_table_kwargs())
         context[self.get_context_table_name(table)] = table
         return context
