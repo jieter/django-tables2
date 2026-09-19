@@ -389,6 +389,32 @@ class MultiTableMixinTest(TestCase):
         self.assertIn("<td >Jan Pieter</td>", html)
         self.assertIn("<td >Zuid-Holland</td>", html)
 
+    def test_default_context_table_name_holds_the_full_list(self):
+        class View(tables.MultiTableMixin, TemplateView):
+            tables = (TableA, TableB)
+            tables_data = (Person.objects.all(), Region.objects.all())
+            template_name = "multiple.html"
+
+        response = View.as_view()(build_request("/"))
+
+        self.assertEqual(len(response.context_data["tables"]), 2)
+        self.assertIsInstance(response.context_data["tables"][0], TableA)
+        self.assertIsInstance(response.context_data["tables"][1], TableB)
+
+    def test_overridden_context_table_name_holds_only_its_own_table(self):
+        class View(tables.MultiTableMixin, TemplateView):
+            tables = (TableA, TableB)
+            tables_data = (Person.objects.all(), Region.objects.all())
+            template_name = "multiple.html"
+
+            def get_context_table_name(self, table):
+                return f"table_{type(table).__name__}"
+
+        response = View.as_view()(build_request("/"))
+
+        self.assertIsInstance(response.context_data["table_TableA"], TableA)
+        self.assertIsInstance(response.context_data["table_TableB"], TableB)
+
     def test_supplying_instances(self):
         class View(tables.MultiTableMixin, TemplateView):
             tables = (TableA(Person.objects.all()), TableB(Region.objects.all()))

@@ -3,6 +3,8 @@
 ## unreleased
 - Restore the previous `table.context` after `{% render_table %}` instead of deleting it,
   fixing an `AttributeError` when the tag is used on the same table instance twice in the same rendering pass.
+- Fix `MultiTableMixin.get_context_data` putting every table into each table's context key
+  when `get_context_table_name` is overridden to vary per table.
 
 ## 3.0.1 (2026-08-29)
 - Add support for Django 6.1
