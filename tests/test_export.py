@@ -1,3 +1,4 @@
+import codecs
 import json
 import os
 from datetime import date, datetime, time
@@ -139,7 +140,7 @@ class ExportViewTest(TestCase):
 
     def test_view_should_support_csv_export(self):
         response = View.as_view()(build_request("/?_export=csv"))
-        self.assertEqual(response.getvalue().decode("utf8"), EXPECTED_CSV)
+        self.assertEqual(response.getvalue().decode("utf-8-sig"), EXPECTED_CSV)
 
         # should just render the normal table without the _export query
         response = View.as_view()(build_request("/"))
@@ -156,12 +157,13 @@ class ExportViewTest(TestCase):
 
     def test_should_support_json_export(self):
         response = View.as_view()(build_request("/?_export=json"))
-        self.assertEqual(json.loads(response.getvalue().decode("utf8")), EXPECTED_JSON)
+        self.assertEqual(json.loads(response.getvalue().decode("utf-8-sig")), EXPECTED_JSON)
 
     def test_should_support_yaml_export(self):
         response = View.as_view()(build_request("/?_export=yaml"))
         self.assertEqual(
-            yaml.load(response.getvalue().decode("utf8"), Loader=yaml.FullLoader), EXPECTED_JSON
+            yaml.load(response.getvalue().decode("utf-8-sig"), Loader=yaml.FullLoader),
+            EXPECTED_JSON,
         )
 
     def test_should_support_custom_trigger_param(self):
@@ -171,7 +173,7 @@ class ExportViewTest(TestCase):
             model = Person  # required for ListView
 
         response = View.as_view()(build_request("/?export_to=json"))
-        self.assertEqual(json.loads(response.getvalue().decode("utf8")), EXPECTED_JSON)
+        self.assertEqual(json.loads(response.getvalue().decode("utf-8-sig")), EXPECTED_JSON)
 
     def test_should_support_custom_filename(self):
         class View(ExportMixin, tables.SingleTableView):
@@ -197,11 +199,11 @@ class ExportViewTest(TestCase):
             return render(request, "django_tables2/table.html", {"table": table})
 
         response = table_view(build_request("/?_export=csv"))
-        self.assertEqual(response.getvalue().decode("utf8"), EXPECTED_CSV)
+        self.assertEqual(response.getvalue().decode("utf-8-sig"), EXPECTED_CSV)
 
         # must also support the normal html table.
         response = table_view(build_request("/"))
-        html = response.content.decode("utf8")
+        html = response.content.decode("utf-8-sig")
 
         self.assertIn("Yildiz", html)
         self.assertNotIn("Lindy", html)
@@ -285,7 +287,7 @@ class AdvancedExportViewTest(TestCase):
                 ]
 
         response = View.as_view()(build_request("/?_export=csv"))
-        data = response.getvalue().decode("utf8")
+        data = response.getvalue().decode("utf-8-sig")
 
         expected_csv = "Date,Time,Datetime\r\n{},{},{}\r\n".format(
             "2019-05-21",
@@ -320,7 +322,7 @@ class AdvancedExportViewTest(TestCase):
 
         response = View.as_view()(build_request("/?_export=csv"))
 
-        data = response.getvalue().decode()
+        data = response.getvalue().decode("utf-8-sig")
 
         expected_csv = "\r\n".join(("Name,Website", "Bess W. Fletcher,teammonka.com", ""))
         self.assertEqual(data, expected_csv)
@@ -339,7 +341,7 @@ class AdvancedExportViewTest(TestCase):
             template_name = "django_tables2/bootstrap.html"
 
         response = View.as_view()(build_request("/?_export=csv"))
-        data = response.getvalue().decode("utf8")
+        data = response.getvalue().decode("utf-8-sig")
 
         expected_csv = "\r\n".join(
             (
@@ -360,7 +362,7 @@ class AdvancedExportViewTest(TestCase):
             exclude_columns = ("boolean",)
 
         response = OccupationExcludingView.as_view()(build_request("/?_export=csv"))
-        data = response.getvalue().decode("utf8")
+        data = response.getvalue().decode("utf-8-sig")
 
         self.assertEqual(data.splitlines()[0], "Name,Region")
 
@@ -374,7 +376,7 @@ class UnicodeExportViewTest(TestCase):
         expected_csv = f"Name,Boolean,Region\r\n{unicode_name},,\r\n"
 
         response = OccupationView.as_view()(build_request("/?_export=csv"))
-        self.assertEqual(response.getvalue().decode("utf8"), expected_csv)
+        self.assertEqual(response.getvalue().decode("utf-8-sig"), expected_csv)
 
         # smoke tests, hard to test this binary format for string containment
         response = OccupationView.as_view()(build_request("/?_export=xls"))
@@ -391,8 +393,18 @@ class UnicodeExportViewTest(TestCase):
 
         exporter = TableExport("csv", Table([]))
         response = exporter.response()
-        self.assertEqual(response.getvalue().decode("utf8"), unicode_header + "\r\n")
+        self.assertEqual(response.getvalue().decode("utf-8-sig"), unicode_header + "\r\n")
 
         exporter = TableExport("xls", Table([]))
         # this would fail if the header contains unicode and string converstion is attempted.
         exporter.export()
+
+    def test_byte_order_mark(self):
+        """
+        Test that a UTF-8 byte-order mark is included.
+
+        This is required for Excel to parse UTF-8 encoded files correctly.
+        """
+        Occupation.objects.create(name="木匠")
+        response = OccupationView.as_view()(build_request("/?_export=csv"))
+        self.assertTrue(response.getvalue().startswith(codecs.BOM_UTF8))
