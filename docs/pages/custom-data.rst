@@ -151,9 +151,9 @@ Please refer to `.Table.as_values` for an example.
 Subclassing `.Column`
 ---------------------
 
-Defining a column subclass allows functionality to be reused across tables.
-Columns have a `render` method that behaves the same as :ref:`table.render_foo`
-methods on tables::
+Defining a column subclass allows further customization and functionality to
+be reused across tables. Columns have a `render` method that behaves the same
+as :ref:`table.render_foo` methods on tables::
 
     >>> import django_tables2 as tables
     >>>
@@ -186,3 +186,19 @@ For complicated columns, you may want to return HTML from the
     ...     def render(self, value):
     ...         return format_html('<img src="/media/img/{}.jpg" />', value)
     ...
+
+When subclassing a column, the header in the html table can be customized by
+overriding :meth:`~Column.header`. The header value for exports can be independently
+customized using  :meth:`~Column.render_value`.
+
+
+    >>> from django.utils.html import format_html
+    >>>
+    >>> class PartyColumn(tables.Column):
+    ...     @property
+    ...     def header(self):
+    ...         return format_html('<div><marquee>PaRtY!</marquee></div>')
+    ...
+    ...     @property
+    ...     def header_value(self):
+    ...         return "party"
