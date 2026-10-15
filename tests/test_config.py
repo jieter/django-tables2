@@ -47,6 +47,17 @@ class ConfigTest(SimpleTestCase):
         table.paginate.assert_called_with(page=1, per_page=5)
         self.assertEqual(table.order_by, ["abc"])
 
+    def test_invalid_per_page_preserves_pagination_options(self):
+        for per_page in ("-1", "0", "invalid"):
+            with self.subTest(per_page=per_page):
+                table = MockTable()
+                table.prefixed_per_page_field = "people-per_page"
+                request = build_request(f"/?page=2&people-per_page={per_page}")
+
+                RequestConfig(request, paginate={"per_page": 5}).configure(table)
+
+                table.paginate.assert_called_once_with(page=2, per_page=5)
+
     def test_silent_page_not_an_integer_error(self):
         request = build_request("/")
         table = MockTable(paginate=Mock(side_effect=PageNotAnInteger), paginator=MagicMock())
@@ -84,6 +95,25 @@ class ConfigTest(SimpleTestCase):
 
 
 class NoPaginationQueriesTest(TestCase):
+    def test_nonpositive_per_page_uses_configured_default(self):
+        class PersonTable(Table):
+            first_name = Column()
+
+        Person.objects.bulk_create(
+            [
+                Person(first_name="Ada", last_name="Lovelace"),
+                Person(first_name="Grace", last_name="Hopper"),
+            ]
+        )
+        for per_page in ("-1", "0"):
+            with self.subTest(per_page=per_page):
+                table = PersonTable(Person.objects.all())
+                request = build_request(f"/?per_page={per_page}")
+                RequestConfig(request, paginate={"per_page": 1}).configure(table)
+
+                self.assertEqual(table.paginator.per_page, 1)
+                self.assertEqual(len(table.page.object_list), 1)
+
     def test_should_not_count_with_paginate_False(self):
         """
         No extra queries with pagination turned off.
