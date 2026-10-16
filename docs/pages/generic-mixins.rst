@@ -25,7 +25,11 @@ The following view parameters are supported:
 
 For example::
 
-    from django_tables2 import SingleTableView
+    from django.db import models
+    from django.views.generic import ListView
+
+    import django_tables2 as tables
+    from django_tables2 import SingleTableMixin
 
 
     class Person(models.Model):
@@ -38,7 +42,7 @@ For example::
             model = Person
 
 
-    class PersonList(SingleTableView):
+    class PersonList(SingleTableMixin, ListView):
         model = Person
         table_class = PersonTable
 
@@ -55,6 +59,9 @@ default values and `.SingleTableMixin`'s eagerness at finding data sources
 when one is not explicitly defined.
 
 .. note::
+
+    `.SingleTableView` combines `.SingleTableMixin` and Django's `ListView`
+    for you as a convenience.
 
     You don't have to base your view on `ListView`, you're able to mix
     `SingleTableMixin` directly.
