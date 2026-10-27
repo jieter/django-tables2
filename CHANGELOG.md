@@ -3,6 +3,7 @@
 ## unreleased
 - Restore the previous `table.context` after `{% render_table %}` instead of deleting it,
   fixing an `AttributeError` when the tag is used on the same table instance twice in the same rendering pass.
+- Add trove classifier for Django 6.1
 
 ## 3.0.1 (2026-08-29)
 - Add support for Django 6.1
