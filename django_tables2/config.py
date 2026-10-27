@@ -51,7 +51,10 @@ class RequestConfig:
             for arg in ("page", "per_page"):
                 name = getattr(table, f"prefixed_{arg}_field")
                 try:
-                    kwargs[arg] = int(self.request.GET[name])
+                    value = int(self.request.GET[name])
+                    if arg == "per_page" and value <= 0:
+                        continue
+                    kwargs[arg] = value
                 except (ValueError, KeyError):
                     pass
 
