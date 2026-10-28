@@ -81,6 +81,41 @@ If your custom column produces HTML, you should override this method and return
 the actual value.
 
 
+Empty values and defaults
+-------------------------
+
+Defaults used to display empty HTML cells are not exported. For values in
+`.Column.empty_values` (by default, ``None`` and the empty string),
+`.Table.as_values()` returns ``None`` instead of the column or table default.
+For example::
+
+    class ContactTable(tables.Table):
+        name = tables.Column(default="Not available")
+
+    table = ContactTable([{"name": None}])
+    list(table.as_values())  # [["Name"], [None]]
+
+The HTML cell displays ``Not available``, while a CSV export contains an empty
+field. This keeps presentation placeholders, such as the default em dash, out
+of exported data.
+
+Empty values also skip ``value_FOO`` and ``Column.value()``. To supply an export
+replacement, disable that shortcut with ``empty_values=()`` and handle the
+empty values explicitly::
+
+    class ExportDefaultsTable(tables.Table):
+        name = tables.Column(empty_values=())
+
+        def value_name(self, value):
+            return "Not available" if value in (None, "") else value
+
+    table = ExportDefaultsTable([{"name": None}])
+    list(table.as_values())  # [["Name"], ["Not available"]]
+
+Disabling empty-value handling also affects HTML rendering. Define a
+``render_FOO`` method separately if you need an HTML replacement as well.
+
+
 Including and excluding columns
 -------------------------------
 
