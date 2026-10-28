@@ -475,6 +475,10 @@ class Table(metaclass=DeclarativeColumnsMetaclass):
         will have a value wrapped in `<span>` in the rendered HTML, and just returns
         the value when `as_values()` is called.
 
+        Empty values return ``None`` rather than the column or table default used
+        for HTML rendering. They also skip ``value_FOO`` and ``Column.value()``;
+        use ``empty_values=()`` to handle them in a custom value method.
+
         Note that any invisible columns will be part of the row iterator.
         """
         if exclude_columns is None:
