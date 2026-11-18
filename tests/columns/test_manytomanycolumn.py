@@ -198,3 +198,50 @@ class ManyToManyColumnTest(TestCase):
 
         table = Table(Person.objects.filter(first_name="Remi"))
         self.assertEqual(table.rows[0].get_cell("friends"), "--")
+
+    def test_empty_values_calls_custom_render_and_value(self):
+        """An explicit empty_values=() lets custom methods handle empty relations."""
+
+        class Table(tables.Table):
+            friends = tables.ManyToManyColumn(empty_values=(), default="unused")
+
+            def render_friends(self, value):
+                return "has friends" if value.exists() else "custom empty"
+
+            def value_friends(self, value):
+                return "export friends" if value.exists() else "export empty"
+
+        table = Table([self.remi])
+        self.assertEqual(table.rows[0].get_cell("friends"), "custom empty")
+        self.assertEqual(table.rows[0].get_cell_value("friends"), "export empty")
+        self.assertEqual(list(table.as_values()), [["Friends"], ["export empty"]])
+
+        self.remi.friends.add(Person.objects.exclude(pk=self.remi.pk).first())
+        self.assertEqual(table.rows[0].get_cell("friends"), "has friends")
+        self.assertEqual(table.rows[0].get_cell_value("friends"), "export friends")
+
+    def test_empty_values_calls_column_render_without_exists_query(self):
+        """Column subclasses can render empty relations without a preliminary query."""
+
+        class CustomColumn(tables.ManyToManyColumn):
+            empty_values = ()
+
+            def render(self, value):
+                return "custom column"
+
+        class Table(tables.Table):
+            friends = CustomColumn(default="unused")
+
+        row = Table([self.remi]).rows[0]
+        with self.assertNumQueries(0):
+            self.assertEqual(row.get_cell("friends"), "custom column")
+
+    def test_empty_values_default_renderer(self):
+        """Disabling empty-value handling also applies to the built-in renderer."""
+
+        class Table(tables.Table):
+            friends = tables.ManyToManyColumn(empty_values=(), default="unused")
+
+        row = Table([self.remi]).rows[0]
+        self.assertEqual(row.get_cell("friends"), "")
+        self.assertEqual(row.get_cell_value("friends"), "")
