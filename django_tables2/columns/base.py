@@ -336,6 +336,26 @@ class Column:
         """
         return self.verbose_name
 
+    @property
+    def header_value(self):
+        """
+        The value used for the column heading in exports.
+
+        By default this returns `~.Column.header`.
+
+        :returns: `unicode` or `None`
+
+        .. note::
+
+            This property typically is not accessed directly when a table is
+            rendered. Instead, `.BoundColumn.header_value` is accessed which
+            in turn accesses this property. This allows the header to fallback
+            to the column name (it is only available on a `.BoundColumn` object
+            hence accessing that first) when this property doesn't return something
+            useful.
+        """
+        return self.header
+
     def footer(self, bound_column, table):
         """Return the content of the footer, if specified."""
         footer_kwargs = {"column": self, "bound_column": bound_column, "table": table}
@@ -547,6 +567,14 @@ class BoundColumn:
             return column_header
         # fall back to automatic best guess
         return self.verbose_name
+
+    @property
+    def header_value(self):
+        """The contents of the header for this column in an export."""
+        column_header_value = self.column.header_value
+        if column_header_value:
+            return column_header_value
+        return self.header
 
     @property
     def footer(self):
