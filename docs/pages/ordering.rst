@@ -1,6 +1,33 @@
 Alternative column ordering
 ===========================
 
+.. _ordering-missing-values:
+
+Ordering missing values in list data
+-----------------------------------
+
+When using a list of dictionaries, set ``order_nulls_last=True`` to keep
+``None`` values and missing keys at the end of the table in both ascending
+and descending order::
+
+    class PersonTable(tables.Table):
+        name = tables.Column()
+
+        class Meta:
+            order_nulls_last = True
+
+The option can also be passed to the table constructor. Passing ``False``
+overrides a ``True`` setting in ``Meta``. By default, existing ordering
+behavior is preserved.
+
+This applies to each ordering accessor, including nested accessors. Other
+values, such as ``0``, ``False``, and empty strings, retain their normal
+ordering. QuerySet ordering is unaffected; use a custom ``order_FOO`` method
+with Django's ordering expressions to control null placement in a database.
+
+Ordering computed values
+------------------------
+
 When using QuerySet data, one might want to show a computed value which is not
 in the database. In this case, attempting to order the column will cause an
 exception::

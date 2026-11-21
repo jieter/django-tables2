@@ -1,6 +1,7 @@
 # Change log
 
 ## unreleased
+- Add an opt-in `order_nulls_last` table option to keep missing list values last in either sort direction (#529).
 - Restore the previous `table.context` after `{% render_table %}` instead of deleting it,
   fixing an `AttributeError` when the tag is used on the same table instance twice in the same rendering pass.
 - Add trove classifier for Django 6.1

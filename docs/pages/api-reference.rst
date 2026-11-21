@@ -240,6 +240,13 @@ API Reference
                 This functionality is also available via the ``orderable`` keyword
                 argument to a table's constructor.
 
+        order_nulls_last (bool): Place ``None`` and missing values last when ordering
+            list data, in both ascending and descending order. Defaults to ``False``.
+            Does not affect QuerySet ordering.
+
+            This functionality is also available via the ``order_nulls_last`` keyword
+            argument to a table's constructor. See :ref:`ordering-missing-values`.
+
         template_name (str): The name of template to use when rendering the table.
 
             .. note::
