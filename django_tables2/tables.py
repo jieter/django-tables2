@@ -148,6 +148,7 @@ class TableOptions:
         self.show_footer = getattr(options, "show_footer", True)
         self.sequence = getattr(options, "sequence", ())
         self.orderable = getattr(options, "orderable", True)
+        self.order_nulls_last = getattr(options, "order_nulls_last", False)
         self.model = getattr(options, "model", None)
         self.template_name = getattr(options, "template_name", DJANGO_TABLES2_TEMPLATE)
         self.localize = getattr(options, "localize", ())
@@ -159,7 +160,7 @@ class TableOptions:
             return
 
         checks = {
-            (bool,): ["show_header", "show_footer", "orderable"],
+            (bool,): ["show_header", "show_footer", "orderable", "order_nulls_last"],
             (int,): ["per_page"],
             (tuple, list, set): ["fields", "sequence", "exclude", "localize", "unlocalize"],
             (tuple, list, set, dict): ["linkify"],
@@ -194,6 +195,9 @@ class Table(metaclass=DeclarativeColumnsMetaclass):
             *descending* order, for example: `("name", "-age")` or `name,-age`.
 
         orderable (bool): Enable/disable column ordering on this table
+
+        order_nulls_last (bool): When ordering list data, place `None` and missing
+            values last in either direction. Defaults to `False`. Does not affect QuerySets.
 
         empty_text (str): Empty text to render when the table has no data.
             (default `.Table.Meta.empty_text`)
@@ -271,6 +275,7 @@ class Table(metaclass=DeclarativeColumnsMetaclass):
         show_header=None,
         show_footer=True,
         extra_columns=None,
+        order_nulls_last=None,
     ):
         super().__init__()
 
@@ -305,6 +310,9 @@ class Table(metaclass=DeclarativeColumnsMetaclass):
         self.row_attrs = AttributeDict(row_attrs or self._meta.row_attrs)
         self.empty_text = empty_text if empty_text is not None else self._meta.empty_text
         self.orderable = orderable
+        self.order_nulls_last = (
+            self._meta.order_nulls_last if order_nulls_last is None else order_nulls_last
+        )
         self.prefix = prefix
         self.order_by_field = order_by_field
         self.page_field = page_field

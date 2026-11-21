@@ -118,7 +118,7 @@ class TableListData(TableData):
             else:
                 accessors += bound_column.order_by
 
-        self.data.sort(key=OrderByTuple(accessors).key)
+        self.data.sort(key=OrderByTuple(accessors).get_key(nulls_last=self.table.order_nulls_last))
 
 
 class TableQuerysetData(TableData):

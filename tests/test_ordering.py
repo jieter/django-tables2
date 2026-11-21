@@ -37,6 +37,85 @@ class OrderedTable(UnorderedTable):
         order_by = "alpha"
 
 
+class NullsLastOrderingTest(TestCase):
+    class Table(tables.Table):
+        value = tables.Column()
+        rank = tables.Column()
+
+    def test_nulls_last_in_both_directions(self):
+        data = [{"value": None}, {"value": 2}, {}, {"value": -1}, {"value": 0}]
+        for order_by, values in [("value", [-1, 0, 2]), ("-value", [2, 0, -1])]:
+            with self.subTest(order_by=order_by):
+                table = self.Table(data, order_by=order_by, order_nulls_last=True)
+                self.assertEqual(
+                    [row.record.get("value") for row in table.rows], values + [None, None]
+                )
+                self.assertEqual([row.record for row in table.rows][-2:], [data[0], data[2]])
+
+    def test_meta_and_constructor_override(self):
+        class Table(self.Table):
+            class Meta:
+                order_by = "value"
+                order_nulls_last = True
+
+        data = [{"value": None}, {"value": 1}]
+        self.assertEqual(list(Table(data).data), [data[1], data[0]])
+        self.assertEqual(list(Table(data, order_nulls_last=False).data), data)
+
+    def test_default_ordering_is_unchanged(self):
+        data = [{"value": None}, {"value": 1}]
+        self.assertEqual(list(self.Table(data, order_by="value").data), data)
+        self.assertEqual(list(self.Table(data, order_by="-value").data), list(reversed(data)))
+
+    def test_secondary_ordering_with_nulls(self):
+        data = [
+            {"value": None, "rank": 1},
+            {"value": 2, "rank": None},
+            {"value": None, "rank": 3},
+            {"value": 2, "rank": 0},
+            {"value": 2, "rank": 4},
+        ]
+        table = self.Table(data, order_by=("-value", "-rank"), order_nulls_last=True)
+        self.assertEqual(list(table.data), [data[4], data[3], data[1], data[2], data[0]])
+
+    def test_nested_accessors_and_later_ordering(self):
+        class Table(tables.Table):
+            value = tables.Column(accessor="item__value")
+
+        data = [{"item": None}, {"item": {"value": 1}}, {"item": {}}]
+        table = Table(data, order_nulls_last=True)
+        table.order_by = "value"
+        self.assertEqual(list(table.data), [data[1], data[0], data[2]])
+        table.order_by = "-value"
+        self.assertEqual(list(table.data), [data[1], data[0], data[2]])
+
+    def test_false_values_are_not_null(self):
+        for value in [0, False, ""]:
+            with self.subTest(value=value):
+                data = [{"value": None}, {"value": value}]
+                for order_by in ["value", "-value"]:
+                    table = self.Table(data, order_by=order_by, order_nulls_last=True)
+                    self.assertEqual(list(table.data), [data[1], data[0]])
+
+    def test_queryset_ordering_is_unchanged(self):
+        class Table(tables.Table):
+            website = tables.Column()
+
+        Person.objects.create(first_name="Alice", website=None)
+        Person.objects.create(first_name="Bob", website="https://example.com/")
+        for order_by in ["website", "-website"]:
+            with self.subTest(order_by=order_by):
+                table = Table(Person.objects.all(), order_by=order_by, order_nulls_last=True)
+                self.assertEqual(list(table.data), list(Person.objects.order_by(order_by)))
+
+    def test_meta_option_type(self):
+        with self.assertRaisesRegex(TypeError, "order_nulls_last"):
+
+            class Table(self.Table):
+                class Meta:
+                    order_nulls_last = "yes"
+
+
 class OrderingTest(TestCase):
     def test_meta_ordering_list(self):
         class Table(UnorderedTable):

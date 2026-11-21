@@ -215,6 +215,10 @@ class OrderByTuple(tuple):
 
     @property
     def key(self):
+        return self.get_key()
+
+    def get_key(self, nulls_last=False):
+        """Return a sort key, optionally placing missing values last in either direction."""
         accessors = []
         reversing = []
         for order_by in self:
@@ -240,6 +244,8 @@ class OrderByTuple(tuple):
                     b = accessor.resolve(other.obj, quiet=True)
                     if a == b:
                         continue
+                    if nulls_last and (a is None or b is None):
+                        return b is None
                     if reverse:
                         a, b = b, a
                     # The rest of this should be refactored out into a util
